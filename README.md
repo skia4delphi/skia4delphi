@@ -545,7 +545,7 @@ The **assets/samples/rocket.json** file animation results in the output below:
 
 ## Firemonkey Adaptation
 
-It is possible to edit TBitmap (FMX.Graphics.TBitmap) using Skia's Canvas using the code below:
+It is possible to edit TBitmap (FMX.Graphics.TBitmap) with Skia's Canvas using the code below:
 
 ```pascal
 var
