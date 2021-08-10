@@ -1,4 +1,4 @@
-![logo](images/logo.png) 
+![logo](assets/logo.png) 
 
 # Build Skia
 
@@ -366,7 +366,7 @@ The instructions below are for compiling using **Windows** or **Linux** or **mac
    $ bin/gn gen shared/Android/Release --args='target_cpu="arm" target_os="android" is_official_build=true skia_use_system_expat=false skia_use_system_freetype2=false skia_use_system_harfbuzz=false skia_use_system_icu=false skia_use_system_libjpeg_turbo=false skia_use_system_libpng=false skia_use_system_libwebp=false skia_use_system_zlib=false ndk="/tmp/ndk"'
    ```
 
-   
+
 
    **Debug - Windows (Command Prompt)**
 
@@ -402,7 +402,7 @@ The instructions below are for compiling using **Windows** or **Linux** or **mac
    $ ninja -C shared/Android/Release sk4d
    ```
 
-   
+
 
    **Debug - Windows**
 
@@ -442,7 +442,7 @@ The instructions below are for compiling using **Windows** or **Linux** or **mac
    $ bin/gn gen shared/Android64/Release --args='target_cpu="arm64" target_os="android" is_official_build=true skia_use_system_expat=false skia_use_system_freetype2=false skia_use_system_harfbuzz=false skia_use_system_icu=false skia_use_system_libjpeg_turbo=false skia_use_system_libpng=false skia_use_system_libwebp=false skia_use_system_zlib=false ndk="/tmp/ndk"'
    ```
 
-   
+
 
    **Debug - Windows (Command Prompt)**
 
@@ -478,7 +478,7 @@ The instructions below are for compiling using **Windows** or **Linux** or **mac
    $ ninja -C shared/Android64/Release sk4d
    ```
 
-   
+
 
    **Debug - Windows**
 

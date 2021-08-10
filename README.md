@@ -22,7 +22,7 @@ Skia is a great open source library for drawing 2D Text, Geometries, Images, foc
 * [Documentation](#documentation)
 * [Basic Usage](#basic-usage)
 * [Text Shaping](#text-shaping)
-* [PDF/SVG](#pdf-svg)
+* [PDF/SVG](#pdfsvg)
 * [Skottie (Lottie Animation Player)](#skottie-lottie-animation-player)
 * [Firemonkey Adaptation](#firemonkey-adaptation)
 * [Stream Adaptation](#stream-adaptation)
