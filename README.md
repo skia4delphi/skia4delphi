@@ -328,7 +328,7 @@ begin
   LIntervals := [10, 5, 2, 5];
   LDashPathEffect := TSKPathEffect.MakeDash(LIntervals, 0);
   LDiscretePathEffect := TSKPathEffect.MakeDiscrete(10, 4);
-    LPaint := TSKPaint.Create;
+  LPaint := TSKPaint.Create;
   LPaint.PathEffect := TSKPathEffect.MakeCompose(LDashPathEffect, LDiscretePathEffect);
   LPaint.Style := TSKPaintStyle.Stroke;
   LPaint.StrokeWidth := 2;
@@ -378,7 +378,7 @@ begin
   LIntervals := [10, 5, 2, 5];
   LDashPathEffect1 := TSKPathEffect.MakeDiscrete(10, 4);
   LDashPathEffect2 := TSKPathEffect.MakeDiscrete(10, 4, 1245);
-    LPaint := TSKPaint.Create;
+  LPaint := TSKPaint.Create;
   LPaint.PathEffect := TSKPathEffect.MakeSum(LDashPathEffect1, LDashPathEffect2);
   LPaint.Style := TSKPaintStyle.Stroke;
   LPaint.StrokeWidth := 2;
