@@ -1,0 +1,3 @@
+{$IF (NOT defined(IOS)) and (NOT defined(SK_DYNAMIC_LINKING))}
+  {$DEFINE SK_DYNAMIC_LOADING}
+{$ENDIF}

@@ -1,0 +1,4 @@
+[submodule "externals/skia"]
+	path = externals/skia
+	url = https://github.com/viniciusfbb/skia.git
+	branch = master
