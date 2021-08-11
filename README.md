@@ -34,7 +34,7 @@ Skia is a great open source library for drawing 2D Text, Geometries, Images, foc
 
 ## Library Linking
 
-The library is static on iOS, and shared on other platforms. By default the shared library is loaded at run-time, however you can link it at compile-time by defining **SK_DYNAMIC_LINKING** and adding the library binary directory to the project's library path. You can [build the skia binaries yourself](./BUILD.md), or use the already [compiled binaries we provide](./tags).
+The library is static on iOS, and shared on other platforms. By default the shared library is loaded at run-time, however you can link it at compile-time by defining **SK_DYNAMIC_LINKING** and adding the library binary directory to the project's library path. You can [build the skia binaries yourself](./BUILD.md), or use the already [compiled binaries we provide](https://github.com/viniciusfbb/skia4delphi/tags).
 
 ### Windows/Linux
 
