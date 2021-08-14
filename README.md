@@ -16,7 +16,7 @@ Skia is a great open source library for drawing 2D Text, Geometries, Images, foc
 
 
 
-## Links
+## Summary
 
 * [Library Linking](#library-linking)
 * [Documentation](#documentation)
@@ -34,28 +34,30 @@ Skia is a great open source library for drawing 2D Text, Geometries, Images, foc
 
 ## Library Linking
 
-The library is static on iOS, and shared on other platforms. By default the shared library is loaded at run-time, however you can link it at compile-time by defining **SK_DYNAMIC_LINKING** and adding the library binary directory to the project's library path. You can [build the skia binaries yourself](./BUILD.md), or use the already [compiled binaries we provide](https://github.com/viniciusfbb/skia4delphi/tags).
+The library is static on iOS, and shared on other platforms. By default the shared library is loaded at run-time, however you can link it at compile-time by defining **SK_DYNAMIC_LINKING** and adding the library binary directory to the project's library path. You can [build the skia binaries yourself](./BUILD.md), or you can use the pre-built binaries in ``static\`` and ``shared\`` folders.
 
-### Windows/Linux
+### Windows
 
-Copy the **.dll** or **.so** file to the same application folder or any folder that is listed in the PATH environment variable.
+Copy the **sk4d.dll** and **icudtl.dat** files, in folder ``shared\Win32`` or ``shared\Win64`` to the same application folder or any folder that is listed in the PATH environment variable.
+
+### Linux
+
+Copy the **sk4d.so** file, in folder ``shared\Linux64`` to the same application folder or any folder that is listed in the PATH environment variable.
 
 ### iOS
 
 1. Choose from the main menu: **Project > Options...**;
 2. Access **Building > Delphi Compiler**;
 3. Select **All configurations - iOS Device 64-bit platform**;
-4. Add **.\static\iOSDevice64** path to **Search Path**;
-5. Now access **Building > Delphi Compiler > Linking**;
-6. Add **-lc++** flag to **Options passed to the LD linker**;
-7. Click **Save**.
+4. Add ``.\static\iOSDevice64`` path to **Search Path**;
+5. Click **Save**.
 
 ### macOS
 
 1. Choose from the main menu: **Project > Deployment**;
 2. Select **Debug configuration - macOS 64-bit platform**;
-3. Click **Add Files** and select **shared\OSX64\sk4d.dylib**;
-4. Change the **Remote Path** column to **Contents\MacOS\\**;
+3. Click **Add Files** and select ``shared\OSX64\sk4d.dylib``;
+4. Change the **Remote Path** column to ``Contents\MacOS\``;
 5. Repeat numbers 2, 3 and 4, this time selecting the <u>release</u> configuration;
 6. Close Deployment.
 
@@ -63,12 +65,12 @@ Copy the **.dll** or **.so** file to the same application folder or any folder t
 
 1. Choose from the main menu: **Project > Deployment**;
 2. Select **Debug configuration - Android 32-bit platform**;
-3. Click **Add Files** and select **shared\Android\sk4d.so**;
-4. Change the **Remote Path** column to **library\lib\armeabi-v7a\\**;
+3. Click **Add Files** and select ``shared\Android\sk4d.so``;
+4. Change the **Remote Path** column to ``library\lib\armeabi-v7a\``;
 5. Repeat numbers 2, 3 and 4, this time selecting the <u>release</u> configuration;
 6. Now select **Debug configuration - Android 64-bit platform**;
-7. Click **Add Files** and select **shared\Android64\sk4d.so**;
-8. Change the **Remote Path** column to **library\lib\arm64-v8a\\**;
+7. Click **Add Files** and select ``shared\Android64\sk4d.so``;
+8. Change the **Remote Path** column to ``library\lib\arm64-v8a\``;
 9. Repeat numbers 6, 7 and 8, this time selecting the <u>release</u> configuration;
 10. Close Deployment.
 
@@ -497,7 +499,7 @@ var
   LSize: TSizeF;
   LSVGStream: ISKStream;
 begin
-  LSVGStream := TSKFileStream.Create('assets/samples/porsche.svg');
+  LSVGStream := TSKFileStream.Create('assets/samples/gorilla.svg');
   LDOM := TSKSVGDOM.Make(LSVGStream);
   LSize := LDOM.Root.GetIntrinsicSize(TSizeF.Create(0, 0));
 
@@ -516,9 +518,9 @@ begin
 end;
 ```
 
-The **assets/samples/porsche.svg** file animation results in the output below:
+The **assets/samples/gorilla.svg** file animation results in the output below:
 
-<img src="assets/samples/porsche.svg" width=200 height=111>
+<img src="assets/samples/gorilla.svg" width=200 height=111>
 
 
 
@@ -610,7 +612,7 @@ The **TSkiaObject.DebugMessageProc** global property defines the procedure that 
 
 ## Version
 
-**Skia4Delphi Version 1.0**
+**Skia4Delphi Version 1.1**
 
-Skia Version used: [canvaskit/0.28.1](https://github.com/google/skia/releases/tag/canvaskit%2F0.28.1)
-What has changed from the original code? [Compare.](https://github.com/google/skia/compare/canvaskit/0.28.1...viniciusfbb:main)
+Skia Version used: [canvaskit/0.29.0](https://github.com/google/skia/releases/tag/canvaskit%2F0.29.0)
+What has changed from the original code? [Compare.](https://github.com/google/skia/compare/canvaskit/0.29.0...viniciusfbb:main)

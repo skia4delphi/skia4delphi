@@ -16,7 +16,7 @@ unit sk4d;
 
 interface
 
-{$INCLUDE sk4d.inc}
+{$I sk4d.inc}
 
 {$REGION 'C types'}
 type
@@ -707,7 +707,7 @@ type
 
   sk_data_release_proc           = procedure (const data: Pointer; context: Pointer); cdecl;
   sk_debug_msg_proc              = procedure (const msg: MarshaledAString); cdecl;
-  sk_font_glyph_path_proc        = procedure (const path: sk_path_t; const [Ref] matrix: sk_matrix_t; context: Pointer); cdecl;
+  sk_font_glyph_path_proc        = procedure (const path: sk_path_t; const matrix: psk_matrix_t; context: Pointer); cdecl;
   sk_image_raster_release_proc   = procedure (const pixels: Pointer; context: Pointer); cdecl;
   sk_image_texture_release_proc  = procedure (context: Pointer); cdecl;
   sk_surface_raster_release_proc = procedure (pixels, context: Pointer); cdecl;
@@ -767,6 +767,7 @@ type
   gr_mtl_backendcontext_t = record
     device: gr_mtl_handle_t;
     queue: gr_mtl_handle_t;
+    binary_archive: gr_mtl_handle_t;
   end;
   pgr_mtl_backendcontext_t = ^gr_mtl_backendcontext_t;
 {$ENDREGION}
@@ -775,8 +776,8 @@ type
 {$IFDEF SK_DYNAMIC_LOADING}
 var
 {$ENDIF}
-{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}gr4d_backendrendertarget_create_gl              {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(width, height, sample_count, stencil_bits: int32_t; const [Ref] framebuffer_info: gr_gl_framebufferinfo_t): gr_backendrendertarget_t; cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}gr4d_backendrendertarget_create_mtl             {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(width, height: int32_t; const [Ref] texture_info: gr_mtl_textureinfo_t): gr_backendrendertarget_t; cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}gr4d_backendrendertarget_create_gl              {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(width, height, sample_count, stencil_bits: int32_t; const framebuffer_info: pgr_gl_framebufferinfo_t): gr_backendrendertarget_t; cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}gr4d_backendrendertarget_create_mtl             {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(width, height: int32_t; const texture_info: pgr_mtl_textureinfo_t): gr_backendrendertarget_t; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}gr4d_backendrendertarget_destroy                {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: gr_backendrendertarget_t); cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}gr4d_backendrendertarget_get_backend_api        {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: gr_backendrendertarget_t): gr_backendapi_t; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}gr4d_backendrendertarget_get_gl_framebuffer_info{$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: gr_backendrendertarget_t; var framebuffer_info: gr_gl_framebufferinfo_t): bool; cdecl;
@@ -785,8 +786,8 @@ var
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}gr4d_backendrendertarget_get_stencil_bits       {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: gr_backendrendertarget_t): int32_t; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}gr4d_backendrendertarget_get_width              {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: gr_backendrendertarget_t): int32_t; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}gr4d_backendrendertarget_is_valid               {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: gr_backendrendertarget_t): bool; cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}gr4d_backendtexture_create_gl                   {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(width, height: int32_t; mipmapped: bool; const [Ref] texture_info: gr_gl_textureinfo_t): gr_backendtexture_t; cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}gr4d_backendtexture_create_mtl                  {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(width, height: int32_t; mipmapped: bool; const [Ref] texture_info: gr_mtl_textureinfo_t): gr_backendtexture_t; cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}gr4d_backendtexture_create_gl                   {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(width, height: int32_t; mipmapped: bool; const texture_info: pgr_gl_textureinfo_t): gr_backendtexture_t; cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}gr4d_backendtexture_create_mtl                  {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(width, height: int32_t; mipmapped: bool; const texture_info: pgr_mtl_textureinfo_t): gr_backendtexture_t; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}gr4d_backendtexture_destroy                     {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: gr_backendtexture_t); cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}gr4d_backendtexture_get_backend_api             {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: gr_backendtexture_t): gr_backendapi_t; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}gr4d_backendtexture_get_gl_texture_info         {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: gr_backendtexture_t; var texture_info: gr_gl_textureinfo_t): bool; cdecl;
@@ -807,8 +808,8 @@ var
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}gr4d_directcontext_get_max_surface_sample_count_for_color_type{$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: gr_directcontext_t; color_type: sk_colortype_t): int32_t; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}gr4d_directcontext_get_resource_cache_limit                   {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: gr_directcontext_t): size_t; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}gr4d_directcontext_get_resource_cache_usage                   {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(const self: gr_directcontext_t; var max_resources: int32_t; var max_resources_bytes: size_t); cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}gr4d_directcontext_make_gl                                    {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const &interface: gr_gl_interface_t): gr_directcontext_t; cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}gr4d_directcontext_make_metal                                 {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const [Ref] backend_context: gr_mtl_backendcontext_t): gr_directcontext_t; cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}gr4d_directcontext_make_gl                                    {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const gl_interface: gr_gl_interface_t): gr_directcontext_t; cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}gr4d_directcontext_make_metal                                 {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const backend_context: pgr_mtl_backendcontext_t): gr_directcontext_t; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}gr4d_directcontext_perform_deferred_cleanup                   {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: gr_directcontext_t; milliseconds: int64_t); cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}gr4d_directcontext_purge_unlocked_resources                   {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: gr_directcontext_t; scratch_resources_only: bool); cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}gr4d_directcontext_purge_unlocked_resources2                  {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: gr_directcontext_t; bytes_to_purge: size_t; prefer_scratch_resources: bool); cdecl;
@@ -834,46 +835,46 @@ var
 var
 {$ENDIF}
 {$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_canvas_clear                        {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t; color: sk_color_t); cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_canvas_clear2                       {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t; const [Ref] color: sk_color4f_t); cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_canvas_clear2                       {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t; const color: psk_color4f_t); cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_canvas_destroy                      {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t); cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_canvas_discard                      {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t); cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_canvas_clip_path                    {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t; const path: sk_path_t; op: sk_clipop_t; do_anti_alias: bool); cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_canvas_clip_rect                    {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t; const [Ref] rect: sk_rect_t; op: sk_clipop_t; do_anti_alias: bool); cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_canvas_clip_rect                    {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t; const rect: psk_rect_t; op: sk_clipop_t; do_anti_alias: bool); cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_canvas_clip_region                  {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t; const region: sk_region_t; op: sk_clipop_t); cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_canvas_clip_rrect                   {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t; const rrect: sk_rrect_t; op: sk_clipop_t; do_anti_alias: bool); cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_canvas_clip_shader                  {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t; shader: sk_shader_t; op: sk_clipop_t); cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_canvas_concat                       {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t; const [Ref] matrix: sk_matrix44_t); cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_canvas_concat2                      {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t; const [Ref] matrix: sk_matrix_t); cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_canvas_draw_annotation              {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t; const [Ref] rect: sk_rect_t; const key: MarshaledAString; value: sk_data_t); cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_canvas_draw_arc                     {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t; const [Ref] oval: sk_rect_t; start_angle, sweep_angle: float; use_center: bool; const paint: sk_paint_t); cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_canvas_draw_atlas                   {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t; const atlas: sk_image_t; const transforms: psk_rotationscalematrix_t; const sprites: psk_rect_t; const colors: psk_color_t; count: int32_t; blend_mode: sk_blendmode_t; const [Ref] sampling: sk_samplingoptions_t; const cull_rect: psk_rect_t; const paint: sk_paint_t); cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_canvas_draw_circle                  {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t; const [Ref] center: sk_point_t; radius: float; const paint: sk_paint_t); cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_canvas_concat                       {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t; const matrix: psk_matrix44_t); cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_canvas_concat2                      {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t; const matrix: psk_matrix_t); cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_canvas_draw_annotation              {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t; const rect: psk_rect_t; const key: MarshaledAString; value: sk_data_t); cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_canvas_draw_arc                     {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t; const oval: psk_rect_t; start_angle, sweep_angle: float; use_center: bool; const paint: sk_paint_t); cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_canvas_draw_atlas                   {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t; const atlas: sk_image_t; const transforms: psk_rotationscalematrix_t; const sprites: psk_rect_t; const colors: psk_color_t; count: int32_t; blend_mode: sk_blendmode_t; const sampling: psk_samplingoptions_t; const cull_rect: psk_rect_t; const paint: sk_paint_t); cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_canvas_draw_circle                  {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t; const center: psk_point_t; radius: float; const paint: sk_paint_t); cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_canvas_draw_color                   {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t; color: sk_color_t; blend_mode: sk_blendmode_t); cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_canvas_draw_color2                  {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t; const [Ref] color: sk_color4f_t; blend_mode: sk_blendmode_t); cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_canvas_draw_glyphs                  {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t; count: int32_t; const glyphs: psk_glyphid_t; const positions: psk_point_t; const [Ref] origin: sk_point_t; const font: sk_font_t; const paint: sk_paint_t); cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_canvas_draw_glyphs2                 {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t; count: int32_t; const glyphs: psk_glyphid_t; const positions: psk_rotationscalematrix_t; const [Ref] origin: sk_point_t; const font: sk_font_t; const paint: sk_paint_t); cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_canvas_draw_image                   {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t; const image: sk_image_t; x, y: float; const [Ref] sampling: sk_samplingoptions_t; const paint: sk_paint_t); cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_canvas_draw_image_lattice           {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t; const image: sk_image_t; const [Ref] lattice: sk_lattice_t; const [Ref] dest: sk_rect_t; filter_mode: sk_filtermode_t; const paint: sk_paint_t); cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_canvas_draw_image_nine              {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t; const image: sk_image_t; const [Ref] center: sk_irect_t; const [Ref] dest: sk_rect_t; filter_mode: sk_filtermode_t; const paint: sk_paint_t); cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_canvas_draw_image_rect              {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t; const image: sk_image_t; const [Ref] src, dest: sk_rect_t; const [Ref] sampling: sk_samplingoptions_t; const paint: sk_paint_t; constraint: sk_srcrectconstraint_t); cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_canvas_draw_line                    {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t; const [Ref] point1, point2: sk_point_t; paint: sk_paint_t); cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_canvas_draw_oval                    {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t; const [Ref] oval: sk_rect_t; const paint: sk_paint_t); cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_canvas_draw_color2                  {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t; const color: psk_color4f_t; blend_mode: sk_blendmode_t); cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_canvas_draw_glyphs                  {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t; count: int32_t; const glyphs: psk_glyphid_t; const positions, origin: psk_point_t; const font: sk_font_t; const paint: sk_paint_t); cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_canvas_draw_glyphs2                 {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t; count: int32_t; const glyphs: psk_glyphid_t; const positions: psk_rotationscalematrix_t; const origin: psk_point_t; const font: sk_font_t; const paint: sk_paint_t); cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_canvas_draw_image                   {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t; const image: sk_image_t; x, y: float; const sampling: psk_samplingoptions_t; const paint: sk_paint_t); cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_canvas_draw_image_lattice           {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t; const image: sk_image_t; const lattice: psk_lattice_t; const dest: psk_rect_t; filter_mode: sk_filtermode_t; const paint: sk_paint_t); cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_canvas_draw_image_nine              {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t; const image: sk_image_t; const center: psk_irect_t; const dest: psk_rect_t; filter_mode: sk_filtermode_t; const paint: sk_paint_t); cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_canvas_draw_image_rect              {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t; const image: sk_image_t; const src, dest: psk_rect_t; const sampling: psk_samplingoptions_t; const paint: sk_paint_t; constraint: sk_srcrectconstraint_t); cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_canvas_draw_line                    {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t; const point1, point2: psk_point_t; paint: sk_paint_t); cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_canvas_draw_oval                    {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t; const oval: psk_rect_t; const paint: sk_paint_t); cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_canvas_draw_paint                   {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t; const paint: sk_paint_t); cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_canvas_draw_patch                   {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t; const cubics: psk_point_t; const colors: psk_color_t; const tex_coords: psk_point_t; blend_mode: sk_blendmode_t; const paint: sk_paint_t); cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_canvas_draw_path                    {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t; const path: sk_path_t; const paint: sk_paint_t); cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_canvas_draw_picture                 {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t; const picture: sk_picture_t); cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_canvas_draw_picture2                {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t; const picture: sk_picture_t; const matrix: psk_matrix_t; const paint: sk_paint_t); cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_canvas_draw_point                   {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t; const [Ref] point: sk_point_t; const paint: sk_paint_t); cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_canvas_draw_point                   {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t; const point: psk_point_t; const paint: sk_paint_t); cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_canvas_draw_points                  {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t; mode: sk_drawpointsmode_t; count: size_t; const points: psk_point_t; const paint: sk_paint_t); cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_canvas_draw_rect                    {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t; const [Ref] rect: sk_rect_t; const paint: sk_paint_t); cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_canvas_draw_rect                    {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t; const rect: psk_rect_t; const paint: sk_paint_t); cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_canvas_draw_region                  {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t; const region: sk_region_t; const paint: sk_paint_t); cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_canvas_draw_rrect                   {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t; const rrect: sk_rrect_t; const paint: sk_paint_t); cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_canvas_draw_rrect2                  {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t; const [Ref] rect: sk_rect_t; radius_x, radius_y: float; const paint: sk_paint_t); cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_canvas_draw_rrect2                  {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t; const rect: psk_rect_t; radius_x, radius_y: float; const paint: sk_paint_t); cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_canvas_draw_rrect_difference        {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t; const outer, inner: sk_rrect_t; const paint: sk_paint_t); cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_canvas_draw_simple_text             {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t; const text: Pointer; size: size_t; encoding: sk_textencoding_t; x, y: float; const font: sk_font_t; const paint: sk_paint_t); cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_canvas_draw_text_blob               {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t; const text_blob: sk_textblob_t; x, y: float; const paint: sk_paint_t); cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_canvas_draw_vertices                {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t; const vertices: sk_vertices_t; blend_mode: sk_blendmode_t; const paint: sk_paint_t); cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_canvas_find_marked_ctm              {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_canvas_t; const name: MarshaledAString; out matrix: sk_matrix44_t): bool; cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_canvas_find_marked_ctm              {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_canvas_t; const name: MarshaledAString; var matrix: sk_matrix44_t): bool; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_canvas_get_device_clip_bounds       {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(const self: sk_canvas_t; var result: sk_irect_t); cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_canvas_get_local_clip_bounds        {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(const self: sk_canvas_t; var result: sk_rect_t); cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_canvas_get_local_to_device          {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(const self: sk_canvas_t; var result: sk_matrix44_t); cdecl;
@@ -882,7 +883,7 @@ var
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_canvas_is_clip_empty                {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_canvas_t): bool; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_canvas_is_clip_rect                 {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_canvas_t): bool; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_canvas_mark_ctm                     {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t; const name: MarshaledAString); cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_canvas_quick_reject                 {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_canvas_t; const [Ref] rect: sk_rect_t): bool; cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_canvas_quick_reject                 {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_canvas_t; const rect: psk_rect_t): bool; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_canvas_quick_reject2                {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_canvas_t; const path: sk_path_t): bool; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_canvas_reset_matrix                 {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t); cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_canvas_restore                      {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t); cdecl;
@@ -893,8 +894,8 @@ var
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_canvas_save_layer                   {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(self: sk_canvas_t; const rect: psk_rect_t; const paint: sk_paint_t): int32_t; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_canvas_save_layer_alpha             {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(self: sk_canvas_t; const rect: psk_rect_t; alpha: uint8_t): int32_t; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_canvas_scale                        {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t; sx, sy: float); cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_canvas_set_matrix                   {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t; const [Ref] matrix: sk_matrix44_t); cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_canvas_set_matrix2                  {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t; const [Ref] matrix: sk_matrix_t); cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_canvas_set_matrix                   {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t; const matrixmatrix: psk_matrix44_t); cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_canvas_set_matrix2                  {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t; const matrix: psk_matrix_t); cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_canvas_skew                         {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t; kx, ky: float); cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_canvas_translate                    {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t; dx, dy: float); cdecl;
 {$ENDREGION}
@@ -903,10 +904,9 @@ var
 {$IFDEF SK_DYNAMIC_LOADING}
 var
 {$ENDIF}
-{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_codec_destroy       {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_codec_t); cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_codec_get_info      {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(const self: sk_codec_t; out result: sk_imageinfo_t); cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_codec_get_pixels    {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(self: sk_codec_t; const dest: sk_pixmap_t): bool; cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_codec_make_from_data{$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(data: sk_data_t): sk_codec_t; cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_codec_decode  {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(src: sk_data_t; const dest: sk_pixmap_t): bool; cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_codec_encode  {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const src: sk_pixmap_t; dest: sk_wstream_t; format: sk_encodedimageformat_t; quality: int32_t): bool; cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_codec_get_info{$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(src: sk_data_t; out image_info: sk_imageinfo_t): bool; cdecl;
 {$ENDREGION}
 
 {$REGION 'include/c/sk4d_colorfilter.h'}
@@ -915,7 +915,7 @@ var
 {$ENDIF}
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_colorfilter_make_blend               {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(color: sk_color_t; mode: sk_blendmode_t): sk_colorfilter_t; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_colorfilter_make_compose             {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(outer, inner: sk_colorfilter_t): sk_colorfilter_t; cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_colorfilter_make_high_contrast       {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const [Ref] config: sk_highcontrastconfig_t): sk_colorfilter_t; cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_colorfilter_make_high_contrast       {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const config: psk_highcontrastconfig_t): sk_colorfilter_t; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_colorfilter_make_hsla_matrix         {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const matrix: pfloat): sk_colorfilter_t; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_colorfilter_make_lerp                {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(weight: float; dest, src: sk_colorfilter_t): sk_colorfilter_t; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_colorfilter_make_lighting            {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(multiply, add: sk_color_t): sk_colorfilter_t; cdecl;
@@ -940,10 +940,10 @@ var
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_colorspace_is_equal                {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self, color_space: sk_colorspace_t): bool; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_colorspace_is_numerical_transfer_fn{$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_colorspace_t; var transfer_fn: sk_colorspacetransferfn_t): bool; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_colorspace_is_srgb                 {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_colorspace_t): bool; cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_colorspace_make                    {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const [Ref] profile: sk_colorspaceiccprofile_t): sk_colorspace_t; cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_colorspace_make                    {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const profile: psk_colorspaceiccprofile_t): sk_colorspace_t; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_colorspace_make_color_spin         {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_colorspace_t): sk_colorspace_t; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_colorspace_make_linear_gamma       {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_colorspace_t): sk_colorspace_t; cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_colorspace_make_rgb                {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const [Ref] ctransfer_function: sk_colorspacetransferfn_t; const [Ref] cto_xyz_d50: sk_colorspacematrix33_t): sk_colorspace_t; cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_colorspace_make_rgb                {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const ctransfer_function: psk_colorspacetransferfn_t; const cto_xyz_d50: psk_colorspacematrix33_t): sk_colorspace_t; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_colorspace_make_srgb               {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(): sk_colorspace_t; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_colorspace_make_srgb_gamma         {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_colorspace_t): sk_colorspace_t; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_colorspace_make_srgb_linear        {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(): sk_colorspace_t; cdecl;
@@ -955,7 +955,7 @@ var
 {$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_colorspacematrix33_rec_2020        {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(var result: sk_colorspacematrix33_t); cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_colorspacematrix33_srgb_gamut      {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(var result: sk_colorspacematrix33_t); cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_colorspacematrix33_xyz             {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(var result: sk_colorspacematrix33_t); cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_colorspaceprimaries_get_to_xyz_d50 {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const [Ref] self: sk_colorspaceprimaries_t; var dest: sk_colorspacematrix33_t): bool; cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_colorspaceprimaries_get_to_xyz_d50 {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: psk_colorspaceprimaries_t; var dest: sk_colorspacematrix33_t): bool; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_colorspacetransferfn_hlg           {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(var result: sk_colorspacetransferfn_t); cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_colorspacetransferfn_linear        {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(var result: sk_colorspacetransferfn_t); cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_colorspacetransferfn_pq            {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(var result: sk_colorspacetransferfn_t); cdecl;
@@ -979,7 +979,7 @@ var
 {$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_data_unref             {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(const self: sk_data_t); cdecl;
 {$ENDREGION}
 
-{$REGION 'include/c/sk4d_debug.h'}
+{$REGION 'include/c/sk4d_debugf.h'}
 {$IFDEF SK_DYNAMIC_LOADING}
 var
 {$ENDIF}
@@ -994,7 +994,7 @@ var
 {$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_document_close     {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_document_t); cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_document_end_page  {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_document_t); cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_document_make_pdf  {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(w_stream: sk_wstream_t): sk_document_t; cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_document_make_pdf2 {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(w_stream: sk_wstream_t; const [Ref] metadata: sk_pdfmetadata_t): sk_document_t; cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_document_make_pdf2 {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(w_stream: sk_wstream_t; const metadata: psk_pdfmetadata_t): sk_document_t; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_document_terminate {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_document_t); cdecl;
 {$ENDREGION}
 
@@ -1019,7 +1019,7 @@ var
 {$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_font_get_offsets            {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(const self: sk_font_t; const glyphs: psk_glyphid_t; count: int32_t; result: pfloat; origin: float); cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_font_get_path               {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_font_t; glyph: sk_glyphid_t; result: sk_path_t): bool; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_font_get_paths              {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(const self: sk_font_t; const glyphs: psk_glyphid_t; count: int32_t; proc: sk_font_glyph_path_proc; proc_context: Pointer); cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_font_get_positions          {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(const self: sk_font_t; const glyphs: psk_glyphid_t; count: int32_t; result: psk_point_t; const [Ref] origin: sk_point_t); cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_font_get_positions          {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(const self: sk_font_t; const glyphs: psk_glyphid_t; count: int32_t; result: psk_point_t; const origin: psk_point_t); cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_font_get_scale_x            {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_font_t): float; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_font_get_size               {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_font_t): float; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_font_get_skew_x             {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_font_t): float; cdecl;
@@ -1073,10 +1073,10 @@ var
 {$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_graphics_purge_all_caches                               {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(); cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_graphics_purge_font_cache                               {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(); cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_graphics_purge_resource_cache                           {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(); cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_graphics_set_font_cache_count_limit                     {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(value: int32_t); cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_graphics_set_font_cache_limit                           {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(value: size_t); cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_graphics_set_resource_cache_single_allocation_byte_limit{$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(value: size_t); cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_graphics_set_resource_cache_total_byte_limit            {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(value: size_t); cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_graphics_set_font_cache_count_limit                     {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(value: int32_t): int32_t; cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_graphics_set_font_cache_limit                           {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(value: size_t): size_t; cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_graphics_set_resource_cache_single_allocation_byte_limit{$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(value: size_t): size_t; cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_graphics_set_resource_cache_total_byte_limit            {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(value: size_t): size_t; cdecl;
 {$ENDREGION}
 
 {$REGION 'include/c/sk4d_image.h'}
@@ -1099,19 +1099,19 @@ var
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_image_make_colorspace          {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_image_t; colorspace: sk_colorspace_t; context: gr_directcontext_t): sk_image_t; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_image_make_from_adopted_texture{$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(context: gr_directcontext_t; const texture: gr_backendtexture_t; origin: gr_surfaceorigin_t; color_type: sk_colortype_t; alpha_type: sk_alphatype_t; color_space: sk_colorspace_t): sk_image_t; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_image_make_from_encoded_data   {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(encoded: sk_data_t): sk_image_t; cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_image_make_from_picture        {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(picture: sk_picture_t; const [Ref] dimensions: sk_isize_t): sk_image_t; cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_image_make_from_picture2       {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(picture: sk_picture_t; const [Ref] dimensions: sk_isize_t; const matrix: psk_matrix_t; const paint: sk_paint_t): sk_image_t; cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_image_make_from_picture        {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(picture: sk_picture_t; const dimensions: psk_isize_t): sk_image_t; cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_image_make_from_picture2       {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(picture: sk_picture_t; const dimensions: psk_isize_t; const matrix: psk_matrix_t; const paint: sk_paint_t): sk_image_t; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_image_make_from_raster         {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const pixmap: sk_pixmap_t; proc: sk_image_raster_release_proc; proc_context: Pointer): sk_image_t; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_image_make_from_texture        {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(context: gr_directcontext_t; const texture: gr_backendtexture_t; origin: gr_surfaceorigin_t; color_type: sk_colortype_t; alpha_type: sk_alphatype_t; color_space: sk_colorspace_t; proc: sk_image_texture_release_proc; proc_context: Pointer): sk_image_t; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_image_make_non_texture_image   {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_image_t): sk_image_t; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_image_make_raster_copy         {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const pixmap: sk_pixmap_t): sk_image_t; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_image_make_raster_image        {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_image_t): sk_image_t; cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_image_make_shader              {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_image_t; tile_mode_x, tile_mode_y: sk_tilemode_t; const [Ref] sampling: sk_samplingoptions_t): sk_shader_t; cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_image_make_subset              {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_image_t; const [Ref] subset: sk_irect_t; context: gr_directcontext_t): sk_image_t; cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_image_make_shader              {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_image_t; tile_mode_x, tile_mode_y: sk_tilemode_t; const sampling: psk_samplingoptions_t): sk_shader_t; cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_image_make_subset              {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_image_t; const subset: psk_irect_t; context: gr_directcontext_t): sk_image_t; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_image_make_texture_image       {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_image_t; context: gr_directcontext_t; mipmapped: bool): sk_image_t; cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_image_make_with_filter         {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_image_t; context: gr_directcontext_t; const filter: sk_imagefilter_t; const [Ref] subset: sk_irect_t; const [Ref] clip_bounds: sk_irect_t; var out_subset: sk_irect_t; var offset: sk_ipoint_t): sk_image_t; cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_image_make_with_filter         {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_image_t; context: gr_directcontext_t; const filter: sk_imagefilter_t; const subset, clip_bounds: psk_irect_t; var out_subset: sk_irect_t; var offset: sk_ipoint_t): sk_image_t; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_image_read_pixels              {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_image_t; context: gr_directcontext_t; const dest: sk_pixmap_t; src_x, src_y: int32_t; caching_hint: sk_imagecachinghint_t): bool; cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_image_scale_pixels             {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_image_t; const dest: sk_pixmap_t; const [Ref] sampling: sk_samplingoptions_t; caching_hint: sk_imagecachinghint_t): bool; cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_image_scale_pixels             {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_image_t; const dest: sk_pixmap_t; const sampling: psk_samplingoptions_t; caching_hint: sk_imagecachinghint_t): bool; cdecl;
 {$ENDREGION}
 
 {$REGION 'include/c/sk4d_imagefilter.h'}
@@ -1126,24 +1126,24 @@ var
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_imagefilter_make_compose               {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(inner, outer: sk_imagefilter_t): sk_imagefilter_t; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_imagefilter_make_dilate                {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(radius_x, radius_y: float; input: sk_imagefilter_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_imagefilter_make_displacement_map      {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(x_channel_selector, y_channel_selector: sk_colorchannel_t; scale: float; displacement, color: sk_imagefilter_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_imagefilter_make_distant_light_diffuse {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const [Ref] direction: sk_point3_t; light_color: sk_color_t; surface_scale, kd: float; input: sk_imagefilter_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_imagefilter_make_distant_light_specular{$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const [Ref] direction: sk_point3_t; light_color: sk_color_t; surface_scale, ks, shininess: float; input: sk_imagefilter_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_imagefilter_make_distant_light_diffuse {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const direction: psk_point3_t; light_color: sk_color_t; surface_scale, kd: float; input: sk_imagefilter_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_imagefilter_make_distant_light_specular{$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const direction: psk_point3_t; light_color: sk_color_t; surface_scale, ks, shininess: float; input: sk_imagefilter_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_imagefilter_make_drop_shadow           {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(dx, dy, sigma_x, sigma_y: float; color: sk_color_t; input: sk_imagefilter_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_imagefilter_make_drop_shadow_only      {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(dx, dy, sigma_x, sigma_y: float; color: sk_color_t; input: sk_imagefilter_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_imagefilter_make_erode                 {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(radius_x, radius_y: float; input: sk_imagefilter_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_imagefilter_make_image                 {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(image: sk_image_t; const [Ref] src, dest: sk_rect_t; const [Ref] sampling: sk_samplingoptions_t): sk_imagefilter_t; cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_imagefilter_make_magnifier             {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const [Ref] src: sk_rect_t; inset: float; input: sk_imagefilter_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_imagefilter_make_matrix_convolution    {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const [Ref] kernel_size: sk_isize_t; const kernel: pfloat; gain, bias: float; const [Ref] kernel_offset: sk_ipoint_t; tile_mode: sk_tilemode_t; convolve_alpha: bool; input: sk_imagefilter_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_imagefilter_make_matrix_transform      {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const [Ref] matrix: sk_matrix_t; const [Ref] sampling: sk_samplingoptions_t; input: sk_imagefilter_t): sk_imagefilter_t; cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_imagefilter_make_image                 {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(image: sk_image_t; const src, dest: psk_rect_t; const sampling: psk_samplingoptions_t): sk_imagefilter_t; cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_imagefilter_make_magnifier             {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const src: psk_rect_t; inset: float; input: sk_imagefilter_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_imagefilter_make_matrix_convolution    {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const kernel_size: psk_isize_t; const kernel: pfloat; gain, bias: float; const kernel_offset: psk_ipoint_t; tile_mode: sk_tilemode_t; convolve_alpha: bool; input: sk_imagefilter_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_imagefilter_make_matrix_transform      {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const matrix: psk_matrix_t; const sampling: psk_samplingoptions_t; input: sk_imagefilter_t): sk_imagefilter_t; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_imagefilter_make_merge                 {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const filters: psk_imagefilter_t; count: int32_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_imagefilter_make_offset                {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(dx, dy: float; input: sk_imagefilter_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_imagefilter_make_picture               {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(picture: sk_picture_t; const target_rect: psk_rect_t): sk_imagefilter_t; cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_imagefilter_make_point_light_diffuse   {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const [Ref] location: sk_point3_t; light_color: sk_color_t; surface_scale, kd: float; input: sk_imagefilter_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_imagefilter_make_point_light_specular  {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const [Ref] location: sk_point3_t; light_color: sk_color_t; surface_scale, ks, shininess: float; input: sk_imagefilter_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_imagefilter_make_point_light_diffuse   {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const location: psk_point3_t; light_color: sk_color_t; surface_scale, kd: float; input: sk_imagefilter_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_imagefilter_make_point_light_specular  {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const location: psk_point3_t; light_color: sk_color_t; surface_scale, ks, shininess: float; input: sk_imagefilter_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_imagefilter_make_shader                {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(shader: sk_shader_t; dither: bool; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_imagefilter_make_spot_light_diffuse    {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const [Ref] location: sk_point3_t; const [Ref] target: sk_point3_t; falloff_exponent, cutoff_angle: float; light_color: sk_color_t; surface_scale, kd: float; input: sk_imagefilter_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_imagefilter_make_spot_light_specular   {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const [Ref] location: sk_point3_t; const [Ref] target: sk_point3_t; falloff_exponent, cutoff_angle: float; light_color: sk_color_t; surface_scale, ks, shininess: float; input: sk_imagefilter_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_imagefilter_make_tile                  {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const [Ref] src: sk_rect_t; const [Ref] dest: sk_rect_t; input: sk_imagefilter_t): sk_imagefilter_t; cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_imagefilter_make_spot_light_diffuse    {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const location, target: psk_point3_t; falloff_exponent, cutoff_angle: float; light_color: sk_color_t; surface_scale, kd: float; input: sk_imagefilter_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_imagefilter_make_spot_light_specular   {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const location, target: psk_point3_t; falloff_exponent, cutoff_angle: float; light_color: sk_color_t; surface_scale, ks, shininess: float; input: sk_imagefilter_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_imagefilter_make_tile                  {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const src, dest: psk_rect_t; input: sk_imagefilter_t): sk_imagefilter_t; cdecl;
 {$ENDREGION}
 
 {$REGION 'include/c/sk4d_maskfilter.h'}
@@ -1161,13 +1161,13 @@ var
 {$IFDEF SK_DYNAMIC_LOADING}
 var
 {$ENDIF}
+{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_paint_as_blend_mode   {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_paint_t; out mode: sk_blendmode_t): bool; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_paint_create          {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(): sk_paint_t; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_paint_create2         {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const paint: sk_paint_t): sk_paint_t; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_paint_destroy         {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_paint_t); cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_paint_get_alpha       {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_paint_t): uint8_t; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_paint_get_alphaf      {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_paint_t): float; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_paint_get_anti_alias  {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_paint_t): bool; cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_paint_get_blend_mode  {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_paint_t): sk_blendmode_t; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_paint_get_color       {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_paint_t): sk_color_t; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_paint_get_colorf      {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(const self: sk_paint_t; var result: sk_color4f_t); cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_paint_get_color_filter{$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_paint_t): sk_colorfilter_t; cdecl;
@@ -1187,9 +1187,9 @@ var
 {$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_paint_set_alphaf      {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_paint_t; value: float); cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_paint_set_antialias   {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_paint_t; value: bool); cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_paint_set_argb        {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_paint_t; a, r, g, b: uint8_t); cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_paint_set_blend_mode  {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_paint_t; value: sk_blendmode_t); cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_paint_set_blend_mode  {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_paint_t; mode: sk_blendmode_t); cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_paint_set_color       {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_paint_t; value: sk_color_t); cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_paint_set_colorf      {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_paint_t; const [Ref] value: sk_color4f_t; color_space: sk_colorspace_t); cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_paint_set_colorf      {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_paint_t; const value: psk_color4f_t; color_space: sk_colorspace_t); cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_paint_set_color_filter{$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_paint_t; value: sk_colorfilter_t); cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_paint_set_dither      {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_paint_t; value: bool); cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_paint_set_image_filter{$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_paint_t; value: sk_imagefilter_t); cdecl;
@@ -1235,46 +1235,46 @@ var
 {$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_path_offset                  {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(const self: sk_path_t; dx, dy: float; result: sk_path_t); cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_path_op                      {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self, path: sk_path_t; op: sk_pathop_t; result: sk_path_t): bool; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_path_to_svg                  {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(const self: sk_path_t; result: sk_string_t); cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_path_transform               {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(const self: sk_path_t; const [Ref] matrix: sk_matrix_t; result: sk_path_t); cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_path_transform               {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(const self: sk_path_t; const matrix: psk_matrix_t; result: sk_path_t); cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_pathiterator_create          {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const path: sk_path_t; force_close: bool): sk_pathiterator_t; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_pathiterator_destroy         {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_pathiterator_t); cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_pathiterator_get_conic_weight{$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_pathiterator_t): float; cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_pathiterator_next            {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(self: sk_pathiterator_t; points: psk_point_t; out verb: sk_pathverb_t): bool; cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_pathiterator_next            {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(self: sk_pathiterator_t; points: psk_point_t; var verb: sk_pathverb_t): bool; cdecl;
 {$ENDREGION}
 
 {$REGION 'include/c/sk4d_pathbuilder.h'}
 {$IFDEF SK_DYNAMIC_LOADING}
 var
 {$ENDIF}
-{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_pathbuilder_add_arc                {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_pathbuilder_t; const [Ref] oval: sk_rect_t; start_angle, sweep_angle: float); cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_pathbuilder_add_arc                {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_pathbuilder_t; const oval: psk_rect_t; start_angle, sweep_angle: float); cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_pathbuilder_add_circle             {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_pathbuilder_t; center_x, center_y, radius: float; direction: sk_pathdirection_t); cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_pathbuilder_add_oval               {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_pathbuilder_t; const [Ref] oval: sk_rect_t; direction: sk_pathdirection_t; start_index: uint32_t); cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_pathbuilder_add_oval               {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_pathbuilder_t; const oval: psk_rect_t; direction: sk_pathdirection_t; start_index: uint32_t); cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_pathbuilder_add_path               {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_pathbuilder_t; const path: sk_path_t); cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_pathbuilder_add_polygon            {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_pathbuilder_t; polygon: psk_point_t; count: int32_t; is_closed: bool); cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_pathbuilder_add_rect               {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_pathbuilder_t; const [Ref] rect: sk_rect_t; direction: sk_pathdirection_t; start_index: uint32_t); cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_pathbuilder_add_rect               {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_pathbuilder_t; const rect: psk_rect_t; direction: sk_pathdirection_t; start_index: uint32_t); cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_pathbuilder_add_rrect              {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_pathbuilder_t; const rrect: sk_rrect_t; direction: sk_pathdirection_t; start_index: uint32_t); cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_pathbuilder_arc_to                 {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_pathbuilder_t; const [Ref] radius: sk_point_t; x_axis_rotate: float; large_arc: sk_patharcsize_t; sweep: sk_pathdirection_t; const [Ref] xy: sk_point_t); cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_pathbuilder_arc_to2                {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_pathbuilder_t; const [Ref] oval: sk_rect_t; start_angle, sweep_angle: float; force_move_to: bool); cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_pathbuilder_arc_to3                {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_pathbuilder_t; const [Ref] point1, point2: sk_point_t; radius: float); cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_pathbuilder_arc_to                 {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_pathbuilder_t; const radius: psk_point_t; x_axis_rotate: float; large_arc: sk_patharcsize_t; sweep: sk_pathdirection_t; const xy: psk_point_t); cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_pathbuilder_arc_to2                {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_pathbuilder_t; const oval: psk_rect_t; start_angle, sweep_angle: float; force_move_to: bool); cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_pathbuilder_arc_to3                {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_pathbuilder_t; const point1, point2: psk_point_t; radius: float); cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_pathbuilder_close                  {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_pathbuilder_t); cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_pathbuilder_conic_to               {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_pathbuilder_t; const [Ref] point1, point2: sk_point_t; weight: float); cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_pathbuilder_conic_to               {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_pathbuilder_t; const point1, point2: psk_point_t; weight: float); cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_pathbuilder_create                 {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(): sk_pathbuilder_t; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_pathbuilder_create2                {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const path_builder: sk_pathbuilder_t): sk_pathbuilder_t; cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_pathbuilder_cubic_to               {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_pathbuilder_t; const [Ref] point1, point2, point3: sk_point_t); cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_pathbuilder_cubic_to               {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_pathbuilder_t; const point1, point2, point3: psk_point_t); cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_pathbuilder_destroy                {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_pathbuilder_t); cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_pathbuilder_detach                 {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(self: sk_pathbuilder_t): sk_path_t; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_pathbuilder_get_bounds             {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(const self: sk_pathbuilder_t; var result: sk_rect_t); cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_pathbuilder_get_fill_type          {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_pathbuilder_t): sk_pathfilltype_t; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_pathbuilder_inc_reserve            {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_pathbuilder_t; extra_point_count, extra_verb_count: int32_t); cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_pathbuilder_line_to                {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_pathbuilder_t; const [Ref] cpoint: sk_point_t); cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_pathbuilder_move_to                {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_pathbuilder_t; const [Ref] cpoint: sk_point_t); cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_pathbuilder_line_to                {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_pathbuilder_t; const cpoint: psk_point_t); cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_pathbuilder_move_to                {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_pathbuilder_t; const cpoint: psk_point_t); cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_pathbuilder_offset                 {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_pathbuilder_t; dx, dy: float); cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_pathbuilder_polyline_to            {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_pathbuilder_t; const points: psk_point_t; count: int32_t); cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_pathbuilder_quad_to                {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_pathbuilder_t; const [Ref] point1, point2: sk_point_t); cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_pathbuilder_r_conic_to             {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_pathbuilder_t; const [Ref] point1, point2: sk_point_t; weight: float); cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_pathbuilder_r_cubic_to             {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_pathbuilder_t; const [Ref] point1, point2, point3: sk_point_t); cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_pathbuilder_r_line_to              {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_pathbuilder_t; const [Ref] point: sk_point_t); cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_pathbuilder_r_quad_to              {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_pathbuilder_t; const [Ref] point1, point2: sk_point_t); cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_pathbuilder_quad_to                {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_pathbuilder_t; const point1, point2: psk_point_t); cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_pathbuilder_r_conic_to             {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_pathbuilder_t; const point1, point2: psk_point_t; weight: float); cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_pathbuilder_r_cubic_to             {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_pathbuilder_t; const point1, point2, point3: psk_point_t); cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_pathbuilder_r_line_to              {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_pathbuilder_t; const point: psk_point_t); cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_pathbuilder_r_quad_to              {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_pathbuilder_t; const point1, point2: psk_point_t); cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_pathbuilder_reset                  {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_pathbuilder_t); cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_pathbuilder_set_filltype           {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_pathbuilder_t; value: sk_pathfilltype_t); cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_pathbuilder_snapshot               {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_pathbuilder_t): sk_path_t; cdecl;
@@ -1286,8 +1286,8 @@ var
 var
 {$ENDIF}
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_patheffect_make_1dpath  {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const path: sk_path_t; advance, phase: float; style: sk_patheffect1dstyle_t): sk_patheffect_t; cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_patheffect_make_2dline  {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(width: float; const [Ref] matrix: sk_matrix_t): sk_patheffect_t; cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_patheffect_make_2dpath  {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const [Ref] matrix: sk_matrix_t; const path: sk_path_t): sk_patheffect_t; cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_patheffect_make_2dline  {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(width: float; const matrix: psk_matrix_t): sk_patheffect_t; cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_patheffect_make_2dpath  {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const matrix: psk_matrix_t; const path: sk_path_t): sk_patheffect_t; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_patheffect_make_compose {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(outer, inner: sk_patheffect_t): sk_patheffect_t; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_patheffect_make_corner  {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(radius: float): sk_patheffect_t; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_patheffect_make_dash    {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const intervals: pfloat; count: int32_t; phase: float): sk_patheffect_t; cdecl;
@@ -1327,11 +1327,11 @@ var
 {$IFDEF SK_DYNAMIC_LOADING}
 var
 {$ENDIF}
-{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_picturerecorder_begin_recording  {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(self: sk_picturerecorder_t; const [Ref] bounds: sk_rect_t): sk_canvas_t; cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_picturerecorder_begin_recording  {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(self: sk_picturerecorder_t; const bounds: psk_rect_t): sk_canvas_t; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_picturerecorder_create           {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(): sk_picturerecorder_t; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_picturerecorder_destroy          {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_picturerecorder_t); cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_picturerecorder_finish_recording {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(self: sk_picturerecorder_t): sk_picture_t; cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_picturerecorder_finish_recording2{$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(self: sk_picturerecorder_t; const [Ref] cull_rect: sk_rect_t): sk_picture_t; cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_picturerecorder_finish_recording2{$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(self: sk_picturerecorder_t; const cull_rect: psk_rect_t): sk_picture_t; cdecl;
 {$ENDREGION}
 
 {$REGION 'include/c/sk4d_pixmap.h'}
@@ -1339,11 +1339,11 @@ var
 var
 {$ENDIF}
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_pixmap_create         {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(): sk_pixmap_t; cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_pixmap_create2        {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const [Ref] image_info: sk_imageinfo_t; const pixels: Pointer; row_bytes: size_t): sk_pixmap_t; cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_pixmap_create2        {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const image_info: psk_imageinfo_t; const pixels: Pointer; row_bytes: size_t): sk_pixmap_t; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_pixmap_destroy        {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_pixmap_t); cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_pixmap_erase          {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_pixmap_t; color: sk_color_t; const area: psk_irect_t): bool; cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_pixmap_erase2         {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_pixmap_t; const [Ref] color: sk_color4f_t; color_space: sk_colorspace_t; const area: psk_irect_t): bool; cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_pixmap_extract_subset {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(dest: sk_pixmap_t; const self: sk_pixmap_t; const [Ref] area: sk_irect_t): bool; cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_pixmap_erase2         {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_pixmap_t; const color: psk_color4f_t; color_space: sk_colorspace_t; const area: psk_irect_t): bool; cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_pixmap_extract_subset {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(dest: sk_pixmap_t; const self: sk_pixmap_t; const area: psk_irect_t): bool; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_pixmap_get_alpha      {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_pixmap_t; x, y: int32_t): float; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_pixmap_get_alpha_type {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_pixmap_t): sk_alphatype_t; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_pixmap_get_color      {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_pixmap_t; x, y: int32_t): sk_color_t; cdecl;
@@ -1356,7 +1356,7 @@ var
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_pixmap_get_row_bytes  {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_pixmap_t): size_t; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_pixmap_get_width      {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_pixmap_t): int32_t; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_pixmap_read_pixels    {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self, dest: sk_pixmap_t; src_x, src_y: int32_t): bool; cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_pixmap_scale_pixels   {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self, dest: sk_pixmap_t; const [Ref] sampling: sk_samplingoptions_t): bool; cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_pixmap_scale_pixels   {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self, dest: sk_pixmap_t; const sampling: psk_samplingoptions_t): bool; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_pixmap_set_colorspace {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_pixmap_t; value: sk_colorspace_t); cdecl;
 {$ENDREGION}
 
@@ -1373,7 +1373,7 @@ var
 var
 {$ENDIF}
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_region_contains          {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self, region: sk_region_t): bool; cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_region_contains2         {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_region_t; const [Ref] rect: sk_irect_t): bool; cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_region_contains2         {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_region_t; const rect: psk_irect_t): bool; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_region_contains3         {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_region_t; x, y: int32_t): bool; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_region_create            {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(): sk_region_t; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_region_create2           {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const region: sk_region_t): sk_region_t; cdecl;
@@ -1381,23 +1381,23 @@ var
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_region_get_boundary_path {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_region_t; result: sk_path_t): bool; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_region_get_bounds        {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(const self: sk_region_t; var result: sk_irect_t); cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_region_intersects        {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self, region: sk_region_t): bool; cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_region_intersects2       {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_region_t; const [Ref] rect: sk_irect_t): bool; cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_region_intersects2       {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_region_t; const rect: psk_irect_t): bool; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_region_is_complex        {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_region_t): bool; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_region_is_empty          {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_region_t): bool; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_region_is_equal          {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self, region: sk_region_t): bool; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_region_is_rect           {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_region_t): bool; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_region_op                {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(self: sk_region_t; const region: sk_region_t; op: sk_regionop_t): bool; cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_region_op2               {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(self: sk_region_t; const [Ref] rect: sk_irect_t; op: sk_regionop_t): bool; cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_region_quick_contains    {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_region_t; const [Ref] rect: sk_irect_t): bool; cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_region_op2               {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(self: sk_region_t; const rect: psk_irect_t; op: sk_regionop_t): bool; cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_region_quick_contains    {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_region_t; const rect: psk_irect_t): bool; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_region_quick_reject      {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self, region: sk_region_t): bool; cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_region_quick_reject2     {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_region_t; const [Ref] rect: sk_irect_t): bool; cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_region_quick_reject2     {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_region_t; const rect: psk_irect_t): bool; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_region_set_empty         {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_region_t); cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_region_set_path          {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(self: sk_region_t; const path: sk_path_t; const clip: sk_region_t): bool; cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_region_set_rect          {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(self: sk_region_t; const [Ref] rect: sk_irect_t): bool; cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_region_set_rect          {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(self: sk_region_t; const rect: psk_irect_t): bool; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_region_set_rects         {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(self: sk_region_t; const rects: psk_irect_t; count: int32_t): bool; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_region_translate         {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_region_t; x, y: int32_t); cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_region_translate2        {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(const self: sk_region_t; x, y: int32_t; result: sk_region_t); cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_regioncliperator_create  {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const region: sk_region_t; const [Ref] clip: sk_irect_t): sk_regioncliperator_t; cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_regioncliperator_create  {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const region: sk_region_t; const clip: psk_irect_t): sk_regioncliperator_t; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_regioncliperator_destroy {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_regioncliperator_t); cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_regioncliperator_get_rect{$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(const self: sk_regioncliperator_t; var result: sk_irect_t); cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_regioncliperator_next    {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(self: sk_regioncliperator_t): bool; cdecl;
@@ -1415,7 +1415,7 @@ var
 {$IFDEF SK_DYNAMIC_LOADING}
 var
 {$ENDIF}
-{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_rrect_contains        {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_rrect_t; const [Ref] rect: sk_rect_t): bool; cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_rrect_contains        {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_rrect_t; const rect: psk_rect_t): bool; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_rrect_create          {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(): sk_rrect_t; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_rrect_create2         {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const rrect: sk_rrect_t): sk_rrect_t; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_rrect_deflate         {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_rrect_t; dx, dy: float); cdecl;
@@ -1434,12 +1434,12 @@ var
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_rrect_make_offset     {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_rrect_t; dx, dy: float): sk_rrect_t; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_rrect_offset          {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_rrect_t; dx, dy: float); cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_rrect_set_empty       {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_rrect_t); cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_rrect_set_nine_patch  {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_rrect_t; const [Ref] rect: sk_rect_t; radius_left, radius_top, radius_right, radius_bottom: float); cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_rrect_set_oval        {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_rrect_t; const [Ref] rect: sk_rect_t); cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_rrect_set_rect        {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_rrect_t; const [Ref] rect: sk_rect_t); cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_rrect_set_rect2       {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_rrect_t; const [Ref] rect: sk_rect_t; const radii: psk_vector_t); cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_rrect_set_rect3       {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_rrect_t; const [Ref] rect: sk_rect_t; radius_x, radius_y: float); cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_rrect_transform       {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_rrect_t; const [Ref] matrix: sk_matrix_t; result: sk_rrect_t): bool; cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_rrect_set_nine_patch  {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_rrect_t; const rect: psk_rect_t; radius_left, radius_top, radius_right, radius_bottom: float); cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_rrect_set_oval        {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_rrect_t; const rect: psk_rect_t); cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_rrect_set_rect        {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_rrect_t; const rect: psk_rect_t); cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_rrect_set_rect2       {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_rrect_t; const rect: psk_rect_t; const radii: psk_vector_t); cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_rrect_set_rect3       {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_rrect_t; const rect: psk_rect_t; radius_x, radius_y: float); cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_rrect_transform       {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_rrect_t; const matrix: psk_matrix_t; result: sk_rrect_t): bool; cdecl;
 {$ENDREGION}
 
 {$REGION 'include/c/sk4d_shader.h'}
@@ -1448,18 +1448,18 @@ var
 {$ENDIF}
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_shader_make_blend                     {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(mode: sk_blendmode_t; dest, src: sk_shader_t): sk_shader_t; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_shader_make_color                     {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(color: sk_color_t): sk_shader_t; cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_shader_make_color2                    {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const [Ref] color: sk_color4f_t; color_space: sk_colorspace_t): sk_shader_t; cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_shader_make_color2                    {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const color: psk_color4f_t; color_space: sk_colorspace_t): sk_shader_t; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_shader_make_empty                     {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(): sk_shader_t; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_shader_make_gradient_linear           {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const points: psk_point_t; const colors: psk_color_t; const positions: pfloat; count: int32_t; tile_mode: sk_tilemode_t): sk_shader_t; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_shader_make_gradient_linear2          {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const points: psk_point_t; const colors: psk_color4f_t; color_space: sk_colorspace_t; const positions: pfloat; count: int32_t; tile_mode: sk_tilemode_t): sk_shader_t; cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_shader_make_gradient_radial           {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const [Ref] center: sk_point_t; radius: float; const colors: psk_color_t; const positions: pfloat; count: int32_t; tile_mode: sk_tilemode_t): sk_shader_t; cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_shader_make_gradient_radial2          {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const [Ref] center: sk_point_t; radius: float; const colors: psk_color4f_t; color_space: sk_colorspace_t; const positions: pfloat; count: int32_t; tile_mode: sk_tilemode_t): sk_shader_t; cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_shader_make_gradient_sweep            {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const [Ref] center: sk_point_t; const colors: psk_color_t; const positions: pfloat; count: int32_t): sk_shader_t; cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_shader_make_gradient_sweep2           {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const [Ref] center: sk_point_t; const colors: psk_color4f_t; color_space: sk_colorspace_t; const positions: pfloat; count: int32_t): sk_shader_t; cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_shader_make_gradient_radial           {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const center: psk_point_t; radius: float; const colors: psk_color_t; const positions: pfloat; count: int32_t; tile_mode: sk_tilemode_t): sk_shader_t; cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_shader_make_gradient_radial2          {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const center: psk_point_t; radius: float; const colors: psk_color4f_t; color_space: sk_colorspace_t; const positions: pfloat; count: int32_t; tile_mode: sk_tilemode_t): sk_shader_t; cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_shader_make_gradient_sweep            {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const center: psk_point_t; const colors: psk_color_t; const positions: pfloat; count: int32_t): sk_shader_t; cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_shader_make_gradient_sweep2           {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const center: psk_point_t; const colors: psk_color4f_t; color_space: sk_colorspace_t; const positions: pfloat; count: int32_t): sk_shader_t; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_shader_make_perlin_noise_fractal_noise{$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(base_frequency_x, base_frequency_y: float; num_octaves: int32_t; seed: float; const tile_size: psk_isize_t): sk_shader_t; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_shader_make_perlin_noise_turbulence   {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(base_frequency_x, base_frequency_y: float; num_octaves: int32_t; seed: float; const tile_size: psk_isize_t): sk_shader_t; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_shader_make_with_color_filter         {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_shader_t; filter: sk_colorfilter_t): sk_shader_t; cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_shader_make_with_local_matrix         {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_shader_t; const [Ref] matrix: sk_matrix_t): sk_shader_t; cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_shader_make_with_local_matrix         {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_shader_t; const matrix: psk_matrix_t): sk_shader_t; cdecl;
 {$ENDREGION}
 
 {$REGION 'include/c/sk4d_stream.h'}
@@ -1470,15 +1470,15 @@ var
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_dynamicmemorywstream_create          {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(): sk_dynamicmemorywstream_t; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_dynamicmemorywstream_detach_as_data  {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(self: sk_dynamicmemorywstream_t): sk_data_t; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_dynamicmemorywstream_detach_as_stream{$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(self: sk_dynamicmemorywstream_t): sk_streamasset_t; cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_dynamicmemorywstream_write_to_stream {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_dynamicmemorywstream_t; dest: sk_wstream_t): bool; cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_dynamicmemorywstream_write_to_stream {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_dynamicmemorywstream_t; cdest: sk_wstream_t): bool; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_filestream_create                    {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const file_name: MarshaledAString): sk_filestream_t; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_filestream_is_valid                  {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_filestream_t): bool; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_filewstream_create                   {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const file_name: MarshaledAString): sk_filewstream_t; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_filewstream_is_valid                 {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_filewstream_t): bool; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_managedstream_create                 {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(context: Pointer; owns_context: bool): sk_streamasset_t; cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_managedstream_set_procs              {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(const [Ref] procs: sk_managedstream_procs_t); cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_managedstream_set_procs              {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(const procs: psk_managedstream_procs_t); cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_managedwstream_create                {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(context: Pointer; owns_context: bool): sk_wstream_t; cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_managedwstream_set_procs             {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(const [Ref] procs: sk_managedwstream_procs_t); cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_managedwstream_set_procs             {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(const procs: psk_managedwstream_procs_t); cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_memorystream_create                  {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(data: sk_data_t): sk_memorystream_t; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_stream_destroy                       {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_stream_t); cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_stream_duplicate                     {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_stream_t): sk_stream_t; cdecl;
@@ -1497,7 +1497,7 @@ var
 {$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_wstream_destroy                      {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_wstream_t); cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_wstream_flush                        {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_wstream_t); cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_wstream_get_bytes_written            {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_wstream_t): size_t; cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_wstream_write                        {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(self: sk_wstream_t; buffer: Pointer; size: size_t): bool; cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_wstream_write                        {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(self: sk_wstream_t; const buffer: Pointer; size: size_t): bool; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_wstream_write_stream                 {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(self: sk_wstream_t; stream: sk_stream_t; size: size_t): bool; cdecl;
 {$ENDREGION}
 
@@ -1518,36 +1518,37 @@ var
 {$IFDEF SK_DYNAMIC_LOADING}
 var
 {$ENDIF}
-{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_surface_draw                   {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_surface_t; canvas: sk_canvas_t; x, y: float; const [Ref] sampling: sk_samplingoptions_t; paint: sk_paint_t); cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_surface_flush                  {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_surface_t); cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_surface_get_canvas             {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(self: sk_surface_t): sk_canvas_t; cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_surface_get_height             {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_surface_t): int32_t; cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_surface_get_image_info         {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_surface_t; out result: sk_imageinfo_t); cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_surface_get_props              {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_surface_t): sk_surfaceprops_t; cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_surface_get_width              {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_surface_t): int32_t; cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_surface_make_from_rendertarget {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(context: gr_directcontext_t; const render_target: gr_backendrendertarget_t; origin: gr_surfaceorigin_t; color_type: sk_colortype_t; color_space: sk_colorspace_t; props: sk_surfaceprops_t): sk_surface_t; cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_surface_make_from_texture      {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(context: gr_directcontext_t; const texture: gr_backendtexture_t; origin: gr_surfaceorigin_t; sample_count: int32_t; color_type: sk_colortype_t; color_space: sk_colorspace_t; props: sk_surfaceprops_t): sk_surface_t; cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_surface_make_image_snapshot    {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(self: sk_surface_t): sk_image_t; cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_surface_make_image_snapshot2   {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(self: sk_surface_t; const [Ref] bounds: sk_irect_t): sk_image_t; cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_surface_make_null              {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(): sk_surface_t; cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_surface_make_raster            {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const [Ref] image_info: sk_imageinfo_t; row_bytes: size_t; props: sk_surfaceprops_t): sk_surface_t; cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_surface_make_raster_direct     {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const [Ref] image_info: sk_imageinfo_t; pixels: Pointer; row_bytes: size_t; proc: sk_surface_raster_release_proc; proc_context: Pointer; props: sk_surfaceprops_t): sk_surface_t; cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_surface_make_render_target     {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(context: gr_directcontext_t; budgeted: bool; const [Ref] image_info: sk_imageinfo_t; sample_count: int32_t; origin: gr_surfaceorigin_t; props: sk_surfaceprops_t; should_create_with_mips: bool): sk_surface_t; cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_surface_peek_pixels            {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(self: sk_surface_t; pixmap: sk_pixmap_t): bool; cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_surface_read_pixels            {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(self: sk_surface_t; const dest: sk_pixmap_t; src_x, src_y: int32_t): bool; cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_surface_write_pixels           {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_surface_t; const src: sk_pixmap_t; dest_x, dest_y: int32_t); cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_sk_surfaceprops_create         {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(flags: uint32_t; pixel_geometry: sk_pixelgeometry_t): sk_surfaceprops_t; cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_surfaceprops_destroy           {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_surfaceprops_t); cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_surfaceprops_get_flags         {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_surfaceprops_t): uint32_t; cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_surfaceprops_get_pixel_geometry{$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_surfaceprops_t): sk_pixelgeometry_t; cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_surfaceprops_is_equal          {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self, props: sk_surfaceprops_t): bool; cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_surface_draw                    {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_surface_t; canvas: sk_canvas_t; x, y: float; const sampling: psk_samplingoptions_t; paint: sk_paint_t); cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_surface_flush                   {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_surface_t); cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_surface_get_canvas              {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(self: sk_surface_t): sk_canvas_t; cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_surface_get_height              {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_surface_t): int32_t; cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_surface_get_image_info          {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_surface_t; var result: sk_imageinfo_t); cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_surface_get_props               {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_surface_t): sk_surfaceprops_t; cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_surface_get_width               {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_surface_t): int32_t; cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_surface_make_from_ca_metal_layer{$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(context: gr_directcontext_t; layer: gr_mtl_handle_t; origin: gr_surfaceorigin_t; sample_count: int32_t; color_type: sk_colortype_t; color_space: sk_colorspace_t; const props: sk_surfaceprops_t; out drawable: gr_mtl_handle_t): sk_surface_t; cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_surface_make_from_rendertarget  {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(context: gr_directcontext_t; const render_target: gr_backendrendertarget_t; origin: gr_surfaceorigin_t; color_type: sk_colortype_t; color_space: sk_colorspace_t; const props: sk_surfaceprops_t): sk_surface_t; cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_surface_make_from_texture       {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(context: gr_directcontext_t; const texture: gr_backendtexture_t; origin: gr_surfaceorigin_t; sample_count: int32_t; color_type: sk_colortype_t; color_space: sk_colorspace_t; const props: sk_surfaceprops_t): sk_surface_t; cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_surface_make_image_snapshot     {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(self: sk_surface_t): sk_image_t; cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_surface_make_image_snapshot2    {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(self: sk_surface_t; const bounds: psk_irect_t): sk_image_t; cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_surface_make_null               {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(width, height: int32_t): sk_surface_t; cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_surface_make_raster             {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const image_info: psk_imageinfo_t; row_bytes: size_t; const props: sk_surfaceprops_t): sk_surface_t; cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_surface_make_raster_direct      {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const image_info: psk_imageinfo_t; pixels: Pointer; row_bytes: size_t; proc: sk_surface_raster_release_proc; proc_context: Pointer; const props: sk_surfaceprops_t): sk_surface_t; cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_surface_make_render_target      {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(context: gr_directcontext_t; budgeted: bool; const image_info: psk_imageinfo_t; sample_count: int32_t; origin: gr_surfaceorigin_t; const props: sk_surfaceprops_t; should_create_with_mips: bool): sk_surface_t; cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_surface_peek_pixels             {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(self: sk_surface_t; pixmap: sk_pixmap_t): bool; cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_surface_read_pixels             {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(self: sk_surface_t; const dest: sk_pixmap_t; src_x, src_y: int32_t): bool; cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_surface_write_pixels            {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_surface_t; const src: sk_pixmap_t; dest_x, dest_y: int32_t); cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_sk_surfaceprops_create          {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(flags: uint32_t; pixel_geometry: sk_pixelgeometry_t): sk_surfaceprops_t; cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_surfaceprops_destroy            {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_surfaceprops_t); cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_surfaceprops_get_flags          {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_surfaceprops_t): uint32_t; cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_surfaceprops_get_pixel_geometry {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_surfaceprops_t): sk_pixelgeometry_t; cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_surfaceprops_is_equal           {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self, props: sk_surfaceprops_t): bool; cdecl;
 {$ENDREGION}
 
 {$REGION 'include/c/sk4d_svgcanvas.h'}
 {$IFDEF SK_DYNAMIC_LOADING}
 var
 {$ENDIF}
-{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_svgcanvas_make{$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const [Ref] bounds: sk_rect_t; stream: sk_wstream_t): sk_canvas_t; cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_svgcanvas_make{$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const bounds: psk_rect_t; stream: sk_wstream_t): sk_canvas_t; cdecl;
 {$ENDREGION}
 
 {$REGION 'include/c/sk4d_textblob.h'}
@@ -1579,7 +1580,7 @@ var
 {$ENDIF}
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_tracememorydumpbaseclass_create   {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(detailed_dump, dump_wrapped_objects: bool; context: Pointer): sk_tracememorydumpbaseclass_t; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_tracememorydumpbaseclass_destroy  {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_tracememorydumpbaseclass_t); cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_tracememorydumpbaseclass_set_procs{$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(const [Ref] procs: sk_tracememorydumpbaseclass_procs_t); cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_tracememorydumpbaseclass_set_procs{$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(const procs: psk_tracememorydumpbaseclass_procs_t); cdecl;
 {$ENDREGION}
 
 {$REGION 'include/c/sk4d_typeface.h'}
@@ -1606,6 +1607,31 @@ var
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_vertices_make_copy    {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(vertex_mode: sk_vertexmode_t; vertex_count: int32_t; const positions, textures: psk_point_t; const colors: psk_color_t; index_count: int32_t; const indices: puint16_t): sk_vertices_t; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_vertices_ref          {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(const self: sk_vertices_t); cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_vertices_unref        {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(const self: sk_vertices_t); cdecl;
+{$ENDREGION}
+
+{$REGION 'modules/skottie/include/sk4d_skottie_types.h'}
+type
+  sk_skottieanimation_t = THandle;
+{$ENDREGION}
+
+{$REGION 'modules/skottie/include/sk4d_skottie.h'}
+{$IFDEF SK_DYNAMIC_LOADING}
+var
+{$ENDIF}
+{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_skottieanimation_get_duration    {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_skottieanimation_t): double; cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_skottieanimation_get_fps         {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_skottieanimation_t): double; cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_skottieanimation_get_in_point    {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_skottieanimation_t): double; cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_skottieanimation_get_out_point   {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_skottieanimation_t): double; cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_skottieanimation_get_size        {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(const self: sk_skottieanimation_t; var result: sk_size_t); cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_skottieanimation_get_version     {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_skottieanimation_t): sk_string_t; cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_skottieanimation_make            {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const data: MarshaledAString; length: size_t): sk_skottieanimation_t; cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_skottieanimation_make_from_file  {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const file_name: MarshaledAString): sk_skottieanimation_t; cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_skottieanimation_make_from_stream{$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(stream: sk_stream_t): sk_skottieanimation_t; cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_skottieanimation_ref             {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(const self: sk_skottieanimation_t); cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_skottieanimation_render          {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(const self: sk_skottieanimation_t; canvas: sk_canvas_t; const dest: psk_rect_t; render_flags: uint32_t); cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_skottieanimation_seek_frame      {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_skottieanimation_t; tick: double); cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_skottieanimation_seek_frame_time {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_skottieanimation_t; tick: double); cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_skottieanimation_unref           {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(const self: sk_skottieanimation_t); cdecl;
 {$ENDREGION}
 
 {$REGION 'modules/skshaper/include/sk4d_shaper_types.h'}
@@ -1655,10 +1681,10 @@ type
   sk_shaperrunhandlerbaseclass_procs_t = record
     begin_line        : procedure (context: Pointer); cdecl;
     commit_line       : procedure (context: Pointer); cdecl;
-    commit_run_buffer : procedure (context: Pointer; const [Ref] info: sk_shaperrunhandlerinfo_t); cdecl;
+    commit_run_buffer : procedure (context: Pointer; const info: psk_shaperrunhandlerinfo_t); cdecl;
     commit_run_info   : procedure (context: Pointer); cdecl;
-    run_buffer        : procedure (context: Pointer; const [Ref] info: sk_shaperrunhandlerinfo_t; out result: sk_shaperrunhandlerbuffer_t); cdecl;
-    run_info          : procedure (context: Pointer; const [Ref] info: sk_shaperrunhandlerinfo_t); cdecl;
+    run_buffer        : procedure (context: Pointer; const info: psk_shaperrunhandlerinfo_t; out result: sk_shaperrunhandlerbuffer_t); cdecl;
+    run_info          : procedure (context: Pointer; const info: psk_shaperrunhandlerinfo_t); cdecl;
   end;
   psk_shaperrunhandlerbaseclass_procs_t = ^sk_shaperrunhandlerbaseclass_procs_t;
 {$ENDREGION}
@@ -1675,18 +1701,18 @@ var
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_shaper_make_std_language_run_iterator       {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const utf8_text: Pointer; size: size_t): sk_shaperlanguageruniterator_t; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_shaper_purge_caches                         {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(); cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_shaper_shape                                {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(const self: sk_shaper_t; const utf8_text: Pointer; size: size_t; const src_font: sk_font_t; left_to_right: bool; width: float; handler: sk_shaperrunhandler_t); cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_shaper_shape2                               {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(const self: sk_shaper_t; const utf8_text: Pointer; size: size_t; font: sk_shaperfontruniterator_t; bi_di: sk_shaperbidiruniterator_t; script: sk_shaperscriptruniterator_t; language: sk_shaperlanguageruniterator_t; features: psk_shaperfeature_t; count: NativeUInt; width: float; handler: sk_shaperrunhandler_t); cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_shaper_shape2                               {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(const self: sk_shaper_t; const utf8_text: Pointer; size: size_t; font: sk_shaperfontruniterator_t; bi_di: sk_shaperbidiruniterator_t; script: sk_shaperscriptruniterator_t; language: sk_shaperlanguageruniterator_t; const features: psk_shaperfeature_t; count: size_t; width: float; handler: sk_shaperrunhandler_t); cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk_shaperbidiruniterator_get_current_level       {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_shaperbidiruniterator_t): uint8_t; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk_shaperfontruniterator_get_current_font        {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_shaperfontruniterator_t): sk_font_t; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk_shaperlanguageruniterator_get_current_language{$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_shaperlanguageruniterator_t): MarshaledAString; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_shaperrunhandler_destroy                    {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_shaperrunhandler_t); cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_shaperrunhandlerbaseclass_create            {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(context: Pointer): sk_shaperrunhandlerbaseclass_t; cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_shaperrunhandlerbaseclass_set_procs         {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(const [Ref] procs: sk_shaperrunhandlerbaseclass_procs_t); cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_shaperrunhandlerbaseclass_set_procs         {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(const procs: psk_shaperrunhandlerbaseclass_procs_t); cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_shaperruniterator_consume                   {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(self: sk_shaperruniterator_t): bool; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_shaperruniterator_destroy                   {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_shaperruniterator_t); cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_shaperruniterator_get_end_of_current_run    {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_shaperruniterator_t): size_t; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk_shaperscriptruniterator_get_current_script    {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_shaperscriptruniterator_t): sk_fourbytetag_t; cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_textblobbuilderrunhandler_create            {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const utf8_text: Pointer; const [Ref] offset: sk_point_t): sk_textblobbuilderrunhandler_t; cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_textblobbuilderrunhandler_create            {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const utf8_text: Pointer; const offset: psk_point_t): sk_textblobbuilderrunhandler_t; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_textblobbuilderrunhandler_detach            {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(self: sk_textblobbuilderrunhandler_t): sk_textblob_t; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_textblobbuilderrunhandler_get_end_point     {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_textblobbuilderrunhandler_t; var result: sk_point_t); cdecl;
 {$ENDREGION}
@@ -1704,39 +1730,14 @@ var
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_svgdom_get_root          {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_svgdom_t): sk_svgsvg_t; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_svgdom_make              {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(stream: sk_stream_t): sk_svgdom_t; cdecl;
 {$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_svgdom_render            {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(const self: sk_svgdom_t; canvas: sk_canvas_t); cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_svgdom_set_container_size{$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_svgdom_t; const [Ref] value: sk_size_t); cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_svgdom_set_container_size{$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_svgdom_t; const value: psk_size_t); cdecl;
 {$ENDREGION}
 
 {$REGION 'modules/svg/include/sk4d_svgsvg.h'}
 {$IFDEF SK_DYNAMIC_LOADING}
 var
 {$ENDIF}
-{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk_svgsvg_get_intrinsic_size{$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(const self: sk_svgsvg_t; const [Ref] view_port: sk_size_t; dpi: float; out result: sk_size_t); cdecl;
-{$ENDREGION}
-
-{$REGION 'modules/skottie/include/sk4d_skottie_types.h'}
-type
-  sk_skottieanimation_t = THandle;
-{$ENDREGION}
-
-{$REGION 'modules/skottie/include/sk4d_skottie.h'}
-{$IFDEF SK_DYNAMIC_LOADING}
-var
-{$ENDIF}
-{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_skottieanimation_get_duration    {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_skottieanimation_t): double; cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_skottieanimation_get_fps         {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_skottieanimation_t): double; cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_skottieanimation_get_in_point    {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_skottieanimation_t): double; cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_skottieanimation_get_out_point   {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_skottieanimation_t): double; cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_skottieanimation_get_size        {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(const self: sk_skottieanimation_t; out result: sk_size_t); cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_skottieanimation_get_version     {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_skottieanimation_t): sk_string_t; cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_skottieanimation_make            {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const data: MarshaledAString; length: size_t): sk_skottieanimation_t; cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_skottieanimation_make_from_file  {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const file_name: MarshaledAString): sk_skottieanimation_t; cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}function  {$ENDIF}sk4d_skottieanimation_make_from_stream{$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(stream: sk_stream_t): sk_skottieanimation_t; cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_skottieanimation_ref             {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(const self: sk_skottieanimation_t); cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_skottieanimation_render          {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(const self: sk_skottieanimation_t; canvas: sk_canvas_t; const dest: psk_rect_t; render_flags: uint32_t); cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_skottieanimation_seek_frame      {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_skottieanimation_t; tick: double); cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_skottieanimation_seek_frame_time {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_skottieanimation_t; tick: double); cdecl;
-{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk4d_skottieanimation_unref           {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(const self: sk_skottieanimation_t); cdecl;
+{$IFNDEF SK_DYNAMIC_LOADING}procedure {$ENDIF}sk_svgsvg_get_intrinsic_size{$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(const self: sk_svgsvg_t; const view_port: psk_size_t; dpi: float; var result: sk_size_t); cdecl;
 {$ENDREGION}
 
 {$IFDEF SK_DYNAMIC_LOADING}
@@ -1748,7 +1749,7 @@ implementation
 
 {$IFDEF SK_DYNAMIC_LOADING}
 uses
-  {Delphi}
+  { Delphi }
   {$IFDEF MSWINDOWS}
   Winapi.Windows,
   {$ENDIF}
@@ -1762,11 +1763,7 @@ const
   {$IFNDEF CPUARM}
     {$MESSAGE ERROR 'iOS simulator is not supported.'}
   {$ENDIF}
-  {$IFDEF DEBUG}
-  SkiaLib = 'static/iOSDevice64/Debug/sk4d.a';
-  {$ELSE}
-  SkiaLib = 'static/iOSDevice64/Release/sk4d.a';
-  {$ENDIF}
+  SkiaLib = 'sk4d.a';
 {$ELSEIF defined(MACOS)}
   SkiaLib = 'sk4d.dylib';
 {$ELSE}
@@ -1777,19 +1774,13 @@ const
 var
   LibHandle: HMODULE;
 
-function GetProcAddress(Module: HMODULE; Proc: PChar): Pointer;
-begin
-  Result := Winapi.Windows.GetProcAddress(Module, Proc);
-  if Result = nil then
-    OutputDebugString(pchar('error : ' + string(proc)));
-end;
-
 function SkInitialize: Boolean;
 begin
   LibHandle := SafeLoadLibrary(SkiaLib);
   if LibHandle = 0 then
     Exit(False);
 {$ENDIF}
+
 
 {$REGION 'include/c/gr4d_backendsurface.h'}
 {$IFDEF SK_DYNAMIC_LOADING}
@@ -2025,15 +2016,13 @@ procedure sk4d_canvas_translate;                     external SkiaLib;
 
 {$REGION 'include/c/sk4d_codec.h'}
 {$IFDEF SK_DYNAMIC_LOADING}
-  sk4d_codec_destroy        := GetProcAddress(LibHandle, 'sk4d_codec_destroy');
-  sk4d_codec_get_info       := GetProcAddress(LibHandle, 'sk4d_codec_get_info');
-  sk4d_codec_get_pixels     := GetProcAddress(LibHandle, 'sk4d_codec_get_pixels');
-  sk4d_codec_make_from_data := GetProcAddress(LibHandle, 'sk4d_codec_make_from_data');
+  sk4d_codec_decode   := GetProcAddress(LibHandle, 'sk4d_codec_decode');
+  sk4d_codec_encode   := GetProcAddress(LibHandle, 'sk4d_codec_encode');
+  sk4d_codec_get_info := GetProcAddress(LibHandle, 'sk4d_codec_get_info');
 {$ELSE}
-procedure sk4d_codec_destroy;        external SkiaLib;
-procedure sk4d_codec_get_info;       external SkiaLib;
-function  sk4d_codec_get_pixels;     external SkiaLib;
-function  sk4d_codec_make_from_data; external SkiaLib;
+function  sk4d_codec_decode;   external SkiaLib;
+function  sk4d_codec_encode;   external SkiaLib;
+function  sk4d_codec_get_info; external SkiaLib;
 {$ENDIF}
 {$ENDREGION}
 
@@ -2159,7 +2148,7 @@ procedure sk4d_data_unref;              external SkiaLib;
 {$ENDIF}
 {$ENDREGION}
 
-{$REGION 'include/c/sk4d_debug.h'}
+{$REGION 'include/c/sk4d_debugf.h'}
 {$IFDEF SK_DYNAMIC_LOADING}
   sk4d_set_debug_msg_proc := GetProcAddress(LibHandle, 'sk4d_set_debug_msg_proc');
 {$ELSE}
@@ -2322,10 +2311,10 @@ procedure sk4d_graphics_init;                                            externa
 procedure sk4d_graphics_purge_all_caches;                                external SkiaLib;
 procedure sk4d_graphics_purge_font_cache;                                external SkiaLib;
 procedure sk4d_graphics_purge_resource_cache;                            external SkiaLib;
-procedure sk4d_graphics_set_font_cache_count_limit;                      external SkiaLib;
-procedure sk4d_graphics_set_font_cache_limit;                            external SkiaLib;
-procedure sk4d_graphics_set_resource_cache_single_allocation_byte_limit; external SkiaLib;
-procedure sk4d_graphics_set_resource_cache_total_byte_limit;             external SkiaLib;
+function  sk4d_graphics_set_font_cache_count_limit;                      external SkiaLib;
+function  sk4d_graphics_set_font_cache_limit;                            external SkiaLib;
+function  sk4d_graphics_set_resource_cache_single_allocation_byte_limit; external SkiaLib;
+function  sk4d_graphics_set_resource_cache_total_byte_limit;             external SkiaLib;
 {$ENDIF}
 {$ENDREGION}
 
@@ -2469,13 +2458,13 @@ function  sk4d_maskfilter_make_table_gamma; external SkiaLib;
 
 {$REGION 'include/c/sk4d_paint.h'}
 {$IFDEF SK_DYNAMIC_LOADING}
+  sk4d_paint_as_blend_mode    := GetProcAddress(LibHandle, 'sk4d_paint_as_blend_mode');
   sk4d_paint_create           := GetProcAddress(LibHandle, 'sk4d_paint_create');
   sk4d_paint_create2          := GetProcAddress(LibHandle, 'sk4d_paint_create2');
   sk4d_paint_destroy          := GetProcAddress(LibHandle, 'sk4d_paint_destroy');
   sk4d_paint_get_alpha        := GetProcAddress(LibHandle, 'sk4d_paint_get_alpha');
   sk4d_paint_get_alphaf       := GetProcAddress(LibHandle, 'sk4d_paint_get_alphaf');
   sk4d_paint_get_anti_alias   := GetProcAddress(LibHandle, 'sk4d_paint_get_anti_alias');
-  sk4d_paint_get_blend_mode   := GetProcAddress(LibHandle, 'sk4d_paint_get_blend_mode');
   sk4d_paint_get_color        := GetProcAddress(LibHandle, 'sk4d_paint_get_color');
   sk4d_paint_get_colorf       := GetProcAddress(LibHandle, 'sk4d_paint_get_colorf');
   sk4d_paint_get_color_filter := GetProcAddress(LibHandle, 'sk4d_paint_get_color_filter');
@@ -2510,13 +2499,13 @@ function  sk4d_maskfilter_make_table_gamma; external SkiaLib;
   sk4d_paint_set_stroke_width := GetProcAddress(LibHandle, 'sk4d_paint_set_stroke_width');
   sk4d_paint_set_style        := GetProcAddress(LibHandle, 'sk4d_paint_set_style');
 {$ELSE}
-function  sk4d_paint_create;           external SkiaLib;
+function sk4d_paint_as_blend_mode;     external SkiaLib;
+function sk4d_paint_create;            external SkiaLib;
 function  sk4d_paint_create2;          external SkiaLib;
 procedure sk4d_paint_destroy;          external SkiaLib;
 function  sk4d_paint_get_alpha;        external SkiaLib;
 function  sk4d_paint_get_alphaf;       external SkiaLib;
 function  sk4d_paint_get_anti_alias;   external SkiaLib;
-function sk4d_paint_get_blend_mode;    external SkiaLib;
 function  sk4d_paint_get_color;        external SkiaLib;
 procedure sk4d_paint_get_colorf;       external SkiaLib;
 function  sk4d_paint_get_color_filter; external SkiaLib;
@@ -3099,53 +3088,55 @@ procedure sk4d_string_set_text; external SkiaLib;
 
 {$REGION 'include/c/sk4d_surface.h'}
 {$IFDEF SK_DYNAMIC_LOADING}
-  sk4d_surface_draw                    := GetProcAddress(LibHandle, 'sk4d_surface_draw');
-  sk4d_surface_flush                   := GetProcAddress(LibHandle, 'sk4d_surface_flush');
-  sk4d_surface_get_canvas              := GetProcAddress(LibHandle, 'sk4d_surface_get_canvas');
-  sk4d_surface_get_height              := GetProcAddress(LibHandle, 'sk4d_surface_get_height');
-  sk4d_surface_get_image_info          := GetProcAddress(LibHandle, 'sk4d_surface_get_image_info');
-  sk4d_surface_get_props               := GetProcAddress(LibHandle, 'sk4d_surface_get_props');
-  sk4d_surface_get_width               := GetProcAddress(LibHandle, 'sk4d_surface_get_width');
-  sk4d_surface_make_from_rendertarget  := GetProcAddress(LibHandle, 'sk4d_surface_make_from_rendertarget');
-  sk4d_surface_make_from_texture       := GetProcAddress(LibHandle, 'sk4d_surface_make_from_texture');
-  sk4d_surface_make_image_snapshot     := GetProcAddress(LibHandle, 'sk4d_surface_make_image_snapshot');
-  sk4d_surface_make_image_snapshot2    := GetProcAddress(LibHandle, 'sk4d_surface_make_image_snapshot2');
-  sk4d_surface_make_null               := GetProcAddress(LibHandle, 'sk4d_surface_make_null');
-  sk4d_surface_make_raster             := GetProcAddress(LibHandle, 'sk4d_surface_make_raster');
-  sk4d_surface_make_raster_direct      := GetProcAddress(LibHandle, 'sk4d_surface_make_raster_direct');
-  sk4d_surface_make_render_target      := GetProcAddress(LibHandle, 'sk4d_surface_make_render_target');
-  sk4d_surface_peek_pixels             := GetProcAddress(LibHandle, 'sk4d_surface_peek_pixels');
-  sk4d_surface_read_pixels             := GetProcAddress(LibHandle, 'sk4d_surface_read_pixels');
-  sk4d_surface_write_pixels            := GetProcAddress(LibHandle, 'sk4d_surface_write_pixels');
-  sk4d_sk_surfaceprops_create          := GetProcAddress(LibHandle, 'sk4d_sk_surfaceprops_create');
-  sk4d_surfaceprops_destroy            := GetProcAddress(LibHandle, 'sk4d_surfaceprops_destroy');
-  sk4d_surfaceprops_get_flags          := GetProcAddress(LibHandle, 'sk4d_surfaceprops_get_flags');
-  sk4d_surfaceprops_get_pixel_geometry := GetProcAddress(LibHandle, 'sk4d_surfaceprops_get_pixel_geometry');
-  sk4d_surfaceprops_is_equal           := GetProcAddress(LibHandle, 'sk4d_surfaceprops_is_equal');
+  sk4d_surface_draw                     := GetProcAddress(LibHandle, 'sk4d_surface_draw');
+  sk4d_surface_flush                    := GetProcAddress(LibHandle, 'sk4d_surface_flush');
+  sk4d_surface_get_canvas               := GetProcAddress(LibHandle, 'sk4d_surface_get_canvas');
+  sk4d_surface_get_height               := GetProcAddress(LibHandle, 'sk4d_surface_get_height');
+  sk4d_surface_get_image_info           := GetProcAddress(LibHandle, 'sk4d_surface_get_image_info');
+  sk4d_surface_get_props                := GetProcAddress(LibHandle, 'sk4d_surface_get_props');
+  sk4d_surface_get_width                := GetProcAddress(LibHandle, 'sk4d_surface_get_width');
+  sk4d_surface_make_from_ca_metal_layer := GetProcAddress(LibHandle, 'sk4d_surface_make_from_ca_metal_layer');
+  sk4d_surface_make_from_rendertarget   := GetProcAddress(LibHandle, 'sk4d_surface_make_from_rendertarget');
+  sk4d_surface_make_from_texture        := GetProcAddress(LibHandle, 'sk4d_surface_make_from_texture');
+  sk4d_surface_make_image_snapshot      := GetProcAddress(LibHandle, 'sk4d_surface_make_image_snapshot');
+  sk4d_surface_make_image_snapshot2     := GetProcAddress(LibHandle, 'sk4d_surface_make_image_snapshot2');
+  sk4d_surface_make_null                := GetProcAddress(LibHandle, 'sk4d_surface_make_null');
+  sk4d_surface_make_raster              := GetProcAddress(LibHandle, 'sk4d_surface_make_raster');
+  sk4d_surface_make_raster_direct       := GetProcAddress(LibHandle, 'sk4d_surface_make_raster_direct');
+  sk4d_surface_make_render_target       := GetProcAddress(LibHandle, 'sk4d_surface_make_render_target');
+  sk4d_surface_peek_pixels              := GetProcAddress(LibHandle, 'sk4d_surface_peek_pixels');
+  sk4d_surface_read_pixels              := GetProcAddress(LibHandle, 'sk4d_surface_read_pixels');
+  sk4d_surface_write_pixels             := GetProcAddress(LibHandle, 'sk4d_surface_write_pixels');
+  sk4d_sk_surfaceprops_create           := GetProcAddress(LibHandle, 'sk4d_sk_surfaceprops_create');
+  sk4d_surfaceprops_destroy             := GetProcAddress(LibHandle, 'sk4d_surfaceprops_destroy');
+  sk4d_surfaceprops_get_flags           := GetProcAddress(LibHandle, 'sk4d_surfaceprops_get_flags');
+  sk4d_surfaceprops_get_pixel_geometry  := GetProcAddress(LibHandle, 'sk4d_surfaceprops_get_pixel_geometry');
+  sk4d_surfaceprops_is_equal            := GetProcAddress(LibHandle, 'sk4d_surfaceprops_is_equal');
 {$ELSE}
-procedure sk4d_surface_draw;                    external SkiaLib;
-procedure sk4d_surface_flush;                   external SkiaLib;
-function  sk4d_surface_get_canvas;              external SkiaLib;
-function  sk4d_surface_get_height;              external SkiaLib;
-procedure sk4d_surface_get_image_info;          external SkiaLib;
-function  sk4d_surface_get_props;               external SkiaLib;
-function  sk4d_surface_get_width;               external SkiaLib;
-function  sk4d_surface_make_from_rendertarget;  external SkiaLib;
-function  sk4d_surface_make_from_texture;       external SkiaLib;
-function  sk4d_surface_make_image_snapshot;     external SkiaLib;
-function  sk4d_surface_make_image_snapshot2;    external SkiaLib;
-function  sk4d_surface_make_null;               external SkiaLib;
-function  sk4d_surface_make_raster;             external SkiaLib;
-function  sk4d_surface_make_raster_direct;      external SkiaLib;
-function  sk4d_surface_make_render_target;      external SkiaLib;
-function  sk4d_surface_peek_pixels;             external SkiaLib;
-function  sk4d_surface_read_pixels;             external SkiaLib;
-procedure sk4d_surface_write_pixels;            external SkiaLib;
-function  sk4d_sk_surfaceprops_create;          external SkiaLib;
-procedure sk4d_surfaceprops_destroy;            external SkiaLib;
-function  sk4d_surfaceprops_get_flags;          external SkiaLib;
-function  sk4d_surfaceprops_get_pixel_geometry; external SkiaLib;
-function  sk4d_surfaceprops_is_equal;           external SkiaLib;
+procedure sk4d_surface_draw;                     external SkiaLib;
+procedure sk4d_surface_flush;                    external SkiaLib;
+function  sk4d_surface_get_canvas;               external SkiaLib;
+function  sk4d_surface_get_height;               external SkiaLib;
+procedure sk4d_surface_get_image_info;           external SkiaLib;
+function  sk4d_surface_get_props;                external SkiaLib;
+function  sk4d_surface_get_width;                external SkiaLib;
+function  sk4d_surface_make_from_ca_metal_layer; external SkiaLib;
+function  sk4d_surface_make_from_rendertarget;   external SkiaLib;
+function  sk4d_surface_make_from_texture;        external SkiaLib;
+function  sk4d_surface_make_image_snapshot;      external SkiaLib;
+function  sk4d_surface_make_image_snapshot2;     external SkiaLib;
+function  sk4d_surface_make_null;                external SkiaLib;
+function  sk4d_surface_make_raster;              external SkiaLib;
+function  sk4d_surface_make_raster_direct;       external SkiaLib;
+function  sk4d_surface_make_render_target;       external SkiaLib;
+function  sk4d_surface_peek_pixels;              external SkiaLib;
+function  sk4d_surface_read_pixels;              external SkiaLib;
+procedure sk4d_surface_write_pixels;             external SkiaLib;
+function  sk4d_sk_surfaceprops_create;           external SkiaLib;
+procedure sk4d_surfaceprops_destroy;             external SkiaLib;
+function  sk4d_surfaceprops_get_flags;           external SkiaLib;
+function  sk4d_surfaceprops_get_pixel_geometry;  external SkiaLib;
+function  sk4d_surfaceprops_is_equal;            external SkiaLib;
 {$ENDIF}
 {$ENDREGION}
 
@@ -3243,6 +3234,40 @@ procedure sk4d_vertices_unref;         external SkiaLib;
 {$ENDIF}
 {$ENDREGION}
 
+{$REGION 'modules/skottie/include/sk4d_skottie.h'}
+{$IFDEF SK_DYNAMIC_LOADING}
+  sk4d_skottieanimation_get_duration     := GetProcAddress(LibHandle, 'sk4d_skottieanimation_get_duration');
+  sk4d_skottieanimation_get_fps          := GetProcAddress(LibHandle, 'sk4d_skottieanimation_get_fps');
+  sk4d_skottieanimation_get_in_point     := GetProcAddress(LibHandle, 'sk4d_skottieanimation_get_in_point');
+  sk4d_skottieanimation_get_out_point    := GetProcAddress(LibHandle, 'sk4d_skottieanimation_get_out_point');
+  sk4d_skottieanimation_get_size         := GetProcAddress(LibHandle, 'sk4d_skottieanimation_get_size');
+  sk4d_skottieanimation_get_version      := GetProcAddress(LibHandle, 'sk4d_skottieanimation_get_version');
+  sk4d_skottieanimation_make             := GetProcAddress(LibHandle, 'sk4d_skottieanimation_make');
+  sk4d_skottieanimation_make_from_file   := GetProcAddress(LibHandle, 'sk4d_skottieanimation_make_from_file');
+  sk4d_skottieanimation_make_from_stream := GetProcAddress(LibHandle, 'sk4d_skottieanimation_make_from_stream');
+  sk4d_skottieanimation_ref              := GetProcAddress(LibHandle, 'sk4d_skottieanimation_ref');
+  sk4d_skottieanimation_render           := GetProcAddress(LibHandle, 'sk4d_skottieanimation_render');
+  sk4d_skottieanimation_seek_frame       := GetProcAddress(LibHandle, 'sk4d_skottieanimation_seek_frame');
+  sk4d_skottieanimation_seek_frame_time  := GetProcAddress(LibHandle, 'sk4d_skottieanimation_seek_frame_time');
+  sk4d_skottieanimation_unref            := GetProcAddress(LibHandle, 'sk4d_skottieanimation_unref');
+{$ELSE}
+function  sk4d_skottieanimation_get_duration;     external SkiaLib;
+function  sk4d_skottieanimation_get_fps;          external SkiaLib;
+function  sk4d_skottieanimation_get_in_point;     external SkiaLib;
+function  sk4d_skottieanimation_get_out_point;    external SkiaLib;
+procedure sk4d_skottieanimation_get_size;         external SkiaLib;
+function  sk4d_skottieanimation_get_version;      external SkiaLib;
+function  sk4d_skottieanimation_make;             external SkiaLib;
+function  sk4d_skottieanimation_make_from_file;   external SkiaLib;
+function  sk4d_skottieanimation_make_from_stream; external SkiaLib;
+procedure sk4d_skottieanimation_ref;              external SkiaLib;
+procedure sk4d_skottieanimation_render;           external SkiaLib;
+procedure sk4d_skottieanimation_seek_frame;       external SkiaLib;
+procedure sk4d_skottieanimation_seek_frame_time;  external SkiaLib;
+procedure sk4d_skottieanimation_unref;            external SkiaLib;
+{$ENDIF}
+{$ENDREGION}
+
 {$REGION 'modules/skshaper/include/sk4d_shaper.h'}
 {$IFDEF SK_DYNAMIC_LOADING}
   sk4d_shaper_create                                := GetProcAddress(LibHandle, 'sk4d_shaper_create');
@@ -3315,40 +3340,6 @@ procedure sk_svgsvg_get_intrinsic_size; external SkiaLib;
 {$ENDIF}
 {$ENDREGION}
 
-{$REGION 'modules/skottie/include/sk4d_skottie.h'}
-{$IFDEF SK_DYNAMIC_LOADING}
-  sk4d_skottieanimation_get_duration     := GetProcAddress(LibHandle, 'sk4d_skottieanimation_get_duration');
-  sk4d_skottieanimation_get_fps          := GetProcAddress(LibHandle, 'sk4d_skottieanimation_get_fps');
-  sk4d_skottieanimation_get_in_point     := GetProcAddress(LibHandle, 'sk4d_skottieanimation_get_in_point');
-  sk4d_skottieanimation_get_out_point    := GetProcAddress(LibHandle, 'sk4d_skottieanimation_get_out_point');
-  sk4d_skottieanimation_get_size         := GetProcAddress(LibHandle, 'sk4d_skottieanimation_get_size');
-  sk4d_skottieanimation_get_version      := GetProcAddress(LibHandle, 'sk4d_skottieanimation_get_version');
-  sk4d_skottieanimation_make             := GetProcAddress(LibHandle, 'sk4d_skottieanimation_make');
-  sk4d_skottieanimation_make_from_file   := GetProcAddress(LibHandle, 'sk4d_skottieanimation_make_from_file');
-  sk4d_skottieanimation_make_from_stream := GetProcAddress(LibHandle, 'sk4d_skottieanimation_make_from_stream');
-  sk4d_skottieanimation_ref              := GetProcAddress(LibHandle, 'sk4d_skottieanimation_ref');
-  sk4d_skottieanimation_render           := GetProcAddress(LibHandle, 'sk4d_skottieanimation_render');
-  sk4d_skottieanimation_seek_frame       := GetProcAddress(LibHandle, 'sk4d_skottieanimation_seek_frame');
-  sk4d_skottieanimation_seek_frame_time  := GetProcAddress(LibHandle, 'sk4d_skottieanimation_seek_frame_time');
-  sk4d_skottieanimation_unref            := GetProcAddress(LibHandle, 'sk4d_skottieanimation_unref');
-{$ELSE}
-function  sk4d_skottieanimation_get_duration;     external SkiaLib;
-function  sk4d_skottieanimation_get_fps;          external SkiaLib;
-function  sk4d_skottieanimation_get_in_point;     external SkiaLib;
-function  sk4d_skottieanimation_get_out_point;    external SkiaLib;
-procedure sk4d_skottieanimation_get_size;         external SkiaLib;
-function  sk4d_skottieanimation_get_version;      external SkiaLib;
-function  sk4d_skottieanimation_make;             external SkiaLib;
-function  sk4d_skottieanimation_make_from_file;   external SkiaLib;
-function  sk4d_skottieanimation_make_from_stream; external SkiaLib;
-procedure sk4d_skottieanimation_ref;              external SkiaLib;
-procedure sk4d_skottieanimation_render;           external SkiaLib;
-procedure sk4d_skottieanimation_seek_frame;       external SkiaLib;
-procedure sk4d_skottieanimation_seek_frame_time;  external SkiaLib;
-procedure sk4d_skottieanimation_unref;            external SkiaLib;
-{$ENDIF}
-{$ENDREGION}
-
 {$IFDEF SK_DYNAMIC_LOADING}
   Result := True;
 end;
@@ -3357,5 +3348,10 @@ procedure SkFinalize;
 begin
   FreeLibrary(LibHandle);
 end;
+{$ENDIF}
+
+{$IFDEF IOS}
+procedure libcompiler_rt; external '/usr/lib/clang/lib/darwin/libclang_rt.ios.a';
+procedure libcpp; external '/usr/lib/libc++.dylib';
 {$ENDIF}
 end.

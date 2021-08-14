@@ -15,16 +15,16 @@ interface
 
 {$SCOPEDENUMS ON}
 
-{$INCLUDE sk4d.inc}
-
 uses
-  {Delphi}
+  { Delphi }
   System.Classes,
   System.Math.Vectors,
   System.Types,
   System.UITypes,
-  {Skia}
+  { Skia }
   sk4d;
+
+{$I sk4d.inc}
 
 type
   TSKDebugMessageProc = reference to procedure (const AMessage: string);
@@ -1191,7 +1191,8 @@ type
   TGRMTLBackendContext = record
     Device: TGRMTLHandle;
     Queue: TGRMTLHandle;
-    constructor Create(const ADevice, AQueue: TGRMTLHandle);
+    BinaryArchive: TGRMTLHandle;
+    constructor Create(const ADevice, AQueue, ABinaryArchive: TGRMTLHandle);
   end;
 
   { TGRMTLTextureInfo }
@@ -1384,16 +1385,16 @@ type
     class function MakeEmpty: ISKShader; static;
     class function MakeGradientLinear(const AStart, AEnd: TPointF; const AColor1, AColor2: TAlphaColor; const ATileMode: TSKTileMode): ISKShader; overload; static;
     class function MakeGradientLinear(const AStart, AEnd: TPointF; const AColor1, AColor2: TAlphaColorF; const ATileMode: TSKTileMode; const AColorSpace: ISKColorSpace = nil): ISKShader; overload; static;
-    class function MakeGradientLinear(const AStart, AEnd: TPointF; const AColors: TArray<TAlphaColor>; const ATileMode: TSKTileMode; const APositions: TArray<Single> = []): ISKShader; overload; static;
-    class function MakeGradientLinear(const AStart, AEnd: TPointF; const AColors: TArray<TAlphaColorF>; const ATileMode: TSKTileMode; const APositions: TArray<Single> = []; const AColorSpace: ISKColorSpace = nil): ISKShader; overload; static;
+    class function MakeGradientLinear(const AStart, AEnd: TPointF; const AColors: TArray<TAlphaColor>; const ATileMode: TSKTileMode; const APositions: TArray<Single> = nil): ISKShader; overload; static;
+    class function MakeGradientLinear(const AStart, AEnd: TPointF; const AColors: TArray<TAlphaColorF>; const ATileMode: TSKTileMode; const APositions: TArray<Single> = nil; const AColorSpace: ISKColorSpace = nil): ISKShader; overload; static;
     class function MakeGradientRadial(const ACenter: TPointF; const ARadius: Single; const ACenterColor, AEdgeColor: TAlphaColor; const ATileMode: TSKTileMode): ISKShader; overload; static;
     class function MakeGradientRadial(const ACenter: TPointF; const ARadius: Single; const ACenterColor, AEdgeColor: TAlphaColorF; const ATileMode: TSKTileMode; const AColorSpace: ISKColorSpace = nil): ISKShader; overload; static;
-    class function MakeGradientRadial(const ACenter: TPointF; const ARadius: Single; const AColors: TArray<TAlphaColor>; const ATileMode: TSKTileMode; const APositions: TArray<Single> = []): ISKShader; overload; static;
-    class function MakeGradientRadial(const ACenter: TPointF; const ARadius: Single; const AColors: TArray<TAlphaColorF>; const ATileMode: TSKTileMode; const APositions: TArray<Single> = []; const AColorSpace: ISKColorSpace = nil): ISKShader; overload; static;
+    class function MakeGradientRadial(const ACenter: TPointF; const ARadius: Single; const AColors: TArray<TAlphaColor>; const ATileMode: TSKTileMode; const APositions: TArray<Single> = nil): ISKShader; overload; static;
+    class function MakeGradientRadial(const ACenter: TPointF; const ARadius: Single; const AColors: TArray<TAlphaColorF>; const ATileMode: TSKTileMode; const APositions: TArray<Single> = nil; const AColorSpace: ISKColorSpace = nil): ISKShader; overload; static;
     class function MakeGradientSweep(const ACenter: TPointF; const AColor1, AColor2: TAlphaColor): ISKShader; overload; static;
     class function MakeGradientSweep(const ACenter: TPointF; const AColor1, AColor2: TAlphaColorF; const AColorSpace: ISKColorSpace = nil): ISKShader; overload; static;
-    class function MakeGradientSweep(const ACenter: TPointF; const AColors: TArray<TAlphaColor>; const APositions: TArray<Single> = []): ISKShader; overload; static;
-    class function MakeGradientSweep(const ACenter: TPointF; const AColors: TArray<TAlphaColorF>; const APositions: TArray<Single> = []; const AColorSpace: ISKColorSpace = nil): ISKShader; overload; static;
+    class function MakeGradientSweep(const ACenter: TPointF; const AColors: TArray<TAlphaColor>; const APositions: TArray<Single> = nil): ISKShader; overload; static;
+    class function MakeGradientSweep(const ACenter: TPointF; const AColors: TArray<TAlphaColorF>; const APositions: TArray<Single> = nil; const AColorSpace: ISKColorSpace = nil): ISKShader; overload; static;
     class function MakePerlinNoiseFractalNoise(const ABaseFrequencyX, ABaseFrequencyY: Single; const ANumOctaves: Integer; const ASeed: Single): ISKShader; overload; static;
     class function MakePerlinNoiseFractalNoise(const ABaseFrequencyX, ABaseFrequencyY: Single; const ANumOctaves: Integer; const ASeed: Single; const ATileSize: TSize): ISKShader; overload; static;
     class function MakePerlinNoiseTurbulence(const ABaseFrequencyX, ABaseFrequencyY: Single; const ANumOctaves: Integer; const ASeed: Single): ISKShader; overload; static;
@@ -1723,9 +1724,10 @@ type
     procedure WritePixels(const ASrc: ISKPixmap; const ADestX: Integer = 0; const ADestY: Integer = 0); overload;
     procedure WritePixels(const ASrcImageInfo: TSKImageInfo; const ASrcPixels: Pointer; const ASrcRowBytes: NativeUInt; const ADestX: Integer = 0; const ADestY: Integer = 0); overload;
   public
+    class function MakeFromCAMetalLayer(const AContext: IGRDirectContext; const ALayer: TGRMTLHandle; const AOrigin: TGRSurfaceOrigin; const ASampleCount: Integer; const AColorType: TSKColorType; const AColorSpace: ISKColorSpace; const AProps: ISKSurfaceProps; out ADrawable: TGRMTLHandle): ISKSurface; static;
     class function MakeFromRenderTarget(const AContext: IGRDirectContext; const ARenderTarget: IGRBackendRenderTarget; const AOrigin: TGRSurfaceOrigin; const AColorType: TSKColorType; const AColorSpace: ISKColorSpace; const AProps: ISKSurfaceProps): ISKSurface; static;
     class function MakeFromTexture(const AContext: IGRDirectContext; const ATexture: IGRBackendTexture; const AOrigin: TGRSurfaceOrigin; const ASampleCount: Integer; const AColorType: TSKColorType; const AColorSpace: ISKColorSpace; const AProps: ISKSurfaceProps): ISKSurface; static;
-    class function MakeNull: ISKSurface; static;
+    class function MakeNull(const AWidth, AHeight: Integer): ISKSurface; static;
     class function MakeRaster(const AImageInfo: TSKImageInfo; const AProps: ISKSurfaceProps = nil): ISKSurface; overload; static;
     class function MakeRaster(const AImageInfo: TSKImageInfo; const ARowBytes: NativeUInt; const AProps: ISKSurfaceProps = nil): ISKSurface; overload; static;
     class function MakeRaster(const AWidth, AHeight: Integer): ISKSurface; overload; static;
@@ -1752,7 +1754,7 @@ type
     class procedure DoRef(const AHandle: THandle); override;
     class procedure DoUnref(const AHandle: THandle); override;
   public
-    class function MakeCopy(const AVertexMode: TSKVertexMode; const APositions, ATextures: TArray<TPointF>; const AColors: TArray<TAlphaColor>; const AIndices: TArray<Word> = []): ISKVertices; static;
+    class function MakeCopy(const AVertexMode: TSKVertexMode; const APositions, ATextures: TArray<TPointF>; const AColors: TArray<TAlphaColor>; const AIndices: TArray<Word> = nil): ISKVertices; static;
   end;
 
   TSKFontMetricsFlag  = (UnderlineThicknessIsValid, UnderlinePositionIsValid, StrikeoutThicknessIsValid, StrikeoutPositionIsValid, BoundsInvalid);
@@ -1941,7 +1943,7 @@ type
 
   TSKFont = class(TSKObject, ISKFont)
   strict private
-    class procedure getpaths_proc(const path: sk_path_t; const [Ref] matrix: sk_matrix_t; context: Pointer); cdecl; static;
+    class procedure getpaths_proc(const path: sk_path_t; const matrix: psk_matrix_t; context: Pointer); cdecl; static;
   strict protected
     function GetBaselineSnap: Boolean;
     function GetBounds(const AGlyphs: TArray<Word>; const APaint: ISKPaint = nil): TArray<TRectF>;
@@ -2140,7 +2142,7 @@ type
     Advance: TPointF;
     GlyphCount: NativeUInt;
     UTF8Range: TSKShaperRunHandlerRange;
-    class operator Explicit(const [Ref] ARunHandlerInfo: sk_shaperrunhandlerinfo_t): TSKShaperRunHandlerInfo;
+    class operator Explicit(const ARunHandlerInfo: psk_shaperrunhandlerinfo_t): TSKShaperRunHandlerInfo;
   end;
 
   { ISKShaperRunHandler }
@@ -2169,10 +2171,10 @@ type
     class procedure begin_line_proc(context: Pointer); cdecl; static;
     class constructor Create;
     class procedure commit_line_proc(context: Pointer); cdecl; static;
-    class procedure commit_run_buffer_proc(context: Pointer; const [Ref] info: sk_shaperrunhandlerinfo_t); cdecl; static;
+    class procedure commit_run_buffer_proc(context: Pointer; const info: psk_shaperrunhandlerinfo_t); cdecl; static;
     class procedure commit_run_info_proc(context: Pointer); cdecl; static;
-    class procedure run_buffer_proc(context: Pointer; const [Ref] info: sk_shaperrunhandlerinfo_t; out result: sk_shaperrunhandlerbuffer_t); cdecl; static;
-    class procedure run_info_proc(context: Pointer; const [Ref] info: sk_shaperrunhandlerinfo_t); cdecl; static;
+    class procedure run_buffer_proc(context: Pointer; const info: psk_shaperrunhandlerinfo_t; out result: sk_shaperrunhandlerbuffer_t); cdecl; static;
+    class procedure run_info_proc(context: Pointer; const info: psk_shaperrunhandlerinfo_t); cdecl; static;
   public
     constructor Create;
   end;
@@ -2296,7 +2298,7 @@ type
 
   ISKShaper = interface(ISKObject)
     ['{00C65408-448D-402B-947A-86F2EFC10324}']
-    procedure Shape(const AText: UTF8String; const AFont: ISKShaperFontRunIterator; const ABiDi: ISKShaperBiDiRunIterator; const AScript: ISKShaperScriptRunIterator; const ALanguage: ISKShaperLanguageRunIterator; const AWidth: Single; const AHandler: ISKShaperRunHandler; const AFeatures: TArray<TSKShaperFeature> = []); overload;
+    procedure Shape(const AText: UTF8String; const AFont: ISKShaperFontRunIterator; const ABiDi: ISKShaperBiDiRunIterator; const AScript: ISKShaperScriptRunIterator; const ALanguage: ISKShaperLanguageRunIterator; const AWidth: Single; const AHandler: ISKShaperRunHandler; const AFeatures: TArray<TSKShaperFeature> = nil); overload;
     procedure Shape(const AText: UTF8String; const ASrcFont: ISKFont; const ALeftToRight: Boolean; const AWidth: Single; const AHandler: ISKShaperRunHandler); overload;
   end;
 
@@ -2304,7 +2306,7 @@ type
 
   TSKShaper = class(TSKObject, ISKShaper)
   strict protected
-    procedure Shape(const AText: UTF8String; const AFont: ISKShaperFontRunIterator; const ABiDi: ISKShaperBiDiRunIterator; const AScript: ISKShaperScriptRunIterator; const ALanguage: ISKShaperLanguageRunIterator; const AWidth: Single; const AHandler: ISKShaperRunHandler; const AFeatures: TArray<TSKShaperFeature> = []); overload;
+    procedure Shape(const AText: UTF8String; const AFont: ISKShaperFontRunIterator; const ABiDi: ISKShaperBiDiRunIterator; const AScript: ISKShaperScriptRunIterator; const ALanguage: ISKShaperLanguageRunIterator; const AWidth: Single; const AHandler: ISKShaperRunHandler; const AFeatures: TArray<TSKShaperFeature> = nil); overload;
     procedure Shape(const AText: UTF8String; const ASrcFont: ISKFont; const ALeftToRight: Boolean; const AWidth: Single; const AHandler: ISKShaperRunHandler); overload;
     class procedure DoDestroy(const AHandle: THandle); override;
   public
@@ -2326,10 +2328,11 @@ type
 
   ISKPaint = interface(ISKObject)
     ['{2E5F2D19-D285-4924-A52A-37AD6730FE5B}']
+    function AsBlendMode(out AMode: TSKBlendMode): Boolean;
     function GetAlpha: Byte;
     function GetAlphaF: Single;
     function GetAntiAlias: Boolean;
-    function GetBlendMode: TSKBlendMode;
+    function GetBlendMode(const ADefaultMode: TSKBlendMode): TSKBlendMode;
     function GetColor: TAlphaColor;
     function GetColorF: TAlphaColorF;
     function GetColorFilter: ISKColorFilter;
@@ -2349,7 +2352,7 @@ type
     procedure SetAlphaF(const AValue: Single);
     procedure SetAntiAlias(const AValue: Boolean);
     procedure SetARGB(const A, R, G, B: Byte);
-    procedure SetBlendMode(const AValue: TSKBlendMode);
+    procedure SetBlendMode(const AMode: TSKBlendMode);
     procedure SetColor(const AValue: TAlphaColor);
     procedure SetColorF(const AValue: TAlphaColorF); overload;
     procedure SetColorF(const AValue: TAlphaColorF; const AColorSpace: ISKColorSpace); overload;
@@ -2367,7 +2370,6 @@ type
     property Alpha: Byte read GetAlpha write SetAlpha;
     property AlphaF: Single read GetAlphaF write SetAlphaF;
     property AntiAlias: Boolean read GetAntiAlias write SetAntiAlias;
-    property BlendMode: TSKBlendMode read GetBlendMode write SetBlendMode;
     property Color: TAlphaColor read GetColor write SetColor;
     property ColorF: TAlphaColorF read GetColorF write SetColorF;
     property ColorFilter: ISKColorFilter read GetColorFilter write SetColorFilter;
@@ -2387,10 +2389,11 @@ type
 
   TSKPaint = class(TSKObject, ISKPaint)
   strict protected
+    function AsBlendMode(out AMode: TSKBlendMode): Boolean;
     function GetAlpha: Byte;
     function GetAlphaF: Single;
     function GetAntiAlias: Boolean;
-    function GetBlendMode: TSKBlendMode;
+    function GetBlendMode(const ADefaultMode: TSKBlendMode): TSKBlendMode;
     function GetColor: TAlphaColor;
     function GetColorF: TAlphaColorF;
     function GetColorFilter: ISKColorFilter;
@@ -2410,7 +2413,7 @@ type
     procedure SetAlphaF(const AValue: Single);
     procedure SetAntiAlias(const AValue: Boolean);
     procedure SetARGB(const A, R, G, B: Byte);
-    procedure SetBlendMode(const AValue: TSKBlendMode);
+    procedure SetBlendMode(const AMode: TSKBlendMode);
     procedure SetColor(const AValue: TAlphaColor);
     procedure SetColorF(const AValue: TAlphaColorF); overload;
     procedure SetColorF(const AValue: TAlphaColorF; const AColorSpace: ISKColorSpace); overload;
@@ -2472,8 +2475,8 @@ type
     procedure Concat(const AMatrix: TMatrix3D); overload;
     procedure DrawAnnotation(const ARect: TRectF; const AKey: string; const AValue: ISKData);
     procedure DrawArc(const AOval: TRectF; const AStartAngle, ASweepAngle: Single; const AUseCenter: Boolean; const APaint: ISKPaint);
-    procedure DrawAtlas(const AAtlas: ISKImage; const ATansforms: TArray<TSKRotationScaleMatrix>; const ASprites: TArray<TRectF>; const ABlendMode: TSKBlendMode; const ASampling: TSKSamplingOptions; const AColors: TArray<TAlphaColor> = []; const APaint: ISKPaint = nil); overload;
-    procedure DrawAtlas(const AAtlas: ISKImage; const ATansforms: TArray<TSKRotationScaleMatrix>; const ASprites: TArray<TRectF>; const ABlendMode: TSKBlendMode; const ASampling: TSKSamplingOptions; const ACullRect: TRectF; const AColors: TArray<TAlphaColor> = []; const APaint: ISKPaint = nil); overload;
+    procedure DrawAtlas(const AAtlas: ISKImage; const ATansforms: TArray<TSKRotationScaleMatrix>; const ASprites: TArray<TRectF>; const ABlendMode: TSKBlendMode; const ASampling: TSKSamplingOptions; const AColors: TArray<TAlphaColor> = nil; const APaint: ISKPaint = nil); overload;
+    procedure DrawAtlas(const AAtlas: ISKImage; const ATansforms: TArray<TSKRotationScaleMatrix>; const ASprites: TArray<TRectF>; const ABlendMode: TSKBlendMode; const ASampling: TSKSamplingOptions; const ACullRect: TRectF; const AColors: TArray<TAlphaColor> = nil; const APaint: ISKPaint = nil); overload;
     procedure DrawCircle(const ACenter: TPointF; ARadius: Single; const APaint: ISKPaint); overload;
     procedure DrawCircle(const ACenterX, ACenterY, ARadius: Single; const APaint: ISKPaint); overload;
     procedure DrawColor(const AColor: TAlphaColor; const ABlendMode: TSKBlendMode = TSKBlendMode.SrcOver); overload;
@@ -2556,8 +2559,8 @@ type
     procedure Concat(const AMatrix: TMatrix3D); overload;
     procedure DrawAnnotation(const ARect: TRectF; const AKey: string; const AValue: ISKData);
     procedure DrawArc(const AOval: TRectF; const AStartAngle, ASweepAngle: Single; const AUseCenter: Boolean; const APaint: ISKPaint);
-    procedure DrawAtlas(const AAtlas: ISKImage; const ATansforms: TArray<TSKRotationScaleMatrix>; const ASprites: TArray<TRectF>; const ABlendMode: TSKBlendMode; const ASampling: TSKSamplingOptions; const AColors: TArray<TAlphaColor> = []; const APaint: ISKPaint = nil); overload;
-    procedure DrawAtlas(const AAtlas: ISKImage; const ATansforms: TArray<TSKRotationScaleMatrix>; const ASprites: TArray<TRectF>; const ABlendMode: TSKBlendMode; const ASampling: TSKSamplingOptions; const ACullRect: TRectF; const AColors: TArray<TAlphaColor> = []; const APaint: ISKPaint = nil); overload;
+    procedure DrawAtlas(const AAtlas: ISKImage; const ATansforms: TArray<TSKRotationScaleMatrix>; const ASprites: TArray<TRectF>; const ABlendMode: TSKBlendMode; const ASampling: TSKSamplingOptions; const AColors: TArray<TAlphaColor> = nil; const APaint: ISKPaint = nil); overload;
+    procedure DrawAtlas(const AAtlas: ISKImage; const ATansforms: TArray<TSKRotationScaleMatrix>; const ASprites: TArray<TRectF>; const ABlendMode: TSKBlendMode; const ASampling: TSKSamplingOptions; const ACullRect: TRectF; const AColors: TArray<TAlphaColor> = nil; const APaint: ISKPaint = nil); overload;
     procedure DrawCircle(const ACenter: TPointF; ARadius: Single; const APaint: ISKPaint); overload;
     procedure DrawCircle(const ACenterX, ACenterY, ARadius: Single; const APaint: ISKPaint); overload;
     procedure DrawColor(const AColor: TAlphaColor; const ABlendMode: TSKBlendMode = TSKBlendMode.SrcOver); overload;
@@ -2717,28 +2720,14 @@ type
     class property ResourceCacheTotalBytesUsed: NativeUInt read GetResourceCacheTotalBytesUsed;
   end;
 
-  { ISKCodec }
-
-  ISKCodec = interface(ISKObject)
-    ['{6E31698A-318E-4C64-A65A-A69B28F11829}']
-    function GetInfo: TSKImageInfo;
-    function GetPixels(const ADest: ISKPixmap): Boolean; overload;
-    function GetPixels(const ADestImageInfo: TSKImageInfo; const ADestPixels: Pointer; const ADestRowBytes: NativeUInt): Boolean; overload;
-    property Info: TSKImageInfo read GetInfo;
-  end;
-
   { TSKCodec }
 
-  TSKCodec = class(TSKObject, ISKCodec)
-  strict protected
-    function GetInfo: TSKImageInfo;
-    function GetPixels(const ADest: ISKPixmap): Boolean; overload;
-    function GetPixels(const ADestImageInfo: TSKImageInfo; const ADestPixels: Pointer; const ADestRowBytes: NativeUInt): Boolean; overload;
-    class procedure DoDestroy(const AHandle: THandle); override;
-  public
-    class function MakeFromData(const AData: ISKData): ISKCodec; overload; static;
-    class function MakeFromFile(const AFileName: string): ISKCodec; overload; static;
-    class function MakeFromStream(const AStream: ISKStream): ISKCodec; overload; static;
+  TSKCodec = record
+    class function Decode(const ASrc: ISKData; const ADest: ISKPixmap): Boolean; overload; static;
+    class function Decode(const ASrc: ISKData; const ADestImageInfo: TSKImageInfo; const ADestPixels: Pointer; const ADestRowBytes: NativeUInt): Boolean; overload; static;
+    class function Encode(const ASrc: ISKPixmap; const ADest: ISKWStream; const AEncodedImageFormat: TSKEncodedImageFormat; const AQuality: Integer = 100): Boolean; overload; static;
+    class function Encode(const ASrcImageInfo: TSKImageInfo; const ASrcPixels: Pointer; const ASrcRowBytes: NativeUInt; const ADest: ISKWStream; const AEncodedImageFormat: TSKEncodedImageFormat; const AQuality: Integer = 100): Boolean; overload; static;
+    class function GetInfo(const ASrc: ISKData; out AImageInfo: TSKImageInfo): Boolean; static;
   end;
 
   { ISKSVGSVG }
@@ -2828,7 +2817,7 @@ type
 implementation
 
 uses
-  {Delphi}
+  { Delphi }
   System.DateUtils,
   System.Math,
   System.SysUtils,
@@ -3050,7 +3039,7 @@ begin
   LProcs.read         := read_proc;
   LProcs.release      := release_proc;
   LProcs.seek         := seek_proc;
-  sk4d_managedstream_set_procs(LProcs);
+  sk4d_managedstream_set_procs(@LProcs);
 end;
 
 constructor TSKStreamAdapter.Create(const AStream: TStream;
@@ -3154,7 +3143,7 @@ var
 begin
   LProcs.release := release_proc;
   LProcs.write   := write_proc;
-  sk4d_managedwstream_set_procs(LProcs);
+  sk4d_managedwstream_set_procs(@LProcs);
 end;
 
 constructor TSKWStreamAdapter.Create(const AStream: TStream;
@@ -3344,7 +3333,7 @@ end;
 function TSKColorSpacePrimaries.GetToXYZD50(
   out ADest: TSKColorSpaceMatrix33): Boolean;
 begin
-  Result := sk4d_colorspaceprimaries_get_to_xyz_d50(sk_colorspaceprimaries_t(Self), sk_colorspacematrix33_t(ADest));
+  Result := sk4d_colorspaceprimaries_get_to_xyz_d50(@sk_colorspaceprimaries_t(Self), sk_colorspacematrix33_t(ADest));
 end;
 
 { TSKColorSpaceTransferFunction }
@@ -3443,7 +3432,7 @@ class function TSKColorSpace.Make(
 var
   LHandle: sk_colorspace_t;
 begin
-  LHandle := sk4d_colorspace_make(sk_colorspaceiccprofile_t(AProfile));
+  LHandle := sk4d_colorspace_make(@sk_colorspaceiccprofile_t(AProfile));
   if LHandle = 0 then
     Exit(nil);
   Result := TSKColorSpace.CreateNative(LHandle);
@@ -3475,7 +3464,7 @@ class function TSKColorSpace.MakeRGB(
 var
   LHandle: sk_colorspace_t;
 begin
-  LHandle := sk4d_colorspace_make_rgb(sk_colorspacetransferfn_t(ATransferFunction), sk_colorspacematrix33_t(AToXyzD50));
+  LHandle := sk4d_colorspace_make_rgb(@sk_colorspacetransferfn_t(ATransferFunction), @sk_colorspacematrix33_t(AToXyzD50));
   if LHandle = 0 then
     Exit(nil);
   Result := TSKColorSpace.CreateNative(LHandle);
@@ -3823,8 +3812,11 @@ end;
 
 constructor TSKPixmap.Create(const AImageInfo: TSKImageInfo;
   const APixels: Pointer; const ARowBytes: NativeUInt);
+var
+  LImageInfo: sk_imageinfo_t;
 begin
-  CreateNative(sk4d_pixmap_create2(sk_imageinfo_t(AImageInfo), APixels, ARowBytes));
+  LImageInfo := sk_imageinfo_t(AImageInfo);
+  CreateNative(sk4d_pixmap_create2(@LImageInfo, APixels, ARowBytes));
 end;
 
 constructor TSKPixmap.Create;
@@ -3845,13 +3837,13 @@ end;
 function TSKPixmap.Erase(const AColor: TAlphaColorF; const ASubset: TRectF;
   const AColorSpace: ISKColorSpace): Boolean;
 begin
-  Result := sk4d_pixmap_erase2(Handle, sk_color4f_t(AColor), GetHandle(AColorSpace), @sk_irect_t(ASubset));
+  Result := sk4d_pixmap_erase2(Handle, @sk_color4f_t(AColor), GetHandle(AColorSpace), @sk_irect_t(ASubset));
 end;
 
 function TSKPixmap.Erase(const AColor: TAlphaColorF;
   const AColorSpace: ISKColorSpace): Boolean;
 begin
-  Result := sk4d_pixmap_erase2(Handle, sk_color4f_t(AColor), GetHandle(AColorSpace), nil);
+  Result := sk4d_pixmap_erase2(Handle, @sk_color4f_t(AColor), GetHandle(AColorSpace), nil);
 end;
 
 function TSKPixmap.Erase(const AColor: TAlphaColor;
@@ -3863,7 +3855,7 @@ end;
 function TSKPixmap.ExtractSubset(const ADest: ISKPixmap;
   const AArea: TRect): Boolean;
 begin
-  Result := sk4d_pixmap_extract_subset(GetHandle(ADest), Handle, sk_irect_t(AArea));
+  Result := sk4d_pixmap_extract_subset(GetHandle(ADest), Handle, @sk_irect_t(AArea));
 end;
 
 function TSKPixmap.GetAlpha(const AX, AY: Integer): Single;
@@ -3948,9 +3940,12 @@ end;
 
 function TSKPixmap.ScalePixels(const ADest: ISKPixmap;
   const ASampling: TSKSamplingOptions): Boolean;
+var
+  LSampling: sk_samplingoptions_t;
 begin
   Assert(Assigned(ADest));
-  Result := sk4d_pixmap_scale_pixels(Handle, GetHandle(ADest), sk_samplingoptions_t(ASampling));
+  LSampling := sk_samplingoptions_t(ASampling);
+  Result    := sk4d_pixmap_scale_pixels(Handle, GetHandle(ADest), @LSampling);
 end;
 
 procedure TSKPixmap.SetColorSpace(const AValue: ISKColorSpace);
@@ -3962,7 +3957,7 @@ end;
 
 function TSKRoundRect.Contains(const ARect: TRect): Boolean;
 begin
-  Result := sk4d_rrect_contains(Handle, sk_rect_t(ARect));
+  Result := sk4d_rrect_contains(Handle, @sk_rect_t(ARect));
 end;
 
 constructor TSKRoundRect.Create(const ARect: TRectF; const ARadiusX,
@@ -4082,35 +4077,35 @@ end;
 procedure TSKRoundRect.SetNinePatch(const ARect: TRectF; const ARadiusLeft,
   ARadiusTop, ARadiusRight, ARadiusBottom: Single);
 begin
-  sk4d_rrect_set_nine_patch(Handle, sk_rect_t(ARect), ARadiusLeft, ARadiusTop, ARadiusRight, ARadiusBottom);
+  sk4d_rrect_set_nine_patch(Handle, @sk_rect_t(ARect), ARadiusLeft, ARadiusTop, ARadiusRight, ARadiusBottom);
 end;
 
 procedure TSKRoundRect.SetOval(const ARect: TRectF);
 begin
-  sk4d_rrect_set_oval(Handle, sk_rect_t(ARect));
+  sk4d_rrect_set_oval(Handle, @sk_rect_t(ARect));
 end;
 
 procedure TSKRoundRect.SetRect(const ARect: TRectF; const ARadiusX,
   ARadiusY: Single);
 begin
-  sk4d_rrect_set_rect3(Handle, sk_rect_t(ARect), ARadiusX, ARadiusY);
+  sk4d_rrect_set_rect3(Handle, @sk_rect_t(ARect), ARadiusX, ARadiusY);
 end;
 
 procedure TSKRoundRect.SetRect(const ARect: TRectF;
   const ARadii: TSKRoundRectRadii);
 begin
-  sk4d_rrect_set_rect2(Handle, sk_rect_t(ARect), @ARadii);
+  sk4d_rrect_set_rect2(Handle, @sk_rect_t(ARect), @ARadii);
 end;
 
 procedure TSKRoundRect.SetRect(const ARect: TRectF);
 begin
-  sk4d_rrect_set_rect(Handle, sk_rect_t(ARect));
+  sk4d_rrect_set_rect(Handle, @sk_rect_t(ARect));
 end;
 
 function TSKRoundRect.Transform(const AMatrix: TMatrix): ISKRoundRect;
 begin
   Result := TSKRoundRect.Create;
-  if not sk4d_rrect_transform(Handle, sk_matrix_t(AMatrix), GetHandle(Result)) then
+  if not sk4d_rrect_transform(Handle, @sk_matrix_t(AMatrix), GetHandle(Result)) then
     Result := nil;
 end;
 
@@ -4197,7 +4192,7 @@ end;
 function TSKPath.GetLastPoint: TPointF;
 begin
   if not sk4d_path_get_last_point(Handle, sk_point_t(Result)) then
-    Result := TPointF.Zero;
+    Result := TPointF.Create(0, 0);
 end;
 
 function TSKPath.GetSegmentMasks: TSKSegmentMasks;
@@ -4326,7 +4321,7 @@ end;
 function TSKPath.Transform(const AMatrix: TMatrix): ISKPath;
 begin
   Result := TSKPath.Create;
-  sk4d_path_transform(Handle, sk_matrix_t(AMatrix), GetHandle(Result));
+  sk4d_path_transform(Handle, @sk_matrix_t(AMatrix), GetHandle(Result));
 end;
 
 { TSKOpBuilder }
@@ -4422,7 +4417,7 @@ class function TSKPathEffect.Make2DLine(const AWidth: Single;
 var
   LHandle: sk_patheffect_t;
 begin
-  LHandle := sk4d_patheffect_make_2dline(AWidth, sk_matrix_t(AMatrix));
+  LHandle := sk4d_patheffect_make_2dline(AWidth, @sk_matrix_t(AMatrix));
   if LHandle = 0 then
     Exit(nil);
   Result := TSKPathEffect.CreateNative(LHandle);
@@ -4434,7 +4429,7 @@ var
   LHandle: sk_patheffect_t;
 begin
   Assert(Assigned(APath));
-  LHandle := sk4d_patheffect_make_2dpath(sk_matrix_t(AMatrix), GetHandle(APath));
+  LHandle := sk4d_patheffect_make_2dpath(@sk_matrix_t(AMatrix), GetHandle(APath));
   if LHandle = 0 then
     Exit(nil);
   Result := TSKPathEffect.CreateNative(LHandle);
@@ -4510,7 +4505,7 @@ end;
 procedure TSKPathBuilder.AddArc(const AOval: TRectF; const AStartAngle,
   ASweepAngle: Single);
 begin
-  sk4d_pathbuilder_add_arc(Handle, sk_rect_t(AOval), AStartAngle, ASweepAngle);
+  sk4d_pathbuilder_add_arc(Handle, @sk_rect_t(AOval), AStartAngle, ASweepAngle);
 end;
 
 procedure TSKPathBuilder.AddCircle(const ACenterX, ACenterY, ARadius: Single;
@@ -4534,7 +4529,7 @@ end;
 procedure TSKPathBuilder.AddOval(const ARect: TRectF;
   ADirection: TSKPathDirection; AStartIndex: Cardinal);
 begin
-  sk4d_pathbuilder_add_oval(Handle, sk_rect_t(ARect), sk_pathdirection_t(ADirection), AStartIndex);
+  sk4d_pathbuilder_add_oval(Handle, @sk_rect_t(ARect), sk_pathdirection_t(ADirection), AStartIndex);
 end;
 
 procedure TSKPathBuilder.AddPath(const APath: ISKPath);
@@ -4552,7 +4547,7 @@ end;
 procedure TSKPathBuilder.AddRect(const ARect: TRectF;
   ADirection: TSKPathDirection; AStartIndex: Cardinal);
 begin
-  sk4d_pathbuilder_add_rect(Handle, sk_rect_t(ARect), sk_pathdirection_t(ADirection), AStartIndex);
+  sk4d_pathbuilder_add_rect(Handle, @sk_rect_t(ARect), sk_pathdirection_t(ADirection), AStartIndex);
 end;
 
 procedure TSKPathBuilder.AddRect(const ARect: TRectF;
@@ -4577,20 +4572,20 @@ end;
 procedure TSKPathBuilder.ArcTo(const APoint1, APoint2: TPointF;
   const ARadius: Single);
 begin
-  sk4d_pathbuilder_arc_to3(Handle, sk_point_t(APoint1), sk_point_t(APoint2), ARadius);
+  sk4d_pathbuilder_arc_to3(Handle, @sk_point_t(APoint1), @sk_point_t(APoint2), ARadius);
 end;
 
 procedure TSKPathBuilder.ArcTo(const AOval: TRectF; const AStartAngle,
   ASweepAngle: Single; const AForceMoveTo: Boolean);
 begin
-  sk4d_pathbuilder_arc_to2(Handle, sk_rect_t(AOval), AStartAngle, ASweepAngle, AForceMoveTo);
+  sk4d_pathbuilder_arc_to2(Handle, @sk_rect_t(AOval), AStartAngle, ASweepAngle, AForceMoveTo);
 end;
 
 procedure TSKPathBuilder.ArcTo(const ARadius: TPointF;
   const XAxisRotate: Single; const ALargeArc: TSKPathArcSize;
   const ASweep: TSKPathDirection; const AXY: TPointF);
 begin
-  sk4d_pathbuilder_arc_to(Handle, sk_point_t(ARadius), XAxisRotate, sk_patharcsize_t(ALargeArc), sk_pathdirection_t(ASweep), sk_point_t(AXY));
+  sk4d_pathbuilder_arc_to(Handle, @sk_point_t(ARadius), XAxisRotate, sk_patharcsize_t(ALargeArc), sk_pathdirection_t(ASweep), @sk_point_t(AXY));
 end;
 
 procedure TSKPathBuilder.Close;
@@ -4601,7 +4596,7 @@ end;
 procedure TSKPathBuilder.ConicTo(const APoint1, APoint2: TPointF;
   const AWeight: Single);
 begin
-  sk4d_pathbuilder_conic_to(Handle, sk_point_t(APoint1), sk_point_t(APoint2), AWeight);
+  sk4d_pathbuilder_conic_to(Handle, @sk_point_t(APoint1), @sk_point_t(APoint2), AWeight);
 end;
 
 procedure TSKPathBuilder.ConicTo(const AX1, AY1, AX2, AY2, AWeight: Single);
@@ -4633,7 +4628,7 @@ end;
 
 procedure TSKPathBuilder.CubicTo(const APoint1, APoint2, APoint3: TPointF);
 begin
-  sk4d_pathbuilder_cubic_to(Handle, sk_point_t(APoint1), sk_point_t(APoint2), sk_point_t(APoint3));
+  sk4d_pathbuilder_cubic_to(Handle, @sk_point_t(APoint1), @sk_point_t(APoint2), @sk_point_t(APoint3));
 end;
 
 function TSKPathBuilder.Detach: ISKPath;
@@ -4674,7 +4669,7 @@ end;
 
 procedure TSKPathBuilder.LineTo(const APoint: TPointF);
 begin
-  sk4d_pathbuilder_line_to(Handle, sk_point_t(APoint));
+  sk4d_pathbuilder_line_to(Handle, @sk_point_t(APoint));
 end;
 
 procedure TSKPathBuilder.MoveTo(const AX, AY: Single);
@@ -4684,7 +4679,7 @@ end;
 
 procedure TSKPathBuilder.MoveTo(const APoint: TPointF);
 begin
-  sk4d_pathbuilder_move_to(Handle, sk_point_t(APoint));
+  sk4d_pathbuilder_move_to(Handle, @sk_point_t(APoint));
 end;
 
 procedure TSKPathBuilder.Offset(const ADX, ADY: Single);
@@ -4705,13 +4700,13 @@ end;
 
 procedure TSKPathBuilder.QuadTo(const APoint1, APoint2: TPointF);
 begin
-  sk4d_pathbuilder_quad_to(Handle, sk_point_t(APoint1), sk_point_t(APoint2));
+  sk4d_pathbuilder_quad_to(Handle, @sk_point_t(APoint1), @sk_point_t(APoint2));
 end;
 
 procedure TSKPathBuilder.RConicTo(const APoint1, APoint2: TPointF;
   const AWeight: Single);
 begin
-  sk4d_pathbuilder_r_conic_to(Handle, sk_point_t(APoint1), sk_point_t(APoint2), AWeight);
+  sk4d_pathbuilder_r_conic_to(Handle, @sk_point_t(APoint1), @sk_point_t(APoint2), AWeight);
 end;
 
 procedure TSKPathBuilder.RConicTo(const AX1, AY1, AX2, AY2, AWeight: Single);
@@ -4726,7 +4721,7 @@ end;
 
 procedure TSKPathBuilder.RCubicTo(const APoint1, APoint2, APoint3: TPointF);
 begin
-  sk4d_pathbuilder_r_cubic_to(Handle, sk_point_t(APoint1), sk_point_t(APoint2), sk_point_t(APoint3));
+  sk4d_pathbuilder_r_cubic_to(Handle, @sk_point_t(APoint1), @sk_point_t(APoint2), @sk_point_t(APoint3));
 end;
 
 procedure TSKPathBuilder.Reset;
@@ -4741,7 +4736,7 @@ end;
 
 procedure TSKPathBuilder.RLineTo(const APoint: TPointF);
 begin
-  sk4d_pathbuilder_r_line_to(Handle, sk_point_t(APoint));
+  sk4d_pathbuilder_r_line_to(Handle, @sk_point_t(APoint));
 end;
 
 procedure TSKPathBuilder.RQuadTo(const AX1, AY1, AX2, AY2: Single);
@@ -4751,7 +4746,7 @@ end;
 
 procedure TSKPathBuilder.RQuadTo(const APoint1, APoint2: TPointF);
 begin
-  sk4d_pathbuilder_r_quad_to(Handle, sk_point_t(APoint1), sk_point_t(APoint2));
+  sk4d_pathbuilder_r_quad_to(Handle, @sk_point_t(APoint1), @sk_point_t(APoint2));
 end;
 
 procedure TSKPathBuilder.SetFillType(const AValue: TSKPathFillType);
@@ -4775,7 +4770,7 @@ constructor TSKRegionCliperator.Create(const ARegion: ISKRegion;
   const AClip: TRect);
 begin
   Assert(Assigned(ARegion));
-  CreateNative(sk4d_regioncliperator_create(GetHandle(ARegion), sk_irect_t(AClip)));
+  CreateNative(sk4d_regioncliperator_create(GetHandle(ARegion), @sk_irect_t(AClip)));
 end;
 
 class procedure TSKRegionCliperator.DoDestroy(const AHandle: THandle);
@@ -4860,7 +4855,7 @@ end;
 
 function TSKRegion.Contains(const ARect: TRect): Boolean;
 begin
-  Result := sk4d_region_contains2(Handle, sk_irect_t(ARect));
+  Result := sk4d_region_contains2(Handle, @sk_irect_t(ARect));
 end;
 
 function TSKRegion.Contains(const AX, AY: Integer): Boolean;
@@ -4926,7 +4921,7 @@ end;
 
 function TSKRegion.Intersects(const ARect: TRect): Boolean;
 begin
-  Result := sk4d_region_intersects2(Handle, sk_irect_t(ARect));
+  Result := sk4d_region_intersects2(Handle, @sk_irect_t(ARect));
 end;
 
 function TSKRegion.Intersects(const ARegion: ISKRegion): Boolean;
@@ -4965,12 +4960,12 @@ end;
 
 function TSKRegion.Op(const ARect: TRect; const AOp: TSKRegionOp): Boolean;
 begin
-  Result := sk4d_region_op2(Handle, sk_irect_t(ARect), sk_regionop_t(AOp));
+  Result := sk4d_region_op2(Handle, @sk_irect_t(ARect), sk_regionop_t(AOp));
 end;
 
 function TSKRegion.QuickContains(const ARect: TRect): Boolean;
 begin
-  Result := sk4d_region_quick_contains(Handle, sk_irect_t(ARect));
+  Result := sk4d_region_quick_contains(Handle, @sk_irect_t(ARect));
 end;
 
 function TSKRegion.QuickReject(const ARegion: ISKRegion): Boolean;
@@ -4981,7 +4976,7 @@ end;
 
 function TSKRegion.QuickReject(const ARect: TRect): Boolean;
 begin
-  Result := sk4d_region_quick_reject2(Handle, sk_irect_t(ARect));
+  Result := sk4d_region_quick_reject2(Handle, @sk_irect_t(ARect));
 end;
 
 procedure TSKRegion.SetEmpty;
@@ -4998,7 +4993,7 @@ end;
 
 function TSKRegion.SetRect(const ARect: TRect): Boolean;
 begin
-  Result := sk4d_region_set_rect(Handle, sk_irect_t(ARect));
+  Result := sk4d_region_set_rect(Handle, @sk_irect_t(ARect));
 end;
 
 function TSKRegion.SetRects(const ARects: TArray<TRect>): Boolean;
@@ -5025,7 +5020,7 @@ var
 begin
   LProcs.dump_numeric_value := dump_numeric_value_proc;
   LProcs.dump_string_value  := dump_string_value_proc;
-  sk4d_tracememorydumpbaseclass_set_procs(LProcs);
+  sk4d_tracememorydumpbaseclass_set_procs(@LProcs);
 end;
 
 class procedure TSKTraceMemoryDumpBaseClass.DoDestroy(const AHandle: THandle);
@@ -5131,10 +5126,12 @@ end;
 
 { TGRMTLBackendContext }
 
-constructor TGRMTLBackendContext.Create(const ADevice, AQueue: TGRMTLHandle);
+constructor TGRMTLBackendContext.Create(const ADevice, AQueue,
+  ABinaryArchive: TGRMTLHandle);
 begin
-  Device := ADevice;
-  Queue  := AQueue;
+  Device        := ADevice;
+  Queue         := AQueue;
+  BinaryArchive := ABinaryArchive;
 end;
 
 { TGRMTLTextureInfo }
@@ -5202,7 +5199,7 @@ var
   LHandle: gr_directcontext_t;
 begin
   LBackendContext := gr_mtl_backendcontext_t(ABackendContext);
-  LHandle         := gr4d_directcontext_make_metal(LBackendContext);
+  LHandle         := gr4d_directcontext_make_metal(@LBackendContext);
   if LHandle = 0 then
     Exit(nil);
   Result := TGRDirectContext.CreateNative(LHandle);
@@ -5250,13 +5247,13 @@ end;
 constructor TGRBackendRenderTarget.CreateGL(const AWidth, AHeight, ASampleCount,
   AStencilBits: Integer; const AFramebufferInfo: TGRGLFramebufferInfo);
 begin
-  CreateNative(gr4d_backendrendertarget_create_gl(AWidth, AHeight, ASampleCount, AStencilBits, gr_gl_framebufferinfo_t(AFramebufferInfo)))
+  CreateNative(gr4d_backendrendertarget_create_gl(AWidth, AHeight, ASampleCount, AStencilBits, @gr_gl_framebufferinfo_t(AFramebufferInfo)))
 end;
 
 constructor TGRBackendRenderTarget.CreateMetal(const AWidth, AHeight: Integer;
   const ATextureInfo: TGRMTLTextureInfo);
 begin
-  CreateNative(gr4d_backendrendertarget_create_mtl(AWidth, AHeight, gr_mtl_textureinfo_t(ATextureInfo)));
+  CreateNative(gr4d_backendrendertarget_create_mtl(AWidth, AHeight, @gr_mtl_textureinfo_t(ATextureInfo)));
 end;
 
 class procedure TGRBackendRenderTarget.DoDestroy(const AHandle: THandle);
@@ -5305,13 +5302,13 @@ end;
 constructor TGRBackendTexture.CreateGL(const AWidth, AHeight: Integer;
   const AMipmapped: Boolean; const ATextureInfo: TGRGLTextureInfo);
 begin
-  CreateNative(gr4d_backendtexture_create_gl(AWidth, AHeight, AMipmapped, gr_gl_textureinfo_t(ATextureInfo)));
+  CreateNative(gr4d_backendtexture_create_gl(AWidth, AHeight, AMipmapped, @gr_gl_textureinfo_t(ATextureInfo)));
 end;
 
 constructor TGRBackendTexture.CreateMetal(const AWidth, AHeight: Integer;
   const AMipmapped: Boolean; const ATextureInfo: TGRMTLTextureInfo);
 begin
-  CreateNative(gr4d_backendtexture_create_mtl(AWidth, AHeight, AMipmapped, gr_mtl_textureinfo_t(ATextureInfo)));
+  CreateNative(gr4d_backendtexture_create_mtl(AWidth, AHeight, AMipmapped, @gr_mtl_textureinfo_t(ATextureInfo)));
 end;
 
 class procedure TGRBackendTexture.DoDestroy(const AHandle: THandle);
@@ -5396,9 +5393,11 @@ end;
 class function TSKColorFilter.MakeHighContrast(
   const AConfig: TSKHighContrastConfig): ISKColorFilter;
 var
+  LConfig: sk_highcontrastconfig_t;
   LHandle: sk_colorfilter_t;
 begin
-  LHandle := sk4d_colorfilter_make_high_contrast(sk_highcontrastconfig_t(AConfig));
+  LConfig := sk_highcontrastconfig_t(AConfig);
+  LHandle := sk4d_colorfilter_make_high_contrast(@LConfig);
   if LHandle = 0 then
     Exit(nil);
   Result := TSKColorFilter.CreateNative(LHandle);
@@ -5534,7 +5533,7 @@ class function TSKShader.MakeColor(const AColor: TAlphaColorF;
 var
   LHandle: sk_shader_t;
 begin
-  LHandle := sk4d_shader_make_color2(sk_color4f_t(AColor), GetHandle(AColorSpace));
+  LHandle := sk4d_shader_make_color2(@sk_color4f_t(AColor), GetHandle(AColorSpace));
   if LHandle = 0 then
     Exit(nil);
   Result := TSKShader.CreateNative(LHandle);
@@ -5585,22 +5584,37 @@ end;
 
 class function TSKShader.MakeGradientLinear(const AStart, AEnd: TPointF;
   const AColor1, AColor2: TAlphaColor; const ATileMode: TSKTileMode): ISKShader;
+var
+  LColors: TArray<TAlphaColor>;
 begin
-  Result := MakeGradientLinear(AStart, AEnd, [AColor1, AColor2], ATileMode);
+  SetLength(LColors, 2);
+  LColors[0] := AColor1;
+  LColors[1] := AColor2;
+  Result := MakeGradientLinear(AStart, AEnd, LColors, ATileMode);
 end;
 
 class function TSKShader.MakeGradientLinear(const AStart, AEnd: TPointF;
   const AColor1, AColor2: TAlphaColorF; const ATileMode: TSKTileMode;
   const AColorSpace: ISKColorSpace): ISKShader;
+var
+  LColors: TArray<TAlphaColorF>;
 begin
-  Result := MakeGradientLinear(AStart, AEnd, [AColor1, AColor2], ATileMode, [], AColorSpace);
+  SetLength(LColors, 2);
+  LColors[0] := AColor1;
+  LColors[1] := AColor2;
+  Result := MakeGradientLinear(AStart, AEnd, LColors, ATileMode, nil, AColorSpace);
 end;
 
 class function TSKShader.MakeGradientRadial(const ACenter: TPointF;
   const ARadius: Single; const ACenterColor, AEdgeColor: TAlphaColor;
   const ATileMode: TSKTileMode): ISKShader;
+var
+  LColors: TArray<TAlphaColor>;
 begin
-  Result := MakeGradientRadial(ACenter, ARadius, [ACenterColor, AEdgeColor], ATileMode);
+  SetLength(LColors, 2);
+  LColors[0] := ACenterColor;
+  LColors[1] := AEdgeColor;
+  Result := MakeGradientRadial(ACenter, ARadius, LColors, ATileMode);
 end;
 
 class function TSKShader.MakeGradientRadial(const ACenter: TPointF;
@@ -5611,7 +5625,7 @@ var
   LHandle: sk_shader_t;
 begin
   Assert((not Assigned(APositions)) or (Length(AColors) = Length(APositions)));
-  LHandle := sk4d_shader_make_gradient_radial2(sk_point_t(ACenter), ARadius, @sk_color4f_t(AColors[0]), GetHandle(AColorSpace), @APositions[0], Length(AColors), sk_tilemode_t(ATileMode));
+  LHandle := sk4d_shader_make_gradient_radial2(@sk_point_t(ACenter), ARadius, @sk_color4f_t(AColors[0]), GetHandle(AColorSpace), @APositions[0], Length(AColors), sk_tilemode_t(ATileMode));
   if LHandle = 0 then
     Exit(nil);
   Result := TSKShader.CreateNative(LHandle);
@@ -5624,7 +5638,7 @@ var
   LHandle: sk_shader_t;
 begin
   Assert((not Assigned(APositions)) or (Length(AColors) = Length(APositions)));
-  LHandle := sk4d_shader_make_gradient_radial(sk_point_t(ACenter), ARadius, @AColors[0], @APositions[0], Length(AColors), sk_tilemode_t(ATileMode));
+  LHandle := sk4d_shader_make_gradient_radial(@sk_point_t(ACenter), ARadius, @AColors[0], @APositions[0], Length(AColors), sk_tilemode_t(ATileMode));
   if LHandle = 0 then
     Exit(nil);
   Result := TSKShader.CreateNative(LHandle);
@@ -5633,21 +5647,36 @@ end;
 class function TSKShader.MakeGradientRadial(const ACenter: TPointF;
   const ARadius: Single; const ACenterColor, AEdgeColor: TAlphaColorF;
   const ATileMode: TSKTileMode; const AColorSpace: ISKColorSpace): ISKShader;
+var
+  LColors: TArray<TAlphaColorF>;
 begin
-  Result := MakeGradientRadial(ACenter, ARadius, [ACenterColor, AEdgeColor], ATileMode, [], AColorSpace);
+  SetLength(LColors, 2);
+  LColors[0] := ACenterColor;
+  LColors[1] := AEdgeColor;
+  Result := MakeGradientRadial(ACenter, ARadius, LColors, ATileMode, nil, AColorSpace);
 end;
 
 class function TSKShader.MakeGradientSweep(const ACenter: TPointF;
   const AColor1, AColor2: TAlphaColorF;
   const AColorSpace: ISKColorSpace): ISKShader;
+var
+  LColors: TArray<TAlphaColorF>;
 begin
-  Result := MakeGradientSweep(ACenter, [AColor1, AColor2], [], AColorSpace);
+  SetLength(LColors, 2);
+  LColors[0] := AColor1;
+  LColors[1] := AColor2;
+  Result := MakeGradientSweep(ACenter, LColors, nil, AColorSpace);
 end;
 
 class function TSKShader.MakeGradientSweep(const ACenter: TPointF;
   const AColor1, AColor2: TAlphaColor): ISKShader;
+var
+  LColors: TArray<TAlphaColor>;
 begin
-  Result := MakeGradientSweep(ACenter, [AColor1, AColor2]);
+  SetLength(LColors, 2);
+  LColors[0] := AColor1;
+  LColors[1] := AColor2;
+  Result := MakeGradientSweep(ACenter, LColors);
 end;
 
 class function TSKShader.MakeGradientSweep(const ACenter: TPointF;
@@ -5657,7 +5686,7 @@ var
   LHandle: sk_shader_t;
 begin
   Assert((not Assigned(APositions)) or (Length(AColors) = Length(APositions)));
-  LHandle := sk4d_shader_make_gradient_sweep(sk_point_t(ACenter), @AColors[0], @APositions[0], Length(AColors));
+  LHandle := sk4d_shader_make_gradient_sweep(@sk_point_t(ACenter), @AColors[0], @APositions[0], Length(AColors));
   if LHandle = 0 then
     Exit(nil);
   Result := TSKShader.CreateNative(LHandle);
@@ -5670,7 +5699,7 @@ var
   LHandle: sk_shader_t;
 begin
   Assert((not Assigned(APositions)) or (Length(AColors) = Length(APositions)));
-  LHandle := sk4d_shader_make_gradient_sweep2(sk_point_t(ACenter), @sk_color4f_t(AColors[0]), GetHandle(AColorSpace), @APositions[0], Length(AColors));
+  LHandle := sk4d_shader_make_gradient_sweep2(@sk_point_t(ACenter), @sk_color4f_t(AColors[0]), GetHandle(AColorSpace), @APositions[0], Length(AColors));
   if LHandle = 0 then
     Exit(nil);
   Result := TSKShader.CreateNative(LHandle);
@@ -5739,7 +5768,7 @@ function TSKShader.MakeWithLocalMatrix(const AMatrix: TMatrix): ISKShader;
 var
   LHandle: sk_shader_t;
 begin
-  LHandle := sk4d_shader_make_with_local_matrix(Handle, sk_matrix_t(AMatrix));
+  LHandle := sk4d_shader_make_with_local_matrix(Handle, @sk_matrix_t(AMatrix));
   if LHandle = 0 then
     Exit(nil);
   Result := TSKShader.CreateNative(LHandle);
@@ -5885,7 +5914,7 @@ function TSKPictureRecorder.BeginRecording(const ABounds: TRectF): ISKCanvas;
 var
   LHandle: sk_canvas_t;
 begin
-  LHandle := sk4d_picturerecorder_begin_recording(Handle, sk_rect_t(ABounds));
+  LHandle := sk4d_picturerecorder_begin_recording(Handle, @sk_rect_t(ABounds));
   if LHandle = 0 then
     Exit(nil);
   Result := TSKCanvas.CreateNative(LHandle, False);
@@ -5912,7 +5941,7 @@ function TSKPictureRecorder.FinishRecording(
 var
   LHandle: sk_picture_t;
 begin
-  LHandle := sk4d_picturerecorder_finish_recording2(Handle, sk_rect_t(ACullRect));
+  LHandle := sk4d_picturerecorder_finish_recording2(Handle, @sk_rect_t(ACullRect));
   if LHandle = 0 then
     Exit(nil);
   Result := TSKPicture.CreateNative(LHandle);
@@ -6137,7 +6166,7 @@ class function TSKImage.MakeFromPicture(const APicture: ISKPicture;
 var
   LHandle: sk_image_t;
 begin
-  LHandle := sk4d_image_make_from_picture2(GetHandle(APicture), sk_isize_t(ADimensions), @sk_matrix_t(AMatrix), GetHandle(APaint));
+  LHandle := sk4d_image_make_from_picture2(GetHandle(APicture), @sk_isize_t(ADimensions), @sk_matrix_t(AMatrix), GetHandle(APaint));
   if LHandle = 0 then
     Exit(nil);
   Result := TSKImage.CreateNative(LHandle);
@@ -6148,7 +6177,7 @@ class function TSKImage.MakeFromPicture(const APicture: ISKPicture;
 var
   LHandle: sk_image_t;
 begin
-  LHandle := sk4d_image_make_from_picture(GetHandle(APicture), sk_isize_t(ADimensions));
+  LHandle := sk4d_image_make_from_picture(GetHandle(APicture), @sk_isize_t(ADimensions));
   if LHandle = 0 then
     Exit(nil);
   Result := TSKImage.CreateNative(LHandle);
@@ -6234,8 +6263,10 @@ function TSKImage.MakeShader(const ASampling: TSKSamplingOptions;
   const ATileModeX: TSKTileMode; ATileModeY: TSKTileMode): ISKShader;
 var
   LHandle: sk_shader_t;
+  LSampling: sk_samplingoptions_t;
 begin
-  LHandle := sk4d_image_make_shader(Handle, sk_tilemode_t(ATileModeX), sk_tilemode_t(ATileModeY), sk_samplingoptions_t(ASampling));
+  LSampling := sk_samplingoptions_t(ASampling);
+  LHandle   := sk4d_image_make_shader(Handle, sk_tilemode_t(ATileModeX), sk_tilemode_t(ATileModeY), @LSampling);
   if LHandle = 0 then
     Exit(nil);
   Result := TSKShader.CreateNative(LHandle);
@@ -6246,7 +6277,7 @@ function TSKImage.MakeSubset(const ASubset: TRect;
 var
   LHandle: sk_image_t;
 begin
-  LHandle := sk4d_image_make_subset(Handle, sk_irect_t(ASubset), GetHandle(AContext));
+  LHandle := sk4d_image_make_subset(Handle, @sk_irect_t(ASubset), GetHandle(AContext));
   if LHandle = 0 then
     Exit(nil);
   Result := TSKImage.CreateNative(LHandle);
@@ -6269,7 +6300,7 @@ function TSKImage.MakeWithFilter(const AContext: IGRDirectContext;
 var
   LHandle: sk_image_t;
 begin
-  LHandle := sk4d_image_make_with_filter(Handle, GetHandle(AContext), GetHandle(AFilter), sk_irect_t(ASubset), sk_irect_t(AClipBounds), sk_irect_t(AOutSubset), sk_ipoint_t(AOffset));
+  LHandle := sk4d_image_make_with_filter(Handle, GetHandle(AContext), GetHandle(AFilter), @sk_irect_t(ASubset), @sk_irect_t(AClipBounds), sk_irect_t(AOutSubset), sk_ipoint_t(AOffset));
   if LHandle = 0 then
     Exit(nil);
   Result := TSKImage.CreateNative(LHandle);
@@ -6307,9 +6338,12 @@ end;
 function TSKImage.ScalePixels(const ADest: ISKPixmap;
   const ASampling: TSKSamplingOptions;
   const ACachingHint: TSKImageCachingHint): Boolean;
+var
+  LSampling: sk_samplingoptions_t;
 begin
   Assert(Assigned(ADest));
-  Result := sk4d_image_scale_pixels(Handle, GetHandle(ADest), sk_samplingoptions_t(ASampling), sk_imagecachinghint_t(ACachingHint));
+  LSampling := sk_samplingoptions_t(ASampling);
+  Result    := sk4d_image_scale_pixels(Handle, GetHandle(ADest), @LSampling, sk_imagecachinghint_t(ACachingHint));
 end;
 
 class procedure TSKImage.texture_release_proc(context: Pointer);
@@ -6508,7 +6542,7 @@ class function TSKImageFilter.MakeDistantLightDiffuse(
 var
   LHandle: sk_imagefilter_t;
 begin
-  LHandle := sk4d_imagefilter_make_distant_light_diffuse(sk_point3_t(ADirection), ALightColor, ASurfaceScale, AKd, GetHandle(AInput), @sk_rect_t(ACropRect));
+  LHandle := sk4d_imagefilter_make_distant_light_diffuse(@sk_point3_t(ADirection), ALightColor, ASurfaceScale, AKd, GetHandle(AInput), @sk_rect_t(ACropRect));
   if LHandle = 0 then
     Exit(nil);
   Result := TSKImageFilter.CreateNative(LHandle);
@@ -6521,7 +6555,7 @@ class function TSKImageFilter.MakeDistantLightDiffuse(
 var
   LHandle: sk_imagefilter_t;
 begin
-  LHandle := sk4d_imagefilter_make_distant_light_diffuse(sk_point3_t(ADirection), ALightColor, ASurfaceScale, AKd, GetHandle(AInput), nil);
+  LHandle := sk4d_imagefilter_make_distant_light_diffuse(@sk_point3_t(ADirection), ALightColor, ASurfaceScale, AKd, GetHandle(AInput), nil);
   if LHandle = 0 then
     Exit(nil);
   Result := TSKImageFilter.CreateNative(LHandle);
@@ -6534,7 +6568,7 @@ class function TSKImageFilter.MakeDistantLightSpecular(
 var
   LHandle: sk_imagefilter_t;
 begin
-  LHandle := sk4d_imagefilter_make_distant_light_specular(sk_point3_t(ADirection), ALightColor, ASurfaceScale, AKs, AShininess, GetHandle(AInput), nil);
+  LHandle := sk4d_imagefilter_make_distant_light_specular(@sk_point3_t(ADirection), ALightColor, ASurfaceScale, AKs, AShininess, GetHandle(AInput), nil);
   if LHandle = 0 then
     Exit(nil);
   Result := TSKImageFilter.CreateNative(LHandle);
@@ -6547,7 +6581,7 @@ class function TSKImageFilter.MakeDistantLightSpecular(
 var
   LHandle: sk_imagefilter_t;
 begin
-  LHandle := sk4d_imagefilter_make_distant_light_specular(sk_point3_t(ADirection), ALightColor, ASurfaceScale, AKs, AShininess, GetHandle(AInput), @sk_rect_t(ACropRect));
+  LHandle := sk4d_imagefilter_make_distant_light_specular(@sk_point3_t(ADirection), ALightColor, ASurfaceScale, AKs, AShininess, GetHandle(AInput), @sk_rect_t(ACropRect));
   if LHandle = 0 then
     Exit(nil);
   Result := TSKImageFilter.CreateNative(LHandle);
@@ -6627,8 +6661,10 @@ class function TSKImageFilter.MakeImage(const AImage: ISKImage; const ASrc,
   ADest: TRectF; const ASampling: TSKSamplingOptions): ISKImageFilter;
 var
   LHandle: sk_imagefilter_t;
+  LSampling: sk_samplingoptions_t;
 begin
-  LHandle := sk4d_imagefilter_make_image(GetHandle(AImage), sk_rect_t(ASrc), sk_rect_t(ADest), sk_samplingoptions_t(ASampling));
+  LSampling := sk_samplingoptions_t(ASampling);
+  LHandle   := sk4d_imagefilter_make_image(GetHandle(AImage), @sk_rect_t(ASrc), @sk_rect_t(ADest), @LSampling);
   if LHandle = 0 then
     Exit(nil);
   Result := TSKImageFilter.CreateNative(LHandle);
@@ -6656,7 +6692,7 @@ class function TSKImageFilter.MakeMagnifier(const ASrc: TRectF;
 var
   LHandle: sk_imagefilter_t;
 begin
-  LHandle := sk4d_imagefilter_make_magnifier(sk_rect_t(ASrc), AInset, GetHandle(AInput), nil);
+  LHandle := sk4d_imagefilter_make_magnifier(@sk_rect_t(ASrc), AInset, GetHandle(AInput), nil);
   if LHandle = 0 then
     Exit(nil);
   Result := TSKImageFilter.CreateNative(LHandle);
@@ -6668,7 +6704,7 @@ class function TSKImageFilter.MakeMagnifier(const ASrc: TRectF;
 var
   LHandle: sk_imagefilter_t;
 begin
-  LHandle := sk4d_imagefilter_make_magnifier(sk_rect_t(ASrc), AInset, GetHandle(AInput), @sk_rect_t(ACropRect));
+  LHandle := sk4d_imagefilter_make_magnifier(@sk_rect_t(ASrc), AInset, GetHandle(AInput), @sk_rect_t(ACropRect));
   if LHandle = 0 then
     Exit(nil);
   Result := TSKImageFilter.CreateNative(LHandle);
@@ -6682,7 +6718,7 @@ var
   LHandle: sk_imagefilter_t;
 begin
   Assert(Length(AKernel) = (AKernelSize.Width * AKernelSize.Height));
-  LHandle := sk4d_imagefilter_make_matrix_convolution(sk_isize_t(AKernelSize), @AKernel[0], AGain, ABias, sk_ipoint_t(AKernelOffset), sk_tilemode_t(ATileMode), AConvolveAlpha, GetHandle(AInput), nil);
+  LHandle := sk4d_imagefilter_make_matrix_convolution(@sk_isize_t(AKernelSize), @AKernel[0], AGain, ABias, @sk_ipoint_t(AKernelOffset), sk_tilemode_t(ATileMode), AConvolveAlpha, GetHandle(AInput), nil);
   if LHandle = 0 then
     Exit(nil);
   Result := TSKImageFilter.CreateNative(LHandle);
@@ -6697,7 +6733,7 @@ var
   LHandle: sk_imagefilter_t;
 begin
   Assert(Length(AKernel) = (AKernelSize.Width * AKernelSize.Height));
-  LHandle := sk4d_imagefilter_make_matrix_convolution(sk_isize_t(AKernelSize), @AKernel[0], AGain, ABias, sk_ipoint_t(AKernelOffset), sk_tilemode_t(ATileMode), AConvolveAlpha, GetHandle(AInput), @sk_rect_t(ACropRect));
+  LHandle := sk4d_imagefilter_make_matrix_convolution(@sk_isize_t(AKernelSize), @AKernel[0], AGain, ABias, @sk_ipoint_t(AKernelOffset), sk_tilemode_t(ATileMode), AConvolveAlpha, GetHandle(AInput), @sk_rect_t(ACropRect));
   if LHandle = 0 then
     Exit(nil);
   Result := TSKImageFilter.CreateNative(LHandle);
@@ -6708,8 +6744,10 @@ class function TSKImageFilter.MakeMatrixTransform(const AMatrix: TMatrix;
   const AInput: ISKImageFilter): ISKImageFilter;
 var
   LHandle: sk_imagefilter_t;
+  LSampling: sk_samplingoptions_t;
 begin
-  LHandle := sk4d_imagefilter_make_matrix_transform(sk_matrix_t(AMatrix), sk_samplingoptions_t(ASampling), GetHandle(AInput));
+  LSampling := sk_samplingoptions_t(ASampling);
+  LHandle   := sk4d_imagefilter_make_matrix_transform(@sk_matrix_t(AMatrix), @LSampling, GetHandle(AInput));
   if LHandle = 0 then
     Exit(nil);
   Result := TSKImageFilter.CreateNative(LHandle);
@@ -6733,8 +6771,13 @@ end;
 
 class function TSKImageFilter.MakeMerge(const AFilter1,
   AFilter2: ISKImageFilter): ISKImageFilter;
+var
+  LFilters: TArray<ISKImageFilter>;
 begin
-  Result := MakeMerge([AFilter1, AFilter2]);
+  SetLength(LFilters, 2);
+  LFilters[0] := AFilter1;
+  LFilters[1] := AFilter2;
+  Result := MakeMerge(LFilters);
 end;
 
 class function TSKImageFilter.MakeMerge(const AFilters: TArray<ISKImageFilter>;
@@ -6755,8 +6798,13 @@ end;
 
 class function TSKImageFilter.MakeMerge(const AFilter1,
   AFilter2: ISKImageFilter; const ACropRect: TRectF): ISKImageFilter;
+var
+  LFilters: TArray<ISKImageFilter>;
 begin
-  Result := MakeMerge([AFilter1, AFilter2], ACropRect);
+  SetLength(LFilters, 2);
+  LFilters[0] := AFilter1;
+  LFilters[1] := AFilter2;
+  Result := MakeMerge(LFilters, ACropRect);
 end;
 
 class function TSKImageFilter.MakeOffset(const ADX, ADY: Single;
@@ -6809,7 +6857,7 @@ class function TSKImageFilter.MakePointLightDiffuse(const ALocation: TPoint3D;
 var
   LHandle: sk_imagefilter_t;
 begin
-  LHandle := sk4d_imagefilter_make_point_light_diffuse(sk_point3_t(ALocation), ALightColor, ASurfaceScale, AKd, GetHandle(AInput), @sk_rect_t(ACropRect));
+  LHandle := sk4d_imagefilter_make_point_light_diffuse(@sk_point3_t(ALocation), ALightColor, ASurfaceScale, AKd, GetHandle(AInput), @sk_rect_t(ACropRect));
   if LHandle = 0 then
     Exit(nil);
   Result := TSKImageFilter.CreateNative(LHandle);
@@ -6821,7 +6869,7 @@ class function TSKImageFilter.MakePointLightDiffuse(const ALocation: TPoint3D;
 var
   LHandle: sk_imagefilter_t;
 begin
-  LHandle := sk4d_imagefilter_make_point_light_diffuse(sk_point3_t(ALocation), ALightColor, ASurfaceScale, AKd, GetHandle(AInput), nil);
+  LHandle := sk4d_imagefilter_make_point_light_diffuse(@sk_point3_t(ALocation), ALightColor, ASurfaceScale, AKd, GetHandle(AInput), nil);
   if LHandle = 0 then
     Exit(nil);
   Result := TSKImageFilter.CreateNative(LHandle);
@@ -6833,7 +6881,7 @@ class function TSKImageFilter.MakePointLightSpecular(const ALocation: TPoint3D;
 var
   LHandle: sk_imagefilter_t;
 begin
-  LHandle := sk4d_imagefilter_make_point_light_specular(sk_point3_t(ALocation), ALightColor, ASurfaceScale, AKs, AShininess, GetHandle(AInput), @sk_rect_t(ACropRect));
+  LHandle := sk4d_imagefilter_make_point_light_specular(@sk_point3_t(ALocation), ALightColor, ASurfaceScale, AKs, AShininess, GetHandle(AInput), @sk_rect_t(ACropRect));
   if LHandle = 0 then
     Exit(nil);
   Result := TSKImageFilter.CreateNative(LHandle);
@@ -6845,7 +6893,7 @@ class function TSKImageFilter.MakePointLightSpecular(const ALocation: TPoint3D;
 var
   LHandle: sk_imagefilter_t;
 begin
-  LHandle := sk4d_imagefilter_make_point_light_specular(sk_point3_t(ALocation), ALightColor, ASurfaceScale, AKs, AShininess, GetHandle(AInput), nil);
+  LHandle := sk4d_imagefilter_make_point_light_specular(@sk_point3_t(ALocation), ALightColor, ASurfaceScale, AKs, AShininess, GetHandle(AInput), nil);
   if LHandle = 0 then
     Exit(nil);
   Result := TSKImageFilter.CreateNative(LHandle);
@@ -6880,7 +6928,7 @@ class function TSKImageFilter.MakeSpotLightDiffuse(const ALocation,
 var
   LHandle: sk_imagefilter_t;
 begin
-  LHandle := sk4d_imagefilter_make_spot_light_diffuse(sk_point3_t(ALocation), sk_point3_t(ATarget), AFalloffExponent, ACutoffAngle, ALightColor, ASurfaceScale, AKd, GetHandle(AInput), nil);
+  LHandle := sk4d_imagefilter_make_spot_light_diffuse(@sk_point3_t(ALocation), @sk_point3_t(ATarget), AFalloffExponent, ACutoffAngle, ALightColor, ASurfaceScale, AKd, GetHandle(AInput), nil);
   if LHandle = 0 then
     Exit(nil);
   Result := TSKImageFilter.CreateNative(LHandle);
@@ -6893,7 +6941,7 @@ class function TSKImageFilter.MakeSpotLightDiffuse(const ALocation,
 var
   LHandle: sk_imagefilter_t;
 begin
-  LHandle := sk4d_imagefilter_make_spot_light_diffuse(sk_point3_t(ALocation), sk_point3_t(ATarget), AFalloffExponent, ACutoffAngle, ALightColor, ASurfaceScale, AKd, GetHandle(AInput), @sk_rect_t(ACropRect));
+  LHandle := sk4d_imagefilter_make_spot_light_diffuse(@sk_point3_t(ALocation), @sk_point3_t(ATarget), AFalloffExponent, ACutoffAngle, ALightColor, ASurfaceScale, AKd, GetHandle(AInput), @sk_rect_t(ACropRect));
   if LHandle = 0 then
     Exit(nil);
   Result := TSKImageFilter.CreateNative(LHandle);
@@ -6906,7 +6954,7 @@ class function TSKImageFilter.MakeSpotLightSpecular(const ALocation,
 var
   LHandle: sk_imagefilter_t;
 begin
-  LHandle := sk4d_imagefilter_make_spot_light_specular(sk_point3_t(ALocation), sk_point3_t(ATarget), AFalloffExponent, ACutoffAngle, ALightColor, ASurfaceScale, AKs, AShininess, GetHandle(AInput), @sk_rect_t(ACropRect));
+  LHandle := sk4d_imagefilter_make_spot_light_specular(@sk_point3_t(ALocation), @sk_point3_t(ATarget), AFalloffExponent, ACutoffAngle, ALightColor, ASurfaceScale, AKs, AShininess, GetHandle(AInput), @sk_rect_t(ACropRect));
   if LHandle = 0 then
     Exit(nil);
   Result := TSKImageFilter.CreateNative(LHandle);
@@ -6919,7 +6967,7 @@ class function TSKImageFilter.MakeSpotLightSpecular(const ALocation,
 var
   LHandle: sk_imagefilter_t;
 begin
-  LHandle := sk4d_imagefilter_make_spot_light_specular(sk_point3_t(ALocation), sk_point3_t(ATarget), AFalloffExponent, ACutoffAngle, ALightColor, ASurfaceScale, AKs, AShininess, GetHandle(AInput), nil);
+  LHandle := sk4d_imagefilter_make_spot_light_specular(@sk_point3_t(ALocation), @sk_point3_t(ATarget), AFalloffExponent, ACutoffAngle, ALightColor, ASurfaceScale, AKs, AShininess, GetHandle(AInput), nil);
   if LHandle = 0 then
     Exit(nil);
   Result := TSKImageFilter.CreateNative(LHandle);
@@ -6930,7 +6978,7 @@ class function TSKImageFilter.MakeTile(const ASrc, ADest: TRect;
 var
   LHandle: sk_imagefilter_t;
 begin
-  LHandle := sk4d_imagefilter_make_tile(sk_rect_t(ASrc), sk_rect_t(ADest), GetHandle(AInput));
+  LHandle := sk4d_imagefilter_make_tile(@sk_rect_t(ASrc), @sk_rect_t(ADest), GetHandle(AInput));
   if LHandle = 0 then
     Exit(nil);
   Result := TSKImageFilter.CreateNative(LHandle);
@@ -6975,8 +7023,11 @@ end;
 
 procedure TSKSurface.Draw(const ACanvas: ISKCanvas; const AX, AY: Single;
   const ASampling: TSKSamplingOptions; const APaint: ISKPaint);
+var
+  LSampling: sk_samplingoptions_t;
 begin
-  sk4d_surface_draw(Handle, GetHandle(ACanvas), AX, AY, sk_samplingoptions_t(ASampling), GetHandle(APaint));
+  LSampling := sk_samplingoptions_t(ASampling);
+  sk4d_surface_draw(Handle, GetHandle(ACanvas), AX, AY, @LSampling, GetHandle(APaint));
 end;
 
 procedure TSKSurface.Flush;
@@ -7017,6 +7068,20 @@ begin
   Result := sk4d_surface_get_width(Handle);
 end;
 
+class function TSKSurface.MakeFromCAMetalLayer(const AContext: IGRDirectContext;
+  const ALayer: TGRMTLHandle; const AOrigin: TGRSurfaceOrigin;
+  const ASampleCount: Integer; const AColorType: TSKColorType;
+  const AColorSpace: ISKColorSpace; const AProps: ISKSurfaceProps;
+  out ADrawable: TGRMTLHandle): ISKSurface;
+var
+  LHandle: sk_surface_t;
+begin
+  LHandle := sk4d_surface_make_from_ca_metal_layer(GetHandle(AContext), ALayer, gr_surfaceorigin_t(AOrigin), ASampleCount, sk_colortype_t(AColorType), GetHandle(AColorSpace), GetHandle(AProps), ADrawable);
+  if LHandle = 0 then
+    Exit(nil);
+  Result := TSKSurface.CreateNative(LHandle);
+end;
+
 class function TSKSurface.MakeFromRenderTarget(const AContext: IGRDirectContext;
   const ARenderTarget: IGRBackendRenderTarget; const AOrigin: TGRSurfaceOrigin;
   const AColorType: TSKColorType; const AColorSpace: ISKColorSpace;
@@ -7049,7 +7114,7 @@ function TSKSurface.MakeImageSnapshot(const ABounds: TRect): ISKImage;
 var
   LHandle: sk_image_t;
 begin
-  LHandle := sk4d_surface_make_image_snapshot2(Handle, sk_irect_t(ABounds));
+  LHandle := sk4d_surface_make_image_snapshot2(Handle, @sk_irect_t(ABounds));
   if LHandle = 0 then
     Exit(nil);
   Result := TSKImage.CreateNative(LHandle);
@@ -7065,11 +7130,11 @@ begin
   Result := TSKImage.CreateNative(LHandle);
 end;
 
-class function TSKSurface.MakeNull: ISKSurface;
+class function TSKSurface.MakeNull(const AWidth, AHeight: Integer): ISKSurface;
 var
   LHandle: sk_surface_t;
 begin
-  LHandle := sk4d_surface_make_null;
+  LHandle := sk4d_surface_make_null(AWidth, AHeight);
   if LHandle = 0 then
     Exit(nil);
   Result := TSKSurface.CreateNative(LHandle);
@@ -7079,8 +7144,10 @@ class function TSKSurface.MakeRaster(const AImageInfo: TSKImageInfo;
   const ARowBytes: NativeUInt; const AProps: ISKSurfaceProps): ISKSurface;
 var
   LHandle: sk_surface_t;
+  LImageInfo: sk_imageinfo_t;
 begin
-  LHandle := sk4d_surface_make_raster(sk_imageinfo_t(AImageInfo), ARowBytes, GetHandle(AProps));
+  LImageInfo := sk_imageinfo_t(AImageInfo);
+  LHandle    := sk4d_surface_make_raster(@LImageInfo, ARowBytes, GetHandle(AProps));
   if LHandle = 0 then
     Exit(nil);
   Result := TSKSurface.CreateNative(LHandle);
@@ -7112,9 +7179,11 @@ class function TSKSurface.MakeRasterDirect(const AImageInfo: TSKImageInfo;
 var
   LContext: Pointer;
   LHandle: sk_surface_t;
+  LImageInfo: sk_imageinfo_t;
 begin
-  LContext := PPointer(@ARasterReleaseProc)^;
-  LHandle  := sk4d_surface_make_raster_direct(sk_imageinfo_t(AImageInfo), APixels, ARowBytes, raster_release_proc, LContext, GetHandle(AProps));
+  LImageInfo := sk_imageinfo_t(AImageInfo);
+  LContext   := PPointer(@ARasterReleaseProc)^;
+  LHandle    := sk4d_surface_make_raster_direct(@LImageInfo, APixels, ARowBytes, raster_release_proc, LContext, GetHandle(AProps));
   if LHandle = 0 then
     Exit(nil);
   if LContext <> nil then
@@ -7129,8 +7198,10 @@ class function TSKSurface.MakeRenderTarget(const AContext: IGRDirectContext;
   const AShouldCreateWithMips: Boolean): ISKSurface;
 var
   LHandle: sk_surface_t;
+  LImageInfo: sk_imageinfo_t;
 begin
-  LHandle := sk4d_surface_make_render_target(GetHandle(AContext), ABudgeted, sk_imageinfo_t(AImageInfo), ASampleCount, gr_surfaceorigin_t(AOrigin), GetHandle(AProps), AShouldCreateWithMips);
+  LImageInfo := sk_imageinfo_t(AImageInfo);
+  LHandle    := sk4d_surface_make_render_target(GetHandle(AContext), ABudgeted, @LImageInfo, ASampleCount, gr_surfaceorigin_t(AOrigin), GetHandle(AProps), AShouldCreateWithMips);
   if LHandle = 0 then
     Exit(nil);
   Result := TSKSurface.CreateNative(LHandle);
@@ -7402,7 +7473,7 @@ var
   LHandle: sk_typeface_t;
 begin
   Assert(Assigned(AStyle));
-  LHandle := sk4d_typeface_make_from_name(0, GetHandle(AStyle));
+  LHandle := sk4d_typeface_make_from_name(nil, GetHandle(AStyle));
   if LHandle = 0 then
     Exit(nil);
   Result := TSKTypeFace.CreateNative(LHandle);
@@ -7559,7 +7630,7 @@ begin
 end;
 
 class procedure TSKFont.getpaths_proc(const path: sk_path_t;
-  const [Ref] matrix: sk_matrix_t; context: Pointer);
+  const matrix: psk_matrix_t; context: Pointer);
 var
   LPath: ISKPath;
 begin
@@ -7567,19 +7638,19 @@ begin
     LPath := nil
   else
     LPath := TSKPath.CreateNative(path, False);
-  TSKFontGlyphPathProc(context^)(LPath, TMatrix(matrix));
+  TSKFontGlyphPathProc(context^)(LPath, TMatrix(matrix^));
 end;
 
 function TSKFont.GetPositions(const AGlyphs: TArray<Word>): TArray<TPointF>;
 begin
-  Result := GetPositions(AGlyphs, TPointF.Zero);
+  Result := GetPositions(AGlyphs, TPointF.Create(0, 0));
 end;
 
 function TSKFont.GetPositions(const AGlyphs: TArray<Word>;
   const AOrigin: TPointF): TArray<TPointF>;
 begin
   SetLength(Result, Length(AGlyphs));
-  sk4d_font_get_positions(Handle, @AGlyphs[0], Length(AGlyphs), @sk_point_t(Result[0]), sk_point_t(AOrigin));
+  sk4d_font_get_positions(Handle, @AGlyphs[0], Length(AGlyphs), @sk_point_t(Result[0]), @sk_point_t(AOrigin));
 end;
 
 function TSKFont.GetScaleX: Single;
@@ -7844,13 +7915,13 @@ end;
 class function TSKTextBlob.Make(const AText: UCS4String; const AFont: ISKFont;
   const AOrigin: TPointF): ISKTextBlob;
 begin
-  Result := Make(AText, AFont, TPointF.Zero);
+  Result := Make(AText, AFont, TPointF.Create(0, 0));
 end;
 
 class function TSKTextBlob.Make(const AText: UTF8String;
   const AFont: ISKFont): ISKTextBlob;
 begin
-  Result := Make(AText, AFont, TPointF.Zero);
+  Result := Make(AText, AFont, TPointF.Create(0, 0));
 end;
 
 class function TSKTextBlob.Make(const AText: UTF8String; const AFont: ISKFont;
@@ -7876,19 +7947,19 @@ end;
 class function TSKTextBlob.Make(const AText: string;
   const AFont: ISKFont): ISKTextBlob;
 begin
-  Result := Make(AText, AFont, TPointF.Zero);
+  Result := Make(AText, AFont, TPointF.Create(0, 0));
 end;
 
 class function TSKTextBlob.Make(const AText: UCS4String;
   const AFont: ISKFont): ISKTextBlob;
 begin
-  Result := Make(AText, AFont, TPointF.Zero);
+  Result := Make(AText, AFont, TPointF.Create(0, 0));
 end;
 
 class function TSKTextBlob.MakeGlyphs(const AGlyphs: TArray<Word>;
   const AFont: ISKFont): ISKTextBlob;
 begin
-  Result := MakeGlyphs(AGlyphs, AFont, TPointF.Zero);
+  Result := MakeGlyphs(AGlyphs, AFont, TPointF.Create(0, 0));
 end;
 
 class function TSKTextBlob.MakeGlyphs(const AGlyphs: TArray<Word>;
@@ -8143,7 +8214,7 @@ end;
 { TSKShaperRunHandlerInfo }
 
 class operator TSKShaperRunHandlerInfo.Explicit(
-  const [Ref] ARunHandlerInfo: sk_shaperrunhandlerinfo_t): TSKShaperRunHandlerInfo;
+  const ARunHandlerInfo: psk_shaperrunhandlerinfo_t): TSKShaperRunHandlerInfo;
 begin
   Result.Font       := TSKFont.CreateNative(ARunHandlerInfo.font, False);
   Result.BidiLevel  := ARunHandlerInfo.bidi_level;
@@ -8172,7 +8243,7 @@ begin
 end;
 
 class procedure TSKShaperRunHandlerBaseClass.commit_run_buffer_proc(
-  context: Pointer; const [Ref] info: sk_shaperrunhandlerinfo_t);
+  context: Pointer; const info: psk_shaperrunhandlerinfo_t);
 begin
   TSKShaperRunHandlerBaseClass(context).DoCommitRunBuffer(TSKShaperRunHandlerInfo(info));
 end;
@@ -8198,18 +8269,18 @@ begin
   LProcs.commit_run_info   := commit_run_info_proc;
   LProcs.run_buffer        := run_buffer_proc;
   LProcs.run_info          := run_info_proc;
-  sk4d_shaperrunhandlerbaseclass_set_procs(LProcs);
+  sk4d_shaperrunhandlerbaseclass_set_procs(@LProcs);
 end;
 
 class procedure TSKShaperRunHandlerBaseClass.run_buffer_proc(context: Pointer;
-  const [Ref] info: sk_shaperrunhandlerinfo_t;
+  const info: psk_shaperrunhandlerinfo_t;
   out result: sk_shaperrunhandlerbuffer_t);
 begin
-  result := sk_shaperrunhandlerbuffer_t(TSKShaperRunHandlerBaseClass(context).DoRunBuffer(TSKShaperRunHandlerInfo(info)));
+  Result := sk_shaperrunhandlerbuffer_t(TSKShaperRunHandlerBaseClass(context).DoRunBuffer(TSKShaperRunHandlerInfo(info)));
 end;
 
 class procedure TSKShaperRunHandlerBaseClass.run_info_proc(context: Pointer;
-  const [Ref] info: sk_shaperrunhandlerinfo_t);
+  const info: psk_shaperrunhandlerinfo_t);
 begin
   TSKShaperRunHandlerBaseClass(context).DoRunInfo(TSKShaperRunHandlerInfo(info));
 end;
@@ -8219,7 +8290,7 @@ end;
 constructor TSKTextBlobBuilderRunHandler.Create(const AText: UTF8String;
   const AOffset: TPointF);
 begin
-  CreateNative(sk4d_textblobbuilderrunhandler_create(@AText[Low(AText)], sk_point_t(AOffset)));
+  CreateNative(sk4d_textblobbuilderrunhandler_create(@AText[Low(AText)], @sk_point_t(AOffset)));
 end;
 
 function TSKTextBlobBuilderRunHandler.Detach: ISKTextBlob;
@@ -8404,6 +8475,15 @@ end;
 
 { TSKPaint }
 
+function TSKPaint.AsBlendMode(out AMode: TSKBlendMode): Boolean;
+var
+  LMode: sk_blendmode_t;
+begin
+  Result := sk4d_paint_as_blend_mode(Handle, LMode);
+  if Result then
+    AMode := TSKBlendMode(LMode);
+end;
+
 constructor TSKPaint.Create(const APaint: ISKPaint);
 begin
   Assert(Assigned(APaint));
@@ -8435,9 +8515,10 @@ begin
   Result := sk4d_paint_get_anti_alias(Handle);
 end;
 
-function TSKPaint.GetBlendMode: TSKBlendMode;
+function TSKPaint.GetBlendMode(const ADefaultMode: TSKBlendMode): TSKBlendMode;
 begin
-  Result := TSKBlendMode(sk4d_paint_get_blend_mode(Handle));
+  if not AsBlendMode(Result) then
+    Result := ADefaultMode;
 end;
 
 function TSKPaint.GetColor: TAlphaColor;
@@ -8567,9 +8648,9 @@ begin
   sk4d_paint_set_argb(Handle, A, R, G, B);
 end;
 
-procedure TSKPaint.SetBlendMode(const AValue: TSKBlendMode);
+procedure TSKPaint.SetBlendMode(const AMode: TSKBlendMode);
 begin
-  sk4d_paint_set_blend_mode(Handle, sk_blendmode_t(AValue));
+  sk4d_paint_set_blend_mode(Handle, sk_blendmode_t(AMode));
 end;
 
 procedure TSKPaint.SetColor(const AValue: TAlphaColor);
@@ -8580,7 +8661,7 @@ end;
 procedure TSKPaint.SetColorF(const AValue: TAlphaColorF;
   const AColorSpace: ISKColorSpace);
 begin
-  sk4d_paint_set_colorf(Handle, sk_color4f_t(AValue), GetHandle(AColorSpace));
+  sk4d_paint_set_colorf(Handle, @sk_color4f_t(AValue), GetHandle(AColorSpace));
 end;
 
 procedure TSKPaint.SetColorF(const AValue: TAlphaColorF);
@@ -8647,7 +8728,7 @@ end;
 
 procedure TSKCanvas.Clear(const AColor: TAlphaColorF);
 begin
-  sk4d_canvas_clear2(Handle, sk_color4f_t(AColor));
+  sk4d_canvas_clear2(Handle, @sk_color4f_t(AColor));
 end;
 
 procedure TSKCanvas.Clear(const AColor: TAlphaColor);
@@ -8665,7 +8746,7 @@ end;
 procedure TSKCanvas.ClipRect(const ARect: TRectF; const AOp: TSKClipOp;
   const DoAntiAlias: Boolean);
 begin
-  sk4d_canvas_clip_rect(Handle, sk_rect_t(ARect), sk_clipop_t(AOp), DoAntiAlias);
+  sk4d_canvas_clip_rect(Handle, @sk_rect_t(ARect), sk_clipop_t(AOp), DoAntiAlias);
 end;
 
 procedure TSKCanvas.ClipRegion(const ARegion: ISKRegion; const AOp: TSKClipOp);
@@ -8689,12 +8770,12 @@ end;
 
 procedure TSKCanvas.Concat(const AMatrix: TMatrix3D);
 begin
-  sk4d_canvas_concat(Handle, sk_matrix44_t(AMatrix));
+  sk4d_canvas_concat(Handle, @sk_matrix44_t(AMatrix));
 end;
 
 procedure TSKCanvas.Concat(const AMatrix: TMatrix);
 begin
-  sk4d_canvas_concat2(Handle, sk_matrix_t(AMatrix));
+  sk4d_canvas_concat2(Handle, @sk_matrix_t(AMatrix));
 end;
 
 procedure TSKCanvas.Discard;
@@ -8710,14 +8791,14 @@ end;
 procedure TSKCanvas.DrawAnnotation(const ARect: TRectF; const AKey: string;
   const AValue: ISKData);
 begin
-  sk4d_canvas_draw_annotation(Handle, sk_rect_t(ARect), MarshaledAString(UTF8String(AKey)), GetHandle(AValue));
+  sk4d_canvas_draw_annotation(Handle, @sk_rect_t(ARect), MarshaledAString(UTF8String(AKey)), GetHandle(AValue));
 end;
 
 procedure TSKCanvas.DrawArc(const AOval: TRectF; const AStartAngle,
   ASweepAngle: Single; const AUseCenter: Boolean; const APaint: ISKPaint);
 begin
   Assert(Assigned(APaint));
-  sk4d_canvas_draw_arc(Handle, sk_rect_t(AOval), AStartAngle, ASweepAngle, AUseCenter, GetHandle(APaint));
+  sk4d_canvas_draw_arc(Handle, @sk_rect_t(AOval), AStartAngle, ASweepAngle, AUseCenter, GetHandle(APaint));
 end;
 
 procedure TSKCanvas.DrawAtlas(const AAtlas: ISKImage;
@@ -8725,9 +8806,12 @@ procedure TSKCanvas.DrawAtlas(const AAtlas: ISKImage;
   const ASprites: TArray<TRectF>; const ABlendMode: TSKBlendMode;
   const ASampling: TSKSamplingOptions; const ACullRect: TRectF;
   const AColors: TArray<TAlphaColor>; const APaint: ISKPaint);
+var
+  LSampling: sk_samplingoptions_t;
 begin
   Assert((Length(ATansforms) = Length(ASprites)) and ((not Assigned(AColors)) or (Length(AColors) = Length(ASprites))));
-  sk4d_canvas_draw_atlas(Handle, GetHandle(AAtlas), @sk_rotationscalematrix_t(ATansforms[0]), @sk_rect_t(ASprites[0]), @AColors[0], Length(ATansforms), sk_blendmode_t(ABlendMode), sk_samplingoptions_t(ASampling), @sk_rect_t(ACullRect), GetHandle(APaint));
+  LSampling := sk_samplingoptions_t(ASampling);
+  sk4d_canvas_draw_atlas(Handle, GetHandle(AAtlas), @sk_rotationscalematrix_t(ATansforms[0]), @sk_rect_t(ASprites[0]), @AColors[0], Length(ATansforms), sk_blendmode_t(ABlendMode), @LSampling, @sk_rect_t(ACullRect), GetHandle(APaint));
 end;
 
 procedure TSKCanvas.DrawAtlas(const AAtlas: ISKImage;
@@ -8735,9 +8819,12 @@ procedure TSKCanvas.DrawAtlas(const AAtlas: ISKImage;
   const ASprites: TArray<TRectF>; const ABlendMode: TSKBlendMode;
   const ASampling: TSKSamplingOptions; const AColors: TArray<TAlphaColor>;
   const APaint: ISKPaint);
+var
+  LSampling: sk_samplingoptions_t;
 begin
   Assert((Length(ATansforms) = Length(ASprites)) and ((not Assigned(AColors)) or (Length(AColors) = Length(ASprites))));
-  sk4d_canvas_draw_atlas(Handle, GetHandle(AAtlas), @sk_rotationscalematrix_t(ATansforms[0]), @sk_rect_t(ASprites[0]), @AColors[0], Length(ATansforms), sk_blendmode_t(ABlendMode), sk_samplingoptions_t(ASampling), nil, GetHandle(APaint));
+  LSampling := sk_samplingoptions_t(ASampling);
+  sk4d_canvas_draw_atlas(Handle, GetHandle(AAtlas), @sk_rotationscalematrix_t(ATansforms[0]), @sk_rect_t(ASprites[0]), @AColors[0], Length(ATansforms), sk_blendmode_t(ABlendMode), @LSampling, nil, GetHandle(APaint));
 end;
 
 procedure TSKCanvas.DrawCircle(const ACenterX, ACenterY, ARadius: Single;
@@ -8750,7 +8837,7 @@ procedure TSKCanvas.DrawCircle(const ACenter: TPointF; ARadius: Single;
   const APaint: ISKPaint);
 begin
   Assert(Assigned(APaint));
-  sk4d_canvas_draw_circle(Handle, sk_point_t(ACenter), ARadius, GetHandle(APaint));
+  sk4d_canvas_draw_circle(Handle, @sk_point_t(ACenter), ARadius, GetHandle(APaint));
 end;
 
 procedure TSKCanvas.DrawColor(const AColor: TAlphaColor;
@@ -8762,7 +8849,7 @@ end;
 procedure TSKCanvas.DrawColor(const AColor: TAlphaColorF;
   const ABlendMode: TSKBlendMode);
 begin
-  sk4d_canvas_draw_color2(Handle, sk_color4f_t(AColor), sk_blendmode_t(ABlendMode));
+  sk4d_canvas_draw_color2(Handle, @sk_color4f_t(AColor), sk_blendmode_t(ABlendMode));
 end;
 
 procedure TSKCanvas.DrawGlyphs(const AGlyphs: TArray<Word>;
@@ -8770,7 +8857,7 @@ procedure TSKCanvas.DrawGlyphs(const AGlyphs: TArray<Word>;
   const AFont: ISKFont; const APaint: ISKPaint);
 begin
   Assert(Assigned(AFont) and Assigned(APaint) and (Length(AGlyphs) = Length(APositions)));
-  sk4d_canvas_draw_glyphs2(Handle, Length(AGlyphs), @AGlyphs[0], @sk_rotationscalematrix_t(APositions[0]), sk_point_t(AOrigin), GetHandle(AFont), GetHandle(APaint));
+  sk4d_canvas_draw_glyphs2(Handle, Length(AGlyphs), @AGlyphs[0], @sk_rotationscalematrix_t(APositions[0]), @sk_point_t(AOrigin), GetHandle(AFont), GetHandle(APaint));
 end;
 
 procedure TSKCanvas.DrawGlyphs(const AGlyphs: TArray<Word>;
@@ -8778,14 +8865,17 @@ procedure TSKCanvas.DrawGlyphs(const AGlyphs: TArray<Word>;
   const AFont: ISKFont; const APaint: ISKPaint);
 begin
   Assert(Assigned(AFont) and Assigned(APaint) and (Length(AGlyphs) = Length(APositions)));
-  sk4d_canvas_draw_glyphs(Handle, Length(AGlyphs), @AGlyphs[0], @sk_point_t(APositions[0]), sk_point_t(AOrigin), GetHandle(AFont), GetHandle(APaint));
+  sk4d_canvas_draw_glyphs(Handle, Length(AGlyphs), @AGlyphs[0], @sk_point_t(APositions[0]), @sk_point_t(AOrigin), GetHandle(AFont), GetHandle(APaint));
 end;
 
 procedure TSKCanvas.DrawImage(const AImage: ISKImage; const AX, AY: Single;
   const ASampling: TSKSamplingOptions; const APaint: ISKPaint);
+var
+  LSampling: sk_samplingoptions_t;
 begin
   Assert(Assigned(AImage));
-  sk4d_canvas_draw_image(Handle, GetHandle(AImage), AX, AY, sk_samplingoptions_t(ASampling), GetHandle(APaint));
+  LSampling := sk_samplingoptions_t(ASampling);
+  sk4d_canvas_draw_image(Handle, GetHandle(AImage), AX, AY, @LSampling, GetHandle(APaint));
 end;
 
 procedure TSKCanvas.DrawImage(const AImage: ISKImage; const AX, AY: Single;
@@ -8797,9 +8887,12 @@ end;
 procedure TSKCanvas.DrawImageLattice(const AImage: ISKImage;
   const ALattice: TSKLattice; const ADest: TRectF;
   const AFilterMode: TSKFilterMode; const APaint: ISKPaint);
+var
+  LLattice: sk_lattice_t;
 begin
   Assert(Assigned(AImage));
-  sk4d_canvas_draw_image_lattice(Handle, GetHandle(AImage), sk_lattice_t(ALattice), sk_rect_t(ADest), sk_filtermode_t(AFilterMode), GetHandle(APaint));
+  LLattice := sk_lattice_t(ALattice);
+  sk4d_canvas_draw_image_lattice(Handle, GetHandle(AImage), @LLattice, @sk_rect_t(ADest), sk_filtermode_t(AFilterMode), GetHandle(APaint));
 end;
 
 procedure TSKCanvas.DrawImageNine(const AImage: ISKImage; const ACenter: TRect;
@@ -8807,7 +8900,7 @@ procedure TSKCanvas.DrawImageNine(const AImage: ISKImage; const ACenter: TRect;
   const APaint: ISKPaint);
 begin
   Assert(Assigned(AImage));
-  sk4d_canvas_draw_image_nine(Handle, GetHandle(AImage), sk_irect_t(ACenter), sk_rect_t(ADest), sk_filtermode_t(AFilterMode), GetHandle(APaint));
+  sk4d_canvas_draw_image_nine(Handle, GetHandle(AImage), @sk_irect_t(ACenter), @sk_rect_t(ADest), sk_filtermode_t(AFilterMode), GetHandle(APaint));
 end;
 
 procedure TSKCanvas.DrawImageRect(const AImage: ISKImage; const ADest: TRectF;
@@ -8820,9 +8913,12 @@ end;
 procedure TSKCanvas.DrawImageRect(const AImage: ISKImage; const ASrc,
   ADest: TRectF; const ASampling: TSKSamplingOptions; const APaint: ISKPaint;
   const AConstraint: TSKSrcRectConstraint);
+var
+  LSampling: sk_samplingoptions_t;
 begin
   Assert(Assigned(AImage));
-  sk4d_canvas_draw_image_rect(Handle, GetHandle(AImage), sk_rect_t(ASrc), sk_rect_t(ADest), sk_samplingoptions_t(ASampling), GetHandle(APaint), sk_srcrectconstraint_t(AConstraint));
+  LSampling := sk_samplingoptions_t(ASampling);
+  sk4d_canvas_draw_image_rect(Handle, GetHandle(AImage), @sk_rect_t(ASrc), @sk_rect_t(ADest), @LSampling, GetHandle(APaint), sk_srcrectconstraint_t(AConstraint));
 end;
 
 procedure TSKCanvas.DrawLine(const AX1, AY1, AX2, AY2: Single;
@@ -8835,13 +8931,13 @@ procedure TSKCanvas.DrawLine(const APoint1, APoint2: TPointF;
   const APaint: ISKPaint);
 begin
   Assert(Assigned(APaint));
-  sk4d_canvas_draw_line(Handle, sk_point_t(APoint1), sk_point_t(APoint2), GetHandle(APaint));
+  sk4d_canvas_draw_line(Handle, @sk_point_t(APoint1), @sk_point_t(APoint2), GetHandle(APaint));
 end;
 
 procedure TSKCanvas.DrawOval(const AOval: TRectF; const APaint: ISKPaint);
 begin
   Assert(Assigned(APaint));
-  sk4d_canvas_draw_oval(Handle, sk_rect_t(AOval), GetHandle(APaint));
+  sk4d_canvas_draw_oval(Handle, @sk_rect_t(AOval), GetHandle(APaint));
 end;
 
 procedure TSKCanvas.DrawPaint(const APaint: ISKPaint);
@@ -8883,7 +8979,7 @@ end;
 procedure TSKCanvas.DrawPoint(const APoint: TPointF; const APaint: ISKPaint);
 begin
   Assert(Assigned(APaint));
-  sk4d_canvas_draw_point(Handle, sk_point_t(APoint), GetHandle(APaint));
+  sk4d_canvas_draw_point(Handle, @sk_point_t(APoint), GetHandle(APaint));
 end;
 
 procedure TSKCanvas.DrawPoints(const AMode: TSKDrawPointsMode;
@@ -8896,7 +8992,7 @@ end;
 procedure TSKCanvas.DrawRect(const ARect: TRectF; const APaint: ISKPaint);
 begin
   Assert(Assigned(APaint));
-  sk4d_canvas_draw_rect(Handle, sk_rect_t(ARect), GetHandle(APaint));
+  sk4d_canvas_draw_rect(Handle, @sk_rect_t(ARect), GetHandle(APaint));
 end;
 
 procedure TSKCanvas.DrawRegion(const ARegion: ISKRegion;
@@ -8916,7 +9012,7 @@ procedure TSKCanvas.DrawRoundRect(const ARect: TRectF; const ARadiusX,
   ARadiusY: Single; const APaint: ISKPaint);
 begin
   Assert(Assigned(APaint));
-  sk4d_canvas_draw_rrect2(Handle, sk_rect_t(ARect), ARadiusX, ARadiusY, GetHandle(APaint));
+  sk4d_canvas_draw_rrect2(Handle, @sk_rect_t(ARect), ARadiusX, ARadiusY, GetHandle(APaint));
 end;
 
 procedure TSKCanvas.DrawRoundRectDifference(const AOuter, AInner: ISKRoundRect;
@@ -9016,7 +9112,7 @@ end;
 
 function TSKCanvas.QuickReject(const ARect: TRectF): Boolean;
 begin
-  Result := sk4d_canvas_quick_reject(Handle, sk_rect_t(ARect));
+  Result := sk4d_canvas_quick_reject(Handle, @sk_rect_t(ARect));
 end;
 
 function TSKCanvas.QuickReject(const APath: ISKPath): Boolean;
@@ -9082,12 +9178,12 @@ end;
 
 procedure TSKCanvas.SetMatrix(const AMatrix: TMatrix);
 begin
-  sk4d_canvas_set_matrix2(Handle, sk_matrix_t(AMatrix));
+  sk4d_canvas_set_matrix2(Handle, @sk_matrix_t(AMatrix));
 end;
 
 procedure TSKCanvas.SetMatrix(const AMatrix: TMatrix3D);
 begin
-  sk4d_canvas_set_matrix(Handle, sk_matrix44_t(AMatrix));
+  sk4d_canvas_set_matrix(Handle, @sk_matrix44_t(AMatrix));
 end;
 
 procedure TSKCanvas.Skew(const AKX, AKY: Single);
@@ -9205,8 +9301,10 @@ class function TSKDocument.MakePDF(const AWStream: ISKWStream;
   const AMetadata: TSKPDFMetadata): ISKDocument;
 var
   LHandle: sk_document_t;
+  LMetadata: sk_pdfmetadata_t;
 begin
-  LHandle := sk4d_document_make_pdf2(GetHandle(AWStream), sk_pdfmetadata_t(AMetadata));
+  LMetadata := sk_pdfmetadata_t(AMetadata);
+  LHandle   := sk4d_document_make_pdf2(GetHandle(AWStream), @LMetadata);
   if LHandle = 0 then
     Exit(nil);
   Result := TSKDocument.CreateNative(LHandle);
@@ -9234,7 +9332,7 @@ class function TSKSVGCanvas.Make(const ABounds: TRectF;
 var
   LHandle: sk_canvas_t;
 begin
-  LHandle := sk4d_svgcanvas_make(sk_rect_t(ABounds), TSkiaObject.GetHandle(AWStream));
+  LHandle := sk4d_svgcanvas_make(@sk_rect_t(ABounds), TSkiaObject.GetHandle(AWStream));
   if LHandle = 0 then
     Exit(nil);
   Result := TSKCanvas.CreateNative(LHandle);
@@ -9332,58 +9430,50 @@ end;
 
 { TSKCodec }
 
-class procedure TSKCodec.DoDestroy(const AHandle: THandle);
-begin
-  sk4d_codec_destroy(AHandle);
-end;
-
-function TSKCodec.GetInfo: TSKImageInfo;
-var
-  LResult: sk_imageinfo_t;
-begin
-  sk4d_codec_get_info(Handle, LResult);
-  Result := TSKImageInfo(LResult);
-end;
-
-function TSKCodec.GetPixels(const ADest: ISKPixmap): Boolean;
+class function TSKCodec.Decode(const ASrc: ISKData;
+  const ADest: ISKPixmap): Boolean;
 begin
   Assert(Assigned(ADest));
-  Result := sk4d_codec_get_pixels(Handle, GetHandle(ADest));
+  Result := sk4d_codec_decode(TSkiaObject.GetHandle(ASrc), TSkiaObject.GetHandle(ADest));
 end;
 
-function TSKCodec.GetPixels(const ADestImageInfo: TSKImageInfo;
-  const ADestPixels: Pointer; const ADestRowBytes: NativeUInt): Boolean;
+class function TSKCodec.Decode(const ASrc: ISKData;
+  const ADestImageInfo: TSKImageInfo; const ADestPixels: Pointer;
+  const ADestRowBytes: NativeUInt): Boolean;
 var
-  LPixmap: ISKPixmap;
+  LDest: ISKPixmap;
 begin
-  LPixmap := TSKPixmap.Create(ADestImageInfo, ADestPixels, ADestRowBytes);
-  Result  := GetPixels(LPixmap);
+  LDest  := TSKPixmap.Create(ADestImageInfo, ADestPixels, ADestRowBytes);
+  Result := Decode(ASrc, LDest);
 end;
 
-class function TSKCodec.MakeFromData(const AData: ISKData): ISKCodec;
+class function TSKCodec.Encode(const ASrcImageInfo: TSKImageInfo;
+  const ASrcPixels: Pointer; const ASrcRowBytes: NativeUInt;
+  const ADest: ISKWStream; const AEncodedImageFormat: TSKEncodedImageFormat;
+  const AQuality: Integer): Boolean;
 var
-  LHandle: sk_codec_t;
+  LSrc: ISKPixmap;
 begin
-  LHandle := sk4d_codec_make_from_data(GetHandle(AData));
-  if LHandle = 0 then
-    Exit(nil);
-  Result := TSKCodec.CreateNative(LHandle);
+  LSrc   := TSKPixmap.Create(ASrcImageInfo, ASrcPixels, ASrcRowBytes);
+  Result := Encode(LSrc, ADest, AEncodedImageFormat, AQuality);
 end;
 
-class function TSKCodec.MakeFromFile(const AFileName: string): ISKCodec;
-var
-  LFileStream: ISKFileStream;
+class function TSKCodec.Encode(const ASrc: ISKPixmap; const ADest: ISKWStream;
+  const AEncodedImageFormat: TSKEncodedImageFormat;
+  const AQuality: Integer): Boolean;
 begin
-  LFileStream := TSKFileStream.Create(AFileName);
-  Result      := MakeFromStream(LFileStream);
+  Assert(Assigned(ASrc));
+  Result := sk4d_codec_encode(TSkiaObject.GetHandle(ASrc), TSkiaObject.GetHandle(ADest), sk_encodedimageformat_t(AEncodedImageFormat), AQuality);
 end;
 
-class function TSKCodec.MakeFromStream(const AStream: ISKStream): ISKCodec;
+class function TSKCodec.GetInfo(const ASrc: ISKData;
+  out AImageInfo: TSKImageInfo): Boolean;
 var
-  LData: ISKData;
+  LImageInfo: sk_imageinfo_t;
 begin
-  LData  := TSKData.MakeFromStream(AStream, AStream.Length - AStream.Position);
-  Result := MakeFromData(LData);
+  Result := sk4d_codec_get_info(TSkiaObject.GetHandle(ASrc), LImageInfo);
+  if Result then
+    AImageInfo := TSKImageInfo(LImageInfo);
 end;
 
 { TSKSVGSVG }
@@ -9391,7 +9481,7 @@ end;
 function TSKSVGSVG.GetIntrinsicSize(const AViewPort: TSizeF;
   const ADPI: Single): TSizeF;
 begin
-  sk_svgsvg_get_intrinsic_size(Handle, sk_size_t(AViewPort), ADPI, sk_size_t(Result));
+  sk_svgsvg_get_intrinsic_size(Handle, @sk_size_t(AViewPort), ADPI, sk_size_t(Result));
 end;
 
 { TSKSVGDOM }
@@ -9427,7 +9517,7 @@ end;
 
 procedure TSKSVGDOM.SetContainerSize(const AValue: TSizeF);
 begin
-  sk4d_svgdom_set_container_size(Handle, sk_size_t(AValue));
+  sk4d_svgdom_set_container_size(Handle, @sk_size_t(AValue));
 end;
 
 { TSKSkottieAnimation }
