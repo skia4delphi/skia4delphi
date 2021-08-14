@@ -33,7 +33,7 @@ type
     imgArrow: TImage;
     procedure FormCreate(Sender: TObject);
     procedure btnCloseClick(Sender: TObject);
-    procedure rctSVGResized(Sender: TObject);
+    procedure rctSVGResize(Sender: TObject);
   private
     { Private declarations }
     FDOM: ISKSVGDOM;
@@ -66,7 +66,7 @@ begin
   StyleBook := frmMain.StyleBook;
 end;
 
-procedure TfrmSVG.rctSVGResized(Sender: TObject);
+procedure TfrmSVG.rctSVGResize(Sender: TObject);
 begin
   if Assigned(FDOM) then
     UpdateSVG;

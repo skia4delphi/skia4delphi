@@ -75,5 +75,6 @@ object frmSVG: TfrmSVG
     Height = 556.000000000000000000
     Stroke.Kind = None
     Width = 583.000000000000000000
+    OnResize = rctSVGResize
   end
 end
