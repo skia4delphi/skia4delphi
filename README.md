@@ -38,10 +38,7 @@ The library is static on iOS, and shared on other platforms. By default the shar
 
 ### Windows
 
-Copy the **sk4d.dll** and **icudtl.dat** files, in folder ``shared\Win32`` or ``shared\Win64`` to the same application folder or any folder that is listed in the PATH environment variable.
-
-**About icudtl.dat**
-This file is necessary to fully support unicode. Without it your app will work but with limited unicode support. [Know more](https://github.com/unicode-org/icu).
+Copy the **sk4d.dll** and **icudtl.dat** files, in folder ``shared\Win32`` or ``shared\Win64`` to the same application folder or any folder that is listed in the PATH environment variable. The **icudtl.dat** file is necessary to fully support unicode. Without it your app will work but with limited unicode support. [Know more](https://github.com/unicode-org/icu).
 
 ### Linux
 
