@@ -520,7 +520,7 @@ end;
 
 The **assets/samples/gorilla.svg** file animation results in the output below:
 
-<img src="assets/samples/gorilla.svg" width=200 height=111>
+<img src="assets/samples/gorilla.svg" width=200 height=200>
 
 
 
