@@ -51,6 +51,7 @@ object frmMain: TfrmMain
         Width = 352
         Height = 102
         Align = alClient
+        BevelOuter = bvNone
         ColumnCollection = <
           item
             Value = 50.000000000000000000
@@ -161,6 +162,7 @@ object frmMain: TfrmMain
         Width = 352
         Height = 52
         Align = alClient
+        BevelOuter = bvNone
         ColumnCollection = <
           item
             Value = 50.000000000000000000
@@ -245,6 +247,7 @@ object frmMain: TfrmMain
         Width = 352
         Height = 102
         Align = alClient
+        BevelOuter = bvNone
         ColumnCollection = <
           item
             Value = 50.000000000000000000
@@ -378,6 +381,7 @@ object frmMain: TfrmMain
         Width = 352
         Height = 102
         Align = alClient
+        BevelOuter = bvNone
         ColumnCollection = <
           item
             Value = 50.000000000000000000
@@ -486,6 +490,7 @@ object frmMain: TfrmMain
         Width = 352
         Height = 52
         Align = alClient
+        BevelOuter = bvNone
         ColumnCollection = <
           item
             Value = 50.000000000000000000

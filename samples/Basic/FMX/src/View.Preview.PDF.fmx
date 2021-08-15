@@ -28,7 +28,7 @@ object frmPDFPreview: TfrmPDFPreview
     object btnClose: TSpeedButton
       Align = Left
       Height = 50.000000000000000000
-      Width = 80.000000000000000000
+      Width = 50.000000000000000000
       OnClick = btnCloseClick
       object imgArrow: TImage
         MultiResBitmap.Height = 16
@@ -51,7 +51,7 @@ object frmPDFPreview: TfrmPDFPreview
         Align = Client
         Height = 50.000000000000000000
         HitTest = False
-        Width = 80.000000000000000000
+        Width = 50.000000000000000000
         WrapMode = Center
       end
     end
