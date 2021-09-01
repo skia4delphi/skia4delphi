@@ -78,8 +78,8 @@ var
 begin
   LSVGStream := TSKFileStream.Create(AFileName);
   FDOM := TSKSVGDOM.Make(LSVGStream);
-  inherited Show;
   UpdateSVG;
+  inherited Show;
 end;
 
 procedure TfrmSVG.UpdateSVG;
