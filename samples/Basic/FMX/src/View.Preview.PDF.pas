@@ -7,6 +7,13 @@ uses
   {$IFDEF MSWINDOWS}
   Winapi.Windows,
   Winapi.ShellAPI,
+  {$ELSEIF defined(ANDROID)}
+  Androidapi.JNI.GraphicsContentViewText,
+  Androidapi.JNI.JavaTypes,
+  Androidapi.JNI.Support,
+  Androidapi.JNI.Net,
+  Androidapi.JNI.App,
+  Androidapi.Helpers,
   {$ENDIF}
   System.SysUtils,
   System.Types,
@@ -20,11 +27,6 @@ uses
   FMX.Forms,
   FMX.Layouts,
   FMX.ListBox,
-  {$IF CompilerVersion >= 31}
-  FMX.DialogService,
-  {$ELSE}
-  FMX.Dialogs,
-  {$ENDIF}
   FMX.Graphics;
 
 type
@@ -70,8 +72,16 @@ end;
 
 procedure TfrmPDFPreview.Show(const AFileName: string);
 {$IFDEF ANDROID}
+var
+  LIntent: JIntent;
+  LFile: JFile;
 begin
-  {$IF CompilerVersion >= 31}TDialogService.{$ENDIF}ShowMessage(Format('The file was succesfull writted to "%s"', [AFileName]));
+  LFile := TJFile.JavaClass.init(StringToJString(AFileName));
+  LIntent := TJIntent.JavaClass.init(TJIntent.JavaClass.ACTION_VIEW);
+  LIntent.setDataAndType(TAndroidHelper.JFileToJURI(LFile), StringToJString('application/pdf'));
+  LIntent.setFlags(TJIntent.JavaClass.FLAG_GRANT_READ_URI_PERMISSION);
+  TAndroidHelper.Activity.startActivity(LIntent);
+end;
 {$ELSE}
 var
   LURL: string;
@@ -84,7 +94,7 @@ begin
   wbrBrowser.Navigate(LURL);
   inherited Show;
   {$ENDIF}
-{$ENDIF}
 end;
+{$ENDIF}
 
 end.
