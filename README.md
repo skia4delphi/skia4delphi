@@ -2,7 +2,7 @@
 
 # Skia4Delphi
 
-[![delphi-version](https://img.shields.io/static/v1?label=Delphi%20Supported%20Versions&message=XE6%2B&color=blueviolet&style=for-the-badge)](https://www.embarcadero.com/products/delphi) [![supported-platforms](https://img.shields.io/static/v1?label=Supported%20platforms&message=Windows,%20macOS,%20Linux,%20Android%20and%20iOS&color=blue&style=for-the-badge)](http://docwiki.embarcadero.com/PlatformStatus/en/Main_Page) [![supported-applications](https://img.shields.io/static/v1?label=Supported%20applications&message=Console,%20VCL%20and%20FMX&color=yellow&style=for-the-badge)](http://docwiki.embarcadero.com/PlatformStatus/en/Main_Page)
+[![delphi-version](https://img.shields.io/static/v1?label=Delphi%20Supported%20Versions&message=XE6%2B&color=blueviolet&style=for-the-badge)](https://www.embarcadero.com/products/delphi) [![supported-platforms](https://img.shields.io/static/v1?label=Supported%20platforms&message=Windows,%20macOS,%20Linux,%20Android%20and%20iOS&color=blue&style=for-the-badge)](http://docwiki.embarcadero.com/PlatformStatus/en/Main_Page) [![supported-applications](https://img.shields.io/static/v1?label=Supported%20applications&message=Console,%20VCL%20and%20FMX&color=b59a30&style=for-the-badge)](http://docwiki.embarcadero.com/PlatformStatus/en/Main_Page)
 
 **Skia4Delphi** is a cross-platform 2D graphics API for Delphi based on Google's Skia Graphics Library ([skia.org](https://skia.org/)).
 
@@ -141,7 +141,7 @@ end;
 
 This code results in the output below:
 
-![example1](assets/samples/example1.png)
+<img src="assets/samples/example1.svg" width=192 height=192>
 
 ### Bézier Curves
 
@@ -172,7 +172,7 @@ end;
 
 This code results in the output below:
 
-![example2](assets/samples/example2.png)
+<img src="assets/samples/example2.svg" width=192 height=192>
 
 ### Translations and Rotations
 
@@ -201,7 +201,7 @@ end;
 
 This code results in the output below:
 
-![example3](assets/samples/example3.png)
+<img src="assets/samples/example3.svg" width=192 height=192>
 
 ### Text Rendering
 
