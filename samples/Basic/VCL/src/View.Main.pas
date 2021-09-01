@@ -171,7 +171,7 @@ begin
         LPaint.Style := TSKPaintStyle.Stroke;
         LPaint.StrokeWidth := 2;
         LPaint.AntiAlias := True;
-        LPaint.Color := $ff4285F4;
+        LPaint.Color := $FF4285F4;
         LPath := StarPath;
         ACanvas.DrawPath(LPath, LPaint);
       end);
@@ -199,7 +199,7 @@ begin
         LPaint.Style := TSKPaintStyle.Stroke;
         LPaint.StrokeWidth := 2;
         LPaint.AntiAlias := True;
-        LPaint.Color := $ff4285F4;
+        LPaint.Color := $FF4285F4;
         LPath := StarPath;
         ACanvas.DrawPath(LPath, LPaint);
       end);
@@ -267,7 +267,7 @@ begin
         LPaint.Style := TSKPaintStyle.Stroke;
         LPaint.StrokeWidth := 2;
         LPaint.AntiAlias := True;
-        LPaint.Color := $ff4285F4;
+        LPaint.Color := $FF4285F4;
         LPath := StarPath;
         ACanvas.DrawPath(LPath, LPaint);
       end);
@@ -295,7 +295,7 @@ begin
         LPaint.Style := TSKPaintStyle.Fill;
         LPaint.AntiAlias := True;
         LPaint.StrokeWidth := 4;
-        LPaint.Color := $ff4285F4;
+        LPaint.Color := $FF4285F4;
 
         LRect := TRectF.Create(TPointF.Create(10, 10), 100, 160);
         ACanvas.DrawRect(LRect, LPaint);
@@ -303,14 +303,14 @@ begin
         LOval := TSKRoundRect.Create;
         LOval.SetOval(LRect);
         LOval.Offset(40, 80);
-        LPaint.Color := $ffDB4437;
+        LPaint.Color := $FFDB4437;
         ACanvas.DrawRoundRect(LOval, LPaint);
 
-        LPaint.Color := $ff0F9D58;
+        LPaint.Color := $FF0F9D58;
         ACanvas.DrawCircle(180, 50, 25, LPaint);
 
         LRect.Offset(80, 50);
-        LPaint.Color := $ffF4B400;
+        LPaint.Color := $FFF4B400;
         LPaint.Style := TSKPaintStyle.Stroke;
         ACanvas.DrawRoundRect(LRect, 10, 10, LPaint);
       end);
@@ -337,7 +337,7 @@ begin
         LPaint := TSKPaint.Create;
         LPaint.Style := TSKPaintStyle.Stroke;
         LPaint.StrokeWidth := 8;
-        LPaint.Color := $ff4285F4;
+        LPaint.Color := $FF4285F4;
         LPaint.AntiAlias := True;
         LPaint.StrokeCap := TSKStrokeCap.Round;
 
@@ -373,11 +373,11 @@ begin
 
         LPaint := TSKPaint.Create;
         LPaint.AntiAlias := True;
-        LPaint.Color := $ff4285F4;
+        LPaint.Color := $FF4285F4;
         ACanvas.DrawRect(LRect, LPaint);
 
         ACanvas.Rotate(20);
-        LPaint.Color := $ffDB4437;
+        LPaint.Color := $FFDB4437;
         ACanvas.DrawRect(LRect, LPaint);
       end);
 
