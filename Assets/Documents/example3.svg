@@ -1,0 +1,4 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256">
+  <rect width="200" height="100" fill="#4285F4" transform="translate(128 0) rotate(60)"/>
+  <rect width="200" height="100" fill="#DB4437" transform="translate(128 0) rotate(80)"/>
+</svg>

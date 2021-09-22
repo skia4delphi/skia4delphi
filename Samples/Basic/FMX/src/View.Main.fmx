@@ -1,0 +1,536 @@
+object frmMain: TfrmMain
+  Left = 0
+  Top = 0
+  Caption = 'Skia4Delphi - Basic'
+  ClientHeight = 765
+  ClientWidth = 384
+  Fill.Kind = Solid
+  Position = DesktopCenter
+  FormFactor.Width = 320
+  FormFactor.Height = 480
+  FormFactor.Devices = [Desktop]
+  DesignerMobile = False
+  DesignerWidth = 0
+  DesignerHeight = 0
+  DesignerDeviceName = ''
+  DesignerOrientation = 0
+  DesignerOSVersion = ''
+  object vsbContent: TVertScrollBox
+    Align = Client
+    Height = 765.000000000000000000
+    Padding.Left = 10.000000000000000000
+    Padding.Top = 10.000000000000000000
+    Padding.Right = 10.000000000000000000
+    Padding.Bottom = 10.000000000000000000
+    TabOrder = 2
+    Width = 384.000000000000000000
+    object gbxShapes: TGroupBox
+      Align = Top
+      Height = 130.000000000000000000
+      Padding.Left = 8.000000000000000000
+      Padding.Top = 22.000000000000000000
+      Padding.Right = 8.000000000000000000
+      Padding.Bottom = 8.000000000000000000
+      Margins.Top = 10.000000000000000000
+      Margins.Bottom = 20.000000000000000000
+      Position.Y = 10.000000000000000000
+      Text = 'Shapes'
+      Width = 368.000000000000000000
+      TabOrder = 0
+      object gplShapesButtons: TGridPanelLayout
+        Align = Client
+        Height = 100.000000000000000000
+        Width = 352.000000000000000000
+        TabOrder = 38
+        ColumnCollection = <
+          item
+            Value = 50.000000000000000000
+          end
+          item
+            Value = 50.000000000000000000
+          end>
+        ControlCollection = <
+          item
+            Column = 0
+            Control = btnShapesBasic
+            Row = 0
+          end
+          item
+            Column = 1
+            Control = btnShapesBezierCurves
+            Row = 0
+          end
+          item
+            Column = 0
+            Control = btnShapesTranslationsAndRotations
+            Row = 1
+          end>
+        RowCollection = <
+          item
+            Value = 50.000000000000000000
+          end
+          item
+            Value = 50.000000000000000000
+          end>
+        object btnShapesBasic: TSpeedButton
+          Align = Client
+          Height = 48.000000000000000000
+          Margins.Left = 1.000000000000000000
+          Margins.Top = 1.000000000000000000
+          Margins.Right = 1.000000000000000000
+          Margins.Bottom = 1.000000000000000000
+          StyleLookup = 'buttonstyle'
+          Text = 'Basic'
+          Width = 174.000000000000000000
+          OnClick = btnShapesBasicClick
+        end
+        object btnShapesBezierCurves: TSpeedButton
+          Align = Client
+          Height = 48.000000000000000000
+          Margins.Left = 1.000000000000000000
+          Margins.Top = 1.000000000000000000
+          Margins.Right = 1.000000000000000000
+          Margins.Bottom = 1.000000000000000000
+          StyleLookup = 'buttonstyle'
+          Text = 'B'#233'zier Curves'
+          Width = 174.000000000000000000
+          OnClick = btnShapesBezierCurvesClick
+        end
+        object btnShapesTranslationsAndRotations: TSpeedButton
+          Align = Client
+          Height = 48.000000000000000000
+          Margins.Left = 1.000000000000000000
+          Margins.Top = 1.000000000000000000
+          Margins.Right = 1.000000000000000000
+          Margins.Bottom = 1.000000000000000000
+          StyleLookup = 'buttonstyle'
+          Text = 'Translations/Rotations'
+          Width = 174.000000000000000000
+          OnClick = btnShapesTranslationsAndRotationsClick
+        end
+      end
+    end
+    object gbxText: TGroupBox
+      Align = Top
+      Height = 130.000000000000000000
+      Padding.Left = 8.000000000000000000
+      Padding.Top = 22.000000000000000000
+      Padding.Right = 8.000000000000000000
+      Padding.Bottom = 8.000000000000000000
+      Margins.Bottom = 20.000000000000000000
+      Position.Y = 160.000000000000000000
+      Text = 'Text'
+      Width = 368.000000000000000000
+      TabOrder = 7
+      object gplTextButtons: TGridPanelLayout
+        Align = Client
+        Height = 100.000000000000000000
+        Width = 352.000000000000000000
+        TabOrder = 38
+        ColumnCollection = <
+          item
+            Value = 50.000000000000000000
+          end
+          item
+            Value = 50.000000000000000000
+          end>
+        ControlCollection = <
+          item
+            Column = 0
+            Control = btnTextRendering
+            Row = 0
+          end
+          item
+            Column = 1
+            Control = btnTextRTL
+            Row = 0
+          end
+          item
+            Column = 0
+            Control = btnTextParagraph
+            Row = 1
+          end
+          item
+            Column = 1
+            Control = btnTextCustomFont
+            Row = 1
+          end>
+        RowCollection = <
+          item
+            Value = 50.000000000000000000
+          end
+          item
+            Value = 50.000000000000000000
+          end>
+        object btnTextRendering: TSpeedButton
+          Align = Client
+          Height = 48.000000000000000000
+          Margins.Left = 1.000000000000000000
+          Margins.Top = 1.000000000000000000
+          Margins.Right = 1.000000000000000000
+          Margins.Bottom = 1.000000000000000000
+          StyleLookup = 'buttonstyle'
+          Text = 'Rendering'
+          Width = 174.000000000000000000
+          OnClick = btnTextRenderingClick
+        end
+        object btnTextRTL: TSpeedButton
+          Align = Client
+          Height = 48.000000000000000000
+          Margins.Left = 1.000000000000000000
+          Margins.Top = 1.000000000000000000
+          Margins.Right = 1.000000000000000000
+          Margins.Bottom = 1.000000000000000000
+          StyleLookup = 'buttonstyle'
+          Text = 'Text RTL'
+          Width = 174.000000000000000000
+          OnClick = btnTextRTLClick
+        end
+        object btnTextParagraph: TSpeedButton
+          Align = Client
+          Height = 48.000000000000000000
+          Margins.Left = 1.000000000000000000
+          Margins.Top = 1.000000000000000000
+          Margins.Right = 1.000000000000000000
+          Margins.Bottom = 1.000000000000000000
+          StyleLookup = 'buttonstyle'
+          Text = 'Paragraph'
+          Width = 174.000000000000000000
+          OnClick = btnTextParagraphClick
+        end
+        object btnTextCustomFont: TSpeedButton
+          Align = Client
+          Height = 48.000000000000000000
+          Margins.Left = 1.000000000000000000
+          Margins.Top = 1.000000000000000000
+          Margins.Right = 1.000000000000000000
+          Margins.Bottom = 1.000000000000000000
+          StyleLookup = 'buttonstyle'
+          Text = 'Custom Font'
+          Width = 174.000000000000000000
+          OnClick = btnTextCustomFontClick
+        end
+      end
+    end
+    object gbxPathsAndEffects: TGroupBox
+      Align = Top
+      Height = 130.000000000000000000
+      Padding.Left = 8.000000000000000000
+      Padding.Top = 22.000000000000000000
+      Padding.Right = 8.000000000000000000
+      Padding.Bottom = 8.000000000000000000
+      Margins.Bottom = 20.000000000000000000
+      Position.Y = 310.000000000000000000
+      Text = 'Paths and Effects'
+      Width = 368.000000000000000000
+      TabOrder = 5
+      object gplPathsAndEffectsButtons: TGridPanelLayout
+        Align = Client
+        Height = 100.000000000000000000
+        Width = 352.000000000000000000
+        TabOrder = 38
+        ColumnCollection = <
+          item
+            Value = 50.000000000000000000
+          end
+          item
+            Value = 50.000000000000000000
+          end>
+        ControlCollection = <
+          item
+            Column = 0
+            Control = btnPathsAndEffectsDiscrete
+            Row = 0
+          end
+          item
+            Column = 1
+            Control = btnPathsAndEffectsComposed
+            Row = 0
+          end
+          item
+            Column = 0
+            Control = btnPathsAndEffectsSum
+            Row = 1
+          end
+          item
+            Column = 1
+            Control = btnPathsAndEffectsShaders
+            Row = 1
+          end>
+        RowCollection = <
+          item
+            Value = 50.000000000000000000
+          end
+          item
+            Value = 50.000000000000000000
+          end>
+        object btnPathsAndEffectsDiscrete: TSpeedButton
+          Align = Client
+          Height = 48.000000000000000000
+          Margins.Left = 1.000000000000000000
+          Margins.Top = 1.000000000000000000
+          Margins.Right = 1.000000000000000000
+          Margins.Bottom = 1.000000000000000000
+          StyleLookup = 'buttonstyle'
+          Text = 'Discrete'
+          Width = 174.000000000000000000
+          OnClick = btnPathsAndEffectsDiscreteClick
+        end
+        object btnPathsAndEffectsComposed: TSpeedButton
+          Align = Client
+          Height = 48.000000000000000000
+          Margins.Left = 1.000000000000000000
+          Margins.Top = 1.000000000000000000
+          Margins.Right = 1.000000000000000000
+          Margins.Bottom = 1.000000000000000000
+          StyleLookup = 'buttonstyle'
+          Text = 'Composed'
+          Width = 174.000000000000000000
+          OnClick = btnPathsAndEffectsComposedClick
+        end
+        object btnPathsAndEffectsSum: TSpeedButton
+          Align = Client
+          Height = 48.000000000000000000
+          Margins.Left = 1.000000000000000000
+          Margins.Top = 1.000000000000000000
+          Margins.Right = 1.000000000000000000
+          Margins.Bottom = 1.000000000000000000
+          StyleLookup = 'buttonstyle'
+          Text = 'Sum'
+          Width = 174.000000000000000000
+          OnClick = btnPathsAndEffectsSumClick
+        end
+        object btnPathsAndEffectsShaders: TSpeedButton
+          Align = Client
+          Height = 48.000000000000000000
+          Margins.Left = 1.000000000000000000
+          Margins.Top = 1.000000000000000000
+          Margins.Right = 1.000000000000000000
+          Margins.Bottom = 1.000000000000000000
+          StyleLookup = 'buttonstyle'
+          Text = 'Shaders'
+          Width = 174.000000000000000000
+          OnClick = btnPathsAndEffectsShadersClick
+        end
+      end
+    end
+    object gbxSVG: TGroupBox
+      Align = Top
+      Height = 130.000000000000000000
+      Padding.Left = 8.000000000000000000
+      Padding.Top = 22.000000000000000000
+      Padding.Right = 8.000000000000000000
+      Padding.Bottom = 8.000000000000000000
+      Margins.Bottom = 20.000000000000000000
+      Position.Y = 460.000000000000000000
+      Text = 'SVG'
+      Width = 368.000000000000000000
+      TabOrder = 4
+      object gplSVGButtons: TGridPanelLayout
+        Align = Client
+        Height = 100.000000000000000000
+        Width = 352.000000000000000000
+        TabOrder = 38
+        ColumnCollection = <
+          item
+            Value = 50.000000000000000000
+          end
+          item
+            Value = 50.000000000000000000
+          end>
+        ControlCollection = <
+          item
+            Column = 0
+            Control = btnSVGGorilla
+            Row = 0
+          end
+          item
+            Column = 1
+            Control = btnSVGDelphi
+            Row = 0
+          end
+          item
+            Column = 0
+            Control = btnSVGToPDF
+            Row = 1
+          end>
+        RowCollection = <
+          item
+            Value = 50.000000000000000000
+          end
+          item
+            Value = 50.000000000000000000
+          end>
+        object btnSVGGorilla: TSpeedButton
+          Align = Client
+          Height = 48.000000000000000000
+          Margins.Left = 1.000000000000000000
+          Margins.Top = 1.000000000000000000
+          Margins.Right = 1.000000000000000000
+          Margins.Bottom = 1.000000000000000000
+          StyleLookup = 'buttonstyle'
+          Text = 'gorilla.svg'
+          Width = 174.000000000000000000
+          OnClick = btnSVGGorillaClick
+        end
+        object btnSVGDelphi: TSpeedButton
+          Align = Client
+          Height = 48.000000000000000000
+          Margins.Left = 1.000000000000000000
+          Margins.Top = 1.000000000000000000
+          Margins.Right = 1.000000000000000000
+          Margins.Bottom = 1.000000000000000000
+          StyleLookup = 'buttonstyle'
+          Text = 'delphi.svg'
+          Width = 174.000000000000000000
+          OnClick = btnSVGDelphiClick
+        end
+        object btnSVGToPDF: TSpeedButton
+          Align = Client
+          Height = 48.000000000000000000
+          Margins.Left = 1.000000000000000000
+          Margins.Top = 1.000000000000000000
+          Margins.Right = 1.000000000000000000
+          Margins.Bottom = 1.000000000000000000
+          StyleLookup = 'buttonstyle'
+          Text = 'SVG to PDF'
+          Width = 174.000000000000000000
+          OnClick = btnSVGToPDFClick
+        end
+      end
+    end
+    object gbxLottie: TGroupBox
+      Align = Top
+      Height = 130.000000000000000000
+      Padding.Left = 8.000000000000000000
+      Padding.Top = 22.000000000000000000
+      Padding.Right = 8.000000000000000000
+      Padding.Bottom = 8.000000000000000000
+      Margins.Bottom = 20.000000000000000000
+      Position.Y = 610.000000000000000000
+      Text = 'Lottie animation'
+      Width = 368.000000000000000000
+      TabOrder = 3
+      object gplLottieButtons: TGridPanelLayout
+        Align = Client
+        Height = 100.000000000000000000
+        Width = 352.000000000000000000
+        TabOrder = 38
+        ColumnCollection = <
+          item
+            Value = 50.000000000000000000
+          end
+          item
+            Value = 50.000000000000000000
+          end>
+        ControlCollection = <
+          item
+            Column = 0
+            Control = btnLottieRocket
+            Row = 0
+          end
+          item
+            Column = 1
+            Control = btnLottieCheck
+            Row = 0
+          end
+          item
+            Column = 0
+            Control = btnLottieTelegramSticker
+            Row = 1
+          end>
+        RowCollection = <
+          item
+            Value = 50.000000000000000000
+          end
+          item
+            Value = 50.000000000000000000
+          end>
+        object btnLottieRocket: TSpeedButton
+          Align = Client
+          Height = 48.000000000000000000
+          Margins.Left = 1.000000000000000000
+          Margins.Top = 1.000000000000000000
+          Margins.Right = 1.000000000000000000
+          Margins.Bottom = 1.000000000000000000
+          StyleLookup = 'buttonstyle'
+          Text = 'rocket.json'
+          Width = 174.000000000000000000
+          OnClick = btnLottieRocketClick
+        end
+        object btnLottieCheck: TSpeedButton
+          Align = Client
+          Height = 48.000000000000000000
+          Margins.Left = 1.000000000000000000
+          Margins.Top = 1.000000000000000000
+          Margins.Right = 1.000000000000000000
+          Margins.Bottom = 1.000000000000000000
+          StyleLookup = 'buttonstyle'
+          Text = 'check.json'
+          Width = 174.000000000000000000
+          OnClick = btnLottieCheckClick
+        end
+        object btnLottieTelegramSticker: TSpeedButton
+          Align = Client
+          Height = 48.000000000000000000
+          Margins.Left = 1.000000000000000000
+          Margins.Top = 1.000000000000000000
+          Margins.Right = 1.000000000000000000
+          Margins.Bottom = 1.000000000000000000
+          StyleLookup = 'buttonstyle'
+          Text = 'telegram_sticker.tgs'
+          Width = 174.000000000000000000
+          OnClick = btnLottieTelegramStickerClick
+        end
+      end
+    end
+    object gbxImage: TGroupBox
+      Align = Top
+      Height = 80.000000000000000000
+      Padding.Left = 8.000000000000000000
+      Padding.Top = 22.000000000000000000
+      Padding.Right = 8.000000000000000000
+      Padding.Bottom = 8.000000000000000000
+      Margins.Bottom = 20.000000000000000000
+      Position.Y = 760.000000000000000000
+      Text = 'Image'
+      Width = 368.000000000000000000
+      TabOrder = 6
+      object gplImageButtons: TGridPanelLayout
+        Align = Client
+        Height = 50.000000000000000000
+        Width = 352.000000000000000000
+        TabOrder = 38
+        ColumnCollection = <
+          item
+            Value = 50.000000000000000000
+          end
+          item
+            Value = 50.000000000000000000
+          end>
+        ControlCollection = <
+          item
+            Column = 0
+            Control = btnImageWebPvsJpeg
+            Row = 0
+          end>
+        RowCollection = <
+          item
+            Value = 100.000000000000000000
+          end>
+        object btnImageWebPvsJpeg: TSpeedButton
+          Align = Client
+          Height = 48.000000000000000000
+          Margins.Left = 1.000000000000000000
+          Margins.Top = 1.000000000000000000
+          Margins.Right = 1.000000000000000000
+          Margins.Bottom = 1.000000000000000000
+          StyleLookup = 'buttonstyle'
+          Text = 'Encode WebP vs Jpeg'
+          Width = 174.000000000000000000
+          OnClick = btnImageWebPvsJpegClick
+        end
+      end
+    end
+  end
+end
