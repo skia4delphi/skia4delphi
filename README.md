@@ -463,7 +463,7 @@ This code results in the output below:
 
 ## Custom Fonts
 
-With skia, you can easily use custom fonts in your texts, without having to install fonts, just have the ttf file. You will find an example of how to use font cost in our sample. See the result of the sample:
+With skia, you can easily use custom fonts in your texts, without having to install fonts, just have the ttf file. You will find an example of how to use custom font in our sample. See the result of the sample using 2 custom fonts:
 
 ![text_custom_font](Assets/Documents/text_custom_font.png)
 

@@ -482,24 +482,19 @@ begin
         LTypeface: ISkTypeface;
         LFont: ISkFont;
         LPaint: ISkPaint;
-        LPaint2: ISkPaint;
         LColors: TArray<TAlphaColor>;
         LPositions: TArray<Single>;
         LGradient: ISkShader;
       begin
-        LPaint := TSkPaint.Create;
-        LPaint.Color := TAlphaColors.Black;
-        LPaint.AlphaF := 0.6;
-        LPaint.Style := TSkPaintStyle.Fill;
-        ACanvas.DrawRect(TRectF.Create(0, 0, LBitmap.Width, LBitmap.Height), LPaint);
+        ACanvas.Clear($FF161B22);
 
         SetLength(LColors, 6);
-        LColors[0] := $ffadfbda;
-        LColors[1] := $ff35c3ff;
-        LColors[2] := $fffda399;
-        LColors[3] := $ff76d880;
-        LColors[4] := $ffebf38b;
-        LColors[5] := $ffadfbda;
+        LColors[0] := $FFADFBDA;
+        LColors[1] := $FF35C3FF;
+        LColors[2] := $FFFDA399;
+        LColors[3] := $FF76D880;
+        LColors[4] := $FFEBF38B;
+        LColors[5] := $FFADFBDA;
         SetLength(LPositions, 6);
         LPositions[0] := 0;
         LPositions[1] := 0.3;
@@ -524,14 +519,8 @@ begin
         LFont.Typeface := LTypeface;
         LFont.Size := 28;
 
-        LPaint2 := TSKPaint.Create;
-        LPaint2.Color := TAlphaColors.White;
-        LPaint2.Style := TSKPaintStyle.Stroke;
-        LPaint2.StrokeWidth := 0.5;
-
         LPaint.Shader := nil;
-        LPaint.Color  := TAlphaColors.Black;
-        ACanvas.DrawSimpleText('(Steve Jobs)', 2, 150, LFont, LPaint2);
+        LPaint.Color  := TAlphaColors.White;
         ACanvas.DrawSimpleText('(Steve Jobs)', 2, 150, LFont, LPaint);
       end);
 
