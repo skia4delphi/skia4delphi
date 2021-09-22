@@ -12,6 +12,7 @@ uses
   System.Types,
   System.UITypes,
   System.Math,
+  System.IOUtils,
   Vcl.Graphics,
   Vcl.Controls,
   Vcl.Forms,
@@ -22,7 +23,8 @@ uses
   Vcl.StdCtrls,
 
   { Skia }
-  Skia;
+  Skia,
+  Skia.Vcl;
 
 type
   { TfrmSVG }
@@ -31,15 +33,11 @@ type
     imgBackgroundPicture: TImage;
     lblHeaderTitle: TLabel;
     pnlHeader: TPanel;
-    imgBitmap: TImage;
     imgBackground: TImage;
     procedure FormResize(Sender: TObject);
   private
-    { Private declarations }
-    FDOM: ISKSVGDOM;
-    procedure UpdateSVG;
+    FSvg: TSkSvg;
   public
-    { Public declarations }
     procedure Show(const AFileName: string); reintroduce;
   end;
 
@@ -50,80 +48,65 @@ implementation
 
 {$R *.dfm}
 
-uses
-  { Sample }
-  Vcl.WIC.Bitmap,
-  View.Main;
-
 { TfrmSVG }
 
 {$REGION ' - Drawing form background'}
 procedure TfrmSVG.FormResize(Sender: TObject);
 
-  procedure TileImage(const ASource: TImage; ATarget: TCanvas; ATargetWidth,
-    ATargetHeight: Integer);
+  procedure TileImage(const ASource, ATarget: TImage);
   var
-    X, Y: Integer;
+    LBitmap: TBitmap;
   begin
-    for Y := 0 to Ceil(ATargetHeight / ASource.Height)-1 do
-      for X := 0 to Ceil(ATargetWidth / ASource.Width)-1 do
-        ATarget.Draw(X * ASource.Width, Y * ASource.Height, ASource.Picture.Graphic);
+    LBitmap := TBitmap.Create;
+    try
+      LBitmap.SetSize(ATarget.Width, ATarget.Height);
+      LBitmap.PixelFormat := TPixelFormat.pf32bit;
+      LBitmap.AlphaFormat := TAlphaFormat.afPremultiplied;
+      LBitmap.SkiaDraw(
+        procedure(const ACanvas: ISkCanvas)
+        var
+          LImage: ISkImage;
+          LPaint: ISkPaint;
+          LBitmap: TBitmap;
+        begin
+          LBitmap := TBitmap.Create;
+          try
+            LBitmap.Assign(imgBackgroundPicture.Picture.Graphic);
+            LImage := LBitmap.ToSkImage;
+          finally
+            LBitmap.Free;
+          end;
+          LPaint := TSkPaint.Create;
+          LPaint.Shader := LImage.MakeShader(TSkTileMode.Replicate, TSkTileMode.Replicate);
+          LPaint.Style := TSkPaintStyle.Fill;
+          ACanvas.DrawRect(ACanvas.GetLocalClipBounds, LPaint);
+        end);
+      ATarget.Picture.Bitmap := LBitmap;
+    finally
+      LBitmap.Free;
+    end;
   end;
 
 begin
-  imgBackground.Picture.Bitmap.SetSize(ClientWidth, ClientHeight);
-  TileImage(imgBackgroundPicture, imgBackground.Picture.Bitmap.Canvas, ClientWidth, ClientHeight);
-  if Assigned(FDOM) then
-    UpdateSVG;
+  if ((imgBackground.Width <> Screen.Width) and (imgBackground.Width < Width * 1.5)) or
+    ((imgBackground.Height <> Screen.Height) and (imgBackground.Height < Height * 1.5)) then
+  begin
+    imgBackground.SetBounds(imgBackground.Left, imgBackground.Top, Min(Screen.Width, Width * 3), Min(Screen.Height, Height * 3));
+    TileImage(imgBackgroundPicture, imgBackground);
+  end;
 end;
 {$ENDREGION}
 
 procedure TfrmSVG.Show(const AFileName: string);
-var
-  LSVGStream: ISKStream;
 begin
-  LSVGStream := TSKFileStream.Create(AFileName);
-  FDOM := TSKSVGDOM.Make(LSVGStream);
-  inherited Show;
-  UpdateSVG;
-end;
-
-procedure TfrmSVG.UpdateSVG;
-var
-  LBitmap: TWICBitmap;
-begin
-  // Creating the bitmap size to real rectangle size (in pixels) and clear it
-  LBitmap := TWICBitmap.Create(Round(imgBitmap.Width{$IF CompilerVersion >= 33} * imgBitmap.ScaleFactor{$ENDIF}),
-    Round(imgBitmap.Height{$IF CompilerVersion >= 33} * imgBitmap.ScaleFactor{$ENDIF}));
-  try
-    DrawOnBitmap(LBitmap,
-      procedure (const ACanvas: ISKCanvas)
-      var
-        LSVGRect: TRectF;
-        LDest: TRectF;
-      begin
-        ACanvas.Clear(TAlphaColors.Null);
-        ACanvas.Save;
-        try
-          // Before render we need to adjust the ACanvas scale and translate to determine the position
-          // and size of the draw. In the example below we will adjust it to fit into the rectangle's bitmap
-          LSVGRect := TRectF.Create(TPointF.Create(0, 0), FDOM.Root.GetIntrinsicSize(TSizeF.Create(0, 0)));
-          LDest := LSVGRect.FitInto(TRectF.Create(TPointF.Create(0, 0), LBitmap.Width, LBitmap.Height));
-          if not LSVGRect.IsEmpty then
-          begin
-            ACanvas.Translate(LDest.Left, LDest.Top);
-            ACanvas.Scale(LDest.Width / LSVGRect.Width, LDest.Height / LSVGRect.Height);
-          end;
-
-          FDOM.Render(ACanvas);
-        finally
-          ACanvas.Restore;
-        end;
-      end);
-    imgBitmap.Picture.Graphic := LBitmap.Image;
-  finally
-    LBitmap.Free;
+  if not Assigned(FSvg) then
+  begin
+    FSvg := TSkSvg.Create(Self);
+    FSvg.Align := alClient;
+    FSvg.Parent := Self;
   end;
+  FSvg.Svg.Source := TFile.ReadAllText(AFileName);
+  inherited Show;
 end;
 
 end.

@@ -16,13 +16,9 @@ object frmSVG: TfrmSVG
   TextHeight = 13
   object imgBackground: TImage
     Left = 0
-    Top = 50
+    Top = 0
     Width = 583
-    Height = 556
-    Align = alClient
-    ExplicitTop = 0
-    ExplicitWidth = 105
-    ExplicitHeight = 105
+    Height = 606
   end
   object imgBackgroundPicture: TImage
     Left = 0
@@ -35,16 +31,6 @@ object frmSVG: TfrmSVG
       4933308E1A302C0C3873E60C5E038C8D8D470D18FE060000015153092B313D82
       0000000049454E44AE426082}
     Visible = False
-  end
-  object imgBitmap: TImage
-    Left = 0
-    Top = 50
-    Width = 583
-    Height = 556
-    Align = alClient
-    ExplicitTop = 0
-    ExplicitWidth = 105
-    ExplicitHeight = 105
   end
   object pnlHeader: TPanel
     Left = 0

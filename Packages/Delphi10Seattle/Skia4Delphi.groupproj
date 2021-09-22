@@ -1,0 +1,116 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{6A7C3E52-DBE1-4B88-9B42-715C828B5905}</ProjectGuid>
+    </PropertyGroup>
+    <ItemGroup>
+        <Projects Include="Skia.Package.RTL.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="Skia.Package.FMX.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="Skia.Package.FMX.Designtime.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="Skia.Package.VCL.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="Skia.Package.VCL.Designtime.dproj">
+            <Dependencies/>
+        </Projects>
+    </ItemGroup>
+    <ProjectExtensions>
+        <Borland.Personality>Default.Personality.12</Borland.Personality>
+        <Borland.ProjectType/>
+        <BorlandProject>
+            <Default.Personality/>
+        </BorlandProject>
+    </ProjectExtensions>
+    <Target Name="Skia_Package_RTL">
+        <MSBuild Projects="Skia.Package.RTL.dproj"/>
+    </Target>
+    <Target Name="Skia_Package_RTL:Clean">
+        <MSBuild Projects="Skia.Package.RTL.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="Skia_Package_RTL:Make">
+        <MSBuild Projects="Skia.Package.RTL.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="Skia_Package_FMX">
+        <MSBuild Projects="Skia.Package.FMX.dproj"/>
+    </Target>
+    <Target Name="Skia_Package_FMX:Clean">
+        <MSBuild Projects="Skia.Package.FMX.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="Skia_Package_FMX:Make">
+        <MSBuild Projects="Skia.Package.FMX.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="Skia_Package_FMX_Designtime">
+        <MSBuild Projects="Skia.Package.FMX.Designtime.dproj"/>
+    </Target>
+    <Target Name="Skia_Package_FMX_Designtime:Clean">
+        <MSBuild Projects="Skia.Package.FMX.Designtime.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="Skia_Package_FMX_Designtime:Make">
+        <MSBuild Projects="Skia.Package.FMX.Designtime.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="Skia_Package_VCL">
+        <MSBuild Projects="Skia.Package.VCL.dproj"/>
+    </Target>
+    <Target Name="Skia_Package_VCL:Clean">
+        <MSBuild Projects="Skia.Package.VCL.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="Skia_Package_VCL:Make">
+        <MSBuild Projects="Skia.Package.VCL.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="Skia_Package_VCL_Designtime">
+        <MSBuild Projects="Skia.Package.VCL.Designtime.dproj"/>
+    </Target>
+    <Target Name="Skia_Package_VCL_Designtime:Clean">
+        <MSBuild Projects="Skia.Package.VCL.Designtime.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="Skia_Package_VCL_Designtime:Make">
+        <MSBuild Projects="Skia.Package.VCL.Designtime.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="Build">
+        <CallTarget Targets="Skia_Package_RTL;Skia_Package_FMX;Skia_Package_FMX_Designtime;Skia_Package_VCL;Skia_Package_VCL_Designtime"/>
+    </Target>
+    <Target Name="Clean">
+        <CallTarget Targets="Skia_Package_RTL:Clean;Skia_Package_FMX:Clean;Skia_Package_FMX_Designtime:Clean;Skia_Package_VCL:Clean;Skia_Package_VCL_Designtime:Clean"/>
+    </Target>
+    <Target Name="Make">
+        <CallTarget Targets="Skia_Package_RTL:Make;Skia_Package_FMX:Make;Skia_Package_FMX_Designtime:Make;Skia_Package_VCL:Make;Skia_Package_VCL_Designtime:Make"/>
+    </Target>
+    <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
+    <ItemGroup Condition="'$(BuildGroup)'=='All'">
+        <BuildGroupProject Include="Skia.Package.RTL.dproj">
+            <ProjectGuid>{03DDBF18-1733-434E-99A5-A06C05564DC9}</ProjectGuid>
+            <Configurations>Debug;Release</Configurations>
+            <Platforms>Android;Android64;iOSDevice64;Linux64;OSX64;OSXARM64;Win32;Win64</Platforms>
+            <Enabled>True</Enabled>
+        </BuildGroupProject>
+        <BuildGroupProject Include="Skia.Package.FMX.dproj">
+            <ProjectGuid>{7748718F-7B9E-4460-B65C-164452643ABB}</ProjectGuid>
+            <Configurations>Debug;Release</Configurations>
+            <Platforms>Android;Android64;iOSDevice64;Linux64;OSX64;OSXARM64;Win32;Win64</Platforms>
+            <Enabled>True</Enabled>
+        </BuildGroupProject>
+        <BuildGroupProject Include="Skia.Package.FMX.Designtime.dproj">
+            <ProjectGuid>{E4F621D9-8157-460C-A37D-C18C9FBC0FE0}</ProjectGuid>
+            <Configurations>Debug;Release</Configurations>
+            <Platforms>Win32</Platforms>
+            <Enabled>True</Enabled>
+        </BuildGroupProject>
+        <BuildGroupProject Include="Skia.Package.VCL.dproj">
+            <ProjectGuid>{5BBC760D-1ED3-48F4-ACA4-79B6CC9ABCF5}</ProjectGuid>
+            <Configurations>Debug;Release</Configurations>
+            <Platforms>Win32;Win64</Platforms>
+            <Enabled>True</Enabled>
+        </BuildGroupProject>
+        <BuildGroupProject Include="Skia.Package.VCL.Designtime.dproj">
+            <ProjectGuid>{0DEC0210-BD2C-4CD6-9CF1-8426B2778FA4}</ProjectGuid>
+            <Configurations>Debug;Release</Configurations>
+            <Platforms>Win32</Platforms>
+            <Enabled>True</Enabled>
+        </BuildGroupProject>
+    </ItemGroup>
+</Project>

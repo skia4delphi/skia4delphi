@@ -15,7 +15,6 @@ object frmBitmapPreview: TfrmBitmapPreview
   FormFactor.Width = 320
   FormFactor.Height = 480
   FormFactor.Devices = [Desktop]
-  OnCreate = FormCreate
   DesignerMobile = False
   DesignerWidth = 0
   DesignerHeight = 0
@@ -48,7 +47,7 @@ object frmBitmapPreview: TfrmBitmapPreview
       TextSettings.Font.Size = 15.000000000000000000
       TextSettings.HorzAlign = Center
       Text = 'Bitmap Preview'
-      Width = 503.000000000000000000
+      Width = 533.000000000000000000
     end
     object btnClose: TSpeedButton
       Align = Left

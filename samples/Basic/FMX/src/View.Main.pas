@@ -17,10 +17,7 @@ uses
   FMX.Memo,
   FMX.Menus,
   FMX.StdCtrls,
-  FMX.Types,
-
-  { Skia }
-  Skia;
+  FMX.Types;
 
 type
   { TfrmMain }
@@ -35,7 +32,7 @@ type
     gbxText: TGroupBox;
     gplTextButtons: TGridPanelLayout;
     btnTextRendering: TSpeedButton;
-    btnTextShapingRTL: TSpeedButton;
+    btnTextRTL: TSpeedButton;
     gbxPathsAndEffects: TGroupBox;
     gplPathsAndEffectsButtons: TGridPanelLayout;
     btnPathsAndEffectsDiscrete: TSpeedButton;
@@ -46,11 +43,21 @@ type
     gplSVGButtons: TGridPanelLayout;
     btnSVGGorilla: TSpeedButton;
     btnSVGDelphi: TSpeedButton;
-    gbxSkottie: TGroupBox;
-    gplSkottieButtons: TGridPanelLayout;
-    btnSkottieRocket: TSpeedButton;
-    btnSkottieCheck: TSpeedButton;
+    gbxLottie: TGroupBox;
+    gplLottieButtons: TGridPanelLayout;
+    btnLottieRocket: TSpeedButton;
+    btnLottieCheck: TSpeedButton;
     btnSVGToPDF: TSpeedButton;
+    btnLottieTelegramSticker: TSpeedButton;
+    btnTextParagraph: TSpeedButton;
+    gbxImage: TGroupBox;
+    gplImageButtons: TGridPanelLayout;
+    btnImageWebPvsJpeg: TSpeedButton;
+    btnTextCustomFont: TSpeedButton;
+    procedure btnImageWebPvsJpegClick(Sender: TObject);
+    procedure btnLottieCheckClick(Sender: TObject);
+    procedure btnLottieRocketClick(Sender: TObject);
+    procedure btnLottieTelegramStickerClick(Sender: TObject);
     procedure btnPathsAndEffectsComposedClick(Sender: TObject);
     procedure btnPathsAndEffectsDiscreteClick(Sender: TObject);
     procedure btnPathsAndEffectsShadersClick(Sender: TObject);
@@ -58,21 +65,18 @@ type
     procedure btnShapesBasicClick(Sender: TObject);
     procedure btnShapesBezierCurvesClick(Sender: TObject);
     procedure btnShapesTranslationsAndRotationsClick(Sender: TObject);
-    procedure btnSkottieCheckClick(Sender: TObject);
-    procedure btnSkottieRocketClick(Sender: TObject);
     procedure btnSVGDelphiClick(Sender: TObject);
     procedure btnSVGGorillaClick(Sender: TObject);
     procedure btnSVGToPDFClick(Sender: TObject);
+    procedure btnTextCustomFontClick(Sender: TObject);
+    procedure btnTextParagraphClick(Sender: TObject);
     procedure btnTextRenderingClick(Sender: TObject);
-    procedure btnTextShapingRTLClick(Sender: TObject);
+    procedure btnTextRTLClick(Sender: TObject);
   private
     { Private declarations }
   public
     { Public declarations }
   end;
-
-  TDrawProc = reference to procedure (const ACanvas: ISKCanvas);
-  procedure DrawOnBitmap(const ABitmap: TBitmap; const AProc: TDrawProc);
 
 var
   frmMain: TfrmMain;
@@ -82,39 +86,21 @@ implementation
 {$R *.fmx}
 
 uses
+  { Skia }
+  Skia,
+  Skia.FMX,
+
   { Sample }
+  View.Comparison.Image,
   View.Preview.Bitmap,
   View.Preview.PDF,
-  View.Skottie,
+  View.Lottie,
   View.SVG;
-
-procedure DrawOnBitmap(const ABitmap: TBitmap; const AProc: TDrawProc);
-var
-  LColorType: TSKColorType;
-  LImageInfo: TSKImageInfo;
-  LSurface: ISKSurface;
-  LData: TBitmapData;
-begin
-  case ABitmap.PixelFormat of
-    TPixelFormat.RGBA: LColorType := TSKColorType.RGBA8888;
-    TPixelFormat.BGRA: LColorType := TSKColorType.BGRA8888;
-  else
-    raise Exception.Create('Invalid pixelformat');
-  end;
-  LImageInfo := TSKImageInfo.Create(ABitmap.Width, ABitmap.Height, LColorType);
-  if ABitmap.Map(TMapAccess.ReadWrite, LData) then
-    try
-      LSurface := TSKSurface.MakeRasterDirect(LImageInfo, LData.Data, LData.Pitch);
-      AProc(LSurface.Canvas);
-    finally
-      ABitmap.Unmap(LData);
-    end;
-end;
 
 function GetAssetsPath: string;
 begin
   {$IFDEF MSWINDOWS}
-  Result := TPath.GetFullPath('..\..\..\..\..\..\assets\samples') + PathDelim;
+  Result := TPath.GetFullPath('..\..\..\..\..\..\Assets\Samples') + PathDelim;
   {$ELSEIF defined(iOS) or defined(ANDROID)}
   Result := TPath.GetDocumentsPath + PathDelim;
   {$ELSE}
@@ -131,17 +117,17 @@ begin
   {$ENDIF}
 end;
 
-function StarPath: ISKPath;
+function StarPath: ISkPath;
 var
   I: Integer;
   LA: Single;
   LC: Single;
-  LPathBuilder: ISKPathBuilder;
+  LPathBuilder: ISkPathBuilder;
   LR: Single;
 begin
   LR := 115.2;
   LC := 128.0;
-  LPathBuilder := TSKPathBuilder.Create;
+  LPathBuilder := TSkPathBuilder.Create;
   LPathBuilder.MoveTo(LC + LR, LC);
   for I := 1 to 7 do
   begin
@@ -151,7 +137,46 @@ begin
   Result := LPathBuilder.Detach;
 end;
 
+function FormatBytes(const ABytesCount: Int64): string;
+const
+  KBYTES = Int64(1024);
+begin
+  Result := Format('%s KB', [FormatFloat('0.#', ABytesCount / KBYTES)]);
+end;
+
 { TfrmMain }
+
+procedure TfrmMain.btnImageWebPvsJpegClick(Sender: TObject);
+const
+  Quality = 80;
+var
+  LImage: ISkImage;
+  LBytesWebP: TBytes;
+  LBytesJpeg: TBytes;
+begin
+  LImage := TSkImage.MakeFromEncoded(TFile.ReadAllBytes(GetAssetsPath + 'kung_fu_panda.png'));
+  LBytesWebP := LImage.EncodeToBytes(TSkEncodedImageFormat.WEBP, Quality);
+  LBytesJpeg := LImage.EncodeToBytes(TSkEncodedImageFormat.JPEG, Quality);
+
+  frmImageComparison.Show(
+    LBytesWebP, Format('WebP - %s quality - %s', [Quality.ToString + '%', FormatBytes(Length(LBytesWebP))]),
+    LBytesJpeg, Format('Jpeg - %s quality - %s', [Quality.ToString + '%', FormatBytes(Length(LBytesJpeg))]));
+end;
+
+procedure TfrmMain.btnLottieCheckClick(Sender: TObject);
+begin
+  frmLottie.Show(GetAssetsPath + 'check.json');
+end;
+
+procedure TfrmMain.btnLottieRocketClick(Sender: TObject);
+begin
+  frmLottie.Show(GetAssetsPath + 'rocket.json');
+end;
+
+procedure TfrmMain.btnLottieTelegramStickerClick(Sender: TObject);
+begin
+  frmLottie.Show(GetAssetsPath + 'telegram_sticker.tgs');
+end;
 
 procedure TfrmMain.btnPathsAndEffectsComposedClick(Sender: TObject);
 var
@@ -159,25 +184,25 @@ var
 begin
   LBitmap := TBitmap.Create(256, 256);
   try
-    DrawOnBitmap(LBitmap,
-      procedure (const ACanvas: ISKCanvas)
+    LBitmap.SkiaDraw(
+      procedure (const ACanvas: ISkCanvas)
       var
-        LPaint: ISKPaint;
-        LPath: ISKPath;
+        LPaint: ISkPaint;
+        LPath: ISkPath;
         LIntervals: TArray<Single>;
-        LDashPathEffect: ISKPathEffect;
-        LDiscretePathEffect: ISKPathEffect;
+        LDashPathEffect: ISkPathEffect;
+        LDiscretePathEffect: ISkPathEffect;
       begin
         SetLength(LIntervals, 4);
         LIntervals[0] := 10;
         LIntervals[1] := 5;
         LIntervals[2] := 2;
         LIntervals[3] := 5;
-        LDashPathEffect := TSKPathEffect.MakeDash(LIntervals, 0);
-        LDiscretePathEffect := TSKPathEffect.MakeDiscrete(10, 4);
-        LPaint := TSKPaint.Create;
-        LPaint.PathEffect := TSKPathEffect.MakeCompose(LDashPathEffect, LDiscretePathEffect);
-        LPaint.Style := TSKPaintStyle.Stroke;
+        LDashPathEffect := TSkPathEffect.MakeDash(LIntervals, 0);
+        LDiscretePathEffect := TSkPathEffect.MakeDiscrete(10, 4);
+        LPaint := TSkPaint.Create;
+        LPaint.PathEffect := TSkPathEffect.MakeCompose(LDashPathEffect, LDiscretePathEffect);
+        LPaint.Style := TSkPaintStyle.Stroke;
         LPaint.StrokeWidth := 2;
         LPaint.AntiAlias := True;
         LPaint.Color := $FF4285F4;
@@ -197,15 +222,15 @@ var
 begin
   LBitmap := TBitmap.Create(256, 256);
   try
-    DrawOnBitmap(LBitmap,
-      procedure (const ACanvas: ISKCanvas)
+    LBitmap.SkiaDraw(
+      procedure (const ACanvas: ISkCanvas)
       var
-        LPaint: ISKPaint;
-        LPath: ISKPath;
+        LPaint: ISkPaint;
+        LPath: ISkPath;
       begin
-        LPaint := TSKPaint.Create;
-        LPaint.PathEffect := TSKPathEffect.MakeDiscrete(10, 4);
-        LPaint.Style := TSKPaintStyle.Stroke;
+        LPaint := TSkPaint.Create;
+        LPaint.PathEffect := TSkPathEffect.MakeDiscrete(10, 4);
+        LPaint.Style := TSkPaintStyle.Stroke;
         LPaint.StrokeWidth := 2;
         LPaint.AntiAlias := True;
         LPaint.Color := $FF4285F4;
@@ -225,19 +250,19 @@ var
 begin
   LBitmap := TBitmap.Create(256, 256);
   try
-    DrawOnBitmap(LBitmap,
-      procedure (const ACanvas: ISKCanvas)
+    LBitmap.SkiaDraw(
+      procedure (const ACanvas: ISkCanvas)
       var
-        LPaint: ISKPaint;
-        LPath: ISKPath;
+        LPaint: ISkPaint;
+        LPath: ISkPath;
         LColors: TArray<TAlphaColor>;
       begin
         SetLength(LColors, 2);
         LColors[0] := $ff4285F4;
         LColors[1] := $ff0F9D58;
-        LPaint := TSKPaint.Create;
-        LPaint.PathEffect := TSKPathEffect.MakeDiscrete(10, 4);
-        LPaint.Shader := TSKShader.MakeGradientLinear(TPointF.Create(0, 0), TPointF.Create(256, 256), LColors, TSKTileMode.Clamp);
+        LPaint := TSkPaint.Create;
+        LPaint.PathEffect := TSkPathEffect.MakeDiscrete(10, 4);
+        LPaint.Shader := TSkShader.MakeGradientLinear(TPointF.Create(0, 0), TPointF.Create(256, 256), LColors, TSkTileMode.Clamp);
         LPaint.AntiAlias := True;
         LPath := StarPath;
         ACanvas.DrawPath(LPath, LPaint);
@@ -255,25 +280,25 @@ var
 begin
   LBitmap := TBitmap.Create(256, 256);
   try
-    DrawOnBitmap(LBitmap,
-      procedure (const ACanvas: ISKCanvas)
+    LBitmap.SkiaDraw(
+      procedure (const ACanvas: ISkCanvas)
       var
-        LPaint: ISKPaint;
-        LPath: ISKPath;
+        LPaint: ISkPaint;
+        LPath: ISkPath;
         LIntervals: TArray<Single>;
-        LDashPathEffect1: ISKPathEffect;
-        LDashPathEffect2: ISKPathEffect;
+        LDashPathEffect1: ISkPathEffect;
+        LDashPathEffect2: ISkPathEffect;
       begin
         SetLength(LIntervals, 4);
         LIntervals[0] := 10;
         LIntervals[1] := 5;
         LIntervals[2] := 2;
         LIntervals[3] := 5;
-        LDashPathEffect1 := TSKPathEffect.MakeDiscrete(10, 4);
-        LDashPathEffect2 := TSKPathEffect.MakeDiscrete(10, 4, 1245);
-        LPaint := TSKPaint.Create;
-        LPaint.PathEffect := TSKPathEffect.MakeSum(LDashPathEffect1, LDashPathEffect2);
-        LPaint.Style := TSKPaintStyle.Stroke;
+        LDashPathEffect1 := TSkPathEffect.MakeDiscrete(10, 4);
+        LDashPathEffect2 := TSkPathEffect.MakeDiscrete(10, 4, 1245);
+        LPaint := TSkPaint.Create;
+        LPaint.PathEffect := TSkPathEffect.MakeSum(LDashPathEffect1, LDashPathEffect2);
+        LPaint.Style := TSkPaintStyle.Stroke;
         LPaint.StrokeWidth := 2;
         LPaint.AntiAlias := True;
         LPaint.Color := $FF4285F4;
@@ -293,15 +318,15 @@ var
 begin
   LBitmap := TBitmap.Create(256, 256);
   try
-    DrawOnBitmap(LBitmap,
-      procedure (const ACanvas: ISKCanvas)
+    LBitmap.SkiaDraw(
+      procedure (const ACanvas: ISkCanvas)
       var
-        LOval: ISKRoundRect;
-        LPaint: ISKPaint;
+        LOval: ISkRoundRect;
+        LPaint: ISkPaint;
         LRect: TRectF;
       begin
-        LPaint := TSKPaint.Create;
-        LPaint.Style := TSKPaintStyle.Fill;
+        LPaint := TSkPaint.Create;
+        LPaint.Style := TSkPaintStyle.Fill;
         LPaint.AntiAlias := True;
         LPaint.StrokeWidth := 4;
         LPaint.Color := $FF4285F4;
@@ -309,7 +334,7 @@ begin
         LRect := TRectF.Create(TPointF.Create(10, 10), 100, 160);
         ACanvas.DrawRect(LRect, LPaint);
 
-        LOval := TSKRoundRect.Create;
+        LOval := TSkRoundRect.Create;
         LOval.SetOval(LRect);
         LOval.Offset(40, 80);
         LPaint.Color := $FFDB4437;
@@ -320,7 +345,7 @@ begin
 
         LRect.Offset(80, 50);
         LPaint.Color := $FFF4B400;
-        LPaint.Style := TSKPaintStyle.Stroke;
+        LPaint.Style := TSkPaintStyle.Stroke;
         ACanvas.DrawRoundRect(LRect, 10, 10, LPaint);
       end);
 
@@ -336,21 +361,21 @@ var
 begin
   LBitmap := TBitmap.Create(256, 256);
   try
-    DrawOnBitmap(LBitmap,
-      procedure (const ACanvas: ISKCanvas)
+    LBitmap.SkiaDraw(
+      procedure (const ACanvas: ISkCanvas)
       var
-        LPaint: ISKPaint;
-        LPath: ISKPath;
-        LPathBuilder: ISKPathBuilder;
+        LPaint: ISkPaint;
+        LPath: ISkPath;
+        LPathBuilder: ISkPathBuilder;
       begin
-        LPaint := TSKPaint.Create;
-        LPaint.Style := TSKPaintStyle.Stroke;
+        LPaint := TSkPaint.Create;
+        LPaint.Style := TSkPaintStyle.Stroke;
         LPaint.StrokeWidth := 8;
         LPaint.Color := $FF4285F4;
         LPaint.AntiAlias := True;
-        LPaint.StrokeCap := TSKStrokeCap.Round;
+        LPaint.StrokeCap := TSkStrokeCap.Round;
 
-        LPathBuilder := TSKPathBuilder.Create;
+        LPathBuilder := TSkPathBuilder.Create;
         LPathBuilder.MoveTo(10, 10);
         LPathBuilder.QuadTo(256, 64, 128, 128);
         LPathBuilder.QuadTo(10, 192, 250, 250);
@@ -370,17 +395,17 @@ var
 begin
   LBitmap := TBitmap.Create(256, 256);
   try
-    DrawOnBitmap(LBitmap,
-      procedure (const ACanvas: ISKCanvas)
+    LBitmap.SkiaDraw(
+      procedure (const ACanvas: ISkCanvas)
       var
-        LPaint: ISKPaint;
+        LPaint: ISkPaint;
         LRect: TRectF;
       begin
         ACanvas.Translate(128, 0);
         ACanvas.Rotate(60);
         LRect := TRectF.Create(TPointF.Create(0, 0), 200, 100);
 
-        LPaint := TSKPaint.Create;
+        LPaint := TSkPaint.Create;
         LPaint.AntiAlias := True;
         LPaint.Color := $FF4285F4;
         ACanvas.DrawRect(LRect, LPaint);
@@ -396,16 +421,6 @@ begin
   end;
 end;
 
-procedure TfrmMain.btnSkottieCheckClick(Sender: TObject);
-begin
-  frmSkottie.Show(GetAssetsPath + 'check.json');
-end;
-
-procedure TfrmMain.btnSkottieRocketClick(Sender: TObject);
-begin
-  frmSkottie.Show(GetAssetsPath + 'rocket.json');
-end;
-
 procedure TfrmMain.btnSVGDelphiClick(Sender: TObject);
 begin
   frmSVG.Show(GetAssetsPath + 'delphi.svg');
@@ -418,32 +433,164 @@ end;
 
 procedure TfrmMain.btnSVGToPDFClick(Sender: TObject);
 var
-  LCanvas: ISKCanvas;
-  LDocument: ISKDocument;
-  LDOM: ISKSVGDOM;
-  LPDFStream: ISKWStream;
+  LCanvas: ISkCanvas;
+  LDocument: ISkDocument;
+  LDOM: ISkSVGDOM;
+  LPDFStream: TStream;
   LSize: TSizeF;
-  LSVGStream: ISKStream;
+  LSVGStream: TStream;
   LPDFFileName: string;
 begin
-  LSVGStream := TSKFileStream.Create(GetAssetsPath + 'lion.svg');
-  LDOM := TSKSVGDOM.Make(LSVGStream);
-  LSize := LDOM.Root.GetIntrinsicSize(TSizeF.Create(0, 0));
+  LSVGStream := TFileStream.Create(GetAssetsPath + 'lion.svg', fmOpenRead or fmShareDenyWrite);
+  try
+    LDOM := TSkSVGDOM.Make(LSVGStream);
+  finally
+    LSVGStream.Free;
+  end;
+  LSize := TSizeF.Create(600, 600);
+  LDOM.SetContainerSize(LSize);
 
   LPDFFileName := GetOutputPath + 'output.pdf';
-  LPDFStream := TSKFileWStream.Create(LPDFFileName);
-  LDocument := TSKDocument.MakePDF(LPDFStream);
+  LPDFStream := TFileStream.Create(LPDFFileName, fmCreate);
   try
-    LCanvas := LDocument.BeginPage(LSize.Width, LSize.Height);
+    LDocument := TSkPDFDocument.Create(LPDFStream);
     try
-      LDOM.Render(LCanvas);
+      LCanvas := LDocument.BeginPage(LSize.Width, LSize.Height);
+      try
+        LDOM.Render(LCanvas);
+      finally
+        LDocument.EndPage;
+      end;
     finally
-      LDocument.EndPage;
+      LDocument.Close;
     end;
   finally
-    LDocument.Close;
+    LPDFStream.Free;
   end;
   frmPDFPreview.Show(LPDFFileName);
+end;
+
+procedure TfrmMain.btnTextCustomFontClick(Sender: TObject);
+var
+  LBitmap: TBitmap;
+begin
+  LBitmap := TBitmap.Create(256, 256);
+  try
+    LBitmap.SkiaDraw(
+      procedure (const ACanvas: ISkCanvas)
+      var
+        LTypeface: ISkTypeface;
+        LFont: ISkFont;
+        LPaint: ISkPaint;
+        LPaint2: ISkPaint;
+        LColors: TArray<TAlphaColor>;
+        LPositions: TArray<Single>;
+        LGradient: ISkShader;
+      begin
+        LPaint := TSkPaint.Create;
+        LPaint.Color := TAlphaColors.Black;
+        LPaint.AlphaF := 0.6;
+        LPaint.Style := TSkPaintStyle.Fill;
+        ACanvas.DrawRect(TRectF.Create(0, 0, LBitmap.Width, LBitmap.Height), LPaint);
+
+        SetLength(LColors, 6);
+        LColors[0] := $ffadfbda;
+        LColors[1] := $ff35c3ff;
+        LColors[2] := $fffda399;
+        LColors[3] := $ff76d880;
+        LColors[4] := $ffebf38b;
+        LColors[5] := $ffadfbda;
+        SetLength(LPositions, 6);
+        LPositions[0] := 0;
+        LPositions[1] := 0.3;
+        LPositions[2] := 0.5;
+        LPositions[3] := 0.7;
+        LPositions[4] := 0.9;
+        LPositions[5] := 1;
+        LGradient := TSkShader.MakeGradientLinear(TPointF.Create(0, 0), TPointF.Create(125, 256), LColors, TSkTileMode.Clamp, LPositions);
+
+        LTypeface := TSkTypeface.MakeFromFile(GetAssetsPath + 'Poppins-Semibold.ttf');
+        LFont := TSkFont.Create(LTypeface, 23);
+        LPaint := TSkPaint.Create;
+        LPaint.Shader := LGradient;
+        LPaint.Style := TSkPaintStyle.Fill;
+
+        ACanvas.DrawSimpleText('"Each dream that you', 2, 25, LFont, LPaint);
+        ACanvas.DrawSimpleText('leave behind is a part', 2, 55, LFont, LPaint);
+        ACanvas.DrawSimpleText('of your future that will', 2, 85, LFont, LPaint);
+        ACanvas.DrawSimpleText('no longer exist."', 2, 115, LFont, LPaint);
+
+        LTypeface := TSkTypeface.MakeFromFile(GetAssetsPath + 'BonheurRoyale-Regular.ttf');
+        LFont.Typeface := LTypeface;
+        LFont.Size := 28;
+
+        LPaint2 := TSKPaint.Create;
+        LPaint2.Color := TAlphaColors.White;
+        LPaint2.Style := TSKPaintStyle.Stroke;
+        LPaint2.StrokeWidth := 0.5;
+
+        LPaint.Shader := nil;
+        LPaint.Color  := TAlphaColors.Black;
+        ACanvas.DrawSimpleText('(Steve Jobs)', 2, 150, LFont, LPaint2);
+        ACanvas.DrawSimpleText('(Steve Jobs)', 2, 150, LFont, LPaint);
+      end);
+
+    frmBitmapPreview.Show(LBitmap);
+  finally
+    LBitmap.Free;
+  end;
+end;
+
+procedure TfrmMain.btnTextParagraphClick(Sender: TObject);
+var
+  LBitmap: TBitmap;
+begin
+  LBitmap := TBitmap.Create(440, 440);
+  try
+    LBitmap.SkiaDraw(
+      procedure (const ACanvas: ISkCanvas)
+      var
+        LParagraph: ISkParagraph;
+        LBuilder: ISkParagraphBuilder;
+        LTextStyle: ISkTextStyle;
+        LParagraphStyle: ISkParagraphStyle;
+      begin
+        LParagraphStyle := TSkParagraphStyle.Create;
+        LParagraphStyle.TurnHintingOff;
+        LParagraphStyle.MaxLines := 3;
+        LParagraphStyle.Ellipsis := '...';
+        LBuilder := TSkParagraphBuilder.Create(LParagraphStyle);
+
+        LTextStyle := TSkTextStyle.Create;
+        LTextStyle.Color := TAlphaColors.Black;
+        LTextStyle.SetFontSize(28);
+        LTextStyle.SetFontStyle(TSkFontStyle.Create(TSkFontWeight.Light, TSkFontWidth.Normal, TSkFontSlant.Upright));
+        LBuilder.PushStyle(LTextStyle);
+        LBuilder.AddText('English English 字典 字典 😀😅😂😂');
+
+        LTextStyle := TSkTextStyle.Create;
+        LTextStyle.Color := TAlphaColors.Crimson;
+        LTextStyle.SetFontSize(22);
+        LTextStyle.SetFontStyle(TSkFontStyle.Create(TSkFontWeight.SemiBold, TSkFontWidth.Normal, TSkFontSlant.Upright));
+        LBuilder.PushStyle(LTextStyle);
+        LBuilder.AddText(' سلام دنیا!');
+
+        LTextStyle := TSkTextStyle.Create;
+        LTextStyle.Color := TAlphaColors.Blueviolet;
+        LTextStyle.SetFontSize(30);
+        LTextStyle.SetFontStyle(TSkFontStyle.Create(TSkFontWeight.ExtraBold, TSkFontWidth.Normal, TSkFontSlant.Italic));
+        LBuilder.PushStyle(LTextStyle);
+        LBuilder.AddText(' World domination is such an ugly phrase - I prefer to call it world optimisation.');
+
+        LParagraph := LBuilder.Detach;
+        LParagraph.Layout(LBitmap.Width);
+        LParagraph.Render(ACanvas, 0, 0);
+      end);
+
+    frmBitmapPreview.Show(LBitmap);
+  finally
+    LBitmap.Free;
+  end;
 end;
 
 procedure TfrmMain.btnTextRenderingClick(Sender: TObject);
@@ -452,39 +599,39 @@ var
 begin
   LBitmap := TBitmap.Create(256, 256);
   try
-    DrawOnBitmap(LBitmap,
-      procedure (const ACanvas: ISKCanvas)
+    LBitmap.SkiaDraw(
+      procedure (const ACanvas: ISkCanvas)
       var
-        LBlob1: ISKTextBlob;
-        LBlob2: ISKTextBlob;
-        LFont1: ISKFont;
-        LFont2: ISKFont;
-        LPaint1: ISKPaint;
-        LPaint2: ISKPaint;
-        LPaint3: ISKPaint;
-        LTypeface: ISKTypeface;
+        LBlob1: ISkTextBlob;
+        LBlob2: ISkTextBlob;
+        LFont1: ISkFont;
+        LFont2: ISkFont;
+        LPaint1: ISkPaint;
+        LPaint2: ISkPaint;
+        LPaint3: ISkPaint;
+        LTypeface: ISkTypeface;
       begin
-        LTypeface := TSKTypeface.MakeFromName('Monospace', TSKFontStyle.Normal);
-        LFont1 := TSKFont.Create(LTypeface, 64, 1);
-        LFont2 := TSKFont.Create(LTypeface, 64, 1.5);
-        LFont1.Edging := TSKFontEdging.AntiAlias;
-        LFont2.Edging := TSKFontEdging.AntiAlias;
+        LTypeface := TSkTypeface.MakeFromName('Monospace', TSkFontStyle.Normal);
+        LFont1 := TSkFont.Create(LTypeface, 64, 1);
+        LFont2 := TSkFont.Create(LTypeface, 64, 1.5);
+        LFont1.Edging := TSkFontEdging.AntiAlias;
+        LFont2.Edging := TSkFontEdging.AntiAlias;
 
-        LBlob1 := TSKTextBlob.Make('Skia', LFont1);
-        LBlob2 := TSKTextBlob.Make('Skia', LFont2);
+        LBlob1 := TSkTextBlob.Make('Skia', LFont1);
+        LBlob2 := TSkTextBlob.Make('Skia', LFont2);
 
 
-        LPaint1 := TSKPaint.Create;
+        LPaint1 := TSkPaint.Create;
         LPaint1.AntiAlias := True;
         LPaint1.SetARGB($FF, $42, $85, $F4);
 
-        LPaint2 := TSKPaint.Create;
+        LPaint2 := TSkPaint.Create;
         LPaint2.AntiAlias := True;
         LPaint2.SetARGB($FF, $DB, $44, $37);
-        LPaint2.Style := TSKPaintStyle.Stroke;
+        LPaint2.Style := TSkPaintStyle.Stroke;
         LPaint2.StrokeWidth := 3;
 
-        LPaint3 := TSKPaint.Create;
+        LPaint3 := TSkPaint.Create;
         LPaint3.AntiAlias := True;
         LPaint3.SetARGB($FF, $0F, $9D, $58);
 
@@ -499,31 +646,31 @@ begin
   end;
 end;
 
-procedure TfrmMain.btnTextShapingRTLClick(Sender: TObject);
+procedure TfrmMain.btnTextRTLClick(Sender: TObject);
 var
   LBitmap: TBitmap;
 begin
   LBitmap := TBitmap.Create(256, 256);
   try
-    DrawOnBitmap(LBitmap,
-      procedure (const ACanvas: ISKCanvas)
+    LBitmap.SkiaDraw(
+      procedure (const ACanvas: ISkCanvas)
       var
-        LBlob: ISKTextBlob;
-        LFont: ISKFont;
-        LPaint: ISKPaint;
-        LRunHandler: ISKTextBlobBuilderRunHandler;
-        LShaper: ISKShaper;
-        LText: UTF8String;
+        LBlob: ISkTextBlob;
+        LFont: ISkFont;
+        LPaint: ISkPaint;
+        LRunHandler: ISkTextBlobBuilderRunHandler;
+        LShaper: ISkShaper;
+        LText: string;
       begin
-        LFont := TSKFont.Create(TSKTypeface.MakeDefault, 55, 1);
+        LFont := TSkFont.Create(TSkTypeface.MakeDefault, 55, 1);
         LText := 'سلام دنیا!';
 
-        LRunHandler := TSKTextBlobBuilderRunHandler.Create(LText, TPointF.Create(0, 0));
-        LShaper := TSKShaper.Create;
+        LRunHandler := TSkTextBlobBuilderRunHandler.Create(LText, TPointF.Create(0, 0));
+        LShaper := TSkShaper.Create;
         LShaper.Shape(LText, LFont, True, MaxSingle, LRunHandler);
         LBlob := LRunHandler.Detach;
 
-        LPaint := TSKPaint.Create;
+        LPaint := TSkPaint.Create;
         LPaint.AntiAlias := True;
         LPaint.Color := TAlphaColors.Tomato;
 

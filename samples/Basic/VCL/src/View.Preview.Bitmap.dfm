@@ -11,19 +11,15 @@ object frmBitmapPreview: TfrmBitmapPreview
   Font.Style = []
   OldCreateOrder = False
   Position = poMainFormCenter
+  OnMouseWheel = FormMouseWheel
   OnResize = FormResize
   PixelsPerInch = 96
   TextHeight = 13
   object imgBackground: TImage
     Left = 0
-    Top = 50
+    Top = 0
     Width = 583
-    Height = 556
-    Align = alClient
-    ExplicitLeft = 248
-    ExplicitTop = 272
-    ExplicitWidth = 105
-    ExplicitHeight = 105
+    Height = 606
   end
   object imgBackgroundPicture: TImage
     Left = 0
@@ -71,6 +67,8 @@ object frmBitmapPreview: TfrmBitmapPreview
     Top = 50
     Width = 583
     Height = 556
+    HorzScrollBar.Tracking = True
+    VertScrollBar.Tracking = True
     Align = alClient
     BorderStyle = bsNone
     ParentBackground = True
@@ -80,7 +78,6 @@ object frmBitmapPreview: TfrmBitmapPreview
       Top = 0
       Width = 105
       Height = 105
-      Transparent = True
     end
   end
 end

@@ -37,10 +37,13 @@ __recovery/
 # Castalia statistics file
 *.stat
 
+# boss
+modules/
+
 # Custom
-samples/**/bin/
-samples/**/*template*
-samples/**/*template*/*
+Samples/**/bin/
+Samples/**/*template*
+Samples/**/*template*/*
 *.a
 *.dex
 *.o
@@ -48,5 +51,6 @@ samples/**/*template*/*
 *.res
 *.log
 *.deployproj
-!shared/**
-!static/**
+*/Logs/*
+!Binary/Shared/**
+!Binary/Static/**

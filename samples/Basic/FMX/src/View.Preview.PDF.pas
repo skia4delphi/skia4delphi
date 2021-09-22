@@ -38,12 +38,8 @@ type
     btnClose: TSpeedButton;
     lblTitle: TLabel;
     imgArrow: TImage;
-    procedure FormCreate(Sender: TObject);
     procedure btnCloseClick(Sender: TObject);
-  private
-    { Private declarations }
   public
-    { Public declarations }
     procedure Show(const AFileName: string); reintroduce;
   end;
 
@@ -54,20 +50,11 @@ implementation
 
 {$R *.fmx}
 
-uses
-  { Sample }
-  View.Main;
-
 { TfrmPDFPreview }
 
 procedure TfrmPDFPreview.btnCloseClick(Sender: TObject);
 begin
   Close;
-end;
-
-procedure TfrmPDFPreview.FormCreate(Sender: TObject);
-begin
-  StyleBook := frmMain.StyleBook;
 end;
 
 procedure TfrmPDFPreview.Show(const AFileName: string);

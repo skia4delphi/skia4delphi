@@ -27,12 +27,8 @@ type
     sbxContent: TScrollBox;
     rctHeader: TRectangle;
     imgArrow: TImage;
-    procedure FormCreate(Sender: TObject);
     procedure btnCloseClick(Sender: TObject);
-  private
-    { Private declarations }
   public
-    { Public declarations }
     procedure Show(ABitmap: TBitmap); reintroduce;
   end;
 
@@ -43,20 +39,11 @@ implementation
 
 {$R *.fmx}
 
-uses
-  { Sample }
-  View.Main;
-
 { TfrmBitmapPreview }
 
 procedure TfrmBitmapPreview.btnCloseClick(Sender: TObject);
 begin
   Close;
-end;
-
-procedure TfrmBitmapPreview.FormCreate(Sender: TObject);
-begin
-  StyleBook := frmMain.StyleBook;
 end;
 
 procedure TfrmBitmapPreview.Show(ABitmap: TBitmap);

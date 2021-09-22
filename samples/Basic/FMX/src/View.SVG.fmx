@@ -65,7 +65,7 @@ object frmSVG: TfrmSVG
       TextSettings.Font.Size = 15.000000000000000000
       TextSettings.HorzAlign = Center
       Text = 'SVG Preview'
-      Width = 503.000000000000000000
+      Width = 533.000000000000000000
     end
   end
   object rctSVG: TRectangle
@@ -75,6 +75,5 @@ object frmSVG: TfrmSVG
     Height = 556.000000000000000000
     Stroke.Kind = None
     Width = 583.000000000000000000
-    OnResize = rctSVGResize
   end
 end

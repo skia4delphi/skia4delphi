@@ -7,7 +7,6 @@ object frmPDFPreview: TfrmPDFPreview
   FormFactor.Width = 320
   FormFactor.Height = 480
   FormFactor.Devices = [Desktop]
-  OnCreate = FormCreate
   DesignerMobile = False
   DesignerWidth = 0
   DesignerHeight = 0
@@ -62,7 +61,7 @@ object frmPDFPreview: TfrmPDFPreview
       TextSettings.Font.Size = 15.000000000000000000
       TextSettings.HorzAlign = Center
       Text = 'PDF Preview'
-      Width = 503.000000000000000000
+      Width = 533.000000000000000000
     end
   end
 end

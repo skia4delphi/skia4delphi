@@ -18,10 +18,7 @@ uses
   Vcl.Imaging.pngimage,
   Vcl.ExtCtrls,
   Vcl.Buttons,
-  Vcl.StdCtrls,
-
-  { Sample }
-  Vcl.WIC.Bitmap;
+  Vcl.StdCtrls;
 
 type
   { TfrmBitmapPreview }
@@ -34,11 +31,10 @@ type
     imgBitmap: TImage;
     sbxContent: TScrollBox;
     procedure FormResize(Sender: TObject);
-  private
-    { Private declarations }
+    procedure FormMouseWheel(Sender: TObject; Shift: TShiftState;
+      WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
   public
-    { Public declarations }
-    procedure Show(ABitmap: TWICBitmap); reintroduce;
+    procedure Show(ABitmap: TBitmap); reintroduce;
   end;
 
 var
@@ -64,18 +60,29 @@ procedure TfrmBitmapPreview.FormResize(Sender: TObject);
   end;
 
 begin
-  imgBackground.Picture.Bitmap.SetSize(ClientWidth, ClientHeight);
-  TileImage(imgBackgroundPicture, imgBackground.Picture.Bitmap.Canvas, ClientWidth, ClientHeight);
+  if (imgBackground.Width <> Screen.Width) or (imgBackground.Height <> Screen.Height) then
+  begin
+    imgBackground.SetBounds(imgBackground.Left, imgBackground.Top, Screen.Width, Screen.Height);
+    imgBackground.Picture.Bitmap.SetSize(Screen.Width, Screen.Height);
+    TileImage(imgBackgroundPicture, imgBackground.Picture.Bitmap.Canvas, Screen.Width, Screen.Height);
+  end;
   sbxContent.Repaint;
 end;
 {$ENDREGION}
 
-procedure TfrmBitmapPreview.Show(ABitmap: TWICBitmap);
+procedure TfrmBitmapPreview.FormMouseWheel(Sender: TObject; Shift: TShiftState;
+  WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
+begin
+  sbxContent.VertScrollBar.Position := sbxContent.VertScrollBar.Position - WheelDelta;
+  Handled := True;
+end;
+
+procedure TfrmBitmapPreview.Show(ABitmap: TBitmap);
 begin
   inherited Show;
   imgBitmap.Width := Ceil(ABitmap.Width {$IF CompilerVersion >= 33}/ imgBitmap.ScaleFactor{$ENDIF});
-  imgBitmap.Height := Ceil(ABitmap.Width {$IF CompilerVersion >= 33}/ imgBitmap.ScaleFactor{$ENDIF});
-  imgBitmap.Picture.Graphic := ABitmap.Image;
+  imgBitmap.Height := Ceil(ABitmap.Height {$IF CompilerVersion >= 33}/ imgBitmap.ScaleFactor{$ENDIF});
+  imgBitmap.Picture.Bitmap := ABitmap;
 end;
 
 end.

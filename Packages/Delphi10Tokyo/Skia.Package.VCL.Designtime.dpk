@@ -1,0 +1,46 @@
+package Skia.Package.VCL.Designtime;
+
+{$R *.res}
+{$IFDEF IMPLICITBUILDING This IFDEF should not be used by users}
+{$ALIGN 8}
+{$ASSERTIONS ON}
+{$BOOLEVAL OFF}
+{$DEBUGINFO OFF}
+{$EXTENDEDSYNTAX ON}
+{$IMPORTEDDATA ON}
+{$IOCHECKS ON}
+{$LOCALSYMBOLS OFF}
+{$LONGSTRINGS ON}
+{$OPENSTRINGS ON}
+{$OPTIMIZATION ON}
+{$OVERFLOWCHECKS OFF}
+{$RANGECHECKS OFF}
+{$REFERENCEINFO OFF}
+{$SAFEDIVIDE OFF}
+{$STACKFRAMES OFF}
+{$TYPEDADDRESS OFF}
+{$VARSTRINGCHECKS ON}
+{$WRITEABLECONST OFF}
+{$MINENUMSIZE 1}
+{$DEFINE RELEASE}
+{$ENDIF IMPLICITBUILDING}
+{$DESCRIPTION 'Skia4Delphi VCL Designtime package'}
+{$LIBSUFFIX '.Delphi10Tokyo'}
+{$DESIGNONLY}
+{$IMPLICITBUILD ON}
+
+requires
+  rtl,
+  vcl,
+  vclimg,
+  designide,
+  Skia.Package.RTL,
+  Skia.Package.VCL;
+
+contains
+  Skia.Vcl.Designtime in '..\..\Source\VCL\Designtime\Skia.Vcl.Designtime.pas',
+  Skia.Vcl.Designtime.ProjectMenu in '..\..\Source\VCL\Designtime\Skia.Vcl.Designtime.ProjectMenu.pas',
+  Skia.Vcl.Designtime.Editor.Lottie in '..\..\Source\VCL\Designtime\Skia.Vcl.Designtime.Editor.Lottie.pas' {LottieEditorForm},
+  Skia.Vcl.Designtime.Editor.Svg in '..\..\Source\VCL\Designtime\Skia.Vcl.Designtime.Editor.Svg.pas' {SvgEditorForm};
+
+end.
