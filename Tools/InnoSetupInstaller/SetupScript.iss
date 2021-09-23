@@ -4,7 +4,7 @@
 #define LibraryCopyright "Copyright (c) 2021 Skia4Delphi Project"
 #define LibraryURL "https://skia4delphi.org"
 #define LibrarySamplesFolder "Samples"
-#define LibraryDocumentationURL "https://skia4delphi.org"
+#define LibraryDocumentationURL "https://github.com/viniciusfbb/skia4delphi"
 #define LibrarySupportURL "https://github.com/viniciusfbb/skia4delphi/issues/"
 #define LibraryUpdatesURL "https://github.com/viniciusfbb/skia4delphi/releases/"
 #define Images "..\..\Assets\Setup\image.bmp"
@@ -65,6 +65,7 @@ ErrorCompilingFor=Error compiling for %1 (code %2, message "%3").%n%nPlease, rep
 InstallingPackages=Installing packages...
 CannotPossibleToUninstallDetectedVersion=Cannot possible to uninstall another versions of {#LibraryName} detected in your system. 
 UninstallingDetectedVersion=Uninstalling another versions
+ErrorCantFoundRsVars=Can't found the rsvars file "%1"
 
 [Run]
 Filename: "{app}\{#LibrarySamplesFolder}"; Description: "Open samples folder"; Flags: shellexec runasoriginaluser postinstall;
@@ -844,7 +845,8 @@ begin
   begin
     if (not RegQueryStringValue(HKEY_CURRENT_USER, GetDelphiRegKey(AVersion) + '\Environment Variables', 'PATH', LValue)) or (LValue = '') then
       LValue := '$(PATH)';
-    LPaths := RemoveString(SplitString(LValue, ';'), APath, False);
+    LPaths := RemoveString(SplitString(LValue, ';'), APath, False); 
+    LPaths := RemoveString(LPaths, APath + '\', False);
     LPaths := InsertStringAtBeginning(LPaths, APath);
     LValue := JoinStrings(LPaths, ';', False);
     RegWriteStringValue(HKEY_CURRENT_USER, GetDelphiRegKey(AVersion) + '\Environment Variables', 'PATH', LValue);
@@ -861,6 +863,7 @@ begin
     if (not RegQueryStringValue(HKEY_CURRENT_USER, GetDelphiRegKey(AVersion) + '\Environment Variables', 'PATH', LValue)) or (LValue = '') then
       LValue := '$(PATH)';
     LPaths := RemoveString(SplitString(LValue, ';'), APath, False);
+    LPaths := RemoveString(LPaths, APath + '\', False);
     LValue := JoinStrings(LPaths, ';', False);
     RegWriteStringValue(HKEY_CURRENT_USER, GetDelphiRegKey(AVersion) + '\Environment Variables', 'PATH', LValue);
   end;
@@ -886,6 +889,7 @@ begin
       begin
         LNewValue := LPathsToInsert[I];
         LCurrentPaths := RemoveString(LCurrentPaths, LNewValue, False);
+        LCurrentPaths := RemoveString(LCurrentPaths, LNewValue + '\', False);
         LCurrentPaths := AddString(LCurrentPaths, LNewValue);
       end;
       LNewValue := JoinStrings(LCurrentPaths, ';', False);
@@ -909,7 +913,8 @@ begin
     for I := 0 to GetArrayLength(LPathsToRemove) - 1 do
     begin
       LNewValue := LPathsToRemove[I];
-      LCurrentPaths := RemoveString(LCurrentPaths, LNewValue, False);
+      LCurrentPaths := RemoveString(LCurrentPaths, LNewValue, False);  
+      LCurrentPaths := RemoveString(LCurrentPaths, LNewValue + '\', False);
     end;
     LNewValue := JoinStrings(LCurrentPaths, ';', False);
     RegWriteStringValue(HKEY_CURRENT_USER, GetDelphiRegKey(AVersion) + '\Library\' + GetPlatformLibraryName(APlatform), ALibraryPathName, LNewValue);
@@ -980,9 +985,9 @@ begin
   Result := Format('/target:Build /p:config=%s /p:platform=%s /p:DCC_BuildAllUnits=true /p:DCC_DcuOutput="%s" /p:DCC_Define="%s" /p:DCC_BplOutput="%s" /p:DCC_DcpOutput="%s"', [GetDelphiConfigName(AConfig), GetPlatformName(APlatform), ADcuOutput, ADefines, ABplOutput, ADcpOutput]);
 end;
 
-function GetBuildCommand(const AVersion: TDelphiVersion; const AConfig: TDelphiConfig; const APlatform: TDelphiPlatform; const ADprojFileName, ADcuOutput, ADcpOutput, ABplOutput, ADefines, ALogFileName: string): string;
+function GetBuildCommand(const AConfig: TDelphiConfig; const APlatform: TDelphiPlatform; const ARsVarsBatchFileName, ADprojFileName, ADcuOutput, ADcpOutput, ABplOutput, ADefines, ALogFileName: string): string;
 begin
-  Result := AddQuotes(GetRsvarsBatchFileName(AVersion)) + '& msbuild ' + AddQuotes(ADprojFileName) + ' ' + 
+  Result := AddQuotes(ARsVarsBatchFileName) + '& msbuild ' + AddQuotes(ADprojFileName) + ' ' + 
     GetBuildParams(ADcuOutput, ADcpOutput, ABplOutput, ADefines, AConfig, APlatform) + '  >' + AddQuotes(ALogFileName);
 end;
 
@@ -991,6 +996,16 @@ begin
   AddDelphiLibraryPath(AVersion, APlatform, 'Search Path', GetDcuPath(AVersion, APlatform, cfRelease, APackage));   
   AddDelphiLibraryPath(AVersion, APlatform, 'Browsing Path', AddLibraryDirInPaths(APackage.SourcePaths));
   AddDelphiLibraryPath(AVersion, APlatform, 'Debug DCU Path', GetDcuPath(AVersion, APlatform, cfDebug, APackage));
+end;
+
+procedure ShowCompileError(const ACode: Integer; const ADescription, ALogFileName: string; const AVersion: TDelphiVersion; const APlatform: TDelphiPlatform; const AConfig: TDelphiConfig; const APackage: TDelphiPackage);
+var
+  LResultCode: Integer;
+begin
+  MsgBox(FmtMessage(CustomMessage('ErrorCompilingFor'), [GetDelphiVersionFriendlyName(AVersion) + ' - ' + APackage.Name + '.dproj - ' + GetPlatformName(APlatform), InttoStr(ACode), ADescription]), mbError, mb_OK);
+  ShellExec('open', ExpandConstant('{#LibrarySupportURL}'), '', '', SW_SHOW, ewNoWait, LResultCode);
+  if ALogFileName <> '' then
+    ShellExec('open', ALogFileName, '', '', SW_SHOW, ewNoWait, LResultCode);
 end;
 
 // Register packages in Delphi
@@ -1002,6 +1017,7 @@ var
   LBplOutput: string;
   LResultCode: Integer;
   LLogFileName: string;
+  LRsVarsBatchFileName: string;
   LCommand: string;
 begin                          
   WizardForm.StatusLabel.Caption:= FmtMessage(CustomMessage('CompilingFor'), [GetDelphiVersionFriendlyName(AVersion)]);
@@ -1012,20 +1028,23 @@ begin
   LDcpOutput := ExpandPath(GetDcpPath(AVersion, APlatform, AConfig, APackage));
   LBplOutput := ExpandPath(GetBplPath(AVersion, APlatform, AConfig, APackage));
   LLogFileName := ExpandConstant('{app}\Build.Logs.txt');
+  LRsVarsBatchFileName := GetRsVarsBatchFileName(AVersion);
 
-  // Build package
-  LResultCode := 0;
-  LCommand := GetBuildCommand(AVersion, AConfig, APlatform, LDprojFileName, LDcuOutput, LDcpOutput, LBplOutput, '', LLogFileName);
-  Result := Exec(ExpandConstant('{cmd}'), '/C call ' + LCommand, '', SW_HIDE, ewWaitUntilTerminated, LResultCode) and (LResultCode = 0);
 
-  if Result then
-    DeleteFile(LLogFileName)
-  else
+  if FileExists(LRsVarsBatchFileName) then
   begin
-    MsgBox(FmtMessage(CustomMessage('ErrorCompilingFor'), [GetDelphiVersionFriendlyName(AVersion) + ' - ' + APackage.Name + '.dproj - ' + GetPlatformName(APlatform), InttoStr(LResultCode), SysErrorMessage(LResultCode)]), mbError, mb_OK);
-    ShellExec('open', ExpandConstant('{#LibrarySupportURL}'), '', '', SW_SHOW, ewNoWait, LResultCode);
-    ShellExec('open', LLogFileName, '', '', SW_SHOW, ewNoWait, LResultCode);
-  end;
+    // Build package
+    LResultCode := 0;
+    LCommand := GetBuildCommand(AConfig, APlatform, LRsVarsBatchFileName, LDprojFileName, LDcuOutput, LDcpOutput, LBplOutput, '', LLogFileName);
+    Result := Exec(ExpandConstant('{cmd}'), '/C call ' + LCommand, '', SW_HIDE, ewWaitUntilTerminated, LResultCode) and (LResultCode = 0);
+
+    if Result then
+      DeleteFile(LLogFileName)
+    else
+      ShowCompileError(LResultCode, SysErrorMessage(LResultCode), LLogFileName, AVersion, APlatform, AConfig, APackage);
+  end
+  else
+    ShowCompileError(0, FmtMessage(CustomMessage('ErrorCantFoundRsVars'), [LRsVarsBatchFileName]), '', AVersion, APlatform, AConfig, APackage);
   WizardForm.FilenameLabel.Caption := '';
 end;
 

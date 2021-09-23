@@ -49,6 +49,8 @@ Just download and run our setup in [releases page](https://github.com/viniciusfb
 <img src="Assets/Documents/installation1.png" width=340>
 <img src="Assets/Documents/installation2.png" width=340>
 
+If you want, you can also do the manual installation (although it's a lot of work). See the full [documentation of installation](Documents/INSTALLATION.md).
+
 
 
 ## Enabling your project
@@ -58,7 +60,8 @@ After install the Skia4Delphi, you need to enable your project to be able to run
 ![enabling-project](Assets/Documents/enabling_project_dark.png)
 
 Skipping this step, your application startup will get a "runtime error".
-Note: You don't need to do this step in package projects. This step is exclusive for application projects.
+
+Note: You don't need to do this step in package projects that use our units. This step is exclusive for application projects.
 
 
 
