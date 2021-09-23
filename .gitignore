@@ -52,5 +52,6 @@ Samples/**/*template*/*
 *.log
 *.deployproj
 */Logs/*
+*.Logs.txt
 !Binary/Shared/**
 !Binary/Static/**

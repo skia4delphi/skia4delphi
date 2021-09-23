@@ -7,8 +7,6 @@
 #define LibraryDocumentationURL "https://skia4delphi.org"
 #define LibrarySupportURL "https://github.com/viniciusfbb/skia4delphi/issues/"
 #define LibraryUpdatesURL "https://github.com/viniciusfbb/skia4delphi/releases/"
-#define BuildBatchFile "Tools\InnoSetupInstaller\Build.bat"
-#define BuildBatchLogFolder "Tools\InnoSetupInstaller\Logs"
 #define Images "..\..\Assets\Setup\image.bmp"
 
 [Setup]
@@ -63,7 +61,7 @@ ChooseDelphiPlatformsMessage=Check the Delphi platforms do you want to install t
 CannotPossibleToRemoveOldFiles=The uninstall cannot be fully done. Make sure no Delphi processes are running and try again.
 RemovingOldFiles=Removing old files...
 CompilingFor=Compiling for %1...
-ErrorCompilingFor=Error compiling for %1.%n%nPlease, report this issue.
+ErrorCompilingFor=Error compiling for %1 (code %2, message "%3").%n%nPlease, report this issue.
 InstallingPackages=Installing packages...
 CannotPossibleToUninstallDetectedVersion=Cannot possible to uninstall another versions of {#LibraryName} detected in your system. 
 UninstallingDetectedVersion=Uninstalling another versions
@@ -962,18 +960,30 @@ begin
   Result := Format('$(%s)\%s\%s\%s\%s', [LibraryDirVariable, APackage.DCUOutputPath, GetSourceFolderName(AVersion), GetPlatformName(APlatform), GetDelphiConfigName(AConfig)]);
 end;  
 
+function GetDcpPath(const AVersion: TDelphiVersion; const APlatform: TDelphiPlatform; const AConfig: TDelphiConfig; const APackage: TDelphiPackage): string;
+begin
+  Result := GetDcuPath(AVersion, APlatform, AConfig, APackage);
+end;
+
 function GetBplPath(const AVersion: TDelphiVersion; const APlatform: TDelphiPlatform; const AConfig: TDelphiConfig; const APackage: TDelphiPackage): string;
 begin
   Result := GetDcuPath(AVersion, APlatform, AConfig, APackage) + '\Bpl';
 end;
 
-// Build.bat parameters
-function GetBuildParams(const AVersion: TDelphiVersion; const ADprojFileName, ADcuOutput, ABplOutput, ADefines: string; const AConfig: TDelphiConfig; const APlatform: TDelphiPlatform): string;
-var
-  LRsVars: string;
+function GetRsvarsBatchFileName(const AVersion: TDelphiVersion): string;
 begin
-  LRsVars := GetDelphiPath(AVersion) + 'bin\rsvars.bat';
-  Result := Format('"%s" "%s" "Config=%s" "Platform=%s" "DCC_DcuOutput=%s" "DCC_Define=%s" "DCC_BPLOutput=%s"', [LRsVars, ADprojFileName, GetDelphiConfigName(AConfig), GetPlatformName(APlatform), ADcuOutput, ADefines, ABplOutput]);
+  Result := GetDelphiPath(AVersion) + 'bin\rsvars.bat';
+end;
+
+function GetBuildParams(const ADcuOutput, ADcpOutput, ABplOutput, ADefines: string; const AConfig: TDelphiConfig; const APlatform: TDelphiPlatform): string;
+begin
+  Result := Format('/target:Build /p:config=%s /p:platform=%s /p:DCC_DcuOutput="%s" /p:DCC_Define="%s" /p:DCC_BplOutput="%s" /p:DCC_DcpOutput="%s"', [GetDelphiConfigName(AConfig), GetPlatformName(APlatform), ADcuOutput, ADefines, ABplOutput, ADcpOutput]);
+end;
+
+function GetBuildCommand(const AVersion: TDelphiVersion; const AConfig: TDelphiConfig; const APlatform: TDelphiPlatform; const ADprojFileName, ADcuOutput, ADcpOutput, ABplOutput, ADefines, ALogFileName: string): string;
+begin
+  Result := AddQuotes(GetRsvarsBatchFileName(AVersion)) + '& msbuild ' + AddQuotes(ADprojFileName) + ' ' + 
+    GetBuildParams(ADcuOutput, ADcpOutput, ABplOutput, ADefines, AConfig, APlatform) + '  >' + AddQuotes(ALogFileName);
 end;
 
 procedure InstallDelphiPackage(const AVersion: TDelphiVersion; const APlatform: TDelphiPlatform; const APackage: TDelphiPackage);
@@ -987,27 +997,33 @@ end;
 function TryCompileDelphiPackage(const AVersion: TDelphiVersion; const APlatform: TDelphiPlatform; const AConfig: TDelphiConfig; const APackage: TDelphiPackage): Boolean;
 var
   LDprojFileName: string;
-  LDcuOutput: string;
+  LDcuOutput: string;    
+  LDcpOutput: string;
   LBplOutput: string;
   LResultCode: Integer;
+  LLogFileName: string;
+  LCommand: string;
 begin                          
   WizardForm.StatusLabel.Caption:= FmtMessage(CustomMessage('CompilingFor'), [GetDelphiVersionFriendlyName(AVersion)]);
   WizardForm.FilenameLabel.Caption := APackage.Name + '.dproj - ' + GetPlatformName(APlatform);
 
   LDprojFileName := ExpandPath(PackagesFolder + '\' + GetSourceFolderName(AVersion) + '\' + APackage.Name + '.dproj');
   LDcuOutput := ExpandPath(GetDcuPath(AVersion, APlatform, AConfig, APackage));
+  LDcpOutput := ExpandPath(GetDcpPath(AVersion, APlatform, AConfig, APackage));
   LBplOutput := ExpandPath(GetBplPath(AVersion, APlatform, AConfig, APackage));
+  LLogFileName := ExpandConstant('{app}\Build.Logs.txt');
 
   // Build package
-  Exec(ExpandConstant('{app}\{#BuildBatchFile}'), GetBuildParams(AVersion, LDprojFileName, LDcuOutput, LBplOutput, '', AConfig, APlatform),
-     '', SW_HIDE, ewWaitUntilTerminated, LResultCode);
-  
-  Result := LResultCode = 0;
-  if not Result then
+  LCommand := GetBuildCommand(AVersion, AConfig, APlatform, LDprojFileName, LDcuOutput, LDcpOutput, LBplOutput, '', LLogFileName);
+  Result := Exec(ExpandConstant('{cmd}'), '/C call ' + LCommand, '', SW_HIDE, ewWaitUntilTerminated, LResultCode);
+
+  if Result then
+    DeleteFile(LLogFileName)
+  else
   begin
-    MsgBox(FmtMessage(CustomMessage('ErrorCompilingFor'), [GetDelphiVersionFriendlyName(AVersion) + ' - ' + APackage.Name + '.dproj - ' + GetPlatformName(APlatform)]), mbError, mb_OK);
+    MsgBox(FmtMessage(CustomMessage('ErrorCompilingFor'), [GetDelphiVersionFriendlyName(AVersion) + ' - ' + APackage.Name + '.dproj - ' + GetPlatformName(APlatform), InttoStr(LResultCode), SysErrorMessage(LResultCode)]), mbError, mb_OK);
     ShellExec('open', ExpandConstant('{#LibrarySupportURL}'), '', '', SW_SHOW, ewNoWait, LResultCode);
-    ShellExec('open', ExpandConstant('{app}\{#BuildBatchLogFolder}'), '', '', SW_SHOW, ewNoWait, LResultCode);
+    ShellExec('open', LLogFileName, '', '', SW_SHOW, ewNoWait, LResultCode);
   end;
   WizardForm.FilenameLabel.Caption := '';
 end;
