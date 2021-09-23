@@ -37,7 +37,7 @@ PrivilegesRequired=lowest
 Name: "english"; MessagesFile: "compiler:Default.isl"
 
 [Files]
-Source: "..\..\*"; Excludes: "*.exe,*.dll,*.bpl,*.bpi,*.dcp,*.so,*.apk,*.drc,*.map,*.dres,*.rsm,*.tds,*.dcu,*.lib,*.jdbg,*.plist,*.cfg,*Resource.rc,*.cfg,*Resource.rc,*.local,*.identcache,*.projdata,*.tvsconfig,*.skincfg,*.cbk,*.dsk,__history\*,__recovery\*,*.~*,*.stat,modules\*,*template*\*,*template*,*.a,*.dex,*.o,*.vrc,*.res,*.log,*.deployproj,Externals\*,Binary\*,Logs\*,Bpl\*"; DestDir: "{app}"; Flags: recursesubdirs ignoreversion
+Source: "..\..\*"; Excludes: "*.exe,*.dll,*.bpl,*.bpi,*.dcp,*.so,*.apk,*.drc,*.map,*.dres,*.rsm,*.tds,*.dcu,*.lib,*.jdbg,*.plist,*.cfg,*Resource.rc,*.cfg,*Resource.rc,*.local,*.identcache,*.projdata,*.tvsconfig,*.skincfg,*.cbk,*.dsk,__history\*,__recovery\*,*.~*,*.stat,modules\*,*template*\*,*template*,*.a,*.dex,*.o,*.vrc,*.res,*.log,*.deployproj,Externals\*,Binary\*,Logs\*,Bpl\*,*.Logs.txt"; DestDir: "{app}"; Flags: recursesubdirs ignoreversion
 Source: "..\..\Binary\*"; DestDir: "{app}\Binary"; Flags: recursesubdirs ignoreversion
 
 [Icons]
@@ -977,7 +977,7 @@ end;
 
 function GetBuildParams(const ADcuOutput, ADcpOutput, ABplOutput, ADefines: string; const AConfig: TDelphiConfig; const APlatform: TDelphiPlatform): string;
 begin
-  Result := Format('/target:Build /p:config=%s /p:platform=%s /p:DCC_DcuOutput="%s" /p:DCC_Define="%s" /p:DCC_BplOutput="%s" /p:DCC_DcpOutput="%s"', [GetDelphiConfigName(AConfig), GetPlatformName(APlatform), ADcuOutput, ADefines, ABplOutput, ADcpOutput]);
+  Result := Format('/target:Build /p:config=%s /p:platform=%s /p:DCC_BuildAllUnits=true /p:DCC_DcuOutput="%s" /p:DCC_Define="%s" /p:DCC_BplOutput="%s" /p:DCC_DcpOutput="%s"', [GetDelphiConfigName(AConfig), GetPlatformName(APlatform), ADcuOutput, ADefines, ABplOutput, ADcpOutput]);
 end;
 
 function GetBuildCommand(const AVersion: TDelphiVersion; const AConfig: TDelphiConfig; const APlatform: TDelphiPlatform; const ADprojFileName, ADcuOutput, ADcpOutput, ABplOutput, ADefines, ALogFileName: string): string;
@@ -1014,8 +1014,9 @@ begin
   LLogFileName := ExpandConstant('{app}\Build.Logs.txt');
 
   // Build package
+  LResultCode := 0;
   LCommand := GetBuildCommand(AVersion, AConfig, APlatform, LDprojFileName, LDcuOutput, LDcpOutput, LBplOutput, '', LLogFileName);
-  Result := Exec(ExpandConstant('{cmd}'), '/C call ' + LCommand, '', SW_HIDE, ewWaitUntilTerminated, LResultCode);
+  Result := Exec(ExpandConstant('{cmd}'), '/C call ' + LCommand, '', SW_HIDE, ewWaitUntilTerminated, LResultCode) and (LResultCode = 0);
 
   if Result then
     DeleteFile(LLogFileName)
