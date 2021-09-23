@@ -48,8 +48,8 @@ The easiest (and recommended) way to install the library is through our installe
 <img src="/Assets/Documents/installation2.png" width=340>
 
 You don't need to build/set nothing, just run the setup.
-
 After finish the setup, you are able to play with skia, and you can run our sample.
+
 **Important:** To use Skia in a new application project, you should [enable your project](https://github.com/viniciusfbb/skia4delphi#enabling-your-project)
 
 
@@ -98,35 +98,52 @@ After finish the setup, you are able to play with skia, and you can run our samp
 1. If you have another version of Skia4Delphi, uninstall and remove all files and settings that you made.
 2. [Download our repository](https://github.com/viniciusfbb/skia4delphi/archive/refs/heads/main.zip).
 3. Open RAD Studio, go to menu Tools > Options... > IDE > Environment Variables, and:
-  3.1. Click in "New...", and add the variable name `SKIADIR`, and in "variable value" put your Skia4Delphi folder (full path), for example `C:\skia4delphi`, and click in "OK";
-  3.2. Still in the "Environment Variables" page, in section "User System Overrides", find the `PATH` variable double click in it to change it value. You need to add the these three folders (full path) in begin:
+
+   3.1. Click in "New...", and add the variable name `SKIADIR`, and in "variable value" put your Skia4Delphi folder (full path), for example `C:\skia4delphi`, and click in "OK";
+
+   3.2. Still in the "Environment Variables" page, in section "User System Overrides", find the `PATH` variable double click in it to change it value. You need to add the these three folders (full path) in begin:
       - `<Skia4Delphi Folder>\Binary\Shared\Win32;`
+
         Like: *C:\skia4delphi\Binary\Shared\Win32;*
       - `<Skia4Delphi Folder>\Library\<Delphi Version Name>\Win32\Release\Bpl;`
+
         Like: *C:\skia4delphi\Library\Delphi11Alexandria\Win32\Release\Bpl;*
       - `<Skia4Delphi Folder>\Library\<Delphi Version Name>\Win64\Release\Bpl;`
+
         Like: *C:\skia4delphi\Library\Delphi11Alexandria\Win64\Release\Bpl;*
-  3.3. Click in "OK" and in "Save"
+
+   3.3. Click in "OK" and in "Save"
+
 4. Open the project group of your RAD Studio version, file `<Skia4Delphi Folder>\Packages\<Delphi Version Name>\Skia4Delphi.groupproj`, like *C:\skia4delphi\Packages\Delphi11Alexandria\Skia4Delphi.groupproj*
 5. Click in **Show Build Groups Panel**
 6. All platforms are selected by default in "Skia.Package.RTL" and "Skia.Package.FMX", but you should select just the platforms that you want. Remenber that if you are in Delphi 10.3 Rio or older, you can't compile for non windows platforms. And remember also that the package `Skia.Package.FMX.<Delphi Version Name>.bpl` cannot be compiled by Linux64, unless that you have the FmxLinux installed.
 7. Click in "Build the current build group"
 8. Install the two installable packages (`Skia.Package.FMX.Designtime.<Delphi Version Name>.bpl` and `Skia.Package.VCL.Designtime.<Delphi Version Name>.bpl`) clicking with with right button and "Install".
 9. In your RAD Studio, go to menu Tools > Options... > Language > Delphi > Library, and add for each platform that you have compiled, the paths:
-  9.1. In "Library path":
-    - `$(SKIADIR)\Library\<Delphi Version Name>\<Platform Name>\Release`
-      Like: *$(SKIADIR)\Library\Delphi11Alexandria\Win32\Release*
-  9.2. In "Browsing path":
-    - `$(SKIADIR)\Source`
-    - `$(SKIADIR)\Source\FMX`
-    - `$(SKIADIR)\Source\VCL`
-  9.3. In "Debug DCU path":
-    - `$(SKIADIR)\Library\<Delphi Version Name>\<Platform Name>\Debug`
-      Like: *$(SKIADIR)\Library\Delphi11Alexandria\Win32\Debug*
-  9.4. Just in iOSDevice64 (if you has compiled for it), add an extra path to the "Library path":
-    - `$(SKIADIR)\Binary\Static\iOSDevice64`
+
+   9.1. In "Library path":
+      - `$(SKIADIR)\Library\<Delphi Version Name>\<Platform Name>\Release`
+
+        Like: *$(SKIADIR)\Library\Delphi11Alexandria\Win32\Release*
+
+   9.2. In "Browsing path":
+      - `$(SKIADIR)\Source`
+      - `$(SKIADIR)\Source\FMX`
+      - `$(SKIADIR)\Source\VCL`
+
+   9.3. In "Debug DCU path":
+      - `$(SKIADIR)\Library\<Delphi Version Name>\<Platform Name>\Debug`
+
+        Like: *$(SKIADIR)\Library\Delphi11Alexandria\Win32\Debug*
+
+   9.4. Just in iOSDevice64 (if you has compiled for it), add an extra path to the "Library path":
+      - `$(SKIADIR)\Binary\Static\iOSDevice64`
+
 10. Click in "Save" the Options page.
 
 
-After made all steps and in the order (the order matter), you are able to play with skia, and you can run our sample in folder `<Skia4Delphi Folder>\Samples`
+#### Finished
+
+After made all steps above and in the order (the order matter), you are able to play with skia, and you can run our sample in folder `<Skia4Delphi Folder>\Samples`
+
 **Important:** To use Skia in a new application project, you should [enable your project](https://github.com/viniciusfbb/skia4delphi#enabling-your-project)
