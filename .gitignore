@@ -53,5 +53,8 @@ Samples/**/*template*/*
 *.deployproj
 */Logs/*
 *.Logs.txt
+Library/**/Bpl/*
+Packages/**/*template*
+!Setup.exe
 !Binary/Shared/**
 !Binary/Static/**

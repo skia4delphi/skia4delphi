@@ -1,3 +1,35 @@
+
+
+; Custom Parameters
+; -----------------------------------------------------------------------------------
+;
+;   /DefaultRADStudio=   
+;     Values allowed: 4.0 to 22.0
+;     Default: (latest found in computer)
+;     Description: Used to set the default RAD Studio version that will install the library. Ex: /RADStudioVersion=22.0 will check only in RAD Studio 11 Alexandria. Without set this parameter, the value will be the newest RAD Studio found on the machine.
+
+;   /DefaultPlatforms=
+;     Values allowed: windows|all
+;     Default: windows
+;     Description: Plataforms checked by default. If "windows", then Win32 and Win64 will be checked by default, but if is "all" then all platforms available for the selected platforms will be checked.
+
+;   /CreateUninstallRegKey=
+;     Values allowed: no|yes or false|true
+;     Default: yes
+;     Description: When true the uninstall shortcut in applications panel will be created and before the setup starts will call the uninstall of others versions
+;
+;   /CloseRadStudioMessage
+;     Values allowed: no|yes or false|true
+;     Default: no
+;     Description: When true the and the rad studio is running, will show a warning in installation and an error in uninstaller
+;
+; -----------------------------------------------------------------------------------
+;  Example of command line to instal silent:
+;     start /d "C:\skia4delphi" /wait "" "C:\skia4delphi\Setup.exe" /SP- /verysilent /DefaultRADStudio=22.0 /DefaultPlatforms=all /CreateUninstallRegKey=false /CloseRadStudioMessage=false
+;  Example of command line to instal silent:
+;     start /wait "" "C:\skia4delphi\unins000.exe" /SP- /verysilent /CloseRadStudioMessage=false
+; -----------------------------------------------------------------------------------
+
 #define LibraryName "Skia4Delphi"
 #define LibraryVersion "2.0.0"
 #define LibraryPublisher "Skia4Delphi Team"
@@ -8,6 +40,7 @@
 #define LibrarySupportURL "https://github.com/viniciusfbb/skia4delphi/issues/"
 #define LibraryUpdatesURL "https://github.com/viniciusfbb/skia4delphi/releases/"
 #define Images "..\..\Assets\Setup\image.bmp"
+#define EmbeddedMode "False"
 
 [Setup]
 ; AppId uniquely identifies this application, don't use the same AppId value in installers for other applications.
@@ -19,9 +52,8 @@ AppPublisher={#LibraryPublisher}
 AppPublisherURL={#LibraryURL}
 AppSupportURL={#LibrarySupportURL}
 AppUpdatesURL={#LibraryUpdatesURL}
-DefaultDirName={userdocs}\{#LibraryName}
+DefaultDirName={code:GetDefaultDirName}
 DefaultGroupName={#LibraryName}
-DisableDirPage=no
 DisableProgramGroupPage=yes
 OutputBaseFilename={#LibraryName}_{#LibraryVersion}_Setup
 WizardImageFile={#Images}
@@ -32,13 +64,17 @@ SolidCompression=yes
 AllowCancelDuringInstall=yes
 CloseApplications=no
 PrivilegesRequired=lowest
+Uninstallable=yes
+CreateUninstallRegKey=NeedsUninstallRegKey
+DisableDirPage=no
+OutputDir=..\..\
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
 
-[Files]
-Source: "..\..\*"; Excludes: "*.exe,*.dll,*.bpl,*.bpi,*.dcp,*.so,*.apk,*.drc,*.map,*.dres,*.rsm,*.tds,*.dcu,*.lib,*.jdbg,*.plist,*.cfg,*Resource.rc,*.cfg,*Resource.rc,*.local,*.identcache,*.projdata,*.tvsconfig,*.skincfg,*.cbk,*.dsk,__history\*,__recovery\*,*.~*,*.stat,modules\*,*template*\*,*template*,*.a,*.dex,*.o,*.vrc,*.res,*.log,*.deployproj,Externals\*,Binary\*,Logs\*,Bpl\*,*.Logs.txt"; DestDir: "{app}"; Flags: recursesubdirs ignoreversion
-Source: "..\..\Binary\*"; DestDir: "{app}\Binary"; Flags: recursesubdirs ignoreversion
+;[Files]
+;Source: "..\..\*"; Excludes: "*.exe,*.dll,*.bpl,*.bpi,*.dcp,*.so,*.apk,*.drc,*.map,*.dres,*.rsm,*.tds,*.dcu,*.lib,*.jdbg,*.plist,*.cfg,*Resource.rc,*.cfg,*Resource.rc,*.local,*.identcache,*.projdata,*.tvsconfig,*.skincfg,*.cbk,*.dsk,__history\*,__recovery\*,*.~*,*.stat,modules\*,*template*\*,*template*,*.a,*.dex,*.o,*.vrc,*.res,*.log,*.deployproj,Externals\*,Binary\*,Logs\*,Bpl\*,*.Logs.txt"; DestDir: "{app}"; Flags: recursesubdirs ignoreversion
+;Source: "..\..\Binary\*"; DestDir: "{app}\Binary"; Flags: recursesubdirs ignoreversion
 
 [Icons]
 Name: "{group}\Uninstall"; Filename: "{uninstallexe}"
@@ -71,17 +107,33 @@ ErrorCantFoundRsVars=Can't found the rsvars file "%1"
 Filename: "{app}\{#LibrarySamplesFolder}"; Description: "Open samples folder"; Flags: shellexec runasoriginaluser postinstall;
 Filename: "{#LibraryDocumentationURL}"; Description: "View online documentation"; Flags: shellexec runasoriginaluser postinstall unchecked;
 
-[UninstallDelete]
+[UninstallDelete]                              
+Type: filesandordirs; Name: "{app}\Assets\*";      
+Type: filesandordirs; Name: "{app}\Binary\*";      
+Type: filesandordirs; Name: "{app}\Documents\*";      
+Type: filesandordirs; Name: "{app}\Externals\*";
 Type: filesandordirs; Name: "{app}\Library\*";
 Type: filesandordirs; Name: "{app}\Packages\*";   
-Type: filesandordirs; Name: "{app}\Samples\*";
-Type: filesandordirs; Name: "{app}\Tools\*";
-Type: dirifempty; Name: "{app}\Assets";
+Type: filesandordirs; Name: "{app}\Samples\*";    
+Type: filesandordirs; Name: "{app}\Source\*";
+Type: filesandordirs; Name: "{app}\Tools\*";  
+Type: filesandordirs; Name: "{app}\Website\*";     
+Type: filesandordirs; Name: "{app}\.gitignore";    
+Type: filesandordirs; Name: "{app}\.gitmodules";   
+Type: filesandordirs; Name: "{app}\LICENSE";       
+Type: filesandordirs; Name: "{app}\README.md";     
+Type: filesandordirs; Name: "{app}\Setup.exe";     
+Type: filesandordirs; Name: "{app}\SKIA-LICENSE";
+Type: dirifempty; Name: "{app}\Assets";    
+Type: dirifempty; Name: "{app}\Binary";    
+Type: dirifempty; Name: "{app}\Documents";    
+Type: dirifempty; Name: "{app}\Externals";   
 Type: dirifempty; Name: "{app}\Library";   
 Type: dirifempty; Name: "{app}\Packages";     
 Type: dirifempty; Name: "{app}\Samples";      
 Type: dirifempty; Name: "{app}\Source";
-Type: dirifempty; Name: "{app}\Tools";   
+Type: dirifempty; Name: "{app}\Tools";      
+Type: dirifempty; Name: "{app}\Website";   
 Type: dirifempty; Name: "{app}";
 
 [Code]
@@ -124,8 +176,9 @@ const
   LowDelphiConfig = cfRelease;
   HighDelphiConfig = cfDebug;
 
-var
+var                   
   FSetupKind: TSetupKind;
+  FDefaultPlatforms: TDelphiPlatforms;
 
   // Delphi versions                      
   FSupportedDelphiVersions: TDelphiVersions;
@@ -374,6 +427,40 @@ begin
     D11  : Result := '22.0';
   else
     Result := '';
+  end;
+end;
+
+function TryGetDelphiVersionFromRadStudioVersion(const ARadStudioVersion: string; var ADelphiVersion: TDelphiVersion): Boolean;
+var
+  LVersionNumber: Integer;
+begin 
+  Result := True;
+  if Pos('.', ARadStudioVersion) > 0 then                
+    LVersionNumber := StrToIntDef(Copy(ARadStudioVersion, 1, Pos('.', ARadStudioVersion) - 1), 0)
+  else
+    LVersionNumber := StrToIntDef(ARadStudioVersion, 0);
+  case LVersionNumber of
+    4:  ADelphiVersion := D7;
+    5:  ADelphiVersion := D2005;
+    6:  ADelphiVersion := D2007;
+    7:  ADelphiVersion := D2009;
+    8:  ADelphiVersion := D2010;
+    9:  ADelphiVersion := DXE;
+    10: ADelphiVersion := DXE2;
+    11: ADelphiVersion := DXE3;
+    12: ADelphiVersion := DXE4;
+    13: ADelphiVersion := DXE5;
+    14: ADelphiVersion := DXE6;
+    15: ADelphiVersion := DXE7;
+    16: ADelphiVersion := DXE8;
+    17: ADelphiVersion := D10;
+    18: ADelphiVersion := D101;
+    19: ADelphiVersion := D102;
+    20: ADelphiVersion := D103;
+    21: ADelphiVersion := D104;
+    22: ADelphiVersion := D11;
+  else
+    Result := False;
   end;
 end;
 
@@ -656,6 +743,23 @@ var
   LResultCode: Integer;
 begin
   Result := Exec(RemoveQuotes(GetUninstallString), '/SILENT /NORESTART /SUPPRESSMSGBOXES','', SW_HIDE, ewWaitUntilTerminated, LResultCode);
+end;
+
+function GetLatestAvailableVersion: TDelphiVersion;       
+var
+  I: Integer;
+  LVersion: TDelphiVersion;
+begin
+  Result := D7;                              
+  for I := GetArrayLength(FSupportedDelphiVersions) - 1 downto 0 do
+  begin                                     
+    LVersion := FSupportedDelphiVersions[I];
+    if IsDelphiVersionIn(FAvailableDelphiVersions, LVersion) then
+    begin
+      Result := LVersion;
+      Break;
+    end;
+  end;
 end;
 
 // Delphi root path like "C:\Program Files (x86)\Embarcadero\Studio\22.0\"
@@ -1249,7 +1353,7 @@ begin
   begin
     FChooseDelphiPlatformsPage.CheckListBox.ItemEnabled[I] := IsDelphiPlatformIn(FAvailableDelphiPlatforms, FSupportedDelphiPlatforms[I]);
     // The default value of non windows platforms are unchecked
-    if (FSupportedDelphiPlatforms[I] = pfWin32) or (FSupportedDelphiPlatforms[I] = pfWin64) then
+    if IsDelphiPlatformIn(FDefaultPlatforms, FSupportedDelphiPlatforms[I]) then
       FChooseDelphiPlatformsPage.CheckListBox.Checked[I] := FChooseDelphiPlatformsPage.CheckListBox.ItemEnabled[I]
     else
       FChooseDelphiPlatformsPage.CheckListBox.Checked[I] := False;
@@ -1304,7 +1408,6 @@ function CreateDelphiVersionsPage(const AAfterID: Integer): TInputOptionWizardPa
 var
   I: Integer;
   LVersion: TDelphiVersion;
-  LLastestAvailableVersion: TDelphiVersion;
   LWarnings: string;
 begin
   if GetArrayLength(GetDelphiInstalledWithoutInitialized) = 0 then
@@ -1313,20 +1416,11 @@ begin
     LWarnings := CustomMessage('ChooseDelphVersionsWarningMissingDelphiVersion');
   Result := CreateInputOptionPage(AAfterID, CustomMessage('ChooseDelphVersionsTitle'), '',
     ExpandConstant(CustomMessage('ChooseDelphVersionsMessage') + LWarnings), False, False);
-  LLastestAvailableVersion := D7;                              
-  for I := GetArrayLength(FSupportedDelphiVersions) - 1 downto 0 do
-  begin                                     
-    LVersion := FSupportedDelphiVersions[I];
-    if IsDelphiVersionIn(FAvailableDelphiVersions, LVersion) then
-    begin
-      LLastestAvailableVersion := LVersion;
-      Break;
-    end;
-  end;
+
   for I := 0 to GetArrayLength(FSupportedDelphiVersions) - 1 do
   begin
     LVersion := FSupportedDelphiVersions[I];
-    Result.CheckListBox.AddCheckBox(GetDelphiVersionFriendlyName(LVersion), '', 0, IsDelphiVersionIn(FAvailableDelphiVersions, LVersion) and (LVersion = LLastestAvailableVersion), IsDelphiVersionIn(FAvailableDelphiVersions, LVersion), False, False, nil);
+    Result.CheckListBox.AddCheckBox(GetDelphiVersionFriendlyName(LVersion), '', 0, IsDelphiVersionIn(FAvailableDelphiVersions, LVersion) and IsDelphiVersionIn(FSelectedDelphiVersions,  LVersion), IsDelphiVersionIn(FAvailableDelphiVersions, LVersion), False, False, nil);
   end;
   Result.OnNextButtonClick := @OnDelphiVersionsPageNextButtonClick;
 end;
@@ -1337,17 +1431,43 @@ end;
 {                                                                        }
 {************************************************************************}
 
+function NeedsUninstallRegKey: Boolean;
+begin
+  Result := SameText(ExpandConstant('{param:CreateUninstallRegKey|yes}'), 'yes') or SameText(ExpandConstant('{param:CreateUninstallRegKey|true}'), 'true');
+end;
+
+function NeedsDirPage: Boolean;
+begin
+  Result := SameText(ExpandConstant('{#EmbeddedMode}'), 'yes') or SameText(ExpandConstant('{#EmbeddedMode}'), 'true');
+end;
+
+function GetDefaultDirName(AParam: string): string;
+begin
+  if NeedsDirPage then
+    Result := ExpandConstant('{userdocs}\{#LibraryName}')
+  else
+    Result := GetCurrentDir;
+end;
+
 // Set global variables (called at start)
 procedure SetGlobals;
+var
+  LDefaultRADStudio: TDelphiVersion;
 begin
   SetConfigs;
   FSupportedDelphiVersions := GetSupportedDelphiVersions;
   FAvailableDelphiVersions := IntersectionDelphiVersions(GetInstalledDelphiVersions, FSupportedDelphiVersions);
-  FSelectedDelphiVersions := FAvailableDelphiVersions;
+  if (not TryGetDelphiVersionFromRadStudioVersion(ExpandConstant('{param:DefaultRADStudio|}'), LDefaultRADStudio)) or (not IsDelphiVersionIn(FAvailableDelphiVersions, LDefaultRADStudio)) then
+    LDefaultRADStudio := GetLatestAvailableVersion;
+  FSelectedDelphiVersions := [LDefaultRADStudio];
   
   FSupportedDelphiPlatforms := GetSupportedDelphiPlatforms;
   FAvailableDelphiPlatforms := GetAvailableDelphiPlatforms(FSelectedDelphiVersions);
-  FSelectedDelphiPlatforms := FAvailableDelphiPlatforms;
+  if SameText(ExpandConstant('{param:DefaultPlatforms|windows}'), 'all') then
+    FDefaultPlatforms := FSupportedDelphiPlatforms
+  else
+    FDefaultPlatforms := [pfWin32, pfWin64];
+  FSelectedDelphiPlatforms := IntersectionDelphiPlatforms(FDefaultPlatforms, FSupportedDelphiPlatforms);
 end;
 
 // Install initialization
@@ -1365,6 +1485,16 @@ begin
   FChooseDelphiPlatformsPage := CreateDelphiPlatformsPage(FChooseDelphiVersionsPage.ID);
 end;
 
+function CanShowCloseRadStudioMessage: Boolean;
+begin
+  Result := SameText(ExpandConstant('{param:CloseRadStudioMessage|yes}'), 'yes') or SameText(ExpandConstant('{param:CloseRadStudioMessage|true}'), 'true');;
+end;
+
+function ShouldSkipPage(APageID: Integer): Boolean;
+begin
+  Result := (APageID = wpSelectDir) and not NeedsDirPage;
+end;
+
 // Install process
 procedure CurStepChanged(ACurStep: TSetupStep);
 begin 
@@ -1373,7 +1503,7 @@ begin
       if IsUpgrade then
       begin
         WizardForm.StatusLabel.Caption := CustomMessage('UninstallingDetectedVersion');
-        if not TryUninstallOtherVersions then
+        if NeedsUninstallRegKey and not TryUninstallOtherVersions then
         begin
           MsgBox(ExpandConstant(CustomMessage('CannotPossibleToUninstallDetectedVersion')), mbError, MB_OK);
           Abort;
@@ -1383,7 +1513,7 @@ begin
       begin
         if InstallPackages then 
         begin
-          if IsThereAnyDelphiInstanceRunning then
+          if CanShowCloseRadStudioMessage and IsThereAnyDelphiInstanceRunning then
             MsgBox(CustomMessage('InstallationSuccesfullyRestartDelphi'), mbInformation, MB_OK);
         end
         else
@@ -1398,9 +1528,14 @@ function InitializeUninstall: Boolean;
 begin                                 
   FSetupKind := skUninstalling;
   SetGlobals;
-  Result := not IsThereAnyDelphiInstanceRunning;
-  if not Result then
-    MsgBox(CustomMessage('UninstallAbortedToCloseDelphiInstance'), mbError, MB_OK);
+  if CanShowCloseRadStudioMessage then
+  begin
+    Result := not IsThereAnyDelphiInstanceRunning;
+    if not Result then
+      MsgBox(CustomMessage('UninstallAbortedToCloseDelphiInstance'), mbError, MB_OK);
+  end
+  else
+    Result := True;
 end;
 
 // Uninstall process
