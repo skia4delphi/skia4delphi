@@ -15,10 +15,23 @@ interface
 
 {$SCOPEDENUMS ON}
 
+procedure Register;
+
+implementation
+
 uses
   { Delphi }
+  System.UITypes,
+  System.SysUtils,
+  System.Classes,
+  FMX.Forms,
   DesignEditors,
-  DesignIntf;
+  DesignIntf,
+
+  { Skia }
+  Skia.FMX,
+  Skia.FMX.Designtime.Editor.Lottie,
+  Skia.FMX.Designtime.Editor.SVG;
 
 type
   { TSkLottieSourcePropertyEditor }
@@ -29,6 +42,14 @@ type
   public
     function GetAttributes: TPropertyAttributes; override;
     function GetValue: string; override;
+    procedure Edit; override;
+    class function TryEdit(var ASource: TSkLottieSource): Boolean; static;
+  end;
+
+  { TSkLottieComponentEditor }
+
+  TSkLottieComponentEditor = class(TDefaultEditor)
+  public
     procedure Edit; override;
   end;
 
@@ -41,23 +62,15 @@ type
     function GetAttributes: TPropertyAttributes; override;
     function GetValue: string; override;
     procedure Edit; override;
+    class function TryEdit(var ASource: TSkSvgSource): Boolean; static;
   end;
 
-procedure Register;
+  { TSkSvgComponentEditor }
 
-implementation
-
-uses
-  { Delphi }
-  System.UITypes,
-  System.SysUtils,
-  System.Classes,
-  FMX.Forms,
-
-  { Skia }
-  Skia.FMX,
-  Skia.FMX.Designtime.Editor.Lottie,
-  Skia.FMX.Designtime.Editor.SVG;
+  TSkSvgComponentEditor = class(TDefaultEditor)
+  public
+    procedure Edit; override;
+  end;
 
 {$R ..\..\Assets\Resources\Components.dcr}
 
@@ -66,16 +79,10 @@ uses
 procedure TSkLottieSourcePropertyEditor.Edit;
 var
   LSource: TSkLottieSource;
-  LLottieEditorForm: TSkLottieEditorForm;
 begin
   LSource := TSkLottieSource(GetStrValue);
-  LLottieEditorForm := TSkLottieEditorForm.Create(Application);
-  try
-    if LLottieEditorForm.ShowModal(LSource) = mrOk then
-      SetStrValue(LSource);
-  finally
-    LLottieEditorForm.Free;
-  end;
+  if TryEdit(LSource) then
+    SetStrValue(LSource);
 end;
 
 function TSkLottieSourcePropertyEditor.GetAttributes: TPropertyAttributes;
@@ -96,21 +103,39 @@ begin
   Result := '(TSkLottieSource)';
 end;
 
+class function TSkLottieSourcePropertyEditor.TryEdit(
+  var ASource: TSkLottieSource): Boolean;
+var
+  LLottieEditorForm: TSkLottieEditorForm;
+begin
+  LLottieEditorForm := TSkLottieEditorForm.Create(Application);
+  try
+    Result := LLottieEditorForm.ShowModal(ASource) = mrOk;
+  finally
+    LLottieEditorForm.Free;
+  end;
+end;
+
+{ TSkLottieComponentEditor }
+
+procedure TSkLottieComponentEditor.Edit;
+var
+  LSource: TSkLottieSource;
+begin
+  LSource := TSkLottieAnimation(Component).Source;
+  if TSkLottieSourcePropertyEditor.TryEdit(LSource) then
+    TSkLottieAnimation(Component).Source := LSource;
+end;
+
 { TSkSvgSourcePropertyEditor }
 
 procedure TSkSvgSourcePropertyEditor.Edit;
 var
   LSource: TSkSvgSource;
-  LSvgEditorForm: TSkSvgEditorForm;
 begin
   LSource := TSkSvgSource(GetStrValue);
-  LSvgEditorForm := TSkSvgEditorForm.Create(Application);
-  try
-    if LSvgEditorForm.ShowModal(LSource) = mrOk then
-      SetStrValue(LSource);
-  finally
-    LSvgEditorForm.Free;
-  end;
+  if TryEdit(LSource) then
+    SetStrValue(LSource);
 end;
 
 function TSkSvgSourcePropertyEditor.GetAttributes: TPropertyAttributes;
@@ -131,13 +156,39 @@ begin
   Result := '(TSkSvgSource)';
 end;
 
+class function TSkSvgSourcePropertyEditor.TryEdit(
+  var ASource: TSkSvgSource): Boolean;
+var
+  LSvgEditorForm: TSkSvgEditorForm;
+begin
+  LSvgEditorForm := TSkSvgEditorForm.Create(Application);
+  try
+    Result := LSvgEditorForm.ShowModal(ASource) = mrOk;
+  finally
+    LSvgEditorForm.Free;
+  end;
+end;
+
+{ TSkSvgComponentEditor }
+
+procedure TSkSvgComponentEditor.Edit;
+var
+  LSource: TSkSvgSource;
+begin
+  LSource := TSkSvg(Component).Svg.Source;
+  if TSkSvgSourcePropertyEditor.TryEdit(LSource) then
+    TSkSvg(Component).Svg.Source := LSource;
+end;
+
 { Register }
 
 procedure Register;
 begin
   RegisterComponents('Skia', [TSkLottieAnimation, TSkPaintBox, TSkSvg]);
   RegisterPropertyEditor(TypeInfo(TSkLottieSource), nil, '', TSkLottieSourcePropertyEditor);
+  RegisterComponentEditor(TSkLottieAnimation, TSkLottieComponentEditor);
   RegisterPropertyEditor(TypeInfo(TSkSvgSource), nil, '', TSkSvgSourcePropertyEditor);
+  RegisterComponentEditor(TSkSvg, TSkSvgComponentEditor);
 end;
 
 end.
