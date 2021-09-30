@@ -29,6 +29,15 @@ uses
   { Skia }
   Skia;
 
+const
+  {$IF CompilerVersion < 34}
+  SkSupportedPlatformsMask = pidWin32 or pidWin64;
+  {$ELSEIF CompilerVersion < 35}
+  SkSupportedPlatformsMask = pidWin32 or pidWin64 or pidLinux64 or pidAndroid32Arm or pidAndroid64Arm or pidiOSDevice64 or pidOSX64;
+  {$ELSE}
+  SkSupportedPlatformsMask = pidWin32 or pidWin64 or pidLinux64 or pidAndroidArm32 or pidAndroidArm64 or pidiOSDevice64 or pidOSX64 or pidOSXArm64;
+  {$ENDIF}
+
 type
   ESkFMX = class(SkException);
   TSkDrawProc = reference to procedure(const ACanvas: ISkCanvas);
@@ -115,6 +124,7 @@ type
 
   { TSkPaintBox }
 
+  [ComponentPlatforms(SkSupportedPlatformsMask)]
   TSkPaintBox = class(TSkCustomControl);
 
   TSkSvgSource = type string;
@@ -143,6 +153,7 @@ type
 
   { TSkSvg }
 
+  [ComponentPlatforms(SkSupportedPlatformsMask)]
   TSkSvg = class(TSkCustomControl)
   strict private
     FSvg: TSkSvgBrush;
@@ -207,6 +218,7 @@ type
 
   { TSkLottieAnimation }
 
+  [ComponentPlatforms(SkSupportedPlatformsMask)]
   TSkLottieAnimation = class(TSkCustomAnimatedControl)
   strict private
     FSkottie: ISkottieAnimation;
