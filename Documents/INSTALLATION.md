@@ -38,12 +38,23 @@
 
 
 
-## Automatic installation
+## 1) Installation via GetIt
 
-The easiest (and recommended) way to install the library is through our installer. Just download our setup from the [Releases page](https://github.com/viniciusfbb/skia4delphi/releases).
+The easiest and recommended way to install the library is through the GetIt. Just open your RAD Studio and go to Tools > GetIt Package Manager... > search for "Skia".
 
-<img src="/Assets/Documents/installation1.png" width=340>
-<img src="/Assets/Documents/installation2.png" width=340>
+![getit](/Assets/Documents/getit.png)
+
+After finish the installation, you are able to play with skia, and you can run our sample.
+
+**Important:** To use Skia in a new application project, you should [enable your project](https://github.com/viniciusfbb/skia4delphi#enabling-your-project)
+
+
+
+## 2) Installation via setup
+
+Another easy and recommended way to install the library is through our installer. Just download our setup from the [Releases page](https://github.com/viniciusfbb/skia4delphi/releases).
+
+<img src="/Assets/Documents/installation1.png" width=340> <img src="/Assets/Documents/installation2.png" width=340>
 
 You don't need to build/set nothing, just run the setup.
 After finish the setup, you are able to play with skia, and you can run our sample.
@@ -52,7 +63,7 @@ After finish the setup, you are able to play with skia, and you can run our samp
 
 
 
-## Manually installation
+## 3) Manually installation
 
 ### Adopted nomenclatures
 

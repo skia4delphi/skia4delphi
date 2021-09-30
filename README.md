@@ -44,12 +44,17 @@ Skia is a great open source library for drawing 2D Text, Geometries, Images, foc
 
 ## Installation
 
-Just download and run our setup in [releases page](https://github.com/viniciusfbb/skia4delphi/releases)
+There are two recommended ways to install the library:
 
-<img src="Assets/Documents/installation1.png" width=340>
-<img src="Assets/Documents/installation2.png" width=340>
+- Install Skia4Delphi via GetIt (RAD Studio > Tools > GetIt Package Manager...)
 
-If you want, you can also do the manual installation (although it's a lot of work). See the full [documentation of installation](Documents/INSTALLATION.md).
+  ![getit](Assets/Documents/getit.png)
+
+- Or just download and run our setup in [releases page](https://github.com/viniciusfbb/skia4delphi/releases)
+
+  <img src="Assets/Documents/installation1.png" width=340> <img src="Assets/Documents/installation2.png" width=340>
+
+But, if you want, you can also do the manual installation (although it's a lot of work). See the full [documentation of installation](Documents/INSTALLATION.md).
 
 
 
