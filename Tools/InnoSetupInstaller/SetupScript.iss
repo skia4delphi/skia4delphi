@@ -40,7 +40,7 @@
 #define LibrarySupportURL "https://github.com/viniciusfbb/skia4delphi/issues/"
 #define LibraryUpdatesURL "https://github.com/viniciusfbb/skia4delphi/releases/"
 #define Images "..\..\Assets\Setup\image.bmp"
-#define EmbeddedMode "False"
+#define FilesEmbedded
 
 [Setup]
 ; AppId uniquely identifies this application, don't use the same AppId value in installers for other applications.
@@ -54,8 +54,14 @@ AppSupportURL={#LibrarySupportURL}
 AppUpdatesURL={#LibraryUpdatesURL}
 DefaultDirName={code:GetDefaultDirName}
 DefaultGroupName={#LibraryName}
-DisableProgramGroupPage=yes
-OutputBaseFilename={#LibraryName}_{#LibraryVersion}_Setup
+DisableProgramGroupPage=yes  
+#ifdef FilesEmbedded
+  OutputBaseFilename={#LibraryName}_{#LibraryVersion}_Setup
+  OutputDir=Output\
+#else
+  OutputBaseFilename=Setup
+  OutputDir=..\..\
+#endif
 WizardImageFile={#Images}
 DisableWelcomePage=no
 DisableReadyPage=yes
@@ -67,14 +73,15 @@ PrivilegesRequired=lowest
 Uninstallable=yes
 CreateUninstallRegKey=NeedsUninstallRegKey
 DisableDirPage=no
-OutputDir=..\..\
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
 
-;[Files]
-;Source: "..\..\*"; Excludes: "*.exe,*.dll,*.bpl,*.bpi,*.dcp,*.so,*.apk,*.drc,*.map,*.dres,*.rsm,*.tds,*.dcu,*.lib,*.jdbg,*.plist,*.cfg,*Resource.rc,*.cfg,*Resource.rc,*.local,*.identcache,*.projdata,*.tvsconfig,*.skincfg,*.cbk,*.dsk,__history\*,__recovery\*,*.~*,*.stat,modules\*,*template*\*,*template*,*.a,*.dex,*.o,*.vrc,*.res,*.log,*.deployproj,Externals\*,Binary\*,Logs\*,Bpl\*,*.Logs.txt"; DestDir: "{app}"; Flags: recursesubdirs ignoreversion
-;Source: "..\..\Binary\*"; DestDir: "{app}\Binary"; Flags: recursesubdirs ignoreversion
+[Files]     
+#ifdef FilesEmbedded
+  Source: "..\..\*"; Excludes: "*.exe,*.dll,*.bpl,*.bpi,*.dcp,*.so,*.apk,*.drc,*.map,*.dres,*.rsm,*.tds,*.dcu,*.lib,*.jdbg,*.plist,*.cfg,*Resource.rc,*.cfg,*Resource.rc,*.local,*.identcache,*.projdata,*.tvsconfig,*.skincfg,*.cbk,*.dsk,__history\*,__recovery\*,*.~*,*.stat,modules\*,*template*\*,*template*,*.a,*.dex,*.o,*.vrc,*.res,*.log,*.deployproj,Externals\*,Binary\*,Logs\*,Bpl\*,*.Logs.txt"; DestDir: "{app}"; Flags: recursesubdirs ignoreversion
+  Source: "..\..\Binary\*"; DestDir: "{app}\Binary"; Flags: recursesubdirs ignoreversion
+#endif
 
 [Icons]
 Name: "{group}\Uninstall"; Filename: "{uninstallexe}"
@@ -1438,7 +1445,11 @@ end;
 
 function NeedsDirPage: Boolean;
 begin
-  Result := SameText(ExpandConstant('{#EmbeddedMode}'), 'yes') or SameText(ExpandConstant('{#EmbeddedMode}'), 'true');
+  #ifdef FilesEmbedded
+  Result := True
+  #else
+  Result := False;
+  #endif
 end;
 
 function GetDefaultDirName(AParam: string): string;
