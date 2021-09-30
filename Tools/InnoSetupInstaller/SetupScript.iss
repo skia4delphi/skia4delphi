@@ -3,7 +3,7 @@
 ; Custom Parameters
 ; -----------------------------------------------------------------------------------
 ;
-;   /DefaultRADStudio=   
+;   /DefaultRADStudio=
 ;     Values allowed: 4.0 to 22.0
 ;     Default: (latest found in computer)
 ;     Description: Used to set the default RAD Studio version that will install the library. Ex: /RADStudioVersion=22.0 will check only in RAD Studio 11 Alexandria. Without set this parameter, the value will be the newest RAD Studio found on the machine.
@@ -31,7 +31,7 @@
 ; -----------------------------------------------------------------------------------
 
 #define LibraryName "Skia4Delphi"
-#define LibraryVersion "2.0.0"
+#define LibraryVersion "2.0.1"
 #define LibraryPublisher "Skia4Delphi Team"
 #define LibraryCopyright "Copyright (c) 2021 Skia4Delphi Project"
 #define LibraryURL "https://skia4delphi.org"
@@ -54,7 +54,7 @@ AppSupportURL={#LibrarySupportURL}
 AppUpdatesURL={#LibraryUpdatesURL}
 DefaultDirName={code:GetDefaultDirName}
 DefaultGroupName={#LibraryName}
-DisableProgramGroupPage=yes  
+DisableProgramGroupPage=yes
 #ifdef FilesEmbedded
   OutputBaseFilename={#LibraryName}_{#LibraryVersion}_Setup
   OutputDir=Output\
@@ -77,7 +77,7 @@ DisableDirPage=no
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
 
-[Files]     
+[Files]
 #ifdef FilesEmbedded
   Source: "..\..\*"; Excludes: "*.exe,*.dll,*.bpl,*.bpi,*.dcp,*.so,*.apk,*.drc,*.map,*.dres,*.rsm,*.tds,*.dcu,*.lib,*.jdbg,*.plist,*.cfg,*Resource.rc,*.cfg,*Resource.rc,*.local,*.identcache,*.projdata,*.tvsconfig,*.skincfg,*.cbk,*.dsk,__history\*,__recovery\*,*.~*,*.stat,modules\*,*template*\*,*template*,*.a,*.dex,*.o,*.vrc,*.res,*.log,*.deployproj,Externals\*,Binary\*,Logs\*,Bpl\*,*.Logs.txt"; DestDir: "{app}"; Flags: recursesubdirs ignoreversion
   Source: "..\..\Binary\*"; DestDir: "{app}\Binary"; Flags: recursesubdirs ignoreversion
@@ -86,7 +86,7 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 [Icons]
 Name: "{group}\Uninstall"; Filename: "{uninstallexe}"
 
-[Messages]      
+[Messages]
 SetupWindowTitle=%1 Setup
 WelcomeLabel1=[name] Setup
 WelcomeLabel2=This will install [name/ver] on your computer.
@@ -106,7 +106,7 @@ RemovingOldFiles=Removing old files...
 CompilingFor=Compiling for %1...
 ErrorCompilingFor=Error compiling for %1 (code %2, message "%3").%n%nPlease, report this issue.
 InstallingPackages=Installing packages...
-CannotPossibleToUninstallDetectedVersion=Cannot possible to uninstall another versions of {#LibraryName} detected in your system. 
+CannotPossibleToUninstallDetectedVersion=Cannot possible to uninstall another versions of {#LibraryName} detected in your system.
 UninstallingDetectedVersion=Uninstalling another versions
 ErrorCantFoundRsVars=Can't found the rsvars file "%1"
 
@@ -114,33 +114,33 @@ ErrorCantFoundRsVars=Can't found the rsvars file "%1"
 Filename: "{app}\{#LibrarySamplesFolder}"; Description: "Open samples folder"; Flags: shellexec runasoriginaluser postinstall;
 Filename: "{#LibraryDocumentationURL}"; Description: "View online documentation"; Flags: shellexec runasoriginaluser postinstall unchecked;
 
-[UninstallDelete]                              
-Type: filesandordirs; Name: "{app}\Assets\*";      
-Type: filesandordirs; Name: "{app}\Binary\*";      
-Type: filesandordirs; Name: "{app}\Documents\*";      
+[UninstallDelete]
+Type: filesandordirs; Name: "{app}\Assets\*";
+Type: filesandordirs; Name: "{app}\Binary\*";
+Type: filesandordirs; Name: "{app}\Documents\*";
 Type: filesandordirs; Name: "{app}\Externals\*";
 Type: filesandordirs; Name: "{app}\Library\*";
-Type: filesandordirs; Name: "{app}\Packages\*";   
-Type: filesandordirs; Name: "{app}\Samples\*";    
+Type: filesandordirs; Name: "{app}\Packages\*";
+Type: filesandordirs; Name: "{app}\Samples\*";
 Type: filesandordirs; Name: "{app}\Source\*";
-Type: filesandordirs; Name: "{app}\Tools\*";  
-Type: filesandordirs; Name: "{app}\Website\*";     
-Type: filesandordirs; Name: "{app}\.gitignore";    
-Type: filesandordirs; Name: "{app}\.gitmodules";   
-Type: filesandordirs; Name: "{app}\LICENSE";       
-Type: filesandordirs; Name: "{app}\README.md";     
-Type: filesandordirs; Name: "{app}\Setup.exe";     
+Type: filesandordirs; Name: "{app}\Tools\*";
+Type: filesandordirs; Name: "{app}\Website\*";
+Type: filesandordirs; Name: "{app}\.gitignore";
+Type: filesandordirs; Name: "{app}\.gitmodules";
+Type: filesandordirs; Name: "{app}\LICENSE";
+Type: filesandordirs; Name: "{app}\README.md";
+Type: filesandordirs; Name: "{app}\Setup.exe";
 Type: filesandordirs; Name: "{app}\SKIA-LICENSE";
-Type: dirifempty; Name: "{app}\Assets";    
-Type: dirifempty; Name: "{app}\Binary";    
-Type: dirifempty; Name: "{app}\Documents";    
-Type: dirifempty; Name: "{app}\Externals";   
-Type: dirifempty; Name: "{app}\Library";   
-Type: dirifempty; Name: "{app}\Packages";     
-Type: dirifempty; Name: "{app}\Samples";      
+Type: dirifempty; Name: "{app}\Assets";
+Type: dirifempty; Name: "{app}\Binary";
+Type: dirifempty; Name: "{app}\Documents";
+Type: dirifempty; Name: "{app}\Externals";
+Type: dirifempty; Name: "{app}\Library";
+Type: dirifempty; Name: "{app}\Packages";
+Type: dirifempty; Name: "{app}\Samples";
 Type: dirifempty; Name: "{app}\Source";
-Type: dirifempty; Name: "{app}\Tools";      
-Type: dirifempty; Name: "{app}\Website";   
+Type: dirifempty; Name: "{app}\Tools";
+Type: dirifempty; Name: "{app}\Website";
 Type: dirifempty; Name: "{app}";
 
 [Code]
@@ -175,19 +175,19 @@ type
     MaxDelphiVersion: TDelphiVersion;
   end;
 
-const       
-  LowDelphiVersion = D7;  
+const
+  LowDelphiVersion = D7;
   HighDelphiVersion = D11;
-  LowDelphiPlatform = pfWin32;  
+  LowDelphiPlatform = pfWin32;
   HighDelphiPlatform = pfLinux64;
   LowDelphiConfig = cfRelease;
   HighDelphiConfig = cfDebug;
 
-var                   
+var
   FSetupKind: TSetupKind;
   FDefaultPlatforms: TDelphiPlatforms;
 
-  // Delphi versions                      
+  // Delphi versions
   FSupportedDelphiVersions: TDelphiVersions;
   FAvailableDelphiVersions: TDelphiVersions;
   FSelectedDelphiVersions: TDelphiVersions;
@@ -208,7 +208,7 @@ var
   FPackages: array of TDelphiPackage;
   FPlatformsInVersionWithLimitedPlatforms: TDelphiPlatforms;
 
-const              
+const
   LibraryDirVariable = 'SKIADIR';
   LatestVersionWithLimitedPlatforms = D103;
   PackagesFolder = 'Packages';
@@ -217,66 +217,66 @@ const
 procedure SetConfigs;
 var
   LPackage: TDelphiPackage;
-begin                  
+begin
   FPlatformsInVersionWithLimitedPlatforms := [pfWin32, pfWin64];
   FPackages := [];
 
-  LPackage.Name := 'Skia.Package.RTL'; 
+  LPackage.Name := 'Skia.Package.RTL';
   LPackage.Description := 'Skia4Delphi RTL package';
   LPackage.SourcePaths := 'Source';
   LPackage.DCUOutputPath := 'Library';
   LPackage.Platforms := [pfWin32, pfWin64, pfAndroid, pfAndroid64, pfiOSDevice64, pfOSX64, pfOSXARM64, pfLinux64];
   LPackage.Installable := False;
   LPackage.UseFiremonkey := False;
-  LPackage.MinDelphiVersion := DXE6; 
+  LPackage.MinDelphiVersion := DXE6;
   LPackage.MaxDelphiVersion := D11;
   SetArrayLength(FPackages, GetArrayLength(FPackages) + 1);
   FPackages[GetArrayLength(FPackages) - 1] := LPackage;
 
-  LPackage.Name := 'Skia.Package.FMX';      
+  LPackage.Name := 'Skia.Package.FMX';
   LPackage.Description := 'Skia4Delphi FMX package';
-  LPackage.SourcePaths := 'Source\FMX'; 
+  LPackage.SourcePaths := 'Source\FMX';
   LPackage.DCUOutputPath := 'Library';
-  LPackage.Platforms := [pfWin32, pfWin64, pfAndroid, pfAndroid64, pfiOSDevice64, pfOSX64, pfOSXARM64, pfLinux64]; 
-  LPackage.Installable := False;   
+  LPackage.Platforms := [pfWin32, pfWin64, pfAndroid, pfAndroid64, pfiOSDevice64, pfOSX64, pfOSXARM64, pfLinux64];
+  LPackage.Installable := False;
   LPackage.UseFiremonkey := True;
-  LPackage.MinDelphiVersion := DXE6; 
-  LPackage.MaxDelphiVersion := D11;  
+  LPackage.MinDelphiVersion := DXE6;
+  LPackage.MaxDelphiVersion := D11;
   SetArrayLength(FPackages, GetArrayLength(FPackages) + 1);
   FPackages[GetArrayLength(FPackages) - 1] := LPackage;
 
-  LPackage.Name := 'Skia.Package.FMX.Designtime'; 
+  LPackage.Name := 'Skia.Package.FMX.Designtime';
   LPackage.Description := 'Skia4Delphi FMX Designtime package';
   LPackage.SourcePaths := 'Source\FMX\Designtime';
-  LPackage.DCUOutputPath := 'Library'; 
-  LPackage.Platforms := [pfWin32]; 
-  LPackage.Installable := True;    
+  LPackage.DCUOutputPath := 'Library';
+  LPackage.Platforms := [pfWin32];
+  LPackage.Installable := True;
   LPackage.UseFiremonkey := True;
-  LPackage.MinDelphiVersion := DXE6; 
-  LPackage.MaxDelphiVersion := D11;    
-  SetArrayLength(FPackages, GetArrayLength(FPackages) + 1);
-  FPackages[GetArrayLength(FPackages) - 1] := LPackage;
-
-  LPackage.Name := 'Skia.Package.VCL';      
-  LPackage.Description := 'Skia4Delphi VCL package';
-  LPackage.SourcePaths := 'Source\VCL';   
-  LPackage.DCUOutputPath := 'Library'; 
-  LPackage.Platforms := [pfWin32, pfWin64]; 
-  LPackage.Installable := False;    
-  LPackage.UseFiremonkey := False;
-  LPackage.MinDelphiVersion := DXE6; 
+  LPackage.MinDelphiVersion := DXE6;
   LPackage.MaxDelphiVersion := D11;
   SetArrayLength(FPackages, GetArrayLength(FPackages) + 1);
   FPackages[GetArrayLength(FPackages) - 1] := LPackage;
 
-  LPackage.Name := 'Skia.Package.VCL.Designtime'; 
+  LPackage.Name := 'Skia.Package.VCL';
+  LPackage.Description := 'Skia4Delphi VCL package';
+  LPackage.SourcePaths := 'Source\VCL';
+  LPackage.DCUOutputPath := 'Library';
+  LPackage.Platforms := [pfWin32, pfWin64];
+  LPackage.Installable := False;
+  LPackage.UseFiremonkey := False;
+  LPackage.MinDelphiVersion := DXE6;
+  LPackage.MaxDelphiVersion := D11;
+  SetArrayLength(FPackages, GetArrayLength(FPackages) + 1);
+  FPackages[GetArrayLength(FPackages) - 1] := LPackage;
+
+  LPackage.Name := 'Skia.Package.VCL.Designtime';
   LPackage.Description := 'Skia4Delphi VCL Designtime package';
-  LPackage.SourcePaths := 'Source\VCL\Designtime'; 
-  LPackage.DCUOutputPath := 'Library'; 
-  LPackage.Platforms := [pfWin32]; 
+  LPackage.SourcePaths := 'Source\VCL\Designtime';
+  LPackage.DCUOutputPath := 'Library';
+  LPackage.Platforms := [pfWin32];
   LPackage.Installable := True;
   LPackage.UseFiremonkey := False;
-  LPackage.MinDelphiVersion := DXE6; 
+  LPackage.MinDelphiVersion := DXE6;
   LPackage.MaxDelphiVersion := D11;
   SetArrayLength(FPackages, GetArrayLength(FPackages) + 1);
   FPackages[GetArrayLength(FPackages) - 1] := LPackage;
@@ -328,7 +328,7 @@ end;
 
 // All platforms supported by delphi in each version
 function GetSupportedPlatformsByDelphiVersion(const AVersion: TDelphiVersion): TDelphiPlatforms;
-begin  
+begin
   case AVersion of
     D7   : Result := [pfWin32];
     D2005: Result := [pfWin32];
@@ -411,7 +411,7 @@ begin
 end;
 
 function GetDelphiStudioVersion(const ADelphiVersion: TDelphiVersion): string;
-begin 
+begin
   case ADelphiVersion of
     D7   : Result := '4.0';
     D2005: Result := '5.0';
@@ -440,9 +440,9 @@ end;
 function TryGetDelphiVersionFromRadStudioVersion(const ARadStudioVersion: string; var ADelphiVersion: TDelphiVersion): Boolean;
 var
   LVersionNumber: Integer;
-begin 
+begin
   Result := True;
-  if Pos('.', ARadStudioVersion) > 0 then                
+  if Pos('.', ARadStudioVersion) > 0 then
     LVersionNumber := StrToIntDef(Copy(ARadStudioVersion, 1, Pos('.', ARadStudioVersion) - 1), 0)
   else
     LVersionNumber := StrToIntDef(ARadStudioVersion, 0);
@@ -494,7 +494,7 @@ end;
 function GetPlatformLibraryName(const APlatform: TDelphiPlatform): string;
 begin
   if APlatform = pfAndroid then
-    Result := 'Android32'      
+    Result := 'Android32'
   else if APlatform = pfiOSDevice32 then
     Result := 'iOSDevice'
   else
@@ -511,7 +511,7 @@ begin
     pfAndroid64   : Result := 'Android 64-bit';
     pfiOSDevice32 : Result := 'iOS Device 32-bit';
     pfiOSDevice64 : Result := 'iOS Device 64-bit';
-    pfiOSSimulator: Result := 'iOS Simulator';   
+    pfiOSSimulator: Result := 'iOS Simulator';
     pfOSX32       : Result := 'OSX 32-bit';
     pfOSX64       : Result := 'OSX 64-bit';
     pfOSXARM64    : Result := 'OSX ARM 64-bit';
@@ -562,14 +562,14 @@ begin
     begin
       if Length(Result) = 0 then
         Result := LString
-       else      
+       else
         Result := Result + ADelimiter + LString;
     end;
   end;
 end;
 
 function AddString(const AStrings: TArrayOfString; const ANewString: string): TArrayOfString;
-begin        
+begin
   Result := AStrings;
   SetArrayLength(Result, GetArrayLength(Result) + 1);
   Result[GetArrayLength(Result) - 1] := ANewString;
@@ -578,7 +578,7 @@ end;
 function InsertStringAtBeginning(const AStrings: TArrayOfString; const ANewString: string): TArrayOfString;
 var
   I: Integer;
-begin  
+begin
   Result := AStrings;
   SetArrayLength(Result, GetArrayLength(Result) + 1);
   for I := GetArrayLength(Result) - 1 downto 1 do
@@ -592,7 +592,7 @@ var
   LString: string;
   I: Integer;
 begin
-  Result := [];             
+  Result := [];
   if ACaseSensitive then
   begin
     for I := 0 to GetArrayLength(AStrings) - 1 do
@@ -620,7 +620,7 @@ end;
 function IsDelphiVersionIn(const AVersions: TDelphiVersions; const AVersion: TDelphiVersion): Boolean;
 var
   I: Integer;
-begin        
+begin
   Result := False;
   for I := 0 to GetArrayLength(AVersions) - 1 do
   begin
@@ -633,19 +633,19 @@ begin
 end;
 
 function IncludeDelphiVersion(const AVersions: TDelphiVersions; const ANewVersion: TDelphiVersion): TDelphiVersions;
-begin        
+begin
   Result := AVersions;
   if not IsDelphiVersionIn(Result, ANewVersion) then
   begin
     SetArrayLength(Result, GetArrayLength(Result) + 1);
     Result[GetArrayLength(Result) - 1] := ANewVersion;
   end;
-end;  
+end;
 
-function IncludeDelphiVersions(const AVersions1, AVersions2: TDelphiVersions): TDelphiVersions;        
+function IncludeDelphiVersions(const AVersions1, AVersions2: TDelphiVersions): TDelphiVersions;
 var
   I: Integer;
-begin        
+begin
   Result := AVersions1;
   for I := 0 to GetArrayLength(AVersions2) - 1 do
     Result := IncludeDelphiVersion(Result, AVersions2[I]);
@@ -653,9 +653,9 @@ end;
 
 function IntersectionDelphiVersions(const AVersions1, AVersions2: TDelphiVersions): TDelphiVersions;
 var
-  I: Integer;                            
+  I: Integer;
   J: Integer;
-begin        
+begin
   Result := [];
   for I := 0 to GetArrayLength(AVersions1) - 1 do
     for J := 0 to GetArrayLength(AVersions2) - 1 do
@@ -666,7 +666,7 @@ end;
 function IsDelphiPlatformIn(const APlatforms: TDelphiPlatforms; const APlatform: TDelphiPlatform): Boolean;
 var
   I: Integer;
-begin        
+begin
   Result := False;
   for I := 0 to GetArrayLength(APlatforms) - 1 do
   begin
@@ -679,7 +679,7 @@ begin
 end;
 
 function IncludeDelphiPlatform(const APlatforms: TDelphiPlatforms; const ANewPlatform: TDelphiPlatform): TDelphiPlatforms;
-begin        
+begin
   Result := APlatforms;
   if not IsDelphiPlatformIn(Result, ANewPlatform) then
   begin
@@ -688,19 +688,19 @@ begin
   end;
 end;
 
-function IncludeDelphiPlatforms(const APlatforms1, APlatforms2: TDelphiPlatforms): TDelphiPlatforms;        
+function IncludeDelphiPlatforms(const APlatforms1, APlatforms2: TDelphiPlatforms): TDelphiPlatforms;
 var
   I: Integer;
-begin        
+begin
   Result := APlatforms1;
   for I := 0 to GetArrayLength(APlatforms2) - 1 do
     Result := IncludeDelphiPlatform(Result, APlatforms2[I]);
-end;  
+end;
 
 function ExcludeDelphiPlatform(const APlatforms: TDelphiPlatforms; const ARemovingPlatform: TDelphiPlatform): TDelphiPlatforms;
 var
   I: Integer;
-begin        
+begin
   Result := [];
   for I := 0 to GetArrayLength(APlatforms) - 1 do
   begin
@@ -714,9 +714,9 @@ end;
 
 function IntersectionDelphiPlatforms(const APlatforms1, APlatforms2: TDelphiPlatforms): TDelphiPlatforms;
 var
-  I: Integer;                            
+  I: Integer;
   J: Integer;
-begin        
+begin
   Result := [];
   for I := 0 to GetArrayLength(APlatforms1) - 1 do
     for J := 0 to GetArrayLength(APlatforms2) - 1 do
@@ -752,14 +752,14 @@ begin
   Result := Exec(RemoveQuotes(GetUninstallString), '/SILENT /NORESTART /SUPPRESSMSGBOXES','', SW_HIDE, ewWaitUntilTerminated, LResultCode);
 end;
 
-function GetLatestAvailableVersion: TDelphiVersion;       
+function GetLatestAvailableVersion: TDelphiVersion;
 var
   I: Integer;
   LVersion: TDelphiVersion;
 begin
-  Result := D7;                              
+  Result := D7;
   for I := GetArrayLength(FSupportedDelphiVersions) - 1 downto 0 do
-  begin                                     
+  begin
     LVersion := FSupportedDelphiVersions[I];
     if IsDelphiVersionIn(FAvailableDelphiVersions, LVersion) then
     begin
@@ -816,7 +816,7 @@ var
 begin
   Result := not IsDelphiVersionIn(FAvailableDelphiVersions, AVersion);
   if Result then
-  begin  
+  begin
     Result := False;
     if RegQueryStringValue(HKEY_LOCAL_MACHINE, 'SYSTEM\CurrentControlSet\Control\Session Manager\Environment', 'Path', LPath) and (LPath <> '') then
     begin
@@ -835,12 +835,12 @@ end;
 
 // Get delphi versions that the installation but have not yet been used (Package installation cannot be done in these cases)
 function GetDelphiInstalledWithoutInitialized: TDelphiVersions;
-var 
+var
   LVersion: TDelphiVersion;
 begin
   Result := [];
-  for LVersion := LowDelphiVersion to HighDelphiVersion do      
-    if IsDelphiInstalledWithoutInitialized(LVersion) then 
+  for LVersion := LowDelphiVersion to HighDelphiVersion do
+    if IsDelphiInstalledWithoutInitialized(LVersion) then
         Result := IncludeDelphiVersion(Result, LVersion);
 end;
 
@@ -857,10 +857,10 @@ begin
   Result := IntersectionDelphiPlatforms(GetSupportedPlatformsByDelphiVersion(AVersion), APackage.Platforms);
   if IsDelphiPlatformIn(Result, pfLinux64) and APackage.UseFiremonkey and not HaveFmxLinux(AVersion) then
     Result := ExcludeDelphiPlatform(Result, pfLinux64);
-end; 
+end;
 
-function IsVersionWithLimitedPlatforms(const AVersion: TDelphiVersion): Boolean; 
-var 
+function IsVersionWithLimitedPlatforms(const AVersion: TDelphiVersion): Boolean;
+var
   LVersion: TDelphiVersion;
   LFound: Boolean;
 begin
@@ -880,23 +880,23 @@ begin
 end;
 
 // Get all available platforms for a set o Delphi versions
-function GetAvailableDelphiPlatforms(const AVersions: TDelphiVersions): TDelphiPlatforms;      
-var         
+function GetAvailableDelphiPlatforms(const AVersions: TDelphiVersions): TDelphiPlatforms;
+var
   I: Integer;
-  J: Integer;  
+  J: Integer;
   LVersion: TDelphiVersion;
-  LPackage: TDelphiPackage;         
+  LPackage: TDelphiPackage;
   LIncludePlatforms: TDelphiPlatforms;
   LInstalledPlatforms: TDelphiPlatforms;
 begin
   Result := [];
   for I := 0 to GetArrayLength(AVersions) - 1 do
   begin
-    LVersion := AVersions[I]; 
+    LVersion := AVersions[I];
     LInstalledPlatforms := GetInstalledPlatforms(LVersion);
     for J := 0 to GetArrayLength(FPackages) - 1 do
-    begin 
-      LPackage := FPackages[J];        
+    begin
+      LPackage := FPackages[J];
       LIncludePlatforms := GetSupportedPlatformsByPackage(LPackage, LVersion);
       if (FSetupKind = skInstalling) and IsVersionWithLimitedPlatforms(LVersion) then
         LIncludePlatforms := IntersectionDelphiPlatforms(LIncludePlatforms, FPlatformsInVersionWithLimitedPlatforms);
@@ -907,12 +907,12 @@ end;
 
 // Get Delphi versions supported by packages
 function GetSupportedDelphiVersions: TDelphiVersions;
-var        
+var
   I: Integer;
   LVersion: TDelphiVersion;
 begin
   Result := [];
-  for I := 0 to Length(FPackages) - 1 do   
+  for I := 0 to Length(FPackages) - 1 do
     for LVersion := FPackages[I].MinDelphiVersion to FPackages[I].MaxDelphiVersion do
       Result := IncludeDelphiVersion(Result, LVersion);
 end;
@@ -922,47 +922,47 @@ function GetSupportedDelphiPlatforms: TDelphiPlatforms;
 var
   I: Integer;
 begin
-  Result := []; 
-  for I := 0 to Length(FPackages) - 1 do   
+  Result := [];
+  for I := 0 to Length(FPackages) - 1 do
     Result := IncludeDelphiPlatforms(Result, FPackages[I].Platforms);
 end;
 
 // Check if there is any instance of delphi running
 function IsThereAnyDelphiInstanceRunning: Boolean;
 begin
-  Result := (FindWindowByClassName('TAppBuilder') <> 0) and 
-    (FindWindowByClassName('TPropertyInspector') <> 0) and 
+  Result := (FindWindowByClassName('TAppBuilder') <> 0) and
+    (FindWindowByClassName('TPropertyInspector') <> 0) and
     (FindWindowByWindowName('Object Inspector') <> 0);
-end;  
+end;
 
 // Add an environment variable exclusive of Delphi application
 procedure AddDelphiEnvVariable(const AVersion: TDelphiVersion; const AName, AValue: string);
 begin
   RegWriteStringValue(HKEY_CURRENT_USER, GetDelphiRegKey(AVersion) + '\Environment Variables', AName, AValue);
-end;  
+end;
 
 // Remove an environment variable exclusive of Delphi application
 procedure RemoveDelphiEnvVariable(const AVersion: TDelphiVersion; const AName: string);
 begin
   RegDeleteValue(HKEY_CURRENT_USER, GetDelphiRegKey(AVersion) + '\Environment Variables', AName);
-end; 
+end;
 
 procedure AddToDelphiPathEnvVariable(const AVersion: TDelphiVersion; const APath: string);
 var
   LValue: string;
   LPaths: TArrayOfString;
-begin   
+begin
   if RegKeyExists(HKEY_CURRENT_USER, GetDelphiRegKey(AVersion)) then
   begin
     if (not RegQueryStringValue(HKEY_CURRENT_USER, GetDelphiRegKey(AVersion) + '\Environment Variables', 'PATH', LValue)) or (LValue = '') then
       LValue := '$(PATH)';
-    LPaths := RemoveString(SplitString(LValue, ';'), APath, False); 
+    LPaths := RemoveString(SplitString(LValue, ';'), APath, False);
     LPaths := RemoveString(LPaths, APath + '\', False);
     LPaths := InsertStringAtBeginning(LPaths, APath);
     LValue := JoinStrings(LPaths, ';', False);
     RegWriteStringValue(HKEY_CURRENT_USER, GetDelphiRegKey(AVersion) + '\Environment Variables', 'PATH', LValue);
   end;
-end; 
+end;
 
 procedure RemoveFromDelphiPathEnvVariable(const AVersion: TDelphiVersion; const APath: string);
 var
@@ -987,7 +987,7 @@ var
   LPathsToInsert: TArrayOfString;
   LCurrentPaths: TArrayOfString;
   I: Integer;
-begin 
+begin
   if RegKeyExists(HKEY_CURRENT_USER, GetDelphiRegKey(AVersion) + '\Library\' + GetPlatformLibraryName(APlatform)) then
   begin
     if (not RegQueryStringValue(HKEY_CURRENT_USER, GetDelphiRegKey(AVersion) + '\Library\' + GetPlatformLibraryName(APlatform), ALibraryPathName, LNewValue)) or (Length(LNewValue) = 0) then
@@ -1007,36 +1007,36 @@ begin
     end;
     RegWriteStringValue(HKEY_CURRENT_USER, GetDelphiRegKey(AVersion) + '\Library\' + GetPlatformLibraryName(APlatform), ALibraryPathName, LNewValue);
   end;
-end;    
+end;
 
 // Remove a library path in a platform of Delphi
-procedure RemoveDelphiLibraryPath(const AVersion: TDelphiVersion; const APlatform: TDelphiPlatform; const ALibraryPathName, APath: string); 
+procedure RemoveDelphiLibraryPath(const AVersion: TDelphiVersion; const APlatform: TDelphiPlatform; const ALibraryPathName, APath: string);
 var
-  LNewValue: string;  
+  LNewValue: string;
   LPathsToRemove: TArrayOfString;
-  LCurrentPaths: TArrayOfString; 
+  LCurrentPaths: TArrayOfString;
   I: Integer;
-begin   
+begin
   if RegQueryStringValue(HKEY_CURRENT_USER, GetDelphiRegKey(AVersion) + '\Library\' + GetPlatformLibraryName(APlatform), ALibraryPathName, LNewValue) and (Length(LNewValue) <> 0) then
-  begin        
+  begin
     LPathsToRemove := SplitString(APath, ';');
-    LCurrentPaths := SplitString(LNewValue, ';');    
+    LCurrentPaths := SplitString(LNewValue, ';');
     for I := 0 to GetArrayLength(LPathsToRemove) - 1 do
     begin
       LNewValue := LPathsToRemove[I];
-      LCurrentPaths := RemoveString(LCurrentPaths, LNewValue, False);  
+      LCurrentPaths := RemoveString(LCurrentPaths, LNewValue, False);
       LCurrentPaths := RemoveString(LCurrentPaths, LNewValue + '\', False);
     end;
     LNewValue := JoinStrings(LCurrentPaths, ';', False);
     RegWriteStringValue(HKEY_CURRENT_USER, GetDelphiRegKey(AVersion) + '\Library\' + GetPlatformLibraryName(APlatform), ALibraryPathName, LNewValue);
   end;
-end; 
+end;
 
 // Register the Bpl in Delphi registry
 procedure RegisterDelphiBpl(const AVersion: TDelphiVersion; const ABplFileName, ADescription: string);
 begin
   RegWriteStringValue(HKEY_CURRENT_USER, GetDelphiRegKey(AVersion) + '\Known Packages', ABplFileName, ADescription);
-end;  
+end;
 
 // Unregister the Bpl in Delphi registry
 procedure UnregisterDelphiBpl(const AVersion: TDelphiVersion; const ABplFileName: string);
@@ -1074,7 +1074,7 @@ end;
 function GetDcuPath(const AVersion: TDelphiVersion; const APlatform: TDelphiPlatform; const AConfig: TDelphiConfig; const APackage: TDelphiPackage): string;
 begin
   Result := Format('$(%s)\%s\%s\%s\%s', [LibraryDirVariable, APackage.DCUOutputPath, GetSourceFolderName(AVersion), GetPlatformName(APlatform), GetDelphiConfigName(AConfig)]);
-end;  
+end;
 
 function GetDcpPath(const AVersion: TDelphiVersion; const APlatform: TDelphiPlatform; const AConfig: TDelphiConfig; const APackage: TDelphiPackage): string;
 begin
@@ -1098,13 +1098,13 @@ end;
 
 function GetBuildCommand(const AConfig: TDelphiConfig; const APlatform: TDelphiPlatform; const ARsVarsBatchFileName, ADprojFileName, ADcuOutput, ADcpOutput, ABplOutput, ADefines, ALogFileName: string): string;
 begin
-  Result := AddQuotes(ARsVarsBatchFileName) + '& msbuild ' + AddQuotes(ADprojFileName) + ' ' + 
+  Result := AddQuotes(ARsVarsBatchFileName) + '& msbuild ' + AddQuotes(ADprojFileName) + ' ' +
     GetBuildParams(ADcuOutput, ADcpOutput, ABplOutput, ADefines, AConfig, APlatform) + '  >' + AddQuotes(ALogFileName);
 end;
 
 procedure InstallDelphiPackage(const AVersion: TDelphiVersion; const APlatform: TDelphiPlatform; const APackage: TDelphiPackage);
 begin
-  AddDelphiLibraryPath(AVersion, APlatform, 'Search Path', GetDcuPath(AVersion, APlatform, cfRelease, APackage));   
+  AddDelphiLibraryPath(AVersion, APlatform, 'Search Path', GetDcuPath(AVersion, APlatform, cfRelease, APackage));
   AddDelphiLibraryPath(AVersion, APlatform, 'Browsing Path', AddLibraryDirInPaths(APackage.SourcePaths));
   AddDelphiLibraryPath(AVersion, APlatform, 'Debug DCU Path', GetDcuPath(AVersion, APlatform, cfDebug, APackage));
 end;
@@ -1123,14 +1123,14 @@ end;
 function TryCompileDelphiPackage(const AVersion: TDelphiVersion; const APlatform: TDelphiPlatform; const AConfig: TDelphiConfig; const APackage: TDelphiPackage): Boolean;
 var
   LDprojFileName: string;
-  LDcuOutput: string;    
+  LDcuOutput: string;
   LDcpOutput: string;
   LBplOutput: string;
   LResultCode: Integer;
   LLogFileName: string;
   LRsVarsBatchFileName: string;
   LCommand: string;
-begin                          
+begin
   WizardForm.StatusLabel.Caption:= FmtMessage(CustomMessage('CompilingFor'), [GetDelphiVersionFriendlyName(AVersion)]);
   WizardForm.FilenameLabel.Caption := APackage.Name + '.dproj - ' + GetPlatformName(APlatform);
 
@@ -1159,7 +1159,7 @@ begin
   WizardForm.FilenameLabel.Caption := '';
 end;
 
-function GetCompilationsCount: Integer; 
+function GetCompilationsCount: Integer;
 var
   I: Integer;
   J: Integer;
@@ -1173,7 +1173,7 @@ begin
     for J := 0 to GetArrayLength(FPackages) - 1 do
     begin
       LPackage := FPackages[J];
-      LTargetPlatforms := IntersectionDelphiPlatforms(FSelectedDelphiPlatforms, GetSupportedPlatformsByPackage(LPackage, FSelectedDelphiVersions[I]));  
+      LTargetPlatforms := IntersectionDelphiPlatforms(FSelectedDelphiPlatforms, GetSupportedPlatformsByPackage(LPackage, FSelectedDelphiVersions[I]));
       if IsVersionWithLimitedPlatforms(FSelectedDelphiVersions[I]) then
         LTargetPlatforms := IntersectionDelphiPlatforms(LTargetPlatforms, FPlatformsInVersionWithLimitedPlatforms);
       for K := 0 to GetArrayLength(LTargetPlatforms) - 1 do
@@ -1200,7 +1200,7 @@ begin
     for J := 0 to GetArrayLength(FPackages) - 1 do
     begin
       LPackage := FPackages[J];
-      LTargetPlatforms := IntersectionDelphiPlatforms(FSelectedDelphiPlatforms, GetSupportedPlatformsByPackage(LPackage, LVersion)); 
+      LTargetPlatforms := IntersectionDelphiPlatforms(FSelectedDelphiPlatforms, GetSupportedPlatformsByPackage(LPackage, LVersion));
       if IsVersionWithLimitedPlatforms(LVersion) then
         LTargetPlatforms := IntersectionDelphiPlatforms(LTargetPlatforms, FPlatformsInVersionWithLimitedPlatforms);
       for K := 0 to GetArrayLength(LTargetPlatforms) - 1 do
@@ -1226,24 +1226,24 @@ var
   LVersion: TDelphiVersion;
   LPackage: TDelphiPackage;
   LPlatform: TDelphiPlatform;
-begin   
+begin
   if FSetupKind = skInstalling then
     WizardForm.StatusLabel.Caption := CustomMessage('RemovingOldFiles');
-  Result := True; 
-  try  
+  Result := True;
+  try
     for I := 0 to GetArrayLength(FPackages) - 1 do
     begin
       LPackage := FPackages[I];
       if DirExists(LPackage.DCUOutputPath) and not RemoveDir(ExpandPath(LPackage.DCUOutputPath)) then
       begin
         Result := False;
-        Exit;   
+        Exit;
       end;
-    end; 
+    end;
   finally
     if not Result then
       MsgBox(CustomMessage('CannotPossibleToRemoveOldFiles'), mbError, MB_OK);
-  end;   
+  end;
   if FSetupKind = skInstalling then
     WizardForm.ProgressGauge.Position := WizardForm.ProgressGauge.Position + 1;
 end;
@@ -1257,7 +1257,7 @@ var
   LPackage: TDelphiPackage;
   LTargetPlatforms: TDelphiPlatforms;
   LInstalledPlatforms: TDelphiPlatforms;
-begin  
+begin
   WizardForm.ProgressGauge.Min := 0;
   WizardForm.ProgressGauge.Max := GetCompilationsCount + 2;
   WizardForm.ProgressGauge.Position := 0;
@@ -1271,7 +1271,7 @@ begin
       LInstalledPlatforms := GetInstalledPlatforms(LVersion);
       AddDelphiEnvVariable(LVersion, LibraryDirVariable, ExpandConstant('{app}'));
       AddToDelphiPathEnvVariable(LVersion, ExpandPath('Binary\Shared\Win32'));
-      if iOSDevice64ExtraLibraryPath <> '' then        
+      if iOSDevice64ExtraLibraryPath <> '' then
         AddDelphiLibraryPath(LVersion, pfiOSDevice64, 'Search Path', AddLibraryDirInPaths(iOSDevice64ExtraLibraryPath));
       for J := 0 to GetArrayLength(FPackages) - 1 do
       begin
@@ -1283,12 +1283,12 @@ begin
         for K := 0 to GetArrayLength(LTargetPlatforms) - 1 do
           InstallDelphiPackage(LVersion, LTargetPlatforms[K], LPackage);
         if IsDelphiPlatformIn(LTargetPlatforms, pfWin32) and LPackage.Installable then
-          RegisterDelphiBpl(LVersion, ExpandPath(GetBplPath(LVersion, pfWin32, cfRelease, LPackage) + '\' + LPackage.Name + '.' + GetSourceFolderName(LVersion) + '.bpl'), LPackage.Description);  
+          RegisterDelphiBpl(LVersion, ExpandPath(GetBplPath(LVersion, pfWin32, cfRelease, LPackage) + '\' + LPackage.Name + '.' + GetSourceFolderName(LVersion) + '.bpl'), LPackage.Description);
         if IsDelphiPlatformIn(LTargetPlatforms, pfWin32) then
           AddToDelphiPathEnvVariable(LVersion, ExpandPath(GetBplPath(LVersion, pfWin32, cfRelease, LPackage)));
         if IsDelphiPlatformIn(LTargetPlatforms, pfWin64) then
           AddToDelphiPathEnvVariable(LVersion, ExpandPath(GetBplPath(LVersion, pfWin64, cfRelease, LPackage)));
-      end;                                                       
+      end;
     end;
   end;
   WizardForm.ProgressGauge.Position := WizardForm.ProgressGauge.Max;
@@ -1296,7 +1296,7 @@ end;
 
 procedure UninstallDelphiPackage(const AVersion: TDelphiVersion; const APlatform: TDelphiPlatform; const APackage: TDelphiPackage);
 begin
-  RemoveDelphiLibraryPath(AVersion, APlatform, 'Search Path', GetDcuPath(AVersion, APlatform, cfRelease, APackage));   
+  RemoveDelphiLibraryPath(AVersion, APlatform, 'Search Path', GetDcuPath(AVersion, APlatform, cfRelease, APackage));
   RemoveDelphiLibraryPath(AVersion, APlatform, 'Browsing Path', AddLibraryDirInPaths(APackage.SourcePaths));
   RemoveDelphiLibraryPath(AVersion, APlatform, 'Debug DCU Path', GetDcuPath(AVersion, APlatform, cfDebug, APackage));
 end;
@@ -1310,41 +1310,41 @@ var
   LVersion: TDelphiVersion;
   LPackage: TDelphiPackage;
   LTargetPlatforms: TDelphiPlatforms;
-begin  
+begin
   for I := 0 to GetArrayLength(FSelectedDelphiVersions) - 1 do
-  begin 
+  begin
     LVersion := FSelectedDelphiVersions[I];
     for J := 0 to GetArrayLength(FPackages) - 1 do
     begin
       LPackage := FPackages[J];
       LTargetPlatforms := IntersectionDelphiPlatforms(FSelectedDelphiPlatforms, LPackage.Platforms);
-      UnregisterDelphiBpl(LVersion, ExpandPath(GetBplPath(LVersion, pfWin32, cfRelease, LPackage) + '\' + LPackage.Name + '.' + GetSourceFolderName(LVersion) + '.bpl'));  
+      UnregisterDelphiBpl(LVersion, ExpandPath(GetBplPath(LVersion, pfWin32, cfRelease, LPackage) + '\' + LPackage.Name + '.' + GetSourceFolderName(LVersion) + '.bpl'));
       RemoveFromDelphiPathEnvVariable(LVersion, ExpandPath(GetBplPath(LVersion, pfWin32, cfRelease, LPackage)));
       RemoveFromDelphiPathEnvVariable(LVersion, ExpandPath(GetBplPath(LVersion, pfWin64, cfRelease, LPackage)));
       for K := 0 to GetArrayLength(LTargetPlatforms) - 1 do
-        UninstallDelphiPackage(LVersion, LTargetPlatforms[K], LPackage);           
-    end;            
+        UninstallDelphiPackage(LVersion, LTargetPlatforms[K], LPackage);
+    end;
     RemoveFromDelphiPathEnvVariable(LVersion, ExpandPath('Binary\Shared\Win32'));
     if iOSDevice64ExtraLibraryPath <> '' then
       RemoveDelphiLibraryPath(LVersion, pfiOSDevice64, 'Search Path', AddLibraryDirInPaths(iOSDevice64ExtraLibraryPath));
-    RemoveDelphiEnvVariable(LVersion, LibraryDirVariable);                                                  
+    RemoveDelphiEnvVariable(LVersion, LibraryDirVariable);
   end;
   Result := TryRemoveOldFiles;
-end; 
+end;
 
 {************************************************************************}
 {                                                                        }
 {                                Pages                                   }
 {                                                                        }
-{************************************************************************} 
+{************************************************************************}
 
 // Get all selected platforms in Delphi platforms page
 function GetSelectedPlatforms: TDelphiPlatforms;
 var
   I: Integer;
-begin                                   
+begin
   Result := [];
-  if FChooseDelphiPlatformsPage <> nil then  
+  if FChooseDelphiPlatformsPage <> nil then
     for I := 0 to GetArrayLength(FSupportedDelphiPlatforms) - 1 do
       if FChooseDelphiPlatformsPage.CheckListBox.ItemEnabled[I] and (FChooseDelphiPlatformsPage.CheckListBox.State[I] = cbChecked) then
         Result := IncludeDelphiPlatform(Result, FSupportedDelphiPlatforms[I]);
@@ -1369,7 +1369,7 @@ end;
 
 // Event OnNextButtonClick of Delphi platforms page
 function OnDelphiPlatformsPageNextButtonClick(ASender: TWizardPage): Boolean;
-begin        
+begin
   FSelectedDelphiPlatforms := GetSelectedPlatforms;
   Result := GetArrayLength(FSelectedDelphiPlatforms) <> 0;
 end;
@@ -1381,7 +1381,7 @@ var
   LPlatform: TDelphiPlatform;
 begin
   Result := CreateInputOptionPage(AAfterID, CustomMessage('ChooseDelphiPlatformsTitle'), '',
-    ExpandConstant(CustomMessage('ChooseDelphiPlatformsMessage')), False, False);      
+    ExpandConstant(CustomMessage('ChooseDelphiPlatformsMessage')), False, False);
   for I := 0 to GetArrayLength(FSupportedDelphiPlatforms) - 1 do
   begin
     LPlatform := FSupportedDelphiPlatforms[I];
@@ -1394,9 +1394,9 @@ end;
 function GetSelectedVersions: TDelphiVersions;
 var
   I: Integer;
-begin                                   
+begin
   Result := [];
-  if FChooseDelphiVersionsPage <> nil then  
+  if FChooseDelphiVersionsPage <> nil then
     for I := 0 to GetArrayLength(FSupportedDelphiVersions) - 1 do
       if FChooseDelphiVersionsPage.CheckListBox.ItemEnabled[I] and (FChooseDelphiVersionsPage.CheckListBox.State[I] = cbChecked) then
         Result := IncludeDelphiVersion(Result, FSupportedDelphiVersions[I]);
@@ -1473,11 +1473,11 @@ begin
     LDefaultRADStudio := GetLatestAvailableVersion;
     FSelectedDelphiVersions := [LDefaultRADStudio];
   end
-  else if FSetupKind = skUninstalling then         
+  else if FSetupKind = skUninstalling then
     FSelectedDelphiVersions := FAvailableDelphiVersions
   else
     FSelectedDelphiVersions := [LDefaultRADStudio];
-  
+
   FSupportedDelphiPlatforms := GetSupportedDelphiPlatforms;
   FAvailableDelphiPlatforms := GetAvailableDelphiPlatforms(FSelectedDelphiVersions);
   if SameText(ExpandConstant('{param:DefaultPlatforms|windows}'), 'all') then
@@ -1493,7 +1493,7 @@ begin
   FSetupKind := skInstalling;
   SetGlobals;
   Result := True;
-end; 
+end;
 
 // Create wizard pages
 procedure InitializeWizard;
@@ -1514,7 +1514,7 @@ end;
 
 // Install process
 procedure CurStepChanged(ACurStep: TSetupStep);
-begin 
+begin
   case ACurStep of
     ssInstall:
       if IsUpgrade then
@@ -1528,7 +1528,7 @@ begin
       end;
     ssPostInstall:
       begin
-        if InstallPackages then 
+        if InstallPackages then
         begin
           if CanShowCloseRadStudioMessage and IsThereAnyDelphiInstanceRunning then
             MsgBox(CustomMessage('InstallationSuccesfullyRestartDelphi'), mbInformation, MB_OK);
@@ -1542,7 +1542,7 @@ end;
 
 // Uninstall initialization
 function InitializeUninstall: Boolean;
-begin                                 
+begin
   FSetupKind := skUninstalling;
   SetGlobals;
   if CanShowCloseRadStudioMessage then
@@ -1559,6 +1559,6 @@ end;
 procedure CurUninstallStepChanged(ACurUninstallStep: TUninstallStep);
 begin
   if ACurUninstallStep = usPostUninstall then
-    if not UninstallDelphiPackages then  
+    if not UninstallDelphiPackages then
       Abort;
 end;

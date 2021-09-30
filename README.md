@@ -727,7 +727,7 @@ The **TSkDebug.DebugMessageProc** global property defines the procedure that int
 
 ## Version
 
-**Skia4Delphi Version 2.0.0**
+**Skia4Delphi Version 2.0.1**
 
 Skia Version used: [chrome/m88](https://github.com/google/skia/tree/chrome/m88)
 What has changed from the original code? [Compare.](https://github.com/google/skia/compare/chrome/m88...viniciusfbb:main)
