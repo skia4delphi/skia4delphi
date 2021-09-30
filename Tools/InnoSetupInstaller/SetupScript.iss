@@ -25,9 +25,9 @@
 ;
 ; -----------------------------------------------------------------------------------
 ;  Example of command line to instal silent:
-;     start /d "C:\skia4delphi" /wait "" "C:\skia4delphi\Setup.exe" /SP- /verysilent /DefaultRADStudio=22.0 /DefaultPlatforms=all /CreateUninstallRegKey=false /CloseRadStudioMessage=false
+;     start /b /d "C:\skia4delphi" /wait cmd /c "C:\skia4delphi\Setup.exe" /SP- /verysilent /DefaultRADStudio=22.0 /DefaultPlatforms=all /CreateUninstallRegKey=false /CloseRadStudioMessage=false
 ;  Example of command line to instal silent:
-;     start /wait "" "C:\skia4delphi\unins000.exe" /SP- /verysilent /CloseRadStudioMessage=false
+;     start /b /d "C:\skia4delphi" /wait cmd /c "C:\skia4delphi\unins000.exe" /SP- /verysilent /DefaultRADStudio=22.0 /CloseRadStudioMessage=false
 ; -----------------------------------------------------------------------------------
 
 #define LibraryName "Skia4Delphi"
@@ -1458,8 +1458,14 @@ begin
   FSupportedDelphiVersions := GetSupportedDelphiVersions;
   FAvailableDelphiVersions := IntersectionDelphiVersions(GetInstalledDelphiVersions, FSupportedDelphiVersions);
   if (not TryGetDelphiVersionFromRadStudioVersion(ExpandConstant('{param:DefaultRADStudio|}'), LDefaultRADStudio)) or (not IsDelphiVersionIn(FAvailableDelphiVersions, LDefaultRADStudio)) then
+  begin
     LDefaultRADStudio := GetLatestAvailableVersion;
-  FSelectedDelphiVersions := [LDefaultRADStudio];
+    FSelectedDelphiVersions := [LDefaultRADStudio];
+  end
+  else if FSetupKind = skUninstalling then         
+    FSelectedDelphiVersions := FAvailableDelphiVersions
+  else
+    FSelectedDelphiVersions := [LDefaultRADStudio];
   
   FSupportedDelphiPlatforms := GetSupportedDelphiPlatforms;
   FAvailableDelphiPlatforms := GetAvailableDelphiPlatforms(FSelectedDelphiVersions);
