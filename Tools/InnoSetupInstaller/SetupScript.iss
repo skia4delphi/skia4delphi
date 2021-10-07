@@ -24,9 +24,9 @@
 ;     Description: When true the and the rad studio is running, will show a warning in installation and an error in uninstaller
 ;
 ; -----------------------------------------------------------------------------------
-;  Example of command line to instal silent:
+;  Example of command line to install silent:
 ;     start /b /d "C:\skia4delphi" /wait cmd /c "C:\skia4delphi\Setup.exe" /SP- /verysilent /DefaultRADStudio=22.0 /DefaultPlatforms=all /CreateUninstallRegKey=false /CloseRadStudioMessage=false
-;  Example of command line to instal silent:
+;  Example of command line to install silent:
 ;     start /b /d "C:\skia4delphi" /wait cmd /c "C:\skia4delphi\unins000.exe" /SP- /verysilent /DefaultRADStudio=22.0 /CloseRadStudioMessage=false
 ; -----------------------------------------------------------------------------------
 

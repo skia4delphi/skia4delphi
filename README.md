@@ -448,7 +448,7 @@ var
 begin
   ACanvas.Clear(TAlphaColors.Null);
   LFont := TSkFont.Create(TSkTypeface.MakeDefault, 35, 1);
-  LText := 'سلام دنیا!';
+  LText := '!سلام دنیا';
 
   LRunHandler := TSkTextBlobBuilderRunHandler.Create(LText, TPointF.Create(0, 0));
   LShaper := TSkShaper.Create;
@@ -512,7 +512,7 @@ begin
         LTextStyle.SetFontSize(22);
         LTextStyle.SetFontStyle(TSkFontStyle.Create(TSkFontWeight.SemiBold, TSkFontWidth.Normal, TSkFontSlant.Upright));
         LBuilder.PushStyle(LTextStyle);
-        LBuilder.AddText(' سلام دنیا!');
+        LBuilder.AddText(' !سلام دنیا');
 
         LTextStyle := TSkTextStyle.Create;
         LTextStyle.Color := TAlphaColors.Blueviolet;
@@ -535,7 +535,7 @@ end;
 
 This code results in the output below:
 
-![textparagraph](Assets/Documents/textparagraph.png)
+![text_paragraph](Assets/Documents/text_paragraph.png)
 
 
 

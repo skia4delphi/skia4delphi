@@ -562,7 +562,7 @@ begin
         LTextStyle.SetFontSize(22);
         LTextStyle.SetFontStyle(TSkFontStyle.Create(TSkFontWeight.SemiBold, TSkFontWidth.Normal, TSkFontSlant.Upright));
         LBuilder.PushStyle(LTextStyle);
-        LBuilder.AddText(' سلام دنیا!');
+        LBuilder.AddText(' !سلام دنیا');
 
         LTextStyle := TSkTextStyle.Create;
         LTextStyle.Color := TAlphaColors.Blueviolet;
@@ -652,7 +652,7 @@ begin
         LText: string;
       begin
         LFont := TSkFont.Create(TSkTypeface.MakeDefault, 55, 1);
-        LText := 'سلام دنیا!';
+        LText := '!سلام دنیا';
 
         LRunHandler := TSkTextBlobBuilderRunHandler.Create(LText, TPointF.Create(0, 0));
         LShaper := TSkShaper.Create;
