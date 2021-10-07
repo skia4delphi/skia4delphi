@@ -60,12 +60,11 @@
 
 	.hero h1 a {
 		transition: all 0.3s;
-
-		color: #f12657;
-		background: linear-gradient(0deg, #f12657, #f8a515);
-		-webkit-background-clip: text;
-		-webkit-text-fill-color: transparent;
+		color: transparent;
 		text-decoration: none;
+		background: linear-gradient(0deg, #f12657, #f8a515);
+		background-clip: text;
+		-webkit-box-decoration-break: clone;
 	}
 
 	.hero h1 a:hover {
