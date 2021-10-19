@@ -1480,7 +1480,7 @@ begin
 
   FSupportedDelphiPlatforms := GetSupportedDelphiPlatforms;
   FAvailableDelphiPlatforms := GetAvailableDelphiPlatforms(FSelectedDelphiVersions);
-  if SameText(ExpandConstant('{param:DefaultPlatforms|windows}'), 'all') then
+  if SameText(ExpandConstant('{param:DefaultPlatforms|windows}'), 'all') or (FSetupKind = skUninstalling) then
     FDefaultPlatforms := FSupportedDelphiPlatforms
   else
     FDefaultPlatforms := [pfWin32, pfWin64];
