@@ -259,7 +259,8 @@ uses
   { Delphi }
   System.Math,
   System.Math.Vectors,
-  System.ZLib;
+  System.ZLib,
+  FMX.Forms;
 
 { TSkBitmapHelper }
 
