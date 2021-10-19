@@ -57,16 +57,17 @@ type
   TSkCustomControl = class abstract(TControl)
   strict private
     FBuffer: TBitmap;
-    FDoubleBuffered: Boolean;
     FDrawCached: Boolean;
+    FDrawCacheEnabled: Boolean;
     FOnDraw: TSkDrawEvent;
-    procedure SetDoubleBuffered(const AValue: Boolean);
+    procedure SetDrawCacheEnabled(const AValue: Boolean);
     procedure SetOnDraw(const AValue: TSkDrawEvent);
   strict protected
     procedure Draw(const ACanvas: ISkCanvas; const ADest: TRectF; const AOpacity: Single); virtual;
     procedure DrawDesignBorder(const ACanvas: ISkCanvas; const ADest: TRectF; const AOpacity: Single);
+    function NeedsRedraw: Boolean; virtual;
     procedure Paint; override; final;
-    property DoubleBuffered: Boolean read FDoubleBuffered write SetDoubleBuffered default True;
+    property DrawCacheEnabled: Boolean read FDrawCacheEnabled write SetDrawCacheEnabled default True;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -159,7 +160,7 @@ type
     FSvg: TSkSvgBrush;
     procedure SetSvg(const AValue: TSkSvgBrush);
     procedure SvgChanged(ASender: TObject);
-  protected
+  strict protected
     procedure Draw(const ACanvas: ISkCanvas; const ADest: TRectF; const AOpacity: Single); override;
   public
     constructor Create(AOwner: TComponent); override;
@@ -183,12 +184,15 @@ type
     FOnAnimationStart: TNotifyEvent;
     FProgress: Double;
     FProgressChangedManually: Boolean;
+    FSuccessRepaint: Boolean;
     function GetAbsoluteVisible: Boolean;
     function GetRunningAnimation: Boolean;
     procedure SetFixedProgress(const AValue: Boolean);
     procedure SetLoop(const AValue: Boolean);
     procedure SetProgress(AValue: Double);
-  protected
+  private
+    procedure ProcessAnimation;
+  strict protected
     procedure AncestorVisibleChanged(const AVisible: Boolean); override;
     function CanRunAnimation: Boolean; virtual;
     procedure CheckAnimation;
@@ -226,7 +230,7 @@ type
     procedure ReadTgs(AStream: TStream);
     procedure SetSource(const AValue: TSkLottieSource);
     procedure WriteTgs(AStream: TStream);
-  protected
+  strict protected
     function CanRunAnimation: Boolean; override;
     procedure DefineProperties(AFiler: TFiler); override;
     procedure Draw(const ACanvas: ISkCanvas; const ADest: TRectF; const AOpacity: Single); override;
@@ -313,7 +317,7 @@ end;
 constructor TSkCustomControl.Create(AOwner: TComponent);
 begin
   inherited;
-  FDoubleBuffered := True;
+  FDrawCacheEnabled := True;
   HitTest := False;
 end;
 
@@ -353,6 +357,11 @@ begin
   end;
 end;
 
+function TSkCustomControl.NeedsRedraw: Boolean;
+begin
+  Result := (not FDrawCached) or (not FDrawCacheEnabled) or (FBuffer = nil);
+end;
+
 procedure TSkCustomControl.Paint;
 
   function AlignToPixel(const ARect: TRectF): TRectF;
@@ -376,21 +385,19 @@ begin
   else
     LSceneScale := 1;
   LAbsoluteSize := TSize.Create(Round(AbsoluteWidth * LSceneScale), Round(AbsoluteHeight * LSceneScale));
-  if (not FDrawCached) or (not FDoubleBuffered) or (FBuffer = nil) or
-    (TSize.Create(FBuffer.Width, FBuffer.Height) <> LAbsoluteSize) then
+  if NeedsRedraw or (TSize.Create(FBuffer.Width, FBuffer.Height) <> LAbsoluteSize) then
   begin
     if FBuffer = nil then
       FBuffer := TBitmap.Create(LAbsoluteSize.Width, LAbsoluteSize.Height)
     else if TSize.Create(FBuffer.Width, FBuffer.Height) <> LAbsoluteSize then
-      FBuffer.SetSize(LAbsoluteSize.Width, LAbsoluteSize.Height)
-    else
-      FBuffer.Clear(TAlphaColors.Null);
+      FBuffer.SetSize(LAbsoluteSize.Width, LAbsoluteSize.Height);
     FBuffer.SkiaDraw(
       procedure(const ACanvas: ISkCanvas)
       var
         LAbsoluteScale: TPointF;
         LDestRect: TRectF;
       begin
+        ACanvas.Clear(TAlphaColors.Null);
         LAbsoluteScale := AbsoluteScale * LSceneScale;
         ACanvas.Concat(TMatrix.CreateScaling(LAbsoluteScale.X, LAbsoluteScale.Y));
         LDestRect := TRectF.Create(PointF(0, 0), LAbsoluteSize.Width / LAbsoluteScale.X, LAbsoluteSize.Height / LAbsoluteScale.Y);
@@ -409,11 +416,11 @@ begin
   Repaint;
 end;
 
-procedure TSkCustomControl.SetDoubleBuffered(const AValue: Boolean);
+procedure TSkCustomControl.SetDrawCacheEnabled(const AValue: Boolean);
 begin
-  if FDoubleBuffered <> AValue then
+  if FDrawCacheEnabled <> AValue then
   begin
-    FDoubleBuffered := AValue;
+    FDrawCacheEnabled := AValue;
     if not AValue then
       Repaint;
   end;
@@ -582,7 +589,7 @@ type
 
 procedure TRepaintAnimation.ProcessAnimation;
 begin
-  TControl(Parent).Repaint;
+  TSkCustomAnimatedControl(Parent).ProcessAnimation;
 end;
 
 { TSkCustomAnimatedControl }
@@ -613,7 +620,9 @@ begin
   Result := Assigned(Scene) and (not FFixedProgress) and
     ([csDestroying, csDesigning] * ComponentState = []) and
     AbsoluteVisible and AbsoluteEnabled and
-    (FLoop or not SameValue(FProgress, 1, TEpsilon.Matrix));
+    (AbsoluteWidth > 0) and (AbsoluteHeight > 0) and
+    (FLoop or not SameValue(FProgress, 1, TEpsilon.Matrix)) and
+    (Scene.GetObject is TCommonCustomForm) and TCommonCustomForm(Scene.GetObject).Visible;
 end;
 
 procedure TSkCustomAnimatedControl.CheckAnimation;
@@ -664,7 +673,7 @@ begin
   FAnimation.Parent := Self;
   FAbsoluteVisible := Visible;
   FAbsoluteVisibleCached := True;
-  DoubleBuffered := False;
+  DrawCacheEnabled := False;
 end;
 
 procedure TSkCustomAnimatedControl.DoAnimationFinished;
@@ -750,6 +759,8 @@ var
   LProgress: Double;
 begin
   inherited;
+  if Assigned(FAnimation) and not FAnimation.Enabled then
+    CheckAnimation;
   if FFixedProgress then
     LProgress := FProgress
   else
@@ -765,6 +776,7 @@ begin
     FProgress := 1;
     CheckAnimation;
   end;
+  FSuccessRepaint := True;
 end;
 
 function TSkCustomAnimatedControl.GetAbsoluteVisible: Boolean;
@@ -780,6 +792,14 @@ end;
 function TSkCustomAnimatedControl.GetRunningAnimation: Boolean;
 begin
   Result := Assigned(FAnimation) and FAnimation.Enabled;
+end;
+
+procedure TSkCustomAnimatedControl.ProcessAnimation;
+begin
+  if not FSuccessRepaint then
+    CheckAnimation;
+  FSuccessRepaint := False;
+  Repaint;
 end;
 
 procedure TSkCustomAnimatedControl.RecalcEnabled;

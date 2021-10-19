@@ -71,6 +71,7 @@ type
   strict protected
     procedure Draw(const ACanvas: ISkCanvas; const ADest: TRectF; const AOpacity: Single); virtual;
     procedure DrawDesignBorder(const ACanvas: ISkCanvas; const ADest: TRectF; const AOpacity: Single);
+    function NeedsRedraw: Boolean; virtual;
     procedure Paint; override; final;
     procedure Resize; override;
     property DrawCacheEnabled: Boolean read FDrawCacheEnabled write SetDrawCacheEnabled default True;
@@ -146,7 +147,7 @@ type
     FSvg: TSkSvgBrush;
     procedure SetSvg(const AValue: TSkSvgBrush);
     procedure SvgChanged(ASender: TObject);
-  protected
+  strict protected
     procedure Draw(const ACanvas: ISkCanvas; const ADest: TRectF; const AOpacity: Single); override;
   public
     constructor Create(AOwner: TComponent); override;
@@ -170,6 +171,7 @@ type
     FOnAnimationStart: TNotifyEvent;
     FProgress: Double;
     FProgressChangedManually: Boolean;
+    FSuccessRepaint: Boolean;
     procedure AnimationTimer(ASender: TObject);
     procedure CMEnabledChanged(var AMessage: TMessage); message CM_ENABLEDCHANGED;
     procedure CMShowingChanged(var AMessage: TMessage); message CM_SHOWINGCHANGED;
@@ -179,7 +181,7 @@ type
     procedure SetFixedProgress(const AValue: Boolean);
     procedure SetLoop(const AValue: Boolean);
     procedure SetProgress(AValue: Double);
-  protected
+  strict protected
     function CanRunAnimation: Boolean; virtual;
     procedure CheckAnimation;
     procedure DoAnimationFinished; virtual;
@@ -213,7 +215,7 @@ type
     procedure ReadTgs(AStream: TStream);
     procedure SetSource(const AValue: TSkLottieSource);
     procedure WriteTgs(AStream: TStream);
-  protected
+  strict protected
     function CanRunAnimation: Boolean; override;
     procedure DefineProperties(AFiler: TFiler); override;
     procedure Draw(const ACanvas: ISkCanvas; const ADest: TRectF; const AOpacity: Single); override;
@@ -319,6 +321,8 @@ begin
   {$IF CompilerVersion < 33}
   FScaleFactor := 1;
   {$ENDIF}
+  Height := 50;
+  Width := 50;
 end;
 
 procedure TSkCustomControl.CreateBuffer(const AMemDC: HDC; out ABuffer: HBITMAP;
@@ -395,6 +399,11 @@ begin
   end;
 end;
 
+function TSkCustomControl.NeedsRedraw: Boolean;
+begin
+  Result := (not FDrawCacheEnabled) or (not FDrawCached);
+end;
+
 procedure TSkCustomControl.Paint;
 
   procedure InternalDraw;
@@ -428,7 +437,7 @@ begin
       begin
         LOldObj := SelectObject(LDrawBufferDC, FDrawBuffer);
         try
-          if (not FDrawCacheEnabled) or (not FDrawCached) then
+          if NeedsRedraw then
             InternalDraw;
           LBlendFunction := BlendFunction;
           LBlendFunction.SourceConstantAlpha := FOpacity;
@@ -629,14 +638,21 @@ end;
 
 procedure TSkCustomAnimatedControl.AnimationTimer(ASender: TObject);
 begin
+  FSuccessRepaint := False;
   Repaint;
+  if not FSuccessRepaint then
+  begin
+    FAbsoluteShowingCached := False;
+    CheckAnimation;
+  end;
 end;
 
 function TSkCustomAnimatedControl.CanRunAnimation: Boolean;
 begin
   Result := Assigned(Parent) and (not FFixedProgress) and
     ([csDestroying, csDesigning] * ComponentState = []) and
-    AbsoluteShowing and (FLoop or not SameValue(FProgress, 1, TEpsilon.Matrix));
+    AbsoluteShowing and (Width > 0) and (Height > 0) and
+    (FLoop or not SameValue(FProgress, 1, TEpsilon.Matrix));
 end;
 
 procedure TSkCustomAnimatedControl.CheckAnimation;
@@ -715,7 +731,6 @@ begin
   FAnimation.Interval := 15;
   FAnimation.OnTimer := AnimationTimer;
   FAbsoluteShowing := Visible;
-  FAbsoluteShowingCached := True;
   DrawCacheEnabled := False;
 end;
 
@@ -802,6 +817,12 @@ var
   LProgress: Double;
 begin
   inherited;
+  if Assigned(FAnimation) and not FAnimation.Enabled then
+  begin
+    if not FAbsoluteShowing then
+      FAbsoluteShowingCached := False;
+    CheckAnimation;
+  end;
   if FFixedProgress then
     LProgress := FProgress
   else
@@ -817,6 +838,7 @@ begin
     FProgress := 1;
     CheckAnimation;
   end;
+  FSuccessRepaint := True;
 end;
 
 function TSkCustomAnimatedControl.GetAbsoluteShowing: Boolean;
