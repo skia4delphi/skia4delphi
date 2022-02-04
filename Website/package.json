@@ -1,53 +1,26 @@
 {
-	"name": "Skia4Delphi",
-	"version": "0.1.0",
-	"private": true,
-	"scripts": {
-		"serve": "vue-cli-service serve",
-		"build": "vue-cli-service build",
-		"lint": "vue-cli-service lint"
-	},
-	"dependencies": {
-		"axios": "^0.21.4",
-		"core-js": "^3.6.5",
-		"vue": "^2.6.11",
-		"vue-router": "^3.2.0",
-		"vuetify": "^2.4.0",
-		"vuex": "^3.4.0"
-	},
-	"devDependencies": {
-		"@vue/cli-plugin-babel": "~4.5.0",
-		"@vue/cli-plugin-eslint": "~4.5.0",
-		"@vue/cli-plugin-router": "~4.5.0",
-		"@vue/cli-plugin-vuex": "~4.5.0",
-		"@vue/cli-service": "~4.5.0",
-		"babel-eslint": "^10.1.0",
-		"eslint": "^6.7.2",
-		"eslint-plugin-vue": "^6.2.2",
-		"node-sass": "^4.12.0",
-		"sass": "~1.32.0",
-		"sass-loader": "^10.0.0",
-		"vue-cli-plugin-vuetify": "~2.4.2",
-		"vue-template-compiler": "^2.6.11",
-		"vuetify-loader": "^1.7.0"
-	},
-	"eslintConfig": {
-		"root": true,
-		"env": {
-			"node": true
-		},
-		"extends": [
-			"plugin:vue/essential",
-			"eslint:recommended"
-		],
-		"parserOptions": {
-			"parser": "babel-eslint"
-		},
-		"rules": {}
-	},
-	"browserslist": [
-		"> 1%",
-		"last 2 versions",
-		"not dead"
-	]
+  "name": "skia4delphi-website",
+  "version": "0.0.0",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@emotion/react": "^11.7.1",
+    "@emotion/styled": "^11.6.0",
+    "@fontsource/rubik": "^4.5.1",
+    "@nextui-org/react": "^1.0.2-beta.3",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "react-icons": "^4.3.1",
+    "react-router-dom": "^6.2.1"
+  },
+  "devDependencies": {
+    "@types/react": "^17.0.33",
+    "@types/react-dom": "^17.0.10",
+    "@vitejs/plugin-react": "^1.0.7",
+    "typescript": "^4.4.4",
+    "vite": "^2.7.2"
+  }
 }
