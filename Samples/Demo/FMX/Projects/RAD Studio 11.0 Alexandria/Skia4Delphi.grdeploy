@@ -1,0 +1,31 @@
+{
+  "Configurations" : ["Debug", "Release"],
+  "iOS" : [{
+      "LocalName" : "..\\..\\..\\..\\..\\Assets\\Samples",
+      "RemoteDir" : "StartUp\\Documents\\",
+      "Configurations" : [],
+      "IsDirectory" : true,
+      "IncludeSubDirectories" : true
+    }],
+  "Android" : [{
+      "LocalName" : "..\\..\\..\\..\\..\\Assets\\Samples",
+      "RemoteDir" : "assets\\internal\\",
+      "Configurations" : [],
+      "IsDirectory" : true,
+      "IncludeSubDirectories" : true
+    }],
+  "MacOS" : [{
+      "LocalName" : "..\\..\\..\\..\\..\\Assets\\Samples",
+      "RemoteDir" : "Contents\\Resources\\",
+      "Configurations" : [],
+      "IsDirectory" : true,
+      "IncludeSubDirectories" : true
+    }],
+  "Linux" : [{
+      "LocalName" : "..\\..\\..\\..\\..\\Assets\\Samples",
+      "RemoteDir" : ".\\",
+      "Configurations" : [],
+      "IsDirectory" : true,
+      "IncludeSubDirectories" : true
+    }]
+}

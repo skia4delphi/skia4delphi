@@ -1,0 +1,13 @@
+{
+  "Configurations" : ["Release", "Debug"],
+  "iOS" : [],
+  "Android" : [{
+      "LocalName" : "..\\..\\..\\..\\Assets\\Samples\\bee.jpg",
+      "RemoteDir" : "assets\\internal\\",
+      "Configurations" : [],
+      "IsDirectory" : false,
+      "IncludeSubDirectories" : false
+    }],
+  "MacOS" : [],
+  "Linux" : []
+}

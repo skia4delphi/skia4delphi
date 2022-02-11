@@ -1,0 +1,54 @@
+{************************************************************************}
+{                                                                        }
+{                              Skia4Delphi                               }
+{                                                                        }
+{ Copyright (c) 2011-2022 Google LLC.                                    }
+{ Copyright (c) 2021-2022 Skia4Delphi Project.                           }
+{                                                                        }
+{ Use of this source code is governed by a BSD-style license that can be }
+{ found in the LICENSE file.                                             }
+{                                                                        }
+{************************************************************************}
+package Skia.Package.FMX;
+
+{$R *.res}
+{$IFDEF IMPLICITBUILDING This IFDEF should not be used by users}
+{$ALIGN 8}
+{$ASSERTIONS ON}
+{$BOOLEVAL OFF}
+{$DEBUGINFO OFF}
+{$EXTENDEDSYNTAX ON}
+{$IMPORTEDDATA ON}
+{$IOCHECKS ON}
+{$LOCALSYMBOLS ON}
+{$LONGSTRINGS ON}
+{$OPENSTRINGS ON}
+{$OPTIMIZATION OFF}
+{$OVERFLOWCHECKS OFF}
+{$RANGECHECKS OFF}
+{$REFERENCEINFO ON}
+{$SAFEDIVIDE OFF}
+{$STACKFRAMES ON}
+{$TYPEDADDRESS OFF}
+{$VARSTRINGCHECKS ON}
+{$WRITEABLECONST OFF}
+{$MINENUMSIZE 1}
+{$IMAGEBASE $400000}
+{$DEFINE DEBUG}
+{$ENDIF IMPLICITBUILDING}
+{$DESCRIPTION 'Skia4Delphi FMX package'}
+{$LIBSUFFIX '230'}
+{$IMPLICITBUILD ON}
+
+requires
+  rtl,
+  fmx,
+  Skia.Package.RTL;
+
+contains
+  Skia.FMX.Canvas.GL in '..\..\Source\FMX\Skia.FMX.Canvas.GL.pas',
+  Skia.FMX.Canvas.Metal in '..\..\Source\FMX\Skia.FMX.Canvas.Metal.pas',
+  Skia.FMX.Graphics in '..\..\Source\FMX\Skia.FMX.Graphics.pas',
+  Skia.FMX in '..\..\Source\FMX\Skia.FMX.pas';
+
+end.

@@ -1,0 +1,13 @@
+inherited frmControlViewer: TfrmControlViewer
+  DesignerMasterStyle = 0
+  inherited lytContent: TLayout
+    inherited rctHeader: TRectangle
+      inherited lblTitle: TSkLabel
+        Words = <
+          item
+            Text = 'Control Viewer'
+          end>
+      end
+    end
+  end
+end

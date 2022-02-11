@@ -1,0 +1,31 @@
+{
+  "Configurations" : ["Debug", "Release"],
+  "iOS" : [{
+      "LocalName" : "..\\..\\..\\..\\Assets\\Samples\\bee.jpg",
+      "RemoteDir" : "StartUp\\Documents\\",
+      "Configurations" : [],
+      "IsDirectory" : false,
+      "IncludeSubDirectories" : false
+    }],
+  "Android" : [{
+      "LocalName" : "..\\..\\..\\..\\Assets\\Samples\\bee.jpg",
+      "RemoteDir" : "assets\\internal\\",
+      "Configurations" : [],
+      "IsDirectory" : false,
+      "IncludeSubDirectories" : false
+    }],
+  "MacOS" : [{
+      "LocalName" : "..\\..\\..\\..\\Assets\\Samples\\bee.jpg",
+      "RemoteDir" : "Contents\\Resources\\",
+      "Configurations" : [],
+      "IsDirectory" : false,
+      "IncludeSubDirectories" : false
+    }],
+  "Linux" : [{
+      "LocalName" : "..\\..\\..\\..\\Assets\\Samples\\bee.jpg",
+      "RemoteDir" : ".\\",
+      "Configurations" : [],
+      "IsDirectory" : false,
+      "IncludeSubDirectories" : false
+    }]
+}

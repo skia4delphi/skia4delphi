@@ -1,0 +1,293 @@
+inherited frmTSkAnimatedImage: TfrmTSkAnimatedImage
+  DesignerMasterStyle = 0
+  inherited lytContent: TLayout
+    inherited rctHeader: TRectangle
+      inherited lblTitle: TSkLabel
+        Words = <
+          item
+            Text = 'TSkAnimatedImage'
+          end>
+      end
+    end
+    inherited sbxContent: TScrollBox
+      object btnAnimatedWebP: TSpeedButton
+        Align = Top
+        ClipChildren = True
+        Cursor = crHandPoint
+        Padding.Left = 5.000000000000000000
+        Padding.Top = 6.000000000000000000
+        Padding.Right = 21.000000000000000000
+        Margins.Left = 15.000000000000000000
+        Margins.Right = 15.000000000000000000
+        Position.X = 15.000000000000000000
+        Position.Y = 271.000000000000000000
+        Size.Width = 330.000000000000000000
+        Size.Height = 50.000000000000000000
+        Size.PlatformDefault = False
+        StyleLookup = 'speedbuttonstyle_menu'
+        OnClick = btnAnimatedWebPClick
+        object lblAnimatedWebPTitle: TSkLabel
+          Align = MostTop
+          Position.X = 5.000000000000000000
+          Position.Y = 6.000000000000000000
+          Size.Width = 304.000000000000000000
+          Size.Height = 19.000000000000000000
+          Size.PlatformDefault = False
+          StyledSettings = [Family, Size, Style, FontColor, Other]
+          StyleLookup = 'sklabelstyle_menu_title'
+          Words = <
+            item
+              Text = 'Animated WebP'
+            end>
+        end
+        object lblAnimatedWebPDescription: TSkLabel
+          Align = Top
+          Position.X = 5.000000000000000000
+          Position.Y = 25.000000000000000000
+          Size.Width = 304.000000000000000000
+          Size.Height = 15.000000000000000000
+          Size.PlatformDefault = False
+          StyledSettings = [Family, Size, Style, FontColor, Other]
+          StyleLookup = 'sklabelstyle_menu_description'
+          Words = <
+            item
+              Text = 'Playing animated WebP'
+            end>
+        end
+      end
+      object btnAnimatedGIF: TSpeedButton
+        Align = Top
+        ClipChildren = True
+        Cursor = crHandPoint
+        Padding.Left = 5.000000000000000000
+        Padding.Top = 6.000000000000000000
+        Padding.Right = 21.000000000000000000
+        Margins.Left = 15.000000000000000000
+        Margins.Right = 15.000000000000000000
+        Position.X = 15.000000000000000000
+        Position.Y = 221.000000000000000000
+        Size.Width = 330.000000000000000000
+        Size.Height = 50.000000000000000000
+        Size.PlatformDefault = False
+        StyleLookup = 'speedbuttonstyle_menu'
+        OnClick = btnAnimatedGIFClick
+        object lblAnimatedGIFTitle: TSkLabel
+          Align = MostTop
+          Position.X = 5.000000000000000000
+          Position.Y = 6.000000000000000000
+          Size.Width = 304.000000000000000000
+          Size.Height = 19.000000000000000000
+          Size.PlatformDefault = False
+          StyledSettings = [Family, Size, Style, FontColor, Other]
+          StyleLookup = 'sklabelstyle_menu_title'
+          Words = <
+            item
+              Text = 'Animated GIF'
+            end>
+        end
+        object lblAnimatedGIFDescription: TSkLabel
+          Align = Top
+          Position.X = 5.000000000000000000
+          Position.Y = 25.000000000000000000
+          Size.Width = 304.000000000000000000
+          Size.Height = 15.000000000000000000
+          Size.PlatformDefault = False
+          StyledSettings = [Family, Size, Style, FontColor, Other]
+          StyleLookup = 'sklabelstyle_menu_description'
+          Words = <
+            item
+              Text = 'Playing animated GIF'
+            end>
+        end
+      end
+      object btnTelegramStickers: TSpeedButton
+        Align = Top
+        ClipChildren = True
+        Cursor = crHandPoint
+        Padding.Left = 5.000000000000000000
+        Padding.Top = 6.000000000000000000
+        Padding.Right = 21.000000000000000000
+        Margins.Left = 15.000000000000000000
+        Margins.Right = 15.000000000000000000
+        Position.X = 15.000000000000000000
+        Position.Y = 171.000000000000000000
+        Size.Width = 330.000000000000000000
+        Size.Height = 50.000000000000000000
+        Size.PlatformDefault = False
+        StyleLookup = 'speedbuttonstyle_menu'
+        OnClick = btnTelegramStickersClick
+        object lblTelegramStickersTitle: TSkLabel
+          Align = MostTop
+          Position.X = 5.000000000000000000
+          Position.Y = 6.000000000000000000
+          Size.Width = 304.000000000000000000
+          Size.Height = 19.000000000000000000
+          Size.PlatformDefault = False
+          StyledSettings = [Family, Size, Style, FontColor, Other]
+          StyleLookup = 'sklabelstyle_menu_title'
+          Words = <
+            item
+              Text = 'Telegram Stickers'
+            end>
+        end
+        object lblTelegramStickersDescription: TSkLabel
+          Align = Top
+          Position.X = 5.000000000000000000
+          Position.Y = 25.000000000000000000
+          Size.Width = 304.000000000000000000
+          Size.Height = 15.000000000000000000
+          Size.PlatformDefault = False
+          StyledSettings = [Family, Size, Style, FontColor, Other]
+          StyleLookup = 'sklabelstyle_menu_description'
+          Words = <
+            item
+              Text = 'See an example loading telegram sticker (.tgs files)'
+            end>
+        end
+      end
+      object btnLottieLoadings: TSpeedButton
+        Align = Top
+        ClipChildren = True
+        Cursor = crHandPoint
+        Padding.Left = 5.000000000000000000
+        Padding.Top = 6.000000000000000000
+        Padding.Right = 21.000000000000000000
+        Margins.Left = 15.000000000000000000
+        Margins.Right = 15.000000000000000000
+        Position.X = 15.000000000000000000
+        Position.Y = 121.000000000000000000
+        Size.Width = 330.000000000000000000
+        Size.Height = 50.000000000000000000
+        Size.PlatformDefault = False
+        StyleLookup = 'speedbuttonstyle_menu'
+        OnClick = btnLottieLoadingsClick
+        object lblLottieLoadingsTitle: TSkLabel
+          Align = MostTop
+          Position.X = 5.000000000000000000
+          Position.Y = 6.000000000000000000
+          Size.Width = 304.000000000000000000
+          Size.Height = 19.000000000000000000
+          Size.PlatformDefault = False
+          StyledSettings = [Family, Size, Style, FontColor, Other]
+          StyleLookup = 'sklabelstyle_menu_title'
+          Words = <
+            item
+              Text = 'Lottie - Loadings'
+            end>
+        end
+        object lblLottieLoadingsDescription: TSkLabel
+          Align = Top
+          Position.X = 5.000000000000000000
+          Position.Y = 25.000000000000000000
+          Size.Width = 304.000000000000000000
+          Size.Height = 15.000000000000000000
+          Size.PlatformDefault = False
+          StyledSettings = [Family, Size, Style, FontColor, Other]
+          StyleLookup = 'sklabelstyle_menu_description'
+          Words = <
+            item
+              Text = 'Several lottie files of loading'
+            end>
+        end
+      end
+      object btnLottieCheck: TSpeedButton
+        Align = Top
+        ClipChildren = True
+        Cursor = crHandPoint
+        Padding.Left = 5.000000000000000000
+        Padding.Top = 6.000000000000000000
+        Padding.Right = 21.000000000000000000
+        Margins.Left = 15.000000000000000000
+        Margins.Right = 15.000000000000000000
+        Position.X = 15.000000000000000000
+        Position.Y = 71.000000000000000000
+        Size.Width = 330.000000000000000000
+        Size.Height = 50.000000000000000000
+        Size.PlatformDefault = False
+        StyleLookup = 'speedbuttonstyle_menu'
+        OnClick = btnLottieCheckClick
+        object lblLottieCheckTitle: TSkLabel
+          Align = MostTop
+          Position.X = 5.000000000000000000
+          Position.Y = 6.000000000000000000
+          Size.Width = 304.000000000000000000
+          Size.Height = 19.000000000000000000
+          Size.PlatformDefault = False
+          StyledSettings = [Family, Size, Style, FontColor, Other]
+          StyleLookup = 'sklabelstyle_menu_title'
+          Words = <
+            item
+              Text = 'Lottie - check.json'
+            end>
+        end
+        object lblLottieCheckDescription: TSkLabel
+          Align = Top
+          Position.X = 5.000000000000000000
+          Position.Y = 25.000000000000000000
+          Size.Width = 304.000000000000000000
+          Size.Height = 15.000000000000000000
+          Size.PlatformDefault = False
+          StyledSettings = [Family, Size, Style, FontColor, Other]
+          StyleLookup = 'sklabelstyle_menu_description'
+          Words = <
+            item
+              Text = 'Loading and playing the lottie file "check.json" of assets'
+            end>
+        end
+      end
+      object btnLottieRocket: TSpeedButton
+        Align = Top
+        ClipChildren = True
+        Cursor = crHandPoint
+        Padding.Left = 5.000000000000000000
+        Padding.Top = 6.000000000000000000
+        Padding.Right = 21.000000000000000000
+        Margins.Left = 15.000000000000000000
+        Margins.Right = 15.000000000000000000
+        Position.X = 15.000000000000000000
+        Position.Y = 21.000000000000000000
+        Size.Width = 330.000000000000000000
+        Size.Height = 50.000000000000000000
+        Size.PlatformDefault = False
+        StyleLookup = 'speedbuttonstyle_menu'
+        OnClick = btnLottieRocketClick
+        object lblLottieRocketTitle: TSkLabel
+          Align = MostTop
+          Position.X = 5.000000000000000000
+          Position.Y = 6.000000000000000000
+          Size.Width = 304.000000000000000000
+          Size.Height = 19.000000000000000000
+          Size.PlatformDefault = False
+          StyledSettings = [Family, Size, Style, FontColor, Other]
+          StyleLookup = 'sklabelstyle_menu_title'
+          Words = <
+            item
+              Text = 'Lottie - rocket.json'
+            end>
+        end
+        object lblLottieRocketDescription: TSkLabel
+          Align = Top
+          Position.X = 5.000000000000000000
+          Position.Y = 25.000000000000000000
+          Size.Width = 304.000000000000000000
+          Size.Height = 15.000000000000000000
+          Size.PlatformDefault = False
+          StyledSettings = [Family, Size, Style, FontColor, Other]
+          StyleLookup = 'sklabelstyle_menu_description'
+          Words = <
+            item
+              Text = 'Loading and playing the lottie file "rocket.json" of assets'
+            end>
+        end
+      end
+      object lytContentTopOffset: TLayout
+        Align = MostTop
+        Margins.Bottom = 20.000000000000000000
+        Size.Width = 360.000000000000000000
+        Size.Height = 1.000000000000000000
+        Size.PlatformDefault = False
+        TabOrder = 4
+      end
+    end
+  end
+end

@@ -1,0 +1,32 @@
+inherited frmBaseViewer: TfrmBaseViewer
+  OnClose = FormClose
+  OnDestroy = FormDestroy
+  DesignerMasterStyle = 0
+  inherited lytContent: TLayout
+    object rctBackgroundChess: TRectangle
+      Align = Client
+      Fill.Bitmap.Bitmap.PNG = {
+        89504E470D0A1A0A0000000D49484452000000100000001008060000001FF3FF
+        61000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
+        003449444154384F63FC0F040C78C0D9B367A12CEC80094A930D460D180C0630
+        9E3973066F3A30363686B2B083D1401C060630300000D64D0A7EF0F060CA0000
+        000049454E44AE426082}
+      Fill.Bitmap.WrapMode = Tile
+      Fill.Kind = Bitmap
+      HitTest = False
+      Size.Width = 360.000000000000000000
+      Size.Height = 526.000000000000000000
+      Size.PlatformDefault = False
+      Stroke.Kind = None
+      Visible = False
+    end
+    object pbxBackgroundChess: TSkPaintBox
+      Align = Client
+      Size.Width = 360.000000000000000000
+      Size.Height = 526.000000000000000000
+      Size.PlatformDefault = False
+      Visible = False
+      OnDraw = pbxBackgroundChessDraw
+    end
+  end
+end

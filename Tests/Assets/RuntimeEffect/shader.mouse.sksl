@@ -1,0 +1,8 @@
+uniform float2 iResolution;
+uniform float2 iMouse;
+
+half4 main(float2 fragCoord) {
+  float2 pct = fragCoord/iResolution.xy;
+  float d = distance(pct, iMouse.xy/iResolution.xy);
+  return half4(half3(1, 0, 0)*(1-d)*(1-d), 1);
+}

@@ -1,0 +1,113 @@
+inherited frmParticles: TfrmParticles
+  DesignerMasterStyle = 0
+  inherited lytContent: TLayout
+    inherited rctHeader: TRectangle
+      inherited lblTitle: TSkLabel
+        Words = <
+          item
+            Text = 'Particles'
+          end>
+      end
+    end
+    inherited sbxContent: TScrollBox
+      object btnParticlesAssets: TSpeedButton
+        Align = Top
+        ClipChildren = True
+        Cursor = crHandPoint
+        Padding.Left = 5.000000000000000000
+        Padding.Top = 6.000000000000000000
+        Padding.Right = 21.000000000000000000
+        Margins.Left = 15.000000000000000000
+        Margins.Right = 15.000000000000000000
+        Position.X = 15.000000000000000000
+        Position.Y = 71.000000000000000000
+        Size.Width = 330.000000000000000000
+        Size.Height = 50.000000000000000000
+        Size.PlatformDefault = False
+        StyleLookup = 'speedbuttonstyle_menu'
+        OnClick = btnParticlesAssetsClick
+        object lblParticlesAssetsTitle: TSkLabel
+          Align = MostTop
+          Position.X = 5.000000000000000000
+          Position.Y = 6.000000000000000000
+          Size.Width = 304.000000000000000000
+          Size.Height = 19.000000000000000000
+          Size.PlatformDefault = False
+          StyledSettings = [Family, Size, Style, FontColor, Other]
+          StyleLookup = 'sklabelstyle_menu_title'
+          Words = <
+            item
+              Text = 'Particles Assets'
+            end>
+        end
+        object lblParticlesAssetsDescription: TSkLabel
+          Align = Top
+          Position.X = 5.000000000000000000
+          Position.Y = 291.000000000000000000
+          Size.Width = 304.000000000000000000
+          Size.Height = 19.000000000000000000
+          Size.PlatformDefault = False
+          StyledSettings = [Family, Size, Style, FontColor, Other]
+          StyleLookup = 'sklabelstyle_menu_description'
+          Words = <
+            item
+              Text = 'See all particles examples in sample assets'
+            end>
+        end
+      end
+      object btnParticlesWithMouse: TSpeedButton
+        Align = Top
+        ClipChildren = True
+        Cursor = crHandPoint
+        Padding.Left = 5.000000000000000000
+        Padding.Top = 6.000000000000000000
+        Padding.Right = 21.000000000000000000
+        Margins.Left = 15.000000000000000000
+        Margins.Right = 15.000000000000000000
+        Position.X = 15.000000000000000000
+        Position.Y = 21.000000000000000000
+        Size.Width = 330.000000000000000000
+        Size.Height = 50.000000000000000000
+        Size.PlatformDefault = False
+        StyleLookup = 'speedbuttonstyle_menu'
+        OnClick = btnParticlesWithMouseClick
+        object lblParticlesWithMouseTitle: TSkLabel
+          Align = MostTop
+          Position.X = 5.000000000000000000
+          Position.Y = 6.000000000000000000
+          Size.Width = 304.000000000000000000
+          Size.Height = 19.000000000000000000
+          Size.PlatformDefault = False
+          StyledSettings = [Family, Size, Style, FontColor, Other]
+          StyleLookup = 'sklabelstyle_menu_title'
+          Words = <
+            item
+              Text = 'Particles With Mouse Iterations'
+            end>
+        end
+        object lblParticlesWithMouseDescription: TSkLabel
+          Align = Top
+          Position.X = 5.000000000000000000
+          Position.Y = 538.000000000000000000
+          Size.Width = 304.000000000000000000
+          Size.Height = 19.000000000000000000
+          Size.PlatformDefault = False
+          StyledSettings = [Family, Size, Style, FontColor, Other]
+          StyleLookup = 'sklabelstyle_menu_description'
+          Words = <
+            item
+              Text = 'Outline and fill ellipses and rounded rectangles'
+            end>
+        end
+      end
+      object lytContentTopOffset: TLayout
+        Align = MostTop
+        Margins.Bottom = 20.000000000000000000
+        Size.Width = 360.000000000000000000
+        Size.Height = 1.000000000000000000
+        Size.PlatformDefault = False
+        TabOrder = 4
+      end
+    end
+  end
+end

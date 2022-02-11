@@ -1,0 +1,159 @@
+inherited frmImage: TfrmImage
+  Caption = 'frmBase1'
+  DesignerMasterStyle = 0
+  inherited lytContent: TLayout
+    inherited rctHeader: TRectangle
+      inherited lblTitle: TSkLabel
+        Words = <
+          item
+            Text = 'Image'
+          end>
+      end
+    end
+    inherited sbxContent: TScrollBox
+      object btnEncodeWebpVsJpeg: TSpeedButton
+        Align = Top
+        ClipChildren = True
+        Cursor = crHandPoint
+        Padding.Left = 5.000000000000000000
+        Padding.Top = 6.000000000000000000
+        Padding.Right = 21.000000000000000000
+        Margins.Left = 15.000000000000000000
+        Margins.Right = 15.000000000000000000
+        Position.X = 15.000000000000000000
+        Position.Y = 21.000000000000000000
+        Size.Width = 330.000000000000000000
+        Size.Height = 50.000000000000000000
+        Size.PlatformDefault = False
+        StyleLookup = 'speedbuttonstyle_menu'
+        OnClick = btnEncodeWebpVsJpegClick
+        object lblEncodeWebpVsJpegTitle: TSkLabel
+          Align = MostTop
+          Position.X = 5.000000000000000000
+          Position.Y = 6.000000000000000000
+          Size.Width = 304.000000000000000000
+          Size.Height = 19.000000000000000000
+          Size.PlatformDefault = False
+          StyledSettings = [Family, Size, Style, FontColor, Other]
+          StyleLookup = 'sklabelstyle_menu_title'
+          Words = <
+            item
+              Text = 'Encode WebP vs JPEG'
+            end>
+        end
+        object lblEncodeWebpVsJpegDescription: TSkLabel
+          Align = Top
+          Position.X = 5.000000000000000000
+          Position.Y = 310.000000000000000000
+          Size.Width = 304.000000000000000000
+          Size.Height = 38.000000000000000000
+          Size.PlatformDefault = False
+          StyledSettings = [Family, Size, Style, FontColor, Other]
+          StyleLookup = 'sklabelstyle_menu_description'
+          Words = <
+            item
+              Text = 'Learn how to encode and see the compression comparison'
+            end>
+        end
+      end
+      object btnWebpInImage: TSpeedButton
+        Align = Top
+        ClipChildren = True
+        Cursor = crHandPoint
+        Padding.Left = 5.000000000000000000
+        Padding.Top = 6.000000000000000000
+        Padding.Right = 21.000000000000000000
+        Margins.Left = 15.000000000000000000
+        Margins.Right = 15.000000000000000000
+        Position.X = 15.000000000000000000
+        Position.Y = 121.000000000000000000
+        Size.Width = 330.000000000000000000
+        Size.Height = 50.000000000000000000
+        Size.PlatformDefault = False
+        StyleLookup = 'speedbuttonstyle_menu'
+        OnClick = btnWebpInImageClick
+        object lblWebpInImageTitle: TSkLabel
+          Align = MostTop
+          Position.X = 5.000000000000000000
+          Position.Y = 6.000000000000000000
+          Size.Width = 304.000000000000000000
+          Size.Height = 19.000000000000000000
+          Size.PlatformDefault = False
+          StyledSettings = [Family, Size, Style, FontColor, Other]
+          StyleLookup = 'sklabelstyle_menu_title'
+          Words = <
+            item
+              Text = 'Load .webp directly in TImage'
+            end>
+        end
+        object lblWebpInImageDescription: TSkLabel
+          Align = Top
+          Position.X = 5.000000000000000000
+          Position.Y = 481.000000000000000000
+          Size.Width = 304.000000000000000000
+          Size.Height = 38.000000000000000000
+          Size.PlatformDefault = False
+          StyledSettings = [Family, Size, Style, FontColor, Other]
+          StyleLookup = 'sklabelstyle_menu_description'
+          Words = <
+            item
+              Text = 'With Skia4Delphi installed you can load many new formats'
+            end>
+        end
+      end
+      object btnNinePatch: TSpeedButton
+        Align = Top
+        ClipChildren = True
+        Cursor = crHandPoint
+        Padding.Left = 5.000000000000000000
+        Padding.Top = 6.000000000000000000
+        Padding.Right = 21.000000000000000000
+        Margins.Left = 15.000000000000000000
+        Margins.Right = 15.000000000000000000
+        Position.X = 15.000000000000000000
+        Position.Y = 71.000000000000000000
+        Size.Width = 330.000000000000000000
+        Size.Height = 50.000000000000000000
+        Size.PlatformDefault = False
+        StyleLookup = 'speedbuttonstyle_menu'
+        OnClick = btnNinePatchClick
+        object lblNinePatchTitle: TSkLabel
+          Align = MostTop
+          Position.X = 5.000000000000000000
+          Position.Y = 6.000000000000000000
+          Size.Width = 304.000000000000000000
+          Size.Height = 19.000000000000000000
+          Size.PlatformDefault = False
+          StyledSettings = [Family, Size, Style, FontColor, Other]
+          StyleLookup = 'sklabelstyle_menu_title'
+          Words = <
+            item
+              Text = 'Drawing 9-Patch'
+            end>
+        end
+        object lblNinePatchDescription: TSkLabel
+          Align = Top
+          Position.X = 5.000000000000000000
+          Position.Y = 272.000000000000000000
+          Size.Width = 304.000000000000000000
+          Size.Height = 38.000000000000000000
+          Size.PlatformDefault = False
+          StyledSettings = [Family, Size, Style, FontColor, Other]
+          StyleLookup = 'sklabelstyle_menu_description'
+          Words = <
+            item
+              Text = 'Draw an image preserving the corners from strech'
+            end>
+        end
+      end
+      object lytContentTopOffset: TLayout
+        Align = MostTop
+        Margins.Bottom = 20.000000000000000000
+        Size.Width = 360.000000000000000000
+        Size.Height = 1.000000000000000000
+        Size.PlatformDefault = False
+        TabOrder = 4
+      end
+    end
+  end
+end

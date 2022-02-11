@@ -1,4 +1,4 @@
-object SKSvgEditorForm: TSKSvgEditorForm
+object SkSvgEditorForm: TSkSvgEditorForm
   Left = 0
   Top = 0
   Caption = 'SVG Editor'
@@ -11,7 +11,7 @@ object SKSvgEditorForm: TSKSvgEditorForm
   Font.Height = -11
   Font.Name = 'Tahoma'
   Font.Style = []
-  OldCreateOrder = False
+  OldCreateOrder = True
   Position = poMainFormCenter
   OnCreate = FormCreate
   OnKeyDown = FormKeyDown

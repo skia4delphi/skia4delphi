@@ -1,0 +1,27 @@
+uniform float iTime;
+uniform float2 iResolution;
+
+
+const vec3 orange = vec3(0.988, 0.592, 0.165);
+const vec3 purple = vec3(0.302, 0.000, 0.647);
+
+half4 main(vec2 fragCoord) {
+    /* START -- Draw sun */
+    vec2 center = iResolution.xy * 0.5;
+    vec2 delta = fragCoord.xy - center.xy;
+    float distanceSq = (delta.x * delta.x) + (delta.y * delta.y);
+
+    const float pulseRange = 10.0;
+    float pulse = pulseRange * sin(iTime * 0.5);
+    float radius = iResolution.y * 0.2 + pulse;
+    float radiusSq = radius * radius;
+
+    vec3 fgColor = orange;
+    vec3 bgColor = purple;
+
+    float ratio = radiusSq / distanceSq;
+    vec3 color = ratio * fgColor.xyz + (1.0 - ratio) * bgColor.xyz;
+    /* END -- Draw sun */
+
+    return vec4(color, 1.0);
+}

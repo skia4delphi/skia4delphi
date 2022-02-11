@@ -1,573 +1,351 @@
-<img src="/Assets/Artwork/LogoGradient.svg" width=360 height=300>
+<p><a href="https://www.skia4delphi.org"><img src="Assets/Artwork/logo-gradient.svg" alt="Logo" height="300" width="360" /></a></p>
 
-[![supported-platforms](https://img.shields.io/static/v1?label=Supported%20Platforms%20in%2010.4%2B&message=Windows,%20macOS,%20Linux,%20Android%20and%20iOS&color=silver&style=for-the-badge)](http://docwiki.embarcadero.com/PlatformStatus/en/Main_Page) [![supported-platforms-old-versions](https://img.shields.io/static/v1?label=Supported%20Platforms%20in%20XE6%2B&message=Windows&color=silver&style=for-the-badge)](http://docwiki.embarcadero.com/PlatformStatus/en/Main_Page)
-![supported-applications](https://img.shields.io/static/v1?label=Supported%20applications&message=Console,%20VCL%20and%20FMX&color=silver&style=for-the-badge)
+<p>
+  <a href="#compatibility"><img src="https://img.shields.io/static/v1?label=rad%20studio&message=xe7%2B&color=silver&style=for-the-badge&logo=delphi&logoColor=white" alt="Delphi XE7+ support" /></a>
+  <a href="#compatibility"><img src="https://img.shields.io/static/v1?label=platforms&message=cross-platform&color=silver&style=for-the-badge&logo=delphi&logoColor=white" alt="Cross-platform support" /></a>
+  <a href="#compatibility"><img src="https://img.shields.io/static/v1?label=applications&message=console%2C%20fmx%2C%20vcl&color=silver&style=for-the-badge&logo=delphi&logoColor=white" alt="Console, FMX, VCL support" /></a>
+</p>
 
-
+  
 
 #  
 
-**[Skia4Delphi](https://skia4delphi.org)** is a cross-platform 2D graphics API for Delphi based on Google's Skia Graphics Library ([skia.org](https://skia.org/)).
+**[Skia4Delphi](https://skia4delphi.org)** is a cross-platform 2D graphics API for Delphi based on [Google's Skia](https://skia.org/) graphics library.
+
+<p><a href="https://youtu.be/hI8L4qBXTgk"><img src="Assets/Documents/video-preview.png" width="640" alt="Video Preview" /></a></p>
+
+  
+
+## About
+Skia is a great open source library for drawing 2D Text, Geometries, Images, focused on accurate, high quality and high performance rendering, which provides common APIs that work across a variety of hardware and software platforms.
 
 Google's Skia Graphics Library serves as the graphics engine for Google Chrome and Chrome OS, Android, Flutter, Xamarin, Mozilla Firefox and Firefox OS, and many other products.
 
+  
 
+## Features
 
-## Motivation
+- Canvas 2D and Text Layout;
+- CPU software rasterization;
+- GPU-accelerated rendering;
+- Right-to-Left rendering;
+- SVG rendering;
+- PDF output;
+- Runtime effects;
+- Shading language;
+- Shaders, mask and color filters;
+- Image and path effects;
+- Raw codecs;
+- Animated image player; (Lottie, GIF, WebP)
+- Image codecs; (*.bmp, *.gif, *.ico, *.jpg, *.png, *.wbmp, *.webp and raw images)
+- Particles; (provides a way to quickly generate large numbers of drawing primitives with dynamic, animated behavior)
+  **and much more...**
 
-Skia is a great open source library for drawing 2D Text, Geometries, Images, focused on accurate, high quality and high performance rendering, which provides common APIs that work across a variety of hardware and software platforms.
+  
 
+## FMX graphics engine replacement
 
+Using the **Skia4Delphi** library it is possible to override Firemonkey's rendering engine so that it can use Skia as its default Canvas. With that, your Firemonkey application will automatically:
 
-## Summary
+- Draw with antialiasing on any platform (the drawing quality is based on the Form.Quality property);
+- Increase the overall graphics performance of your application by up to 50% (even drawing with higher quality);
+- Resize images with better quality (also based on Form.Quality);
+- Support Right-To-Left text rendering;
+- Fix dozens of inconsistencies in drawings (especially in corners and strokes, such as dashes, and in texts with special emojis);
+- Increase the performance of the library in general ([controls](#controls-vclfmx), drawings, among others...).
 
-* [Installation](#installation)
-* [Enabling your project](#enabling-your-project)
+[Learn more...](#fmx-canvas)
+
+  
+
+# Summary
+
+* [Using the library](#using-the-library)
+  * [Prerequisites](#prerequisites)
+    * [Install](#install)
+    * [Enable Skia](#enable-skia)
+  * [Examples](#examples)
+    * [Basic usage](#basic-usage)
+    * [Text Right-to-Left](#text-right-to-left)
+    * [Custom fonts](#custom-fonts)
+    * [Paragraph](#paragraph)
+    * [PDF](#pdf)
+    * [Codecs](#codecs)
+* [Integration with Delphi](#integration-with-delphi)
+  * [Bitmap](#bitmap)
+  * [Image formats](#image-formats)
+  * [FMX Canvas](#fmx-canvas)
+    * [Enable Canvas](#enable-canvas)
+    * [Benchmark](#benchmark)
+    * [Surface](#surface)
+    * [Controls](#controls)
+* [Controls VCL/FMX](#controls-vclfmx)
+  * [TSkAnimatedImage](#tskanimatedimage)
+  * [TSkLabel](#tsklabel)
+  * [TSkPaintBox](#tskpaintbox)
+  * [TSkSvg](#tsksvg)
+    * [Limitations](Documents/SVG.md#limitations)
+* [Compatibility](#compatibility)
 * [Documentation](#documentation)
-* [Basic Usage](#basic-usage)
-* [Text RTL](#text-rtl)
-* [Custom Fonts](#custom-fonts)
-* [Paragraph](#paragraph)
-* [PDF](#pdf)
-* [WebP](#webp)
-* [Controls](#controls)
-  * [PaintBox](#paintbox)
-  * [SVG](#svg)
-  * [Lottie (animation player)](#lottie-animation-player)
-* [TBitmap integration](#tbitmap-integration)
-* [Debug](#debug)
-* [Limitations](#limitations)
 * [Version](#version)
-* [Build](./Documents/BUILD.md)
+
+  
+
+# Using the library
+
+## Prerequisites
+
+### Install
+
+You can install **Skia4Delphi** in 3 ways:
+
+- Setup (recommended)
+
+  Download the setup of [latest release](../../releases/latest) and install it.
+
+  ![Skia4Delphi Installation](Assets/Documents/installation.png)
+
+  
+
+- Embarcadero's GetIt *(RAD Studio > Tools > GetIt Package Manager...)*
+
+  **Coming soon...**
+
+  
+
+- Chocolatey package manager
+
+  **Coming soon...**
+
+  
+
+#### Remarks
+
+1. Manual installation is possible, although it is not recommended; [Learn more...](Documents/INSTALLATION.md)
+2. The pre-built Skia binaries were included in the source, but you can easily recompile them. [Learn more...](Documents/BUILD.md)
+
+  
+
+### Enable Skia
+
+After install the **Skia4Delphi**, just right click in your application project and click **Enable Skia**.
+
+![Menu](https://user-images.githubusercontent.com/16469061/153612703-81a9d1f8-8ae4-4977-b58f-6520a8318756.png#gh-light-mode-only)
+![Menu](https://user-images.githubusercontent.com/16469061/153612789-38488c75-930a-48ac-8a6b-ea303f403e9e.png#gh-dark-mode-only)
 
 
+#### Tip
 
-## Installation
+To improve the quality and performance of FMX drawings, replace the FMX graphics engine with the **Skia4Delphi** graphic engine. [Learn more...](#fmx-canvas)
 
-There are two recommended ways to install the library:
+  
 
-- Install Skia4Delphi via GetIt (RAD Studio > Tools > GetIt Package Manager...)
+## Examples
 
-  ![getit](Assets/Documents/getit.png)
-
-- Or just download and run our setup in [releases page](https://github.com/viniciusfbb/skia4delphi/releases)
-
-  <img src="Assets/Documents/installation1.png" width=340> <img src="Assets/Documents/installation2.png" width=340>
-
-But, if you want, you can also do the manual installation (although it's a lot of work). See the full [documentation of installation](Documents/INSTALLATION.md).
-
-
-
-## Enabling your project
-
-After install the Skia4Delphi, you need to enable your project to be able to run with the skia library. In your IDE, just right click in your application project and "Enable Skia".
-
-![enabling-project](Assets/Documents/enabling_project_dark.png)
-
-Skipping this step, your application startup will get a "runtime error".
-
-Note: You don't need to do this step in package projects that use our units. This step is exclusive for application projects.
-
-
-
-## Documentation
-
-The APIs are very similar to Skia's, few methods and functions have been renamed for readability, so the [Skia documentation](https://skia.org/docs/) can be used.
-Note: Some APIs were not exposed, some because they are deprecated.
-
-
-
-## Basic Usage
-
+In this section you will find some examples of using **Skia4Delphi**, it works in **Console**, **FMX**, and **VCL** applications.
 The code below is common code among all the examples in this section:
 
 ```pascal
+uses
+  Skia;
+
+type
+  TSkDrawExampleProc = reference to procedure(const ACanvas: ISkCanvas; const ADest: TRectF);
+
+procedure DrawExample(const AWidth, AHeight: Integer; const ADrawProc: TSkDrawExampleProc);
 var
-  LImage: ISkImage;
   LSurface: ISkSurface;
 begin
-  LSurface := TSkSurface.MakeRaster(256, 256);
-  Draw(LSurface.Canvas);
-  LImage := LSurface.MakeImageSnapshot;
-  TFile.WriteAllBytes('output.png', LImage.EncodeToBytes(TSkEncodedImageFormat.PNG));
+  LSurface := TSkSurface.MakeRaster(AWidth, AHeight);
+  LSurface.Canvas.Clear(TAlphaColors.Null);
+  ADrawProc(LSurface.Canvas, RectF(0, 0, AWidth, AHeight));
+  LSurface.MakeImageSnapshot.EncodeToFile('output.png');
 end;
 ```
 
-### Shapes
+  
+
+### Basic usage
+
+The code below demonstrate how to draw shapes:
 
 ```pascal
-procedure Draw(const ACanvas: ISkCanvas);
-var
-  LOval: ISkRoundRect;
-  LPaint: ISkPaint;
-  LRect: TRectF;
-begin
-  ACanvas.Clear(TAlphaColors.Null);
-
-  LPaint := TSkPaint.Create;
-  LPaint.Style := TSkPaintStyle.Fill;
-  LPaint.AntiAlias := True;
-  LPaint.StrokeWidth := 4;
-  LPaint.Color := $FF4285F4;
-
-  LRect := TRectF.Create(TPointF.Create(10, 10), 100, 160);
-  ACanvas.DrawRect(LRect, LPaint);
-
-  LOval := TSkRoundRect.Create;
-  LOval.SetOval(LRect);
-  LOval.Offset(40, 80);
-  LPaint.Color := $FFDB4437;
-  ACanvas.DrawRoundRect(LOval, LPaint);
-
-  LPaint.Color := $FF0F9D58;
-  ACanvas.DrawCircle(180, 50, 25, LPaint);
-
-  LRect.Offset(80, 50);
-  LPaint.Color := $FFF4B400;
-  LPaint.Style := TSkPaintStyle.Stroke;
-  ACanvas.DrawRoundRect(LRect, 10, 10, LPaint);
-end;
-```
-
-This code results in the output below:
-
-<img src="Assets/Documents/example1.svg" width=192 height=192>
-
-### Bézier Curves
-
-```pascal
-procedure Draw(const ACanvas: ISkCanvas);
-var
-  LPaint: ISkPaint;
-  LPath: ISkPath;
-  LPathBuilder: ISkPathBuilder;
-begin
-  ACanvas.Clear(TAlphaColors.Null);
-
-  LPaint := TSkPaint.Create;
-  LPaint.Style := TSkPaintStyle.Stroke;
-  LPaint.StrokeWidth := 8;
-  LPaint.Color := $FF4285F4;
-  LPaint.AntiAlias := True;
-  LPaint.StrokeCap := TSkStrokeCap.Round;
-
-  LPathBuilder := TSkPathBuilder.Create;
-  LPathBuilder.MoveTo(10, 10);
-  LPathBuilder.QuadTo(256, 64, 128, 128);
-  LPathBuilder.QuadTo(10, 192, 250, 250);
-  LPath := LPathBuilder.Detach;
-  ACanvas.DrawPath(LPath, LPaint);
-end;
-```
-
-This code results in the output below:
-
-<img src="Assets/Documents/example2.svg" width=192 height=192>
-
-### Translations and Rotations
-
-```pascal
-procedure Draw(const ACanvas: ISkCanvas);
-var
-  LPaint: ISkPaint;
-  LRect: TRectF;
-begin
-  ACanvas.Clear(TAlphaColors.Null);
-
-  ACanvas.Translate(128, 0);
-  ACanvas.Rotate(60);
-  LRect := TRectF.Create(TPointF.Create(0, 0), 200, 100);
-
-  LPaint := TSkPaint.Create;
-  LPaint.AntiAlias := True;
-  LPaint.Color := $FF4285F4;
-  ACanvas.DrawRect(LRect, LPaint);
-
-  ACanvas.Rotate(20);
-  LPaint.Color := $FFDB4437;
-  ACanvas.DrawRect(LRect, LPaint);
-end;
-```
-
-This code results in the output below:
-
-<img src="Assets/Documents/example3.svg" width=192 height=192>
-
-### Text Rendering
-
-```pascal
-procedure Draw(const ACanvas: ISkCanvas);
-var
-  LBlob1: ISkTextBlob;
-  LBlob2: ISkTextBlob;
-  LFont1: ISkFont;
-  LFont2: ISkFont;
-  LPaint1: ISkPaint;
-  LPaint2: ISkPaint;
-  LPaint3: ISkPaint;
-  LTypeface: ISkTypeface;
-begin
-  LTypeface := TSkTypeface.MakeFromName('Monospace', TSkFontStyle.Normal);
-  LFont1 := TSkFont.Create(LTypeface, 64, 1);
-  LFont2 := TSkFont.Create(LTypeface, 64, 1.5);
-  LFont1.Edging := TSkFontEdging.AntiAlias;
-  LFont2.Edging := TSkFontEdging.AntiAlias;
-
-  LBlob1 := TSkTextBlob.Make('Skia', LFont1);
-  LBlob2 := TSkTextBlob.Make('Skia', LFont2);
-
-
-  LPaint1 := TSkPaint.Create;
-  LPaint1.AntiAlias := True;
-  LPaint1.SetARGB($FF, $42, $85, $F4);
-
-  LPaint2 := TSkPaint.Create;
-  LPaint2.AntiAlias := True;
-  LPaint2.SetARGB($FF, $DB, $44, $37);
-  LPaint2.Style := TSkPaintStyle.Stroke;
-  LPaint2.StrokeWidth := 3;
-
-  LPaint3 := TSkPaint.Create;
-  LPaint3.AntiAlias := True;
-  LPaint3.SetARGB($FF, $0F, $9D, $58);
-
-  ACanvas.Clear(TAlphaColors.White);
-  ACanvas.DrawTextBlob(LBlob1, 20, 64, LPaint1);
-  ACanvas.DrawSimpleText('Skia', 20, 154, LFont1, LPaint2);
-  ACanvas.DrawTextBlob(LBlob2, 20, 244, LPaint3);
-end;
-```
-
-This code results in the output below:
-
-![example4](Assets/Documents/example4.png)
-
-### Discrete Path Effects
-
-```pascal
-function Star: ISkPath;
-var
-  I: Integer;
-  LA: Single;
-  LC: Single;
-  LPathBuilder: ISkPathBuilder;
-  LR: Single;
-begin
-  LR := 115.2;
-  LC := 128.0;
-  LPathBuilder := TSkPathBuilder.Create;
-  LPathBuilder.MoveTo(LC + LR, LC);
-  for I := 1 to 7 do
+DrawExample(256, 256,
+  procedure (const ACanvas: ISkCanvas; const ADest: TRectF)
+  var
+    LOval: ISkRoundRect;
+    LPaint: ISkPaint;
+    LRect: TRectF;
   begin
-    LA := 2.6927937 * I;
-    LPathBuilder.LineTo(LC + LR * Cos(LA), LC + LR * Sin(LA));
-  end;
-  Result := LPathBuilder.Detach;
-end;
+    LPaint := TSkPaint.Create;
+    LPaint.AntiAlias := True;
 
-procedure Draw(const ACanvas: ISkCanvas);
-var
-  LPaint: ISkPaint;
-  LPath: ISkPath;
-begin
-  LPaint := TSkPaint.Create;
-  LPaint.PathEffect := TSkPathEffect.MakeDiscrete(10, 4);
-  LPaint.Style := TSkPaintStyle.Stroke;
-  LPaint.StrokeWidth := 2;
-  LPaint.AntiAlias := True;
-  LPaint.Color := $FF4285F4;
-  ACanvas.Clear(TAlphaColors.White);
-  LPath := Star;
-  ACanvas.DrawPath(LPath, LPaint);
-end;
+    LPaint.Color := $FF4285F4;
+    LRect := TRectF.Create(PointF(10, 10), 100, 160);
+    ACanvas.DrawRect(LRect, LPaint);
+
+    LOval := TSkRoundRect.Create;
+    LOval.SetOval(LRect);
+    LOval.Offset(40, 80);
+    LPaint.Color := $FFDB4437;
+    ACanvas.DrawRoundRect(LOval, LPaint);
+
+    LPaint.Color := $FF0F9D58;
+    ACanvas.DrawCircle(180, 50, 25, LPaint);
+
+    LRect.Offset(80, 50);
+    LPaint.Color := $FFF4B400;
+    LPaint.Style := TSkPaintStyle.Stroke;
+    LPaint.StrokeWidth := 4;
+    ACanvas.DrawRoundRect(LRect, 10, 10, LPaint);
+  end);
 ```
 
 This code results in the output below:
 
-![example5](Assets/Documents/example5.png)
+<p><img src="Assets/Documents/example1.svg" width="192" height="192" alt="Example 1" /></p>
 
-### Composed Path Effects
+[Learn more...](Documents/USAGE.md#basic-usage)  
+
+  
+
+### Text Right-to-Left
+
+There are a couple of languages that the direction of the text is from right to left such as Persian, Arabic, Hebrew, and more. With **Skia4Delphi** it is possible to render Right-to-Left. The example below demonstrates how to render a Persian sentence using a text-shaping engine:
 
 ```pascal
-function Star: ISkPath;
-var
-  I: Integer;
-  LA: Single;
-  LC: Single;
-  LPathBuilder: ISkPathBuilder;
-  LR: Single;
-begin
-  LR := 115.2;
-  LC := 128.0;
-  LPathBuilder := TSkPathBuilder.Create;
-  LPathBuilder.MoveTo(LC + LR, LC);
-  for I := 1 to 7 do
+DrawExample(256, 256,
+  procedure (const ACanvas: ISkCanvas; const ADest: TRectF)
+  var
+    LBlob: ISkTextBlob;
+    LFont: ISkFont;
+    LPaint: ISkPaint;
+    LShaper: ISkShaper;
   begin
-    LA := 2.6927937 * I;
-    LPathBuilder.LineTo(LC + LR * Cos(LA), LC + LR * Sin(LA));
-  end;
-  Result := LPathBuilder.Detach;
-end;
+    LFont := TSkFont.Create(TSkTypeface.MakeDefault, 55, 1);
+    LShaper := TSkShaper.Create;
+    LBlob := LShaper.Shape('سلام دنیا!', LFont, False, High(Integer));
 
-procedure Draw(const ACanvas: ISkCanvas);
-var
-  LPaint: ISkPaint;
-  LPath: ISkPath;
-  LIntervals: TArray<Single>;
-  LDashPathEffect: ISkPathEffect;
-  LDiscretePathEffect: ISkPathEffect;
-begin
-  LIntervals := [10, 5, 2, 5];
-  LDashPathEffect := TSkPathEffect.MakeDash(LIntervals, 0);
-  LDiscretePathEffect := TSkPathEffect.MakeDiscrete(10, 4);
-  LPaint := TSkPaint.Create;
-  LPaint.PathEffect := TSkPathEffect.MakeCompose(LDashPathEffect, LDiscretePathEffect);
-  LPaint.Style := TSkPaintStyle.Stroke;
-  LPaint.StrokeWidth := 2;
-  LPaint.AntiAlias := True;
-  LPaint.Color := $FF4285F4;
-  ACanvas.Clear(TAlphaColors.White);
-  LPath := Star;
-  ACanvas.DrawPath(LPath, LPaint);
-end;
+    LPaint := TSkPaint.Create;
+    LPaint.AntiAlias := True;
+    LPaint.Color := TAlphaColors.Tomato;
+
+    ACanvas.DrawTextBlob(LBlob, 0, 0, LPaint);
+  end);
 ```
 
 This code results in the output below:
 
-![example6](Assets/Documents/example6.png)
+<p><img src="Assets/Documents/text-rtl.svg" width="192" height="60" alt="Text RTL" /></p>
 
-### Sum Path Effects
+  
+
+### Custom fonts
+
+With **Skia4Delphi** it is possible to use custom fonts easily, from the file, without the need to install it on the operating system, regardless of the platform. The example below will draw using two custom fonts:
 
 ```pascal
-function Star: ISkPath;
-var
-  I: Integer;
-  LA: Single;
-  LC: Single;
-  LPathBuilder: ISkPathBuilder;
-  LR: Single;
-begin
-  LR := 115.2;
-  LC := 128.0;
-  LPathBuilder := TSkPathBuilder.Create;
-  LPathBuilder.MoveTo(LC + LR, LC);
-  for I := 1 to 7 do
+DrawExample(256, 256,
+  procedure (const ACanvas: ISkCanvas; const ADest: TRectF)
+  var
+    LFont: ISkFont;
+    LPaint: ISkPaint;
   begin
-    LA := 2.6927937 * I;
-    LPathBuilder.LineTo(LC + LR * Cos(LA), LC + LR * Sin(LA));
-  end;
-  Result := LPathBuilder.Detach;
-end;
+    LFont := TSkFont.Create(TSkTypeface.MakeFromFile('Assets\Samples\nunito-extrabold.ttf'), 23);
+    LPaint := TSkPaint.Create;
+    LPaint.Shader := TSkShader.MakeGradientLinear(PointF(0, 0), PointF(256, 145), $FFFF5F5F, $FF5B8DFE, TSkTileMode.Clamp);
 
-procedure Draw(const ACanvas: ISkCanvas);
-var
-  LPaint: ISkPaint;
-  LPath: ISkPath;
-  LIntervals: TArray<Single>;
-  LDashPathEffect1: ISkPathEffect;
-  LDashPathEffect2: ISkPathEffect;
-begin
-  LIntervals := [10, 5, 2, 5];
-  LDashPathEffect1 := TSkPathEffect.MakeDiscrete(10, 4);
-  LDashPathEffect2 := TSkPathEffect.MakeDiscrete(10, 4, 1245);
-  LPaint := TSkPaint.Create;
-  LPaint.PathEffect := TSkPathEffect.MakeSum(LDashPathEffect1, LDashPathEffect2);
-  LPaint.Style := TSkPaintStyle.Stroke;
-  LPaint.StrokeWidth := 2;
-  LPaint.AntiAlias := True;
-  LPaint.Color := $FF4285F4;
-  ACanvas.Clear(TAlphaColors.White);
-  LPath := Star;
-  ACanvas.DrawPath(LPath, LPaint);
-end;
+    ACanvas.DrawSimpleText('"Each dream that you', 2, 25, LFont, LPaint);
+    ACanvas.DrawSimpleText('leave behind is a part', 2, 55, LFont, LPaint);
+    ACanvas.DrawSimpleText('of your future that will', 2, 85, LFont, LPaint);
+    ACanvas.DrawSimpleText('no longer exist."', 2, 115, LFont, LPaint);
+
+    LFont := TSkFont.Create(TSkTypeface.MakeFromFile('Assets\Samples\bonheur-royale-regular.ttf'), 28);
+    LPaint.Shader := nil;
+    LPaint.Color  := $FF5B8DFE;
+    ACanvas.DrawSimpleText('(Steve Jobs)', 2, 150, LFont, LPaint);
+  end);
 ```
-
 This code results in the output below:
 
-![example7](Assets/Documents/example7.png)
+<p><img src="Assets/Documents/text-custom-font.svg" width="256" height="168" alt="Text Custom Font" /></p>
 
-### Shaders
+  
+
+### Paragraph
+
+With **Skia4Delphi** it is possible to render texts with multiple styles, fonts, sizes, and with many settings like the maximum number of lines. The example below demonstrates how to render with SkParagraph:
 
 ```pascal
-function Star: ISkPath;
-var
-  I: Integer;
-  LA: Single;
-  LC: Single;
-  LPathBuilder: ISkPathBuilder;
-  LR: Single;
-  LR2: Single;
-begin
-  LR := 60;
-  LC := 128.0;
-  LPathBuilder := TSkPathBuilder.Create;
-  LPathBuilder.MoveTo(LC + LR, LC);
-  for I := 1 to 14 do
+DrawExample(440, 440,
+  procedure (const ACanvas: ISkCanvas; const ADest: TRectF)
+  var
+    LParagraph: ISkParagraph;
+    LBuilder: ISkParagraphBuilder;
+    LTextStyle: ISkTextStyle;
+    LParagraphStyle: ISkParagraphStyle;
   begin
-    LA := 0.44879895 * I;
-    LR2 := LR + LR * (I mod 2);
-    LPathBuilder.LineTo(LC + LR2 * Cos(LA), LC + LR2 * Sin(LA));
-  end;
-  Result := LPathBuilder.Detach;
-end;
+    LParagraphStyle := TSkParagraphStyle.Create;
+    LParagraphStyle.MaxLines := 3;
+    LParagraphStyle.Ellipsis := '...';
+    LBuilder := TSkParagraphBuilder.Create(LParagraphStyle);
 
-procedure Draw(const ACanvas: ISkCanvas);
-var
-  LPaint: ISkPaint;
-  LPath: ISkPath;
-begin
-  LPaint := TSkPaint.Create;
-  LPaint.PathEffect := TSkPathEffect.MakeDiscrete(10, 4);
-  LPaint.Shader := TSkShader.MakeGradientLinear(TPointF.Create(0, 0), TPointF.Create(256, 256), [$ff4285F4, $ff0F9D58], TSkTileMode.Clamp);
-  LPaint.AntiAlias := True;
-  ACanvas.Clear(TAlphaColors.White);
-  LPath := Star;
-  ACanvas.DrawPath(LPath, LPaint);
-end;
+    LTextStyle := TSkTextStyle.Create;
+    LTextStyle.Color := TAlphaColors.Black;
+    LTextStyle.SetFontSize(28);
+    LTextStyle.SetFontStyle(TSkFontStyle.Create(TSkFontWeight.Light, TSkFontWidth.Normal, TSkFontSlant.Upright));
+    LBuilder.PushStyle(LTextStyle);
+    LBuilder.AddText('English English 字典 字典 😀😅😂😂');
+
+    LTextStyle := TSkTextStyle.Create;
+    LTextStyle.Color := TAlphaColors.Crimson;
+    LTextStyle.SetFontSize(22);
+    LTextStyle.SetFontStyle(TSkFontStyle.Create(TSkFontWeight.SemiBold, TSkFontWidth.Normal, TSkFontSlant.Upright));
+    LBuilder.PushStyle(LTextStyle);
+    LBuilder.AddText(' !سلام دنیا');
+
+    LTextStyle := TSkTextStyle.Create;
+    LTextStyle.Color := TAlphaColors.Blueviolet;
+    LTextStyle.SetFontSize(30);
+    LTextStyle.SetFontStyle(TSkFontStyle.Create(TSkFontWeight.ExtraBold, TSkFontWidth.Normal, TSkFontSlant.Italic));
+    LBuilder.PushStyle(LTextStyle);
+    LBuilder.AddText(' World domination is such an ugly phrase - I prefer to call it world optimisation.');
+
+    LParagraph := LBuilder.Build;
+    LParagraph.Layout(ADest.Width);
+    LParagraph.Paint(ACanvas, 0, 0);
+  end);
 ```
 
 This code results in the output below:
 
-![example8](Assets/Documents/example8.png)
+![Text Paragraph](Assets/Documents/text-paragraph.png)
 
+  
 
+### PDF
 
-## Text RTL
-
-The example below demonstrates how to render a Persian sentence using a text-shaping engine:
-
-```pascal
-procedure Draw(const ACanvas: ISkCanvas);
-var
-  LBlob: ISkTextBlob;
-  LFont: ISkFont;
-  LPaint: ISkPaint;
-  LRunHandler: ISkTextBlobBuilderRunHandler;
-  LShaper: ISkShaper;
-  LText: string;
-begin
-  ACanvas.Clear(TAlphaColors.Null);
-  LFont := TSkFont.Create(TSkTypeface.MakeDefault, 35, 1);
-  LText := '!سلام دنیا';
-
-  LRunHandler := TSkTextBlobBuilderRunHandler.Create(LText, TPointF.Create(0, 0));
-  LShaper := TSkShaper.Create;
-  LShaper.Shape(LText, LFont, True, MaxSingle, LRunHandler);
-  LBlob := LRunHandler.Detach;
-
-  LPaint := TSkPaint.Create;
-  LPaint.AntiAlias := True;
-  LPaint.Color := TAlphaColors.Tomato;
-
-  ACanvas.DrawTextBlob(LBlob, 0, 0, LPaint);
-end;
-```
-
-This code results in the output below:
-
-![text_rtl](Assets/Documents/text_rtl.png)
-
-
-
-## Custom Fonts
-
-With skia, you can easily use custom fonts in your texts, without having to install fonts, just have the ttf file. You will find an example of how to use custom font in our sample. See the result of the sample using 2 custom fonts:
-
-![text_custom_font](Assets/Documents/text_custom_font.png)
-
-
-# Paragraph
-
-With the skia SkParagraph, you can render texts with multiple styles, fonts, sizes, and with many settings like the maximum number of lines. The example below demonstrates how to render with SkParagraph:
-
-```pascal
-var
-  LBitmap: TBitmap;
-begin
-  LBitmap := TBitmap.Create(440, 440);
-  try
-    LBitmap.SkiaDraw(
-      procedure (const ACanvas: ISkCanvas)
-      var
-        LParagraph: ISkParagraph;
-        LBuilder: ISkParagraphBuilder;
-        LTextStyle: ISkTextStyle;
-        LParagraphStyle: ISkParagraphStyle;
-      begin
-        LParagraphStyle := TSkParagraphStyle.Create;
-        LParagraphStyle.TurnHintingOff;
-        LParagraphStyle.MaxLines := 3;
-        LParagraphStyle.Ellipsis := '...';
-        LBuilder := TSkParagraphBuilder.Create(LParagraphStyle);
-
-        LTextStyle := TSkTextStyle.Create;
-        LTextStyle.Color := TAlphaColors.Black;
-        LTextStyle.SetFontSize(28);
-        LTextStyle.SetFontStyle(TSkFontStyle.Create(TSkFontWeight.Light, TSkFontWidth.Normal, TSkFontSlant.Upright));
-        LBuilder.PushStyle(LTextStyle);
-        LBuilder.AddText('English English 字典 字典 😀😅😂😂');
-
-        LTextStyle := TSkTextStyle.Create;
-        LTextStyle.Color := TAlphaColors.Crimson;
-        LTextStyle.SetFontSize(22);
-        LTextStyle.SetFontStyle(TSkFontStyle.Create(TSkFontWeight.SemiBold, TSkFontWidth.Normal, TSkFontSlant.Upright));
-        LBuilder.PushStyle(LTextStyle);
-        LBuilder.AddText(' !سلام دنیا');
-
-        LTextStyle := TSkTextStyle.Create;
-        LTextStyle.Color := TAlphaColors.Blueviolet;
-        LTextStyle.SetFontSize(30);
-        LTextStyle.SetFontStyle(TSkFontStyle.Create(TSkFontWeight.ExtraBold, TSkFontWidth.Normal, TSkFontSlant.Italic));
-        LBuilder.PushStyle(LTextStyle);
-        LBuilder.AddText(' World domination is such an ugly phrase - I prefer to call it world optimisation.');
-
-        LParagraph := LBuilder.Detach;
-        LParagraph.Layout(LBitmap.Width);
-        LParagraph.Render(ACanvas, 0, 0);
-      end);
-
-    LBitmap.SaveToFile('output.png');
-  finally
-    LBitmap.Free;
-  end;
-end;
-```
-
-This code results in the output below:
-
-![text_paragraph](Assets/Documents/text_paragraph.png)
-
-
-
-## PDF
-
-With skia you can create PDF documents and draw anything on them, from text to images. The example below demonstrates how to create an PDF document and draw an SVG inside it:
+With **Skia4Delphi** it is possible to create PDF documents and draw anything on them, from text to images. The example below demonstrates how to create an PDF document and draw an SVG inside it:
 
 ```pascal
 var
   LCanvas: ISkCanvas;
   LDocument: ISkDocument;
-  LDOM: ISkSVGDOM;
-  LPDFStream: TStream;
+  LDocumentStream: TStream;
+  LSVGDOM: ISkSVGDOM;
   LSize: TSizeF;
-  LSVGStream: TStream;
 begin
-  LSVGStream := TFileStream.Create('Assets\Samples\lion.svg', fmOpenRead or fmShareDenyWrite);
-  try
-    LDOM := TSkSVGDOM.Make(LSVGStream);
-  finally
-    LSVGStream.Free;
-  end;
+  LSVGDOM := TSkSVGDOM.MakeFromFile('Assets\Samples\lion.svg');
   LSize := TSizeF.Create(600, 600);
-  LDOM.SetContainerSize(LSize);
+  LSVGDOM.SetContainerSize(LSize);
 
-  LPDFStream := TFileStream.Create('output.pdf', fmCreate);
+  LDocumentStream := TFileStream.Create('output.pdf', fmCreate);
   try
-    LDocument := TSkPDFDocument.Create(LPDFStream);
+    LDocument := TSkDocument.MakePDF(LDocumentStream);
     try
       LCanvas := LDocument.BeginPage(LSize.Width, LSize.Height);
       try
-        LDOM.Render(LCanvas);
+        LSVGDOM.Render(LCanvas);
       finally
         LDocument.EndPage;
       end;
@@ -575,18 +353,53 @@ begin
       LDocument.Close;
     end;
   finally
-    LPDFStream.Free;
+    LDocumentStream.Free;
   end;
 end;
 ```
 
-The example above with **Assets/Samples/lion.svg** SVG file results in the output below:
+This code results in the output below:
 
-<img src="Assets/Samples/lion.svg" width=200 height=200 style="background-color:white;border-style:solid;border-color:black;border-width:1px">
+<p><img src="Assets/Documents/lion.svg" width="200" height="200" alt="Lion" /></p>
 
+  
 
+### Codecs
 
-# WebP
+The **Skia4Delphi** library supports many image formats. See below the list:
+
+- Supported formats for decoding
+
+  | Image Format                   | Extensions  |
+  |--------------------------------|-------------|
+  | Bitmap                         | .bmp        |
+  | GIF                            | .gif        |
+  | Icon                           | .ico        |
+  | JPEG                           | .jpg, .jpeg |
+  | PNG                            | .png        |
+  | Raw Adobe DNG Digital Negative | .dng        |
+  | Raw Canon                      | .cr2        |
+  | Raw Fujifilm RAF               | .raf        |
+  | Raw Nikon                      | .nef, .nrw  |
+  | Raw Olympus ORF                | .orf        |
+  | Raw Panasonic                  | .rw2        |
+  | Raw Pentax PEF                 | .pef        |
+  | Raw Samsung SRW                | .srw        |
+  | Raw Sony                       | .arw        |
+  | WBMP                           | .wbmp       |
+  | WebP                           | .webp       |
+
+- Supported formats for encoding
+
+  | Image Format | Extensions  |
+  |--------------|-------------|
+  | JPEG         | .jpg, .jpeg |
+  | PNG          | .png        |
+  | WebP         | .webp       |
+
+  
+
+#### About WebP
 
 WebP is a modern image format that provides superior lossless and lossy compression for images. WebP lossless images are 26% smaller in size compared to PNGs. WebP lossy images are 25-34% smaller than comparable JPEG images at equivalent quality.
 
@@ -596,31 +409,279 @@ The example below demonstrates how to encoder to WebP format:
 var
   LImage: ISkImage;
 begin
-  LImage := TSkImage.MakeFromEncoded(TFile.ReadAllBytes('Assets\Samples\kung_fu_panda.png'));
-  TFile.WriteAllBytes('output.webp', LImage.EncodeToBytes(TSkEncodedImageFormat.WEBP, 80));
-  TFile.WriteAllBytes('output.jpg', LImage.EncodeToBytes(TSkEncodedImageFormat.JPEG, 80));
+  LImage := TSkImage.MakeFromEncodedFile('Assets\Samples\kung-fu-panda.png');
+  LImage.EncodeToFile('output.webp', TSkEncodedImageFormat.WEBP, 80);
+  LImage.EncodeToFile('output.jpg', TSkEncodedImageFormat.JPEG, 80);
 end;
 ```
 
 This code results in the output below:
 
-<img src="Assets/Documents/kung_fu_panda.webp" width=400>
+<p><img src="Assets/Documents/kung-fu-panda.webp" width="400" alt="King Fu Panda" /></p>
 
 | Format             | Size    |
 |--------------------|---------|
-| Png (100% quality) | 512 KB  |
-| Jpeg (80% quality) | 65.1 KB |
-| WebP (80% quality) | 51.6 KB |
+| Png (100% quality) |  512 KB |
+| Jpeg (80% quality) |   65 KB |
+| WebP (80% quality) |   51 KB |
+
+  
+
+# Integration with Delphi
+
+## Bitmap
+
+It is possible to edit TBitmap (**VCL** or **FMX**) with Skia's Canvas using the code below:
+
+```pascal  
+var
+  LBitmap: TBitmap;
+begin
+  LBitmap := TBitmap.Create(100, 100);
+  try
+    LBitmap.SkiaDraw(
+      procedure (const ACanvas: ISkCanvas)
+      begin
+        // Draw with Skia canvas...
+      end);
+```
+
+  
+
+## Image formats
+
+The library registers the following codecs:
+
+* **VCL**: .svg, .webp, .wbmp and raw images (.arw, .cr2, .dng, .nef, .nrw, .orf, .raf, .rw2, .pef and .srw).
+
+  
+
+* **FMX**: .bmp, .gif, .ico, .webp, .wbmp and raw images (.arw, .cr2, .dng, .nef, .nrw, .orf, .raf, .rw2, .pef and .srw).
+
+As a result, any Delphi control, such as a TImage, can normally load these new formats.
+
+  
+
+## FMX Canvas
+
+It is possible to replace the default Canvas from FMX to Canvas based on Skia. Once this feature is enabled, all FMX controls will be painted using Skia automatically. With that it is possible to improve the quality and performance of the drawings for the FMX as well as for the whole library.
+
+  
+
+### Enable Canvas
+
+Open the source of your Delphi Application Project *(.dpr)*, include the `Skia.FMX` unit  **after** the `FMX.Forms` unit, and set the `GlobalUseSkia` to **True**, as in the example below:
+
+```pascal
+uses
+  System.StartUpCopy,
+  FMX.Forms,
+  Skia.FMX,
+  Unit1 in 'Unit1.pas' {Form1};
+
+{$R *.res}
+
+begin
+  GlobalUseSkia := True;
+  Application.Initialize;
+  ...
+```
+
+  
+
+#### Remarks
+
+1. `Skia.FMX` unit must be included after the `FMX.Forms`;
+2. The **Metal** implementation is experimental, but can be used by including the `FMX.Types` unit **after** the `FMX.Forms` unit, and setting `GlobalUseMetal` to **True** together with `GlobalUseSkia`.
+
+  
+
+### Benchmark
+
+The performance test is a simulation of a real application, with hundreds of controls, to measure the FPS rate when sliding a vertical scroll.
+
+| Device                                | Platform    | FMX    | Skia     |
+| ------------------------------------- | ----------- | -----: | -------: |
+| Motorola Moto 3rd Generation          | Android     | 25 fps | 38 fps   |
+| LG K40s                               | Android     | 30 fps | 47 fps   |
+| Samsung Galaxy A01 Core               | Android     | 20 fps | 26 fps   |
+| Samsung Galaxy S7 Edge                | Android64   | 53 fps | 56 fps   |
+| Samsung Galaxy S8 Plus                | Android64   | 50 fps | 55 fps   |
+| Apple iPhone 11                       | iOSDevice64 | 59 fps | 60 fps   |
+| Apple iPhone 12                       | iOSDevice64 | 59 fps | 59 fps   |
+| Apple MacBook Air Model A2337         | OSXARM64    | 58 fps | 30 fps * |
+| Intel Core i7-8565U / Radeon 520      | Win32       | 82 fps | 92 fps   |
+| Intel Core i7-8565U / Radeon 520      | Win64       | 83 fps | 91 fps   |
+| Intel Core i7-4500U / GeForce GT 720M | Win32       | 85 fps | 92 fps   |
+| Intel Core i7-4500U / GeForce GT 720M | Win64       | 86 fps | 93 fps   |
+
+  
+
+#### Metal
+
+| Device                          | Platform    | FMX    | Skia   |
+| ------------------------------- | ----------- | -----: | -----: |
+| Apple iPhone 11                 | iOSDevice64 | 59 fps | 60 fps |
+| Apple iPhone 12                 | iOSDevice64 | 59 fps | 59 fps |
+| Apple MacBook Air Model A2337   | OSXARM64    | 60 fps | 60 fps |
+
+  
+
+#### Remarks
+
+1. Delphi's `TGPUCanvas` (default Canvas used on cell phones, as well as Apple computers when Metal is enabled) does not use anti-aliasing (anti-aliasing is a technique that improves the quality of diagonal lines) while Skia uses it. That is, Skia has better performance and quality in the drawings than default FMX Canvas.
+    
+    | FMX circle                                     | Skia circle                                      |
+    | ---------------------------------------------- | ------------------------------------------------ |
+    | ![FMX Circle](Assets/Documents/fmx-circle.png) | ![Skia Circle](Assets/Documents/skia-circle.png) |
+    
+2. Firemonkey uses Quartz on macOS, and for **Skia4Delphi** use OpenGL it would be necessary to edit the Delphi runtime library, so we choose to keep the rasterization method and not implement OpenGL on macOS. In the future it is likely that we will set Metal as default, as OpenGL is deprecated in Apple's operating systems. For those who want to use the Skia Canvas on macOS we recommend enabling Metal.
+
+  
+
+### Surface
+
+Using Skia's Canvas, during the Scene of a Bitmap or Control (between the `BeginScene` and `EndScene` calls), it is possible to access the `Surface` property as follows:
+
+```pascal
+uses
+  Skia,
+  Skia.FMX.Graphics;
+
+var
+  LBitmap: TBitmap;
+  LCanvas: ISkCanvas;
+begin
+  LBitmap := TBitmap.Create(300, 300);
+  try
+    if LBitmap.Canvas.BeginScene then
+    begin
+      try
+        LCanvas := TSkCanvasCustom(LBitmap.Canvas).Surface.Canvas;
+        // Draw with LCanvas...
+      finally
+        LBitmap.Canvas.EndScene;
+      end;
+    end;
+  finally
+    LBitmap.Free;
+  end;
+end;
+```
+
+  
+
+#### Remarks
+
+1. `Surface` property will only be available during Scene (between the `BeginScene` and `EndScene` calls);
+2. Canvas for UI (created from a window *eg rectangles, circles, objects inherited from TControl*) must draw exclusively from the **main thread**, while Canvas created from `TBitmap` are **thread safe**.
+
+  
+
+#### Tip
+
+If your application works with many background threads drawing in bitmaps, it is safe to remove the global lock from the `TCanvas` base class, gaining a lot of performance in the drawings. For that it is necessary to make a patch in the unit `FMX.Graphics.pas`.
+
+  
+
+### Controls
+
+Using Skia's Canvas, it is possible to access the Surface property from the `Paint` procedure of a control, to draw directly using Skia, as shown below:
+
+```pascal
+unit Unit1;
+
+interface
+
+uses
+  FMX.Controls,
+  FMX.Graphics,
+  Skia,
+  Skia.FMX.Graphics;
 
 
+type
+  TControl1 = class(TControl)
+  protected
+    procedure Paint; override;
+  end;
 
-## Controls
+implementation
 
-Some controls that help implement skia in your VCL or FMX app:
+{ TControl1 }
 
-### PaintBox
+procedure TControl1.Paint;
+var
+  LCanvas: ISkCanvas;
+begin
+  LCanvas := TSkCanvasCustom(Canvas).Surface.Canvas;
+  // Draw with LCanvas...
+end;
+```
 
-TSkPaintBox is the ideal control for painting directly on the canvas with the event OnDraw:
+  
+
+# Controls VCL/FMX
+
+## TSkAnimatedImage
+
+**TSkAnimatedImage** is the control that can load and render animated images, including vector animations, in a very simple way. The supported formats are:
+
+| Format           | Extensions     |
+|------------------|----------------|
+| Lottie file      | .json, .lottie |
+| Telegram Sticker | .tgs           |
+| Animated GIF     | .gif           |
+| Animated WebP    | .webp          |
+
+  
+
+The example below demonstrates how to play lottie files using **TSkAnimatedImage**:
+
+```pascal
+var
+  LAnimatedImage: TSkAnimatedImage;
+begin
+  LAnimatedimage := TSkAnimatedImage.Create(Self);
+  LAnimatedimage.LoadFromFile('Assets\Samples\rocket.json');
+  LAnimatedimage.Parent := Self;
+end;
+```
+
+The example above results in the output below:
+
+![Rocket](Assets/Documents/rocket.webp)
+
+[Learn more...](Documents/ANIMATED-IMAGES.md#TSkAnimatedImage)
+
+  
+
+## TSkLabel
+
+**TSkLabel** is the control that implements the SkParagraph internally, having several more features than the TLabel, such as:
+
+ - Font families; (font fallback list like in css)
+ - Font weight;
+ - Font slant;
+ - Support for multiple styles in text;
+ - Support for BiDi; (Right-to-Left)
+ - Support justify horizontal alignment;
+ - Support custom font; (without install the font)
+ - Limit the maximum number of lines;
+ - Auto size option; (width and height)
+ - Advanced decorations; (like underline wavy, overline, dashed line, among others...)
+   **and much more...**
+
+![Label](https://user-images.githubusercontent.com/16469061/153615162-e2f51dd6-b22e-4f34-9493-244122faa5ae.png#gh-light-mode-only)
+![Label](https://user-images.githubusercontent.com/16469061/153615217-53e851a3-c20d-4cb9-92fb-b9b18319c342.png#gh-dark-mode-only)
+
+[Learn more...](Documents/LABEL.md#tsklabel)
+
+  
+
+## TSkPaintBox
+
+**TSkPaintBox** is the ideal control for painting with skia api directly on the canvas with the event `OnDraw`:
 
 ```pascal
 procedure TForm1.SkPaintBox1Draw(ASender: TObject; const ACanvas: ISkCanvas;
@@ -629,23 +690,23 @@ var
   LPaint: ISkPaint;
 begin
   LPaint := TSkPaint.Create;
-  LPaint.setShader(TSkShader.MakeGradientSweep(ADest.CenterPoint,
-    [$FFFCE68D, $FFF7CAA5, $FF2EBBC1, $FFFCE68D]));
+  LPaint.Shader := TSkShader.MakeGradientSweep(ADest.CenterPoint,
+    [$FFFCE68D, $FFF7CAA5, $FF2EBBC1, $FFFCE68D]);
   ACanvas.DrawPaint(LPaint);
 end;
 ```
 
 The example above results in the output below:
 
-![paintbox](Assets/Documents/paintbox.png)
+![Paint Box](Assets/Documents/paintbox.png)
 
-Note: The TSkPaintBox has a drawing caching system. To force a drawing refresh, call TSkPaintBox.Redraw.
+*Note: The TSkPaintBox has a drawing caching system. To force a drawing refresh, call TSkPaintBox.Redraw.*
 
+  
 
+## TSkSvg
 
-### SVG
-
-TSkSvg is the control to load and display svgs easily:
+**TSkSvg** is the control to load and display SVG easily:
 
 ```pascal
 var
@@ -657,77 +718,35 @@ begin
 end;
 ```
 
-The **Assets/Samples/gorilla.svg** svg file results in the output below:
+The example above results in the output below:
 
-<img src="Assets/Samples/gorilla.svg" width=200 height=200>
+<p><img src="Assets/Samples/gorilla.svg" width="200" height="200" alt="Gorilla" /></p>
 
-Read more details in the [svg documentation](./Documents/SVG.md).
+[Learn more...](Documents/SVG.md)
 
+  
 
+# Compatibility
 
-### Lottie (animation player)
+| RAD Studio                   | Platforms        |
+|------------------------------|------------------|
+| RAD Studio 11.0 Alexandria   | All Platforms    |
+| RAD Studio 10.3 Rio or newer | Windows, Android |
+| RAD Studio XE7 or newer      | Windows          |
 
-Lottie files are vector animations in json format exported from Adobe After Effects. Like SVG, Lottie file is also a small file but capable of producing high quality animations.
-The example below demonstrates how to play lottie files using our TSkLottieAnimation:
+For the platforms supported by **Skia4Delphi** (listed above), the OS versions supported by the library are the same [OS versions that RAD Studio supports.](https://docwiki.embarcadero.com/PlatformStatus/en/Main_Page)
 
+  
 
-```pascal
-var
-  LLottie: TSkLottieAnimation;
-begin
-  LLottie := TSkLottieAnimation.Create(Self);
-  LLottie.LoadFromFile('Assets\Samples\rocket.json');
-  LLottie.Parent := Self;
-end;
-```
+# Documentation
 
-The **Assets/Samples/rocket.json** file animation results in the output below:
+The APIs are very similar to Skia's, few methods and functions have been renamed for readability, so the [Skia documentation](https://skia.org/docs) can be used.
 
-![skottie](Assets/Documents/rocket.gif)
+  
 
-We also improved TSkLottieAnimation to support **Telegram stickers** (tgs files). Read more about this and other details in the [lottie documentation](./Documents/LOTTIE.md).
+# Version
 
+**[Skia4Delphi Version 3.0.0](/../../releases/latest)**
 
-
-## TBitmap integration
-
-It is possible to edit TBitmap (VCL or FMX) with Skia's Canvas using the code below:
-
-```pascal  
-var
-  LBitmap: TBitmap;
-begin
-  LBitmap := TBitmap.Create(100, 100);
-  try
-    LBitmap.SkiaDraw(
-      procedure (const ACanvas: ISkCanvas)
-      begin
-        // Draw with skia canvas...
-      end);
-```
-
-It is possible to convert an TBimap do ISkImage too, when you need to draw an TBitmap inside an skia draw, using ```LBitmap.ToSkImage```
-
-
-
-## Debug
-
-The **TSkDebug.DebugMessageProc** global property defines the procedure that intercepts messages sent by Skia's **SkDebugf**. By compiling the Skia library in Debug mode it will be possible to detect bugs easily.
-
-
-
-## Limitations
-
- - Unsupported platforms: iOS32, iOSSimulator and OSX32
- - Delphi 10.3 Rio or older, supports only windows platform
- - No support available for versions prior to Delphi XE6
- - [SVG limitations](./Documents/SVG.md#limitations)
-
-
-
-## Version
-
-**Skia4Delphi Version 2.0.1**
-
-Skia Version used: [chrome/m88](https://github.com/google/skia/tree/chrome/m88)
-What has changed from the original code? [Compare.](https://github.com/google/skia/compare/chrome/m88...viniciusfbb:main)
+Skia Version used: [chrome/m98](https://github.com/google/skia/tree/chrome/m98)
+What has changed from the original code? [Compare.](https://github.com/google/skia/compare/chrome/m98...skia4delphi:main)

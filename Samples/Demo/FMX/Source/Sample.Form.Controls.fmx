@@ -1,0 +1,203 @@
+inherited frmControls: TfrmControls
+  DesignerMasterStyle = 0
+  inherited lytContent: TLayout
+    inherited rctHeader: TRectangle
+      inherited lblTitle: TSkLabel
+        Words = <
+          item
+            Text = 'Controls'
+          end>
+      end
+    end
+    inherited sbxContent: TScrollBox
+      object btnTSkSVG: TSpeedButton
+        Align = Top
+        ClipChildren = True
+        Cursor = crHandPoint
+        Padding.Left = 5.000000000000000000
+        Padding.Top = 6.000000000000000000
+        Padding.Right = 21.000000000000000000
+        Margins.Left = 15.000000000000000000
+        Margins.Right = 15.000000000000000000
+        Position.X = 15.000000000000000000
+        Position.Y = 171.000000000000000000
+        Size.Width = 330.000000000000000000
+        Size.Height = 50.000000000000000000
+        Size.PlatformDefault = False
+        StyleLookup = 'speedbuttonstyle_menu'
+        OnClick = btnTSkSVGClick
+        object lblTSkSVGTitle: TSkLabel
+          Align = MostTop
+          Position.X = 5.000000000000000000
+          Position.Y = 6.000000000000000000
+          Size.Width = 304.000000000000000000
+          Size.Height = 19.000000000000000000
+          Size.PlatformDefault = False
+          StyledSettings = [Family, Size, Style, FontColor, Other]
+          StyleLookup = 'sklabelstyle_menu_title'
+          Words = <
+            item
+              Text = 'TSkSVG'
+            end>
+        end
+        object lblTSkSVGDescription: TSkLabel
+          Align = Top
+          Position.X = 5.000000000000000000
+          Position.Y = 120.000000000000000000
+          Size.Width = 304.000000000000000000
+          Size.Height = 19.000000000000000000
+          Size.PlatformDefault = False
+          StyledSettings = [Family, Size, Style, FontColor, Other]
+          StyleLookup = 'sklabelstyle_menu_description'
+          Words = <
+            item
+              Text = 'Load .svg files with many options'
+            end>
+        end
+      end
+      object btnTSkPaintBox: TSpeedButton
+        Align = Top
+        ClipChildren = True
+        Cursor = crHandPoint
+        Padding.Left = 5.000000000000000000
+        Padding.Top = 6.000000000000000000
+        Padding.Right = 21.000000000000000000
+        Margins.Left = 15.000000000000000000
+        Margins.Right = 15.000000000000000000
+        Position.X = 15.000000000000000000
+        Position.Y = 121.000000000000000000
+        Size.Width = 330.000000000000000000
+        Size.Height = 50.000000000000000000
+        Size.PlatformDefault = False
+        StyleLookup = 'speedbuttonstyle_menu'
+        OnClick = btnTSkPaintBoxClick
+        object lblTSkPaintBoxTitle: TSkLabel
+          Align = MostTop
+          Position.X = 5.000000000000000000
+          Position.Y = 6.000000000000000000
+          Size.Width = 304.000000000000000000
+          Size.Height = 19.000000000000000000
+          Size.PlatformDefault = False
+          StyledSettings = [Family, Size, Style, FontColor, Other]
+          StyleLookup = 'sklabelstyle_menu_title'
+          Words = <
+            item
+              Text = 'TSkPaintBox'
+            end>
+        end
+        object lblTSkPaintBoxDescription: TSkLabel
+          Align = Top
+          Position.X = 5.000000000000000000
+          Position.Y = 215.000000000000000000
+          Size.Width = 304.000000000000000000
+          Size.Height = 38.000000000000000000
+          Size.PlatformDefault = False
+          StyledSettings = [Family, Size, Style, FontColor, Other]
+          StyleLookup = 'sklabelstyle_menu_description'
+          Words = <
+            item
+              Text = 'Draw with skia directly inside the TSkPaintBox control'
+            end>
+        end
+      end
+      object btnTSkLabel: TSpeedButton
+        Align = Top
+        ClipChildren = True
+        Cursor = crHandPoint
+        Padding.Left = 5.000000000000000000
+        Padding.Top = 6.000000000000000000
+        Padding.Right = 21.000000000000000000
+        Margins.Left = 15.000000000000000000
+        Margins.Right = 15.000000000000000000
+        Position.X = 15.000000000000000000
+        Position.Y = 71.000000000000000000
+        Size.Width = 330.000000000000000000
+        Size.Height = 50.000000000000000000
+        Size.PlatformDefault = False
+        StyleLookup = 'speedbuttonstyle_menu'
+        OnClick = btnTSkLabelClick
+        object lblTSkLabelTitle: TSkLabel
+          Align = MostTop
+          Position.X = 5.000000000000000000
+          Position.Y = 6.000000000000000000
+          Size.Width = 304.000000000000000000
+          Size.Height = 19.000000000000000000
+          Size.PlatformDefault = False
+          StyledSettings = [Family, Size, Style, FontColor, Other]
+          StyleLookup = 'sklabelstyle_menu_title'
+          Words = <
+            item
+              Text = 'TSkLabel'
+            end>
+        end
+        object lblTSkLabelDescription: TSkLabel
+          Align = Top
+          Position.X = 5.000000000000000000
+          Position.Y = 158.000000000000000000
+          Size.Width = 304.000000000000000000
+          Size.Height = 19.000000000000000000
+          Size.PlatformDefault = False
+          StyledSettings = [Family, Size, Style, FontColor, Other]
+          StyleLookup = 'sklabelstyle_menu_description'
+          Words = <
+            item
+              Text = 'Create multi-styled texts with advanced options'
+            end>
+        end
+      end
+      object btnTSkAnimatedImage: TSpeedButton
+        Align = Top
+        ClipChildren = True
+        Cursor = crHandPoint
+        Padding.Left = 5.000000000000000000
+        Padding.Top = 6.000000000000000000
+        Padding.Right = 21.000000000000000000
+        Margins.Left = 15.000000000000000000
+        Margins.Right = 15.000000000000000000
+        Position.X = 15.000000000000000000
+        Position.Y = 21.000000000000000000
+        Size.Width = 330.000000000000000000
+        Size.Height = 50.000000000000000000
+        Size.PlatformDefault = False
+        StyleLookup = 'speedbuttonstyle_menu'
+        OnClick = btnTSkAnimatedImageClick
+        object lblTSkAnimatedImageTitle: TSkLabel
+          Align = MostTop
+          Position.X = 5.000000000000000000
+          Position.Y = 6.000000000000000000
+          Size.Width = 304.000000000000000000
+          Size.Height = 19.000000000000000000
+          Size.PlatformDefault = False
+          StyledSettings = [Family, Size, Style, FontColor, Other]
+          StyleLookup = 'sklabelstyle_menu_title'
+          Words = <
+            item
+              Text = 'TSkAnimatedImage'
+            end>
+        end
+        object lblTSkAnimatedImageDescription: TSkLabel
+          Align = Top
+          Position.X = 5.000000000000000000
+          Position.Y = 310.000000000000000000
+          Size.Width = 304.000000000000000000
+          Size.Height = 38.000000000000000000
+          Size.PlatformDefault = False
+          StyledSettings = [Family, Size, Style, FontColor, Other]
+          StyleLookup = 'sklabelstyle_menu_description'
+          Words = <
+            item
+              Text = 'Load animations like lottie, telegram stickers and gif'
+            end>
+        end
+      end
+      object lytContentTopOffset: TLayout
+        Align = MostTop
+        Margins.Bottom = 20.000000000000000000
+        Size.Width = 360.000000000000000000
+        Size.Height = 1.000000000000000000
+        Size.PlatformDefault = False
+        TabOrder = 4
+      end
+    end
+  end
+end

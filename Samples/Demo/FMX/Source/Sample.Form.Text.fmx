@@ -1,0 +1,293 @@
+inherited frmText: TfrmText
+  DesignerMasterStyle = 0
+  inherited lytContent: TLayout
+    inherited rctHeader: TRectangle
+      inherited lblTitle: TSkLabel
+        Words = <
+          item
+            Text = 'Text'
+          end>
+      end
+    end
+    inherited sbxContent: TScrollBox
+      object btnTSkLabel: TSpeedButton
+        Align = Top
+        ClipChildren = True
+        Cursor = crHandPoint
+        Padding.Left = 5.000000000000000000
+        Padding.Top = 6.000000000000000000
+        Padding.Right = 21.000000000000000000
+        Margins.Left = 15.000000000000000000
+        Margins.Right = 15.000000000000000000
+        Position.X = 15.000000000000000000
+        Position.Y = 271.000000000000000000
+        Size.Width = 330.000000000000000000
+        Size.Height = 50.000000000000000000
+        Size.PlatformDefault = False
+        StyleLookup = 'speedbuttonstyle_menu'
+        OnClick = btnTSkLabelClick
+        object lblTSkLabelTitle: TSkLabel
+          Align = MostTop
+          Position.X = 5.000000000000000000
+          Position.Y = 6.000000000000000000
+          Size.Width = 304.000000000000000000
+          Size.Height = 19.000000000000000000
+          Size.PlatformDefault = False
+          StyledSettings = [Family, Size, Style, FontColor, Other]
+          StyleLookup = 'sklabelstyle_menu_title'
+          Words = <
+            item
+              Text = 'TSkLabel Control'
+            end>
+        end
+        object lblTSkLabelDescription: TSkLabel
+          Align = Top
+          Position.X = 5.000000000000000000
+          Position.Y = 25.000000000000000000
+          Size.Width = 304.000000000000000000
+          Size.Height = 15.000000000000000000
+          Size.PlatformDefault = False
+          StyledSettings = [Family, Size, Style, FontColor, Other]
+          StyleLookup = 'sklabelstyle_menu_description'
+          Words = <
+            item
+              Text = 'Use the Skia4Delphi visual components'
+            end>
+        end
+      end
+      object btnParagraphToPath: TSpeedButton
+        Align = Top
+        ClipChildren = True
+        Cursor = crHandPoint
+        Padding.Left = 5.000000000000000000
+        Padding.Top = 6.000000000000000000
+        Padding.Right = 21.000000000000000000
+        Margins.Left = 15.000000000000000000
+        Margins.Right = 15.000000000000000000
+        Position.X = 15.000000000000000000
+        Position.Y = 221.000000000000000000
+        Size.Width = 330.000000000000000000
+        Size.Height = 50.000000000000000000
+        Size.PlatformDefault = False
+        StyleLookup = 'speedbuttonstyle_menu'
+        OnClick = btnParagraphToPathClick
+        object lblParagraphToPathTitle: TSkLabel
+          Align = MostTop
+          Position.X = 5.000000000000000000
+          Position.Y = 6.000000000000000000
+          Size.Width = 304.000000000000000000
+          Size.Height = 19.000000000000000000
+          Size.PlatformDefault = False
+          StyledSettings = [Family, Size, Style, FontColor, Other]
+          StyleLookup = 'sklabelstyle_menu_title'
+          Words = <
+            item
+              Text = 'Paragraph to Path'
+            end>
+        end
+        object lblParagraphToPathDescription: TSkLabel
+          Align = Top
+          Position.X = 5.000000000000000000
+          Position.Y = 25.000000000000000000
+          Size.Width = 304.000000000000000000
+          Size.Height = 15.000000000000000000
+          Size.PlatformDefault = False
+          StyledSettings = [Family, Size, Style, FontColor, Other]
+          StyleLookup = 'sklabelstyle_menu_description'
+          Words = <
+            item
+              Text = 'Get the text path using the SkParagraph'
+            end>
+        end
+      end
+      object btnParagraph: TSpeedButton
+        Align = Top
+        ClipChildren = True
+        Cursor = crHandPoint
+        Padding.Left = 5.000000000000000000
+        Padding.Top = 6.000000000000000000
+        Padding.Right = 21.000000000000000000
+        Margins.Left = 15.000000000000000000
+        Margins.Right = 15.000000000000000000
+        Position.X = 15.000000000000000000
+        Position.Y = 171.000000000000000000
+        Size.Width = 330.000000000000000000
+        Size.Height = 50.000000000000000000
+        Size.PlatformDefault = False
+        StyleLookup = 'speedbuttonstyle_menu'
+        OnClick = btnParagraphClick
+        object lblParagraphTitle: TSkLabel
+          Align = MostTop
+          Position.X = 5.000000000000000000
+          Position.Y = 6.000000000000000000
+          Size.Width = 304.000000000000000000
+          Size.Height = 19.000000000000000000
+          Size.PlatformDefault = False
+          StyledSettings = [Family, Size, Style, FontColor, Other]
+          StyleLookup = 'sklabelstyle_menu_title'
+          Words = <
+            item
+              Text = 'Paragraph (Multi-Style Text)'
+            end>
+        end
+        object lblParagraphDescription: TSkLabel
+          Align = Top
+          Position.X = 5.000000000000000000
+          Position.Y = 25.000000000000000000
+          Size.Width = 304.000000000000000000
+          Size.Height = 15.000000000000000000
+          Size.PlatformDefault = False
+          StyledSettings = [Family, Size, Style, FontColor, Other]
+          StyleLookup = 'sklabelstyle_menu_description'
+          Words = <
+            item
+              Text = 'Multiple styles, sizes and fonts along text using SkParagraph'
+            end>
+        end
+      end
+      object btnCustomFont: TSpeedButton
+        Align = Top
+        ClipChildren = True
+        Cursor = crHandPoint
+        Padding.Left = 5.000000000000000000
+        Padding.Top = 6.000000000000000000
+        Padding.Right = 21.000000000000000000
+        Margins.Left = 15.000000000000000000
+        Margins.Right = 15.000000000000000000
+        Position.X = 15.000000000000000000
+        Position.Y = 121.000000000000000000
+        Size.Width = 330.000000000000000000
+        Size.Height = 50.000000000000000000
+        Size.PlatformDefault = False
+        StyleLookup = 'speedbuttonstyle_menu'
+        OnClick = btnCustomFontClick
+        object lblCustomFontTitle: TSkLabel
+          Align = MostTop
+          Position.X = 5.000000000000000000
+          Position.Y = 6.000000000000000000
+          Size.Width = 304.000000000000000000
+          Size.Height = 19.000000000000000000
+          Size.PlatformDefault = False
+          StyledSettings = [Family, Size, Style, FontColor, Other]
+          StyleLookup = 'sklabelstyle_menu_title'
+          Words = <
+            item
+              Text = 'Using Custom Font'
+            end>
+        end
+        object lblCustomFontDescription: TSkLabel
+          Align = Top
+          Position.X = 5.000000000000000000
+          Position.Y = 25.000000000000000000
+          Size.Width = 304.000000000000000000
+          Size.Height = 15.000000000000000000
+          Size.PlatformDefault = False
+          StyledSettings = [Family, Size, Style, FontColor, Other]
+          StyleLookup = 'sklabelstyle_menu_description'
+          Words = <
+            item
+              Text = 'Render custom fonts using just the .ttf or .otf file'
+            end>
+        end
+      end
+      object btnRTL: TSpeedButton
+        Align = Top
+        ClipChildren = True
+        Cursor = crHandPoint
+        Padding.Left = 5.000000000000000000
+        Padding.Top = 6.000000000000000000
+        Padding.Right = 21.000000000000000000
+        Margins.Left = 15.000000000000000000
+        Margins.Right = 15.000000000000000000
+        Position.X = 15.000000000000000000
+        Position.Y = 71.000000000000000000
+        Size.Width = 330.000000000000000000
+        Size.Height = 50.000000000000000000
+        Size.PlatformDefault = False
+        StyleLookup = 'speedbuttonstyle_menu'
+        OnClick = btnRTLClick
+        object lblRTLTitle: TSkLabel
+          Align = MostTop
+          Position.X = 5.000000000000000000
+          Position.Y = 6.000000000000000000
+          Size.Width = 304.000000000000000000
+          Size.Height = 19.000000000000000000
+          Size.PlatformDefault = False
+          StyledSettings = [Family, Size, Style, FontColor, Other]
+          StyleLookup = 'sklabelstyle_menu_title'
+          Words = <
+            item
+              Text = 'Drawing RTL (Right-to-left)'
+            end>
+        end
+        object lblRTLDescription: TSkLabel
+          Align = Top
+          Position.X = 5.000000000000000000
+          Position.Y = 25.000000000000000000
+          Size.Width = 304.000000000000000000
+          Size.Height = 15.000000000000000000
+          Size.PlatformDefault = False
+          StyledSettings = [Family, Size, Style, FontColor, Other]
+          StyleLookup = 'sklabelstyle_menu_description'
+          Words = <
+            item
+              Text = 'Draw RTL languages like Arabic, Hebrew, and Persian'
+            end>
+        end
+      end
+      object btnBasicTexts: TSpeedButton
+        Align = Top
+        ClipChildren = True
+        Cursor = crHandPoint
+        Padding.Left = 5.000000000000000000
+        Padding.Top = 6.000000000000000000
+        Padding.Right = 21.000000000000000000
+        Margins.Left = 15.000000000000000000
+        Margins.Right = 15.000000000000000000
+        Position.X = 15.000000000000000000
+        Position.Y = 21.000000000000000000
+        Size.Width = 330.000000000000000000
+        Size.Height = 50.000000000000000000
+        Size.PlatformDefault = False
+        StyleLookup = 'speedbuttonstyle_menu'
+        OnClick = btnBasicTextsClick
+        object lblBasicTextsTitle: TSkLabel
+          Align = MostTop
+          Position.X = 5.000000000000000000
+          Position.Y = 6.000000000000000000
+          Size.Width = 304.000000000000000000
+          Size.Height = 19.000000000000000000
+          Size.PlatformDefault = False
+          StyledSettings = [Family, Size, Style, FontColor, Other]
+          StyleLookup = 'sklabelstyle_menu_title'
+          Words = <
+            item
+              Text = 'Drawing Basic Texts'
+            end>
+        end
+        object lblBasicTextsDescription: TSkLabel
+          Align = Top
+          Position.X = 5.000000000000000000
+          Position.Y = 25.000000000000000000
+          Size.Width = 304.000000000000000000
+          Size.Height = 15.000000000000000000
+          Size.PlatformDefault = False
+          StyledSettings = [Family, Size, Style, FontColor, Other]
+          StyleLookup = 'sklabelstyle_menu_description'
+          Words = <
+            item
+              Text = 'The simplest way to draw basics texts'
+            end>
+        end
+      end
+      object lytContentTopOffset: TLayout
+        Align = MostTop
+        Margins.Bottom = 20.000000000000000000
+        Size.Width = 360.000000000000000000
+        Size.Height = 1.000000000000000000
+        Size.PlatformDefault = False
+        TabOrder = 4
+      end
+    end
+  end
+end

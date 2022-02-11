@@ -1,0 +1,53 @@
+inherited frmUnicodeGraphemesViewer: TfrmUnicodeGraphemesViewer
+  DesignerMasterStyle = 0
+  inherited lytContent: TLayout
+    inherited rctHeader: TRectangle
+      inherited lblTitle: TSkLabel
+        Words = <
+          item
+            Text = 'Unicode Graphemes'
+          end>
+      end
+    end
+    inherited sbxContent: TScrollBox
+      object lblResult: TSkLabel
+        Position.X = 10.000000000000000000
+        Position.Y = 10.000000000000000000
+        Size.Width = 89.000000000000000000
+        Size.Height = 133.000000000000000000
+        Size.PlatformDefault = False
+        TextSettings.Font.Families = 'Consolas'
+        TextSettings.Font.Size = 15.000000000000000000
+        TextSettings.VertAlign = Leading
+        Words = <
+          item
+            Font.Weight = Bold
+            Name = 'TextTitle'
+            StyledSettings = [Family, Size, FontColor]
+            Text = 'Text:'#13#10'  '
+          end
+          item
+            Name = 'Text'
+          end
+          item
+            Font.Weight = Bold
+            Name = 'LengthTitle'
+            StyledSettings = [Family, Size, FontColor]
+            Text = #13#10#13#10'Length(Text):'#13#10'  '
+          end
+          item
+            Name = 'Length'
+          end
+          item
+            Font.Weight = Bold
+            Name = 'GraphemesTitle'
+            StyledSettings = [Family, Size, FontColor]
+            Text = #13#10#13#10'Graphemes:'
+          end
+          item
+            Name = 'Graphemes'
+          end>
+      end
+    end
+  end
+end

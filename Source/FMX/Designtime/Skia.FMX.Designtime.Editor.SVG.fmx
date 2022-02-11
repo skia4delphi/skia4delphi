@@ -9,12 +9,7 @@ object SkSvgEditorForm: TSkSvgEditorForm
   FormFactor.Height = 480
   FormFactor.Devices = [Desktop]
   OnKeyDown = FormKeyDown
-  DesignerMobile = False
-  DesignerWidth = 0
-  DesignerHeight = 0
-  DesignerDeviceName = ''
-  DesignerOrientation = 0
-  DesignerOSVersion = ''
+  DesignerMasterStyle = 0
   object sdgSaveDialog: TSaveDialog
     DefaultExt = 'svg'
     Filter = 'Vector image SVG (*.svg)|*.svg'
@@ -35,100 +30,109 @@ object SkSvgEditorForm: TSkSvgEditorForm
   end
   object lytContent: TLayout
     Align = Client
-    Height = 366.000000000000000000
     HitTest = True
-    Width = 490.000000000000000000
+    Size.Width = 490.000000000000000000
+    Size.Height = 366.000000000000000000
+    Size.PlatformDefault = False
     TabOrder = 3
     OnDragOver = lytContentDragOver
     OnDragDrop = lytContentDragDrop
     object lytRightMenu: TLayout
       Align = Right
-      Height = 366.000000000000000000
       Padding.Left = 8.000000000000000000
       Padding.Top = 8.000000000000000000
       Padding.Right = 8.000000000000000000
       Padding.Bottom = 8.000000000000000000
       Position.X = 330.000000000000000000
-      Width = 160.000000000000000000
+      Size.Width = 160.000000000000000000
+      Size.Height = 366.000000000000000000
+      Size.PlatformDefault = False
       TabOrder = 0
       object btnOpen: TSpeedButton
         Align = Top
-        Height = 34.000000000000000000
         Margins.Bottom = 6.000000000000000000
         Position.X = 8.000000000000000000
         Position.Y = 8.000000000000000000
+        Size.Width = 144.000000000000000000
+        Size.Height = 34.000000000000000000
+        Size.PlatformDefault = False
         StyleLookup = 'buttonstyle'
         Text = 'Open'
-        Width = 144.000000000000000000
         OnClick = btnOpenClick
       end
       object btnSave: TSpeedButton
         Align = Top
         Enabled = False
-        Height = 34.000000000000000000
         Margins.Bottom = 6.000000000000000000
         Position.X = 8.000000000000000000
         Position.Y = 48.000000000000000000
+        Size.Width = 144.000000000000000000
+        Size.Height = 34.000000000000000000
+        Size.PlatformDefault = False
         StyleLookup = 'buttonstyle'
         Text = 'Save'
-        Width = 144.000000000000000000
         OnClick = btnSaveClick
       end
       object btnOk: TSpeedButton
         Align = Top
-        Height = 34.000000000000000000
         ModalResult = 1
         Margins.Bottom = 6.000000000000000000
         Position.X = 8.000000000000000000
         Position.Y = 88.000000000000000000
+        Size.Width = 144.000000000000000000
+        Size.Height = 34.000000000000000000
+        Size.PlatformDefault = False
         StyleLookup = 'buttonstyle'
         Text = 'Ok'
-        Width = 144.000000000000000000
       end
       object btnCancel: TSpeedButton
         Align = Top
-        Height = 34.000000000000000000
         ModalResult = 2
         Margins.Bottom = 6.000000000000000000
         Position.X = 8.000000000000000000
         Position.Y = 128.000000000000000000
+        Size.Width = 144.000000000000000000
+        Size.Height = 34.000000000000000000
+        Size.PlatformDefault = False
         StyleLookup = 'buttonstyle'
         Text = 'Cancel'
-        Width = 144.000000000000000000
       end
       object btnClear: TSpeedButton
         Align = Top
         Enabled = False
-        Height = 34.000000000000000000
         Margins.Bottom = 6.000000000000000000
         Position.X = 8.000000000000000000
         Position.Y = 168.000000000000000000
+        Size.Width = 144.000000000000000000
+        Size.Height = 34.000000000000000000
+        Size.PlatformDefault = False
         StyleLookup = 'buttonstyle'
         Text = 'Clear'
-        Width = 144.000000000000000000
         OnClick = btnClearClick
       end
     end
     object tbcContent: TTabControl
       Align = Client
-      Height = 366.000000000000000000
       HitTest = False
+      Size.Width = 330.000000000000000000
+      Size.Height = 366.000000000000000000
+      Size.PlatformDefault = False
       TabHeight = 36.000000000000000000
       TabIndex = 0
       TabOrder = 1
       TabPosition = Bottom
-      Width = 330.000000000000000000
       OnChange = memSourceChangeTracking
       object tbiPreview: TTabItem
         AutoSize = False
         CustomIcon = <
           item
           end>
-        Height = 36.000000000000000000
         IsSelected = True
+        Size.Width = 100.000000000000000000
+        Size.Height = 36.000000000000000000
+        Size.PlatformDefault = False
         TabOrder = 0
         Text = 'Preview'
-        Width = 100.000000000000000000
         object rctPreviewBackground: TRectangle
           Align = Client
           Fill.Bitmap.Bitmap.PNG = {
@@ -139,10 +143,11 @@ object SkSvgEditorForm: TSkSvgEditorForm
             000049454E44AE426082}
           Fill.Bitmap.WrapMode = Tile
           Fill.Kind = Bitmap
-          Height = 330.000000000000000000
           HitTest = False
+          Size.Width = 330.000000000000000000
+          Size.Height = 330.000000000000000000
+          Size.PlatformDefault = False
           Stroke.Kind = None
-          Width = 330.000000000000000000
         end
       end
       object tbiSource: TTabItem
@@ -150,17 +155,19 @@ object SkSvgEditorForm: TSkSvgEditorForm
         CustomIcon = <
           item
           end>
-        Height = 36.000000000000000000
         IsSelected = False
+        Size.Width = 100.000000000000000000
+        Size.Height = 36.000000000000000000
+        Size.PlatformDefault = False
         TabOrder = 0
         Text = 'Source'
-        Width = 100.000000000000000000
         object memSource: TMemo
           Touch.InteractiveGestures = [Pan, LongTap, DoubleTap]
           Align = Client
-          Height = 330.000000000000000000
+          Size.Width = 330.000000000000000000
+          Size.Height = 330.000000000000000000
+          Size.PlatformDefault = False
           TabOrder = 0
-          Width = 330.000000000000000000
           OnDragOver = lytContentDragOver
           OnDragDrop = lytContentDragDrop
           TextSettings.Font.Family = 'Consolas'

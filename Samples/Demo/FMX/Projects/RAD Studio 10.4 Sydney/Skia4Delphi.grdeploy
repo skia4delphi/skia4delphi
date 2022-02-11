@@ -1,0 +1,13 @@
+{
+  "Configurations" : ["Release", "Debug"],
+  "iOS" : [],
+  "Android" : [{
+      "LocalName" : "..\\..\\..\\..\\..\\Assets\\Samples",
+      "RemoteDir" : "assets\\internal\\",
+      "Configurations" : [],
+      "IsDirectory" : true,
+      "IncludeSubDirectories" : true
+    }],
+  "MacOS" : [],
+  "Linux" : []
+}

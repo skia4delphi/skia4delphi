@@ -1,0 +1,27 @@
+object frmMain: TfrmMain
+  Left = 0
+  Top = 0
+  Caption = 'Firemonkey FPS Benchmark'
+  ClientHeight = 732
+  ClientWidth = 640
+  Position = ScreenCenter
+  FormFactor.Width = 320
+  FormFactor.Height = 480
+  FormFactor.Devices = [Desktop]
+  OnCreate = FormCreate
+  DesignerMasterStyle = 0
+  object vsbContent: TVertScrollBox
+    Align = Client
+    HitTest = False
+    Size.Width = 640.000000000000000000
+    Size.Height = 732.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 0
+  end
+  object tmrSimulateScroll: TTimer
+    Enabled = False
+    OnTimer = tmrSimulateScrollTimer
+    Left = 304
+    Top = 352
+  end
+end

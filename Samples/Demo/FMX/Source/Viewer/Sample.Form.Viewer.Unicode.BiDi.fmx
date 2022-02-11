@@ -1,0 +1,44 @@
+inherited frmUnicodeBiDiViewer: TfrmUnicodeBiDiViewer
+  DesignerMasterStyle = 0
+  inherited lytContent: TLayout
+    inherited rctHeader: TRectangle
+      inherited lblTitle: TSkLabel
+        Words = <
+          item
+            Text = 'Unicode BiDi'
+          end>
+      end
+    end
+    inherited sbxContent: TScrollBox
+      object lblResult: TSkLabel
+        Position.X = 10.000000000000000000
+        Position.Y = 10.000000000000000000
+        Size.Width = 81.000000000000000000
+        Size.Height = 76.000000000000000000
+        Size.PlatformDefault = False
+        TextSettings.Font.Families = 'Consolas'
+        TextSettings.Font.Size = 15.000000000000000000
+        TextSettings.VertAlign = Leading
+        Words = <
+          item
+            Font.Weight = Bold
+            Name = 'TextTitle'
+            StyledSettings = [Family, Size, FontColor]
+            Text = 'Text:'#13#10'  '
+          end
+          item
+            Name = 'Text'
+          end
+          item
+            Font.Weight = Bold
+            Name = 'BiDiRegionTitle'
+            StyledSettings = [Family, Size, FontColor]
+            Text = #13#10#13#10'BiDi Region:'
+          end
+          item
+            Name = 'BiDiRegion'
+          end>
+      end
+    end
+  end
+end

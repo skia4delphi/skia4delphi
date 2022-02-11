@@ -2,8 +2,8 @@
 {                                                                        }
 {                              Skia4Delphi                               }
 {                                                                        }
-{ Copyright (c) 2011-2021 Google LLC.                                    }
-{ Copyright (c) 2021 Skia4Delphi Project.                                }
+{ Copyright (c) 2011-2022 Google LLC.                                    }
+{ Copyright (c) 2021-2022 Skia4Delphi Project.                           }
 {                                                                        }
 { Use of this source code is governed by a BSD-style license that can be }
 { found in the LICENSE file.                                             }
@@ -86,6 +86,7 @@ implementation
 
 uses
   { Delphi }
+  System.Types,
   System.IOUtils,
   System.Math,
   Vcl.Clipbrd,
@@ -214,9 +215,9 @@ procedure TSkSvgEditorForm.FormResize(ASender: TObject);
             LBitmap.Free;
           end;
           LPaint := TSkPaint.Create;
-          LPaint.Shader := LImage.MakeShader(TSkTileMode.Replicate, TSkTileMode.Replicate);
+          LPaint.Shader := LImage.MakeShader(TSkTileMode.Repeat, TSkTileMode.Repeat);
           LPaint.Style := TSkPaintStyle.Fill;
-          ACanvas.DrawRect(ACanvas.GetLocalClipBounds, LPaint);
+          ACanvas.DrawRect(TRectF.Create(0, 0, ATarget.Width, ATarget.Height), LPaint);
         end);
       ATarget.Picture.Bitmap := LBitmap;
     finally

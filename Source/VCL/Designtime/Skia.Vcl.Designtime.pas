@@ -2,8 +2,8 @@
 {                                                                        }
 {                              Skia4Delphi                               }
 {                                                                        }
-{ Copyright (c) 2011-2021 Google LLC.                                    }
-{ Copyright (c) 2021 Skia4Delphi Project.                                }
+{ Copyright (c) 2011-2022 Google LLC.                                    }
+{ Copyright (c) 2021-2022 Skia4Delphi Project.                           }
 {                                                                        }
 { Use of this source code is governed by a BSD-style license that can be }
 { found in the LICENSE file.                                             }
@@ -27,30 +27,44 @@ uses
   Vcl.Forms,
   DesignEditors,
   DesignIntf,
+  StrEdit,
 
   { Skia }
   Skia.Vcl,
-  Skia.Vcl.Designtime.Editor.Lottie,
+  Skia.Vcl.Designtime.Editor.AnimatedImage,
   Skia.Vcl.Designtime.Editor.SVG;
 
 type
-  { TSkLottieSourcePropertyEditor }
+  { TSkAnimatedImageSourcePropertyEditor }
 
-  TSkLottieSourcePropertyEditor = class(TPropertyEditor)
+  TSkAnimatedImageSourcePropertyEditor = class(TPropertyEditor)
   protected
     function GetIsDefault: Boolean; override;
   public
+    procedure Edit; override;
     function GetAttributes: TPropertyAttributes; override;
     function GetValue: string; override;
-    procedure Edit; override;
-    class function TryEdit(var ASource: TSkLottieSource): Boolean; static;
+    class function TryEdit(var AData: TBytes): Boolean; static;
   end;
 
-  { TSkLottieComponentEditor }
+  { TSkAnimatedImageComponentEditor }
 
-  TSkLottieComponentEditor = class(TDefaultEditor)
+  TSkAnimatedImageComponentEditor = class(TDefaultEditor)
   public
     procedure Edit; override;
+  end;
+
+  { TSkLabelTextPropertyEditor }
+
+  TSkLabelTextPropertyEditor = class(TStringListProperty)
+  private
+    FStrings: TStrings;
+  protected
+    function GetStrings: TStrings; override;
+    procedure SetStrings(const AValue: TStrings); override;
+  public
+    procedure Edit; override;
+    function GetValue: string; override;
   end;
 
   { TSkSvgSourcePropertyEditor }
@@ -74,57 +88,95 @@ type
 
 {$R ..\..\Assets\Resources\Components.dcr}
 
-{ TSkLottieSourcePropertyEditor }
+{ TSkAnimatedImageSourcePropertyEditor }
 
-procedure TSkLottieSourcePropertyEditor.Edit;
+procedure TSkAnimatedImageSourcePropertyEditor.Edit;
 var
-  LSource: TSkLottieSource;
+  LData: TBytes;
 begin
-  LSource := TSkLottieSource(GetStrValue);
-  if TryEdit(LSource) then
-    SetStrValue(LSource);
+  LData := TSkAnimatedImage(GetComponent(0)).Source.Data;
+  if TryEdit(LData) then
+  begin
+    TSkAnimatedImage(GetComponent(0)).Source.Data := LData;
+    Modified;
+  end;
 end;
 
-function TSkLottieSourcePropertyEditor.GetAttributes: TPropertyAttributes;
+function TSkAnimatedImageSourcePropertyEditor.GetAttributes: TPropertyAttributes;
 begin
   Result := [paDialog];
 end;
 
-function TSkLottieSourcePropertyEditor.GetIsDefault: Boolean;
-var
-  LSource: TSkLottieSource;
+function TSkAnimatedImageSourcePropertyEditor.GetIsDefault: Boolean;
 begin
-  LSource := TSkLottieSource(GetStrValue);
-  Result := LSource <> '';
+  Result := TSkAnimatedImage(GetComponent(0)).Source.Data <> nil;
 end;
 
-function TSkLottieSourcePropertyEditor.GetValue: string;
+function TSkAnimatedImageSourcePropertyEditor.GetValue: string;
 begin
-  Result := '(TSkLottieSource)';
+  Result := 'TSkAnimatedImage.TSource';
 end;
 
-class function TSkLottieSourcePropertyEditor.TryEdit(
-  var ASource: TSkLottieSource): Boolean;
+class function TSkAnimatedImageSourcePropertyEditor.TryEdit(
+  var AData: TBytes): Boolean;
 var
-  LLottieEditorForm: TSkLottieEditorForm;
+  LAnimatedImageEditorForm: TSkAnimatedImageEditorForm;
 begin
-  LLottieEditorForm := TSkLottieEditorForm.Create(Application);
+  LAnimatedImageEditorForm := TSkAnimatedImageEditorForm.Create(Application);
   try
-    Result := LLottieEditorForm.ShowModal(ASource) = mrOk;
+    Result := LAnimatedImageEditorForm.ShowModal(AData) = mrOk;
   finally
-    LLottieEditorForm.Free;
+    LAnimatedImageEditorForm.Free;
   end;
 end;
 
-{ TSkLottieComponentEditor }
+{ TSkAnimatedImageComponentEditor }
 
-procedure TSkLottieComponentEditor.Edit;
+procedure TSkAnimatedImageComponentEditor.Edit;
 var
-  LSource: TSkLottieSource;
+  LData: TBytes;
 begin
-  LSource := TSkLottieAnimation(Component).Source;
-  if TSkLottieSourcePropertyEditor.TryEdit(LSource) then
-    TSkLottieAnimation(Component).Source := LSource;
+  LData := TSkAnimatedImage(Component).Source.Data;
+  if TSkAnimatedImageSourcePropertyEditor.TryEdit(LData) then
+  begin
+    TSkAnimatedImage(Component).Source.Data := LData;
+    if Designer <> nil then
+      Designer.Modified;
+  end;
+end;
+
+{ TSkLabelTextPropertyEditor }
+
+procedure TSkLabelTextPropertyEditor.Edit;
+begin
+  inherited;
+  FreeAndNil(FStrings);
+end;
+
+function TSkLabelTextPropertyEditor.GetStrings: TStrings;
+begin
+  if FStrings = nil then
+  begin
+    FStrings := TStringList.Create;
+    {$IF CompilerVersion >= 31}
+    FStrings.Options := FStrings.Options - [TStringsOption.soTrailingLineBreak];
+    {$ENDIF}
+  end;
+  FStrings.Text := GetStrValue;
+  Result := FStrings;
+end;
+
+function TSkLabelTextPropertyEditor.GetValue: string;
+begin
+  Result := GetStrValue;
+end;
+
+procedure TSkLabelTextPropertyEditor.SetStrings(const AValue: TStrings);
+begin
+  if AValue.Text.EndsWith(AValue.LineBreak) then
+    SetStrValue(AValue.Text.Substring(0, Length(AValue.Text) - Length(AValue.LineBreak)))
+  else
+    SetStrValue(AValue.Text);
 end;
 
 { TSkSvgSourcePropertyEditor }
@@ -153,7 +205,7 @@ end;
 
 function TSkSvgSourcePropertyEditor.GetValue: string;
 begin
-  Result := '(TSkSvgSource)';
+  Result := 'TSkSvgSource';
 end;
 
 class function TSkSvgSourcePropertyEditor.TryEdit(
@@ -177,16 +229,20 @@ var
 begin
   LSource := TSkSvg(Component).Svg.Source;
   if TSkSvgSourcePropertyEditor.TryEdit(LSource) then
+  begin
     TSkSvg(Component).Svg.Source := LSource;
+    if Designer <> nil then
+      Designer.Modified;
+  end;
 end;
 
 { Register }
 
 procedure Register;
 begin
-  RegisterComponents('Skia', [TSkLottieAnimation, TSkPaintBox, TSkSvg]);
-  RegisterPropertyEditor(TypeInfo(TSkLottieSource), nil, '', TSkLottieSourcePropertyEditor);
-  RegisterComponentEditor(TSkLottieAnimation, TSkLottieComponentEditor);
+  RegisterPropertyEditor(TypeInfo(TSkAnimatedImage.TSource), TSkAnimatedImage, 'Source', TSkAnimatedImageSourcePropertyEditor);
+  RegisterComponentEditor(TSkAnimatedImage, TSkAnimatedImageComponentEditor);
+  RegisterPropertyEditor(TypeInfo(string), TSkLabel.TCustomWordsItem, 'Caption', TSkLabelTextPropertyEditor);
   RegisterPropertyEditor(TypeInfo(TSkSvgSource), nil, '', TSkSvgSourcePropertyEditor);
   RegisterComponentEditor(TSkSvg, TSkSvgComponentEditor);
 end;

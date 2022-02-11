@@ -1,21 +1,29 @@
-<img src="/Assets/Artwork/LogoGradient.svg" width=360 height=200>
+<p><a href="https://www.skia4delphi.org"><img src="../Assets/Artwork/logo-gradient.svg" alt="Logo" height="300" width="360" /></a></p>
 
-
-
-# Installation
-
-
+#  Installation
 
 ## Prerequisites
 
-#### Delphi XE6+
+### RAD Studio XE7 or newer
 
   - Console / VCL / FMX application platforms:
       - Windows 32-bit
       - Windows 64-bit
 
 
-#### Delphi 10.4 Sydney+
+### RAD Studio 10.3 or newer
+
+  - Console / VCL aplication platforms:
+      - Windows 32-bit
+      - Windows 64-bit
+  - FMX aplication platforms:
+      - Windows 32-bit
+      - Windows 64-bit
+      - Android 32-bit
+      - Android 64-bit
+
+
+### RAD Studio 11.0 Alexandria
 
   - Console aplication platforms:
       - Windows 32-bit
@@ -37,120 +45,131 @@
       - Linux 64-bit
 
 
+## Steps
 
-## 1) Installation via GetIt
+Installation can be done automatically or manually.
 
-The easiest and recommended way to install the library is through the GetIt. Just open your RAD Studio and go to Tools > GetIt Package Manager... > search for "Skia".
+**Remark: To use Skia after installation it is necessary to [enable](../README.md#enable-skia) it in your project.**
 
-![getit](/Assets/Documents/getit.png)
+  
 
-After finish the installation, you are able to play with skia, and you can run our sample.
+### Automatic
 
-**Important:** To use Skia in a new application project, you should [enable your project](https://github.com/viniciusfbb/skia4delphi#enabling-your-project)
+1. Automatic installation can be done in 3 ways:
 
+  - Setup (recommended)
 
+    Download the [latest release](../../../releases/latest) and install it.
 
-## 2) Installation via setup
+    ![Skia4Delphi Installation](../Assets/Documents/installation.png)
 
-Another easy and recommended way to install the library is through our installer. Just download our setup from the [Releases page](https://github.com/viniciusfbb/skia4delphi/releases).
+    
 
-<img src="/Assets/Documents/installation1.png" width=340> <img src="/Assets/Documents/installation2.png" width=340>
+  - Embarcadero's GetIt *(RAD Studio > Tools > GetIt Package Manager...)*
 
-You don't need to build/set nothing, just run the setup.
-After finish the setup, you are able to play with skia, and you can run our sample.
+    ![GetIt](../Assets/Documents/getit.png)
 
-**Important:** To use Skia in a new application project, you should [enable your project](https://github.com/viniciusfbb/skia4delphi#enabling-your-project)
+    
 
+  - Chocolatey package manager
 
+    To install run the following command from the command line or from PowerShell:
 
-## 3) Manually installation
+    ```batch
+    choco install skia4delphi
+    ```
 
-### Adopted nomenclatures
+  
 
-For `[delphi_version_name]`
-- DelphiXE6
-- DelphiXE7
-- DelphiXE8
-- Delphi10Seattle
-- Delphi10Berlin
-- Delphi10Tokyo
-- Delphi10Rio
-- Delphi10Sydney
-- Delphi11Alexandria
+2. Finished!
 
-For `[platform_name]`
-- Win32
-- Win64
-- Android
-- Android64
-- iOSDevice64
-- OSX64
-- OSXARM64
-- Linux64
+  
 
-For `[skia4delphi_root]`
-  The full path of our library after download and extract files
+### Manual
 
+1. Adopted nomenclatures:
 
-### Considerations
+   For `[rad_version_name]`:
 
-- Even if you are only interested in FMX applications, or even Console, it is essential to install the Vcl packages, as there is a plugin for the IDE in the package `Skia.Package.VCL.Designtime.dproj` that is necessary for [enabling Skia in your application project](https://github.com/viniciusfbb/skia4delphi#enabling-your-project)
-- Don't enable Linux64 compilation in `Skia.Package.FMX.dproj` package unless you have FmxLinux installed.
-- If you are cloning the repository for installation, be aware that it is not necessary to download submodules (the Externals folder), because we provide the pre-built binaries (located in the Binary folder) for all platforms (although you can also [compile your own binary files](/Documents/BUILD.md)).
-- Do all the steps below in order.
+   - RAD Studio XE7
+   - RAD Studio XE8
+   - RAD Studio 10.0 Seattle
+   - RAD Studio 10.1 Berlin
+   - RAD Studio 10.2 Tokyo
+   - RAD Studio 10.3 Rio
+   - RAD Studio 10.4 Sydney
+   - RAD Studio 11.0 Alexandria
 
+   For `[rad_package_suffix]`:
 
-### Steps
+   - RAD Studio XE7: 210
+   - RAD Studio XE8: 220
+   - RAD Studio 10.0 Seattle: 230
+   - RAD Studio 10.1 Berlin: 240
+   - RAD Studio 10.2 Tokyo: 250
+   - RAD Studio 10.3 Rio: 260
+   - RAD Studio 10.4 Sydney: 270
+   - RAD Studio 11.0 Alexandria: 280
 
-1. If you have another version of Skia4Delphi, uninstall and remove all files and settings that you made.
-2. [Download our repository](https://github.com/viniciusfbb/skia4delphi/archive/refs/heads/main.zip).
-3. Open RAD Studio, go to menu Tools > Options... > IDE > Environment Variables, and:
+   For `[platform_name]`:
+   - Win32
+   - Win64
+   - Android
+   - Android64
+   - iOSDevice64
+   - OSX64
+   - OSXARM64
+   - Linux64
 
-   3.1. Click in "New...", and add the variable name `SKIADIR`, and in "variable value" put your Skia4Delphi folder (full path), for example *C:\skia4delphi*, and click in "OK". From here, we'll call this path as `[skia4delphi_root]` in this documentation. But remember: in the step that is written `[skia4delphi_root]`, it must be the complete path (without environment variables).
+   For `[skia4delphi_root]` the full path of our library after download and extract files.
+2. Considerations:
+   - Even if you are only interested in **FMX** applications, or even **Console**, it is essential to install the **VCL** packages, as there is a plugin for the IDE in the package `Skia.Package.VCL.Designtime.dproj` that is necessary for [enable](../README.md#enable-skia) it in your project;
+   - If you are cloning the repository for installation, be aware that it is not necessary to download submodules (the Externals folder), because we provide the pre-built binaries (located in the Binary folder) for all platforms. (although you can also [compile your own binary files](BUILD.md))
+3. If you have another version of **Skia4Delphi**, uninstall and remove all files and settings that you made;
+4. [Download our repository](../../archive/refs/heads/main.zip);
+5. Open RAD Studio, go to *Tools > Options... > IDE > Environment Variables*, and:
+   
+   5.1. Click *New...*, and add the variable name `SKIADIR`, and in *variable value* put your **Skia4Delphi** full path *(eg C:\skia4delphi)*, and click *OK*. From here, we'll call this path as `[skia4delphi_root]` in this documentation. But remember: in the step that is written `[skia4delphi_root]`, it must be filled with full path (without environment variables);
+   
+   5.2. Still in the *Environment Variables* page, in the *User System Overrides* section, find the `PATH` variable and double click to change it. You need to add the these three folders (full path) at the beginning:
+   
+   - `[skia4delphi_root]\Binary\Win32\Release;`
+     *eg C:\skia4delphi\Binary\Win32\Release;*
+   - `[skia4delphi_root]\Library\[rad_version_name]\Win32\Release\Bpl;`
+     *eg C:\skia4delphi\Library\RAD Studio 11.0 Alexandria\Win32\Release\Bpl;*
+   - `[skia4delphi_root]\Library\[rad_version_name]\Win64\Release\Bpl;`
+     *eg C:\skia4delphi\Library\RAD Studio 11.0 Alexandria\Win64\Release\Bpl;*
+   
+   5.3. Click *OK* and *Save*;
+   
+6. Open the project group of your RAD Studio version, file `[skia4delphi_root]\Packages\[rad_version_name]\Skia4Delphi.groupproj`; *(eg C:\skia4delphi\Packages\RAD Studio 11.0 Alexandria\Skia4Delphi.groupproj)*
+7. Click *Show Build Groups Panel*;
+8. All platforms are selected by default in `Skia.Package.RTL` and `Skia.Package.FMX`, but you should select just the platforms that you want.;
+9. Click *Build the current build group*;
+10. Install the two installable packages: `Skia.Package.FMX.Designtime[rad_package_suffix].bpl` and `Skia.Package.VCL.Designtime[rad_package_suffix].bpl`; (right-click than *Install*);
+11. In your RAD Studio, go to menu *Tools > Options... > Language > Delphi > Library*, and add for each platform that you want have compiled, the paths:
+    
+    11.1. Library path:
+    - `$(SKIADIR)\Library\[rad_version_name]\[platform_name]\Release`
+      *eg $(SKIADIR)\Library\RAD Studio 11.0 Alexandria\Win32\Release*
+    
+    11.2. Browsing path:
+    - `$(SKIADIR)\Source`
+    - `$(SKIADIR)\Source\FMX`
+    - `$(SKIADIR)\Source\VCL`
+    
+    11.3. Debug DCU path:
+    - `$(SKIADIR)\Library\[rad_version_name]\[platform_name]\Debug`
+      *eg $(SKIADIR)\Library\RAD Studio 11.0 Alexandria\Win32\Debug*
+    
+    11.4. Just in **iOSDevice64** (if you has compiled for it), add an extra path to the *Library path*:
+    - `$(SKIADIR)\Binary\iOSDevice64\Release`
+    
+12. Click *Save*;
+13. After made all steps above and in the order (the order matter), you are able to play with **Skia4Delphi**, and you can run our sample in folder `[skia4delphi_root]\Samples`.
 
-   3.2. Still in the "Environment Variables" page, in section "User System Overrides", find the `PATH` variable double click in it to change it value. You need to add the these three folders (full path) in begin:
-      - `[skia4delphi_root]\Binary\Shared\Win32;`
+  
 
-        Like: *C:\skia4delphi\Binary\Shared\Win32;*
-      - `[skia4delphi_root]\Library\[delphi_version_name]\Win32\Release\Bpl;`
+### Remarks
 
-        Like: *C:\skia4delphi\Library\Delphi11Alexandria\Win32\Release\Bpl;*
-      - `[skia4delphi_root]\Library\[delphi_version_name]\Win64\Release\Bpl;`
-
-        Like: *C:\skia4delphi\Library\Delphi11Alexandria\Win64\Release\Bpl;*
-
-   3.3. Click in "OK" and in "Save"
-
-4. Open the project group of your RAD Studio version, file `[skia4delphi_root]\Packages\[delphi_version_name]\Skia4Delphi.groupproj`, like *C:\skia4delphi\Packages\Delphi11Alexandria\Skia4Delphi.groupproj*
-5. Click in **Show Build Groups Panel**
-6. All platforms are selected by default in "Skia.Package.RTL" and "Skia.Package.FMX", but you should select just the platforms that you want. Remenber that if you are in Delphi 10.3 Rio or older, you can't compile for non windows platforms. And remember also that the package `Skia.Package.FMX.[delphi_version_name].bpl` cannot be compiled by Linux64, unless that you have the FmxLinux installed.
-7. Click in "Build the current build group"
-8. Install the two installable packages (`Skia.Package.FMX.Designtime.[delphi_version_name].bpl` and `Skia.Package.VCL.Designtime.[delphi_version_name].bpl`) clicking with with right button and "Install".
-9. In your RAD Studio, go to menu Tools > Options... > Language > Delphi > Library, and add for each platform that you have compiled, the paths:
-
-   9.1. In "Library path":
-      - `$(SKIADIR)\Library\[delphi_version_name]\[platform_name]\Release`
-
-        Like: *$(SKIADIR)\Library\Delphi11Alexandria\Win32\Release*
-
-   9.2. In "Browsing path":
-      - `$(SKIADIR)\Source`
-      - `$(SKIADIR)\Source\FMX`
-      - `$(SKIADIR)\Source\VCL`
-
-   9.3. In "Debug DCU path":
-      - `$(SKIADIR)\Library\[delphi_version_name]\[platform_name]\Debug`
-
-        Like: *$(SKIADIR)\Library\Delphi11Alexandria\Win32\Debug*
-
-   9.4. Just in iOSDevice64 (if you has compiled for it), add an extra path to the "Library path":
-      - `$(SKIADIR)\Binary\Static\iOSDevice64`
-
-10. Click in "Save" the Options page.
-
-
-#### Finished
-
-After made all steps above and in the order (the order matter), you are able to play with skia, and you can run our sample in folder `[skia4delphi_root]\Samples`
-
-**Important:** To use Skia in a new application project, you should [enable your project](https://github.com/viniciusfbb/skia4delphi#enabling-your-project)
+The pre-built Skia binaries were included in the source, but you can easily recompile them. [Learn more...](BUILD.md)

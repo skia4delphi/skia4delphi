@@ -1,0 +1,25 @@
+inherited frmAnimatedPaintBoxViewer: TfrmAnimatedPaintBoxViewer
+  DesignerMasterStyle = 0
+  inherited lytContent: TLayout
+    inherited rctHeader: TRectangle
+      inherited lblTitle: TSkLabel
+        Words = <
+          item
+            Text = 'PaintBox Viewer'
+          end>
+      end
+    end
+    inherited sbxContent: TScrollBox
+      OnMouseMove = apbDrawMouseMove
+      object apbDraw: TSkAnimatedPaintBox
+        Size.Width = 50.000000000000000000
+        Size.Height = 50.000000000000000000
+        Size.PlatformDefault = False
+        OnMouseMove = apbDrawMouseMove
+        Animate = False
+        Duration = 100000.000000000000000000
+        OnAnimationDraw = apbDrawAnimationDraw
+      end
+    end
+  end
+end

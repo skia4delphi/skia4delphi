@@ -1,0 +1,42 @@
+uniform float2 iResolution;
+uniform float iTime;
+
+float gridLayer( vec2 uv, float zoom )
+{
+    float a;
+    float WIDTH = .005;
+
+    // Create the grid coords
+    vec2 gv = fract(uv * zoom)-.5;
+
+    // draw the lines
+    a = max(smoothstep(WIDTH+ 1./iResolution.y, WIDTH, abs(gv.y)), smoothstep(WIDTH+1./iResolution.x, WIDTH, abs(gv.x)));
+
+    return a;
+}
+
+half4 main(float2 coord) {
+    float NUM_LAYERS = 3.;
+    float ZOOM_CLOSE = 2.;
+    float ZOOM_FAR = 6.;
+    // Normalized pixel coordinates (from 0 to 1)
+    vec2 uv = (coord - .5 * iResolution.xy)/iResolution.y;
+    uv.y -= .2;
+
+    vec3 col = vec3(0.043, 0.003, 0.074);
+
+    // Draw the layers back to front
+    for (float i = 1.; i <= 2.; i++) {
+        // Get the zoom
+        float zoom = mix(ZOOM_FAR, ZOOM_CLOSE, (i-1.)/(NUM_LAYERS-1.));
+
+        // Get the grid layer alpha data
+        vec2 offset = vec2(iTime * i *.06 + i*.458, i*.74);
+        float gridAlpha = gridLayer(uv + offset, zoom) *  i/(NUM_LAYERS);
+        vec3 gridCol = vec3(0.615, 0, 0.262);
+        col = gridCol * gridAlpha + col * (1.-gridAlpha);
+    }
+
+    // Output to screen
+    return half4(col,1.0);
+}

@@ -1,3 +1,14 @@
+{************************************************************************}
+{                                                                        }
+{                              Skia4Delphi                               }
+{                                                                        }
+{ Copyright (c) 2011-2022 Google LLC.                                    }
+{ Copyright (c) 2021-2022 Skia4Delphi Project.                           }
+{                                                                        }
+{ Use of this source code is governed by a BSD-style license that can be }
+{ found in the LICENSE file.                                             }
+{                                                                        }
+{************************************************************************}
 unit Skia.Vcl.Designtime.ProjectMenu;
 
 interface
@@ -22,14 +33,23 @@ uses
   ToolsAPI,
   DeploymentAPI,
   DesignIntf,
-  DCCStrs,
-
-  { Skia }
-  Skia;
+  DCCStrs;
 
 type
   TSkProjectConfig = (Release, Debug);
   TSkProjectPlatform = (Unknown, Win32, Win64, Android, Android64, iOSDevice32, iOSDevice64, iOSSimulator, OSX64, OSXARM64, Linux64);
+
+  { TSkDeployFile }
+
+  TSkDeployFile = record
+    &Platform: TSkProjectPlatform;
+    LocalFileName: string;
+    RemotePath: string;
+    CopyToOutput: Boolean;
+    Required: Boolean;
+    Operation: TDeployOperation;
+    Condition: string;
+  end;
 
   { TSkProjectConfigHelper }
 
@@ -143,12 +163,16 @@ type
 
   TSkProjectHelper = record
   strict private
+    class function ContainsStringInArray(const AString: string; const AArray: TArray<string>): Boolean; static; inline;
     class function GetIsSkiaDefined(const AProject: IOTAProject): Boolean; static;
     class procedure SetIsSkiaDefined(const AProject: IOTAProject; const AValue: Boolean); static;
   public
-    class procedure AddDeployFile(const AProject: IOTAProject; const AConfig: TSkProjectConfig; const APlatform: TSkProjectPlatform; const ALocalFileName, ARemoteDir: string); static;
-    class procedure RemoveDeployFile(const AProject: IOTAProject; const AConfig: TSkProjectConfig; const APlatform: TSkProjectPlatform; ALocalFileName: string; const ARemoteDir: string); static;
+    class procedure AddDeployFile(const AProject: IOTAProject; const AConfig: TSkProjectConfig; const ADeployFile: TSkDeployFile); static;
     class function IsSkiaDefinedForPlatform(const AProject: IOTAProject; const APlatform: TSkProjectPlatform; const AConfig: TSkProjectConfig): Boolean; static;
+    class procedure RemoveDeployFile(const AProject: IOTAProject; const AConfig: TSkProjectConfig; const APlatform: TSkProjectPlatform; ALocalFileName: string; const ARemoteDir: string); static;
+    class procedure RemoveDeployFilesOfClass(const AProject: IOTAProject); overload; static;
+    class procedure RemoveDeployFilesOfClass(const AProject: IOTAProject; const AConfig: TSkProjectConfig; const APlatform: TSkProjectPlatform); overload; static;
+    class procedure RemoveUnexpectedDeployFilesOfClass(const AProject: IOTAProject; const AConfig: TSkProjectConfig; const APlatform: TSkProjectPlatform; const AAllowedFiles: TArray<TSkDeployFile>); static;
     class property IsSkiaDefined[const AProject: IOTAProject]: Boolean read GetIsSkiaDefined write SetIsSkiaDefined;
   end;
 
@@ -187,12 +211,17 @@ type
 
   TSkia4DelphiProject = class
   strict private
-    type
-      TDeployFile = record
-        LocalFileName: string;
-        RemotePath: string;
-        CopyToOutput: Boolean;
-      end;
+    const
+      DeployFile: array[0..7] of TSkDeployFile = (
+        (&Platform: TSkProjectPlatform.Win32;     LocalFileName: 'Binary\Win32\Release\sk4d.dll';       RemotePath: '.\';                       CopyToOutput: True;  Required: True; Operation: TDeployOperation.doCopyOnly;   Condition: ''), // Win32
+        (&Platform: TSkProjectPlatform.Win64;     LocalFileName: 'Binary\Win64\Release\sk4d.dll';       RemotePath: '.\';                       CopyToOutput: True;  Required: True; Operation: TDeployOperation.doCopyOnly;   Condition: ''), // Win64
+        (&Platform: TSkProjectPlatform.Android;   LocalFileName: 'Binary\Android\Release\libsk4d.so';   RemotePath: 'library\lib\armeabi-v7a\'; CopyToOutput: False; Required: True; Operation: TDeployOperation.doSetExecBit; Condition: ''), // Android
+        (&Platform: TSkProjectPlatform.Android64; LocalFileName: 'Binary\Android64\Release\libsk4d.so'; RemotePath: 'library\lib\arm64-v8a\';   CopyToOutput: False; Required: True; Operation: TDeployOperation.doSetExecBit; Condition: ''), // Android64
+        (&Platform: TSkProjectPlatform.Android64; LocalFileName: 'Binary\Android\Release\libsk4d.so';   RemotePath: 'library\lib\armeabi-v7a\'; CopyToOutput: False; Required: True; Operation: TDeployOperation.doSetExecBit; Condition: '''$(AndroidAppBundle)''==''true'''), // Android64
+        (&Platform: TSkProjectPlatform.OSX64;     LocalFileName: 'Binary\OSX64\Release\sk4d.dylib';     RemotePath: 'Contents\MacOS\';          CopyToOutput: False; Required: True; Operation: TDeployOperation.doSetExecBit; Condition: ''), // OSX64
+        (&Platform: TSkProjectPlatform.OSXARM64;  LocalFileName: 'Binary\OSXARM64\Release\sk4d.dylib';  RemotePath: 'Contents\MacOS\';          CopyToOutput: False; Required: True; Operation: TDeployOperation.doSetExecBit; Condition: ''), // OSXARM64
+        (&Platform: TSkProjectPlatform.Linux64;   LocalFileName: 'Binary\Linux64\Release\libsk4d.so';   RemotePath: '.\';                       CopyToOutput: False; Required: True; Operation: TDeployOperation.doSetExecBit; Condition: '')  // Linux64
+      );
     class var
       FAbsolutePath: string;
       FPath: string;
@@ -208,27 +237,20 @@ type
       ProjectDefine         = 'SKIA';
       ProjectDisabledDefine = 'SKIA_DISABLED';
       SkiaDirVariable       = 'SKIADIR';
-      DeployFile: array[TSkProjectPlatform] of TDeployFile = (
-        (LocalFileName: '';                                  RemotePath: '';                         CopyToOutput: False), // Unknown
-        (LocalFileName: 'Binary\Shared\Win32\sk4d.dll';      RemotePath: '.\';                       CopyToOutput: True),  // Win32
-        (LocalFileName: 'Binary\Shared\Win64\sk4d.dll';      RemotePath: '.\';                       CopyToOutput: True),  // Win64
-        (LocalFileName: 'Binary\Shared\Android\sk4d.so';     RemotePath: 'library\lib\armeabi-v7a\'; CopyToOutput: False), // Android
-        (LocalFileName: 'Binary\Shared\Android64\sk4d.so';   RemotePath: 'library\lib\arm64-v8a\';   CopyToOutput: False), // Android64
-        (LocalFileName: '';                                  RemotePath: '';                         CopyToOutput: False), // iOSDevice32
-        (LocalFileName: '';                                  RemotePath: '';                         CopyToOutput: False), // iOSDevice64
-        (LocalFileName: '';                                  RemotePath: '';                         CopyToOutput: False), // iOSSimulator
-        (LocalFileName: 'Binary\Shared\OSX64\sk4d.dylib';    RemotePath: 'Contents\MacOS\';          CopyToOutput: False), // OSX64
-        (LocalFileName: 'Binary\Shared\OSXARM64\sk4d.dylib'; RemotePath: 'Contents\MacOS\';          CopyToOutput: False), // OSXARM64
-        (LocalFileName: 'Binary\Shared\Linux64\sk4d.so';     RemotePath: '.\';                       CopyToOutput: False)  // Linux64
-      );
       MenuCaption: array[Boolean] of string = ('Enable Skia', 'Disable Skia');
-      {$IF CompilerVersion < 34.0}
+      {$IF CompilerVersion < 28} // Below RAD Studio XE7
+      SupportedPlatforms = [];
+      {$ELSEIF CompilerVersion < 33} // RAD Studio XE7 to RAD Studio 10.2 Tokyo
       SupportedPlatforms = [TSkProjectPlatform.Win32, TSkProjectPlatform.Win64];
-      {$ELSE}
+      {$ELSEIF CompilerVersion < 35} // RAD Studio 10.3 Rio and RAD Studio 10.4 Sydney
+      SupportedPlatforms = [TSkProjectPlatform.Win32, TSkProjectPlatform.Win64, TSkProjectPlatform.Android,
+        TSkProjectPlatform.Android64];
+      {$ELSE} // RAD Studio 11.0 Alexandria and newer
       SupportedPlatforms = [TSkProjectPlatform.Win32, TSkProjectPlatform.Win64, TSkProjectPlatform.Android,
         TSkProjectPlatform.Android64, TSkProjectPlatform.iOSDevice64, TSkProjectPlatform.OSX64,
         TSkProjectPlatform.OSXARM64, TSkProjectPlatform.Linux64];
       {$ENDIF}
+    class function GetDeployFiles(const APlatform: TSkProjectPlatform): TArray<TSkDeployFile>; static;
     class property AbsolutePath: string read GetAbsolutePath;
     class property Found: Boolean read GetFound;
     class property Path: string read GetPath;
@@ -240,8 +262,7 @@ const
 { TSkProjectHelper }
 
 class procedure TSkProjectHelper.AddDeployFile(const AProject: IOTAProject;
-  const AConfig: TSkProjectConfig; const APlatform: TSkProjectPlatform;
-  const ALocalFileName, ARemoteDir: string);
+  const AConfig: TSkProjectConfig; const ADeployFile: TSkDeployFile);
 type
   TDeployFileExistence = (DoesNotExist, AlreadyExists, NeedReplaced);
 
@@ -264,9 +285,11 @@ type
           if SameText(LRemoteFileName, TPath.Combine(LFile.RemoteDir[APlatformName], LFile.RemoteName[APlatformName])) then
           begin
             if (LFile.LocalName = ALocalFileName) and (LFile.DeploymentClass = TSkia4DelphiProject.DeploymentClass) and
-              (Result = TDeployFileExistence.DoesNotExist) then
+              (LFile.Condition = ADeployFile.Condition) and (LFile.Operation[APlatformName] = ADeployFile.Operation) and
+              LFile.Enabled[APlatformName] and LFile.Overwrite[APlatformName] and
+              (LFile.Required = ADeployFile.Required) and (Result = TDeployFileExistence.DoesNotExist) then
             begin
-              Result := TDeployFileExistence.AlreadyExists
+              Result := TDeployFileExistence.AlreadyExists;
             end
             else
               Exit(TDeployFileExistence.NeedReplaced);
@@ -277,27 +300,22 @@ type
   end;
 
   procedure DoAddDeployFile(const AProjectDeployment: IProjectDeployment;
-    const ALocalFileName, ARemoteDir, APlatformName, AConfigName: string);
+    const ALocalFileName, APlatformName, AConfigName: string);
   var
     LFile: IProjectDeploymentFile;
   begin
-    {$IF CompilerVersion >= 29}
     LFile := AProjectDeployment.CreateFile(AConfigName, APlatformName, ALocalFileName);
-    {$ELSE}
-    LFile := AProjectDeployment.CreateFile(APlatformName, ALocalFileName);
-    {$ENDIF}
     if Assigned(LFile) then
     begin
       LFile.Overwrite[APlatformName] := True;
       LFile.Enabled[APlatformName] := True;
-      LFile.RemoteDir[APlatformName] := ARemoteDir;
+      LFile.Required := ADeployFile.Required;
+      LFile.Condition := ADeployFile.Condition;
+      LFile.Operation[APlatformName] := ADeployFile.Operation;
+      LFile.RemoteDir[APlatformName] := ADeployFile.RemotePath;
       LFile.DeploymentClass := TSkia4DelphiProject.DeploymentClass;
       LFile.RemoteName[APlatformName] := TPath.GetFileName(ALocalFileName);
-      {$IF CompilerVersion >= 29}
       AProjectDeployment.AddFile(AConfigName, APlatformName, LFile);
-      {$ELSE}
-      AProjectDeployment.AddFile(APlatformName, LFile);
-      {$ENDIF}
     end;
   end;
 
@@ -308,17 +326,28 @@ var
   LLocalFileName: string;
   LDeployFileExistence: TDeployFileExistence;
 begin
-  if (ALocalFileName <> '') and Supports(AProject, IProjectDeployment, LProjectDeployment)  then
+  if (ADeployFile.LocalFileName <> '') and Supports(AProject, IProjectDeployment, LProjectDeployment)  then
   begin
     LConfigName := AConfig.ToString;
-    LPlatformName := APlatform.ToString;
-    LLocalFileName := TPath.Combine(TSkia4DelphiProject.Path, ALocalFileName);
-    LDeployFileExistence := GetDeployFileExistence(LProjectDeployment, LLocalFileName, ARemoteDir, LPlatformName, LConfigName);
+    LPlatformName := ADeployFile.Platform.ToString;
+    LLocalFileName := TPath.Combine(TSkia4DelphiProject.Path, ADeployFile.LocalFileName);
+    LDeployFileExistence := GetDeployFileExistence(LProjectDeployment, LLocalFileName, ADeployFile.RemotePath, LPlatformName, LConfigName);
     if LDeployFileExistence = TDeployFileExistence.NeedReplaced then
-      RemoveDeployFile(AProject, AConfig, APlatform, ALocalFileName, ARemoteDir);
+      RemoveDeployFile(AProject, AConfig, ADeployFile.Platform, ADeployFile.LocalFileName, ADeployFile.RemotePath);
     if LDeployFileExistence in [TDeployFileExistence.NeedReplaced, TDeployFileExistence.DoesNotExist] then
-      DoAddDeployFile(LProjectDeployment, LLocalFileName, ARemoteDir, LPlatformName, LConfigName);
+      DoAddDeployFile(LProjectDeployment, LLocalFileName, LPlatformName, LConfigName);
   end;
+end;
+
+class function TSkProjectHelper.ContainsStringInArray(const AString: string;
+  const AArray: TArray<string>): Boolean;
+var
+  I: Integer;
+begin
+  Result := False;
+  for I := Low(AArray) to High(AArray) do
+    if AArray[I] = AString then
+      Exit(True);
 end;
 
 class function TSkProjectHelper.GetIsSkiaDefined(
@@ -360,31 +389,88 @@ begin
   if (ALocalFileName <> '') and Supports(AProject, IProjectDeployment, LProjectDeployment) then
   begin
     ALocalFileName := TPath.Combine(TSkia4DelphiProject.Path, ALocalFileName);
-    {$IF CompilerVersion >= 29}
     LProjectDeployment.RemoveFile(AConfig.ToString, APlatform.ToString, ALocalFileName);
-    {$ELSE}
-    LProjectDeployment.RemoveFile(APlatform.ToString, ALocalFileName);
-    {$ENDIF}
     LFiles := LProjectDeployment.Files;
     if Assigned(LFiles) then
     begin
       LRemoteFileName := TPath.Combine(ARemoteDir, TPath.GetFileName(ALocalFileName));
-      LRemoveFiles := nil;
+      LRemoveFiles := [];
       for LFile in LFiles do
-      begin
         if SameText(LRemoteFileName, TPath.Combine(LFile.RemoteDir[APlatform.ToString], LFile.RemoteName[APlatform.ToString])) then
-        begin
-          SetLength(LRemoveFiles, Length(LRemoveFiles) + 1);
-          LRemoveFiles[Length(LRemoveFiles) - 1] := LFile;
-        end;
-      end;
+          LRemoveFiles := LRemoveFiles + [LFile];
       for LFile in LRemoveFiles do
-      begin
-        {$IF CompilerVersion >= 29}
         LProjectDeployment.RemoveFile(AConfig.ToString, APlatform.ToString, LFile.LocalName);
-        {$ELSE}
-        LProjectDeployment.RemoveFile(APlatform.ToString, LFile.LocalName);
-        {$ENDIF}
+    end;
+  end;
+end;
+
+class procedure TSkProjectHelper.RemoveDeployFilesOfClass(
+  const AProject: IOTAProject);
+var
+  LProjectDeployment: IProjectDeployment;
+begin
+  if Supports(AProject, IProjectDeployment, LProjectDeployment) then
+    LProjectDeployment.RemoveFilesOfClass(TSkia4DelphiProject.DeploymentClass);
+end;
+
+class procedure TSkProjectHelper.RemoveDeployFilesOfClass(
+  const AProject: IOTAProject; const AConfig: TSkProjectConfig;
+  const APlatform: TSkProjectPlatform);
+var
+  LProjectDeployment: IProjectDeployment;
+  LFile: IProjectDeploymentFile;
+  LConfigName: string;
+  LPlatformName: string;
+begin
+  if Supports(AProject, IProjectDeployment, LProjectDeployment) then
+  begin
+    LConfigName := AConfig.ToString;
+    LPlatformName := APlatform.ToString;
+    for LFile in LProjectDeployment.GetFilesOfClass(TSkia4DelphiProject.DeploymentClass) do
+      if (LFile.Configuration = LConfigName) and ContainsStringInArray(LPlatformName, LFile.Platforms) then
+        LProjectDeployment.RemoveFile(LConfigName, LPlatformName, LFile.LocalName);
+  end;
+end;
+
+class procedure TSkProjectHelper.RemoveUnexpectedDeployFilesOfClass(
+  const AProject: IOTAProject; const AConfig: TSkProjectConfig;
+  const APlatform: TSkProjectPlatform; const AAllowedFiles: TArray<TSkDeployFile>);
+
+  function IsAllowedFile(const AFile: IProjectDeploymentFile; const APlatformName: string): Boolean;
+  var
+    LDeployFile: TSkDeployFile;
+  begin
+    Result := False;
+    for LDeployFile in AAllowedFiles do
+    begin
+      if (AFile.LocalName = LDeployFile.LocalFileName) and SameText(AFile.RemoteDir[APlatformName], LDeployFile.RemotePath) and
+        SameText(AFile.RemoteName[APlatformName], TPath.GetFileName(LDeployFile.LocalFileName)) and
+        (AFile.DeploymentClass = TSkia4DelphiProject.DeploymentClass) and
+        (AFile.Condition = LDeployFile.Condition) and (AFile.Operation[APlatformName] = LDeployFile.Operation) and
+        AFile.Enabled[APlatformName] and AFile.Overwrite[APlatformName] and
+        (AFile.Required = LDeployFile.Required) then
+      begin
+        Exit(True);
+      end;
+    end;
+  end;
+
+var
+  LProjectDeployment: IProjectDeployment;
+  LFile: IProjectDeploymentFile;
+  LConfigName: string;
+  LPlatformName: string;
+begin
+  if Supports(AProject, IProjectDeployment, LProjectDeployment) then
+  begin
+    LConfigName := AConfig.ToString;
+    LPlatformName := APlatform.ToString;
+    for LFile in LProjectDeployment.GetFilesOfClass(TSkia4DelphiProject.DeploymentClass) do
+    begin
+      if (LFile.Configuration = LConfigName) and ContainsStringInArray(LPlatformName, LFile.Platforms) and
+        not IsAllowedFile(LFile, LPlatformName) then
+      begin
+        LProjectDeployment.RemoveFile(LConfigName, LPlatformName, LFile.LocalName);
       end;
     end;
   end;
@@ -630,18 +716,22 @@ end;
 procedure TSkProjectManagerMenuEnableSkia.SetDeployFiles(
   const AProject: IOTAProject; const AConfig: TSkProjectConfig;
   const APlatform: TSkProjectPlatform; const AEnabled: Boolean);
+var
+  LDeployFile: TSkDeployFile;
 begin
   if AEnabled and (APlatform in TSkia4DelphiProject.SupportedPlatforms) then
   begin
-    TSkProjectHelper.AddDeployFile(AProject, AConfig, APlatform,
-      TSkia4DelphiProject.DeployFile[APlatform].LocalFileName, TSkia4DelphiProject.DeployFile[APlatform].RemotePath);
+    for LDeployFile in TSkia4DelphiProject.GetDeployFiles(APlatform) do
+      TSkProjectHelper.AddDeployFile(AProject, AConfig, LDeployFile);
   end
   else
   begin
-    TSkProjectHelper.RemoveDeployFile(AProject, AConfig, APlatform,
-      TSkia4DelphiProject.DeployFile[APlatform].LocalFileName, TSkia4DelphiProject.DeployFile[APlatform].RemotePath);
-    if TSkia4DelphiProject.DeployFile[APlatform].CopyToOutput then
-      TSkOTAHelper.TryRemoveOutputFile(AProject, APlatform, AConfig, TPath.GetFileName(TSkia4DelphiProject.DeployFile[APlatform].LocalFileName))
+    for LDeployFile in TSkia4DelphiProject.GetDeployFiles(APlatform) do
+    begin
+      TSkProjectHelper.RemoveDeployFile(AProject, AConfig, APlatform, LDeployFile.LocalFileName, LDeployFile.RemotePath);
+      if LDeployFile.CopyToOutput then
+        TSkOTAHelper.TryRemoveOutputFile(AProject, APlatform, AConfig, TPath.GetFileName(LDeployFile.LocalFileName));
+    end;
   end;
 end;
 
@@ -672,6 +762,9 @@ begin
     if SupportsPlatform(LPlatform) then
       for LConfig := Low(TSkProjectConfig) to High(TSkProjectConfig) do
         SetDeployFiles(AProject, LConfig, LPlatform, AEnabled);
+  // Remove remaing files from old versions
+  if not AEnabled then
+    TSkProjectHelper.RemoveDeployFilesOfClass(AProject);
   TSkProjectHelper.IsSkiaDefined[AProject] := AEnabled;
   LProjectOptions := AProject.ProjectOptions;
   if Assigned(LProjectOptions) then
@@ -702,6 +795,8 @@ procedure TSkCompileNotifier.ProjectCompileStarted(const AProject: IOTAProject;
   AMode: TOTACompileMode);
 var
   LPlatform: TSkProjectPlatform;
+  LConfig: TSkProjectConfig;
+  LDeployFile: TSkDeployFile;
 begin
   if Assigned(AProject) then
     LPlatform := TSkProjectPlatform.FromString(AProject.CurrentPlatform)
@@ -713,40 +808,44 @@ begin
   if (AMode in [TOTACompileMode.cmOTAMake, TOTACompileMode.cmOTABuild]) and
     TSkProjectHelper.IsSkiaDefined[AProject] and TSkia4DelphiProject.Found then
   begin
-    if TSkProjectHelper.IsSkiaDefinedForPlatform(AProject, LPlatform, TSkProjectConfig.FromString(AProject.CurrentConfiguration)) then
+    LConfig := TSkProjectConfig.FromString(AProject.CurrentConfiguration);
+    if TSkProjectHelper.IsSkiaDefinedForPlatform(AProject, LPlatform, LConfig) then
     begin
       if LPlatform in TSkia4DelphiProject.SupportedPlatforms then
       begin
-        if TSkia4DelphiProject.DeployFile[LPlatform].CopyToOutput then
+        TSkProjectHelper.RemoveUnexpectedDeployFilesOfClass(AProject, LConfig, LPlatform, TSkia4DelphiProject.GetDeployFiles(LPlatform));
+        for LDeployFile in TSkia4DelphiProject.GetDeployFiles(LPlatform) do
         begin
-          Assert(TSkia4DelphiProject.DeployFile[LPlatform].LocalFileName <> '');
-          TSkOTAHelper.TryCopyFileToOutputPathOfActiveBuild(AProject, TPath.Combine(TSkia4DelphiProject.AbsolutePath, TSkia4DelphiProject.DeployFile[LPlatform].LocalFileName));
+          if LDeployFile.CopyToOutput then
+          begin
+            Assert(LDeployFile.LocalFileName <> '');
+            TSkOTAHelper.TryCopyFileToOutputPathOfActiveBuild(AProject, TPath.Combine(TSkia4DelphiProject.AbsolutePath, LDeployFile.LocalFileName));
+          end;
+          TSkProjectHelper.AddDeployFile(AProject, LConfig, LDeployFile);
         end;
-        TSkProjectHelper.AddDeployFile(AProject, TSkProjectConfig.FromString(AProject.CurrentConfiguration),
-          LPlatform, TSkia4DelphiProject.DeployFile[LPlatform].LocalFileName,
-          TSkia4DelphiProject.DeployFile[LPlatform].RemotePath);
       end
       else
       begin
-        TSkProjectHelper.RemoveDeployFile(AProject, TSkProjectConfig.FromString(AProject.CurrentConfiguration),
-          LPlatform, TSkia4DelphiProject.DeployFile[LPlatform].LocalFileName,
-          TSkia4DelphiProject.DeployFile[LPlatform].RemotePath);
+        for LDeployFile in TSkia4DelphiProject.GetDeployFiles(LPlatform) do
+          TSkProjectHelper.RemoveDeployFile(AProject, LConfig, LPlatform, LDeployFile.LocalFileName, LDeployFile.RemotePath);
+        TSkProjectHelper.RemoveDeployFilesOfClass(AProject, LConfig, LPlatform);
         Showmessage(Format(UnsupportedPlatformMessage, [AProject.CurrentPlatform, TSkia4DelphiProject.MenuCaption[True],
           TSkia4DelphiProject.ProjectDisabledDefine]));
       end;
     end
     else
     begin
-      TSkProjectHelper.RemoveDeployFile(AProject, TSkProjectConfig.FromString(AProject.CurrentConfiguration),
-        LPlatform, TSkia4DelphiProject.DeployFile[LPlatform].LocalFileName,
-        TSkia4DelphiProject.DeployFile[LPlatform].RemotePath);
+      for LDeployFile in TSkia4DelphiProject.GetDeployFiles(LPlatform) do
+        TSkProjectHelper.RemoveDeployFile(AProject, LConfig, LPlatform, LDeployFile.LocalFileName, LDeployFile.RemotePath);
+      TSkProjectHelper.RemoveDeployFilesOfClass(AProject, LConfig, LPlatform);
     end;
   end
-  {$IF CompilerVersion >= 35.0}
+  {$IF CompilerVersion >= 35}
   else if (AMode = TOTACompileMode.cmOTAClean) and TSkProjectHelper.IsSkiaDefined[AProject] then
   begin
-    if TSkia4DelphiProject.DeployFile[LPlatform].CopyToOutput then
-      TSkOTAHelper.TryRemoveOutputFileOfActiveBuild(AProject, TPath.GetFileName(TSkia4DelphiProject.DeployFile[LPlatform].LocalFileName));
+    for LDeployFile in TSkia4DelphiProject.GetDeployFiles(LPlatform) do
+      if LDeployFile.CopyToOutput then
+        TSkOTAHelper.TryRemoveOutputFileOfActiveBuild(AProject, TPath.GetFileName(LDeployFile.LocalFileName));
   end;
   {$ENDIF}
 end;
@@ -776,7 +875,7 @@ var
   LValues: TArray<string>;
   I: Integer;
 begin
-  LValues := AValues.Split(TArray<string>.Create(ASeparator), TStringSplitOptions.None);
+  LValues := AValues.Split([ASeparator], TStringSplitOptions.None);
   for I := 0 to Length(LValues) - 1 do
     if SameText(LValues[I], AValue) then
       Exit(True);
@@ -927,7 +1026,7 @@ var
   LValues: TArray<string>;
   I: Integer;
 begin
-  LValues := AValues.Split(TArray<string>.Create(ASeparator), TStringSplitOptions.None);
+  LValues := AValues.Split([ASeparator], TStringSplitOptions.None);
   try
     for I := 0 to Length(LValues) - 1 do
     begin
@@ -937,8 +1036,7 @@ begin
         Exit;
       end;
     end;
-    SetLength(LValues, Length(LValues) + 1);
-    LValues[Length(LValues) - 1] := AValue;
+    LValues := LValues + [AValue];
   finally
     if LValues = nil then
       Result := ''
@@ -977,16 +1075,11 @@ var
   LNewValues: TArray<string>;
   I: Integer;
 begin
-  LNewValues := nil;
-  LValues := AValues.Split(TArray<string>.Create(ASeparator), TStringSplitOptions.None);
+  LNewValues := [];
+  LValues := AValues.Split([ASeparator], TStringSplitOptions.None);
   for I := 0 to Length(LValues) - 1 do
-  begin
     if not SameText(LValues[I], AValue) then
-    begin
-      SetLength(LNewValues, Length(LNewValues) + 1);
-      LNewValues[Length(LNewValues) - 1] := LValues[I];
-    end;
-  end;
+      LNewValues := LNewValues + [LValues[I]];
   if LNewValues = nil then
     Result := ''
   else
@@ -1190,6 +1283,17 @@ begin
   if not FPathChecked then
     GetPath;
   Result := FAbsolutePath;
+end;
+
+class function TSkia4DelphiProject.GetDeployFiles(
+  const APlatform: TSkProjectPlatform): TArray<TSkDeployFile>;
+var
+  I: Integer;
+begin
+  Result := [];
+  for I := Low(DeployFile) to High(DeployFile) do
+    if DeployFile[I].Platform = APlatform then
+      Result := Result + [DeployFile[I]];
 end;
 
 class function TSkia4DelphiProject.GetFound: Boolean;

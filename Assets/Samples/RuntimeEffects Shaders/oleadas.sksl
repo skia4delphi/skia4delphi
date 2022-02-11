@@ -1,0 +1,19 @@
+uniform float iTime;
+uniform float2 iResolution;
+
+//nictemeral
+half4 main(vec2 fragCoord) {
+    vec3 color = vec3(0.960,0.113,0.003);
+    vec2 uv = fragCoord/iResolution.xy;
+    uv = uv * 2.0 -01.;
+
+    color.rb = fract(abs(uv*3.0));
+    color.rb *= floor(abs(uv*7.0))/5.0;
+
+    uv.y+=0.120;
+    uv.x+=sin(sin(iTime)*sin(uv.x));
+
+    color.rb = floor(abs(uv*sin(atan(uv.s,uv.t))*10.272))/10.200;
+
+    return vec4(color,1.0);
+ }

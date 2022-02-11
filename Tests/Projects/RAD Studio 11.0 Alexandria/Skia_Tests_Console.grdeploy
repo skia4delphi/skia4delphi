@@ -1,0 +1,19 @@
+{
+  "Configurations" : ["Debug", "Release"],
+  "iOS" : [],
+  "Android" : [],
+  "MacOS" : [{
+      "LocalName" : "..\\..\\Assets",
+      "RemoteDir" : "Contents\\Resources\\",
+      "Configurations" : [],
+      "IsDirectory" : true,
+      "IncludeSubDirectories" : true
+    }],
+  "Linux" : [{
+      "LocalName" : "..\\..\\Assets",
+      "RemoteDir" : ".\\",
+      "Configurations" : [],
+      "IsDirectory" : true,
+      "IncludeSubDirectories" : true
+    }]
+}
