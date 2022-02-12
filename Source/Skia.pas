@@ -398,8 +398,8 @@ type
   TSkSamplingOptionsConstants = record helper for TSkSamplingOptions
   const
     Low    : TSkSamplingOptions = (FUseCubic: False; FCubic: (B: 0; C: 0); FFilter: TSkFilterMode.Nearest; FMipmap: TSkMipmapMode.Nearest);
-    Medium : TSkSamplingOptions = (FUseCubic: False; FCubic: (B: 0; C: 0); FFilter: TSkFilterMode.Linear; FMipmap: TSkMipmapMode.Nearest);
-    High   : TSkSamplingOptions = (FUseCubic: False; FCubic: (B: 0; C: 0); FFilter: TSkFilterMode.Linear; FMipmap: TSkMipmapMode.Linear);
+    Medium : TSkSamplingOptions = (FUseCubic: True; FCubic: (B: 0; C: 0); FFilter: TSkFilterMode.Linear; FMipmap: TSkMipmapMode.Nearest);
+    High   : TSkSamplingOptions = (FUseCubic: True; FCubic: (B: 0; C: 0); FFilter: TSkFilterMode.Linear; FMipmap: TSkMipmapMode.Linear);
   end;
 
   ISkFont = interface;
