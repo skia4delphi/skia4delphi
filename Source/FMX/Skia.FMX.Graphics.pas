@@ -132,6 +132,7 @@ type
     //   main thread.
     property Surface: ISkSurface read FSurface;
 
+    class function ColorType: TSkColorType; virtual;
     class function GetCanvasStyle: TCanvasStyles; override;
   end;
 
@@ -156,7 +157,6 @@ type
 
   TGrCanvasCustom = class abstract(TSkCanvasCustom)
   strict private type
-
     // The Skia architecture works differently from the TCanvas architecture,
     // some adaptations were necessary, but they were done in the best possible
     // way.
@@ -181,7 +181,6 @@ type
       class function Get(const ACanvas: TGrCanvasCustom; const ABitmapHandle: THandle): ISkImage;
       class procedure Initialize;
       class procedure Remove(const ABitmapHandle: THandle);
-
     end;
 
   strict private
@@ -218,7 +217,6 @@ type
     //   window can use this property.
     property Context: IGrDirectContext read FContext;
 
-    class function ColorType: TSkColorType; virtual; abstract;
     class function Origin: TGrSurfaceOrigin; virtual; abstract;
   end;
 
@@ -686,7 +684,7 @@ const
 
   function GetFontFamilies(const AValue: string): TArray<string>; inline;
   begin
-    Result := AValue.Split([', ', ','], TStringSplitOptions.ExcludeEmpty){$IFDEF MACOS} + ['Helvetica Neue']{$ENDIF};
+    Result := AValue.Split([', ', ','], TStringSplitOptions.ExcludeEmpty){$IFDEF MACOS} + ['Helvetica Neue']{$ELSEIF DEFINED(LINUX)} + ['Ubuntu']{$ENDIF};
   end;
 
   function GetNormalizedAttributes: TArray<TTextAttributedRange>;
@@ -1249,17 +1247,24 @@ begin
     Result := TSkCanvasRasterWindows
   else
     Result := TGrCanvasGL;
+  {$ELSEIF DEFINED(IOS)}
+  if GlobalUseMetal then
+    Result := TGrCanvasMetal
+  else
+    Result := TGrCanvasGL;
   {$ELSEIF DEFINED(MACOS)}
   if GlobalUseMetal then
-    Exit(TGrCanvasMetal)
+    Result := TGrCanvasMetal
   else
     {$IFDEF IOS}
     Result := TGrCanvasGL;
     {$ELSE}
     Result := TSkCanvasRasterMacOS;
     {$ENDIF}
-  {$ELSE}
+  {$ELSEIF DEFINED(ANDROID)}
   Result := TGrCanvasGL;
+  {$ELSE}
+  Result := nil;
   {$ENDIF}
 end;
 
@@ -1385,6 +1390,11 @@ begin
   finally
     FSurface.Canvas.Restore;
   end;
+end;
+
+class function TSkCanvasCustom.ColorType: TSkColorType;
+begin
+  Result := SkNative32ColorType;
 end;
 
 constructor TSkCanvasCustom.CreateFromPrinter(const APrinter: TAbstractPrinter);
@@ -1536,7 +1546,7 @@ class function TSkCanvasCustom.DoInitializeBitmap(const AWidth,
   var APixelFormat: TPixelFormat): THandle;
 begin
   Result       := THandle(TSkBitmap.Create(AWidth, AHeight));
-  APixelFormat := SkFmxPixelFormat[SkNative32ColorType];
+  APixelFormat := SkFmxPixelFormat[ColorType];
 end;
 
 class function TSkCanvasCustom.DoMapBitmap(const ABitmapHandle: THandle;
@@ -1566,7 +1576,8 @@ end;
 
 procedure TSkCanvasCustom.ExcludeClipRect(const ARect: TRectF);
 begin
-  raise ESkCanvas.Create('Exclude clip rect is not supported. Use "Save" and "Restore"');
+  Inc(FClippingChangeCount);
+  FSurface.Canvas.ClipRect(ARect, TSkClipOp.Difference);
 end;
 
 class procedure TSkCanvasCustom.Finalize;
@@ -1592,12 +1603,10 @@ begin
   else
   begin
     case Quality of
-      {$IF NOT DEFINED(ANDROID) and NOT DEFINED(IOS)}
-      TCanvasQuality.SystemDefault : Result := TSkSamplingOptions.Medium;
-      {$ENDIF}
-      TCanvasQuality.HighQuality   : Result := TSkSamplingOptions.Medium;
+      TCanvasQuality.SystemDefault,
+      TCanvasQuality.HighQuality: Result := TSkSamplingOptions.High;
     else
-      Result := TSkSamplingOptions.Low;
+      Result := TSkSamplingOptions.Create(TSkFilterMode.Nearest, TSkMipmapMode.Nearest);
     end;
   end;
 end;
@@ -1843,20 +1852,8 @@ begin
       AttachToWindow;
       Prepare;
       FSurface := TSkSurface.MakeFromRenderTarget(FContext, GetRenderTarget, Origin, ColorType);
-      if not Assigned(FSurface) then
-      begin
-        try
-          DestroyContext;
-          FContext := nil;
-        finally
-          TMonitor.Exit(FContextLock);
-        end;
-      end
-      else
-       FContextCount := 1;
-    end
-    else
-      Inc(FContextCount);
+    end;
+    Inc(FContextCount);
   except
     TMonitor.Exit(FContextLock);
     raise;

@@ -346,7 +346,7 @@ type
         function GetIsStatic: Boolean; virtual; abstract;
         function GetSize: TSizeF; virtual; abstract;
       public
-        procedure Render(const ACanvas: ISkCanvas; const ADest: TRectF); virtual; abstract;
+        procedure Render(const ACanvas: ISkCanvas; const ADest: TRectF; const AOpacity: Single); virtual; abstract;
         procedure SeekFrameTime(const ATime: Double); virtual; abstract;
         class function SupportedFormats: TArray<TFormatInfo>; virtual; abstract;
         class function TryDetectFormat(const ABytes: TBytes; out AFormat: TFormatInfo): Boolean; virtual; abstract;
@@ -1017,7 +1017,7 @@ type
   public
     constructor Create(const AAnimationCodec: ISkAnimationCodecPlayer; const AStream: TStream);
     destructor Destroy; override;
-    procedure Render(const ACanvas: ISkCanvas; const ADest: TRectF); override;
+    procedure Render(const ACanvas: ISkCanvas; const ADest: TRectF; const AOpacity: Single); override;
     procedure SeekFrameTime(const ATime: Double); override;
     class function SupportedFormats: TArray<TSkAnimatedImage.TFormatInfo>; override;
     class function TryDetectFormat(const ABytes: TBytes; out AFormat: TSkAnimatedImage.TFormatInfo): Boolean; override;
@@ -1038,7 +1038,7 @@ type
     function GetSize: TSizeF; override;
   public
     constructor Create(const ASkottie: ISkottieAnimation);
-    procedure Render(const ACanvas: ISkCanvas; const ADest: TRectF); override;
+    procedure Render(const ACanvas: ISkCanvas; const ADest: TRectF; const AOpacity: Single); override;
     procedure SeekFrameTime(const ATime: Double); override;
     class function SupportedFormats: TArray<TSkAnimatedImage.TFormatInfo>; override;
     class function TryDetectFormat(const ABytes: TBytes; out AFormat: TSkAnimatedImage.TFormatInfo): Boolean; override;
@@ -1341,7 +1341,7 @@ var
   LMaxBitmapSize: Integer;
   LExceededRatio: Single;
 begin
-  if Canvas is TSkCanvasCustom then
+  if (FDrawCacheKind <> TSkDrawCacheKind.Always) and (Canvas is TSkCanvasCustom) then
   begin
     DrawUsingSkia(TSkCanvasCustom(Canvas).Surface, AlignToPixel(LocalRect), AbsoluteOpacity);
     FreeAndNil(FBuffer);
@@ -1501,7 +1501,7 @@ var
   LMaxBitmapSize: Integer;
   LExceededRatio: Single;
 begin
-  if Canvas is TSkCanvasCustom then
+  if (FDrawCacheKind <> TSkDrawCacheKind.Always) and (Canvas is TSkCanvasCustom) then
   begin
     DrawUsingSkia(TSkCanvasCustom(Canvas).Surface, AlignToPixel(LocalRect), AbsoluteOpacity);
     FreeAndNil(FBuffer);
@@ -1753,7 +1753,10 @@ begin
       if LSvgRect.IsEmpty and ((not LDOM.Root.TryGetViewBox(LSvgRect)) or LSvgRect.IsEmpty) then
         Exit;
 
-      ACanvas.Save;
+      if SameValue(AOpacity, 1, TEpsilon.Position) then
+        ACanvas.Save
+      else
+        ACanvas.SaveLayerAlpha(Round(AOpacity * 255));
       try
         LWrappedDest := GetWrappedDest(LDOM, LSvgRect, ADestRect, LIntrinsicSize);
         if (FOverrideColor <> TAlphaColors.Null) or (FWrapMode = TSkSvgWrapMode.Tile) then
@@ -2372,7 +2375,7 @@ procedure TSkAnimatedImage.RenderFrame(const ACanvas: ISkCanvas;
 begin
   FCodec.Quality := Canvas.Quality;
   FCodec.SeekFrameTime(AProgress * Duration);
-  FCodec.Render(ACanvas, GetWrappedRect(ADest));
+  FCodec.Render(ACanvas, GetWrappedRect(ADest), AOpacity);
   inherited;
 end;
 
@@ -2450,12 +2453,22 @@ begin
   Result := FAnimationCodec.Dimensions;
 end;
 
-procedure TSkDefaultAnimationCodec.Render(const ACanvas: ISkCanvas; const ADest: TRectF);
+procedure TSkDefaultAnimationCodec.Render(const ACanvas: ISkCanvas;
+  const ADest: TRectF; const AOpacity: Single);
+var
+  LPaint: ISkPaint;
 begin
+  if SameValue(AOpacity, 1, TEpsilon.Position) then
+    LPaint := nil
+  else
+  begin
+    LPaint := TSkPaint.Create;
+    LPaint.AlphaF := AOpacity;
+  end;
   case Quality of
-    TCanvasQuality.SystemDefault: ACanvas.DrawImageRect(FAnimationCodec.Frame, ADest, TSkSamplingOptions.Medium);
-    TCanvasQuality.HighPerformance: ACanvas.DrawImageRect(FAnimationCodec.Frame, ADest, TSkSamplingOptions.Low);
-    TCanvasQuality.HighQuality: ACanvas.DrawImageRect(FAnimationCodec.Frame, ADest, TSkSamplingOptions.Medium);
+    TCanvasQuality.SystemDefault: ACanvas.DrawImageRect(FAnimationCodec.Frame, ADest, TSkSamplingOptions.Medium, LPaint);
+    TCanvasQuality.HighPerformance: ACanvas.DrawImageRect(FAnimationCodec.Frame, ADest, TSkSamplingOptions.Low, LPaint);
+    TCanvasQuality.HighQuality: ACanvas.DrawImageRect(FAnimationCodec.Frame, ADest, TSkSamplingOptions.Medium, LPaint);
   end;
 end;
 
@@ -2544,27 +2557,39 @@ begin
   Result := FSkottie.Size;
 end;
 
-procedure TSkLottieAnimationCodec.Render(const ACanvas: ISkCanvas; const ADest: TRectF);
+procedure TSkLottieAnimationCodec.Render(const ACanvas: ISkCanvas;
+  const ADest: TRectF; const AOpacity: Single);
 var
   LLottieRect: TRectF;
+  LNeedSaveLayer: Boolean;
 begin
   if ADest.IsEmpty then
     Exit;
   LLottieRect := TRectF.Create(PointF(0, 0), FSkottie.Size).FitInto(ADest);
   if LLottieRect.IsEmpty then
     Exit;
-  if SameValue(ADest.Width / LLottieRect.Width, ADest.Height / LLottieRect.Height, TEpsilon.Matrix) then
-    FSkottie.Render(ACanvas, ADest)
-  else
-  begin
-    ACanvas.Save;
-    try
-      ACanvas.Scale(ADest.Width / LLottieRect.Width, ADest.Height / LLottieRect.Height);
-      ACanvas.Translate((LLottieRect.Width - ADest.Width) / 2, (LLottieRect.Height - ADest.Height) / 2);
-      FSkottie.Render(ACanvas, ADest);
-    finally
-      ACanvas.Restore;
+  LNeedSaveLayer := not SameValue(AOpacity, 1, TEpsilon.Position);
+  if LNeedSaveLayer then
+    ACanvas.SaveLayerAlpha(Round(AOpacity * 255));
+  try
+    if SameValue(ADest.Width / LLottieRect.Width, ADest.Height / LLottieRect.Height, TEpsilon.Matrix) then
+      FSkottie.Render(ACanvas, ADest)
+    else
+    begin
+      if not LNeedSaveLayer then
+        ACanvas.Save;
+      try
+        ACanvas.Scale(ADest.Width / LLottieRect.Width, ADest.Height / LLottieRect.Height);
+        ACanvas.Translate((LLottieRect.Width - ADest.Width) / 2, (LLottieRect.Height - ADest.Height) / 2);
+        FSkottie.Render(ACanvas, ADest);
+      finally
+        if not LNeedSaveLayer then
+          ACanvas.Restore;
+      end;
     end;
+  finally
+    if LNeedSaveLayer then
+      ACanvas.Restore;
   end;
 end;
 
@@ -4084,7 +4109,17 @@ begin
     ACanvas.Save;
     try
       ACanvas.ClipRect(ADest);
-      LParagraph.Paint(ACanvas, ADest.Left, LPositionY);
+      if SameValue(AOpacity, 1, TEpsilon.Position) then
+        LParagraph.Paint(ACanvas, ADest.Left, LPositionY)
+      else
+      begin
+        ACanvas.SaveLayerAlpha(Round(AOpacity * 255));
+        try
+          LParagraph.Paint(ACanvas, ADest.Left, LPositionY);
+        finally
+          ACanvas.Restore;
+        end;
+      end;
     finally
       ACanvas.Restore;
     end;
@@ -4222,6 +4257,8 @@ var
     end;
     {$IFDEF MACOS}
     Result := Result + ['Helvetica Neue'];
+    {$ELSEIF DEFINED(LINUX)}
+    Result := Result + ['Ubuntu'];
     {$ENDIF}
   end;
 

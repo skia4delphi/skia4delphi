@@ -22,6 +22,8 @@ type
 
 /// <summary> Combine two paths (including combination of directory and filename) </summary>
 function CombinePath(const APath, ASubPath: string): string; forward;
+/// <summary> Copy directory folder </summary>
+function CopyDirectory(const AOriginPath, ADestPath: string; const AOverwriteExisting: Boolean): Boolean; forward;
 /// <summary> Get files of a path with an optional filename. The filename accepts the wildcard *, like "*.json" </summary>
 function GetFiles(APath, AFileName: string; const ASearchOption: TSearchOption): TArrayOfString; forward;
 
@@ -36,6 +38,44 @@ begin
   if StartsWithText(Result, '\') then
     Result := Copy(Result, 2, Length(Result) - 1);
   Result := AddBackslash(APath) + Result;
+end;
+
+function CopyDirectory(const AOriginPath, ADestPath: string; const AOverwriteExisting: Boolean): Boolean;
+var
+  LOriginFilePath: string;
+  LDestFilePath: string;
+  LDestFileName: string;
+  LFiles: TArrayOfString;
+  I: Integer;
+begin
+  Result := DirExists(ADestPath) or ForceDirectories(ADestPath);
+  if Result then
+  begin
+    LFiles := GetFiles(AOriginPath, '*', soAllDirectories);
+    for I := 0 to GetArrayLength(LFiles) - 1 do
+    begin
+      LOriginFilePath := ExtractFilePath(LFiles[I]);
+      LDestFilePath := CombinePath(ADestPath, Copy(LOriginFilePath, Length(AOriginPath) + 1, Length(LOriginFilePath) - (Length(AOriginPath) + 1)));
+      if not DirExists(LDestFilePath) then
+      begin
+        Result := ForceDirectories(LDestFilePath);
+        if not Result then
+        begin
+          Log(Format('IO.Utils.CopyDirectory: Failed to create the dir "%s"', [LDestFilePath]));
+          Exit;
+        end;
+      end;
+      LDestFileName := CombinePath(LDestFilePath, ExtractFileName(LFiles[I]));
+      Result := FileCopy(LFiles[I], LDestFileName, not AOverwriteExisting);
+      if not Result then
+      begin
+        Log(Format('IO.Utils.CopyDirectory: Failed to copy the file "%s" to "%s".', [LFiles[I], LDestFileName]));
+        Exit;
+      end;
+    end;
+  end
+  else
+    Log(Format('IO.Utils.CopyDirectory: Failed to create the directory "%s".', [ADestPath]));
 end;
 
 function GetFiles(APath, AFileName: string; const ASearchOption: TSearchOption): TArrayOfString;

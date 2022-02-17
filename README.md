@@ -68,7 +68,6 @@ Using the **Skia4Delphi** library it is possible to override Firemonkey's render
     * [Basic usage](#basic-usage)
     * [Text Right-to-Left](#text-right-to-left)
     * [Custom fonts](#custom-fonts)
-    * [Paragraph](#paragraph)
     * [PDF](#pdf)
     * [Codecs](#codecs)
 * [Integration with Delphi](#integration-with-delphi)
@@ -79,6 +78,7 @@ Using the **Skia4Delphi** library it is possible to override Firemonkey's render
     * [Benchmark](#benchmark)
     * [Surface](#surface)
     * [Controls](#controls)
+    * [Right-to-Left](#right-to-left)
 * [Controls VCL/FMX](#controls-vclfmx)
   * [TSkAnimatedImage](#tskanimatedimage)
   * [TSkLabel](#tsklabel)
@@ -88,6 +88,7 @@ Using the **Skia4Delphi** library it is possible to override Firemonkey's render
 * [Compatibility](#compatibility)
 * [Documentation](#documentation)
 * [Version](#version)
+* [Known issues](#known-issues)
 
   
 
@@ -122,7 +123,8 @@ You can install **Skia4Delphi** in 3 ways:
 #### Remarks
 
 1. Manual installation is possible, although it is not recommended; [Learn more...](Documents/INSTALLATION.md)
-2. The pre-built Skia binaries were included in the source, but you can easily recompile them. [Learn more...](Documents/BUILD.md)
+2. The pre-built Skia binaries were included in the source, but you can easily recompile them; [Learn more...](Documents/BUILD.md)
+3. The pre-built Skia binary for **Linux64** targets has been compiled for Debian-based systems. If you want for another distro, you need to [rebuild.](Documents/BUILD.md)
 
   
 
@@ -272,57 +274,6 @@ This code results in the output below:
 
   
 
-### Paragraph
-
-With **Skia4Delphi** it is possible to render texts with multiple styles, fonts, sizes, and with many settings like the maximum number of lines. The example below demonstrates how to render with SkParagraph:
-
-```pascal
-DrawExample(440, 440,
-  procedure (const ACanvas: ISkCanvas; const ADest: TRectF)
-  var
-    LParagraph: ISkParagraph;
-    LBuilder: ISkParagraphBuilder;
-    LTextStyle: ISkTextStyle;
-    LParagraphStyle: ISkParagraphStyle;
-  begin
-    LParagraphStyle := TSkParagraphStyle.Create;
-    LParagraphStyle.MaxLines := 3;
-    LParagraphStyle.Ellipsis := '...';
-    LBuilder := TSkParagraphBuilder.Create(LParagraphStyle);
-
-    LTextStyle := TSkTextStyle.Create;
-    LTextStyle.Color := TAlphaColors.Black;
-    LTextStyle.SetFontSize(28);
-    LTextStyle.SetFontStyle(TSkFontStyle.Create(TSkFontWeight.Light, TSkFontWidth.Normal, TSkFontSlant.Upright));
-    LBuilder.PushStyle(LTextStyle);
-    LBuilder.AddText('English English 字典 字典 😀😅😂😂');
-
-    LTextStyle := TSkTextStyle.Create;
-    LTextStyle.Color := TAlphaColors.Crimson;
-    LTextStyle.SetFontSize(22);
-    LTextStyle.SetFontStyle(TSkFontStyle.Create(TSkFontWeight.SemiBold, TSkFontWidth.Normal, TSkFontSlant.Upright));
-    LBuilder.PushStyle(LTextStyle);
-    LBuilder.AddText(' !سلام دنیا');
-
-    LTextStyle := TSkTextStyle.Create;
-    LTextStyle.Color := TAlphaColors.Blueviolet;
-    LTextStyle.SetFontSize(30);
-    LTextStyle.SetFontStyle(TSkFontStyle.Create(TSkFontWeight.ExtraBold, TSkFontWidth.Normal, TSkFontSlant.Italic));
-    LBuilder.PushStyle(LTextStyle);
-    LBuilder.AddText(' World domination is such an ugly phrase - I prefer to call it world optimisation.');
-
-    LParagraph := LBuilder.Build;
-    LParagraph.Layout(ADest.Width);
-    LParagraph.Paint(ACanvas, 0, 0);
-  end);
-```
-
-This code results in the output below:
-
-![Text Paragraph](Assets/Documents/text-paragraph.png)
-
-  
-
 ### PDF
 
 With **Skia4Delphi** it is possible to create PDF documents and draw anything on them, from text to images. The example below demonstrates how to create an PDF document and draw an SVG inside it:
@@ -464,7 +415,7 @@ As a result, any Delphi control, such as a TImage, can normally load these new f
 
 ## FMX Canvas
 
-It is possible to replace the default Canvas from FMX to Canvas based on Skia. Once this feature is enabled, all FMX controls will be painted using Skia automatically. With that it is possible to improve the quality and performance of the drawings for the FMX as well as for the whole library.
+It is possible to replace the default Canvas from FMX to Skia-based Canvas. Once this feature is enabled, all FMX controls will be painted using Skia4Delphi automatically. With that it is possible to improve the quality and performance of the drawings for the FMX as well as for the whole library.
 
   
 
@@ -492,7 +443,8 @@ begin
 #### Remarks
 
 1. `Skia.FMX` unit must be included after the `FMX.Forms`;
-2. The **Metal** implementation is experimental, but can be used by including the `FMX.Types` unit **after** the `FMX.Forms` unit, and setting `GlobalUseMetal` to **True** together with `GlobalUseSkia`.
+2. The **Metal** implementation is experimental, but can be used by including the `FMX.Types` unit **after** the `FMX.Forms` unit, and setting `GlobalUseMetal` to **True** together with `GlobalUseSkia`;
+3. `GlobalUseSkia` has no effect on Linux. (although not supported, all [controls](#controls-vclfmx) work perfectly)
 
   
 
@@ -536,6 +488,8 @@ The performance test is a simulation of a real application, with hundreds of con
     | ![FMX Circle](Assets/Documents/fmx-circle.png) | ![Skia Circle](Assets/Documents/skia-circle.png) |
     
 2. Firemonkey uses Quartz on macOS, and for **Skia4Delphi** use OpenGL it would be necessary to edit the Delphi runtime library, so we choose to keep the rasterization method and not implement OpenGL on macOS. In the future it is likely that we will set Metal as default, as OpenGL is deprecated in Apple's operating systems. For those who want to use the Skia Canvas on macOS we recommend enabling Metal.
+
+3. Tests made from virtual machines are inconsistent with reality.
 
   
 
@@ -618,6 +572,38 @@ begin
   // Draw with LCanvas...
 end;
 ```
+
+  
+
+### Right-to-Left
+
+Using Skia's Canvas, your application will now support Right-To-Left text rendering. But for that you will need to make 3 changes to your project:
+
+  1. Open the source of your Delphi Application Project *(.dpr)*, include the line `Application.BiDiMode := TBiDiMode.bdRightToLeft;`, like below:
+
+    ```pascal
+    program Project1;
+
+    uses
+      System.StartUpCopy,
+      FMX.Forms,
+      System.Classes,
+      Skia.FMX,
+      Unit1 in 'Unit1.pas' {Form1};
+
+    {$R *.res}
+
+    begin
+      Application.BiDiMode := TBiDiMode.bdRightToLeft;
+      GlobalUseSkia := True;
+      Application.Initialize;
+      Application.CreateForm(TForm1, Form1);
+      Application.Run;
+    end.
+    ```
+
+  2. Set the property `BiDiMode` of your forms to `bdRightToLeft`;
+  3. Editing controls like TEdit, TMemo, need to be fixed by Embarcadero, meanwhile how to workaround set the `ControlType` property of these controls to `Platform`.
 
   
 
@@ -736,6 +722,10 @@ The example above results in the output below:
 
 For the platforms supported by **Skia4Delphi** (listed above), the OS versions supported by the library are the same [OS versions that RAD Studio supports.](https://docwiki.embarcadero.com/PlatformStatus/en/Main_Page)
 
+## Remarks
+
+The pre-built Skia binary for **Linux64** targets has been compiled for Debian-based systems. If you want for another distro, you need to [rebuild.](Documents/BUILD.md)
+
   
 
 # Documentation
@@ -746,7 +736,13 @@ The APIs are very similar to Skia's, few methods and functions have been renamed
 
 # Version
 
-**[Skia4Delphi Version 3.0.0](/../../releases/latest)**
+**[Skia4Delphi Version 3.0.1](/../../releases/latest)**
 
 Skia Version used: [chrome/m98](https://github.com/google/skia/tree/chrome/m98)
 What has changed from the original code? [Compare.](https://github.com/google/skia/compare/chrome/m98...skia4delphi:main)
+
+  
+
+# Known issues
+
+- Virtualization software vendors do not fully support 3D rendering libraries like OpenGL and Metal, so Skia-based Canvas for **FMX** applications may not run correctly. On virtual machines we recommend using raster mode when available.

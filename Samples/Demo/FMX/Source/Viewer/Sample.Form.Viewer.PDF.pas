@@ -19,7 +19,7 @@ uses
   { Delphi }
   System.SysUtils, System.Types, System.UITypes, System.Classes, FMX.Types,
   FMX.Controls, FMX.Forms, FMX.StdCtrls, FMX.Layouts, FMX.Objects,
-  FMX.WebBrowser,
+  FMX.WebBrowser, FMX.Controls.Presentation,
 
   { Skia }
   Skia, Skia.FMX,
@@ -41,6 +41,10 @@ uses
   { Delphi }
   Winapi.Windows,
   Winapi.ShellAPI;
+{$ELSEIF defined(LINUX)}
+uses
+  { Delphi }
+  Posix.Stdlib;
 {$ELSEIF defined(ANDROID)}
 uses
   { Delphi }
@@ -93,10 +97,13 @@ begin
 end;
 {$ELSE}
 begin
-  AFileName := 'file://' + AFileName.Replace('\', '/');
   {$IFDEF MSWINDOWS}
+  AFileName := 'file://' + AFileName.Replace('\', '/');
   ShellExecute(0, 'open', PChar(AFileName), nil, nil, SW_SHOWNORMAL);
+  {$ELSEIF defined(LINUX)}
+  _system(PAnsiChar('xdg-open "' + AnsiString(AFileName) + '"'));
   {$ELSE}
+  AFileName := 'file://' + AFileName.Replace('\', '/');
   BackgroundKind := TBackgroundKind.Solid;
   wbrBrowser.Navigate(AFileName);
   inherited Show(ATitle, ADescription);

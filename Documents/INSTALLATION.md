@@ -172,4 +172,5 @@ Installation can be done automatically or manually.
 
 ### Remarks
 
-The pre-built Skia binaries were included in the source, but you can easily recompile them. [Learn more...](BUILD.md)
+1. The pre-built Skia binaries were included in the source, but you can easily recompile them; [Learn more...](BUILD.md)
+2. The pre-built Skia binary for **Linux64** targets has been compiled for Debian-based systems. If you want for another distro, you need to [rebuild.](BUILD.md)

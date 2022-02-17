@@ -270,7 +270,7 @@ type
       {class} function mandatorySystemGestures: Integer; cdecl;
       {class} function navigationBars: Integer; cdecl;
       {class} function statusBars: Integer; cdecl;
-      {class} function MobileBars: Integer; cdecl;
+      {class} function systemBars: Integer; cdecl;
       {class} function systemGestures: Integer; cdecl;
       {class} function tappableElement: Integer; cdecl;
     end;
@@ -301,11 +301,11 @@ type
     [JavaSignature('android/view/WindowInsetsController')]
     JWindowInsetsController = interface(JObject)
       ['{895DBAB1-0A52-4240-AC13-ED40474E6850}']
-      function getMobileBarsAppearance: Integer; cdecl;
-      function getMobileBarsBehavior: Integer; cdecl;
+      function getSystemBarsAppearance: Integer; cdecl;
+      function getSystemBarsBehavior: Integer; cdecl;
       procedure hide(types: Integer); cdecl;
-      procedure setMobileBarsAppearance(appearance, mask: Integer); cdecl;
-      procedure setMobileBarsBehavior(behavior: Integer); cdecl;
+      procedure setSystemBarsAppearance(appearance, mask: Integer); cdecl;
+      procedure setSystemBarsBehavior(behavior: Integer); cdecl;
       procedure show(types: Integer); cdecl;
     end;
     TJWindowInsetsController = class(TJavaGenericImport<TAndroid11.JWindowInsetsControllerClass, TAndroid11.JWindowInsetsController>) end;
@@ -972,7 +972,7 @@ begin
             LInsets := LWindowInsetsAndroid11.getInsets(TAndroid11.TJWindowInsets_Type.JavaClass.mandatorySystemGestures);
             if Assigned(LInsets) then
               Result := TRect.Create(LInsets.left, LInsets.top, LInsets.right, LInsets.bottom);
-            LInsets := LWindowInsetsAndroid11.getInsets(TAndroid11.TJWindowInsets_Type.JavaClass.MobileBars);
+            LInsets := LWindowInsetsAndroid11.getInsets(TAndroid11.TJWindowInsets_Type.JavaClass.SystemBars);
             if Assigned(LInsets) then
               Result := TRect.Create(Max(Result.Left, LInsets.left), Max(Result.Top, LInsets.top),
                 Max(Result.Right, LInsets.right), Max(Result.Bottom, LInsets.bottom));
@@ -1106,7 +1106,7 @@ begin
               end;
             TFormMobileBars.TVisibilityMode.Invisible:
               begin
-                LWindowInsetsController.setMobileBarsBehavior(TAndroid11.TJWindowInsetsController.JavaClass.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
+                LWindowInsetsController.setSystemBarsBehavior(TAndroid11.TJWindowInsetsController.JavaClass.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
                 LWindowInsetsController.hide(TAndroid11.TJWindowInsets_Type.JavaClass.statusBars or
                   TAndroid11.TJWindowInsets_Type.JavaClass.navigationBars);
               end;
@@ -1576,10 +1576,10 @@ begin
         if Assigned(LWindowInsetsController) then
         begin
           if LNavigationBarLight then
-            LWindowInsetsController.setMobileBarsAppearance(TAndroid11.TJWindowInsetsController.JavaClass.APPEARANCE_LIGHT_NAVIGATION_BARS,
+            LWindowInsetsController.setSystemBarsAppearance(TAndroid11.TJWindowInsetsController.JavaClass.APPEARANCE_LIGHT_NAVIGATION_BARS,
               TAndroid11.TJWindowInsetsController.JavaClass.APPEARANCE_LIGHT_NAVIGATION_BARS)
           else
-            LWindowInsetsController.setMobileBarsAppearance(0, TAndroid11.TJWindowInsetsController.JavaClass.APPEARANCE_LIGHT_NAVIGATION_BARS);
+            LWindowInsetsController.setSystemBarsAppearance(0, TAndroid11.TJWindowInsetsController.JavaClass.APPEARANCE_LIGHT_NAVIGATION_BARS);
         end;
       end;
     end;
@@ -1690,10 +1690,10 @@ begin
         if Assigned(LWindowInsetsController) then
         begin
           if LStatusBarLight then
-            LWindowInsetsController.setMobileBarsAppearance(TAndroid11.TJWindowInsetsController.JavaClass.APPEARANCE_LIGHT_STATUS_BARS,
+            LWindowInsetsController.setSystemBarsAppearance(TAndroid11.TJWindowInsetsController.JavaClass.APPEARANCE_LIGHT_STATUS_BARS,
               TAndroid11.TJWindowInsetsController.JavaClass.APPEARANCE_LIGHT_STATUS_BARS)
           else
-            LWindowInsetsController.setMobileBarsAppearance(0, TAndroid11.TJWindowInsetsController.JavaClass.APPEARANCE_LIGHT_STATUS_BARS);
+            LWindowInsetsController.setSystemBarsAppearance(0, TAndroid11.TJWindowInsetsController.JavaClass.APPEARANCE_LIGHT_STATUS_BARS);
         end;
       end;
     end;

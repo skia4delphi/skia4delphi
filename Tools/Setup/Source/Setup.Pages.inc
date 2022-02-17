@@ -106,6 +106,8 @@ function _OnRADStudioVersionsPageNextButtonClick(ASender: TWizardPage): Boolean;
 begin
   _FSelectedRADStudioVersions := _GetSelectedVersions;
   Result := GetArrayLength(_FSelectedRADStudioVersions) <> 0;
+  if (not Result) and (not IsVerySilent) then
+    Result := MsgBox(CustomMessage('SetupPagesNoneRADStudioVersionsSelectedMessage'), mbConfirmation, MB_YESNO or MB_DEFBUTTON1) = IDYES;
 end;
 
 // end.

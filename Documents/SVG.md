@@ -132,21 +132,43 @@ Specifies whether and how to resize, replicate, and position the SVG draw inside
 
 ## Limitations
 
-The **Skia4Delphi** rendering of SVG has two limitations:
+### 1. No support for inner style element
 
-- Does not support style element (see the workaround in next topic, [Remarks](#remarks))
-- Does not support animated SVG
+**Skia4Delphi** does not support inner `<style>` element, only presentation attributes. Some vector graphics editors when saving/exporting the SVG file allow you to configure it to be saved/exported with presentation attributes only in styling options.
 
   
 
-## Remarks
+#### Way to fix
 
-As said earlier, the **Skia4Delphi** doesn't support SVG style element yet, which are snippets with CSS code. However, the style element is not required. Some software only creates it because the generated svg file can be a fraction smaller with the style attribute than without the style attribute. To solve this problem, you should disable the generation of these styles whenever you generate your SVG. For example, in Adobe Illustrator when you export your vector as SVG, you need to set the follow configurations:
+You can create or convert any SVG file so that it can be compatible with the library in different ways. The recommended way is to use **Adobe Illustrator**:
 
- - In Styling field: choose **Presentation Attributes** instead of Inline CSS (because CSS is not fully supported).
+  1. Open in Adobe Illustrator the SVG file (or vector like EPS file);
+  2. Click in File > Export > Export as...;
+  3. Choose the file name output, and the SVG to file type and press OK;
+  4. In SVG Options window, set Presentation Attributes and click in OK:  
+    <img src="../Assets/Documents/adobe-illustrator-exporting-svg.png">
 
- <img src="../Assets/Documents/adobe-illustrator-exporting-svg.png">
+  
 
-But if you already have the incompatible .svg, there are several tools that you can use to solve this incompatibility, like for example the tool [sK1](https://github.com/sk1project/sk1-wx).
+### 2. No support for document type definition
 
-*Note: The incompatibility is only with the .svg file formatting, so, when using your editor's tool/options to solve this problem, it will generate another .svg file but with the same image. In other words, the draw that your new .svg will generate will be absolutely the same, however, compatible with many more applications.*
+**Skia4Delphi** does not support DTD `<!DOCTYPE ...>`.
+
+#### Way to fix
+
+When exported via **Adobe Illustrator** the DTD is removed, but it can be removed manually as well.
+
+  
+
+### 3. No support for inner symbol element
+
+**Skia4Delphi** does not support inner `<symbol>` element.
+
+  
+
+## Free SVG sources
+
+- [Bootstrap Icons](https://icons.getbootstrap.com/)
+- [heroicons](https://heroicons.com/)
+- [iconscout](https://iconscout.com/)
+- [SVGRepo](https://svgrepo.com/)

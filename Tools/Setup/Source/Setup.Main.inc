@@ -33,8 +33,6 @@ type
   TTryPrepareProjectInstallationEvent = function(var AProjectItem: TRADStudioGroupProjectItem; const AInfo: TRADStudioInfo): Boolean;
   TTryPrepareProjectUninstallationEvent = function(var AProjectItem: TRADStudioGroupProjectItem; const AInfo: TRADStudioInfo): Boolean;
 
-/// <summary> Check if the CurrentFileName can be extracted based on RAD Studio versions selected </summary>
-function CheckSelectedRADStudioBeforeExtract: Boolean; forward;
 /// <summary> [Event] Called to perform custom pre-install and post-install tasks </summary>
 procedure CurStepChanged(ACurStep: TSetupStep); forward;
 /// <summary> [Event] Called to perform custom pre-uninstall and post-uninstall tasks </summary>
@@ -45,15 +43,18 @@ function GetDefaultDirName(AParam: string): string; forward;
 function InitializeSetup: Boolean; forward;
 /// <summary> [Event] Triggered when initialize wizard (after InitializeSetup) </summary>
 procedure InitializeWizard; forward;
+/// <summary> Install the packages </summary>
 function InstallPackages(const ARADStudioInfos: TRADStudioInfos; const AGroupProjects: TRADStudioGroupProjects): Boolean; forward;
 /// <summary> Check if the setup can create the uninstall registry key to be able to uninstall in windows settings. This reg key can be disabled by executing the setup with the parameter /CreateUninstallRegKey=no </summary>
 function NeedsUninstallRegKey: Boolean; forward;
 /// <summary> [Event] Called to determine whether or not a particular page should be shown at all </summary>
 function ShouldSkipPage(APageID: Integer): Boolean; forward;
+/// <summary> Uninstall the packages </summary>
 function UninstallPackages(const ARADStudioInfos: TRADStudioInfos; const AGroupProjects: TRADStudioGroupProjects): Boolean; forward;
 
 var
   FGroupProjects: TRADStudioGroupProjects;
+  FOnTryExtractPreBuildObjects: TTryExtractPreBuildObjectsProc;
   FOnTryPrepareProjectInstallation: TTryPrepareProjectInstallationEvent;
   FOnTryPrepareProjectUninstallation: TTryPrepareProjectUninstallationEvent;
   FRADStudioInfos: TRADStudioInfos;
@@ -63,63 +64,59 @@ var
 /// <summary> Check if needs directory page by checking the define FilesEmbedded </summary>
 function _NeedsDirPage: Boolean; forward; 
 
-function CheckSelectedRADStudioBeforeExtract: Boolean;    
-var
-  LRADStudioInfos: TRADStudioInfos;
-  LInfo: TRADStudioInfo;
-  I: Integer;
-begin
-  LRADStudioInfos := GetSelectedRADStudioVersions;
-  for I := 0 to GetArrayLength(LRADStudioInfos) - 1 do
-  begin    
-    LInfo := LRADStudioInfos[I];
-    if LInfo.Status = riToolchainNotSupported then
-    begin
-      if StartsWithText(CurrentFileName, '{app}\{#LibraryDCUFolder}\' + LInfo.Version.Name + '\') then
-      begin
-        Result := True;
-        Exit;
-      end;
-    end;
-  end;
-  Result := False;
-end;
-
 procedure CurStepChanged(ACurStep: TSetupStep);
+var
+  LSelectedRADStudioVersions: TRADStudioInfos;
 begin
   case ACurStep of
     ssInstall:
       begin
-        Log(Format('Start installation at folder "%s"...', [WizardDirValue]));
-        #ifdef FilesEmbedded
-        ReplaceRootPathOfRADStudioGroupProjects(ExpandConstant('{tmp}\') + '{app}', ExpandConstant('{app}'), FGroupProjects);
-        #endif
-        SetAbsolutePathsInRADStudioGroupProjects(ExpandConstant('{app}'), FGroupProjects);
-        if IsUpgrade then
+        LSelectedRADStudioVersions := GetSelectedRADStudioVersions;
+        if GetArrayLength(LSelectedRADStudioVersions) <> 0 then
         begin
-          WizardForm.StatusLabel.Caption := CustomMessage('SetupMainUninstallingDetectedVersion');
-          if NeedsUninstallRegKey and not TryUninstallCurrentVersion then
+          Log(Format('Start installation at folder "%s"...', [WizardDirValue]));
+          #ifdef FilesEmbedded
+          ReplaceRootPathOfRADStudioGroupProjects(ExpandConstant('{tmp}\') + '{app}', ExpandConstant('{app}'), FGroupProjects);
+          #endif
+          SetAbsolutePathsInRADStudioGroupProjects(ExpandConstant('{app}'), FGroupProjects);
+          if IsUpgrade then
           begin
-            TryShowErrorFmt(CustomMessage('SetupMainCannotPossibleToUninstallDetectedVersion'), ['{#LibraryName}']);
+            WizardForm.StatusLabel.Caption := CustomMessage('SetupMainUninstallingDetectedVersion');
+            if NeedsUninstallRegKey then
+            begin
+              if (not IsVerySilent) and HaveRADStudioInstanceRunning then
+              begin
+                TryShowErrorEx(CustomMessage('SetupMainUninstallAbortedToCloseRADStudioInstance'), False);
+                Abort;
+              end;
+              if not TryUninstallCurrentVersion then
+              begin
+                TryShowErrorFmt(CustomMessage('SetupMainCannotPossibleToUninstallDetectedVersion'), ['{#LibraryName}']);
+                Abort;
+              end;
+            end;
+          end;
+          WizardForm.StatusLabel.Caption := CustomMessage('SetupMainUninstallingFromGetIt');
+          TryRemoveFromGetIt(LSelectedRADStudioVersions, '{#LibraryName}');
+          WizardForm.StatusLabel.Caption := CustomMessage('SetupMainUninstallingPackages');
+          if not UninstallPackages(LSelectedRADStudioVersions, FGroupProjects) then
+          begin
+            TryShowError(CustomMessage('SetupMainCannotPossibleToUninstallPackages'));
             Abort;
           end;
         end;
-        WizardForm.StatusLabel.Caption := CustomMessage('SetupMainUninstallingFromGetIt');
-        TryRemoveFromGetIt(GetSelectedRADStudioVersions, '{#LibraryName}');
-        WizardForm.StatusLabel.Caption := CustomMessage('SetupMainUninstallingPackages');
-        if not UninstallPackages(GetSelectedRADStudioVersions, FGroupProjects) then
-        begin
-          TryShowError(CustomMessage('SetupMainCannotPossibleToUninstallPackages'));
-          Abort;
-        end;
       end;
     ssPostInstall:
-      begin
-        Log('Start installation post extraction files...');
-        if not InstallPackages(GetSelectedRADStudioVersions, FGroupProjects) then
-          Abort;
-        if HaveRADStudioInstanceRunning and not IsSilent then
-          ShowMessage(CustomMessage('SetupMainInstallationSuccesfullyRestartRADStudio'));
+      begin                   
+        LSelectedRADStudioVersions := GetSelectedRADStudioVersions;
+        if GetArrayLength(LSelectedRADStudioVersions) <> 0 then
+        begin
+          Log('Start installation post extraction files...');
+          if not InstallPackages(GetSelectedRADStudioVersions, FGroupProjects) then
+            Abort;
+          if HaveRADStudioInstanceRunning and not IsSilent then
+            ShowMessage(CustomMessage('SetupMainInstallationSuccesfullyRestartRADStudio'));
+        end;
       end;
   else
   end;
@@ -154,6 +151,8 @@ function InitializeSetup: Boolean;
 var
   LPackagesPath: string;
 begin
+  if HaveRADStudioInstanceRunning then
+    Log('[Warning] Setup.Main.InitializeSetup: An instance of the RAD Studio is running.');
   LPackagesPath := AddBackslash('{#LibraryPackagesFolder}');
   #ifdef FilesEmbedded
   LPackagesPath := AddBackslash(CombinePath('{app}', LPackagesPath));
@@ -180,7 +179,7 @@ begin
   Result := IsVerySilent or (not HaveRADStudioInstanceRunning);
   if not Result then
   begin
-    TryShowError(CustomMessage('SetupMainUninstallAbortedToCloseRADStudioInstance'));
+    TryShowMessage(CustomMessage('SetupMainUninstallAbortedToCloseRADStudioInstance'));
     Exit;
   end;
   Result := TryGetRADStudioGroupProjectsFromPath(AddBackslash(CombinePath(ExpandConstant('{app}'), '{#LibraryPackagesFolder}')), FGroupProjects);
@@ -207,10 +206,11 @@ var
   LDcpFileName: string;
   LPlatform: TProjectPlatform;
 begin
+  Log('Setup.Main.InstallPackages: Starting...');
   WizardForm.ProgressGauge.Min := 0;
   WizardForm.ProgressGauge.Max := GetTryBuildRADStudioPackagesSteps(ARADStudioInfos, AGroupProjects) + 1;
   WizardForm.ProgressGauge.Position := 0;
-  Result := TryBuildRADStudioPackages(ARADStudioInfos, AGroupProjects, '');
+  Result := TryBuildRADStudioPackages(ARADStudioInfos, AGroupProjects, '', FOnTryExtractPreBuildObjects);
   if Result then
   begin
     WizardForm.StatusLabel.Caption := CustomMessage('SetupMainInstallingPackages');
@@ -220,6 +220,7 @@ begin
         LInfo := ARADStudioInfos[I];
         if LInfo.Status in [riNotFound, riNeedOpenFirst] then
           Continue;
+        Log(Format('Setup.Main.InstallPackages: Starting installation in %s...', [LInfo.Version.Name]));
         for J := 0 to GetArrayLength(AGroupProjects) - 1 do
         begin
           for K := 0 to GetArrayLength(AGroupProjects[J].Items) - 1 do
@@ -227,6 +228,7 @@ begin
             LProject := AGroupProjects[J].Items[K].Project;
             if TryGetRADStudioVersionOfProject(LProject, LVersion) and (CompareRADStudioVersions(LVersion, LInfo.Version) = 0) then
             begin
+              Log(Format('Setup.Main.InstallPackages: Starting installation of package "%s"...', [AGroupProjects[J].Items[K].Project.FileName]));
               if (FOnTryPrepareProjectInstallation <> nil) and
                 not FOnTryPrepareProjectInstallation(AGroupProjects[J].Items[K], LInfo) then
               begin      
@@ -269,7 +271,7 @@ begin
               // Adding search paths
               for LPlatform := LowProjectPlatform to HighProjectPlatform do
               begin
-                if not (LPlatform in LProject.Platforms) then
+                if (not (LPlatform in LProject.Platforms)) or (not CheckIfRADStudioSupportsPlatform(LInfo, LPlatform)) then
                   Continue;
                 for L := 0 to GetArrayLength(LProject.SourcePaths) - 1 do
                 begin
@@ -346,6 +348,7 @@ var
   LPlatform: TProjectPlatform;
 begin
   Result := True;
+  Log('Setup.Main.UninstallPackages: Starting...');
   for I := 0 to GetArrayLength(ARADStudioInfos) - 1 do
   begin
     LInfo := ARADStudioInfos[I]; 
@@ -389,7 +392,7 @@ begin
           // Adding search paths
           for LPlatform := LowProjectPlatform to HighProjectPlatform do
           begin   
-            if not (LPlatform in LProject.Platforms) then
+            if (not (LPlatform in LProject.Platforms)) or (not CheckIfRADStudioSupportsPlatform(LInfo, LPlatform)) then
               Continue;
             if (LPlatform in GetPlatformsAllowedToBuild(LInfo)) and not TryRemoveRADStudioLibrarySearchPath(LVersion, LPlatform, ExpandProjectPath(LProject.DCUOutputPath, pcRelease, LPlatform)) then
             begin

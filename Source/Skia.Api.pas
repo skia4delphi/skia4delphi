@@ -1142,13 +1142,11 @@ type
     [Volatile] FRefCount: Integer;
     FLibHandle: HMODULE;
   {$ENDIF}
-  {$IF DEFINED(MSWINDOWS) or DEFINED(SK_DYNAMIC_LOADING)}
   strict private
     class constructor Create;
     {$IFDEF SK_DYNAMIC_LOADING}
     class destructor Destroy;
     {$ENDIF}
-  {$ENDIF}
   public
     class procedure Initialize;
     class procedure Terminate;
@@ -2064,17 +2062,12 @@ type
 
 implementation
 
-{$IF DEFINED(MSWINDOWS) or (DEFINED(ANDROID) and DEFINED(SK_DYNAMIC_LOADING))}
-
 uses
   { Delphi }
-  {$IFDEF MSWINDOWS}
-  System.Math;
-  {$ELSE}
-  System.IOUtils;
+  {$IF DEFINED(ANDROID) and DEFINED(SK_DYNAMIC_LOADING)}
+  System.IOUtils,
   {$ENDIF}
-
-{$ENDIF}
+  System.Math;
 
 {$REGION 'Dynamic loading utils'}
 
@@ -2099,24 +2092,18 @@ end;
 
 { TSkiaAPI }
 
-{$IF DEFINED(MSWINDOWS) or DEFINED(SK_DYNAMIC_LOADING)}
 class constructor TSkiaAPI.Create;
 begin
-  {$IFDEF MSWINDOWS}
   SetExceptionMask(exAllArithmeticExceptions);
-  {$ENDIF}
-  {$IFDEF SK_DYNAMIC_LOADING}
-  Initialize;
-  {$ENDIF}
-end;
-{$ENDIF}
-
 {$IFDEF SK_DYNAMIC_LOADING}
+  Initialize;
+end;
+
 class destructor TSkiaAPI.Destroy;
 begin
   Terminate;
-end;
 {$ENDIF}
+end;
 
 class procedure TSkiaAPI.Initialize;
 begin

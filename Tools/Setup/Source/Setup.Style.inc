@@ -25,7 +25,7 @@
 {                    VCL Styles Plugin for Inno Setup                    }
 {               https://github.com/RRUZ/vcl-styles-plugins               }
 {                                                                        }
-{ Copyright (c) 2013-2021 Rodrigo Ruz V.                                 }
+{ Copyright (c) 2013-2022 Rodrigo Ruz V.                                 }
 {                                                                        }
 { Use of this source code is governed by a MPL 1.1 license that can be   }
 { found at http://www.mozilla.org/MPL/                                   }

@@ -238,7 +238,7 @@ begin
         ACanvas.Concat(LMatrix * TMatrix.CreateTranslation(ADest.CenterPoint.X, ADest.CenterPoint.Y));
 
         ACanvas.DrawImage(LImage, ADest.CenterPoint.X - (LImage.Width / 2), ADest.CenterPoint.Y - (LImage.Height / 2),
-          TSkSamplingOptions.Create(TSkCubicResampler.Mitchell));
+          TSkSamplingOptions.High);
       finally
         ACanvas.Restore;
       end;
@@ -364,7 +364,7 @@ begin
       try
         ACanvas.Concat(ComputeMatrix(LDest.Size, LCorners[0], LCorners[1], LCorners[2], LCorners[3]));
         ACanvas.Translate(-LDest.Left, -LDest.Top);
-        ACanvas.DrawImageRect(LImage, LDest, TSkSamplingOptions.Create(TSkCubicResampler.Mitchell));
+        ACanvas.DrawImageRect(LImage, LDest, TSkSamplingOptions.High);
       finally
         ACanvas.Restore;
       end;
@@ -406,7 +406,7 @@ begin
         LMatrix := LMatrix * TaperTransform(LDest.Size, LOptions['Side'], LOptions['Corner'], LOptions['Fraction']);
         LMatrix := LMatrix * TMatrix.CreateTranslation(LDest.Left, LDest.Top);
         ACanvas.Concat(LMatrix);
-        ACanvas.DrawImageRect(LImage, LDest, TSkSamplingOptions.Create(TSkCubicResampler.Mitchell));
+        ACanvas.DrawImageRect(LImage, LDest, TSkSamplingOptions.High);
       finally
         ACanvas.Restore;
       end;

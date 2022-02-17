@@ -41,6 +41,8 @@ function TryOpenSupportURL: Boolean; forward;
 function TryOpenURL(const AURL: string): Boolean; forward;
 /// <summary> Try to show a message error if the installation is not in an error state </summary>
 function TryShowError(const AMessage: string): Boolean; forward;
+/// <summary> Try to show a message error if the installation is not in an error state </summary>
+function TryShowErrorEx(const AMessage: string; const ACanReportIssue: Boolean): Boolean; forward;
 /// <summary> Try to show a formated message error if the installation is not in an error state </summary>
 function TryShowErrorFmt(const AMessage: string; const AArgs: TArrayOfString): Boolean; forward;
 /// <summary> Try to show an information message. It will fail when in very silent mode or in error state </summary>
@@ -53,6 +55,8 @@ function TryUninstallCurrentVersion: Boolean; forward;
 // uses
   #include "Source\String.Utils.inc"
 
+/// <summary> Open the setup logs file </summary>
+procedure _OpenSetupLogsFile; forward;
 /// <summary> Get the uninstall executable of current version installed in machine. If not found an empty string will be returned. </summary>
 function _GetUninstallString: string; forward;
 /// <summary> Initialization method of the unit </summary>
@@ -149,9 +153,18 @@ begin
   Result := _FIsVerySilent;
 end;
 
+procedure _OpenSetupLogsFile;
+begin
+  if (not IsUninstaller) and (not IsVerySilent) then
+    TryOpenInNotepad(ExpandConstant(ExpandConstant('{log}')));
+end;
+
 procedure ShowError(const AMessage: string);
+var
+  LIsFirstError: Boolean;
 begin
   Log('Setup.Utils.ShowError: ' + AMessage);
+  LIsFirstError := not _FIsInErrorState;
   _FIsInErrorState := True;
   if not IsVerySilent then
   begin
@@ -162,6 +175,8 @@ begin
     MsgBox(AMessage, mbError, mb_OK);
     #endif
   end;
+  if LIsFirstError then
+    _OpenSetupLogsFile;
 end;
 
 procedure ShowErrorFmt(const AMessage: string; const AArgs: TArrayOfString);
@@ -211,18 +226,33 @@ end;
 
 function TryShowError(const AMessage: string): Boolean;
 begin
-  Log('Setup.Utils.TryShowError: ' + AMessage);
+  Result := TryShowErrorEx(AMessage, True);
+end;
+
+function TryShowErrorEx(const AMessage: string; const ACanReportIssue: Boolean): Boolean;
+var
+  LIsFirstError: Boolean;
+begin
+  Log('Setup.Utils.TryShowErrorEx: ' + AMessage);
   Result := (not _FIsInErrorState) and (not IsVerySilent);
+  LIsFirstError := not _FIsInErrorState;
   _FIsInErrorState := True;
   if Result then
   begin
     #ifdef LibrarySupportURL
-    MsgBox(AMessage + CustomMessage('SetupUtilsPleaseReportThiIssue'), mbError, mb_OK);
-    TryOpenSupportURL;
+    if ACanReportIssue then
+    begin
+      MsgBox(AMessage + CustomMessage('SetupUtilsPleaseReportThiIssue'), mbError, mb_OK);
+      TryOpenSupportURL;
+    end
+    else
+      MsgBox(AMessage, mbError, mb_OK);
     #else
     MsgBox(AMessage, mbError, mb_OK);
     #endif
   end;
+  if LIsFirstError and ACanReportIssue then
+    _OpenSetupLogsFile;
 end;
 
 function TryShowErrorFmt(const AMessage: string; const AArgs: TArrayOfString): Boolean;

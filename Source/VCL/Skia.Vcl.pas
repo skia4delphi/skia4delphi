@@ -4726,10 +4726,7 @@ begin
   RegisterComponents('Skia', [TSkAnimatedImage, TSkAnimatedPaintBox, TSkLabel, TSkPaintBox, TSkSvg]);
 end;
 
-var
-  FPreviousExceptionMask: TArithmeticExceptionMask;
 initialization
-  FPreviousExceptionMask := SetExceptionMask(exAllArithmeticExceptions);
   TSkAnimatedImage.RegisterCodec(TSkLottieAnimationCodec);
   TSkAnimatedImage.RegisterCodec(TSkDefaultAnimationCodec);
   TPicture.RegisterFileFormat('svg', 'Scalable Vector Graphics', TSkSvgGraphic);
@@ -4748,5 +4745,4 @@ initialization
 finalization
   TPicture.UnregisterGraphicClass(TSkGraphic);
   TPicture.UnregisterGraphicClass(TSkSvgGraphic);
-  SetExceptionMask(FPreviousExceptionMask);
 end.

@@ -399,7 +399,7 @@ type
   const
     Low    : TSkSamplingOptions = (FUseCubic: False; FCubic: (B: 0; C: 0); FFilter: TSkFilterMode.Nearest; FMipmap: TSkMipmapMode.Nearest);
     Medium : TSkSamplingOptions = (FUseCubic: False; FCubic: (B: 0; C: 0); FFilter: TSkFilterMode.Linear; FMipmap: TSkMipmapMode.Nearest);
-    High   : TSkSamplingOptions = (FUseCubic: False; FCubic: (B: 0; C: 0); FFilter: TSkFilterMode.Linear; FMipmap: TSkMipmapMode.Linear);
+    High   : TSkSamplingOptions = (FUseCubic: True; FCubic: (B: 1 / 3; C: 1 / 3); FFilter: TSkFilterMode.Nearest; FMipmap: TSkMipmapMode.None);
   end;
 
   ISkFont = interface;

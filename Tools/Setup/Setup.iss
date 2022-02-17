@@ -39,13 +39,13 @@
 {************************************************************************}
 {                                                                        }
 { Example of command line to install in silent mode:                     }
-{   cmd /C ""Skia4Delphi_3.0.0_Setup.exe" /DIR="C:\Skia4Delphi" /SILENT  }
+{   cmd /C ""Skia4Delphi_3.0.1_Setup.exe" /DIR="C:\Skia4Delphi" /SILENT  }
 {     /RADStudioVersions=all"                                            }
 {                                                                        }
 { In GetIt implementation, the installation command could be:            }
-{   /C ""$(BDSCatalogRepository)\Skia4Delphi-3.0.0\                      }
-{     Skia4Delphi_3.0.0_Setup.exe"                                       }
-{     /DIR="$(BDSCatalogRepository)\Skia4Delphi-3.0.0" /SILENT           }
+{   /C ""$(BDSCatalogRepository)\Skia4Delphi-3.0.1\                      }
+{     Skia4Delphi_3.0.1_Setup.exe"                                       }
+{     /DIR="$(BDSCatalogRepository)\Skia4Delphi-3.0.1" /SILENT           }
 {     /RADStudioVersions=$(ProductVersion) /CreateUninstallRegKey=no"    }
 {                                                                        }
 { Example of command line to uninstall in silent mode:                   }
@@ -53,22 +53,22 @@
 {     /RADStudioVersions=all"                                            }
 {                                                                        }
 { In GetIt implementation, the uninstall command could be:               }
-{   /C ""$(BDSCatalogRepository)\Skia4Delphi-3.0.0\unins000.exe"         }
+{   /C ""$(BDSCatalogRepository)\Skia4Delphi-3.0.1\unins000.exe"         }
 {     /VERYSILENT /RADStudioVersions=$(ProductVersion)"                  }
 {                                                                        }
 {************************************************************************}
 
 #define LibraryName "Skia4Delphi"
-#define LibraryVersion "3.0.0"
+#define LibraryVersion "3.0.1"
 #define LibraryPublisher "Skia4Delphi Team"
 #define LibraryCopyright "Copyright (c) 2021-2022 Skia4Delphi Project"
 #define LibraryURL "https://skia4delphi.org"
 #define LibrarySamplesFolder "Samples"
 #define LibraryPackagesFolder "Packages"
 #define LibraryDCUFolder "Library"
-#define LibraryDocumentationURL "https://github.com/viniciusfbb/skia4delphi"
-#define LibrarySupportURL "https://github.com/viniciusfbb/skia4delphi/issues/"
-#define LibraryUpdatesURL "https://github.com/viniciusfbb/skia4delphi/releases/"
+#define LibraryDocumentationURL "https://github.com/skia4delphi/skia4delphi"
+#define LibrarySupportURL "https://github.com/skia4delphi/skia4delphi/issues/"
+#define LibraryUpdatesURL "https://github.com/skia4delphi/skia4delphi/releases/"
 #define LibraryLicenseFileName "Languages\Default.LICENSE"
 #define BannerImagesFileName "..\..\Assets\Setup\image.bmp,..\..\Assets\Setup\image2.bmp,..\..\Assets\Setup\image3.bmp,..\..\Assets\Setup\image4.bmp,..\..\Assets\Setup\image5.bmp,..\..\Assets\Setup\image6.bmp,..\..\Assets\Setup\image7.bmp"
 #define SmallImagesFileName "..\..\Assets\Setup\image-small.bmp,..\..\Assets\Setup\image-small2.bmp,..\..\Assets\Setup\image-small3.bmp,..\..\Assets\Setup\image-small4.bmp,..\..\Assets\Setup\image-small5.bmp"
@@ -76,6 +76,9 @@
 #define VclStyle "Windows11.Dark.vsf"
 #define SignSetup
 #define FilesEmbedded
+#if DirExists("..\..\" + LibraryDCUFolder + "\")
+  #define UseLibraryDCUFolder
+#endif
 
 [Setup]
 AllowCancelDuringInstall=yes
@@ -108,6 +111,7 @@ LZMAUseSeparateProcess=yes
 MissingMessagesWarning=yes
 NotRecognizedMessagesWarning=yes
 PrivilegesRequired=lowest
+SetupLogging=yes
 ShowLanguageDialog=no
 SolidCompression=yes
 UsePreviousAppDir=no
@@ -153,16 +157,18 @@ Name: "ukrainian"; MessagesFile: "compiler:Languages\Ukrainian.isl,Languages\Def
 
 #ifdef FilesEmbedded
   #expr Exec(AddBackslash(SourcePath) + 'Scripts\Setup.Preprocessor.ClearFiles.bat', '', AddBackslash(SourcePath) + 'Scripts\')
-  #define CommonRADStudioFilesExcludes "*.exe,*.dll,*.bpl,*.bpi,*.dcp,*.so,*.apk,*.drc,*.map,*.dres,*.rsm,*.tds,*.dcu,*.lib,*.jdbg,*.plist,*.cfg,*Resource.rc,*.cfg,*Resource.rc,*.local,*.identcache,*.projdata,*.tvsconfig,*.skincfg,*.cbk,*.dsk,__history\*,__recovery\*,*.~*,*.stat,modules\*,*template*\*,*template*,*.a,*.dex,*.o,*.vrc,*.res,*.log,*.deployproj,*.bak,unins0*.dat,*.nupkg"
+  #define CommonRADStudioFilesExcludes "*.exe,*.dll,*.bpl,*.bpi,*.dcp,*.so,*.apk,*.drc,*.map,*.dres,*.rsm,*.tds,*.dcu,*.lib,*.jdbg,*.plist,*.cfg,*Resource.rc,*.cfg,*Resource.rc,*.local,*.identcache,*.projdata,*.tvsconfig,*.skincfg,*.cbk,*.dsk,__history\*,__recovery\*,*.~*,*.stat,modules\*,.github\*,*template*\*,*template*,*.a,*.dex,*.o,*.vrc,*.res,*.log,*.deployproj,*.bak,unins0*.dat,*.nupkg"
   ; Don't change the order of the files. This could affect the performance when extract temp files
   [Files]
     Source: "Style\*"; DestDir: "{app}\{#SetupFolder}\Style"; Flags: ignoreversion
     Source: "..\..\{#LibraryPackagesFolder}\*"; Excludes: "{#CommonRADStudioFilesExcludes}"; DestDir: "{app}\{#LibraryPackagesFolder}"; Flags: recursesubdirs ignoreversion
     Source: "..\..\*"; Excludes: "{#CommonRADStudioFilesExcludes},Binary\*,\Externals\*,\{#LibraryDCUFolder}\*,Logs\*,*.Logs.txt,Objects\*,\{#SetupFolder}\Style\*,\{#LibraryPackagesFolder}\*"; DestDir: "{app}"; Flags: recursesubdirs ignoreversion
-    Source: "..\..\{#LibraryDCUFolder}\*"; DestDir: "{app}\{#LibraryDCUFolder}"; Flags: recursesubdirs ignoreversion; Check: CheckSelectedRADStudioBeforeExtract
     Source: "..\..\Binary\*"; DestDir: "{app}\Binary"; Flags: recursesubdirs ignoreversion
     Source: "Style\vcl-styles-plugins\*"; Excludes: "{#CommonRADStudioFilesExcludes}"; DestDir: "{app}\{#SetupFolder}\Style\vcl-styles-plugins"; Flags: recursesubdirs ignoreversion
     Source: "Style\vcl-styles-plugins\Common\*.res"; DestDir: "{app}\{#SetupFolder}\Style\vcl-styles-plugins\Common"; Flags: ignoreversion
+    #ifdef UseLibraryDCUFolder
+      Source: "..\..\{#LibraryDCUFolder}\*"; DestDir: "{app}\{#LibraryDCUFolder}"; Flags: recursesubdirs ignoreversion dontcopy
+    #endif
 #else
   #ifdef VclStyle
     [Files]

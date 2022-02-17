@@ -24,6 +24,7 @@ type
   TRADStudioVersion = record
     Name: string;
     RegVersion: string;
+    SupportedPlatforms: TProjectPlatforms;
     MaxDprojVersion: string;
     MinDprojVersion: string;
     PackageVersion: string;
@@ -38,12 +39,13 @@ type
     AppFileName: string;
     RootDir: string;
     Status: TRADStudioInstallationStatus;
-    UserAppDataDir: string;
     Version: TRADStudioVersion;
   end;
 
   TRADStudioInfos = array of TRADStudioInfo;
 
+/// <summary> Checks if RAD Studio supports the platform </summary>
+function CheckIfRADStudioSupportsPlatform(const ARADStudioInfo: TRADStudioInfo; const APlatform: TProjectPlatform): Boolean; forward;
 /// <summary> Compare two versions of RAD Studio </summary>
 function CompareRADStudioVersions(const AVersion1, AVersion2: TRADStudioVersion): Integer; forward;
 /// <summary> Get the RAD Studio info </summary>
@@ -100,6 +102,8 @@ type
 
 /// <summary> Filter allowed version defined by the parameter /RADStudioVersions=all for example </summary>
 function _FilterAllowedRADStudioVersions(const ARADStudioVersions: _TRADStudioVersions): _TRADStudioVersions; forward;
+/// <summary> Get RAD Studio installation status name </summary>
+function _GetRADStudioInstallationStatusName(const AStatus: TRADStudioInstallationStatus): string; forward;
 /// <summary> Get the RAD Studio versions that the installer is able to recognize </summary>
 function _GetRADStudioVersions: _TRADStudioVersions; forward;
 /// <summary> Initialization method of the unit </summary>
@@ -117,6 +121,12 @@ function _TryRemoveRADStudioLibraryPath(const ARADStudioVersion: TRADStudioVersi
 
 var
   _FRADStudioVersions: _TRADStudioVersions;
+
+function CheckIfRADStudioSupportsPlatform(const ARADStudioInfo: TRADStudioInfo; const APlatform: TProjectPlatform): Boolean;
+begin
+  Result := (APlatform in ARADStudioInfo.Version.SupportedPlatforms) and 
+    RegKeyExists(HKEY_CURRENT_USER, GetRADStudioRegKey(ARADStudioInfo.Version) + '\Library\' + GetProjectPlatformLibraryName(APlatform));
+end;
 
 function CompareRADStudioVersions(const AVersion1, AVersion2: TRADStudioVersion): Integer;
 var
@@ -194,6 +204,7 @@ var
   LFound: Boolean;
   I, J, K: Integer;
 begin
+  Log('RADStudio.GetRADStudioInfosOfGroupProjects: Searching all RAD Studio versions that is installed in machine and is compatible with library...');
   Result := [];
   // Search RAD Studio versions in packages
   for I := 0 to GetArrayLength(AGroupProjects) - 1 do
@@ -222,6 +233,27 @@ begin
   end;
   // Sort results
   Result := _SortRADStudioInfos(Result);
+
+  for I := 0 to GetArrayLength(Result) - 1 do
+  begin
+    Log(Format('RADStudio.GetRADStudioInfosOfGroupProjects: Found %s:', [Result[I].Version.Name]));
+    Log(Format('RADStudio.GetRADStudioInfosOfGroupProjects:   > AppFileName: "%s"', [Result[I].AppFileName]));
+    Log(Format('RADStudio.GetRADStudioInfosOfGroupProjects:   > RootDir: "%s"', [Result[I].RootDir]));
+    Log(Format('RADStudio.GetRADStudioInfosOfGroupProjects:   > Status: "%s"', [_GetRADStudioInstallationStatusName(Result[I].Status)]));
+    Log(Format('RADStudio.GetRADStudioInfosOfGroupProjects:   > RegKey: "%s"', [GetRADStudioRegKey(Result[I].Version)]));
+  end;
+end;
+
+function _GetRADStudioInstallationStatusName(const AStatus: TRADStudioInstallationStatus): string;
+begin
+  case AStatus of
+    riNotFound             : Result := 'Not found';
+    riNeedOpenFirst        : Result := 'Need open first';
+    riToolchainNotSupported: Result := 'Toolchain not supported';
+    riNormal               : Result := 'Normal';
+  else
+    Result := '';
+  end;
 end;
 
 function GetRADStudioRegKey(const ARADStudioVersion: TRADStudioVersion): string;
@@ -251,6 +283,7 @@ begin
   // RAD Studio XE2
   LRADStudioVersion.Name := 'RAD Studio XE2';
   LRADStudioVersion.RegVersion := '9.0';
+  LRADStudioVersion.SupportedPlatforms := [pfWin32, pfWin64, pfOSX32];
   LRADStudioVersion.MaxDprojVersion := '13.4';
   LRADStudioVersion.MinDprojVersion := '13.4';
   LRADStudioVersion.PackageVersion := '160';
@@ -262,7 +295,8 @@ begin
 
   // RAD Studio XE3
   LRADStudioVersion.Name := 'RAD Studio XE3';
-  LRADStudioVersion.RegVersion := '10.0';
+  LRADStudioVersion.RegVersion := '10.0';          
+  LRADStudioVersion.SupportedPlatforms := [pfWin32, pfWin64, pfOSX32];
   LRADStudioVersion.MaxDprojVersion := '14.4'; // Conflicted
   LRADStudioVersion.MinDprojVersion := '14.3';
   LRADStudioVersion.PackageVersion := '170';
@@ -274,7 +308,8 @@ begin
 
   // RAD Studio XE4
   LRADStudioVersion.Name := 'RAD Studio XE4';
-  LRADStudioVersion.RegVersion := '11.0';
+  LRADStudioVersion.RegVersion := '11.0';     
+  LRADStudioVersion.SupportedPlatforms := [pfWin32, pfWin64, pfiOSDevice32, pfiOSSimulator, pfOSX32];
   LRADStudioVersion.MaxDprojVersion := '14.6';
   LRADStudioVersion.MinDprojVersion := '14.4'; // Conflicted
   LRADStudioVersion.PackageVersion := '180';
@@ -286,7 +321,8 @@ begin
 
   // RAD Studio XE5
   LRADStudioVersion.Name := 'RAD Studio XE5';
-  LRADStudioVersion.RegVersion := '12.0';
+  LRADStudioVersion.RegVersion := '12.0';   
+  LRADStudioVersion.SupportedPlatforms := [pfWin32, pfWin64, pfAndroid, pfiOSDevice32, pfiOSSimulator, pfOSX32];
   LRADStudioVersion.MaxDprojVersion := '15.3';
   LRADStudioVersion.MinDprojVersion := '15.1';
   LRADStudioVersion.PackageVersion := '190';
@@ -298,7 +334,8 @@ begin
 
   // RAD Studio XE6
   LRADStudioVersion.Name := 'RAD Studio XE6';
-  LRADStudioVersion.RegVersion := '14.0';
+  LRADStudioVersion.RegVersion := '14.0';     
+  LRADStudioVersion.SupportedPlatforms := [pfWin32, pfWin64, pfAndroid, pfiOSDevice32, pfiOSSimulator, pfOSX32];
   LRADStudioVersion.MaxDprojVersion := '15.4';
   LRADStudioVersion.MinDprojVersion := '15.4';
   LRADStudioVersion.PackageVersion := '200';
@@ -310,7 +347,8 @@ begin
 
   // RAD Studio XE7
   LRADStudioVersion.Name := 'RAD Studio XE7';
-  LRADStudioVersion.RegVersion := '15.0';
+  LRADStudioVersion.RegVersion := '15.0';     
+  LRADStudioVersion.SupportedPlatforms := [pfWin32, pfWin64, pfAndroid, pfiOSDevice32, pfiOSSimulator, pfOSX32];
   LRADStudioVersion.MaxDprojVersion := '16.1';
   LRADStudioVersion.MinDprojVersion := '16.0';
   LRADStudioVersion.PackageVersion := '210';
@@ -322,8 +360,9 @@ begin
 
   // RAD Studio XE8
   LRADStudioVersion.Name := 'RAD Studio XE8';
-  LRADStudioVersion.RegVersion := '16.0';
-  LRADStudioVersion.MaxDprojVersion := '17.2';
+  LRADStudioVersion.RegVersion := '16.0';      
+  LRADStudioVersion.SupportedPlatforms := [pfWin32, pfWin64, pfAndroid, pfiOSDevice32, pfiOSDevice64, pfiOSSimulator, pfOSX32];
+  LRADStudioVersion.MaxDprojVersion := '17.2'; 
   LRADStudioVersion.MinDprojVersion := '17.1';
   LRADStudioVersion.PackageVersion := '220';
   LRADStudioVersion.HasGetItCmd := False;
@@ -334,7 +373,8 @@ begin
 
   // RAD Studio 10.0 Seattle
   LRADStudioVersion.Name := 'RAD Studio 10.0 Seattle';
-  LRADStudioVersion.RegVersion := '17.0';
+  LRADStudioVersion.RegVersion := '17.0';    
+  LRADStudioVersion.SupportedPlatforms := [pfWin32, pfWin64, pfAndroid, pfiOSDevice32, pfiOSDevice64, pfiOSSimulator, pfOSX32];
   LRADStudioVersion.MaxDprojVersion := '18.1'; // Conflicted
   LRADStudioVersion.MinDprojVersion := '18.0';
   LRADStudioVersion.PackageVersion := '230';
@@ -346,7 +386,8 @@ begin
 
   // RAD Studio 10.1 Berlin
   LRADStudioVersion.Name := 'RAD Studio 10.1 Berlin';
-  LRADStudioVersion.RegVersion := '18.0';
+  LRADStudioVersion.RegVersion := '18.0';          
+  LRADStudioVersion.SupportedPlatforms := [pfWin32, pfWin64, pfAndroid, pfiOSDevice32, pfiOSDevice64, pfiOSSimulator, pfOSX32];
   LRADStudioVersion.MaxDprojVersion := '18.2'; // Conflicted
   LRADStudioVersion.MinDprojVersion := '18.1'; // Conflicted
   LRADStudioVersion.PackageVersion := '240';
@@ -358,7 +399,8 @@ begin
 
   // RAD Studio 10.2 Tokyo
   LRADStudioVersion.Name := 'RAD Studio 10.2 Tokyo';
-  LRADStudioVersion.RegVersion := '19.0';
+  LRADStudioVersion.RegVersion := '19.0';         
+  LRADStudioVersion.SupportedPlatforms := [pfWin32, pfWin64, pfAndroid, pfiOSDevice32, pfiOSDevice64, pfiOSSimulator, pfOSX32, pfLinux64];
   LRADStudioVersion.MaxDprojVersion := '18.4';
   LRADStudioVersion.MinDprojVersion := '18.2'; // Conflicted
   LRADStudioVersion.PackageVersion := '250';
@@ -370,7 +412,8 @@ begin
 
   // RAD Studio 10.3 Rio
   LRADStudioVersion.Name := 'RAD Studio 10.3 Rio';
-  LRADStudioVersion.RegVersion := '20.0';
+  LRADStudioVersion.RegVersion := '20.0';       
+  LRADStudioVersion.SupportedPlatforms := [pfWin32, pfWin64, pfAndroid, pfAndroid64, pfiOSDevice32, pfiOSDevice64, pfiOSSimulator, pfOSX32, pfOSX64, pfLinux64];
   LRADStudioVersion.MaxDprojVersion := '18.8';
   LRADStudioVersion.MinDprojVersion := '18.5';
   LRADStudioVersion.PackageVersion := '260';
@@ -382,7 +425,8 @@ begin
 
   // RAD Studio 10.4 Sydney
   LRADStudioVersion.Name := 'RAD Studio 10.4 Sydney';
-  LRADStudioVersion.RegVersion := '21.0';
+  LRADStudioVersion.RegVersion := '21.0';      
+  LRADStudioVersion.SupportedPlatforms := [pfWin32, pfWin64, pfAndroid, pfAndroid64, pfiOSDevice64, pfiOSSimulator, pfOSX64, pfLinux64];
   LRADStudioVersion.MaxDprojVersion := '19.2';
   LRADStudioVersion.MinDprojVersion := '19.0';
   LRADStudioVersion.PackageVersion := '270';
@@ -394,7 +438,8 @@ begin
 
   // RAD Studio 11.0 Alexandria
   LRADStudioVersion.Name := 'RAD Studio 11.0 Alexandria';
-  LRADStudioVersion.RegVersion := '22.0';
+  LRADStudioVersion.RegVersion := '22.0';         
+  LRADStudioVersion.SupportedPlatforms := [pfWin32, pfWin64, pfAndroid, pfAndroid64, pfiOSDevice64, pfiOSSimulator, pfOSX64, pfOSXARM64, pfLinux64];
   LRADStudioVersion.MaxDprojVersion := '19.3';
   LRADStudioVersion.MinDprojVersion := '19.3';
   LRADStudioVersion.PackageVersion := '280';
@@ -520,6 +565,7 @@ begin
     if not Result then
     begin
       AFileName := '';
+      Log(Format('RADStudio.TryGetRADStudioProjectBplOutputFileName: Failed to get the RAD Studio project Bpl''s output filenane, of project "%s".', [AProject.FileName]));
       Exit;
     end;
     LBplSuffix := LVersion.PackageVersion;
@@ -538,7 +584,10 @@ begin
     Result := FileExists(ARsvarsFileName);
   end;
   if not Result then
+  begin
     ARsvarsFileName := '';
+    Log(Format('RADStudio.TryGetRADStudioRSVarsBatchFileName: Failed to get the "rsvars.bat" filename of the %s.', [ARADStudioInfo.Version.Name]));
+  end;
 end;
 
 function TryGetRADStudioVersionByRegVersion(const ARegVersion: string; out ARADStudioVersion: TRADStudioVersion): Boolean;
@@ -549,18 +598,21 @@ var
   I: Integer;
 begin
   Result := False;
-  if not StrToVersion(ARegVersion, LVersion) then
-    Exit;
-  LRADStudioVersions := _GetRADStudioVersions;
-  for I := 0 to GetArrayLength(LRADStudioVersions) - 1 do
+  if StrToVersion(ARegVersion, LVersion) then
   begin
-    ARADStudioVersion := LRADStudioVersions[I];
-    if StrToVersion(ARADStudioVersion.RegVersion, LRADVersion) and SamePackedVersion(LRADVersion, LVersion) then
+    LRADStudioVersions := _GetRADStudioVersions;
+    for I := 0 to GetArrayLength(LRADStudioVersions) - 1 do
     begin
-      Result := True;
-      Exit;
+      ARADStudioVersion := LRADStudioVersions[I];
+      if StrToVersion(ARADStudioVersion.RegVersion, LRADVersion) and SamePackedVersion(LRADVersion, LVersion) then
+      begin
+        Result := True;
+        Break;
+      end;
     end;
   end;
+  if not Result then
+    Log(Format('RADStudio.TryGetRADStudioVersionByRegVersion: Failed to get the RAD Studio version by the reg version "%s".', [ARegVersion]));
 end;
 
 function _TryGetRADStudioInstallation(const ARADStudioVersion: TRADStudioVersion; const ARootKey: Integer; out AAppFileName, ARootDir: string): Boolean;
@@ -598,32 +650,37 @@ var
   I: Integer;
 begin
   Result := False;
-  if not StrToVersion(AProject.ProjectVersion, LProjVersion) then
-    Exit;
-  LRADStudioVersions := _GetRADStudioVersions;
-  for I := 0 to GetArrayLength(LRADStudioVersions) - 1 do
+  if StrToVersion(AProject.ProjectVersion, LProjVersion) then
   begin
-    ARADStudioVersion := LRADStudioVersions[I];
-    if AProject.Personality = ppDelphi then
+    LRADStudioVersions := _GetRADStudioVersions;
+    for I := 0 to GetArrayLength(LRADStudioVersions) - 1 do
     begin
-      if (not StrToVersion(ARADStudioVersion.MaxDprojVersion, LMaxVersion)) or
-        (not StrToVersion(ARADStudioVersion.MinDprojVersion, LMinVersion)) then
+      ARADStudioVersion := LRADStudioVersions[I];
+      if AProject.Personality = ppDelphi then
       begin
-        Continue;
-      end;
-      if (LProjVersion >= LMinVersion) and (LProjVersion <= LMaxVersion) then
-      begin
-        Result := True;
-        Exit;
+        if (not StrToVersion(ARADStudioVersion.MaxDprojVersion, LMaxVersion)) or
+          (not StrToVersion(ARADStudioVersion.MinDprojVersion, LMinVersion)) then
+        begin
+          Continue;
+        end;
+        if (LProjVersion >= LMinVersion) and (LProjVersion <= LMaxVersion) then
+        begin
+          Result := True;
+          Break;
+        end;
       end;
     end;
   end;
+  if not Result then
+    Log(Format('RADStudio.TryGetRADStudioVersionOfProject: Failed to get the RAD Studio version of the project "%s" with project version "%s".', [AProject.FileName, AProject.ProjectVersion]));
 end;
 
 function TryRegisterRADStudioBpl(const ARADStudioVersion: TRADStudioVersion; const ABplFileName, ADescription: string): Boolean;
 begin
   Result := TryUnregisterRADStudioBpl(ARADStudioVersion, ABplFileName) and
     RegWriteStringValue(HKEY_CURRENT_USER, GetRADStudioRegKey(ARADStudioVersion) + '\Known Packages', ABplFileName, ADescription);
+  if not Result then
+    Log(Format('RADStudio.TryRegisterRADStudioBpl: Failed to register the RAD Studio bpl "%s".', [ABplFileName]));
 end;
 
 function TryRemoveFromGetIt(const AInfos: TRADStudioInfos; const ALibraryName: string): Boolean;
@@ -638,7 +695,8 @@ var
 begin
   Result := True;
   if ALibraryName = '' then
-    Exit;
+    Exit;  
+  Log(Format('RADStudio.TryRemoveFromGetIt: Trying to remove from GetIt the library "%s"', [ALibraryName]));
   if Pos('-', ALibraryName) = 0 then
     LLibrarySearchName := ALibraryName + '-'
   else
@@ -694,18 +752,23 @@ begin
     LBplName := ExtractFileName(ABplFileName);
     for I := 0 to GetArrayLength(LRegisteredBpls) - 1 do
     begin
-      if SameText(LBplName, ExtractFileName(LRegisteredBpls[I])) then
-        Result := RegDeleteValue(HKEY_CURRENT_USER, GetRADStudioRegKey(ARADStudioVersion) + '\Disabled Packages', LRegisteredBpls[I]) and Result;
+      if SameText(LBplName, ExtractFileName(LRegisteredBpls[I])) and not RegDeleteValue(HKEY_CURRENT_USER, GetRADStudioRegKey(ARADStudioVersion) + '\Disabled Packages', LRegisteredBpls[I]) then
+      begin
+        Result := False;
+        Log(Format('RADStudio._TryRemoveRADStudioBplFromDisabledPackages: Failed to delete the value "%s" from registry "%s".', [LRegisteredBpls[I], 'HKEY_CURRENT_USER\' + GetRADStudioRegKey(ARADStudioVersion) + '\Disabled Packages']));
+      end;
     end;
-  end;
+  end
+  else
+    Log(Format('RADStudio._TryRemoveRADStudioBplFromDisabledPackages: Failed to get the disabled bpl list, from registry "%s".', ['HKEY_CURRENT_USER\' + GetRADStudioRegKey(ARADStudioVersion) + '\Disabled Packages']));
 end;
 
 function TryRemoveRADStudioEnvVariable(const ARADStudioVersion: TRADStudioVersion; const AName: string): Boolean;
 begin
-  Result := (not RegValueExists(HKEY_CURRENT_USER, GetRADStudioRegKey(ARADStudioVersion) + '\Environment Variables', AName)) or
-    RegDeleteValue(HKEY_CURRENT_USER, GetRADStudioRegKey(ARADStudioVersion) + '\Environment Variables', AName);   
+  Result := (not RegValueExists(HKEY_CURRENT_USER, GetRADStudioRegKey(ARADStudioVersion) + '\Environment Variables', AName)) or 
+    RegDeleteValue(HKEY_CURRENT_USER, GetRADStudioRegKey(ARADStudioVersion) + '\Environment Variables', AName);
   if not Result then
-    Log(Format('RADStudio.TryRemoveRADStudioEnvVariable: Failed to remove an environment variable to the RAD Studio registry (Name: "%s")', [AName]));
+    Log(Format('RADStudio.TryRemoveRADStudioEnvVariable: Failed to remove an environment variable to the RAD Studio registry (Name: "%s"; Registry: "%s").', [AName, 'HKEY_CURRENT_USER\' + GetRADStudioRegKey(ARADStudioVersion) + '\Environment Variables']));
 end;
 
 function TryRemoveRADStudioLibraryBrowsingPath(const ARADStudioVersion: TRADStudioVersion; const APlatform: TProjectPlatform; const APath: string): Boolean;
@@ -738,9 +801,11 @@ begin
     end;
     LNewValue := JoinStrings(LCurrentPaths, ';', False);
     Result := RegWriteStringValue(HKEY_CURRENT_USER, GetRADStudioRegKey(ARADStudioVersion) + '\Library\' + GetProjectPlatformLibraryName(APlatform), ARegName, LNewValue);
-  end; 
-  if not Result then
-    Log(Format('RADStudio._TryRemoveRADStudioLibraryPath: Failed to remove a library path to the RAD Studio registry (RegName: "%s", Path: "%s")', [ARegName, APath]));
+    if not Result then
+      Log(Format('RADStudio._TryRemoveRADStudioLibraryPath: Failed to remove a library path to the RAD Studio registry (RegName: "%s", Path: "%s"). Failed to write the registry "%s"', [ARegName, APath, 'HKEY_CURRENT_USER\' + GetRADStudioRegKey(ARADStudioVersion) + '\Library\' + GetProjectPlatformLibraryName(APlatform)]));
+  end
+  else
+    Log(Format('RADStudio._TryRemoveRADStudioLibraryPath: Failed to remove a library path to the RAD Studio registry (RegName: "%s", Path: "%s"). The registry name, does not exists in registry "%s".', [ARegName, APath, 'HKEY_CURRENT_USER\' + GetRADStudioRegKey(ARADStudioVersion) + '\Library\' + GetProjectPlatformLibraryName(APlatform)]));
 end;
 
 function TryRemoveRADStudioLibrarySearchPath(const ARADStudioVersion: TRADStudioVersion; const APlatform: TProjectPlatform; const APath: string): Boolean;
@@ -761,11 +826,15 @@ begin
     LPaths := RemoveString(LPaths, APath + '\', False);
     LValue := JoinStrings(LPaths, ';', False);
     Result := RegWriteStringValue(HKEY_CURRENT_USER, GetRADStudioRegKey(ARADStudioVersion) + '\Environment Variables', 'PATH', LValue);
+    if not Result then
+      Log(Format('RADStudio.TryRemoveRADStudioPathEnvVariable: Failed to remove a path environment variable to the RAD Studio registry (Path: "%s"). Cannot possible to write the value PATH in registry "%s"', [APath, 'HKEY_CURRENT_USER\' + GetRADStudioRegKey(ARADStudioVersion) + '\Environment Variables']));
   end
   else
-    Result := RegKeyExists(HKEY_CURRENT_USER, GetRADStudioRegKey(ARADStudioVersion) + '\Environment Variables');     
-  if not Result then
-    Log(Format('RADStudio.TryRemoveRADStudioPathEnvVariable: Failed to remove a path environment variable to the RAD Studio registry (Path: "%s")', [APath]));
+  begin
+    Result := RegKeyExists(HKEY_CURRENT_USER, GetRADStudioRegKey(ARADStudioVersion) + '\Environment Variables');
+    if not Result then
+      Log(Format('RADStudio.TryRemoveRADStudioPathEnvVariable: Failed to remove a path environment variable to the RAD Studio registry (Path: "%s"). The registry "%s" does not exist.', [APath, 'HKEY_CURRENT_USER\' + GetRADStudioRegKey(ARADStudioVersion) + '\Environment Variables']));
+  end;
 end;
 
 function TryUnregisterRADStudioBpl(const ARADStudioVersion: TRADStudioVersion; const ABplFileName: string): Boolean;
@@ -780,10 +849,15 @@ begin
     LBplName := ExtractFileName(ABplFileName);
     for I := 0 to GetArrayLength(LRegisteredBpls) - 1 do
     begin
-      if SameText(LBplName, ExtractFileName(LRegisteredBpls[I])) then
-        Result := RegDeleteValue(HKEY_CURRENT_USER, GetRADStudioRegKey(ARADStudioVersion) + '\Known Packages', LRegisteredBpls[I]) and Result;
+      if SameText(LBplName, ExtractFileName(LRegisteredBpls[I])) and not RegDeleteValue(HKEY_CURRENT_USER, GetRADStudioRegKey(ARADStudioVersion) + '\Known Packages', LRegisteredBpls[I]) then
+      begin
+        Result := False;
+        Log(Format('RADStudio.TryUnregisterRADStudioBpl: Failed to unregister the bpl "%s". Cannot possible to delete the value "%s" from registry "%s"', [LRegisteredBpls[I], 'HKEY_CURRENT_USER' + GetRADStudioRegKey(ARADStudioVersion) + '\Known Packages']));
+      end;
     end;
-  end;
+  end
+  else
+    Log(Format('RADStudio.TryUnregisterRADStudioBpl: Failed to unregister the bpl "%s". Cannot possible to get the list of Known Packages from registry "%s"', [ABplFileName, 'HKEY_CURRENT_USER' + GetRADStudioRegKey(ARADStudioVersion) + '\Known Packages']));
   Result := _TryRemoveRADStudioBplFromDisabledPackages(ARADStudioVersion, ABplFileName) and Result;
 end;
 
