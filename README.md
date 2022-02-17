@@ -580,28 +580,26 @@ end;
 Using Skia's Canvas, your application will now support Right-To-Left text rendering. But for that you will need to make 3 changes to your project:
 
   1. Open the source of your Delphi Application Project *(.dpr)*, include the line `Application.BiDiMode := TBiDiMode.bdRightToLeft;`, like below:
-
-    ```pascal
-    program Project1;
-
-    uses
-      System.StartUpCopy,
-      FMX.Forms,
-      System.Classes,
-      Skia.FMX,
-      Unit1 in 'Unit1.pas' {Form1};
-
-    {$R *.res}
-
-    begin
-      Application.BiDiMode := TBiDiMode.bdRightToLeft;
-      GlobalUseSkia := True;
-      Application.Initialize;
-      Application.CreateForm(TForm1, Form1);
-      Application.Run;
-    end.
-    ```
-
+  ```pascal
+  program Project1;
+  
+  uses
+    System.StartUpCopy,
+    FMX.Forms,
+    System.Classes,
+    Skia.FMX,
+    Unit1 in 'Unit1.pas' {Form1};
+  
+  {$R *.res}
+  
+  begin
+    Application.BiDiMode := TBiDiMode.bdRightToLeft;
+    GlobalUseSkia := True;
+    Application.Initialize;
+    Application.CreateForm(TForm1, Form1);
+    Application.Run;
+  end.
+  ```
   2. Set the property `BiDiMode` of your forms to `bdRightToLeft`;
   3. Editing controls like TEdit, TMemo, need to be fixed by Embarcadero, meanwhile how to workaround set the `ControlType` property of these controls to `Platform`.
 
