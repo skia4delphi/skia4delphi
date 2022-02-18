@@ -1545,8 +1545,9 @@ class function TSkCanvasCustom.DoInitializeBitmap(const AWidth,
   AHeight: Integer; const AScale: Single;
   var APixelFormat: TPixelFormat): THandle;
 begin
-  Result       := THandle(TSkBitmap.Create(AWidth, AHeight));
-  APixelFormat := SkFmxPixelFormat[ColorType];
+  Result := THandle(TSkBitmap.Create(AWidth, AHeight));
+  if APixelFormat = TPixelFormat.None then
+    APixelFormat := SkFmxPixelFormat[ColorType];
 end;
 
 class function TSkCanvasCustom.DoMapBitmap(const ABitmapHandle: THandle;
