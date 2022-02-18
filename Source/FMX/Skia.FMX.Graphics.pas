@@ -1547,7 +1547,10 @@ class function TSkCanvasCustom.DoInitializeBitmap(const AWidth,
 begin
   Result := THandle(TSkBitmap.Create(AWidth, AHeight));
   if APixelFormat = TPixelFormat.None then
-    APixelFormat := SkFmxPixelFormat[ColorType];
+  begin
+    // Some methods used in Windows ignore PixelFormat, in Windows we will always use TPixelFormat.BGRA
+    APixelFormat := SkFmxPixelFormat[{$IFDEF MSWINDOWS}TSkColorType.BGRA8888{$ELSE}ColorType{$ENDIF}];
+  end;
 end;
 
 class function TSkCanvasCustom.DoMapBitmap(const ABitmapHandle: THandle;
