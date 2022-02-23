@@ -22,14 +22,15 @@ interface
 uses
   { Delphi }
 
-  Macapi.Metal,
-  Macapi.MetalKit,
-  Macapi.ObjectiveC,
   {$IFDEF IOS}
   FMX.Platform.iOS,
   {$ELSE}
   FMX.Platform.Mac,
   {$ENDIF}
+  Macapi.Metal,
+  Macapi.MetalKit,
+  Macapi.ObjectiveC,
+  System.SysUtils,
 
   { Skia }
   Skia,
@@ -62,16 +63,21 @@ end;
 function TGrCanvasMetal.CreateContext: IGrDirectContext;
 var
   LDevice: MTLDevice;
+  LView: MTKView;
 begin
+  {$IFDEF IOS}
+  if (not (Parent is TiOSWindowHandle)) or (TiOSWindowHandle(Parent).View = nil) or (not Supports(TiOSWindowHandle(Parent).View, MTKView, LView)) then
+    Exit(nil);
+  {$ELSE}
+  if (not (Parent is TMacWindowHandle)) or (TMacWindowHandle(Parent).View = nil) or (not Supports(TMacWindowHandle(Parent).View, MTKView, LView)) then
+    Exit(nil);
+  {$ENDIF}
   LDevice := TMTLDevice.Wrap(MTLCreateSystemDefaultDevice);
   if LDevice = nil then
     raise EGrCanvas.Create('Could not create Metal Device');
-  MTKView(WindowHandleToPlatform(Parent).View).setDevice(LDevice);
-  MTKView(WindowHandleToPlatform(Parent).View).setColorPixelFormat(MTLPixelFormatBGRA8Unorm);
-  MTKView(WindowHandleToPlatform(Parent).View).setDepthStencilPixelFormat(MTLPixelFormatDepth32Float_Stencil8);
-  MTKView(WindowHandleToPlatform(Parent).View).setSampleCount(1);
+  LView.setDevice(LDevice);
   FCommandQueue := LDevice.newCommandQueue;
-  Result := TGrDirectContext.MakeMetal(TGrMtlBackendContext.Create((LDevice as ILocalObject).GetObjectID, (FCommandQueue as ILocalObject).GetObjectID, nil));
+  Result        := TGrDirectContext.MakeMetal(TGrMtlBackendContext.Create((LDevice as ILocalObject).GetObjectID, (FCommandQueue as ILocalObject).GetObjectID, nil));
 end;
 
 procedure TGrCanvasMetal.Flush;

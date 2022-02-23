@@ -39,13 +39,13 @@
 {************************************************************************}
 {                                                                        }
 { Example of command line to install in silent mode:                     }
-{   cmd /C ""Skia4Delphi_3.0.3_Setup.exe" /DIR="C:\Skia4Delphi" /SILENT  }
+{   cmd /C ""Skia4Delphi_3.1.0_Setup.exe" /DIR="C:\Skia4Delphi" /SILENT  }
 {     /RADStudioVersions=all"                                            }
 {                                                                        }
 { In GetIt implementation, the installation command could be:            }
-{   cmd /C ""$(BDSCatalogRepository)\Skia4Delphi-3.0.3\                  }
-{     Skia4Delphi_3.0.3_Setup.exe"                                       }
-{     /DIR="$(BDSCatalogRepository)\Skia4Delphi-3.0.3" /SILENT           }
+{   cmd /C ""$(BDSCatalogRepository)\Skia4Delphi-3.1.0\                  }
+{     Skia4Delphi_3.1.0_Setup.exe"                                       }
+{     /DIR="$(BDSCatalogRepository)\Skia4Delphi-3.1.0" /VERYSILENT       }
 {     /RADStudioVersions=$(ProductVersion) /CreateUninstallRegKey=no"    }
 {                                                                        }
 { Example of command line to uninstall in silent mode:                   }
@@ -53,13 +53,13 @@
 {     /RADStudioVersions=all"                                            }
 {                                                                        }
 { In GetIt implementation, the uninstall command could be:               }
-{   cmd /C ""$(BDSCatalogRepository)\Skia4Delphi-3.0.3\unins000.exe"     }
+{   cmd /C ""$(BDSCatalogRepository)\Skia4Delphi-3.1.0\unins000.exe"     }
 {     /VERYSILENT /RADStudioVersions=$(ProductVersion)"                  }
 {                                                                        }
 {************************************************************************}
 
 #define LibraryName "Skia4Delphi"
-#define LibraryVersion "3.0.3"
+#define LibraryVersion "3.1.0"
 #define LibraryPublisher "Skia4Delphi Team"
 #define LibraryCopyright "Copyright (c) 2021-2022 Skia4Delphi Project"
 #define LibraryURL "https://skia4delphi.org"

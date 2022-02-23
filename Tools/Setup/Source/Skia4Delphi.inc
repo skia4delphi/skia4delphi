@@ -31,12 +31,19 @@ const
   LibraryWin32BinaryDir = 'Binary\Win32\Release';
   LibraryiOSDevice64BinaryDir = 'Binary\iOSDevice64\Release';
 
+/// <summary> Get the custom param on build </summary>
+function _OnGetBuildCustonParam(): string; forward;
 /// <summary> Try to extract pre-build objects binaries when the command line compilation has failed </summary>
 function _OnTryExtractPreBuildObjects(const AInfo: TRADStudioInfo): Boolean; forward;
 /// <summary> Make custom changes before the installation </summary>
 function _OnTryPrepareProjectInstallation(var AProjectItem: TRADStudioGroupProjectItem; const AInfo: TRADStudioInfo): Boolean; forward;  
 /// <summary> Make custom changes before the uninstallation </summary>
 function _OnTryPrepareProjectUninstallation(var AProjectItem: TRADStudioGroupProjectItem; const AInfo: TRADStudioInfo): Boolean; forward;
+
+function _OnGetBuildCustonParam(): string;
+begin
+  Result := 'Skia4Delphi_Setup=true';
+end;
 
 function _OnTryExtractPreBuildObjects(const AInfo: TRADStudioInfo): Boolean;
 #ifdef UseLibraryDCUFolder
@@ -133,6 +140,7 @@ end;
 <event('InitializeSetup')>
 function _Skia4DelphiInitializeSetup: Boolean;
 begin
+  FOnGetBuildCustonParam := @_OnGetBuildCustonParam;
   FOnTryExtractPreBuildObjects := @_OnTryExtractPreBuildObjects;
   FOnTryPrepareProjectInstallation := @_OnTryPrepareProjectInstallation;
   FOnTryPrepareProjectUninstallation := @_OnTryPrepareProjectUninstallation;

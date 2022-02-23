@@ -70,6 +70,7 @@ var
   LIntent: JIntent;
   LFile: JFile;
 begin
+  {$REGION ' - Workaround RSP-23512'}
   // - -------------------------------------------------------------------------
   // - WORKAROUND
   // - -------------------------------------------------------------------------
@@ -89,6 +90,7 @@ begin
   AFileName := TPath.Combine(TPath.GetTempPath, TPath.GetFileName(AFileName));
   {$ENDIF}
   // - -------------------------------------------------------------------------
+  {$ENDREGION}
   LFile := TJFile.JavaClass.init(StringToJString(AFileName));
   LIntent := TJIntent.JavaClass.init(TJIntent.JavaClass.ACTION_VIEW);
   LIntent.setDataAndType(TAndroidHelper.JFileToJURI(LFile), StringToJString('application/pdf'));

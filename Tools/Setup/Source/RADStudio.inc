@@ -31,6 +31,8 @@ type
     HasGetItCmd: Boolean;
     GetItCmdListInstalledParams: string;
     GetItCmdUninstallParams: string;
+    DotNetVersion: TDotNetVersion;
+    DotNetServicePack: Cardinal;
   end;
 
   TRADStudioInstallationStatus = (riNotFound, riNeedOpenFirst, riToolchainNotSupported, riNormal);
@@ -280,71 +282,6 @@ begin
     Exit;
   // Note: Keep the _FRADStudioVersions array in order, from the oldest version to the newest
 
-  // RAD Studio XE2
-  LRADStudioVersion.Name := 'RAD Studio XE2';
-  LRADStudioVersion.RegVersion := '9.0';
-  LRADStudioVersion.SupportedPlatforms := [pfWin32, pfWin64, pfOSX32];
-  LRADStudioVersion.MaxDprojVersion := '13.4';
-  LRADStudioVersion.MinDprojVersion := '13.4';
-  LRADStudioVersion.PackageVersion := '160';
-  LRADStudioVersion.HasGetItCmd := False;
-  LRADStudioVersion.GetItCmdListInstalledParams := '';
-  LRADStudioVersion.GetItCmdUninstallParams := '';
-  SetArrayLength(_FRADStudioVersions, GetArrayLength(_FRADStudioVersions) + 1);
-  _FRADStudioVersions[GetArrayLength(_FRADStudioVersions) - 1] := LRADStudioVersion;
-
-  // RAD Studio XE3
-  LRADStudioVersion.Name := 'RAD Studio XE3';
-  LRADStudioVersion.RegVersion := '10.0';          
-  LRADStudioVersion.SupportedPlatforms := [pfWin32, pfWin64, pfOSX32];
-  LRADStudioVersion.MaxDprojVersion := '14.4'; // Conflicted
-  LRADStudioVersion.MinDprojVersion := '14.3';
-  LRADStudioVersion.PackageVersion := '170';
-  LRADStudioVersion.HasGetItCmd := False;
-  LRADStudioVersion.GetItCmdListInstalledParams := '';
-  LRADStudioVersion.GetItCmdUninstallParams := '';
-  SetArrayLength(_FRADStudioVersions, GetArrayLength(_FRADStudioVersions) + 1);
-  _FRADStudioVersions[GetArrayLength(_FRADStudioVersions) - 1] := LRADStudioVersion;
-
-  // RAD Studio XE4
-  LRADStudioVersion.Name := 'RAD Studio XE4';
-  LRADStudioVersion.RegVersion := '11.0';     
-  LRADStudioVersion.SupportedPlatforms := [pfWin32, pfWin64, pfiOSDevice32, pfiOSSimulator, pfOSX32];
-  LRADStudioVersion.MaxDprojVersion := '14.6';
-  LRADStudioVersion.MinDprojVersion := '14.4'; // Conflicted
-  LRADStudioVersion.PackageVersion := '180';
-  LRADStudioVersion.HasGetItCmd := False;
-  LRADStudioVersion.GetItCmdListInstalledParams := '';
-  LRADStudioVersion.GetItCmdUninstallParams := '';
-  SetArrayLength(_FRADStudioVersions, GetArrayLength(_FRADStudioVersions) + 1);
-  _FRADStudioVersions[GetArrayLength(_FRADStudioVersions) - 1] := LRADStudioVersion;
-
-  // RAD Studio XE5
-  LRADStudioVersion.Name := 'RAD Studio XE5';
-  LRADStudioVersion.RegVersion := '12.0';   
-  LRADStudioVersion.SupportedPlatforms := [pfWin32, pfWin64, pfAndroid, pfiOSDevice32, pfiOSSimulator, pfOSX32];
-  LRADStudioVersion.MaxDprojVersion := '15.3';
-  LRADStudioVersion.MinDprojVersion := '15.1';
-  LRADStudioVersion.PackageVersion := '190';
-  LRADStudioVersion.HasGetItCmd := False;
-  LRADStudioVersion.GetItCmdListInstalledParams := '';
-  LRADStudioVersion.GetItCmdUninstallParams := '';
-  SetArrayLength(_FRADStudioVersions, GetArrayLength(_FRADStudioVersions) + 1);
-  _FRADStudioVersions[GetArrayLength(_FRADStudioVersions) - 1] := LRADStudioVersion;
-
-  // RAD Studio XE6
-  LRADStudioVersion.Name := 'RAD Studio XE6';
-  LRADStudioVersion.RegVersion := '14.0';     
-  LRADStudioVersion.SupportedPlatforms := [pfWin32, pfWin64, pfAndroid, pfiOSDevice32, pfiOSSimulator, pfOSX32];
-  LRADStudioVersion.MaxDprojVersion := '15.4';
-  LRADStudioVersion.MinDprojVersion := '15.4';
-  LRADStudioVersion.PackageVersion := '200';
-  LRADStudioVersion.HasGetItCmd := False;
-  LRADStudioVersion.GetItCmdListInstalledParams := '';
-  LRADStudioVersion.GetItCmdUninstallParams := '';
-  SetArrayLength(_FRADStudioVersions, GetArrayLength(_FRADStudioVersions) + 1);
-  _FRADStudioVersions[GetArrayLength(_FRADStudioVersions) - 1] := LRADStudioVersion;
-
   // RAD Studio XE7
   LRADStudioVersion.Name := 'RAD Studio XE7';
   LRADStudioVersion.RegVersion := '15.0';     
@@ -355,6 +292,8 @@ begin
   LRADStudioVersion.HasGetItCmd := False;
   LRADStudioVersion.GetItCmdListInstalledParams := '';
   LRADStudioVersion.GetItCmdUninstallParams := '';
+  LRADStudioVersion.DotNetVersion := net35;
+  LRADStudioVersion.DotNetServicePack := 1;
   SetArrayLength(_FRADStudioVersions, GetArrayLength(_FRADStudioVersions) + 1);
   _FRADStudioVersions[GetArrayLength(_FRADStudioVersions) - 1] := LRADStudioVersion;
 
@@ -368,6 +307,8 @@ begin
   LRADStudioVersion.HasGetItCmd := False;
   LRADStudioVersion.GetItCmdListInstalledParams := '';
   LRADStudioVersion.GetItCmdUninstallParams := '';
+  LRADStudioVersion.DotNetVersion := net35;
+  LRADStudioVersion.DotNetServicePack := 1;
   SetArrayLength(_FRADStudioVersions, GetArrayLength(_FRADStudioVersions) + 1);
   _FRADStudioVersions[GetArrayLength(_FRADStudioVersions) - 1] := LRADStudioVersion;
 
@@ -381,6 +322,8 @@ begin
   LRADStudioVersion.HasGetItCmd := False;
   LRADStudioVersion.GetItCmdListInstalledParams := '';
   LRADStudioVersion.GetItCmdUninstallParams := '';
+  LRADStudioVersion.DotNetVersion := net35;
+  LRADStudioVersion.DotNetServicePack := 1;
   SetArrayLength(_FRADStudioVersions, GetArrayLength(_FRADStudioVersions) + 1);
   _FRADStudioVersions[GetArrayLength(_FRADStudioVersions) - 1] := LRADStudioVersion;
 
@@ -394,6 +337,8 @@ begin
   LRADStudioVersion.HasGetItCmd := False;
   LRADStudioVersion.GetItCmdListInstalledParams := '';
   LRADStudioVersion.GetItCmdUninstallParams := '';
+  LRADStudioVersion.DotNetVersion := net35;
+  LRADStudioVersion.DotNetServicePack := 1;
   SetArrayLength(_FRADStudioVersions, GetArrayLength(_FRADStudioVersions) + 1);
   _FRADStudioVersions[GetArrayLength(_FRADStudioVersions) - 1] := LRADStudioVersion;
 
@@ -404,9 +349,11 @@ begin
   LRADStudioVersion.MaxDprojVersion := '18.4';
   LRADStudioVersion.MinDprojVersion := '18.2'; // Conflicted
   LRADStudioVersion.PackageVersion := '250';
-  LRADStudioVersion.HasGetItCmd := True;
+  LRADStudioVersion.HasGetItCmd := False; // It has but is obsolete
   LRADStudioVersion.GetItCmdListInstalledParams := '-listavailable:"%s" -filter:Installed';
   LRADStudioVersion.GetItCmdUninstallParams := '-u"%s"';
+  LRADStudioVersion.DotNetVersion := net35;
+  LRADStudioVersion.DotNetServicePack := 1;
   SetArrayLength(_FRADStudioVersions, GetArrayLength(_FRADStudioVersions) + 1);
   _FRADStudioVersions[GetArrayLength(_FRADStudioVersions) - 1] := LRADStudioVersion;
 
@@ -417,9 +364,11 @@ begin
   LRADStudioVersion.MaxDprojVersion := '18.8';
   LRADStudioVersion.MinDprojVersion := '18.5';
   LRADStudioVersion.PackageVersion := '260';
-  LRADStudioVersion.HasGetItCmd := True;
-  LRADStudioVersion.GetItCmdListInstalledParams := '-listavailable:"%s" -filter:Installed';
-  LRADStudioVersion.GetItCmdUninstallParams := '-u"%s"';
+  LRADStudioVersion.HasGetItCmd := False; // It has but is obsolete
+  LRADStudioVersion.GetItCmdListInstalledParams := '-l="%s" -c=useoffline -dnsef';
+  LRADStudioVersion.GetItCmdUninstallParams := '-u="%s" -c=useoffline -dnsef';
+  LRADStudioVersion.DotNetVersion := net45;
+  LRADStudioVersion.DotNetServicePack := 0;
   SetArrayLength(_FRADStudioVersions, GetArrayLength(_FRADStudioVersions) + 1);
   _FRADStudioVersions[GetArrayLength(_FRADStudioVersions) - 1] := LRADStudioVersion;
 
@@ -431,8 +380,10 @@ begin
   LRADStudioVersion.MinDprojVersion := '19.0';
   LRADStudioVersion.PackageVersion := '270';
   LRADStudioVersion.HasGetItCmd := True;
-  LRADStudioVersion.GetItCmdListInstalledParams := '-l="%s" -f=installed';
-  LRADStudioVersion.GetItCmdUninstallParams := '-u="%s"';
+  LRADStudioVersion.GetItCmdListInstalledParams := '-l="%s" -c=useoffline -dnsef';
+  LRADStudioVersion.GetItCmdUninstallParams := '-u="%s" -c=useoffline -dnsef';
+  LRADStudioVersion.DotNetVersion := net45;
+  LRADStudioVersion.DotNetServicePack := 0;
   SetArrayLength(_FRADStudioVersions, GetArrayLength(_FRADStudioVersions) + 1);
   _FRADStudioVersions[GetArrayLength(_FRADStudioVersions) - 1] := LRADStudioVersion;
 
@@ -444,8 +395,10 @@ begin
   LRADStudioVersion.MinDprojVersion := '19.3';
   LRADStudioVersion.PackageVersion := '280';
   LRADStudioVersion.HasGetItCmd := True;
-  LRADStudioVersion.GetItCmdListInstalledParams := '-l="%s" -f=installed';
-  LRADStudioVersion.GetItCmdUninstallParams := '-u="%s"';
+  LRADStudioVersion.GetItCmdListInstalledParams := '-l="%s" -c=useoffline -dnsef';
+  LRADStudioVersion.GetItCmdUninstallParams := '-u="%s" -c=useoffline -dnsef';
+  LRADStudioVersion.DotNetVersion := net45;
+  LRADStudioVersion.DotNetServicePack := 0;
   SetArrayLength(_FRADStudioVersions, GetArrayLength(_FRADStudioVersions) + 1);
   _FRADStudioVersions[GetArrayLength(_FRADStudioVersions) - 1] := LRADStudioVersion;
 
@@ -695,7 +648,7 @@ var
 begin
   Result := True;
   if ALibraryName = '' then
-    Exit;  
+    Exit;
   Log(Format('RADStudio.TryRemoveFromGetIt: Trying to remove from GetIt the library "%s"', [ALibraryName]));
   if Pos('-', ALibraryName) = 0 then
     LLibrarySearchName := ALibraryName + '-'
@@ -852,7 +805,7 @@ begin
       if SameText(LBplName, ExtractFileName(LRegisteredBpls[I])) and not RegDeleteValue(HKEY_CURRENT_USER, GetRADStudioRegKey(ARADStudioVersion) + '\Known Packages', LRegisteredBpls[I]) then
       begin
         Result := False;
-        Log(Format('RADStudio.TryUnregisterRADStudioBpl: Failed to unregister the bpl "%s". Cannot possible to delete the value "%s" from registry "%s"', [LRegisteredBpls[I], 'HKEY_CURRENT_USER' + GetRADStudioRegKey(ARADStudioVersion) + '\Known Packages']));
+        Log(Format('RADStudio.TryUnregisterRADStudioBpl: Failed to unregister the bpl "%s". Cannot possible to delete the value "%s" from registry "%s"', [ABplFileName, LRegisteredBpls[I], 'HKEY_CURRENT_USER' + GetRADStudioRegKey(ARADStudioVersion) + '\Known Packages']));
       end;
     end;
   end

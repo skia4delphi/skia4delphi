@@ -169,13 +169,37 @@ end;
 
 function _TryGetBuildCommand(const ARADStudioInfo: TRADStudioInfo; const AConfig: TProjectConfig; const APlatform: TProjectPlatform; const AProjectFileName, ACustomParameter, ALogFileName: string; out ACommand: string): Boolean;
 var
+  LFrameworkDir: string;
+  LResultCode: Integer;
   LRSVarsBatchFileName: string;
 begin
   Result := TryGetRADStudioRSVarsBatchFileName(ARADStudioInfo, LRSVarsBatchFileName);
   if not Result then
     TryShowErrorFmt(CustomMessage('RADStudioBuildErrorCantFoundRSVars'), [LRsVarsBatchFileName, ARADStudioInfo.Version.Name])
   else
-    ACommand := Format('""%s" && MSBuild "%s" %s>"%s" 2>&1"', [LRSVarsBatchFileName, AProjectFileName, _GetMSBuildParams(AConfig, APlatform, ACustomParameter), ALogFileName]);
+  begin
+    if Exec(ExpandConstant('{cmd}'), Format('/C ""%s" && MSBuild /version>nul 2>&1"', [LRSVarsBatchFileName]), '', SW_HIDE, ewWaitUntilTerminated, LResultCode) and (LResultCode = 0) then
+      ACommand := Format('""%s" && MSBuild "%s" %s>"%s" 2>&1"', [LRSVarsBatchFileName, AProjectFileName, _GetMSBuildParams(AConfig, APlatform, ACustomParameter), ALogFileName])
+    else
+    begin
+      Result := IsDotNetInstalled(ARADStudioInfo.Version.DotNetVersion, ARADStudioInfo.Version.DotNetServicePack);
+      if not Result then
+      begin
+        case ARADStudioInfo.Version.DotNetVersion of
+          net35: TryShowError(CustomMessage('DotNet35NotFound'));
+          net45: TryShowError(CustomMessage('DotNet45NotFound'));
+        end;
+      end
+      else
+      begin
+        case ARADStudioInfo.Version.DotNetVersion of
+          net35: LFrameworkDir := ExpandConstant('{dotnet20}');
+          net45: LFrameworkDir := ExpandConstant('{dotnet40}');
+        end;
+        ACommand := Format('""%s" && @set "FrameworkDir=%s" && @set "PATH=%s;%%PATH%%" && MSBuild "%s" %s>"%s" 2>&1"', [LRSVarsBatchFileName, LFrameworkDir, LFrameworkDir, AProjectFileName, _GetMSBuildParams(AConfig, APlatform, ACustomParameter), ALogFileName]);
+      end;
+    end;
+  end;
 end;
 
 // end.

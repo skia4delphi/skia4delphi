@@ -9,7 +9,9 @@
 { found in the LICENSE file.                                             }
 {                                                                        }
 {************************************************************************}
+{$IFNDEF SKIA_EMBEDDED}
 unit Skia.Bindings;
+{$ENDIF}
 
 interface
 
@@ -177,9 +179,11 @@ type
 
 implementation
 
+{$IFNDEF SKIA_EMBEDDED}
 uses
   { Skia }
   Skia.API;
+{$ENDIF}
 
 { TSkNativeObject }
 

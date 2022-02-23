@@ -1,6 +1,6 @@
 // **************************************************************************************************
 // Part of Delphi Instruction Decode Library [InstDecode]
-// 
+//
 // http://code.google.com/p/delphi-detours-library/
 
 // The contents of this file are subject to the Mozilla Public License Version 1.1 (the "License");
@@ -113,7 +113,7 @@
 { 83 = Decode_F2_ModRm_Ib}
 
 {============================================
-                  OneByteTable                    
+                  OneByteTable
 ============================================}
 const OneByteTable : array[Byte] of Byte =(//
 {0x00} 01, {ADD}
@@ -374,7 +374,7 @@ const OneByteTable : array[Byte] of Byte =(//
 {0xFF} 55 {group_5_INC_DEC}
 );
 {============================================
-                  TwoByteTable                    
+                  TwoByteTable
 ============================================}
 const TwoByteTable : array[Byte] of Byte =(//
 {0x00} 56, {group_6}
@@ -635,7 +635,7 @@ const TwoByteTable : array[Byte] of Byte =(//
 {0xFF} 00 {InvalidOpCode}
 );
 {============================================
-                  ThreeByteTable38                    
+                  ThreeByteTable38
 ============================================}
 const ThreeByteTable38 : array[Byte] of Byte =(//
 {0x00} 60, {VPSHUFB/PSHUFB}
@@ -896,7 +896,7 @@ const ThreeByteTable38 : array[Byte] of Byte =(//
 {0xFF} 00 {InvalidOpCode}
 );
 {============================================
-                  ThreeByteTable3A                    
+                  ThreeByteTable3A
 ============================================}
 const ThreeByteTable3A : array[Byte] of Byte =(//
 {0x00} 82, {VPERMQ/InvalidOpCode}

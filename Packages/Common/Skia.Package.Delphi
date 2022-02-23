@@ -6,34 +6,73 @@
  found in the LICENSE file.
 -->
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-    <PropertyGroup Condition="'$(Platform)'=='Win32'">
-        <ImportEnvOptions>false</ImportEnvOptions>
+    <ProjectExtensions>
+        <Borland.Personality>Environment.Personality.12</Borland.Personality>
+        <Borland.ProjectType/>
+        <BorlandProject>
+            <Environment.Personality/>
+        </BorlandProject>
+        <ProjectFileVersion>12</ProjectFileVersion>
+    </ProjectExtensions>
+    <PropertyGroup Condition="('$(Platform)'=='Win32' or '$(Platform)'=='Win64') and '$(Skia4Delphi_Setup)'=='true'">
         <BDSLIB Condition="'$(BDSLIB)'==''">$(BDS)\lib</BDSLIB>
+        <ImportEnvOptions>false</ImportEnvOptions>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Platform)'=='Win32' and '$(Skia4Delphi_Setup)'=='true'">
+        <CBuilderBPIOutputPath_Clang32/>
+        <CBuilderBPIOutputPath/>
+        <CBuilderBPLOutputPath_Clang32/>
+        <CBuilderBPLOutputPath/>
+        <CBuilderBrowsingPath_Clang32/>
+        <CBuilderBrowsingPath/>
+        <CBuilderIncludePath_Clang32/>
+        <CBuilderIncludePath/>
+        <CBuilderLibraryPath_Clang32/>
+        <CBuilderLibraryPath/>
+        <CBuilderNoRefactorPath/>
+        <CBuilderNoRefactorPath_Clang32/>
+        <CBuilderUserIncludePath/>
+        <CBuilderUserIncludePath_Clang32/>
         <DefaultPlatformSDK/>
         <DefaultProfile/>
+        <DelphiBrowsingPath/>
         <DelphiDCPOutput>$(BDSCOMMONDIR)\Dcp</DelphiDCPOutput>
-        <DelphiLibraryPath>$(BDSLIB)\$(Platform)\release;$(BDSUSERDIR)\Imports;$(BDS)\Imports;$(BDSCOMMONDIR)\Dcp;$(BDS)\include</DelphiLibraryPath>
-        <DelphiNamespaceSearchPath/>
         <DelphiDebugDCUPath>$(BDSLIB)\$(Platform)\debug</DelphiDebugDCUPath>
         <DelphiDLLOutputPath>$(BDSCOMMONDIR)\Bpl</DelphiDLLOutputPath>
         <DelphiHPPOutputPath>$(BDSCOMMONDIR)\hpp\$(Platform)</DelphiHPPOutputPath>
-        <DelphiTranslatedLibraryPath>$(BDSLIB)\$(Platform)\release\$(LANGDIR)</DelphiTranslatedLibraryPath>
+        <DelphiLibraryPath>$(BDSLIB)\$(Platform)\release;$(BDSUSERDIR)\Imports;$(BDS)\Imports;$(BDSCOMMONDIR)\Dcp;$(BDS)\include</DelphiLibraryPath>
+        <DelphiNamespaceSearchPath/>
         <DelphiTranslatedDebugLibraryPath>$(BDSLIB)\$(Platform)\debug\$(LANGDIR)</DelphiTranslatedDebugLibraryPath>
+        <DelphiTranslatedLibraryPath>$(BDSLIB)\$(Platform)\release\$(LANGDIR)</DelphiTranslatedLibraryPath>
         <DelphiTranslatedResourcePath>$(BDSLIB)\$(Platform)\release\$(LANGDIR)</DelphiTranslatedResourcePath>
+        <ENV_PF_KeyStore/>
+        <ENV_PF_KeyStorePass/>
+        <ENV_PF_KeyStoreSubject/>
+        <ENV_PF_UWPDistributionType/>
     </PropertyGroup>
-    <PropertyGroup Condition="'$(Platform)'=='Win64'">
-        <ImportEnvOptions>false</ImportEnvOptions>
-        <BDSLIB Condition="'$(BDSLIB)'==''">$(BDS)\lib</BDSLIB>
+    <PropertyGroup Condition="'$(Platform)'=='Win64' and '$(Skia4Delphi_Setup)'=='true'">
+        <CBuilderBPIOutputPath/>
+        <CBuilderBPLOutputPath/>
+        <CBuilderBrowsingPath/>
+        <CBuilderIncludePath/>
+        <CBuilderLibraryPath/>
+        <CBuilderNoRefactorPath/>
+        <CBuilderUserIncludePath/>
         <DefaultPlatformSDK/>
         <DefaultProfile/>
+        <DelphiBrowsingPath/>
         <DelphiDCPOutput>$(BDSCOMMONDIR)\Dcp\$(Platform)</DelphiDCPOutput>
-        <DelphiLibraryPath>$(BDSLIB)\$(Platform)\release;$(BDSUSERDIR)\Imports;$(BDS)\Imports;$(BDSCOMMONDIR)\Dcp\$(Platform);$(BDS)\include</DelphiLibraryPath>
-        <DelphiNamespaceSearchPath/>
         <DelphiDebugDCUPath>$(BDSLIB)\$(Platform)\debug</DelphiDebugDCUPath>
         <DelphiDLLOutputPath>$(BDSCOMMONDIR)\Bpl\$(Platform)</DelphiDLLOutputPath>
         <DelphiHPPOutputPath>$(BDSCOMMONDIR)\hpp\$(Platform)</DelphiHPPOutputPath>
-        <DelphiTranslatedLibraryPath>$(BDSLIB)\$(Platform)\release\$(LANGDIR)</DelphiTranslatedLibraryPath>
+        <DelphiLibraryPath>$(BDSLIB)\$(Platform)\release;$(BDSUSERDIR)\Imports;$(BDS)\Imports;$(BDSCOMMONDIR)\Dcp\$(Platform);$(BDS)\include</DelphiLibraryPath>
+        <DelphiNamespaceSearchPath/>
         <DelphiTranslatedDebugLibraryPath>$(BDSLIB)\$(Platform)\debug\$(LANGDIR)</DelphiTranslatedDebugLibraryPath>
+        <DelphiTranslatedLibraryPath>$(BDSLIB)\$(Platform)\release\$(LANGDIR)</DelphiTranslatedLibraryPath>
         <DelphiTranslatedResourcePath>$(BDSLIB)\$(Platform)\release\$(LANGDIR)</DelphiTranslatedResourcePath>
+        <ENV_PF_KeyStore/>
+        <ENV_PF_KeyStorePass/>
+        <ENV_PF_KeyStoreSubject/>
+        <ENV_PF_UWPDistributionType/>
     </PropertyGroup>
 </Project>

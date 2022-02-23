@@ -1,6 +1,6 @@
 ﻿// **************************************************************************************************
 // Part of Delphi Instruction Decode Library [InstDecode]
-// 
+//
 // http://code.google.com/p/delphi-detours-library/
 
 // The contents of this file are subject to the Mozilla Public License Version 1.1 (the "License");

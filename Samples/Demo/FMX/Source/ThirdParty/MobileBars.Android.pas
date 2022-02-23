@@ -1683,18 +1683,33 @@ begin
     end;
     if Assigned(LView) then
     begin
-      LViewAndroid11 := TAndroid11.TJView.Wrap(TAndroidHelper.JObjectToID(LView));
-      if Assigned(LViewAndroid11) then
+      if TOSVersion.Check(12) then
       begin
-        LWindowInsetsController := LViewAndroid11.getWindowInsetsController;
-        if Assigned(LWindowInsetsController) then
+        LViewAndroid11 := TAndroid11.TJView.Wrap(TAndroidHelper.JObjectToID(LView));
+        if Assigned(LViewAndroid11) then
         begin
-          if LStatusBarLight then
-            LWindowInsetsController.setSystemBarsAppearance(TAndroid11.TJWindowInsetsController.JavaClass.APPEARANCE_LIGHT_STATUS_BARS,
-              TAndroid11.TJWindowInsetsController.JavaClass.APPEARANCE_LIGHT_STATUS_BARS)
-          else
-            LWindowInsetsController.setSystemBarsAppearance(0, TAndroid11.TJWindowInsetsController.JavaClass.APPEARANCE_LIGHT_STATUS_BARS);
+          LWindowInsetsController := LViewAndroid11.getWindowInsetsController;
+          if Assigned(LWindowInsetsController) then
+          begin
+            if LStatusBarLight then
+              LWindowInsetsController.setSystemBarsAppearance(TAndroid11.TJWindowInsetsController.JavaClass.APPEARANCE_LIGHT_STATUS_BARS,
+                TAndroid11.TJWindowInsetsController.JavaClass.APPEARANCE_LIGHT_STATUS_BARS)
+            else
+              LWindowInsetsController.setSystemBarsAppearance(0, TAndroid11.TJWindowInsetsController.JavaClass.APPEARANCE_LIGHT_STATUS_BARS);
+          end;
         end;
+      end
+      // In some versions of Android 11 there is a known issue where the WindowInsetsController.setSystemBarsAppearance
+      // doesn't work when the app's theme declares <item name="android:windowLightStatusBar">true/false</item>, directly
+      // or indirectly in styles.xml, which this is the case with the FMX. The best workaround to this is using the old
+      // method (even being obsolete).
+      else
+      begin
+        if LStatusBarLight then
+          LSystemUiVisibility := LView.getSystemUiVisibility or TJView.JavaClass.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
+        else
+          LSystemUiVisibility := LView.getSystemUiVisibility and not TJView.JavaClass.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;
+        LView.setSystemUiVisibility(LSystemUiVisibility);
       end;
     end;
   end

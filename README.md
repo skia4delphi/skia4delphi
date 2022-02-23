@@ -124,7 +124,8 @@ You can install **Skia4Delphi** in 3 ways:
 
 1. Manual installation is possible, although it is not recommended; [Learn more...](Documents/INSTALLATION.md)
 2. The pre-built Skia binaries were included in the source, but you can easily recompile them; [Learn more...](Documents/BUILD.md)
-3. The pre-built Skia binary for **Linux64** targets has been compiled for Debian-based systems. If you want for another distro, you need to [rebuild.](Documents/BUILD.md)
+3. The pre-built Skia binary for **Linux64** targets was compiled for Debian (eg Ubuntu) and Red Hat (eg CentOS) based systems. If you want another distro you will need to [rebuild;](Documents/BUILD.md)
+4. For Red Hat based systems you must copy and replace the `Binary/Linux64/Release/libsk4d.so` file with the `Binary/Linux64/Release/Other Distributions/Red Hat/libsk4d.so` file.
 
   
 
@@ -415,7 +416,7 @@ As a result, any Delphi control, such as a TImage, can normally load these new f
 
 ## FMX Canvas
 
-It is possible to replace the default Canvas from FMX to Skia-based Canvas. Once this feature is enabled, all FMX controls will be painted using Skia4Delphi automatically. With that it is possible to improve the quality and performance of the drawings for the FMX as well as for the whole library.
+It is possible to replace the default Canvas from FMX to Skia based Canvas. Once this feature is enabled, all FMX controls will be painted using Skia4Delphi automatically. With that it is possible to improve the quality and performance of the drawings for the FMX as well as for the whole library.
 
   
 
@@ -722,7 +723,8 @@ For the platforms supported by **Skia4Delphi** (listed above), the OS versions s
 
 ## Remarks
 
-The pre-built Skia binary for **Linux64** targets has been compiled for Debian-based systems. If you want for another distro, you need to [rebuild.](Documents/BUILD.md)
+1. The pre-built Skia binary for **Linux64** targets was compiled for Debian (eg Ubuntu) and Red Hat (eg CentOS) based systems. If you want another distro you will need to [rebuild;](Documents/BUILD.md)
+2. For Red Hat based systems you must copy and replace the `Binary/Linux64/Release/libsk4d.so` file with the `Binary/Linux64/Release/Other Distributions/Red Hat/libsk4d.so` file.
 
   
 
@@ -734,7 +736,7 @@ The APIs are very similar to Skia's, few methods and functions have been renamed
 
 # Version
 
-**[Skia4Delphi Version 3.0.3](/../../releases/latest)**
+**[Skia4Delphi Version 3.0.4](/../../releases/latest)**
 
 Skia Version used: [chrome/m98](https://github.com/google/skia/tree/chrome/m98)
 What has changed from the original code? [Compare.](https://github.com/google/skia/compare/chrome/m98...skia4delphi:main)
@@ -743,4 +745,4 @@ What has changed from the original code? [Compare.](https://github.com/google/sk
 
 # Known issues
 
-- Virtualization software vendors do not fully support 3D rendering libraries like OpenGL and Metal, so Skia-based Canvas for **FMX** applications may not run correctly. On virtual machines we recommend using raster mode when available.
+- Virtualization software vendors do not fully support 3D rendering libraries like OpenGL and Metal, so Skia based Canvas for **FMX** applications may not run correctly. On virtual machines we recommend using raster mode when available.

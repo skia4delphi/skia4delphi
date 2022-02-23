@@ -142,6 +142,7 @@ end;
 
 procedure TfrmBase.btnBackClick(Sender: TObject);
 begin
+  {$REGION ' - Workaround RSP-36959'}
   // - -------------------------------------------------------------------------
   // - WORKAROUND
   // - -------------------------------------------------------------------------
@@ -177,6 +178,7 @@ begin
   end;
   {$ENDIF}
   // - -------------------------------------------------------------------------
+  {$ENDREGION}
 
   {$IF CompilerVersion >= 32}
   TThread.ForceQueue(nil,

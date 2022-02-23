@@ -6,6 +6,8 @@ WelcomeLabel1=[name] Setup
 WelcomeLabel2=This will install the library [name/ver] on your computer.
 
 [CustomMessages]
+DotNet35NotFound=Microsoft .NET Framework 3.5 SP1 was not found.
+DotNet45NotFound=Microsoft .NET Framework 4.5 was not found.
 RADStudioBuildBuildingFor=Building for %1 - %2...
 RADStudioBuildErrorBuilding=Error compiling for %1 (code %2).
 RADStudioBuildErrorCantFoundRSVars=Can't found the rsvars file "%1" of %2.
@@ -22,6 +24,7 @@ SetupMainErrorFailedToGetGroupProjects=Failed to get group projects files.
 SetupMainErrorNoRADStudioVersionAvailable=No version of RAD Studio available in your system for installation.
 SetupMainFailedToInstallPackage=Failed to install the package "%1" in %2 (code %3)
 SetupMainFailedToUninstallPackage=Failed to uninstall the package "%1" in %2 (code %3)
+SetupMainInstallAbortedToCloseRADStudioInstance=Please close RAD Studio before attempting to install. If you have already closed, please wait a while before trying again.
 SetupMainInstallationSuccesfullyRestartRADStudio=Installation succesfully. Please restart your RAD Studio.
 SetupMainInstallingPackages=Installing packages...
 SetupMainRevertingPackagesInstallationAfterFailure=Reverting package installation...

@@ -78,6 +78,7 @@ type
 
 { TMatrixHelper }
 
+{$REGION ' - Workaround RSP-36958'}
 // - ---------------------------------------------------------------------------
 // - WORKAROUND
 // - ---------------------------------------------------------------------------
@@ -108,6 +109,7 @@ begin
   Result.M33 := AMatrix3D.M44;
 end;
 // - ---------------------------------------------------------------------------
+{$ENDREGION}
 
 function TMatrixHelper.GetValue(const AIndex: Integer): Single;
 begin

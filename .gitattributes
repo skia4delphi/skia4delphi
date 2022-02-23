@@ -1,0 +1,16 @@
+# Unix shell script
+*.sh text eol=lf
+
+# Samples
+*.json text eol=crlf
+*.svg text eol=crlf
+
+# Explicitly declare text files you want to always be normalized and converted
+# to native line endings on checkout.
+*.pas text eol=crlf
+*.dfm text eol=crlf
+*.fmx text eol=crlf
+
+# Denote all files that are truly binary and should not be modified.
+*.exe binary
+*.res binary

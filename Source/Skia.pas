@@ -9,6 +9,7 @@
 { found in the LICENSE file.                                             }
 {                                                                        }
 {************************************************************************}
+{$IFNDEF SKIA_EMBEDDED}
 unit Skia;
 
 interface
@@ -29,6 +30,10 @@ uses
   { Skia }
   Skia.API,
   Skia.Bindings;
+{$ENDIF}
+
+const
+  SkVersion = '3.1.0';
 
 type
   ESkException = class(Exception);
@@ -2698,12 +2703,16 @@ type
     class function GetMajor: Integer; static;
     class function GetMinor: Integer; static;
     class function GetBuild: Integer; static;
-    class function GetMilestone: Integer; static;
+    class function GetLibraryMajor: Integer; static;
+    class function GetLibraryMinor: Integer; static;
+    class function GetLibraryBuild: Integer; static;
   public
     class property Major: Integer read GetMajor;
     class property Minor: Integer read GetMinor;
     class property Build: Integer read GetBuild;
-    class property Milestone: Integer read GetMilestone;
+    class property LibraryMajor: Integer read GetLibraryMajor;
+    class property LibraryMinor: Integer read GetLibraryMinor;
+    class property LibraryBuild: Integer read GetLibraryBuild;
   end;
 
   TSkVertexMode = (Triangles, TriangleStrip, TriangleFan);
@@ -10779,28 +10788,6 @@ begin
   Result  := TSkBindings.SafeCreate<TSkTypeFace>(TSkiaAPI.sk4d_typeface_make_from_stream(LStream.Handle, ATTCIndex));
 end;
 
-{ TSkVersion }
-
-class function TSkVersion.GetBuild: Integer;
-begin
-  Result := TSkiaAPI.sk4d_version_get_build();
-end;
-
-class function TSkVersion.GetMajor: Integer;
-begin
-  Result := TSkiaAPI.sk4d_version_get_major();
-end;
-
-class function TSkVersion.GetMilestone: Integer;
-begin
-  Result := TSkiaAPI.sk4d_version_get_milestone();
-end;
-
-class function TSkVersion.GetMinor: Integer;
-begin
-  Result := TSkiaAPI.sk4d_version_get_minor();
-end;
-
 { TSkVertices }
 
 class function TSkVertices.MakeCopy(const AVertexMode: TSkVertexMode;
@@ -12128,6 +12115,47 @@ end;
 function TSkSVGSVG.TryGetViewBox(out AViewBox: TRectF): Boolean;
 begin
   Result := TSkiaAPI.sk4d_svgsvg_get_view_box(GetSelf, sk_rect_t(AViewBox));
+end;
+
+{ TSkVersion }
+
+class function TSkVersion.GetBuild: Integer;
+var
+  LVersion: TArray<string>;
+begin
+  LVersion := SkVersion.Split(['.']);
+  Result   := LVersion[2].ToInteger;
+end;
+
+class function TSkVersion.GetLibraryBuild: Integer;
+begin
+  Result := TSkiaAPI.sk4d_library_version_get_build();
+end;
+
+class function TSkVersion.GetLibraryMajor: Integer;
+begin
+  Result := TSkiaAPI.sk4d_library_version_get_major();
+end;
+
+class function TSkVersion.GetLibraryMinor: Integer;
+begin
+  Result := TSkiaAPI.sk4d_library_version_get_minor();
+end;
+
+class function TSkVersion.GetMajor: Integer;
+var
+  LVersion: TArray<string>;
+begin
+  LVersion := SkVersion.Split(['.']);
+  Result   := LVersion[0].ToInteger;
+end;
+
+class function TSkVersion.GetMinor: Integer;
+var
+  LVersion: TArray<string>;
+begin
+  LVersion := SkVersion.Split(['.']);
+  Result   := LVersion[1].ToInteger;
 end;
 
 end.

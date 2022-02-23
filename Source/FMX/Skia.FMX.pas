@@ -176,9 +176,11 @@ type
   TSkSvgBrush = class(TPersistent)
   strict private
     const
+      DefaultGrayScale = False;
       DefaultWrapMode = TSkSvgWrapMode.Fit;
   strict private
     FDOM: ISkSVGDOM;
+    FGrayScale: Boolean;
     FOnChanged: TNotifyEvent;
     FOriginalSize: TSizeF;
     FOverrideColor: TAlphaColor;
@@ -186,8 +188,10 @@ type
     FWrapMode: TSkSvgWrapMode;
     function GetDOM: ISkSVGDOM;
     function GetOriginalSize: TSizeF;
+    function IsGrayScaleStored: Boolean;
     function IsOverrideColorStored: Boolean;
     function IsWrapModeStored: Boolean;
+    procedure SetGrayScale(const AValue: Boolean);
     procedure SetOverrideColor(const AValue: TAlphaColor);
     procedure SetSource(const AValue: TSkSvgSource);
     procedure SetWrapMode(const AValue: TSkSvgWrapMode);
@@ -201,6 +205,7 @@ type
     property OriginalSize: TSizeF read GetOriginalSize;
     property OnChanged: TNotifyEvent read FOnChanged write FOnChanged;
   published
+    property GrayScale: Boolean read FGrayScale write SetGrayScale stored IsGrayScaleStored;
     property OverrideColor: TAlphaColor read FOverrideColor write SetOverrideColor stored IsOverrideColorStored;
     property Source: TSkSvgSource read FSource write SetSource;
     property WrapMode: TSkSvgWrapMode read FWrapMode write SetWrapMode stored IsWrapModeStored;
@@ -681,11 +686,13 @@ type
       TCustomWordsItem = class(TCollectionItem)
       strict protected
         const
+          DefaultBackgroundColor = TAlphaColors.Null;
           DefaultCursor = crDefault;
           DefaultFontColor = TAlphaColors.Black;
           DefaultName = 'Item 0';
           DefaultText = '';
       strict private
+        FBackgroundColor: TAlphaColor;
         FChanged: Boolean;
         FCursor: TCursor;
         FIgnoringAllChanges: Boolean;
@@ -705,6 +712,7 @@ type
         function IsStyledSettingsStored: Boolean;
         function IsTextStored: Boolean;
         procedure TextSettingsChange(ASender: TObject);
+        procedure SetBackgroundColor(const AValue: TAlphaColor);
         procedure SetCursor(const AValue: TCursor);
         procedure SetDecorations(const AValue: TSkTextSettings.TDecorations);
         procedure SetFont(const AValue: TSkFontComponent);
@@ -726,6 +734,7 @@ type
         procedure Change; virtual;
         procedure EndUpdate; overload;
         procedure EndUpdate(const AIgnoreAllChanges: Boolean); overload; virtual;
+        property BackgroundColor: TAlphaColor read FBackgroundColor write SetBackgroundColor default DefaultBackgroundColor;
         property Cursor: TCursor read FCursor write SetCursor default crDefault;
         property Decorations: TSkTextSettings.TDecorations read GetDecorations write SetDecorations;
         property Font: TSkFontComponent read GetFont write SetFont;
@@ -779,6 +788,7 @@ type
 
       TWordsItem = class (TCustomWordsItem)
       published
+        property BackgroundColor;
         property Cursor;
         property Decorations;
         property Font;
@@ -790,7 +800,9 @@ type
       end;
   strict private
     FAutoSize: Boolean;
-    FHaveCustomCursor: Boolean;
+    FBackgroundPicture: ISkPicture;
+    FHasCustomBackground: Boolean;
+    FHasCustomCursor: Boolean;
     FLastFillTextFlags: TFillTextFlags;
     FObjectState: IObjectState;
     FParagraph: ISkParagraph;
@@ -1045,6 +1057,15 @@ type
     class function TryMakeFromStream(const AStream: TStream; out ACodec: TSkAnimatedImage.TAnimationCodec): Boolean; override;
   end;
 
+  {$IF CompilerVersion < 31}
+  { TSkCanvasHelper }
+
+  TSkCanvasHelper = class helper for TCanvas
+  public
+    function AlignToPixel(const ARect: TRectF): TRectF;
+  end;
+  {$ENDIF}
+
   {$IF CompilerVersion < 33}
   { TSkEpsilonHelper }
 
@@ -1088,6 +1109,18 @@ begin
     Result := Result.FitInto(ADesignatedArea);
   Result.SetLocation(ADesignatedArea.TopLeft);
 end;
+
+{$IF CompilerVersion < 31}
+{ TSkCanvasHelper }
+
+function TSkCanvasHelper.AlignToPixel(const ARect: TRectF): TRectF;
+begin
+  Result.Left := AlignToPixelHorizontally(ARect.Left);
+  Result.Top := AlignToPixelVertically(ARect.Top);
+  Result.Right := Result.Left + Round(ARect.Width * Scale) / Scale; // keep ratio horizontally
+  Result.Bottom := Result.Top + Round(ARect.Height * Scale) / Scale; // keep ratio vertically
+end;
+{$ENDIF}
 
 {$IF CompilerVersion < 32}
 { TSkRectFHelper }
@@ -1311,18 +1344,6 @@ end;
 
 procedure TSkCustomControl.Paint;
 
-  function AlignToPixel(const ARect: TRectF): TRectF;
-  begin
-    {$IF CompilerVersion >= 31}
-    Result := Canvas.AlignToPixel(ARect);
-    {$ELSE}
-    Result.Left := Canvas.AlignToPixelHorizontally(ARect.Left);
-    Result.Top := Canvas.AlignToPixelVertically(ARect.Top);
-    Result.Right := Result.Left + Round(ARect.Width * Canvas.Scale) / Canvas.Scale; // keep ratio horizontally
-    Result.Bottom := Result.Top + Round(ARect.Height * Canvas.Scale) / Canvas.Scale; // keep ratio vertically
-    {$ENDIF}
-  end;
-
   procedure DrawUsingSkia(const ASurface: ISkSurface; const ADestRect: TRectF; const AOpacity: Single);
   begin
     if Assigned(ASurface) then
@@ -1343,7 +1364,7 @@ var
 begin
   if (FDrawCacheKind <> TSkDrawCacheKind.Always) and (Canvas is TSkCanvasCustom) then
   begin
-    DrawUsingSkia(TSkCanvasCustom(Canvas).Surface, AlignToPixel(LocalRect), AbsoluteOpacity);
+    DrawUsingSkia(TSkCanvasCustom(Canvas).Surface, Canvas.AlignToPixel(LocalRect), AbsoluteOpacity);
     FreeAndNil(FBuffer);
   end
   else
@@ -1391,7 +1412,7 @@ begin
         end, False);
       FDrawCached := True;
     end;
-    Canvas.DrawBitmap(FBuffer, RectF(0, 0, FBuffer.Width, FBuffer.Height), AlignToPixel(LocalRect), AbsoluteOpacity);
+    Canvas.DrawBitmap(FBuffer, RectF(0, 0, FBuffer.Width, FBuffer.Height), Canvas.AlignToPixel(LocalRect), AbsoluteOpacity);
   end;
 end;
 
@@ -1471,18 +1492,6 @@ end;
 
 procedure TSkStyledControl.Paint;
 
-  function AlignToPixel(const ARect: TRectF): TRectF;
-  begin
-    {$IF CompilerVersion >= 31}
-    Result := Canvas.AlignToPixel(ARect);
-    {$ELSE}
-    Result.Left := Canvas.AlignToPixelHorizontally(ARect.Left);
-    Result.Top := Canvas.AlignToPixelVertically(ARect.Top);
-    Result.Right := Result.Left + Round(ARect.Width * Canvas.Scale) / Canvas.Scale; // keep ratio horizontally
-    Result.Bottom := Result.Top + Round(ARect.Height * Canvas.Scale) / Canvas.Scale; // keep ratio vertically
-    {$ENDIF}
-  end;
-
   procedure DrawUsingSkia(const ASurface: ISkSurface; const ADestRect: TRectF; const AOpacity: Single);
   begin
     if Assigned(ASurface) then
@@ -1503,7 +1512,7 @@ var
 begin
   if (FDrawCacheKind <> TSkDrawCacheKind.Always) and (Canvas is TSkCanvasCustom) then
   begin
-    DrawUsingSkia(TSkCanvasCustom(Canvas).Surface, AlignToPixel(LocalRect), AbsoluteOpacity);
+    DrawUsingSkia(TSkCanvasCustom(Canvas).Surface, Canvas.AlignToPixel(LocalRect), AbsoluteOpacity);
     FreeAndNil(FBuffer);
   end
   else
@@ -1551,7 +1560,7 @@ begin
         end, False);
       FDrawCached := True;
     end;
-    Canvas.DrawBitmap(FBuffer, RectF(0, 0, FBuffer.Width, FBuffer.Height), AlignToPixel(LocalRect), AbsoluteOpacity);
+    Canvas.DrawBitmap(FBuffer, RectF(0, 0, FBuffer.Width, FBuffer.Height), Canvas.AlignToPixel(LocalRect), AbsoluteOpacity);
   end;
 end;
 
@@ -1588,13 +1597,16 @@ var
 begin
   if ASource is TSkSvgBrush then
   begin
-    if (FOverrideColor <> LSourceSvgBrush.FOverrideColor) or (FWrapMode <> LSourceSvgBrush.FWrapMode) or
+    if (FGrayScale <> LSourceSvgBrush.FGrayScale) or
+      (FOverrideColor <> LSourceSvgBrush.FOverrideColor) or
+      (FWrapMode <> LSourceSvgBrush.FWrapMode) or
       (FSource <> LSourceSvgBrush.FSource) then
     begin
+      FDOM := LSourceSvgBrush.FDOM;
+      FGrayScale := LSourceSvgBrush.FGrayScale;
+      FOriginalSize := LSourceSvgBrush.FOriginalSize;
       FOverrideColor := LSourceSvgBrush.FOverrideColor;
       FSource := LSourceSvgBrush.FSource;
-      FDOM := LSourceSvgBrush.FDOM;
-      FOriginalSize := LSourceSvgBrush.FOriginalSize;
       FWrapMode := LSourceSvgBrush.FWrapMode;
       DoChanged;
     end;
@@ -1606,6 +1618,7 @@ end;
 constructor TSkSvgBrush.Create;
 begin
   inherited Create;
+  FGrayScale := DefaultGrayScale;
   FWrapMode := DefaultWrapMode;
 end;
 
@@ -1638,6 +1651,11 @@ begin
   if (FDOM = nil) and (FSource <> '') then
     GetDOM;
   Result := FOriginalSize;
+end;
+
+function TSkSvgBrush.IsGrayScaleStored: Boolean;
+begin
+  Result := FGrayScale <> DefaultGrayScale;
 end;
 
 function TSkSvgBrush.IsOverrideColorStored: Boolean;
@@ -1698,7 +1716,7 @@ procedure TSkSvgBrush.Render(const ACanvas: ISkCanvas; const ADestRect: TRectF;
     end;
   end;
 
-  procedure DrawTileOrOverrideColor(const ACanvas: ISkCanvas; const ADOM: ISkSVGDOM;
+  procedure DrawTileOrCustomColor(const ACanvas: ISkCanvas; const ADOM: ISkSVGDOM;
     const ASvgRect, ADestRect, AWrappedDest: TRectF; const AIntrinsicSize: TSizeF;
     const AWrapMode: TSkSvgWrapMode);
   var
@@ -1722,7 +1740,9 @@ procedure TSkSvgBrush.Render(const ACanvas: ISkCanvas; const ADestRect: TRectF;
     ADOM.Render(LCanvas);
     LPicture := LPictureRecorder.FinishRecording;
     LPaint := TSkPaint.Create;
-    if FOverrideColor <> TAlphaColors.Null then
+    if FGrayScale then
+      LPaint.ColorFilter := TSkColorFilter.MakeMatrix(TSkColorMatrix.CreateSaturation(0))
+    else if FOverrideColor <> TAlphaColors.Null then
       LPaint.ColorFilter := TSkColorFilter.MakeBlend(FOverrideColor, TSkBlendMode.SrcIn);
     if FWrapMode = TSkSvgWrapMode.Tile then
     begin
@@ -1759,8 +1779,8 @@ begin
         ACanvas.SaveLayerAlpha(Round(AOpacity * 255));
       try
         LWrappedDest := GetWrappedDest(LDOM, LSvgRect, ADestRect, LIntrinsicSize);
-        if (FOverrideColor <> TAlphaColors.Null) or (FWrapMode = TSkSvgWrapMode.Tile) then
-          DrawTileOrOverrideColor(ACanvas, LDOM, LSvgRect, ADestRect, LWrappedDest, LIntrinsicSize, FWrapMode)
+        if (FOverrideColor <> TAlphaColors.Null) or (FWrapMode = TSkSvgWrapMode.Tile) or FGrayScale then
+          DrawTileOrCustomColor(ACanvas, LDOM, LSvgRect, ADestRect, LWrappedDest, LIntrinsicSize, FWrapMode)
         else
         begin
           ACanvas.Translate(LWrappedDest.Left, LWrappedDest.Top);
@@ -1780,6 +1800,16 @@ begin
         ACanvas.Restore;
       end;
     end;
+  end;
+end;
+
+procedure TSkSvgBrush.SetGrayScale(const AValue: Boolean);
+begin
+  if FGrayScale <> AValue then
+  begin
+    FGrayScale := AValue;
+    if FSource <> '' then
+      DoChanged;
   end;
 end;
 
@@ -3589,23 +3619,25 @@ var
 begin
   if ASource = nil then
   begin
-    Cursor         := DefaultCursor;
-    Font           := nil;
-    FontColor      := DefaultFontColor;
-    Name           := UniqueName(DefaultName, Collection);
-    StyledSettings := DefaultStyledSettings;
-    Text           := DefaultText;
-    OnClick        := nil;
+    BackgroundColor := DefaultBackgroundColor;
+    Cursor          := DefaultCursor;
+    Font            := nil;
+    FontColor       := DefaultFontColor;
+    Name            := UniqueName(DefaultName, Collection);
+    StyledSettings  := DefaultStyledSettings;
+    Text            := DefaultText;
+    OnClick         := nil;
   end
   else if ASource is TCustomWordsItem then
   begin
-    Cursor         := LSourceItem.Cursor;
-    Font           := LSourceItem.Font;
-    FontColor      := LSourceItem.FontColor;
-    Name           := UniqueName(LSourceItem.Name, Collection);
-    StyledSettings := LSourceItem.StyledSettings;
-    Text           := LSourceItem.Text;
-    OnClick        := LSourceItem.OnClick;
+    BackgroundColor := LSourceItem.BackgroundColor;
+    Cursor          := LSourceItem.Cursor;
+    Font            := LSourceItem.Font;
+    FontColor       := LSourceItem.FontColor;
+    Name            := UniqueName(LSourceItem.Name, Collection);
+    StyledSettings  := LSourceItem.StyledSettings;
+    Text            := LSourceItem.Text;
+    OnClick         := LSourceItem.OnClick;
   end
   else
     inherited Assign(ASource);
@@ -3687,6 +3719,16 @@ end;
 function TSkLabel.TCustomWordsItem.IsTextStored: Boolean;
 begin
   Result := Text <> DefaultText;
+end;
+
+procedure TSkLabel.TCustomWordsItem.SetBackgroundColor(
+  const AValue: TAlphaColor);
+begin
+  if FBackgroundColor <> AValue then
+  begin
+    FBackgroundColor := AValue;
+    Change;
+  end;
 end;
 
 procedure TSkLabel.TCustomWordsItem.SetCollection(AValue: TCollection);
@@ -4085,6 +4127,33 @@ end;
 
 procedure TSkLabel.Draw(const ACanvas: ISkCanvas; const ADest: TRectF;
   const AOpacity: Single);
+
+  function CreateBackgroundPicture(const AParagraph: ISkParagraph): ISkPicture;
+  var
+    LPictureRecorder: ISkPictureRecorder;
+    LCanvas: ISkCanvas;
+    LPaint: ISkPaint;
+    I: Integer;
+    LTextEndIndex: Integer;
+    LTextBox: TSkTextBox;
+  begin
+    LPictureRecorder := TSkPictureRecorder.Create;
+    LCanvas := LPictureRecorder.BeginRecording(ADest);
+    LPaint := TSkPaint.Create;
+    LPaint.AntiAlias := True;
+    LTextEndIndex := 0;
+    for I := 0 to FWords.Count - 1 do
+    begin
+      Inc(LTextEndIndex, FWords[I].Text.Length);
+      if TAlphaColorRec(FWords[I].BackgroundColor).A = 0 then
+        Continue;
+      LPaint.Color := FWords[I].BackgroundColor;
+      for LTextBox in AParagraph.GetRectsForRange(LTextEndIndex - FWords[I].Text.Length, LTextEndIndex, TSkRectHeightStyle.Tight, TSkRectWidthStyle.Tight) do
+        LCanvas.DrawRoundRect(Canvas.AlignToPixel(LTextBox.Rect), 2, 2, LPaint);
+    end;
+    Result := LPictureRecorder.FinishRecording;
+  end;
+
 var
   LParagraph: ISkParagraph;
   LPositionY: Single;
@@ -4106,20 +4175,21 @@ begin
       TTextAlign.Leading: ;
       TTextAlign.Trailing: LPositionY := LPositionY + (ADest.Height - ParagraphBounds.Height);
     end;
-    ACanvas.Save;
+
+    if SameValue(AOpacity, 1, TEpsilon.Position) then
+      ACanvas.Save
+    else
+      ACanvas.SaveLayerAlpha(Round(AOpacity * 255));
     try
       ACanvas.ClipRect(ADest);
-      if SameValue(AOpacity, 1, TEpsilon.Position) then
-        LParagraph.Paint(ACanvas, ADest.Left, LPositionY)
-      else
+      ACanvas.Translate(ADest.Left, LPositionY);
+      if FHasCustomBackground then
       begin
-        ACanvas.SaveLayerAlpha(Round(AOpacity * 255));
-        try
-          LParagraph.Paint(ACanvas, ADest.Left, LPositionY);
-        finally
-          ACanvas.Restore;
-        end;
+        if FBackgroundPicture = nil then
+          FBackgroundPicture := CreateBackgroundPicture(LParagraph);
+        ACanvas.DrawPicture(FBackgroundPicture);
       end;
+      LParagraph.Paint(ACanvas, 0, 0);
     finally
       ACanvas.Restore;
     end;
@@ -4364,6 +4434,7 @@ var
         LBuilder.AddText(FWords[I].Text);
         LBuilder.Pop;
       end;
+      FHasCustomBackground := FHasCustomBackground or (FWords[I].BackgroundColor <> TAlphaColors.Null);
     end;
     Result := LBuilder.Build;
   end;
@@ -4371,6 +4442,8 @@ var
 begin
   if (FParagraph = nil) and (Text <> '') then
   begin
+    FBackgroundPicture := nil;
+    FHasCustomBackground := False;
     FParagraph := CreateParagraph;
     ParagraphLayout(Width);
   end;
@@ -4458,7 +4531,7 @@ var
   LParagraph: ISkParagraph;
   LParagraphPoint: TPointF;
 begin
-  if FHaveCustomCursor then
+  if FHasCustomCursor then
   begin
     LParagraph := Paragraph;
     if Assigned(LParagraph) then
@@ -4511,6 +4584,7 @@ begin
       LParagraph.Layout(AWidth);
       FParagraphLayoutWidth := AWidth;
       FParagraphBounds := TRectF.Empty;
+      FBackgroundPicture := nil;
     end;
   end;
 end;
@@ -4618,12 +4692,12 @@ procedure TSkLabel.WordsChange(ASender: TObject);
 var
   I: Integer;
 begin
-  FHaveCustomCursor := False;
+  FHasCustomCursor := False;
   for I := 0 to FWords.Count - 1 do
   begin
     if FWords[I].Cursor <> crDefault then
     begin
-      FHaveCustomCursor := True;
+      FHasCustomCursor := True;
       Break;
     end;
   end;

@@ -6,6 +6,8 @@ WelcomeLabel1=Instalador do [name]
 WelcomeLabel2=A biblioteca [name/ver] será instalado no seu computador.
 
 [CustomMessages]
+DotNet35NotFound=Microsoft .NET Framework 3.5 SP1 não foi encontrado.
+DotNet45NotFound=Microsoft .NET Framework 4.5 não foi encontrado.
 RADStudioBuildBuildingFor=Compilando para %1 - %2...
 RADStudioBuildErrorBuilding=Erro ao compilar para %1 (code %2).
 RADStudioBuildErrorCantFoundRSVars=Não foi possível encontrar o arquivo rsvars "%1" do %2.
@@ -22,6 +24,7 @@ SetupMainErrorFailedToGetGroupProjects=Falha ao tentar detectar os arquivos grou
 SetupMainErrorNoRADStudioVersionAvailable=Nenhuma versão do RAD Studio está disponível no seu sistema para a instalação.
 SetupMainFailedToInstallPackage=Falha ao instalar o package "%1" no %2 (código %3)
 SetupMainFailedToUninstallPackage=Falha ao desinstalar o package "%1" no %2 (ccódigo %3)
+SetupMainInstallAbortedToCloseRADStudioInstance=Feche o RAD Studio antes de tentar instalar. Se você já fechou, aguarde um pouco antes de tentar novamente.
 SetupMainInstallationSuccesfullyRestartRADStudio=Instalação bem sucedida. Por favor, reabra o seu RAD Studio.
 SetupMainInstallingPackages=Instalando os packages...
 SetupMainRevertingPackagesInstallationAfterFailure=Revertendo a instalação dos packages...
