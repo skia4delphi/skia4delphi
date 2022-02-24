@@ -10,7 +10,12 @@
 *.pas text eol=crlf
 *.dfm text eol=crlf
 *.fmx text eol=crlf
+*.inc text eol=crlf
 
 # Denote all files that are truly binary and should not be modified.
 *.exe binary
 *.res binary
+
+# Inno Setup
+*.iss text eol=crlf
+*.isl text eol=crlf

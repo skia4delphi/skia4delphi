@@ -110,7 +110,7 @@ You can install **Skia4Delphi** in 3 ways:
 
 - Embarcadero's GetIt *(RAD Studio > Tools > GetIt Package Manager...)*
 
-  **Coming soon...**
+  <p><img src="Assets/Documents/getit.png" width="510" alt="GetIt" /></p>
 
   
 
@@ -602,7 +602,7 @@ Using Skia's Canvas, your application will now support Right-To-Left text render
   end.
   ```
   2. Set the property `BiDiMode` of your forms to `bdRightToLeft`;
-  3. Editing controls like TEdit, TMemo, need to be fixed by Embarcadero, meanwhile how to workaround set the `ControlType` property of these controls to `Platform`.
+  3. Keyboard input controls like TEdit and TMemo, need to be fixed by Embarcadero, meanwhile, as a workaround, set the `ControlType` property of these controls to `Platform`.
 
   
 
