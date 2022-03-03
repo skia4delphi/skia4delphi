@@ -40,44 +40,54 @@ type
   { TGrCanvasMetal }
 
   TGrCanvasMetal = class(TGrCanvasCustom)
+  strict private class var
+    FSharedDevice: MTLDevice;
   strict private
     FCommandQueue: MTLCommandQueue;
+    FView: MTKView;
   strict protected
-    function CreateContext: IGrDirectContext; override;
+    function CreateDirectContext: IGrDirectContext; override;
+    function CreateSurfaceFromWindow: ISkSurface; override;
+    procedure FinalizeContext; override;
     procedure Flush; override;
-    function GetRenderTarget: IGrBackendRenderTarget; override;
-  public
-    class function ColorType: TSkColorType; override;
-    class function Origin: TGrSurfaceOrigin; override;
+    function InitializeContext: Boolean; override;
+    class procedure Finalize; override;
+    class procedure Initialize; override;
   end;
 
 implementation
 
 { TGrCanvasMetal }
 
-class function TGrCanvasMetal.ColorType: TSkColorType;
+function TGrCanvasMetal.CreateDirectContext: IGrDirectContext;
 begin
-  Result := TSkColorType.BGRA8888;
+  FSharedDevice.retain;
+  FCommandQueue.retain;
+  Result := TGrDirectContext.MakeMetal(TGrMtlBackendContext.Create((FSharedDevice as ILocalObject).GetObjectID, (FCommandQueue as ILocalObject).GetObjectID, nil));
 end;
 
-function TGrCanvasMetal.CreateContext: IGrDirectContext;
+function TGrCanvasMetal.CreateSurfaceFromWindow: ISkSurface;
 var
-  LDevice: MTLDevice;
-  LView: MTKView;
+  LDrawable: CAMetalDrawable;
+  LRenderTarget: IGrBackendRenderTarget;
 begin
-  {$IFDEF IOS}
-  if (not (Parent is TiOSWindowHandle)) or (TiOSWindowHandle(Parent).View = nil) or (not Supports(TiOSWindowHandle(Parent).View, MTKView, LView)) then
+  LDrawable := FView.currentDrawable;
+  if LDrawable = nil then
     Exit(nil);
-  {$ELSE}
-  if (not (Parent is TMacWindowHandle)) or (TMacWindowHandle(Parent).View = nil) or (not Supports(TMacWindowHandle(Parent).View, MTKView, LView)) then
-    Exit(nil);
-  {$ENDIF}
-  LDevice := TMTLDevice.Wrap(MTLCreateSystemDefaultDevice);
-  if LDevice = nil then
-    raise EGrCanvas.Create('Could not create Metal Device');
-  LView.setDevice(LDevice);
-  FCommandQueue := LDevice.newCommandQueue;
-  Result        := TGrDirectContext.MakeMetal(TGrMtlBackendContext.Create((LDevice as ILocalObject).GetObjectID, (FCommandQueue as ILocalObject).GetObjectID, nil));
+  LRenderTarget := TGrBackendRenderTarget.CreateMetal(DrawableWidth, DrawableHeight, TGrMtlTextureInfo.Create((LDrawable.texture as ILocalObject).GetObjectID));
+  Result        := TSkSurface.MakeFromRenderTarget(Context, LRenderTarget, TGrSurfaceOrigin.TopLeft, TSkColorType.BGRA8888);
+end;
+
+class procedure TGrCanvasMetal.Finalize;
+begin
+  inherited;
+  FSharedDevice.release;
+end;
+
+procedure TGrCanvasMetal.FinalizeContext;
+begin
+  FView.release;
+  FCommandQueue.release;
 end;
 
 procedure TGrCanvasMetal.Flush;
@@ -89,14 +99,27 @@ begin
   LCommandBuffer.commit;
 end;
 
-function TGrCanvasMetal.GetRenderTarget: IGrBackendRenderTarget;
+class procedure TGrCanvasMetal.Initialize;
 begin
-  Result := TGrBackendRenderTarget.CreateMetal(DrawableWidth, DrawableHeight, TGrMtlTextureInfo.Create((MTKView(WindowHandleToPlatform(Parent).View).currentDrawable.texture as ILocalObject).GetObjectID));
+  FSharedDevice := TMTLDevice.Wrap(MTLCreateSystemDefaultDevice);
+  if FSharedDevice = nil then
+    RaiseLastOSError;
+  inherited;
 end;
 
-class function TGrCanvasMetal.Origin: TGrSurfaceOrigin;
+function TGrCanvasMetal.InitializeContext: Boolean;
 begin
-  Result := TGrSurfaceOrigin.TopLeft;
+  {$IFDEF IOS}
+  if (not (Parent is TiOSWindowHandle)) or (TiOSWindowHandle(Parent).View = nil) or (not Supports(TiOSWindowHandle(Parent).View, MTKView, FView)) then
+    Exit(False);
+  {$ELSE}
+  if (not (Parent is TMacWindowHandle)) or (TMacWindowHandle(Parent).View = nil) or (not Supports(TMacWindowHandle(Parent).View, MTKView, FView)) then
+    Exit(False);
+  {$ENDIF}
+  FCommandQueue := FSharedDevice.newCommandQueue;
+  FView.retain;
+  FView.setDevice(FSharedDevice);
+  Result := True;
 end;
 
 {$ELSE}

@@ -196,10 +196,15 @@ type
     procedure SetSource(const AValue: TSkSvgSource);
     procedure SetWrapMode(const AValue: TSkSvgWrapMode);
   strict protected
+    procedure DoAssign(ASource: TSkSvgBrush); virtual;
     procedure DoChanged; virtual;
+    function HasContent: Boolean; virtual;
+    function MakeDOM: ISkSVGDOM; virtual;
+    procedure RecreateDOM;
   public
     constructor Create;
     procedure Assign(ASource: TPersistent); override;
+    function Equals(AObject: TObject): Boolean; override;
     procedure Render(const ACanvas: ISkCanvas; const ADestRect: TRectF; const AOpacity: Single);
     property DOM: ISkSVGDOM read GetDOM;
     property OriginalSize: TSizeF read GetOriginalSize;
@@ -220,6 +225,7 @@ type
     procedure SetSvg(const AValue: TSkSvgBrush);
     procedure SvgChanged(ASender: TObject);
   strict protected
+    function CreateSvgBrush: TSkSvgBrush; virtual;
     procedure Draw(const ACanvas: ISkCanvas; const ADest: TRectF; const AOpacity: Single); override;
   public
     constructor Create(AOwner: TComponent); override;
@@ -1597,17 +1603,9 @@ var
 begin
   if ASource is TSkSvgBrush then
   begin
-    if (FGrayScale <> LSourceSvgBrush.FGrayScale) or
-      (FOverrideColor <> LSourceSvgBrush.FOverrideColor) or
-      (FWrapMode <> LSourceSvgBrush.FWrapMode) or
-      (FSource <> LSourceSvgBrush.FSource) then
+    if not Equals(LSourceSvgBrush) then
     begin
-      FDOM := LSourceSvgBrush.FDOM;
-      FGrayScale := LSourceSvgBrush.FGrayScale;
-      FOriginalSize := LSourceSvgBrush.FOriginalSize;
-      FOverrideColor := LSourceSvgBrush.FOverrideColor;
-      FSource := LSourceSvgBrush.FSource;
-      FWrapMode := LSourceSvgBrush.FWrapMode;
+      DoAssign(LSourceSvgBrush);
       DoChanged;
     end;
   end
@@ -1622,19 +1620,40 @@ begin
   FWrapMode := DefaultWrapMode;
 end;
 
+procedure TSkSvgBrush.DoAssign(ASource: TSkSvgBrush);
+begin
+  FDOM := ASource.FDOM;
+  FGrayScale := ASource.FGrayScale;
+  FOriginalSize := ASource.FOriginalSize;
+  FOverrideColor := ASource.FOverrideColor;
+  FSource := ASource.FSource;
+  FWrapMode := ASource.FWrapMode;
+end;
+
 procedure TSkSvgBrush.DoChanged;
 begin
   if Assigned(FOnChanged) then
     FOnChanged(Self);
 end;
 
+function TSkSvgBrush.Equals(AObject: TObject): Boolean;
+var
+  LObjectSvgBrush: TSkSvgBrush absolute AObject;
+begin
+  Result := (AObject is TSkSvgBrush) and
+    (FGrayScale = LObjectSvgBrush.FGrayScale) and
+    (FOverrideColor = LObjectSvgBrush.FOverrideColor) and
+    (FWrapMode = LObjectSvgBrush.FWrapMode) and
+    (FSource = LObjectSvgBrush.FSource);
+end;
+
 function TSkSvgBrush.GetDOM: ISkSVGDOM;
 var
   LSvgRect: TRectF;
 begin
-  if (FDOM = nil) and (FSource <> '') then
+  if (FDOM = nil) and HasContent then
   begin
-    FDOM := TSkSVGDOM.Make(FSource);
+    FDOM := MakeDOM;
     if Assigned(FDOM) then
     begin
       LSvgRect.TopLeft := PointF(0, 0);
@@ -1648,9 +1667,14 @@ end;
 
 function TSkSvgBrush.GetOriginalSize: TSizeF;
 begin
-  if (FDOM = nil) and (FSource <> '') then
+  if (FDOM = nil) and HasContent then
     GetDOM;
   Result := FOriginalSize;
+end;
+
+function TSkSvgBrush.HasContent: Boolean;
+begin
+  Result := FSource <> '';
 end;
 
 function TSkSvgBrush.IsGrayScaleStored: Boolean;
@@ -1666,6 +1690,17 @@ end;
 function TSkSvgBrush.IsWrapModeStored: Boolean;
 begin
   Result := FWrapMode <> DefaultWrapMode;
+end;
+
+function TSkSvgBrush.MakeDOM: ISkSVGDOM;
+begin
+  Result := TSkSVGDOM.Make(FSource);
+end;
+
+procedure TSkSvgBrush.RecreateDOM;
+begin
+  FDOM := nil;
+  FOriginalSize := TSizeF.Create(0, 0);
 end;
 
 procedure TSkSvgBrush.Render(const ACanvas: ISkCanvas; const ADestRect: TRectF;
@@ -1808,7 +1843,7 @@ begin
   if FGrayScale <> AValue then
   begin
     FGrayScale := AValue;
-    if FSource <> '' then
+    if HasContent then
       DoChanged;
   end;
 end;
@@ -1818,7 +1853,7 @@ begin
   if FOverrideColor <> AValue then
   begin
     FOverrideColor := AValue;
-    if FSource <> '' then
+    if HasContent then
       DoChanged;
   end;
 end;
@@ -1828,8 +1863,7 @@ begin
   if FSource <> AValue then
   begin
     FSource := AValue;
-    FDOM := nil;
-    FOriginalSize := TSizeF.Create(0, 0);
+    RecreateDOM;
     DoChanged;
   end;
 end;
@@ -1839,9 +1873,8 @@ begin
   if FWrapMode <> AValue then
   begin
     FWrapMode := AValue;
-    FDOM := nil;
-    FOriginalSize := TSizeF.Create(0, 0);
-    if FSource <> '' then
+    RecreateDOM;
+    if HasContent then
       DoChanged;
   end;
 end;
@@ -1851,9 +1884,14 @@ end;
 constructor TSkSvg.Create(AOwner: TComponent);
 begin
   inherited;
-  FSvg := TSkSvgBrush.Create;
+  FSvg := CreateSvgBrush;
   FSvg.OnChanged := SvgChanged;
   DrawCacheKind := TSkDrawCacheKind.Always;
+end;
+
+function TSkSvg.CreateSvgBrush: TSkSvgBrush;
+begin
+  Result := TSkSvgBrush.Create;
 end;
 
 destructor TSkSvg.Destroy;
@@ -4136,12 +4174,15 @@ procedure TSkLabel.Draw(const ACanvas: ISkCanvas; const ADest: TRectF;
     I: Integer;
     LTextEndIndex: Integer;
     LTextBox: TSkTextBox;
+    LRects: TArray<TRectF>;
+    LLastRect: TRectF;
   begin
     LPictureRecorder := TSkPictureRecorder.Create;
     LCanvas := LPictureRecorder.BeginRecording(ADest);
     LPaint := TSkPaint.Create;
     LPaint.AntiAlias := True;
     LTextEndIndex := 0;
+    LRects := nil;
     for I := 0 to FWords.Count - 1 do
     begin
       Inc(LTextEndIndex, FWords[I].Text.Length);
@@ -4149,8 +4190,26 @@ procedure TSkLabel.Draw(const ACanvas: ISkCanvas; const ADest: TRectF;
         Continue;
       LPaint.Color := FWords[I].BackgroundColor;
       for LTextBox in AParagraph.GetRectsForRange(LTextEndIndex - FWords[I].Text.Length, LTextEndIndex, TSkRectHeightStyle.Tight, TSkRectWidthStyle.Tight) do
-        LCanvas.DrawRoundRect(Canvas.AlignToPixel(LTextBox.Rect), 2, 2, LPaint);
+      begin
+        if LRects = nil then
+        begin
+          LRects := [LTextBox.Rect];
+          Continue;
+        end;
+        LLastRect := LRects[High(LRects)];
+        if SameValue(LLastRect.Top, LTextBox.Rect.Top, TEpsilon.Position) and
+          SameValue(LLastRect.Bottom, LTextBox.Rect.Bottom, TEpsilon.Position) and
+          SameValue(LLastRect.Right, LTextBox.Rect.Left, 1) then
+        begin
+          LLastRect.Right := LTextBox.Rect.Right;
+          LRects[High(LRects)] := LLastRect;
+        end
+        else
+          LRects := LRects + [LTextBox.Rect];
+      end;
     end;
+    for I := 0 to Length(LRects) - 1 do
+      LCanvas.DrawRoundRect(Canvas.AlignToPixel(LRects[I]), 2, 2, LPaint);
     Result := LPictureRecorder.FinishRecording;
   end;
 
