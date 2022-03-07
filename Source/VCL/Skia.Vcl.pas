@@ -3591,7 +3591,7 @@ begin
     raise ESkLabel.CreateFmt(SInvalidName, [AName]);
   if AWordsCollection <> nil then
     for I := 0 to AWordsCollection.Count - 1 do
-      if (AWordsCollection.Items[I] <> Self) and (string.Compare(AName, AWordsCollection.Items[I].Name, True) = 0) then
+      if (AWordsCollection.Items[I] <> Self) and (string.Compare(AName, AWordsCollection.Items[I].Name, [TCompareOption.coIgnoreCase]) = 0) then
         raise ESkLabel.CreateFmt(SDuplicateName, [AWordsCollection.Items[I].Name]);
 end;
 
@@ -3751,7 +3751,7 @@ begin
   if Assigned(AValue) and not (AValue is TWordsCollection) then
     raise ESkLabel.Create('You can use only the inheritors of class "TWordsCollection"');
   S := UniqueName(FName, AValue);
-  if string.Compare(S, FName, True) <> 0 then
+  if string.Compare(S, FName, [TCompareOption.coIgnoreCase]) <> 0 then
     CheckName(S, TWordsCollection(AValue));
   FName := S;
   inherited;
@@ -3790,7 +3790,7 @@ begin
   LValue := AValue.Trim;
   if FName <> LValue then
   begin
-    if string.Compare(LValue, FName, True) <> 0 then
+    if string.Compare(LValue, FName, [TCompareOption.coIgnoreCase]) <> 0 then
       CheckName(LValue, Words);
     FName := LValue;
     Change;
@@ -3848,7 +3848,7 @@ begin
       begin
         S := TCustomWordsItem(ACollection.Items[I]).Name;
         SeparateNameIndex(S, J);
-        if string.Compare(S, Result, True) = 0 then
+        if string.Compare(S, Result, [TCompareOption.coIgnoreCase]) = 0 then
         begin
           LMaxIndex := Max(LMaxIndex, J);
           if (LIndex = J) then
@@ -3948,7 +3948,7 @@ var
 begin
   Result := -1;
   for I := 0 to Count - 1 do
-    if string.Compare(AName, Items[I].Name, True) = 0 then
+    if string.Compare(AName, Items[I].Name, [TCompareOption.coIgnoreCase]) = 0 then
     begin
       Result := I;
       Break;
