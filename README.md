@@ -685,7 +685,7 @@ The example above results in the output below:
 
 ![Paint Box](Assets/Documents/paintbox.png)
 
-*Note: The TSkPaintBox has a drawing caching system. To force a drawing refresh, call TSkPaintBox.Redraw.*
+*Note: The TSkPaintBox has a drawing caching system. To force a drawing refresh, call TSkPaintBox.Redraw. However, this cache system does not exist in FMX apps that have enabled [Skia4Delphi graphic engine](#fmx-canvas) for optimization reasons.*
 
   
 
