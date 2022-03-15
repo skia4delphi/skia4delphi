@@ -391,7 +391,7 @@ begin
   LRADStudioVersion.Name := 'RAD Studio 11.0 Alexandria';
   LRADStudioVersion.RegVersion := '22.0';         
   LRADStudioVersion.SupportedPlatforms := [pfWin32, pfWin64, pfAndroid, pfAndroid64, pfiOSDevice64, pfiOSSimulator, pfOSX64, pfOSXARM64, pfLinux64];
-  LRADStudioVersion.MaxDprojVersion := '19.3';
+  LRADStudioVersion.MaxDprojVersion := '19.4';
   LRADStudioVersion.MinDprojVersion := '19.3';
   LRADStudioVersion.PackageVersion := '280';
   LRADStudioVersion.HasGetItCmd := True;
