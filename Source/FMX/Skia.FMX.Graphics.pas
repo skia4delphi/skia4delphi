@@ -276,7 +276,8 @@ uses
   Skia.API,
   Skia.FMX,
   Skia.FMX.Canvas.GL,
-  Skia.FMX.Canvas.Metal;
+  Skia.FMX.Canvas.Metal,
+  Skia.FMX.Patches.RSP37660;
 
 type
   {$IF defined(MSWINDOWS)}
@@ -1514,6 +1515,10 @@ begin
     {$IFDEF MACOS}
     if Assigned(FCanvasClass) then
       TContextMetalFix.TryApply(TContextManager.DefaultContextClass);
+    {$ENDIF}
+    {$IFDEF IOS}
+    if Assigned(FCanvasClass) then
+      ApplyPatchesRSP37660;
     {$ENDIF}
   end;
 end;
