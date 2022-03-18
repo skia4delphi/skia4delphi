@@ -4072,7 +4072,9 @@ procedure TSkLabel.Draw(const ACanvas: ISkCanvas; const ADest: TRectF;
     LTextEndIndex: Integer;
     LTextBox: TSkTextBox;
     LRects: TArray<TRectF>;
+    LRectsColor: TArray<TAlphaColor>;
     LLastRect: TRectF;
+    LLastColor: TAlphaColor;
   begin
     LPictureRecorder := TSkPictureRecorder.Create;
     LCanvas := LPictureRecorder.BeginRecording(ADest);
@@ -4085,16 +4087,18 @@ procedure TSkLabel.Draw(const ACanvas: ISkCanvas; const ADest: TRectF;
       Inc(LTextEndIndex, FWords[I].Caption.Length);
       if TAlphaColorRec(FWords[I].BackgroundColor).A = 0 then
         Continue;
-      LPaint.Color := FWords[I].BackgroundColor;
       for LTextBox in AParagraph.GetRectsForRange(LTextEndIndex - FWords[I].Caption.Length, LTextEndIndex, TSkRectHeightStyle.Tight, TSkRectWidthStyle.Tight) do
       begin
         if LRects = nil then
         begin
           LRects := [LTextBox.Rect];
+          LRectsColor := [FWords[I].BackgroundColor];
           Continue;
         end;
         LLastRect := LRects[High(LRects)];
-        if SameValue(LLastRect.Top, LTextBox.Rect.Top, TEpsilon.Position) and
+        LLastColor := LRectsColor[High(LRectsColor)];
+        if (LLastColor = FWords[I].BackgroundColor) and
+          SameValue(LLastRect.Top, LTextBox.Rect.Top, TEpsilon.Position) and
           SameValue(LLastRect.Bottom, LTextBox.Rect.Bottom, TEpsilon.Position) and
           SameValue(LLastRect.Right, LTextBox.Rect.Left, 1) then
         begin
@@ -4102,11 +4106,17 @@ procedure TSkLabel.Draw(const ACanvas: ISkCanvas; const ADest: TRectF;
           LRects[High(LRects)] := LLastRect;
         end
         else
+        begin
           LRects := LRects + [LTextBox.Rect];
+          LRectsColor := LRectsColor + [FWords[I].BackgroundColor];
+        end;
       end;
     end;
     for I := 0 to Length(LRects) - 1 do
+    begin
+      LPaint.Color := LRectsColor[I];
       LCanvas.DrawRoundRect(TRectF.Create(LRects[I].Round), 2 * ScaleFactor, 2 * ScaleFactor, LPaint);
+    end;
     Result := LPictureRecorder.FinishRecording;
   end;
 
