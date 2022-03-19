@@ -23,6 +23,7 @@ uses
   System.Types,
   System.UITypes,
   System.Classes,
+  System.Messaging,
   Vcl.Graphics,
   Vcl.Controls,
   Vcl.ExtCtrls,
@@ -819,14 +820,20 @@ type
         property TagString;
         property OnClick;
       end;
+
+      { TItemClickedMessage }
+
+      TItemClickedMessage = class(TMessage<TCustomWordsItem>);
   strict private
     FBackgroundPicture: ISkPicture;
+    FClickedPosition: TPoint;
     FHasCustomBackground: Boolean;
     FHasCustomCursor: Boolean;
     FIsMouseOver: Boolean;
     FParagraph: ISkParagraph;
     FParagraphBounds: TRectF;
     FParagraphLayoutWidth: Single;
+    FPressedPosition: TPoint;
     FTextSettingsInfo: TSkTextSettingsInfo;
     FWords: TWordsCollection;
     FWordsMouseOver: TCustomWordsItem;
@@ -846,6 +853,7 @@ type
     procedure SetWords(const AValue: TWordsCollection);
     procedure SetWordsMouseOver(const AValue: TCustomWordsItem);
     procedure TextSettingsChanged(AValue: TObject);
+    procedure WMLButtonUp(var AMessage: TWMLButtonUp); message WM_LBUTTONUP;
     procedure WMMouseMove(var AMessage: TWMMouseMove); message WM_MOUSEMOVE;
     procedure WordsChange(ASender: TObject);
   strict private
@@ -859,7 +867,9 @@ type
     procedure Click; override;
     procedure Draw(const ACanvas: ISkCanvas; const ADest: TRectF; const AOpacity: Single); override;
     function GetTextSettingsClass: TSkTextSettingsInfo.TCustomTextSettingsClass; virtual;
+    function GetWordsItemAtPosition(const AX, AY: Integer): TCustomWordsItem;
     procedure Loaded; override;
+    procedure MouseDown(AButton: TMouseButton; AShift: TShiftState; AX, AY: Integer); override;
     procedure SetName(const AValue: TComponentName); override;
     property IsMouseOver: Boolean read FIsMouseOver;
     property Paragraph: ISkParagraph read GetParagraph;
@@ -4004,9 +4014,18 @@ begin
 end;
 
 procedure TSkLabel.Click;
+var
+  LClickedItem: TCustomWordsItem;
 begin
-  if Assigned(FWordsMouseOver) and Assigned(FWordsMouseOver.OnClick) then
-    FWordsMouseOver.OnClick(FWordsMouseOver)
+  LClickedItem := GetWordsItemAtPosition(FClickedPosition.X, FClickedPosition.Y);
+  if Assigned(LClickedItem) and (LClickedItem = GetWordsItemAtPosition(FPressedPosition.X, FPressedPosition.Y)) then
+  begin
+    TMessageManager.DefaultManager.SendMessage(Self, TItemClickedMessage.Create(LClickedItem));
+    if Assigned(LClickedItem.OnClick) then
+      LClickedItem.OnClick(FWordsMouseOver)
+    else
+      inherited;
+  end
   else
     inherited;
 end;
@@ -4365,6 +4384,68 @@ begin
   Result := TSkTextSettingsInfo.TCustomTextSettings;
 end;
 
+function TSkLabel.GetWordsItemAtPosition(const AX,
+  AY: Integer): TCustomWordsItem;
+
+  // Remove inconsistencies such as area after a line break
+  function IsInsideValidArea(const AParagraph: ISkParagraph; const ATextArea: TRectF; const APoint: TPointF): Boolean;
+  var
+    LGlyphTextBoxes: TArray<TSkTextBox>;
+    LGlyphPosition: TSkPositionAffinity;
+  begin
+    LGlyphPosition := AParagraph.GetGlyphPositionAtCoordinate(APoint.X, APoint.Y);
+    if LGlyphPosition.Affinity = TSkAffinity.Downstream then
+      Result := True
+    else if LGlyphPosition.Position >= 0 then
+    begin
+      LGlyphTextBoxes := AParagraph.GetRectsForRange(LGlyphPosition.Position, LGlyphPosition.Position + 1, TSkRectHeightStyle.Max, TSkRectWidthStyle.Tight);
+      Result := (LGlyphTextBoxes <> nil) and
+        ((LGlyphTextBoxes[0].Rect.CenterPoint.Distance(APoint) < (LGlyphTextBoxes[0].Rect.Width + LGlyphTextBoxes[0].Rect.Height) / 2) or
+        ATextArea.Contains(LGlyphTextBoxes[0].Rect.CenterPoint));
+    end
+    else
+      Result := False;
+  end;
+
+var
+  I, J: Integer;
+  LTextIndex: Integer;
+  LTextBoxes: TArray<TSkTextBox>;
+  LParagraph: ISkParagraph;
+  LParagraphPoint: TPointF;
+begin
+  Result := nil;
+  LParagraph := Paragraph;
+  if Assigned(LParagraph) then
+  begin
+    case ResultingTextSettings.VertAlign of
+      TSkTextVertAlign.Center: LParagraphPoint := PointF(AX, AY - (Height - ParagraphBounds.Height) / 2);
+      TSkTextVertAlign.Trailing: LParagraphPoint := PointF(AX, AY - Height - ParagraphBounds.Height);
+    else
+      LParagraphPoint := PointF(AX, AY);
+    end;
+    LTextIndex := 0;
+    for I := 0 to FWords.Count - 1 do
+    begin
+      if FWords[I].Caption.Length = 0 then
+        Continue;
+      LTextBoxes := LParagraph.GetRectsForRange(LTextIndex, LTextIndex + FWords[I].Caption.Length, TSkRectHeightStyle.Max, TSkRectWidthStyle.Tight);
+      for J := 0 to Length(LTextBoxes) - 1 do
+      begin
+        if LTextBoxes[J].Rect.Contains(LParagraphPoint) then
+        begin
+          if IsInsideValidArea(LParagraph, LTextBoxes[J].Rect, LParagraphPoint) then
+            Result := FWords[I];
+          Break;
+        end;
+      end;
+      if Assigned(Result) then
+        Break;
+      Inc(LTextIndex, FWords[I].Caption.Length);
+    end;
+  end;
+end;
+
 function TSkLabel.HasFitSizeChanged: Boolean;
 var
   LNewWidth: Single;
@@ -4381,6 +4462,13 @@ begin
   inherited;
   if AutoSize and HasFitSizeChanged then
     SetBounds(Left, Top, Width, Height);
+end;
+
+procedure TSkLabel.MouseDown(AButton: TMouseButton; AShift: TShiftState; AX,
+  AY: Integer);
+begin
+  FPressedPosition := Point(AX, AY);
+  inherited;
 end;
 
 procedure TSkLabel.ParagraphLayout(const AWidth: Single);
@@ -4452,7 +4540,11 @@ begin
       else
         Cursor := crDefault;
     end;
-  end;
+  end
+  else if Assigned(FWordsMouseOver) and (FWordsMouseOver.Cursor <> crDefault) then
+    Cursor := FWordsMouseOver.Cursor
+  else
+    Cursor := crDefault;
 end;
 
 procedure TSkLabel.TextSettingsChanged(AValue: TObject);
@@ -4489,48 +4581,16 @@ begin
   Result := SysLocale.MiddleEast and (GetParentedBiDiMode = bdRightToLeft);
 end;
 
+procedure TSkLabel.WMLButtonUp(var AMessage: TWMLButtonUp);
+begin
+  FPressedPosition := Point(AMessage.XPos, AMessage.YPos);
+  inherited;
+end;
+
 procedure TSkLabel.WMMouseMove(var AMessage: TWMMouseMove);
-var
-  I, J: Integer;
-  LTextIndex: Integer;
-  LTextBoxes: TArray<TSkTextBox>;
-  LNewWordsMouseOver: TCustomWordsItem;
-  LParagraph: ISkParagraph;
-  LParagraphPoint: TPointF;
 begin
   if FHasCustomCursor then
-  begin
-    LParagraph := Paragraph;
-    if Assigned(LParagraph) then
-    begin
-      case ResultingTextSettings.VertAlign of
-        TSkTextVertAlign.Center: LParagraphPoint := PointF(AMessage.XPos, AMessage.YPos - (Height - ParagraphBounds.Height) / 2);
-        TSkTextVertAlign.Trailing: LParagraphPoint := PointF(AMessage.XPos, AMessage.YPos - Height - ParagraphBounds.Height);
-      else
-        LParagraphPoint := PointF(AMessage.XPos, AMessage.YPos);
-      end;
-      LNewWordsMouseOver := nil;
-      LTextIndex := 0;
-      for I := 0 to FWords.Count - 1 do
-      begin
-        if FWords[I].Caption.Length = 0 then
-          Continue;
-        LTextBoxes := LParagraph.GetRectsForRange(LTextIndex, LTextIndex + FWords[I].Caption.Length, TSkRectHeightStyle.Max, TSkRectWidthStyle.Tight);
-        for J := 0 to Length(LTextBoxes) - 1 do
-        begin
-          if LTextBoxes[J].Rect.Contains(LParagraphPoint) then
-          begin
-            LNewWordsMouseOver := FWords[I];
-            Break;
-          end;
-        end;
-        if Assigned(LNewWordsMouseOver) then
-          Break;
-        LTextIndex := LTextIndex + FWords[I].Caption.Length;
-      end;
-      SetWordsMouseOver(LNewWordsMouseOver);
-    end;
-  end;
+    SetWordsMouseOver(GetWordsItemAtPosition(AMessage.XPos, AMessage.YPos));
   inherited;
 end;
 

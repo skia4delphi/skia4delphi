@@ -21,6 +21,7 @@ uses
   System.Types,
   System.UITypes,
   System.Classes,
+  System.Messaging,
   FMX.Types,
   FMX.Graphics,
   FMX.Controls,
@@ -813,9 +814,14 @@ type
         property Text;
         property OnClick;
       end;
+
+      { TItemClickedMessage }
+
+      TItemClickedMessage = class(TMessage<TCustomWordsItem>);
   strict private
     FAutoSize: Boolean;
     FBackgroundPicture: ISkPicture;
+    FClickedPosition: TPointF;
     FHasCustomBackground: Boolean;
     FHasCustomCursor: Boolean;
     FLastFillTextFlags: TFillTextFlags;
@@ -864,8 +870,10 @@ type
     procedure FreeStyle; override;
     function GetDefaultSize: TSizeF; override;
     function GetTextSettingsClass: TSkTextSettingsInfo.TCustomTextSettingsClass; virtual;
+    function GetWordsItemAtPosition(const AX, AY: Single): TCustomWordsItem;
     function IsStyledSettingsStored: Boolean; virtual;
     procedure Loaded; override;
+    procedure MouseClick(AButton: TMouseButton; AShift: TShiftState; AX, AY: Single); override;
     procedure MouseMove(AShift: TShiftState; AX, AY: Single); override;
     function NeedsRedraw: Boolean; override;
     procedure SetAlign(const AValue: TAlignLayout); override;
@@ -4098,9 +4106,18 @@ begin
 end;
 
 procedure TSkLabel.Click;
+var
+  LClickedItem: TCustomWordsItem;
 begin
-  if Assigned(FWordsMouseOver) and Assigned(FWordsMouseOver.OnClick) then
-    FWordsMouseOver.OnClick(FWordsMouseOver)
+  LClickedItem := GetWordsItemAtPosition(FClickedPosition.X, FClickedPosition.Y);
+  if Assigned(LClickedItem) and (LClickedItem = GetWordsItemAtPosition(PressedPosition.X, PressedPosition.Y)) then
+  begin
+    TMessageManager.DefaultManager.SendMessage(Self, TItemClickedMessage.Create(LClickedItem));
+    if Assigned(LClickedItem.OnClick) then
+      LClickedItem.OnClick(FWordsMouseOver)
+    else
+      inherited;
+  end
   else
     inherited;
 end;
@@ -4577,6 +4594,68 @@ begin
   Result := TSkTextSettingsInfo.TCustomTextSettings;
 end;
 
+function TSkLabel.GetWordsItemAtPosition(const AX,
+  AY: Single): TCustomWordsItem;
+
+  // Remove inconsistencies such as area after a line break
+  function IsInsideValidArea(const AParagraph: ISkParagraph; const ATextArea: TRectF; const APoint: TPointF): Boolean;
+  var
+    LGlyphTextBoxes: TArray<TSkTextBox>;
+    LGlyphPosition: TSkPositionAffinity;
+  begin
+    LGlyphPosition := AParagraph.GetGlyphPositionAtCoordinate(APoint.X, APoint.Y);
+    if LGlyphPosition.Affinity = TSkAffinity.Downstream then
+      Result := True
+    else if LGlyphPosition.Position >= 0 then
+    begin
+      LGlyphTextBoxes := AParagraph.GetRectsForRange(LGlyphPosition.Position, LGlyphPosition.Position + 1, TSkRectHeightStyle.Max, TSkRectWidthStyle.Tight);
+      Result := (LGlyphTextBoxes <> nil) and
+        ((LGlyphTextBoxes[0].Rect.CenterPoint.Distance(APoint) < (LGlyphTextBoxes[0].Rect.Width + LGlyphTextBoxes[0].Rect.Height) / 2) or
+        ATextArea.Contains(LGlyphTextBoxes[0].Rect.CenterPoint));
+    end
+    else
+      Result := False;
+  end;
+
+var
+  I, J: Integer;
+  LTextIndex: Integer;
+  LTextBoxes: TArray<TSkTextBox>;
+  LParagraph: ISkParagraph;
+  LParagraphPoint: TPointF;
+begin
+  Result := nil;
+  LParagraph := Paragraph;
+  if Assigned(LParagraph) then
+  begin
+    case ResultingTextSettings.VertAlign of
+      TTextAlign.Center: LParagraphPoint := PointF(AX, AY - (Height - ParagraphBounds.Height) / 2);
+      TTextAlign.Trailing: LParagraphPoint := PointF(AX, AY - Height - ParagraphBounds.Height);
+    else
+      LParagraphPoint := PointF(AX, AY);
+    end;
+    LTextIndex := 0;
+    for I := 0 to FWords.Count - 1 do
+    begin
+      if FWords[I].Text.Length = 0 then
+        Continue;
+      LTextBoxes := LParagraph.GetRectsForRange(LTextIndex, LTextIndex + FWords[I].Text.Length, TSkRectHeightStyle.Max, TSkRectWidthStyle.Tight);
+      for J := 0 to Length(LTextBoxes) - 1 do
+      begin
+        if LTextBoxes[J].Rect.Contains(LParagraphPoint) then
+        begin
+          if IsInsideValidArea(LParagraph, LTextBoxes[J].Rect, LParagraphPoint) then
+            Result := FWords[I];
+          Break;
+        end;
+      end;
+      if Assigned(Result) then
+        Break;
+      Inc(LTextIndex, FWords[I].Text.Length);
+    end;
+  end;
+end;
+
 function TSkLabel.HasFitSizeChanged: Boolean;
 var
   LNewWidth: Single;
@@ -4600,48 +4679,17 @@ begin
     SetSize(Width, Height);
 end;
 
+procedure TSkLabel.MouseClick(AButton: TMouseButton; AShift: TShiftState; AX,
+  AY: Single);
+begin
+  FClickedPosition := PointF(AX, AY);
+  inherited;
+end;
+
 procedure TSkLabel.MouseMove(AShift: TShiftState; AX, AY: Single);
-var
-  I, J: Integer;
-  LTextIndex: Integer;
-  LTextBoxes: TArray<TSkTextBox>;
-  LNewWordsMouseOver: TCustomWordsItem;
-  LParagraph: ISkParagraph;
-  LParagraphPoint: TPointF;
 begin
   if FHasCustomCursor then
-  begin
-    LParagraph := Paragraph;
-    if Assigned(LParagraph) then
-    begin
-      case ResultingTextSettings.VertAlign of
-        TTextAlign.Center: LParagraphPoint := PointF(AX, AY - (Height - ParagraphBounds.Height) / 2);
-        TTextAlign.Trailing: LParagraphPoint := PointF(AX, AY - Height - ParagraphBounds.Height);
-      else
-        LParagraphPoint := PointF(AX, AY);
-      end;
-      LNewWordsMouseOver := nil;
-      LTextIndex := 0;
-      for I := 0 to FWords.Count - 1 do
-      begin
-        if FWords[I].Text.Length = 0 then
-          Continue;
-        LTextBoxes := LParagraph.GetRectsForRange(LTextIndex, LTextIndex + FWords[I].Text.Length, TSkRectHeightStyle.Max, TSkRectWidthStyle.Tight);
-        for J := 0 to Length(LTextBoxes) - 1 do
-        begin
-          if LTextBoxes[J].Rect.Contains(LParagraphPoint) then
-          begin
-            LNewWordsMouseOver := FWords[I];
-            Break;
-          end;
-        end;
-        if Assigned(LNewWordsMouseOver) then
-          Break;
-        LTextIndex := LTextIndex + FWords[I].Text.Length;
-      end;
-      SetWordsMouseOver(LNewWordsMouseOver);
-    end;
-  end;
+    SetWordsMouseOver(GetWordsItemAtPosition(AX, AY));
   inherited;
 end;
 
@@ -4744,7 +4792,11 @@ begin
       else
         Cursor := crDefault;
     end;
-  end;
+  end
+  else if Assigned(FWordsMouseOver) and (FWordsMouseOver.Cursor <> crDefault) then
+    Cursor := FWordsMouseOver.Cursor
+  else
+    Cursor := crDefault;
 end;
 
 procedure TSkLabel.TextSettingsChanged(AValue: TObject);
