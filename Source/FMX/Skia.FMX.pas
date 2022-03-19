@@ -704,6 +704,10 @@ type
         FIgnoringAllChanges: Boolean;
         FName: string;
         FOnClick: TNotifyEvent;
+        FTag: NativeInt;
+        FTagFloat: Single;
+        [Weak] FTagObject: TObject;
+        FTagString: string;
         FText: string;
         FTextSettingsInfo: TSkTextSettingsInfo;
         FUpdatingCount: Integer;
@@ -748,6 +752,10 @@ type
         /// <summary> The case-insensitive name of the item in the collection. This field cannot be empty and must be unique for his collection </summary>
         property Name: string read FName write SetName stored IsNameStored;
         property StyledSettings: TStyledSettings read GetStyledSettings write SetStyledSettings stored IsStyledSettingsStored;
+        property Tag: NativeInt read FTag write FTag default 0;
+        property TagFloat: Single read FTagFloat write FTagFloat;
+        property TagObject: TObject read FTagObject write FTagObject;
+        property TagString: string read FTagString write FTagString;
         property Text: string read FText write SetText stored IsTextStored;
         property Words: TWordsCollection read FWords;
         property OnClick: TNotifyEvent read FOnClick write FOnClick;
@@ -801,6 +809,7 @@ type
         property FontColor;
         property Name;
         property StyledSettings;
+        property TagString;
         property Text;
         property OnClick;
       end;
