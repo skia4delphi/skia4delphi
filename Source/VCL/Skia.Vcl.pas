@@ -4536,7 +4536,8 @@ end;
 procedure TSkLabel.MouseDown(AButton: TMouseButton; AShift: TShiftState; AX,
   AY: Integer);
 begin
-  FPressedPosition := Point(AX, AY);
+  if AButton = TMouseButton.mbLeft then
+    FPressedPosition := Point(AX, AY);
   inherited;
 end;
 
@@ -4652,7 +4653,7 @@ end;
 
 procedure TSkLabel.WMLButtonUp(var AMessage: TWMLButtonUp);
 begin
-  FPressedPosition := Point(AMessage.XPos, AMessage.YPos);
+  FClickedPosition := Point(AMessage.XPos, AMessage.YPos);
   inherited;
 end;
 
