@@ -4365,16 +4365,10 @@ const
   end;
 
   // Temporary solution to fix an issue with Skia: https://github.com/skia4delphi/skia4delphi/issues/79
-  function NormalizeStyledText(const ABuilder: ISkParagraphBuilder; const AText: string): string;
-  const
-    sCRLF: string = #13#10;
+  // SkParagraph has several issues with the #13 line break, so the best thing to do is replace it with #10 or a zero-widh character (#8203)
+  function NormalizeParagraphText(const AText: string): string;
   begin
-    Result := AText;
-    while Result.StartsWith(sCRLF) do
-    begin
-      ABuilder.AddText(sCRLF);
-      Result := Result.Substring(Length(sCRLF));
-    end;
+    Result := AText.Replace(#13#10, #8203#10).Replace(#13, #10);
   end;
 
   function CreateParagraph: ISkParagraph;
@@ -4395,7 +4389,7 @@ const
         LBuilder.AddText(FWords[I].Caption)
       else
       begin
-        LText := NormalizeStyledText(LBuilder, FWords[I].Caption);
+        LText := NormalizeParagraphText(FWords[I].Caption);
         if not LText.IsEmpty then
         begin
           LBuilder.PushStyle(CreateTextStyle(FWords[I], LDefaultTextStyle));
