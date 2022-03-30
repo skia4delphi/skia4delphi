@@ -1,4 +1,4 @@
 [submodule "externals/skia"]
 	path = Externals/skia
-	url = git://github.com/skia4delphi/skia.git
+	url = https://github.com/skia4delphi/skia.git
 	branch = main
