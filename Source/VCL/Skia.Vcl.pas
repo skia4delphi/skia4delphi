@@ -4364,10 +4364,24 @@ const
     Result.TextStyle := ADefaultTextStyle;
   end;
 
+  // Temporary solution to fix an issue with Skia: https://github.com/skia4delphi/skia4delphi/issues/79
+  function NormalizeStyledText(const ABuilder: ISkParagraphBuilder; const AText: string): string;
+  const
+    sCRLF: string = #13#10;
+  begin
+    Result := AText;
+    while Result.StartsWith(sCRLF) do
+    begin
+      ABuilder.AddText(sCRLF);
+      Result := Result.Substring(Length(sCRLF));
+    end;
+  end;
+
   function CreateParagraph: ISkParagraph;
   var
     LBuilder: ISkParagraphBuilder;
     LDefaultTextStyle: ISkTextStyle;
+    LText: string;
     I: Integer;
   begin
     LDefaultTextStyle := CreateDefaultTextStyle;
@@ -4381,9 +4395,13 @@ const
         LBuilder.AddText(FWords[I].Caption)
       else
       begin
-        LBuilder.PushStyle(CreateTextStyle(FWords[I], LDefaultTextStyle));
-        LBuilder.AddText(FWords[I].Caption);
-        LBuilder.Pop;
+        LText := NormalizeStyledText(LBuilder, FWords[I].Caption);
+        if not LText.IsEmpty then
+        begin
+          LBuilder.PushStyle(CreateTextStyle(FWords[I], LDefaultTextStyle));
+          LBuilder.AddText(LText);
+          LBuilder.Pop;
+        end;
       end;
       FHasCustomBackground := FHasCustomBackground or (FWords[I].BackgroundColor <> TAlphaColors.Null);
     end;

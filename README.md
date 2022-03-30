@@ -4,6 +4,7 @@
   <a href="#compatibility"><img src="https://img.shields.io/static/v1?label=rad%20studio&message=xe7%2B&color=silver&style=for-the-badge&logo=delphi&logoColor=white" alt="Delphi XE7+ support" /></a>
   <a href="#compatibility"><img src="https://img.shields.io/static/v1?label=platforms&message=cross-platform&color=silver&style=for-the-badge&logo=delphi&logoColor=white" alt="Cross-platform support" /></a>
   <a href="#compatibility"><img src="https://img.shields.io/static/v1?label=applications&message=console%2C%20fmx%2C%20vcl&color=silver&style=for-the-badge&logo=delphi&logoColor=white" alt="Console, FMX, VCL support" /></a>
+  <a href="https://t.me/skia4delphi"><img src="https://img.shields.io/static/v1?label=telegram&message=skia4delphi&color=silver&style=for-the-badge&logo=data:image/svg%2bxml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgZmlsbD0iI2ZmZiI+PHRpdGxlPlRlbGVncmFtPC90aXRsZT48cGF0aCBkPSJNMTEuOTQ0IDBBMTIgMTIgMCAwIDAgMCAxMmExMiAxMiAwIDAgMCAxMiAxMiAxMiAxMiAwIDAgMCAxMi0xMkExMiAxMiAwIDAgMCAxMiAwYTEyIDEyIDAgMCAwLS4wNTYgMHptNC45NjIgNy4yMjRjLjEtLjAwMi4zMjEuMDIzLjQ2NS4xNGEuNTA2LjUwNiAwIDAgMSAuMTcxLjMyNWMuMDE2LjA5My4wMzYuMzA2LjAyLjQ3Mi0uMTggMS44OTgtLjk2MiA2LjUwMi0xLjM2IDguNjI3LS4xNjguOS0uNDk5IDEuMjAxLS44MiAxLjIzLS42OTYuMDY1LTEuMjI1LS40Ni0xLjktLjkwMi0xLjA1Ni0uNjkzLTEuNjUzLTEuMTI0LTIuNjc4LTEuOC0xLjE4NS0uNzgtLjQxNy0xLjIxLjI1OC0xLjkxLjE3Ny0uMTg0IDMuMjQ3LTIuOTc3IDMuMzA3LTMuMjMuMDA3LS4wMzIuMDE0LS4xNS0uMDU2LS4yMTJzLS4xNzQtLjA0MS0uMjQ5LS4wMjRjLS4xMDYuMDI0LTEuNzkzIDEuMTQtNS4wNjEgMy4zNDUtLjQ4LjMzLS45MTMuNDktMS4zMDIuNDgtLjQyOC0uMDA4LTEuMjUyLS4yNDEtMS44NjUtLjQ0LS43NTItLjI0NS0xLjM0OS0uMzc0LTEuMjk3LS43ODkuMDI3LS4yMTYuMzI1LS40MzcuODkzLS42NjMgMy40OTgtMS41MjQgNS44My0yLjUyOSA2Ljk5OC0zLjAxNCAzLjMzMi0xLjM4NiA0LjAyNS0xLjYyNyA0LjQ3Ni0xLjYzNXoiLz48L3N2Zz4=" alt="Telegram group" /></a>
 </p>
 
   
@@ -11,11 +12,6 @@
 #  
 
 **[Skia4Delphi](https://skia4delphi.org)** is a cross-platform 2D graphics API for Delphi based on [Google's Skia](https://skia.org/) graphics library.
-
-# 
-
-Help us responding a small questionnaire about our users in [this link](https://c7hppqdug11.typeform.com/to/Qc6o3ELs)
-#
 
 <p><a href="https://youtu.be/hI8L4qBXTgk"><img src="Assets/Documents/video-preview.png" width="640" alt="Video Preview" /></a></p>
 
@@ -42,7 +38,7 @@ Google's Skia Graphics Library serves as the graphics engine for Google Chrome a
 - Image and path effects;
 - Raw codecs;
 - Animated image player; (Lottie, GIF, WebP)
-- Image codecs; (*.bmp, *.gif, *.ico, *.jpg, *.png, *.wbmp, *.webp and raw images)
+- Image codecs; (bmp, gif, ico, jpg, png, wbmp, webp and raw images)
 - Particles; (provides a way to quickly generate large numbers of drawing primitives with dynamic, animated behavior)
   **and much more...**
 
@@ -115,14 +111,16 @@ You can install **Skia4Delphi** in 3 ways:
 
 - Embarcadero's GetIt *(RAD Studio > Tools > GetIt Package Manager...)*
 
-  <p><img src="https://user-images.githubusercontent.com/11139086/158433099-2ecbd6d1-4d1e-425a-93b4-4d6d5b95b40a.png#gh-light-mode-only" width="510" alt="GetIt" /></p>
-  <p><img src="https://user-images.githubusercontent.com/11139086/158433116-89d5f148-fb2f-43b1-9afa-191c0c33b2b6.png#gh-dark-mode-only" width="510" alt="GetIt" /></p>
+  <p><img src="https://user-images.githubusercontent.com/11139086/158433099-2ecbd6d1-4d1e-425a-93b4-4d6d5b95b40a.png#gh-light-mode-only" width="511" alt="GetIt" /></p>
+  <p><img src="https://user-images.githubusercontent.com/11139086/158433116-89d5f148-fb2f-43b1-9afa-191c0c33b2b6.png#gh-dark-mode-only" width="511" alt="GetIt" /></p>
 
   
 
 - Chocolatey package manager
-
-  **Coming soon...**
+  
+  ```batch
+  choco install skia4delphi
+  ```
 
   
 
@@ -541,7 +539,7 @@ end;
 
 #### Tip
 
-If your application works with many background threads drawing in bitmaps, it is safe to remove the global lock from the `TCanvas` base class, gaining a lot of performance in the drawings. For that it is necessary to make a patch in the unit `FMX.Graphics.pas`.
+If your app has background threads that do a lot of bitmap drawings, be aware that it is safe to remove the global lock from the `TCanvas` base class when Skia based Canvas is enabled, to allow your app to do truly parallel drawings, gaining a lot of performance. For that, it is necessary to make a patch in the units `FMX.Graphics.pas` and `FMX.TextLayout.pas`. [Learn more](https://quality.embarcadero.com/browse/RSP-37232)
 
   
 
@@ -721,7 +719,7 @@ The example above results in the output below:
 
 | RAD Studio                   | Platforms        |
 |------------------------------|------------------|
-| RAD Studio 11.0 Alexandria   | All Platforms    |
+| RAD Studio 11 Alexandria   | All Platforms    |
 | RAD Studio 10.3 Rio or newer | Windows, Android |
 | RAD Studio XE7 or newer      | Windows          |
 
@@ -742,13 +740,11 @@ The APIs are very similar to Skia's, few methods and functions have been renamed
 
 # Version
 
-**[Skia4Delphi Version 3.2.0](/../../releases/latest)**
+**[Skia4Delphi 3.3.0](/../../releases/latest)**
 
 Skia Version used: [chrome/m98](https://github.com/google/skia/tree/chrome/m98)
 What has changed from the original code? [Compare.](https://github.com/google/skia/compare/chrome/m98...skia4delphi:main)
 
-  
+#  
 
-# Known issues
-
-- Virtualization software vendors do not fully support 3D rendering libraries like OpenGL and Metal, so Skia based Canvas for **FMX** applications may not run correctly. On virtual machines we recommend using raster mode when available.
+Help us responding a small questionnaire about our users in [this link](https://c7hppqdug11.typeform.com/to/Qc6o3ELs)

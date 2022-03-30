@@ -49,7 +49,6 @@ contains
   Skia.FMX.Canvas.GL in '..\..\Source\FMX\Skia.FMX.Canvas.GL.pas',
   Skia.FMX.Canvas.Metal in '..\..\Source\FMX\Skia.FMX.Canvas.Metal.pas',
   Skia.FMX.Graphics in '..\..\Source\FMX\Skia.FMX.Graphics.pas',
-  Skia.FMX in '..\..\Source\FMX\Skia.FMX.pas',
-  Skia.FMX.Patches.RSP37660 in '..\..\Source\FMX\Patches\Skia.FMX.Patches.RSP37660.pas';
+  Skia.FMX in '..\..\Source\FMX\Skia.FMX.pas';
 
 end.

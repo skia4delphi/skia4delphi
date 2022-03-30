@@ -124,10 +124,26 @@ var
   LWMIService: Variant;
   LWbemObjectSet: Variant;
 begin
-  LSWbemLocator := CreateOleObject('WBEMScripting.SWBEMLocator');
-  LWMIService := LSWbemLocator.ConnectServer('', 'root\CIMV2', '', '');
-  LWbemObjectSet := LWMIService.ExecQuery(Format('SELECT Name FROM Win32_Process WHERE Name="%s"', [AFileName]));
-  Result := LWbemObjectSet.Count > 0;
+  try
+    LSWbemLocator := CreateOleObject('WbemScripting.SWbemLocator');
+    if VarIsNull(LSWbemLocator) then
+      Result := False
+    else
+    begin
+      LWMIService := LSWbemLocator.ConnectServer('.', 'root\CIMV2');
+      LWbemObjectSet := LWMIService.ExecQuery(Format('SELECT Name FROM Win32_Process WHERE Name="%s"', [AFileName]));
+      Result := not VarIsNull(LWbemObjectSet) and (LWbemObjectSet.Count > 0);
+    end;
+  except
+    if SameText(AFileName, 'bds.exe') then
+    begin
+      Result := (FindWindowByClassName('TAppBuilder') <> 0) and
+        (FindWindowByClassName('TPropertyInspector') <> 0) and
+        (FindWindowByWindowName('Object Inspector') <> 0);
+    end
+    else
+      Result := False;
+  end;
 end;
 
 function IsSilent: Boolean;

@@ -9,7 +9,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2015/06/nuspec.xsd">
   <metadata>
     <id>skia4delphi</id>
-    <version>3.2.0</version>
+    <version>3.3.0</version>
     <packageSourceUrl>https://github.com/skia4delphi/skia4delphi/tree/main/Tools/Chocolatey%20Package</packageSourceUrl>
     <owners>Paulo César Botelho Barbosa,Vinícius Felipe Botelho Barbosa</owners>
     <title>Skia4Delphi</title>

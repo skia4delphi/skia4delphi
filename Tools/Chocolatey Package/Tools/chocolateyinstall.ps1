@@ -1,7 +1,7 @@
 $ErrorActionPreference = 'Stop';
 $toolsDir = "$(Split-Path -parent $MyInvocation.MyCommand.Definition)"
-#$file     = Join-Path $toolsDir 'Skia4Delphi_3.2.0_Setup.exe'
-$url     = 'https://github.com/skia4delphi/skia4delphi/releases/download/v3.2.0/Skia4Delphi_3.2.0_Setup.exe'
+#$file     = Join-Path $toolsDir 'Skia4Delphi_3.3.0_Setup.exe'
+$url     = 'https://github.com/skia4delphi/skia4delphi/releases/download/v3.3.0/Skia4Delphi_3.3.0_Setup.exe'
 
 $packageArgs = @{
   packageName    = $env:ChocolateyPackageName
@@ -10,7 +10,7 @@ $packageArgs = @{
   url            = $url
   #file          = $file
   softwareName   = 'Skia4Delphi*'
-  checksum       = '577A1FC24F0E90EC8FFBDA79609D8618EB16B6BBFD36DA3B1F218ADBFA4F1130'
+  checksum       = 'F19B5CE2CCF6BE520EEE624E945B88DDEFB858AE7A76586CB5BA08771C6D5D4E'
   checksumType   = 'sha256'
   silentArgs     = "/VERYSILENT /LOG=`"$env:TEMP\$env:ChocolateyPackageName.$env:ChocolateyPackageVersion.log`""
   validExitCodes = @(0,3010,1641)

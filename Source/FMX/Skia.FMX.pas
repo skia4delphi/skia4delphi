@@ -461,7 +461,6 @@ type
   TSkFontComponent = class(TSkPersistentData)
   strict protected
     const
-      DefaultFamilies = '';
       DefaultSize = 14;
       DefaultSlant = TFontSlant.Regular;
       DefaultStretch = TFontStretch.Regular;
@@ -479,6 +478,7 @@ type
     procedure SetWeight(const AValue: TFontWeight);
   strict protected
     procedure AssignTo(ADest: TPersistent); override;
+    function DefaultFamilies: string; virtual;
     procedure DoAssign(ASource: TPersistent); override;
     function IsFamiliesStored: Boolean; virtual;
     function IsSizeStored: Boolean; virtual;
@@ -560,6 +560,7 @@ type
     procedure SetTrimming(const AValue: TTextTrimming);
     procedure SetVertAlign(const AValue: TTextAlign);
   strict protected
+    function CreateFont: TSkFontComponent; virtual;
     procedure DoAssign(ASource: TPersistent); override;
     procedure DoAssignNotStyled(const ATextSettings: TSkTextSettings; const AStyledSettings: TStyledSettings); virtual;
   public
@@ -677,6 +678,7 @@ type
     procedure SetTextSettings(const AValue: TSkTextSettings);
     procedure TextSettingsChange(ASender: TObject);
   strict protected
+    function CreateTextSettings: TSkTextSettings; virtual;
     procedure SetName(const ANewName: TComponentName); override;
   public
     constructor Create(AOwner: TComponent); override;
@@ -840,6 +842,9 @@ type
     FParagraph: ISkParagraph;
     FParagraphBounds: TRectF;
     FParagraphLayoutWidth: Single;
+    {$IF CompilerVersion < 30}
+    FPressedPosition: TPointF;
+    {$ENDIF}
     FStyleText: ISkStyleTextObject;
     FTextSettingsInfo: TSkTextSettingsInfo;
     FWords: TWordsCollection;
@@ -885,6 +890,9 @@ type
     function IsStyledSettingsStored: Boolean; virtual;
     procedure Loaded; override;
     procedure MouseClick(AButton: TMouseButton; AShift: TShiftState; AX, AY: Single); override;
+    {$IF CompilerVersion < 30}
+    procedure MouseDown(AButton: TMouseButton; AShift: TShiftState; AX, AY: Single); override;
+    {$ENDIF}
     procedure MouseMove(AShift: TShiftState; AX, AY: Single); override;
     function NeedsRedraw: Boolean; override;
     procedure SetAlign(const AValue: TAlignLayout); override;
@@ -895,6 +903,9 @@ type
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     property DefaultTextSettings: TSkTextSettings read GetDefaultTextSettings;
+    {$IF CompilerVersion < 30}
+    property PressedPosition: TPointF read FPressedPosition write FPressedPosition;
+    {$ENDIF}
     property ResultingTextSettings: TSkTextSettings read GetResultingTextSettings;
   published
     property Align;
@@ -969,13 +980,13 @@ type
 const
   SkFmxColorType: array[TPixelFormat] of TSkColorType = (
     { None     } TSkColorType.Unknown,
-    { RGB      } TSkColorType.Unknown,
+    { RGB      } TSkColorType.RGB888X,
     { RGBA     } TSkColorType.RGBA8888,
     { BGR      } TSkColorType.Unknown,
     { BGRA     } TSkColorType.BGRA8888,
     { RGBA16   } TSkColorType.RGBA16161616,
-    { BGR_565  } TSkColorType.RGB565,
-    { BGRA4    } TSkColorType.ARGB4444,
+    { BGR_565  } TSkColorType.Unknown,
+    { BGRA4    } TSkColorType.Unknown,
     { BGR4     } TSkColorType.Unknown,
     { BGR5_A1  } TSkColorType.Unknown,
     { BGR5     } TSkColorType.Unknown,
@@ -994,14 +1005,13 @@ const
     { RGBA32F  } TSkColorType.RGBAF32
   );
 
-
   SkFmxPixelFormat: array[TSkColorType] of TPixelFormat = (
     { Unknown        } TPixelFormat.None,
     { Alpha8         } TPixelFormat.A,
-    { RGB565         } TPixelFormat.BGR_565,
-    { ARGB4444       } TPixelFormat.BGRA4,
+    { RGB565         } TPixelFormat.None,
+    { ARGB4444       } TPixelFormat.None,
     { RGBA8888       } TPixelFormat.RGBA,
-    { RGB888X        } TPixelFormat.None,
+    { RGB888X        } TPixelFormat.RGB,
     { BGRA8888       } TPixelFormat.BGRA,
     { RGBA1010102    } TPixelFormat.RGB10_A2,
     { BGRA1010102    } TPixelFormat.BGR10_A2,
@@ -1021,8 +1031,11 @@ const
   );
 
 var
+  /// <summary> Allows use of Skia Canvas for UI rendering, replacing FMX's default Canvas </summary>
   GlobalUseSkia: Boolean;
+  /// <summary> Allows the UI rendering in Skia Canvas to use the CPU instead of the GPU (currently only available on Windows and macOS) </summary>
   GlobalUseSkiaRasterWhenAvailable: Boolean;
+  /// <summary> Disables registration of Skia image codecs </summary>
   GlobalDisableSkiaCodecsReplacement: Boolean;
 
 procedure Register;
@@ -3005,6 +3018,11 @@ begin
   Assign(nil);
 end;
 
+function TSkFontComponent.DefaultFamilies: string;
+begin
+  Result := '';
+end;
+
 procedure TSkFontComponent.DoAssign(ASource: TPersistent);
 var
   LSourceFont: TSkFontComponent absolute ASource;
@@ -3221,11 +3239,16 @@ constructor TSkTextSettings.Create(const AOwner: TPersistent);
 begin
   inherited Create;
   FOwner := AOwner;
-  FFont := TSkFontComponent.Create;
+  FFont := CreateFont;
   FFont.OnChange := FontChanged;
   FDecorations := TDecorations.Create;
   FDecorations.OnChange := DecorationsChange;
   Assign(nil);
+end;
+
+function TSkTextSettings.CreateFont: TSkFontComponent;
+begin
+  Result := TSkFontComponent.Create;
 end;
 
 procedure TSkTextSettings.DecorationsChange(ASender: TObject);
@@ -3557,8 +3580,13 @@ end;
 constructor TSkStyleTextObject.Create(AOwner: TComponent);
 begin
   inherited;
-  FTextSettings := TSkTextSettings.Create(Self);
+  FTextSettings := CreateTextSettings;
   FTextSettings.OnChange := TextSettingsChange;
+end;
+
+function TSkStyleTextObject.CreateTextSettings: TSkTextSettings;
+begin
+  Result := TSkTextSettings.Create(Self);
 end;
 
 destructor TSkStyleTextObject.Destroy;
@@ -4459,6 +4487,7 @@ var
       if Assigned(LFontBehavior) then
       begin
         SetLength(Result, 1);
+        Result[0] := '';
         LFontBehavior.GetDefaultFontFamily(Scene.GetObject, Result[0]);
         if Result[0].IsEmpty then
           Result := [];
@@ -4559,10 +4588,24 @@ var
     Result.TextStyle := ADefaultTextStyle;
   end;
 
+  // Temporary solution to fix an issue with Skia: https://github.com/skia4delphi/skia4delphi/issues/79
+  function NormalizeStyledText(const ABuilder: ISkParagraphBuilder; const AText: string): string;
+  const
+    sCRLF: string = #13#10;
+  begin
+    Result := AText;
+    while Result.StartsWith(sCRLF) do
+    begin
+      ABuilder.AddText(sCRLF);
+      Result := Result.Substring(Length(sCRLF));
+    end;
+  end;
+
   function CreateParagraph: ISkParagraph;
   var
     LBuilder: ISkParagraphBuilder;
     LDefaultTextStyle: ISkTextStyle;
+    LText: string;
     I: Integer;
   begin
     LFontBehavior := nil;
@@ -4576,9 +4619,13 @@ var
         LBuilder.AddText(FWords[I].Text)
       else
       begin
-        LBuilder.PushStyle(CreateTextStyle(FWords[I], LDefaultTextStyle));
-        LBuilder.AddText(FWords[I].Text);
-        LBuilder.Pop;
+        LText := NormalizeStyledText(LBuilder, FWords[I].Text);
+        if not LText.IsEmpty then
+        begin
+          LBuilder.PushStyle(CreateTextStyle(FWords[I], LDefaultTextStyle));
+          LBuilder.AddText(LText);
+          LBuilder.Pop;
+        end;
       end;
       FHasCustomBackground := FHasCustomBackground or (FWords[I].BackgroundColor <> TAlphaColors.Null);
     end;
@@ -4736,6 +4783,15 @@ begin
   FClickedPosition := PointF(AX, AY);
   inherited;
 end;
+
+{$IF CompilerVersion < 30}
+procedure TSkLabel.MouseDown(AButton: TMouseButton; AShift: TShiftState; AX, AY: Single);
+begin
+  inherited;
+  if AButton = TMouseButton.mbLeft then
+    FPressedPosition := TPointF.Create(AX, AY);
+end;
+{$ENDIF}
 
 procedure TSkLabel.MouseMove(AShift: TShiftState; AX, AY: Single);
 begin

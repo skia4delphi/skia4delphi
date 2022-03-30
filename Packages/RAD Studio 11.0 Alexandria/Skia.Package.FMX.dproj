@@ -161,7 +161,6 @@
         <DCCReference Include="..\..\Source\FMX\Skia.FMX.Canvas.Metal.pas"/>
         <DCCReference Include="..\..\Source\FMX\Skia.FMX.Graphics.pas"/>
         <DCCReference Include="..\..\Source\FMX\Skia.FMX.pas"/>
-        <DCCReference Include="..\..\Source\FMX\Patches\Skia.FMX.Patches.RSP37660.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

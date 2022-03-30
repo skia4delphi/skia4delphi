@@ -33,7 +33,7 @@ uses
 {$ENDIF}
 
 const
-  SkVersion = '3.2.0';
+  SkVersion = '3.3.0';
 
 type
   ESkException = class(Exception);
@@ -3513,28 +3513,28 @@ const
   GrGlTextureExternal  = $8D65;
 
   GrGlSizedFormat: array[TSkColorType] of GrGlenum = (
-    { Unknown                           } 0,
-    { Alpha8         - GR_GL_ALPHA8     } $803C,
-    { RGB565         - GR_GL_RGB565     } $8D62,
-    { ARGB4444       - GR_GL_RGBA4      } $8056,
-    { RGBA8888       - GR_GL_RGBA8      } $8058,
-    { RGB888X                           } 0,
-    { BGRA8888       - GR_GL_BGRA8      } $93A1,
-    { RGBA1010102    - GR_GL_RGB10_A2   } $8059,
-    { BGRA1010102                       } 0,
-    { RGB101010X                        } 0,
-    { BGR101010X                        } 0,
-    { Gray8          - GR_GL_LUMINANCE8 } $8040,
-    { RGBAF16        - GR_GL_RGBA16F    } $881A,
-    { RGBAF16Clamped - GR_GL_RGBA16F    } $881A,
-    { RGBAF32                           } 0,
-    { RG88           - GR_GL_RG8        } $822B,
-    { AlphaF16       - GR_GL_R16F       } $822D,
-    { RGF16          - GR_GL_RG16F      } $822F,
-    { Alpha16        - GR_GL_R16        } $822A,
-    { RG1616         - GR_GL_RG16       } $822C,
-    { RGBA16161616   - GR_GL_RGBA16     } $805B,
-    { SRGBA8888                         } 0
+    { Unknown                             } 0,
+    { Alpha8         - GR_GL_ALPHA8       } $803C,
+    { RGB565         - GR_GL_RGB565       } $8D62,
+    { ARGB4444       - GR_GL_RGBA4        } $8056,
+    { RGBA8888       - GR_GL_RGBA8        } $8058,
+    { RGB888X        - GR_GL_RGBX8        } $96BA,
+    { BGRA8888       - GR_GL_BGRA8        } $93A1,
+    { RGBA1010102    - GR_GL_RGB10_A2     } $8059,
+    { BGRA1010102                         } 0,
+    { RGB101010X                          } 0,
+    { BGR101010X                          } 0,
+    { Gray8          - GR_GL_LUMINANCE8   } $8040,
+    { RGBAF16        - GR_GL_RGBA16F      } $881A,
+    { RGBAF16Clamped - GR_GL_RGBA16F      } $881A,
+    { RGBAF32        - GR_GL_RGBA32F      } $8814,
+    { RG88           - GR_GL_RG8          } $822B,
+    { AlphaF16       - GR_GL_R16F         } $822D,
+    { RGF16          - GR_GL_RG16F        } $822F,
+    { Alpha16        - GR_GL_R16          } $822A,
+    { RG1616         - GR_GL_RG16         } $822C,
+    { RGBA16161616   - GR_GL_RGBA16       } $805B,
+    { SRGBA8888      - GR_GL_SRGB8_ALPHA8 } $8C43
   );
 
 implementation

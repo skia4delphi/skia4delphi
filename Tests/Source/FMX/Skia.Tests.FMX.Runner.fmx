@@ -327,7 +327,7 @@ object frmFMXRunner: TfrmFMXRunner
             StyledSettings = [Family, FontColor]
             Position.X = 64.000000000000000000
             Position.Y = 6.000000000000000000
-            Size.Width = 86.000000000000000000
+            Size.Width = 297.000000000000000000
             Size.Height = 20.000000000000000000
             Size.PlatformDefault = False
             TextSettings.WordWrap = False

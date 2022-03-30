@@ -21,7 +21,6 @@ interface
 
 uses
   { Delphi }
-
   {$IFDEF IOS}
   FMX.Platform.iOS,
   {$ELSE}
@@ -51,8 +50,8 @@ type
     procedure FinalizeContext; override;
     procedure Flush; override;
     function InitializeContext: Boolean; override;
-    class procedure Finalize; override;
-    class procedure Initialize; override;
+    class procedure DoFinalize; override;
+    class function DoInitialize: Boolean; override;
   end;
 
 implementation
@@ -78,10 +77,15 @@ begin
   Result        := TSkSurface.MakeFromRenderTarget(Context, LRenderTarget, TGrSurfaceOrigin.TopLeft, TSkColorType.BGRA8888);
 end;
 
-class procedure TGrCanvasMetal.Finalize;
+class procedure TGrCanvasMetal.DoFinalize;
 begin
-  inherited;
   FSharedDevice.release;
+end;
+
+class function TGrCanvasMetal.DoInitialize: Boolean;
+begin
+  FSharedDevice := TMTLDevice.Wrap(MTLCreateSystemDefaultDevice);
+  Result        := FSharedDevice <> nil;
 end;
 
 procedure TGrCanvasMetal.FinalizeContext;
@@ -97,14 +101,6 @@ begin
   LCommandBuffer := FCommandQueue.commandBuffer;
   LCommandBuffer.presentDrawable(MTKView(WindowHandleToPlatform(Parent).View).currentDrawable);
   LCommandBuffer.commit;
-end;
-
-class procedure TGrCanvasMetal.Initialize;
-begin
-  FSharedDevice := TMTLDevice.Wrap(MTLCreateSystemDefaultDevice);
-  if FSharedDevice = nil then
-    RaiseLastOSError;
-  inherited;
 end;
 
 function TGrCanvasMetal.InitializeContext: Boolean;

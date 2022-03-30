@@ -39,6 +39,10 @@ function _OnTryExtractPreBuildObjects(const AInfo: TRADStudioInfo): Boolean; for
 function _OnTryPrepareProjectInstallation(var AProjectItem: TRADStudioGroupProjectItem; const AInfo: TRADStudioInfo): Boolean; forward;  
 /// <summary> Make custom changes before the uninstallation </summary>
 function _OnTryPrepareProjectUninstallation(var AProjectItem: TRADStudioGroupProjectItem; const AInfo: TRADStudioInfo): Boolean; forward;
+/// <summary> Remove old library search path </summary>
+procedure _RemoveOldLibrarySearchPath(const AProjectItem: TRADStudioGroupProjectItem; const AInfo: TRADStudioInfo); forward;
+/// <summary> Try get old RAD Studio name used in our old setup </summary>
+function _TryGetOldRADStudioName(const ARADStudioVersion: TRADStudioVersion; out AName: string): Boolean; forward;
 /// <summary> Try to unregister old bpl </summary>
 procedure _UnregisterOldBpl(const AProjectItem: TRADStudioGroupProjectItem; const AInfo: TRADStudioInfo); forward;
 
@@ -135,9 +139,28 @@ begin
   Result := TryRemoveRADStudioEnvVariable(AInfo.Version, LibraryDirVariable);
   Result := TryRemoveRADStudioPathEnvVariable(AInfo.Version, CombinePath(LAppPath, LibraryWin32BinaryDir)) and Result;
   Result := TryRemoveRADStudioLibrarySearchPath(AInfo.Version, pfiOSDevice64, CombinePath(LibraryDirDefine, LibraryiOSDevice64BinaryDir)) and Result;
+  _RemoveOldLibrarySearchPath(AProjectItem, AInfo);
   _UnregisterOldBpl(AProjectItem, AInfo);
   if not Result then
     Log(Format('Skia4Delphi._OnTryPrepareProjectUninstallation: Failed to prepare the project "%s"', [AProjectItem.Project.FileName]));
+end;
+
+procedure _RemoveOldLibrarySearchPath(const AProjectItem: TRADStudioGroupProjectItem; const AInfo: TRADStudioInfo);
+var
+  LOldRADStudioName: string;
+  LPlatform: TProjectPlatform;
+begin   
+  Log(Format('Skia4Delphi._RemoveOldLibrarySearchPath: Removing old search path of "%s" project...', [AProjectItem.Project.FileName]));
+  if SameText(ExtractFileName(AProjectItem.Project.FileName), 'Skia.Package.RTL.dproj') and _TryGetOldRADStudioName(AInfo.Version, LOldRADStudioName) then
+  begin
+    for LPlatform := LowProjectPlatform to HighProjectPlatform do
+    begin
+      if not CheckIfRADStudioSupportsPlatform(AInfo, LPlatform) then
+        Continue;
+      TryRemoveRADStudioLibrarySearchPath(AInfo.Version, LPlatform, CombinePath(LibraryDirDefine, 'Library\' + LOldRADStudioName + '\' + GetProjectPlatformName(LPlatform) + '\Release'));
+      TryRemoveRADStudioLibrarySearchPath(AInfo.Version, LPlatform, CombinePath(LibraryDirDefine, 'Library\' + LOldRADStudioName + '\' + GetProjectPlatformName(LPlatform) + '\Debug'));
+    end;
+  end;
 end;
 
 <event('InitializeSetup')>
@@ -157,30 +180,42 @@ begin
   Result := True;
 end;
 
-procedure _UnregisterOldBpl(const AProjectItem: TRADStudioGroupProjectItem; const AInfo: TRADStudioInfo);
+function _TryGetOldRADStudioName(const ARADStudioVersion: TRADStudioVersion; out AName: string): Boolean;
 var
-  LOldSuffix: string;
   LVersion: Int64;
   LMajor, LMinor, LRevision, LBuild: Word;
 begin
-  Log(Format('Skia4Delphi._UnregisterOldBpl: Unregistering old bpl of "%s" project...', [AProjectItem.Project.FileName]));
-  if not StrToVersion(AInfo.Version.RegVersion, LVersion) then
-    Exit;
-  UnpackVersionComponents(LVersion, LMajor, LMinor, LRevision, LBuild);
-  case LMajor of
-    15: LOldSuffix := '.DelphiXE7';
-    16: LOldSuffix := '.DelphiXE8';
-    17: LOldSuffix := '.Delphi10Seattle';
-    18: LOldSuffix := '.Delphi10Berlin';
-    19: LOldSuffix := '.Delphi10Tokyo';
-    20: LOldSuffix := '.Delphi10Rio';
-    21: LOldSuffix := '.Delphi10Sydney';
-    22: LOldSuffix := '.Delphi11Alexandria';
-  else
+  if not StrToVersion(ARADStudioVersion.RegVersion, LVersion) then
+  begin
+    Result := False;
     Exit;
   end;
-  if not TryUnregisterRADStudioBpl(AInfo.Version, ChangeFileExt(AProjectItem.Project.FileName, LOldSuffix + '.bpl')) then
-    Log(Format('Skia4Delphi._UnregisterOldBpl: Failed to unregister old bpl of "%s" project...', [AProjectItem.Project.FileName]));
+  Result := True;
+  UnpackVersionComponents(LVersion, LMajor, LMinor, LRevision, LBuild);
+  case LMajor of
+    15: AName := 'DelphiXE7';
+    16: AName := 'DelphiXE8';
+    17: AName := 'Delphi10Seattle';
+    18: AName := 'Delphi10Berlin';
+    19: AName := 'Delphi10Tokyo';
+    20: AName := 'Delphi10Rio';
+    21: AName := 'Delphi10Sydney';
+    22: AName := 'Delphi11Alexandria';
+  else
+    Result := False;
+  end;
+end;
+
+procedure _UnregisterOldBpl(const AProjectItem: TRADStudioGroupProjectItem; const AInfo: TRADStudioInfo);
+var
+  LOldRADStudioName: string;
+begin
+  Log(Format('Skia4Delphi._UnregisterOldBpl: Unregistering old bpl of "%s" project...', [AProjectItem.Project.FileName]));
+  if _TryGetOldRADStudioName(AInfo.Version, LOldRADStudioName) then
+  begin
+    if not TryUnregisterRADStudioBpl(AInfo.Version, ChangeFileExt(AProjectItem.Project.FileName, '.' + LOldRADStudioName + '.bpl')) then
+      Log(Format('Skia4Delphi._UnregisterOldBpl: Failed to unregister old bpl of "%s" project...', [AProjectItem.Project.FileName]));
+  end;
 end;
 
 // end.

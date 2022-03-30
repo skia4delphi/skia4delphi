@@ -173,6 +173,7 @@ type
     class procedure RemoveDeployFilesOfClass(const AProject: IOTAProject); overload; static;
     class procedure RemoveDeployFilesOfClass(const AProject: IOTAProject; const AConfig: TSkProjectConfig; const APlatform: TSkProjectPlatform); overload; static;
     class procedure RemoveUnexpectedDeployFilesOfClass(const AProject: IOTAProject; const AConfig: TSkProjectConfig; const APlatform: TSkProjectPlatform; const AAllowedFiles: TArray<TSkDeployFile>); static;
+    class function SupportsSkiaDeployment(const AProject: IOTAProject): Boolean; static;
     class property IsSkiaDefined[const AProject: IOTAProject]: Boolean read GetIsSkiaDefined write SetIsSkiaDefined;
   end;
 
@@ -504,6 +505,13 @@ begin
   end;
 end;
 
+class function TSkProjectHelper.SupportsSkiaDeployment(
+  const AProject: IOTAProject): Boolean;
+begin
+  Result := Assigned(AProject) and AProject.FileName.EndsWith('.dproj', True) and
+    ((AProject.ApplicationType = sApplication) or (AProject.ApplicationType = sConsole));
+end;
+
 { TSkProjectConfigHelper }
 
 function TSkProjectConfigHelper.ToString: string;
@@ -539,16 +547,9 @@ end;
 procedure TSkProjectMenuCreatorNotifier.AddMenu(const AProject: IOTAProject;
   const AIdentList: TStrings; const AProjectManagerMenuList: IInterfaceList;
   AIsMultiSelect: Boolean);
-
-  function CanHandle(const AProject: IOTAProject): Boolean;
-  begin
-    Result := Assigned(AProject) and AProject.FileName.EndsWith('.dproj', True) and
-      ((AProject.ApplicationType = sApplication) or (AProject.ApplicationType = sConsole));
-  end;
-
 begin
   if (not AIsMultiSelect) and (AIdentList.IndexOf(sProjectContainer) <> -1) and
-    Assigned(AProjectManagerMenuList) and CanHandle(AProject) then
+    Assigned(AProjectManagerMenuList) and TSkProjectHelper.SupportsSkiaDeployment(AProject) then
   begin
     AProjectManagerMenuList.Add(TSkProjectManagerMenuSeparator.Create(pmmpRunNoDebug + 10));
     AProjectManagerMenuList.Add(TSkProjectManagerMenuEnableSkia.Create(AProject, pmmpRunNoDebug + 20));
@@ -719,18 +720,21 @@ procedure TSkProjectManagerMenuEnableSkia.SetDeployFiles(
 var
   LDeployFile: TSkDeployFile;
 begin
-  if AEnabled and (APlatform in TSkia4DelphiProject.SupportedPlatforms) then
+  if TSkProjectHelper.SupportsSkiaDeployment(AProject) then
   begin
-    for LDeployFile in TSkia4DelphiProject.GetDeployFiles(APlatform) do
-      TSkProjectHelper.AddDeployFile(AProject, AConfig, LDeployFile);
-  end
-  else
-  begin
-    for LDeployFile in TSkia4DelphiProject.GetDeployFiles(APlatform) do
+    if AEnabled and (APlatform in TSkia4DelphiProject.SupportedPlatforms) then
     begin
-      TSkProjectHelper.RemoveDeployFile(AProject, AConfig, APlatform, LDeployFile.LocalFileName, LDeployFile.RemotePath);
-      if LDeployFile.CopyToOutput then
-        TSkOTAHelper.TryRemoveOutputFile(AProject, APlatform, AConfig, TPath.GetFileName(LDeployFile.LocalFileName));
+      for LDeployFile in TSkia4DelphiProject.GetDeployFiles(APlatform) do
+        TSkProjectHelper.AddDeployFile(AProject, AConfig, LDeployFile);
+    end
+    else
+    begin
+      for LDeployFile in TSkia4DelphiProject.GetDeployFiles(APlatform) do
+      begin
+        TSkProjectHelper.RemoveDeployFile(AProject, AConfig, APlatform, LDeployFile.LocalFileName, LDeployFile.RemotePath);
+        if LDeployFile.CopyToOutput then
+          TSkOTAHelper.TryRemoveOutputFile(AProject, APlatform, AConfig, TPath.GetFileName(LDeployFile.LocalFileName));
+      end;
     end;
   end;
 end;
@@ -798,30 +802,41 @@ var
   LConfig: TSkProjectConfig;
   LDeployFile: TSkDeployFile;
 begin
-  if Assigned(AProject) then
-    LPlatform := TSkProjectPlatform.FromString(AProject.CurrentPlatform)
-  else
-    LPlatform := TSkProjectPlatform.Unknown;
-  if LPlatform = TSkProjectPlatform.Unknown then
-    Exit;
-
-  if (AMode in [TOTACompileMode.cmOTAMake, TOTACompileMode.cmOTABuild]) and
-    TSkProjectHelper.IsSkiaDefined[AProject] and TSkia4DelphiProject.Found then
+  if TSkProjectHelper.SupportsSkiaDeployment(AProject) then
   begin
-    LConfig := TSkProjectConfig.FromString(AProject.CurrentConfiguration);
-    if TSkProjectHelper.IsSkiaDefinedForPlatform(AProject, LPlatform, LConfig) then
+    if Assigned(AProject) then
+      LPlatform := TSkProjectPlatform.FromString(AProject.CurrentPlatform)
+    else
+      LPlatform := TSkProjectPlatform.Unknown;
+    if LPlatform = TSkProjectPlatform.Unknown then
+      Exit;
+
+    if (AMode in [TOTACompileMode.cmOTAMake, TOTACompileMode.cmOTABuild]) and
+      TSkProjectHelper.IsSkiaDefined[AProject] and TSkia4DelphiProject.Found then
     begin
-      if LPlatform in TSkia4DelphiProject.SupportedPlatforms then
+      LConfig := TSkProjectConfig.FromString(AProject.CurrentConfiguration);
+      if TSkProjectHelper.IsSkiaDefinedForPlatform(AProject, LPlatform, LConfig) then
       begin
-        TSkProjectHelper.RemoveUnexpectedDeployFilesOfClass(AProject, LConfig, LPlatform, TSkia4DelphiProject.GetDeployFiles(LPlatform));
-        for LDeployFile in TSkia4DelphiProject.GetDeployFiles(LPlatform) do
+        if LPlatform in TSkia4DelphiProject.SupportedPlatforms then
         begin
-          if LDeployFile.CopyToOutput then
+          TSkProjectHelper.RemoveUnexpectedDeployFilesOfClass(AProject, LConfig, LPlatform, TSkia4DelphiProject.GetDeployFiles(LPlatform));
+          for LDeployFile in TSkia4DelphiProject.GetDeployFiles(LPlatform) do
           begin
-            Assert(LDeployFile.LocalFileName <> '');
-            TSkOTAHelper.TryCopyFileToOutputPathOfActiveBuild(AProject, TPath.Combine(TSkia4DelphiProject.AbsolutePath, LDeployFile.LocalFileName));
+            if LDeployFile.CopyToOutput then
+            begin
+              Assert(LDeployFile.LocalFileName <> '');
+              TSkOTAHelper.TryCopyFileToOutputPathOfActiveBuild(AProject, TPath.Combine(TSkia4DelphiProject.AbsolutePath, LDeployFile.LocalFileName));
+            end;
+            TSkProjectHelper.AddDeployFile(AProject, LConfig, LDeployFile);
           end;
-          TSkProjectHelper.AddDeployFile(AProject, LConfig, LDeployFile);
+        end
+        else
+        begin
+          for LDeployFile in TSkia4DelphiProject.GetDeployFiles(LPlatform) do
+            TSkProjectHelper.RemoveDeployFile(AProject, LConfig, LPlatform, LDeployFile.LocalFileName, LDeployFile.RemotePath);
+          TSkProjectHelper.RemoveDeployFilesOfClass(AProject, LConfig, LPlatform);
+          Showmessage(Format(UnsupportedPlatformMessage, [AProject.CurrentPlatform, TSkia4DelphiProject.MenuCaption[True],
+            TSkia4DelphiProject.ProjectDisabledDefine]));
         end;
       end
       else
@@ -829,25 +844,17 @@ begin
         for LDeployFile in TSkia4DelphiProject.GetDeployFiles(LPlatform) do
           TSkProjectHelper.RemoveDeployFile(AProject, LConfig, LPlatform, LDeployFile.LocalFileName, LDeployFile.RemotePath);
         TSkProjectHelper.RemoveDeployFilesOfClass(AProject, LConfig, LPlatform);
-        Showmessage(Format(UnsupportedPlatformMessage, [AProject.CurrentPlatform, TSkia4DelphiProject.MenuCaption[True],
-          TSkia4DelphiProject.ProjectDisabledDefine]));
       end;
     end
-    else
+    {$IF CompilerVersion >= 35}
+    else if (AMode = TOTACompileMode.cmOTAClean) and TSkProjectHelper.IsSkiaDefined[AProject] then
     begin
       for LDeployFile in TSkia4DelphiProject.GetDeployFiles(LPlatform) do
-        TSkProjectHelper.RemoveDeployFile(AProject, LConfig, LPlatform, LDeployFile.LocalFileName, LDeployFile.RemotePath);
-      TSkProjectHelper.RemoveDeployFilesOfClass(AProject, LConfig, LPlatform);
+        if LDeployFile.CopyToOutput then
+          TSkOTAHelper.TryRemoveOutputFileOfActiveBuild(AProject, TPath.GetFileName(LDeployFile.LocalFileName));
     end;
-  end
-  {$IF CompilerVersion >= 35}
-  else if (AMode = TOTACompileMode.cmOTAClean) and TSkProjectHelper.IsSkiaDefined[AProject] then
-  begin
-    for LDeployFile in TSkia4DelphiProject.GetDeployFiles(LPlatform) do
-      if LDeployFile.CopyToOutput then
-        TSkOTAHelper.TryRemoveOutputFileOfActiveBuild(AProject, TPath.GetFileName(LDeployFile.LocalFileName));
+    {$ENDIF}
   end;
-  {$ENDIF}
 end;
 
 procedure TSkCompileNotifier.ProjectGroupCompileFinished(

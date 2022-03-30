@@ -1304,8 +1304,16 @@ end;
 
 function TMobileBarsServiceAndroid.GetFullScreen(
   const AForm: TCommonCustomForm): Boolean;
+var
+  LFormMobileBars: TFormMobileBars;
 begin
-  Result := Assigned(AForm) and (AForm.MobileBars.Visibility = TFormMobileBars.TVisibilityMode.Invisible);
+  Result := False;
+  if Assigned(AForm) then
+  begin
+    LFormMobileBars := AForm.MobileBars;
+    if Assigned(LFormMobileBars) then
+      Result := LFormMobileBars.Visibility = TFormMobileBars.TVisibilityMode.Invisible;
+  end;
 end;
 
 function TMobileBarsServiceAndroid.GetInsets(const AForm: TCommonCustomForm): TRectF;
