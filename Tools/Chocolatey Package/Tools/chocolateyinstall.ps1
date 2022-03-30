@@ -10,7 +10,7 @@ $packageArgs = @{
   url            = $url
   #file          = $file
   softwareName   = 'Skia4Delphi*'
-  checksum       = 'F19B5CE2CCF6BE520EEE624E945B88DDEFB858AE7A76586CB5BA08771C6D5D4E'
+  checksum       = '5E1956591F6AD78334757BBC8E03E5F2134697753FB9CB8F41BF6F64EA8B5890'
   checksumType   = 'sha256'
   silentArgs     = "/VERYSILENT /LOG=`"$env:TEMP\$env:ChocolateyPackageName.$env:ChocolateyPackageVersion.log`""
   validExitCodes = @(0,3010,1641)
