@@ -246,7 +246,7 @@ type
       {$ELSEIF CompilerVersion < 35} // RAD Studio 10.3 Rio and RAD Studio 10.4 Sydney
       SupportedPlatforms = [TSkProjectPlatform.Win32, TSkProjectPlatform.Win64, TSkProjectPlatform.Android,
         TSkProjectPlatform.Android64];
-      {$ELSE} // RAD Studio 11.0 Alexandria and newer
+      {$ELSE} // RAD Studio 11 Alexandria and newer
       SupportedPlatforms = [TSkProjectPlatform.Win32, TSkProjectPlatform.Win64, TSkProjectPlatform.Android,
         TSkProjectPlatform.Android64, TSkProjectPlatform.iOSDevice64, TSkProjectPlatform.OSX64,
         TSkProjectPlatform.OSXARM64, TSkProjectPlatform.Linux64];

@@ -10,10 +10,10 @@
         <Base>True</Base>
         <AppType>Package</AppType>
         <Config Condition="'$(Config)'==''">Debug</Config>
-        <FrameworkType>VCL</FrameworkType>
-        <MainSource>Skia.Package.VCL.Designtime.dpk</MainSource>
+        <FrameworkType>FMX</FrameworkType>
+        <MainSource>Skia.Package.FMX.Designtime.dpk</MainSource>
         <Platform Condition="'$(Platform)'==''">Win32</Platform>
-        <ProjectGuid>{6EBE9429-74F3-49AE-9B69-305A16EEF639}</ProjectGuid>
+        <ProjectGuid>{0B1AC1CF-B746-47A6-8071-39882DFBD00D}</ProjectGuid>
         <ProjectVersion>19.3</ProjectVersion>
         <TargetedPlatforms>1</TargetedPlatforms>
     </PropertyGroup>
@@ -42,15 +42,15 @@
         <Base>true</Base>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base)'!=''">
-        <SanitizedProjectName>Skia_Package_VCL_Designtime</SanitizedProjectName>
-        <DCC_BplOutput>..\..\Library\RAD Studio 11.0 Alexandria\$(Platform)\$(Config)\Bpl</DCC_BplOutput>
+        <SanitizedProjectName>Skia_Package_FMX_Designtime</SanitizedProjectName>
+        <DCC_BplOutput>..\..\Library\RAD Studio 11 Alexandria\$(Platform)\$(Config)\Bpl</DCC_BplOutput>
         <DCC_CBuilderOutput>All</DCC_CBuilderOutput>
-        <DCC_DcpOutput>..\..\Library\RAD Studio 11.0 Alexandria\$(Platform)\$(Config)</DCC_DcpOutput>
-        <DCC_DcuOutput>..\..\Library\RAD Studio 11.0 Alexandria\$(Platform)\$(Config)</DCC_DcuOutput>
-        <DCC_Description>Skia4Delphi VCL Designtime package</DCC_Description>
+        <DCC_DcpOutput>..\..\Library\RAD Studio 11 Alexandria\$(Platform)\$(Config)</DCC_DcpOutput>
+        <DCC_DcuOutput>..\..\Library\RAD Studio 11 Alexandria\$(Platform)\$(Config)</DCC_DcuOutput>
+        <DCC_Description>Skia4Delphi FMX Designtime package</DCC_Description>
         <DCC_ExeOutput>.\$(Platform)\$(Config)</DCC_ExeOutput>
-        <DCC_Namespace>System;Xml;Data;Datasnap;Web;Soap;Vcl;Vcl.Imaging;Vcl.Touch;Vcl.Samples;Vcl.Shell;$(DCC_Namespace)</DCC_Namespace>
-        <DCC_UnitSearchPath>..\..\Library\RAD Studio 11.0 Alexandria\$(Platform)\$(Config);..\..\Source;..\..\Source\VCL;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+        <DCC_Namespace>System;Xml;Data;Datasnap;Web;Soap;$(DCC_Namespace)</DCC_Namespace>
+        <DCC_UnitSearchPath>..\..\Library\RAD Studio 11 Alexandria\$(Platform)\$(Config);..\..\Source;..\..\Source\FMX;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
         <DesignOnlyPackage>true</DesignOnlyPackage>
         <DllSuffix>$(Auto)</DllSuffix>
         <GenDll>true</GenDll>
@@ -91,21 +91,19 @@
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
         <DCCReference Include="rtl.dcp"/>
-        <DCCReference Include="vcl.dcp"/>
-        <DCCReference Include="vclimg.dcp"/>
+        <DCCReference Include="fmx.dcp"/>
         <DCCReference Include="designide.dcp"/>
         <DCCReference Include="Skia.Package.RTL.dcp"/>
-        <DCCReference Include="Skia.Package.VCL.dcp"/>
-        <DCCReference Include="..\..\Source\VCL\Designtime\Skia.Vcl.Designtime.Editor.AnimatedImage.pas">
+        <DCCReference Include="Skia.Package.FMX.dcp"/>
+        <DCCReference Include="..\..\Source\FMX\Designtime\Skia.FMX.Designtime.Editor.AnimatedImage.pas">
             <Form>SkAnimatedImageEditorForm</Form>
-            <FormType>dfm</FormType>
+            <FormType>fmx</FormType>
         </DCCReference>
-        <DCCReference Include="..\..\Source\VCL\Designtime\Skia.Vcl.Designtime.Editor.Svg.pas">
-            <Form>SKSvgEditorForm</Form>
-            <FormType>dfm</FormType>
+        <DCCReference Include="..\..\Source\FMX\Designtime\Skia.FMX.Designtime.Editor.SVG.pas">
+            <Form>SkSvgEditorForm</Form>
+            <FormType>fmx</FormType>
         </DCCReference>
-        <DCCReference Include="..\..\Source\VCL\Designtime\Skia.Vcl.Designtime.pas"/>
-        <DCCReference Include="..\..\Source\VCL\Designtime\Skia.Vcl.Designtime.ProjectMenu.pas"/>
+        <DCCReference Include="..\..\Source\FMX\Designtime\Skia.FMX.Designtime.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
@@ -124,7 +122,7 @@
         <BorlandProject>
             <Delphi.Personality>
                 <Source>
-                    <Source Name="MainSource">Skia.Package.VCL.Designtime.dpk</Source>
+                    <Source Name="MainSource">Skia.Package.FMX.Designtime.dpk</Source>
                 </Source>
                 <Excluded_Packages/>
             </Delphi.Personality>

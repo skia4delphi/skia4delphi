@@ -151,14 +151,27 @@ var
   LPlatform: TProjectPlatform;
 begin   
   Log(Format('Skia4Delphi._RemoveOldLibrarySearchPath: Removing old search path of "%s" project...', [AProjectItem.Project.FileName]));
-  if SameText(ExtractFileName(AProjectItem.Project.FileName), 'Skia.Package.RTL.dproj') and _TryGetOldRADStudioName(AInfo.Version, LOldRADStudioName) then
+  if SameText(ExtractFileName(AProjectItem.Project.FileName), 'Skia.Package.RTL.dproj') then
   begin
-    for LPlatform := LowProjectPlatform to HighProjectPlatform do
+    if _TryGetOldRADStudioName(AInfo.Version, LOldRADStudioName) then
     begin
-      if not CheckIfRADStudioSupportsPlatform(AInfo, LPlatform) then
-        Continue;
-      TryRemoveRADStudioLibrarySearchPath(AInfo.Version, LPlatform, CombinePath(LibraryDirDefine, 'Library\' + LOldRADStudioName + '\' + GetProjectPlatformName(LPlatform) + '\Release'));
-      TryRemoveRADStudioLibrarySearchPath(AInfo.Version, LPlatform, CombinePath(LibraryDirDefine, 'Library\' + LOldRADStudioName + '\' + GetProjectPlatformName(LPlatform) + '\Debug'));
+      for LPlatform := LowProjectPlatform to HighProjectPlatform do
+      begin
+        if not CheckIfRADStudioSupportsPlatform(AInfo, LPlatform) then
+          Continue;
+        TryRemoveRADStudioLibrarySearchPath(AInfo.Version, LPlatform, CombinePath(LibraryDirDefine, 'Library\' + LOldRADStudioName + '\' + GetProjectPlatformName(LPlatform) + '\Release'));
+        TryRemoveRADStudioLibrarySearchPath(AInfo.Version, LPlatform, CombinePath(LibraryDirDefine, 'Library\' + LOldRADStudioName + '\' + GetProjectPlatformName(LPlatform) + '\Debug'));
+      end;
+    end;
+    if AInfo.Version.RegVersion = '22.0' then
+    begin 
+      for LPlatform := LowProjectPlatform to HighProjectPlatform do
+      begin
+        if not (LPlatform in GetPlatformsAllowedToBuild(AInfo)) then
+          Continue;
+        TryRemoveRADStudioLibrarySearchPath(AInfo.Version, LPlatform, CombinePath(LibraryDirDefine, 'Library\RAD Studio 11.0 Alexandria\' + GetProjectPlatformName(LPlatform) + '\Release'));
+        TryRemoveRADStudioLibrarySearchPath(AInfo.Version, LPlatform, CombinePath(LibraryDirDefine, 'Library\RAD Studio 11.0 Alexandria\' + GetProjectPlatformName(LPlatform) + '\Debug'));
+      end;
     end;
   end;
 end;

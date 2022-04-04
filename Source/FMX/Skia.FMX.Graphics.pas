@@ -14,7 +14,7 @@ unit Skia.FMX.Graphics;
 interface
 
 {$SCOPEDENUMS ON}
-{$IF (CompilerVersion < 35.0) or not DECLARED(RTLVersion111)}
+{$IF (CompilerVersion < 35) or not DECLARED(RTLVersion111)}
   {$DEFINE MODULATE_CANVAS}
 {$ENDIF}
 
@@ -198,7 +198,8 @@ type
     procedure SetMaxLines(const AValue: Integer);
     procedure UpdateParagraph;
   strict protected
-    procedure DoDrawLayout(const ACanvas: TCanvas); override;
+    procedure DoDrawLayout(const ACanvas: TCanvas); overload; override;
+    procedure DoDrawLayout(const ACanvas: ISkCanvas); reintroduce; overload;
     function DoPositionAtPoint(const APoint: TPointF): Integer; override;
     function DoRegionForRange(const ARange: TTextRange): TRegion; override;
     procedure DoRenderLayout; override;
@@ -208,6 +209,7 @@ type
   public
     constructor Create(const ACanvas: TCanvas = nil); override;
     procedure ConvertToPath(const APath: TPathData); override;
+    procedure RenderLayout(const ACanvas: ISkCanvas); overload;
     /// <summary> Max lines allowed in text. When the value is different from -1, this property will be used instead of the WordWrap property. </summary>
     property MaxLines: Integer read FMaxLines write SetMaxLines default -1;
   end;
@@ -236,6 +238,9 @@ uses
   System.IOUtils,
   System.Math,
   System.UIConsts,
+  {$IFDEF DEBUG}
+  System.Messaging,
+  {$ENDIF}
   {$IF DEFINED(MSWINDOWS)}
   FMX.Platform.Win,
   Winapi.Windows,
@@ -470,7 +475,7 @@ begin
   // -   https://quality.embarcadero.com/browse/RSP-36975
   // -
   // - -------------------------------------------------------------------------
-  {$IF CompilerVersion > 35.0}
+  {$IF CompilerVersion > 35}
     {$MESSAGE WARN 'Check if the issue has been fixed'}
   {$ENDIF}
   // - -------------------------------------------------------------------------
@@ -485,20 +490,23 @@ begin
 end;
 
 procedure TSkTextLayout.DoDrawLayout(const ACanvas: TCanvas);
-var
-  LCanvas: ISkCanvas;
 begin
-  if Assigned(FParagraph) then
+  if (ACanvas is TSkCanvasCustom) and Assigned(TSkCanvasCustom(ACanvas).Surface) then
+    DoDrawLayout(TSkCanvasCustom(ACanvas).Surface.Canvas);
+end;
+
+procedure TSkTextLayout.DoDrawLayout(const ACanvas: ISkCanvas);
+begin
+  if Assigned(FParagraph) and Assigned(ACanvas) then
   begin
     if (FColor <> Color) or (FOpacity <> Opacity) then
       UpdateParagraph;
-    LCanvas := TSkCanvasCustom(ACanvas).Surface.Canvas;
-    LCanvas.Save;
+    ACanvas.Save;
     try
-      LCanvas.ClipRect(TRectF.Create(TopLeft, MaxSize.X, MaxSize.Y));
-      FParagraph.Paint(LCanvas, FParagraphOffset.X + TopLeft.X, FParagraphOffset.Y + TopLeft.Y);
+      ACanvas.ClipRect(TRectF.Create(TopLeft, MaxSize.X, MaxSize.Y));
+      FParagraph.Paint(ACanvas, FParagraphOffset.X + TopLeft.X, FParagraphOffset.Y + TopLeft.Y);
     finally
-      LCanvas.Restore;
+      ACanvas.Restore;
     end;
   end;
 end;
@@ -640,6 +648,12 @@ end;
 function TSkTextLayout.NeedHorizontalAlignment: Boolean;
 begin
   Result := (not WordWrap) and (Trimming = TTextTrimming.None);
+end;
+
+procedure TSkTextLayout.RenderLayout(const ACanvas: ISkCanvas);
+begin
+  RenderLayout(nil);
+  DoDrawLayout(ACanvas);
 end;
 
 procedure TSkTextLayout.SetMaxLines(const AValue: Integer);
@@ -861,7 +875,7 @@ const
     end;
   end;
 
-  // Temporary solution to fix an issue with Skia: https://github.com/skia4delphi/skia4delphi/issues/79
+  // Temporary solution to fix an issue with Skia: https://bugs.chromium.org/p/skia/issues/detail?id=13117
   // SkParagraph has several issues with the #13 line break, so the best thing to do is replace it with #10 or a zero-widh character (#8203)
   function NormalizeParagraphText(const AText: string): string;
   begin
@@ -1192,6 +1206,11 @@ end;
 
 procedure TSkCanvasCustom.Clear(const AColor: TAlphaColor);
 begin
+  {$IF CompilerVersion >= 35}
+  RaiseIfBeginSceneCountZero;
+  {$ELSE}
+  if BeginSceneCount > 0 then
+  {$ENDIF}
   FSurface.Canvas.Clear(AColor);
 end;
 
@@ -1835,7 +1854,7 @@ end;
 // -   https://quality.embarcadero.com/browse/RSP-36957
 // -
 // - ---------------------------------------------------------------------------
-{$IF CompilerVersion > 35.0}
+{$IF CompilerVersion > 35}
   {$MESSAGE WARN 'Check if the issue has been fixed'}
 {$ENDIF}
 // - ---------------------------------------------------------------------------
@@ -1958,7 +1977,7 @@ end;
 // -   https://quality.embarcadero.com/browse/RSP-37147
 // -
 // - ---------------------------------------------------------------------------
-{$IF CompilerVersion > 35.0}
+{$IF CompilerVersion > 35}
   {$MESSAGE WARN 'Check if the issue has been fixed'}
 {$ENDIF}
 // - ---------------------------------------------------------------------------
@@ -1972,7 +1991,7 @@ type
     {$RTTI EXPLICIT METHODS([vcProtected])}
     TContextMetalPatch = class(TCustomContextMetal)
     protected
-      {$IF CompilerVersion > 35.0}
+      {$IF CompilerVersion > 35}
         {$MESSAGE WARN 'Check if the private fields of the FMX.Context.Metal.TContextMetal is the same below and in the same order'}
       {$ENDIF}
       FPipelineStateConfiguration: TPipelineStateConfiguration;
@@ -2132,7 +2151,7 @@ end;
 // -   https://quality.embarcadero.com/browse/RSP-37829
 // -
 // - ---------------------------------------------------------------------------
-{$IF CompilerVersion > 35.0}
+{$IF CompilerVersion > 35}
   {$MESSAGE WARN 'Check if the issue has been fixed'}
 {$ENDIF}
 // - ---------------------------------------------------------------------------
@@ -2150,7 +2169,7 @@ type
     {$RTTI EXPLICIT METHODS([vcProtected])}
     TContextMetalPatch = class(TCustomContextMetal)
     protected
-      {$IF CompilerVersion > 35.0}
+      {$IF CompilerVersion > 35}
         {$MESSAGE WARN 'Check if the private fields of the FMX.Context.Metal.TContextMetal is the same below and in the same order'}
       {$ENDIF}
       FPipelineStateConfiguration: TPipelineStateConfiguration;
@@ -2252,7 +2271,7 @@ end;
 // -   https://quality.embarcadero.com/browse/RSP-37660
 // -
 // - ---------------------------------------------------------------------------
-{$IF CompilerVersion > 35.0}
+{$IF CompilerVersion > 35}
   {$MESSAGE WARN 'Check if the issue has been fixed'}
 {$ENDIF}
 // - ---------------------------------------------------------------------------
@@ -2263,7 +2282,7 @@ type
 
   TRSP37660Workaround = record
   strict private type
-    {$IF CompilerVersion > 35.0}
+    {$IF CompilerVersion > 35}
       {$MESSAGE WARN 'Check if the unit "FMX.MediaLibrary.IOS" has been changed, and apply all changes to this workaround'}
     {$ENDIF}
     TImageDelegate = class;
@@ -2781,12 +2800,21 @@ type
   strict private
     FCanvasClass: TSkCanvasClass;
     FCurrent: IFMXCanvasService;
+  {$IFDEF DEBUG}
+  strict private
+    FGlobalUseSkiaInRegistration: Boolean;
+    FMainFormChangedMessageId: Integer;
+    procedure MainFormChangedChangeHandler(const ASender: TObject; const AMessage: System.Messaging.TMessage);
+  {$ENDIF}
   strict private
     procedure RegisterCanvasClasses;
     procedure UnregisterCanvasClasses;
     class function GetCanvasClass: TSkCanvasClass; static; inline;
   public
     constructor Create(const ACurrent: IFMXCanvasService);
+    {$IFDEF DEBUG}
+    destructor Destroy; override;
+    {$ENDIF}
     class property DefaultPixelFormat: TPixelFormat read FDefaultPixelFormat;
   end;
 
@@ -2796,7 +2824,21 @@ constructor TSkCanvasService.Create(const ACurrent: IFMXCanvasService);
 begin
   inherited Create;
   FCurrent := ACurrent;
+  {$IFDEF DEBUG}
+  FMainFormChangedMessageId := TMessageManager.DefaultManager.SubscribeToMessage(TMainFormChangedMessage, MainFormChangedChangeHandler);
+  {$ENDIF}
 end;
+
+{$IFDEF DEBUG}
+
+destructor TSkCanvasService.Destroy;
+begin
+  if FMainFormChangedMessageId > 0 then
+    TMessageManager.DefaultManager.Unsubscribe(TMainFormChangedMessage, FMainFormChangedMessageId);
+  inherited;
+end;
+
+{$ENDIF}
 
 class function TSkCanvasService.GetCanvasClass: TSkCanvasClass;
 begin
@@ -2828,6 +2870,24 @@ begin
     Result := nil;
   {$ENDIF}
 end;
+
+{$IFDEF DEBUG}
+
+procedure TSkCanvasService.MainFormChangedChangeHandler(const ASender: TObject;
+  const AMessage: System.Messaging.TMessage);
+begin
+  TMessageManager.DefaultManager.Unsubscribe(TMainFormChangedMessage, FMainFormChangedMessageId);
+  FMainFormChangedMessageId := 0;
+  if FGlobalUseSkiaInRegistration <> GlobalUseSkia then
+  begin
+    raise ESkCanvas.Create('Your declaration of GlobalUseSkia has no effect because the canvas service '+
+      'has already been started. In this case, just create a unit in the project like "Project.Startup.pas", '+
+      'place the GlobalUseSkia declaration in the initialization of this new unit, and declare this new unit '+
+      'before any other unit of yours in the .dpr, that is, right after FMX.Forms.');
+  end;
+end;
+
+{$ENDIF}
 
 procedure TSkCanvasService.RegisterCanvasClasses;
 begin
@@ -2868,6 +2928,9 @@ begin
     end;
     FCurrent.RegisterCanvasClasses;
   end;
+  {$IFDEF DEBUG}
+  FGlobalUseSkiaInRegistration := GlobalUseSkia;
+  {$ENDIF}
 end;
 
 procedure TSkCanvasService.UnregisterCanvasClasses;

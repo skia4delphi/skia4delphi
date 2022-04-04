@@ -4588,7 +4588,7 @@ var
     Result.TextStyle := ADefaultTextStyle;
   end;
 
-  // Temporary solution to fix an issue with Skia: https://github.com/skia4delphi/skia4delphi/issues/79
+  // Temporary solution to fix an issue with Skia: https://bugs.chromium.org/p/skia/issues/detail?id=13117
   // SkParagraph has several issues with the #13 line break, so the best thing to do is replace it with #10 or a zero-widh character (#8203)
   function NormalizeParagraphText(const AText: string): string;
   begin

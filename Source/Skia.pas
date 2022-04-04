@@ -33,7 +33,7 @@ uses
 {$ENDIF}
 
 const
-  SkVersion = '3.3.0';
+  SkVersion = '3.3.1';
 
 type
   ESkException = class(Exception);
@@ -489,8 +489,8 @@ type
     procedure DrawImageRect(const AImage: ISkImage; const ADest: TRectF; const ASampling: TSkSamplingOptions; const APaint: ISkPaint = nil; const AConstraint: TSkSrcRectConstraint = TSkSrcRectConstraint.Fast); overload;
     procedure DrawImageRect(const AImage: ISkImage; const ASrc, ADest: TRectF; const APaint: ISkPaint = nil; const AConstraint: TSkSrcRectConstraint = TSkSrcRectConstraint.Fast); overload;
     procedure DrawImageRect(const AImage: ISkImage; const ASrc, ADest: TRectF; const ASampling: TSkSamplingOptions; const APaint: ISkPaint = nil; const AConstraint: TSkSrcRectConstraint = TSkSrcRectConstraint.Fast); overload;
-    procedure DrawLine(const APoint1, APoint2: TPointF; const APaint: ISkPaint);  overload;
-    procedure DrawLine(const AX1, AY1, AX2, AY2: Single; const APaint: ISkPaint);  overload;
+    procedure DrawLine(const APoint1, APoint2: TPointF; const APaint: ISkPaint); overload;
+    procedure DrawLine(const AX1, AY1, AX2, AY2: Single; const APaint: ISkPaint); overload;
     procedure DrawOval(const AOval: TRectF; const APaint: ISkPaint);
     procedure DrawPaint(const APaint: ISkPaint);
     procedure DrawPatch(const ACubics: TSkPatchCubics; const AColors: TSkPatchColors; const ATexCoords: TSkPatchTexCoords; const ABlendMode: TSkBlendMode; const APaint: ISkPaint);
@@ -566,8 +566,8 @@ type
     procedure DrawImageLattice(const AImage: ISkImage; const ALattice: TSkLattice; const ADest: TRectF; const AFilterMode: TSkFilterMode = TSkFilterMode.Linear; const APaint: ISkPaint = nil);
     procedure DrawImageNine(const AImage: ISkImage; const ACenter: TRect; const ADest: TRectF; const AFilterMode: TSkFilterMode = TSkFilterMode.Linear; const APaint: ISkPaint = nil);
     procedure DrawImageRect(const AImage: ISkImage; const ADest: TRectF; const APaint: ISkPaint = nil; const AConstraint: TSkSrcRectConstraint = TSkSrcRectConstraint.Fast); overload;
-    procedure DrawImageRect(const AImage: ISkImage; const ASrc, ADest: TRectF; const APaint: ISkPaint = nil; const AConstraint: TSkSrcRectConstraint = TSkSrcRectConstraint.Fast); overload;
     procedure DrawImageRect(const AImage: ISkImage; const ADest: TRectF; const ASampling: TSkSamplingOptions; const APaint: ISkPaint = nil; const AConstraint: TSkSrcRectConstraint = TSkSrcRectConstraint.Fast); overload;
+    procedure DrawImageRect(const AImage: ISkImage; const ASrc, ADest: TRectF; const APaint: ISkPaint = nil; const AConstraint: TSkSrcRectConstraint = TSkSrcRectConstraint.Fast); overload;
     procedure DrawImageRect(const AImage: ISkImage; const ASrc, ADest: TRectF; const ASampling: TSkSamplingOptions; const APaint: ISkPaint = nil; const AConstraint: TSkSrcRectConstraint = TSkSrcRectConstraint.Fast); overload;
     procedure DrawLine(const APoint1, APoint2: TPointF; const APaint: ISkPaint); overload;
     procedure DrawLine(const AX1, AY1, AX2, AY2: Single; const APaint: ISkPaint); overload;

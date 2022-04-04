@@ -11,22 +11,17 @@
         <AppType>Package</AppType>
         <Config Condition="'$(Config)'==''">Debug</Config>
         <FrameworkType>VCL</FrameworkType>
-        <MainSource>Skia.Package.VCL.dpk</MainSource>
+        <MainSource>Skia.Package.VCL.Designtime.dpk</MainSource>
         <Platform Condition="'$(Platform)'==''">Win32</Platform>
-        <ProjectGuid>{89D2E5F0-DE99-4483-819F-E295B2866B52}</ProjectGuid>
+        <ProjectGuid>{6EBE9429-74F3-49AE-9B69-305A16EEF639}</ProjectGuid>
         <ProjectVersion>19.3</ProjectVersion>
-        <TargetedPlatforms>3</TargetedPlatforms>
+        <TargetedPlatforms>1</TargetedPlatforms>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Config)'=='Base' or '$(Base)'!=''">
         <Base>true</Base>
     </PropertyGroup>
     <PropertyGroup Condition="('$(Platform)'=='Win32' and '$(Base)'=='true') or '$(Base_Win32)'!=''">
         <Base_Win32>true</Base_Win32>
-        <CfgParent>Base</CfgParent>
-        <Base>true</Base>
-    </PropertyGroup>
-    <PropertyGroup Condition="('$(Platform)'=='Win64' and '$(Base)'=='true') or '$(Base_Win64)'!=''">
-        <Base_Win64>true</Base_Win64>
         <CfgParent>Base</CfgParent>
         <Base>true</Base>
     </PropertyGroup>
@@ -47,15 +42,16 @@
         <Base>true</Base>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base)'!=''">
-        <SanitizedProjectName>Skia_Package_VCL</SanitizedProjectName>
-        <DCC_BplOutput>..\..\Library\RAD Studio 11.0 Alexandria\$(Platform)\$(Config)\Bpl</DCC_BplOutput>
+        <SanitizedProjectName>Skia_Package_VCL_Designtime</SanitizedProjectName>
+        <DCC_BplOutput>..\..\Library\RAD Studio 11 Alexandria\$(Platform)\$(Config)\Bpl</DCC_BplOutput>
         <DCC_CBuilderOutput>All</DCC_CBuilderOutput>
-        <DCC_DcpOutput>..\..\Library\RAD Studio 11.0 Alexandria\$(Platform)\$(Config)</DCC_DcpOutput>
-        <DCC_DcuOutput>..\..\Library\RAD Studio 11.0 Alexandria\$(Platform)\$(Config)</DCC_DcuOutput>
-        <DCC_Description>Skia4Delphi VCL package</DCC_Description>
+        <DCC_DcpOutput>..\..\Library\RAD Studio 11 Alexandria\$(Platform)\$(Config)</DCC_DcpOutput>
+        <DCC_DcuOutput>..\..\Library\RAD Studio 11 Alexandria\$(Platform)\$(Config)</DCC_DcuOutput>
+        <DCC_Description>Skia4Delphi VCL Designtime package</DCC_Description>
         <DCC_ExeOutput>.\$(Platform)\$(Config)</DCC_ExeOutput>
         <DCC_Namespace>System;Xml;Data;Datasnap;Web;Soap;Vcl;Vcl.Imaging;Vcl.Touch;Vcl.Samples;Vcl.Shell;$(DCC_Namespace)</DCC_Namespace>
-        <DCC_UnitSearchPath>..\..\Library\RAD Studio 11.0 Alexandria\$(Platform)\$(Config);..\..\Source;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+        <DCC_UnitSearchPath>..\..\Library\RAD Studio 11 Alexandria\$(Platform)\$(Config);..\..\Source;..\..\Source\VCL;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+        <DesignOnlyPackage>true</DesignOnlyPackage>
         <DllSuffix>$(Auto)</DllSuffix>
         <GenDll>true</GenDll>
         <GenPackage>true</GenPackage>
@@ -65,13 +61,6 @@
     <PropertyGroup Condition="'$(Base_Win32)'!=''">
         <BT_BuildType>Debug</BT_BuildType>
         <DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;Bde;$(DCC_Namespace)</DCC_Namespace>
-        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
-        <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
-        <VerInfo_Locale>1033</VerInfo_Locale>
-    </PropertyGroup>
-    <PropertyGroup Condition="'$(Base_Win64)'!=''">
-        <BT_BuildType>Debug</BT_BuildType>
-        <DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;$(DCC_Namespace)</DCC_Namespace>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
         <VerInfo_Locale>1033</VerInfo_Locale>
@@ -103,8 +92,20 @@
         </DelphiCompile>
         <DCCReference Include="rtl.dcp"/>
         <DCCReference Include="vcl.dcp"/>
+        <DCCReference Include="vclimg.dcp"/>
+        <DCCReference Include="designide.dcp"/>
         <DCCReference Include="Skia.Package.RTL.dcp"/>
-        <DCCReference Include="..\..\Source\VCL\Skia.Vcl.pas"/>
+        <DCCReference Include="Skia.Package.VCL.dcp"/>
+        <DCCReference Include="..\..\Source\VCL\Designtime\Skia.Vcl.Designtime.Editor.AnimatedImage.pas">
+            <Form>SkAnimatedImageEditorForm</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="..\..\Source\VCL\Designtime\Skia.Vcl.Designtime.Editor.Svg.pas">
+            <Form>SKSvgEditorForm</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="..\..\Source\VCL\Designtime\Skia.Vcl.Designtime.pas"/>
+        <DCCReference Include="..\..\Source\VCL\Designtime\Skia.Vcl.Designtime.ProjectMenu.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
@@ -123,7 +124,7 @@
         <BorlandProject>
             <Delphi.Personality>
                 <Source>
-                    <Source Name="MainSource">Skia.Package.VCL.dpk</Source>
+                    <Source Name="MainSource">Skia.Package.VCL.Designtime.dpk</Source>
                 </Source>
                 <Excluded_Packages/>
             </Delphi.Personality>
@@ -134,7 +135,7 @@
                 <Platform value="OSX64">False</Platform>
                 <Platform value="OSXARM64">False</Platform>
                 <Platform value="Win32">True</Platform>
-                <Platform value="Win64">True</Platform>
+                <Platform value="Win64">False</Platform>
                 <Platform value="iOSDevice64">False</Platform>
             </Platforms>
         </BorlandProject>

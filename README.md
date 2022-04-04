@@ -30,13 +30,12 @@ Google's Skia Graphics Library serves as the graphics engine for Google Chrome a
 - CPU software rasterization;
 - GPU-accelerated rendering;
 - Right-to-Left rendering;
-- SVG rendering;
+- SVG rendering and creation;
 - PDF output;
 - Runtime effects;
 - Shading language;
 - Shaders, mask and color filters;
 - Image and path effects;
-- Raw codecs;
 - Animated image player; (Lottie, GIF, WebP)
 - Image codecs; (bmp, gif, ico, jpg, png, wbmp, webp and raw images)
 - Particles; (provides a way to quickly generate large numbers of drawing primitives with dynamic, animated behavior)
@@ -450,6 +449,7 @@ begin
 1. `Skia.FMX` unit must be included after the `FMX.Forms`;
 2. The **Metal** implementation is experimental, but can be used by including the `FMX.Types` unit **after** the `FMX.Forms` unit, and setting `GlobalUseMetal` to **True** together with `GlobalUseSkia`;
 3. `GlobalUseSkia` has no effect on Linux. (although not supported, all [controls](#controls-vclfmx) work perfectly)
+4. This declaration of `GlobalUseSkia := True;`, as well as other variables of FMX itself, such as `GlobalUseMetal`, can also be made in the initialization of some unit instead of .dpr. Sometimes this is really necessary because if in the initialization or in the class constructor of some unit, bitmaps are used, the GlobalUseXXX declarations of the .dpr will have no effect. In this case, just create a unit in the project like "Project.Startup.pas", place the GlobalUseXXX declarations in the initialization of this new unit, and declare this new unit before any other unit of yours in the .dpr, that is, right after FMX.Forms.
 
   
 
@@ -656,6 +656,7 @@ The example above results in the output below:
  - Support for BiDi; (Right-to-Left)
  - Support justify horizontal alignment;
  - Support custom font; (without install the font)
+ - Supports background color on parts of the text;
  - Limit the maximum number of lines;
  - Auto size option; (width and height)
  - Advanced decorations; (like underline wavy, overline, dashed line, among others...)
@@ -740,7 +741,7 @@ The APIs are very similar to Skia's, few methods and functions have been renamed
 
 # Version
 
-**[Skia4Delphi 3.3.0](/../../releases/latest)**
+**[Skia4Delphi 3.3.1](/../../releases/latest)**
 
 Skia Version used: [chrome/m98](https://github.com/google/skia/tree/chrome/m98)
 What has changed from the original code? [Compare.](https://github.com/google/skia/compare/chrome/m98...skia4delphi:main)

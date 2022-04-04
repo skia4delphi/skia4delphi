@@ -72,7 +72,7 @@
         <DCC_Namespace>System;Xml;Data;Datasnap;Web;Soap;Vcl;Vcl.Imaging;Vcl.Touch;Vcl.Samples;Vcl.Shell;$(DCC_Namespace)</DCC_Namespace>
         <Icon_MainIcon>$(BDS)\bin\delphi_PROJECTICON.ico</Icon_MainIcon>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
-        <VerInfo_Keys>CompanyName=skia4delphi.org;FileDescription=$(MSBuildProjectName);FileVersion=3.3.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=org.skia4delphi.demo.vcl;ProductName=$(MSBuildProjectName);ProductVersion=3.3.0.0;Comments=</VerInfo_Keys>
+        <VerInfo_Keys>CompanyName=skia4delphi.org;FileDescription=$(MSBuildProjectName);FileVersion=3.3.1.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=org.skia4delphi.demo.vcl;ProductName=$(MSBuildProjectName);ProductVersion=3.3.1.0;Comments=</VerInfo_Keys>
         <VerInfo_Locale>1033</VerInfo_Locale>
         <VerInfo_MajorVer>3</VerInfo_MajorVer>
     </PropertyGroup>

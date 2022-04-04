@@ -85,10 +85,10 @@
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base)'!=''">
         <SanitizedProjectName>Skia_Package_RTL</SanitizedProjectName>
-        <DCC_BplOutput>..\..\Library\RAD Studio 11.0 Alexandria\$(Platform)\$(Config)\Bpl</DCC_BplOutput>
+        <DCC_BplOutput>..\..\Library\RAD Studio 11 Alexandria\$(Platform)\$(Config)\Bpl</DCC_BplOutput>
         <DCC_CBuilderOutput>All</DCC_CBuilderOutput>
-        <DCC_DcpOutput>..\..\Library\RAD Studio 11.0 Alexandria\$(Platform)\$(Config)</DCC_DcpOutput>
-        <DCC_DcuOutput>..\..\Library\RAD Studio 11.0 Alexandria\$(Platform)\$(Config)</DCC_DcuOutput>
+        <DCC_DcpOutput>..\..\Library\RAD Studio 11 Alexandria\$(Platform)\$(Config)</DCC_DcpOutput>
+        <DCC_DcuOutput>..\..\Library\RAD Studio 11 Alexandria\$(Platform)\$(Config)</DCC_DcuOutput>
         <DCC_Description>Skia4Delphi RTL package</DCC_Description>
         <DCC_ExeOutput>.\$(Platform)\$(Config)</DCC_ExeOutput>
         <DCC_Namespace>System;Xml;Data;Datasnap;Web;Soap;$(DCC_Namespace)</DCC_Namespace>

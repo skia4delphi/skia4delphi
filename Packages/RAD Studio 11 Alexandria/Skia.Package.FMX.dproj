@@ -73,14 +73,14 @@
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base)'!=''">
         <SanitizedProjectName>Skia_Package_FMX</SanitizedProjectName>
-        <DCC_BplOutput>..\..\Library\RAD Studio 11.0 Alexandria\$(Platform)\$(Config)\Bpl</DCC_BplOutput>
+        <DCC_BplOutput>..\..\Library\RAD Studio 11 Alexandria\$(Platform)\$(Config)\Bpl</DCC_BplOutput>
         <DCC_CBuilderOutput>All</DCC_CBuilderOutput>
-        <DCC_DcpOutput>..\..\Library\RAD Studio 11.0 Alexandria\$(Platform)\$(Config)</DCC_DcpOutput>
-        <DCC_DcuOutput>..\..\Library\RAD Studio 11.0 Alexandria\$(Platform)\$(Config)</DCC_DcuOutput>
+        <DCC_DcpOutput>..\..\Library\RAD Studio 11 Alexandria\$(Platform)\$(Config)</DCC_DcpOutput>
+        <DCC_DcuOutput>..\..\Library\RAD Studio 11 Alexandria\$(Platform)\$(Config)</DCC_DcuOutput>
         <DCC_Description>Skia4Delphi FMX package</DCC_Description>
         <DCC_ExeOutput>.\$(Platform)\$(Config)</DCC_ExeOutput>
         <DCC_Namespace>System;Xml;Data;Datasnap;Web;Soap;$(DCC_Namespace)</DCC_Namespace>
-        <DCC_UnitSearchPath>..\..\Library\RAD Studio 11.0 Alexandria\$(Platform)\$(Config);..\..\Source;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+        <DCC_UnitSearchPath>..\..\Library\RAD Studio 11 Alexandria\$(Platform)\$(Config);..\..\Source;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
         <DllSuffix>$(Auto)</DllSuffix>
         <GenDll>true</GenDll>
         <GenPackage>true</GenPackage>

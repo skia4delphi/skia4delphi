@@ -83,7 +83,7 @@
         <Icns_MainIcns>$(BDS)\bin\delphi_PROJECTICNS.icns</Icns_MainIcns>
         <Icon_MainIcon>$(BDS)\bin\delphi_PROJECTICON.ico</Icon_MainIcon>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
-        <VerInfo_Keys>CompanyName=skia4delphi.org;FileDescription=$(ModuleName);FileVersion=3.3.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=$(ModuleName);ProductVersion=3.3.0.0;Comments=</VerInfo_Keys>
+        <VerInfo_Keys>CompanyName=skia4delphi.org;FileDescription=$(ModuleName);FileVersion=3.3.1.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=$(ModuleName);ProductVersion=3.3.1.0;Comments=</VerInfo_Keys>
         <VerInfo_Locale>1033</VerInfo_Locale>
         <VerInfo_MajorVer>3</VerInfo_MajorVer>
     </PropertyGroup>

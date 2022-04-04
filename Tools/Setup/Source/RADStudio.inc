@@ -126,7 +126,7 @@ var
 
 function CheckIfRADStudioSupportsPlatform(const ARADStudioInfo: TRADStudioInfo; const APlatform: TProjectPlatform): Boolean;
 begin
-  Result := (APlatform in ARADStudioInfo.Version.SupportedPlatforms) and 
+  Result := (APlatform in ARADStudioInfo.Version.SupportedPlatforms) and
     RegKeyExists(HKEY_CURRENT_USER, GetRADStudioRegKey(ARADStudioInfo.Version) + '\Library\' + GetProjectPlatformLibraryName(APlatform));
 end;
 
@@ -284,7 +284,7 @@ begin
 
   // RAD Studio XE7
   LRADStudioVersion.Name := 'RAD Studio XE7';
-  LRADStudioVersion.RegVersion := '15.0';     
+  LRADStudioVersion.RegVersion := '15.0';
   LRADStudioVersion.SupportedPlatforms := [pfWin32, pfWin64, pfAndroid, pfiOSDevice32, pfiOSSimulator, pfOSX32];
   LRADStudioVersion.MaxDprojVersion := '16.1';
   LRADStudioVersion.MinDprojVersion := '16.0';
@@ -299,9 +299,9 @@ begin
 
   // RAD Studio XE8
   LRADStudioVersion.Name := 'RAD Studio XE8';
-  LRADStudioVersion.RegVersion := '16.0';      
+  LRADStudioVersion.RegVersion := '16.0';
   LRADStudioVersion.SupportedPlatforms := [pfWin32, pfWin64, pfAndroid, pfiOSDevice32, pfiOSDevice64, pfiOSSimulator, pfOSX32];
-  LRADStudioVersion.MaxDprojVersion := '17.2'; 
+  LRADStudioVersion.MaxDprojVersion := '17.2';
   LRADStudioVersion.MinDprojVersion := '17.1';
   LRADStudioVersion.PackageVersion := '220';
   LRADStudioVersion.HasGetItCmd := False;
@@ -314,7 +314,7 @@ begin
 
   // RAD Studio 10.0 Seattle
   LRADStudioVersion.Name := 'RAD Studio 10.0 Seattle';
-  LRADStudioVersion.RegVersion := '17.0';    
+  LRADStudioVersion.RegVersion := '17.0';
   LRADStudioVersion.SupportedPlatforms := [pfWin32, pfWin64, pfAndroid, pfiOSDevice32, pfiOSDevice64, pfiOSSimulator, pfOSX32];
   LRADStudioVersion.MaxDprojVersion := '18.1'; // Conflicted
   LRADStudioVersion.MinDprojVersion := '18.0';
@@ -329,7 +329,7 @@ begin
 
   // RAD Studio 10.1 Berlin
   LRADStudioVersion.Name := 'RAD Studio 10.1 Berlin';
-  LRADStudioVersion.RegVersion := '18.0';          
+  LRADStudioVersion.RegVersion := '18.0';
   LRADStudioVersion.SupportedPlatforms := [pfWin32, pfWin64, pfAndroid, pfiOSDevice32, pfiOSDevice64, pfiOSSimulator, pfOSX32];
   LRADStudioVersion.MaxDprojVersion := '18.2'; // Conflicted
   LRADStudioVersion.MinDprojVersion := '18.1'; // Conflicted
@@ -344,7 +344,7 @@ begin
 
   // RAD Studio 10.2 Tokyo
   LRADStudioVersion.Name := 'RAD Studio 10.2 Tokyo';
-  LRADStudioVersion.RegVersion := '19.0';         
+  LRADStudioVersion.RegVersion := '19.0';
   LRADStudioVersion.SupportedPlatforms := [pfWin32, pfWin64, pfAndroid, pfiOSDevice32, pfiOSDevice64, pfiOSSimulator, pfOSX32, pfLinux64];
   LRADStudioVersion.MaxDprojVersion := '18.4';
   LRADStudioVersion.MinDprojVersion := '18.2'; // Conflicted
@@ -359,7 +359,7 @@ begin
 
   // RAD Studio 10.3 Rio
   LRADStudioVersion.Name := 'RAD Studio 10.3 Rio';
-  LRADStudioVersion.RegVersion := '20.0';       
+  LRADStudioVersion.RegVersion := '20.0';
   LRADStudioVersion.SupportedPlatforms := [pfWin32, pfWin64, pfAndroid, pfAndroid64, pfiOSDevice32, pfiOSDevice64, pfiOSSimulator, pfOSX32, pfOSX64, pfLinux64];
   LRADStudioVersion.MaxDprojVersion := '18.8';
   LRADStudioVersion.MinDprojVersion := '18.5';
@@ -374,7 +374,7 @@ begin
 
   // RAD Studio 10.4 Sydney
   LRADStudioVersion.Name := 'RAD Studio 10.4 Sydney';
-  LRADStudioVersion.RegVersion := '21.0';      
+  LRADStudioVersion.RegVersion := '21.0';
   LRADStudioVersion.SupportedPlatforms := [pfWin32, pfWin64, pfAndroid, pfAndroid64, pfiOSDevice64, pfiOSSimulator, pfOSX64, pfLinux64];
   LRADStudioVersion.MaxDprojVersion := '19.2';
   LRADStudioVersion.MinDprojVersion := '19.0';
@@ -387,9 +387,9 @@ begin
   SetArrayLength(_FRADStudioVersions, GetArrayLength(_FRADStudioVersions) + 1);
   _FRADStudioVersions[GetArrayLength(_FRADStudioVersions) - 1] := LRADStudioVersion;
 
-  // RAD Studio 11.0 Alexandria
-  LRADStudioVersion.Name := 'RAD Studio 11.0 Alexandria';
-  LRADStudioVersion.RegVersion := '22.0';         
+  // RAD Studio 11 Alexandria
+  LRADStudioVersion.Name := 'RAD Studio 11 Alexandria';
+  LRADStudioVersion.RegVersion := '22.0';
   LRADStudioVersion.SupportedPlatforms := [pfWin32, pfWin64, pfAndroid, pfAndroid64, pfiOSDevice64, pfiOSSimulator, pfOSX64, pfOSXARM64, pfLinux64];
   LRADStudioVersion.MaxDprojVersion := '19.4';
   LRADStudioVersion.MinDprojVersion := '19.3';
@@ -476,7 +476,7 @@ begin
       LNewValue := JoinStrings(LCurrentPaths, ';', False);
     end;
     Result := RegWriteStringValue(HKEY_CURRENT_USER, GetRADStudioRegKey(ARADStudioVersion) + '\Library\' + GetProjectPlatformLibraryName(APlatform), ARegName, LNewValue);
-  end;  
+  end;
   if not Result then
     Log(Format('RADStudio._TryAddRADStudioLibraryPath: Failed to add a library path to the RAD Studio registry (RegName: "%s", Path: "%s")', [ARegName, APath]));
 end;
@@ -501,7 +501,7 @@ begin
     LPaths := InsertStringAtBeginning(LPaths, APath);
     LValue := JoinStrings(LPaths, ';', False);
     Result := RegWriteStringValue(HKEY_CURRENT_USER, GetRADStudioRegKey(ARADStudioVersion) + '\Environment Variables', 'PATH', LValue);
-  end;   
+  end;
   if not Result then
     Log(Format('RADStudio.TryAddRADStudioPathEnvVariable: Failed to add a path environment variable to the RAD Studio registry (Path: "%s")', [APath]));
 end;
@@ -718,7 +718,7 @@ end;
 
 function TryRemoveRADStudioEnvVariable(const ARADStudioVersion: TRADStudioVersion; const AName: string): Boolean;
 begin
-  Result := (not RegValueExists(HKEY_CURRENT_USER, GetRADStudioRegKey(ARADStudioVersion) + '\Environment Variables', AName)) or 
+  Result := (not RegValueExists(HKEY_CURRENT_USER, GetRADStudioRegKey(ARADStudioVersion) + '\Environment Variables', AName)) or
     RegDeleteValue(HKEY_CURRENT_USER, GetRADStudioRegKey(ARADStudioVersion) + '\Environment Variables', AName);
   if not Result then
     Log(Format('RADStudio.TryRemoveRADStudioEnvVariable: Failed to remove an environment variable to the RAD Studio registry (Name: "%s"; Registry: "%s").', [AName, 'HKEY_CURRENT_USER\' + GetRADStudioRegKey(ARADStudioVersion) + '\Environment Variables']));
