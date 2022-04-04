@@ -1154,6 +1154,8 @@ begin
     Exit(nil);
   if ABitmap.CanvasClass.InheritsFrom(ClassType) then
   begin
+    if TSkBitmapHandle(ABitmap.Handle).Pixels = nil then
+      Exit(nil);
     if (Parent <> nil) and (Assigned(FImageCache)) then
     begin
       if (FImageCache.ContainsKey(Self)) and (FImageCache[Self].ContainsKey(ABitmap.Handle)) then
