@@ -1133,7 +1133,7 @@ end;
 procedure TSkBitmapHandle.Initialize;
 begin
   if FPixels = nil then
-    GetMem(FPixels, FWidth * FHeight * 4);
+    FPixels := AllocMem(FWidth * FHeight * 4);
 end;
 
 { TSkCanvasCustom }
