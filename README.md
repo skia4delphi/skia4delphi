@@ -110,8 +110,8 @@ You can install **Skia4Delphi** in 3 ways:
 
 - Embarcadero's GetIt *(RAD Studio > Tools > GetIt Package Manager...)*
 
-  <p><img src="https://user-images.githubusercontent.com/11139086/158433099-2ecbd6d1-4d1e-425a-93b4-4d6d5b95b40a.png#gh-light-mode-only" width="511" alt="GetIt" /></p>
-  <p><img src="https://user-images.githubusercontent.com/11139086/158433116-89d5f148-fb2f-43b1-9afa-191c0c33b2b6.png#gh-dark-mode-only" width="511" alt="GetIt" /></p>
+  <p><img src="https://user-images.githubusercontent.com/11139086/161624030-1b815300-31d8-4606-931b-765f4cb03e79.png#gh-light-mode-only" width="511" alt="GetIt" /></p>
+  <p><img src="https://user-images.githubusercontent.com/11139086/161623994-bd431eb0-f60d-40cd-aa87-84c49456555f.png#gh-dark-mode-only" width="511" alt="GetIt" /></p>
 
   
 
