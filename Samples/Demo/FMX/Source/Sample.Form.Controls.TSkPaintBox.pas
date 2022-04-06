@@ -125,19 +125,25 @@ var
   LPaint: ISkPaint;
   LPath: ISkPath;
 begin
-  LPaint := TSkPaint.Create(TSkPaintStyle.Stroke);
-  LPaint.AntiAlias := True;
-  LPaint.Color := TAlphaColors.Royalblue;
-  LPaint.SetPathEffect(TSkPathEffect.MakeCorner(50));
-  LPaint.StrokeCap := TSkStrokeCap.Round;
-  LPaint.StrokeWidth := 4;
+  ACanvas.Save;
+  try
+    ACanvas.ClipRect(ADest);
+    LPaint := TSkPaint.Create(TSkPaintStyle.Stroke);
+    LPaint.AntiAlias := True;
+    LPaint.Color := TAlphaColors.Royalblue;
+    LPaint.SetPathEffect(TSkPathEffect.MakeCorner(50));
+    LPaint.StrokeCap := TSkStrokeCap.Round;
+    LPaint.StrokeWidth := 4;
 
-  for LPath in FOldPaths do
-    ACanvas.DrawPath(LPath, LPaint);
-  if Assigned(FPathBuilder) and not Assigned(FCurrentPath) then
-    FCurrentPath := FPathBuilder.Snapshot;
-  if Assigned(FCurrentPath) then
-    ACanvas.DrawPath(FCurrentPath, LPaint);
+    for LPath in FOldPaths do
+      ACanvas.DrawPath(LPath, LPaint);
+    if Assigned(FPathBuilder) and not Assigned(FCurrentPath) then
+      FCurrentPath := FPathBuilder.Snapshot;
+    if Assigned(FCurrentPath) then
+      ACanvas.DrawPath(FCurrentPath, LPaint);
+  finally
+    ACanvas.Restore;
+  end;
 end;
 
 procedure TFreehandRender.OnMouseDown(ASender: TObject; AButton: TMouseButton;
