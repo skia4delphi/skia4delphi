@@ -665,9 +665,9 @@ type
     property TextSettings: TSkTextSettings read GetTextSettings write SetTextSettings;
   end;
 
-  { TSkStyleTextObject }
+  { TSkCustomStyleTextObject }
 
-  TSkStyleTextObject = class(TFmxObject, ISkStyleTextObject, IObjectState)
+  TSkCustomStyleTextObject = class(TFmxObject, ISkStyleTextObject, IObjectState)
   strict private
     FOnChange: TNotifyEvent;
     FTextSettings: TSkTextSettings;
@@ -684,8 +684,14 @@ type
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     property OnChange: TNotifyEvent read FOnChange write FOnChange;
-  published
     property TextSettings: TSkTextSettings read FTextSettings write SetTextSettings;
+  end;
+
+  { TSkStyleTextObject }
+
+  TSkStyleTextObject = class(TSkCustomStyleTextObject)
+  published
+    property TextSettings;
   end;
 
   { TSkLabel }
@@ -899,6 +905,7 @@ type
     procedure SetName(const AValue: TComponentName); override;
     property Paragraph: ISkParagraph read GetParagraph;
     property ParagraphBounds: TRectF read GetParagraphBounds;
+    property StyleText: ISkStyleTextObject read FStyleText;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -3575,33 +3582,33 @@ begin
   FTextSettings.Assign(AValue);
 end;
 
-{ TSkStyleTextObject }
+{ TSkCustomStyleTextObject }
 
-constructor TSkStyleTextObject.Create(AOwner: TComponent);
+constructor TSkCustomStyleTextObject.Create(AOwner: TComponent);
 begin
   inherited;
   FTextSettings := CreateTextSettings;
   FTextSettings.OnChange := TextSettingsChange;
 end;
 
-function TSkStyleTextObject.CreateTextSettings: TSkTextSettings;
+function TSkCustomStyleTextObject.CreateTextSettings: TSkTextSettings;
 begin
   Result := TSkTextSettings.Create(Self);
 end;
 
-destructor TSkStyleTextObject.Destroy;
+destructor TSkCustomStyleTextObject.Destroy;
 begin
   FTextSettings.Free;
   FSavedTextSettings.Free;
   inherited;
 end;
 
-function TSkStyleTextObject.GetTextSettings: TSkTextSettings;
+function TSkCustomStyleTextObject.GetTextSettings: TSkTextSettings;
 begin
   Result := FTextSettings;
 end;
 
-function TSkStyleTextObject.RestoreState: Boolean;
+function TSkCustomStyleTextObject.RestoreState: Boolean;
 begin
   Result := False;
   if (FSavedTextSettings <> nil) and (FTextSettings <> nil) then
@@ -3612,7 +3619,7 @@ begin
   end;
 end;
 
-function TSkStyleTextObject.SaveState: Boolean;
+function TSkCustomStyleTextObject.SaveState: Boolean;
 begin
   Result := False;
   if FTextSettings <> nil then
@@ -3624,19 +3631,19 @@ begin
   end;
 end;
 
-procedure TSkStyleTextObject.SetName(const ANewName: TComponentName);
+procedure TSkCustomStyleTextObject.SetName(const ANewName: TComponentName);
 begin
   inherited;
   if FStyleName = '' then
     FStyleName := Name;
 end;
 
-procedure TSkStyleTextObject.SetTextSettings(const AValue: TSkTextSettings);
+procedure TSkCustomStyleTextObject.SetTextSettings(const AValue: TSkTextSettings);
 begin
   FTextSettings.Assign(AValue);
 end;
 
-procedure TSkStyleTextObject.TextSettingsChange(ASender: TObject);
+procedure TSkCustomStyleTextObject.TextSettingsChange(ASender: TObject);
 begin
   if Assigned(FOnChange) then
     FOnChange(Self);
@@ -4964,7 +4971,7 @@ end;
 
 initialization
   RegisterFMXClasses([TSkAnimatedImage, TSkAnimatedPaintBox, TSkCustomControl, TSkLabel, TSkPaintBox,
-    TSkStyledControl, TSkStyleTextObject, TSkSvgBrush, TSkSvg]);
+    TSkStyledControl, TSkCustomStyleTextObject, TSkStyleTextObject, TSkSvgBrush, TSkSvg]);
   RegisterFMXClasses([TSkFontComponent, TSkTextSettings, TSkTextSettingsInfo, TSkTextSettings.TDecorations,
     TSkLabel.TCustomWordsItem, TSkLabel.TWordsCollection]);
   TSkAnimatedImage.RegisterCodec(TSkLottieAnimationCodec);
