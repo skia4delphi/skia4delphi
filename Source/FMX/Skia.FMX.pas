@@ -1033,8 +1033,8 @@ const
 var
   /// <summary> Allows use of Skia Canvas for UI rendering, replacing FMX's default Canvas </summary>
   GlobalUseSkia: Boolean;
-  /// <summary> Allows the UI rendering in Skia Canvas to use the CPU instead of the GPU (currently only available on Windows and macOS) </summary>
-  GlobalUseSkiaRasterWhenAvailable: Boolean;
+  /// <summary> Allows the UI rendering in Skia Canvas to use the CPU instead of the GPU (only takes effect on Windows currently) </summary>
+  GlobalUseSkiaRasterWhenAvailable: Boolean = True;
   /// <summary> Disables registration of Skia image codecs </summary>
   GlobalDisableSkiaCodecsReplacement: Boolean;
 

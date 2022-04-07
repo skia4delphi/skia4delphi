@@ -11,6 +11,7 @@ uses
 
 begin
   GlobalUseMetal := True;
+  GlobalUseSkiaRasterWhenAvailable := False;
   GlobalUseSkia := True;
   Application.Initialize;
   Application.CreateForm(TfrmMain, frmMain);

@@ -37,6 +37,7 @@ uses
 
 begin
   GlobalUseMetal := True;
+  GlobalUseSkiaRasterWhenAvailable := False;
   GlobalUseSkia := True;
   {$IFDEF DEBUG}
   ReportMemoryLeaksOnShutdown := True;

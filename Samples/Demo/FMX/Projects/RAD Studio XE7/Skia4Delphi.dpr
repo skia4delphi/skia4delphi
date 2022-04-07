@@ -35,6 +35,7 @@ uses
 {$R *.res}
 
 begin
+  GlobalUseSkiaRasterWhenAvailable := False;
   GlobalUseSkia := True;
   {$IFDEF DEBUG}
   ReportMemoryLeaksOnShutdown := True;

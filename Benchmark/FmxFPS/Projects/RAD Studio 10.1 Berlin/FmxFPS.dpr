@@ -9,6 +9,7 @@ uses
 {$R *.res}
 
 begin
+  GlobalUseSkiaRasterWhenAvailable := False;
   GlobalUseSkia := True;
   Application.Initialize;
   Application.CreateForm(TfrmMain, frmMain);
