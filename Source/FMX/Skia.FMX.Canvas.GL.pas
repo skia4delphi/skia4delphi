@@ -179,11 +179,9 @@ type
   { TGrGlesAndroidContext }
 
   TGrGlesAndroidContext = record
-    Display: EGLDisplay;
-    SurfaceToDraw: EGLSurface;
-    SurfaceToRead: EGLSurface;
+    Surface: EGLSurface;
     Context: EGLContext;
-    constructor Create(const ADisplay: EGLDisplay; const ASurfaceToDraw, ASurfaceToRead: EGLSurface; const AContext: EGLContext);
+    constructor Create(const ASurface: EGLSurface; const AContext: EGLContext);
   end;
 
   { TGrGlesAndroid }
@@ -194,6 +192,7 @@ type
   strict private class var
     FSharedConfig: EGLConfig;
     FSharedDisplay: EGLDisplay;
+    FSharedSurface: EGLSurface;
   strict private
     class procedure RaiseLastError; inline;
   strict protected
@@ -373,13 +372,11 @@ end;
 
 { TGrGlesAndroidContext }
 
-constructor TGrGlesAndroidContext.Create(const ADisplay: EGLDisplay;
-  const ASurfaceToDraw, ASurfaceToRead: EGLSurface; const AContext: EGLContext);
+constructor TGrGlesAndroidContext.Create(const ASurface: EGLSurface;
+  const AContext: EGLContext);
 begin
-  Display       := ADisplay;
-  SurfaceToDraw := ASurfaceToDraw;
-  SurfaceToRead := ASurfaceToRead;
-  Context       := AContext;
+  Surface := ASurface;
+  Context := AContext;
 end;
 
 { TGrGlesAndroid }
@@ -399,7 +396,7 @@ begin
     LSurface := eglCreateWindowSurface(FSharedDisplay, FSharedConfig, PANativeWindow(ANativeWindowHandle), nil);
     if LSurface = EGL_NO_SURFACE then
       RaiseLastError;
-    Result := TGrGlesAndroidContext.Create(FSharedDisplay, LSurface, LSurface, LContext);
+    Result := TGrGlesAndroidContext.Create(LSurface, LContext);
   except
     eglDestroyContext(FSharedDisplay, LContext);
     raise;
@@ -444,15 +441,9 @@ end;
 class procedure TGrGlesAndroid.DoDestroyContext(
   const ANativeWindowHandle: THandle; const AContext: TGrGlesAndroidContext);
 begin
-  eglMakeCurrent(AContext.Display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
-  if AContext.SurfaceToDraw = AContext.SurfaceToRead then
-    eglDestroySurface(AContext.Display, AContext.SurfaceToDraw)
-  else
-  begin
-    eglDestroySurface(AContext.Display, AContext.SurfaceToDraw);
-    eglDestroySurface(AContext.Display, AContext.SurfaceToRead);
-  end;
-  eglDestroyContext(AContext.Display, AContext.Context);
+  eglMakeCurrent(FSharedDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
+  eglDestroySurface(FSharedDisplay, AContext.Surface);
+  eglDestroyContext(FSharedDisplay, AContext.Context);
 end;
 
 class procedure TGrGlesAndroid.DoDestroyNativeWindow(
@@ -463,6 +454,7 @@ end;
 
 class procedure TGrGlesAndroid.DoFinalize;
 begin
+  eglDestroySurface(FSharedDisplay, FSharedSurface);
   eglTerminate(FSharedDisplay);
 end;
 
@@ -481,12 +473,8 @@ const
 
   SurfaceAttributes: array[0..4] of EGLint = (EGL_WIDTH, 1, EGL_HEIGHT, 1, EGL_NONE);
 var
-  LANativeWindow: PANativeWindow;
-  LANativeWindowSurface: JSurface;
   LContext: EGLContext;
   LNumConfig: EGLint;
-  LSurface: EGLSurface;
-  LSurfaceTexture: JSurfaceTexture;
 begin
   FSharedDisplay := eglGetDisplay(EGL_DEFAULT_DISPLAY);
   if FSharedDisplay = EGL_NO_DISPLAY then
@@ -496,40 +484,27 @@ begin
   try
     if eglChooseConfig(FSharedDisplay, @ConfigAttributes[0], @FSharedConfig, 1, @LNumConfig) = EGL_FALSE then
       Exit(nil);
-    LContext := eglCreateContext(FSharedDisplay, FSharedConfig, EGL_NO_CONTEXT, @ContextAttributes[0]);
-    if LContext = EGL_NO_CONTEXT then
+    FSharedSurface := eglCreatePbufferSurface(FSharedDisplay, FSharedConfig, @SurfaceAttributes[0]);
+    if FSharedSurface = EGL_NO_SURFACE then
       Exit(nil);
     try
-      LSurfaceTexture := TJSurfaceTexture.JavaClass.init(0);
-      LSurfaceTexture.setDefaultBufferSize(1, 1);
-      LANativeWindowSurface := TJSurface.JavaClass.init(LSurfaceTexture);
-      if not LANativeWindowSurface.isValid then
-        Exit(nil);
-      LANativeWindow := ANativeWindow_fromSurface(TJNIResolver.GetJNIEnv, (LANativeWindowSurface as ILocalObject).GetObjectID);
-      if LANativeWindow = nil then
+      LContext := eglCreateContext(FSharedDisplay, FSharedConfig, EGL_NO_CONTEXT, @ContextAttributes[0]);
+      if LContext = EGL_NO_CONTEXT then
         Exit(nil);
       try
-        if ANativeWindow_setBuffersGeometry(LANativeWindow, 0, 0, WINDOW_FORMAT_RGBA_8888) <> 0 then
-          Exit(nil);
-        LSurface := eglCreateWindowSurface(FSharedDisplay, FSharedConfig, LANativeWindow, nil);
-        if LSurface = EGL_NO_SURFACE then
+        if eglMakeCurrent(FSharedDisplay, FSharedSurface, FSharedSurface, LContext) = EGL_FALSE then
           Exit(nil);
         try
-          if eglMakeCurrent(FSharedDisplay, LSurface, LSurface, LContext) = EGL_FALSE then
-            Exit(nil);
-          try
-            Result := TGrGlInterface.MakeNative;
-          finally
-            eglMakeCurrent(FSharedDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
-          end;
+          Result := TGrGlInterface.MakeNative;
         finally
-          eglDestroySurface(FSharedDisplay, LSurface);
+          eglMakeCurrent(FSharedDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
         end;
       finally
-        ANativeWindow_release(PANativeWindow(LANativeWindow));
+        eglDestroyContext(FSharedDisplay, LContext);
       end;
     finally
-      eglDestroyContext(FSharedDisplay, LContext);
+      if not Assigned(Result) then
+        eglDestroySurface(FSharedDisplay, FSharedSurface);
     end;
   finally
     if not Assigned(Result) then
@@ -540,14 +515,14 @@ end;
 class procedure TGrGlesAndroid.DoMakeCurrent(
   const AContext: TGrGlesAndroidContext);
 begin
-  if eglMakeCurrent(AContext.Display, AContext.SurfaceToDraw, AContext.SurfaceToRead, AContext.Context) = EGL_FALSE then
+  if eglMakeCurrent(FSharedDisplay, AContext.Surface, AContext.Surface, AContext.Context) = EGL_FALSE then
     RaiseLastError;
 end;
 
 class procedure TGrGlesAndroid.DoMakeCurrentOffScreen(
   const AContext: TGrGlesAndroidContext);
 begin
-  if eglMakeCurrent(AContext.Display, EGL_NO_SURFACE, EGL_NO_SURFACE, AContext.Context) = EGL_FALSE then
+  if eglMakeCurrent(FSharedDisplay, FSharedSurface, FSharedSurface, AContext.Context) = EGL_FALSE then
     RaiseLastError;
 end;
 
