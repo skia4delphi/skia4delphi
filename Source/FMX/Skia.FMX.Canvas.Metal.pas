@@ -22,8 +22,10 @@ interface
 uses
   { Delphi }
   {$IFDEF IOS}
+  iOSapi.CoreGraphics,
   FMX.Platform.iOS,
   {$ELSE}
+  Macapi.CocoaTypes,
   FMX.Platform.Mac,
   {$ENDIF}
   Macapi.Metal,
@@ -104,6 +106,8 @@ begin
 end;
 
 function TGrCanvasMetal.InitializeContext: Boolean;
+var
+  LSize: CGSize;
 begin
   {$IFDEF IOS}
   if (not (Parent is TiOSWindowHandle)) or (TiOSWindowHandle(Parent).View = nil) or (not Supports(TiOSWindowHandle(Parent).View, MTKView, FView)) then
@@ -115,6 +119,9 @@ begin
   FCommandQueue := FSharedDevice.newCommandQueue;
   FView.retain;
   FView.setDevice(FSharedDevice);
+  LSize.width  := Width  * Scale;
+  LSize.height := Height * Scale;
+  FView.setDrawableSize(LSize);
   Result := True;
 end;
 
