@@ -1,7 +1,7 @@
 $ErrorActionPreference = 'Stop';
 $toolsDir = "$(Split-Path -parent $MyInvocation.MyCommand.Definition)"
-#$file     = Join-Path $toolsDir 'Skia4Delphi_3.3.1_Setup.exe'
-$url     = 'https://github.com/skia4delphi/skia4delphi/releases/download/v3.3.1/Skia4Delphi_3.3.1_Setup.exe'
+#$file     = Join-Path $toolsDir 'Skia4Delphi_3.3.2_Setup.exe'
+$url     = 'https://github.com/skia4delphi/skia4delphi/releases/download/v3.3.2/Skia4Delphi_3.3.2_Setup.exe'
 
 $packageArgs = @{
   packageName    = $env:ChocolateyPackageName

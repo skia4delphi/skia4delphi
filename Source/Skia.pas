@@ -33,7 +33,7 @@ uses
 {$ENDIF}
 
 const
-  SkVersion = '3.3.1';
+  SkVersion = '3.3.2';
 
 type
   ESkException = class(Exception);
