@@ -507,15 +507,18 @@ type
         const
           DefaultColor = TAlphaColors.Null;
           DefaultDecorations = [];
+          DefaultStrokeColor = TAlphaColors.Null;
           DefaultStyle = TSkTextDecorationStyle.Solid;
           DefaultThickness = 1;
       strict private
         FColor: TAlphaColor;
         FDecorations: TSkTextDecorations;
+        FStrokeColor: TAlphaColor;
         FStyle: TSkTextDecorationStyle;
         FThickness: Single;
         procedure SetColor(const AValue: TAlphaColor);
         procedure SetDecorations(const AValue: TSkTextDecorations);
+        procedure SetStrokeColor(const AValue: TAlphaColor);
         procedure SetStyle(const AValue: TSkTextDecorationStyle);
         procedure SetThickness(const AValue: Single);
       strict protected
@@ -527,6 +530,7 @@ type
       published
         property Color: TAlphaColor read FColor write SetColor default DefaultColor;
         property Decorations: TSkTextDecorations read FDecorations write SetDecorations default DefaultDecorations;
+        property StrokeColor: TAlphaColor read FStrokeColor write SetStrokeColor default DefaultStrokeColor;
         property Style: TSkTextDecorationStyle read FStyle write SetStyle default DefaultStyle;
         property Thickness: Single read FThickness write SetThickness stored IsThicknessStored;
       end;
@@ -848,6 +852,7 @@ type
     FParagraph: ISkParagraph;
     FParagraphBounds: TRectF;
     FParagraphLayoutWidth: Single;
+    FParagraphStroked: ISkParagraph;
     {$IF CompilerVersion < 30}
     FPressedPosition: TPointF;
     {$ENDIF}
@@ -3155,17 +3160,19 @@ var
 begin
   if ASource = nil then
   begin
-    Color               := DefaultColor;
-    Decorations         := DefaultDecorations;
-    Style               := DefaultStyle;
-    Thickness := DefaultThickness;
+    Color       := DefaultColor;
+    Decorations := DefaultDecorations;
+    StrokeColor := DefaultStrokeColor;
+    Style       := DefaultStyle;
+    Thickness   := DefaultThickness;
   end
   else if ASource is TDecorations then
   begin
-    Color               := LSourceDecorations.Color;
-    Decorations         := LSourceDecorations.Decorations;
-    Style               := LSourceDecorations.Style;
-    Thickness := LSourceDecorations.Thickness;
+    Color       := LSourceDecorations.Color;
+    Decorations := LSourceDecorations.Decorations;
+    StrokeColor := LSourceDecorations.StrokeColor;
+    Style       := LSourceDecorations.Style;
+    Thickness   := LSourceDecorations.Thickness;
   end
   else
     inherited;
@@ -3176,10 +3183,11 @@ var
   LDecorations: TDecorations absolute AObject;
 begin
   Result := (AObject is TDecorations) and
-    (Color               = LDecorations.Color) and
-    (Decorations         = LDecorations.Decorations) and
-    (Style               = LDecorations.Style) and
-    (Thickness = LDecorations.Thickness);
+    (Color       = LDecorations.Color) and
+    (Decorations = LDecorations.Decorations) and
+    (StrokeColor = LDecorations.StrokeColor) and
+    (Style       = LDecorations.Style) and
+    (Thickness   = LDecorations.Thickness);
 end;
 
 function TSkTextSettings.TDecorations.IsThicknessStored: Boolean;
@@ -3196,6 +3204,12 @@ procedure TSkTextSettings.TDecorations.SetDecorations(
   const AValue: TSkTextDecorations);
 begin
   SetValue<TSkTextDecorations>(FDecorations, AValue);
+end;
+
+procedure TSkTextSettings.TDecorations.SetStrokeColor(
+  const AValue: TAlphaColor);
+begin
+  SetValue<TAlphaColor>(FStrokeColor, AValue);
 end;
 
 procedure TSkTextSettings.TDecorations.SetStyle(
@@ -4217,6 +4231,7 @@ end;
 procedure TSkLabel.DeleteParagraph;
 begin
   FParagraph := nil;
+  FParagraphStroked := nil;
   FParagraphBounds := TRectF.Empty;
   FParagraphLayoutWidth := 0;
 end;
@@ -4364,6 +4379,8 @@ begin
         ACanvas.DrawPicture(FBackgroundPicture);
       end;
       LParagraph.Paint(ACanvas, 0, 0);
+      if Assigned(FParagraphStroked) then
+        FParagraphStroked.Paint(ACanvas, 0, 0);
     finally
       ACanvas.Restore;
     end;
@@ -4479,8 +4496,11 @@ begin
 end;
 
 function TSkLabel.GetParagraph: ISkParagraph;
+type
+  TDrawKind = (Fill, Stroke);
 var
   LFontBehavior: IFontBehavior;
+  LHasTextStroked: Boolean;
 
   function GetFontFamilies(const AValue: string): TArray<string>;
   var
@@ -4522,7 +4542,10 @@ var
   end;
 
   procedure SetTextStyleDecorations(var ATextStyle: ISkTextStyle;
-    const ADecorations: TSkTextSettings.TDecorations);
+    const ADecorations: TSkTextSettings.TDecorations;
+    const ADrawKind: TDrawKind);
+  var
+    LPaint: ISkPaint;
   begin
     if ADecorations.Decorations <> [] then
     begin
@@ -4534,13 +4557,30 @@ var
       ATextStyle.DecorationStyle := ADecorations.Style;
       ATextStyle.DecorationThickness := ADecorations.Thickness;
     end;
+    if ADrawKind = TDrawKind.Stroke then
+    begin
+      if (ADecorations.StrokeColor <> TAlphaColors.Null) and not SameValue(ADecorations.Thickness, 0, TEpsilon.Position) then
+      begin
+        LPaint := TSkPaint.Create(TSkPaintStyle.Stroke);
+        LPaint.Color := ADecorations.StrokeColor;
+        LPaint.StrokeWidth := ADecorations.Thickness;
+        ATextStyle.SetForegroundColor(LPaint);
+      end
+      else
+        ATextStyle.Color := TAlphaColors.Null;
+    end
+    else
+      LHasTextStroked := LHasTextStroked or
+        ((ADecorations.StrokeColor <> TAlphaColors.Null) and not SameValue(ADecorations.Thickness, 0, TEpsilon.Position));
   end;
 
-  function CreateTextStyle(const AWordsItem: TCustomWordsItem; const ADefaultTextStyle: ISkTextStyle): ISkTextStyle;
+  function CreateTextStyle(const AWordsItem: TCustomWordsItem;
+    const ADefaultTextStyle: ISkTextStyle;
+    const ADrawKind: TDrawKind): ISkTextStyle;
   begin
     Result := TSkTextStyle.Create;
     if TStyledSetting.FontColor in AWordsItem.StyledSettings then
-      Result.Color := ADefaultTextStyle.Color
+      Result.Color := ResultingTextSettings.FontColor
     else
       Result.Color := AWordsItem.FontColor;
     if TStyledSetting.Family in AWordsItem.StyledSettings then
@@ -4558,16 +4598,16 @@ var
     if TStyledSetting.Other in AWordsItem.StyledSettings then
     begin
       Result.HeightMultiplier := ADefaultTextStyle.HeightMultiplier;
-      SetTextStyleDecorations(Result, ResultingTextSettings.Decorations);
+      SetTextStyleDecorations(Result, ResultingTextSettings.Decorations, ADrawKind);
     end
     else
     begin
       Result.HeightMultiplier := AWordsItem.HeightMultiplier;
-      SetTextStyleDecorations(Result, AWordsItem.Decorations);
+      SetTextStyleDecorations(Result, AWordsItem.Decorations, ADrawKind);
     end;
   end;
 
-  function CreateDefaultTextStyle: ISkTextStyle;
+  function CreateDefaultTextStyle(const ADrawKind: TDrawKind): ISkTextStyle;
   begin
     Result := TSkTextStyle.Create;
     Result.Color := ResultingTextSettings.FontColor;
@@ -4575,7 +4615,7 @@ var
     Result.FontSize := GetFontSize(ResultingTextSettings.Font.Size);
     Result.FontStyle := TSkFontStyle.Create(SkFontWeightValue[ResultingTextSettings.Font.Weight], SkFontWidthValue[ResultingTextSettings.Font.Stretch], SkFontSlant[ResultingTextSettings.Font.Slant]);
     Result.HeightMultiplier := ResultingTextSettings.HeightMultiplier;
-    SetTextStyleDecorations(Result, ResultingTextSettings.Decorations);
+    SetTextStyleDecorations(Result, ResultingTextSettings.Decorations, ADrawKind);
   end;
 
   function CreateParagraphStyle(const ADefaultTextStyle: ISkTextStyle): ISkParagraphStyle;
@@ -4602,7 +4642,7 @@ var
     Result := AText.Replace(#13#10, #8203#10).Replace(#13, #10);
   end;
 
-  function CreateParagraph: ISkParagraph;
+  function CreateParagraph(const ADrawKind: TDrawKind): ISkParagraph;
   var
     LBuilder: ISkParagraphBuilder;
     LDefaultTextStyle: ISkTextStyle;
@@ -4610,7 +4650,7 @@ var
     I: Integer;
   begin
     LFontBehavior := nil;
-    LDefaultTextStyle := CreateDefaultTextStyle;
+    LDefaultTextStyle := CreateDefaultTextStyle(ADrawKind);
     LBuilder := TSkParagraphBuilder.Create(CreateParagraphStyle(LDefaultTextStyle), TSkTypefaceManager.Provider);
     for I := 0 to FWords.Count- 1 do
     begin
@@ -4623,7 +4663,7 @@ var
         LText := NormalizeParagraphText(FWords[I].Text);
         if not LText.IsEmpty then
         begin
-          LBuilder.PushStyle(CreateTextStyle(FWords[I], LDefaultTextStyle));
+          LBuilder.PushStyle(CreateTextStyle(FWords[I], LDefaultTextStyle, ADrawKind));
           LBuilder.AddText(LText);
           LBuilder.Pop;
         end;
@@ -4638,7 +4678,10 @@ begin
   begin
     FBackgroundPicture := nil;
     FHasCustomBackground := False;
-    FParagraph := CreateParagraph;
+    LHasTextStroked := False;
+    FParagraph := CreateParagraph(TDrawKind.Fill);
+    if LHasTextStroked then
+      FParagraphStroked := CreateParagraph(TDrawKind.Stroke);
     ParagraphLayout(Width);
   end;
   Result := FParagraph;
@@ -4816,6 +4859,8 @@ begin
     if Assigned(LParagraph) then
     begin
       LParagraph.Layout(AWidth);
+      if Assigned(FParagraphStroked) then
+        FParagraphStroked.Layout(AWidth);
       FParagraphLayoutWidth := AWidth;
       FParagraphBounds := TRectF.Empty;
       FBackgroundPicture := nil;
