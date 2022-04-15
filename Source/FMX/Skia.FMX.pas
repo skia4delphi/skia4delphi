@@ -4563,7 +4563,7 @@ var
       begin
         LPaint := TSkPaint.Create(TSkPaintStyle.Stroke);
         LPaint.Color := ADecorations.StrokeColor;
-        LPaint.StrokeWidth := ADecorations.Thickness;
+        LPaint.StrokeWidth := (ADecorations.Thickness / 2) * (ATextStyle.FontSize / 14);
         ATextStyle.SetForegroundColor(LPaint);
       end
       else
