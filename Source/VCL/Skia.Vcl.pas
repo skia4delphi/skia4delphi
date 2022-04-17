@@ -4184,12 +4184,13 @@ procedure TSkLabel.Draw(const ACanvas: ISkCanvas; const ADest: TRectF;
         end;
         LLastRect := LRects[High(LRects)];
         LLastColor := LRectsColor[High(LRectsColor)];
-        if (LLastColor = FWords[I].BackgroundColor) and
-          SameValue(LLastRect.Top, LTextBox.Rect.Top, TEpsilon.Position) and
-          SameValue(LLastRect.Bottom, LTextBox.Rect.Bottom, TEpsilon.Position) and
-          SameValue(LLastRect.Right, LTextBox.Rect.Left, 1) then
+        if (LLastColor = FWords[I].BackgroundColor) and SameValue(LLastRect.Right, LTextBox.Rect.Left, 1) and
+          (InRange(LTextBox.Rect.CenterPoint.Y, LLastRect.Top, LLastRect.Bottom) or
+          InRange(LLastRect.CenterPoint.Y, LTextBox.Rect.Top, LTextBox.Rect.Bottom)) then
         begin
           LLastRect.Right := LTextBox.Rect.Right;
+          LLastRect.Top := Min(LLastRect.Top, LTextBox.Rect.Top);
+          LLastRect.Bottom := Max(LLastRect.Bottom, LTextBox.Rect.Bottom);
           LRects[High(LRects)] := LLastRect;
         end
         else
