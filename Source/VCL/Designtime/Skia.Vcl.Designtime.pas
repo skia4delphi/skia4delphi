@@ -86,6 +86,13 @@ type
     procedure Edit; override;
   end;
 
+  { TSkSkiaVclSelectionEditor }
+
+  TSkSkiaVclSelectionEditor = class(TSelectionEditor)
+  public
+    procedure RequiresUnits(AProc: TGetStrProc); override;
+  end;
+
 {$R ..\..\Assets\Resources\Components.dcr}
 
 { TSkAnimatedImageSourcePropertyEditor }
@@ -236,6 +243,14 @@ begin
   end;
 end;
 
+{ TSkSkiaVclSelectionEditor }
+
+procedure TSkSkiaVclSelectionEditor.RequiresUnits(AProc: TGetStrProc);
+begin
+  inherited;
+  AProc('Skia');
+end;
+
 { Register }
 
 procedure Register;
@@ -245,6 +260,8 @@ begin
   RegisterPropertyEditor(TypeInfo(string), TSkLabel.TCustomWordsItem, 'Caption', TSkLabelTextPropertyEditor);
   RegisterPropertyEditor(TypeInfo(TSkSvgSource), nil, '', TSkSvgSourcePropertyEditor);
   RegisterComponentEditor(TSkSvg, TSkSvgComponentEditor);
+  RegisterSelectionEditor(TSkCustomControl, TSkSkiaVclSelectionEditor);
+  RegisterSelectionEditor(TSkCustomWinControl, TSkSkiaVclSelectionEditor);
 end;
 
 end.
