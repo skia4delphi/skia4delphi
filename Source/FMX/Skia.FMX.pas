@@ -2063,6 +2063,7 @@ end;
 constructor TSkCustomAnimatedControl.Create(AOwner: TComponent);
 begin
   inherited;
+  DisabledOpacity := 1;
   if csDesigning in ComponentState then
   begin
     FProgress := 0.5;
