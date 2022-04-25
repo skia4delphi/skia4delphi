@@ -539,6 +539,7 @@ type
       DefaultFontColor = TAlphaColors.Black;
       DefaultHeightMultiplier = 0;
       DefaultHorzAlign = TSkTextHorzAlign.Leading;
+      DefaultLetterSpacing = 0;
       DefaultMaxLines = 1;
       DefaultTrimming = TTextTrimming.Word;
       DefaultVertAlign = TTextAlign.Center;
@@ -548,6 +549,7 @@ type
     FFontColor: TAlphaColor;
     FHeightMultiplier: Single;
     FHorzAlign: TSkTextHorzAlign;
+    FLetterSpacing: Single;
     FMaxLines: NativeUInt;
     [unsafe] FOwner: TPersistent;
     FTrimming: TTextTrimming;
@@ -555,11 +557,13 @@ type
     procedure DecorationsChange(ASender: TObject);
     procedure FontChanged(ASender: TObject);
     function IsHeightMultiplierStored: Boolean;
+    function IsLetterSpacingStored: Boolean;
     procedure SetDecorations(const AValue: TDecorations);
     procedure SetFont(const AValue: TSkFontComponent);
     procedure SetFontColor(const AValue: TAlphaColor);
     procedure SetHeightMultiplier(const AValue: Single);
     procedure SetHorzAlign(const AValue: TSkTextHorzAlign);
+    procedure SetLetterSpacing(const AValue: Single);
     procedure SetMaxLines(const AValue: NativeUInt);
     procedure SetTrimming(const AValue: TTextTrimming);
     procedure SetVertAlign(const AValue: TTextAlign);
@@ -581,6 +585,7 @@ type
     property FontColor: TAlphaColor read FFontColor write SetFontColor default DefaultFontColor;
     property HeightMultiplier: Single read FHeightMultiplier write SetHeightMultiplier stored IsHeightMultiplierStored;
     property HorzAlign: TSkTextHorzAlign read FHorzAlign write SetHorzAlign default DefaultHorzAlign;
+    property LetterSpacing: Single read FLetterSpacing write SetLetterSpacing stored IsLetterSpacingStored;
     property MaxLines: NativeUInt read FMaxLines write SetMaxLines default DefaultMaxLines;
     property Trimming: TTextTrimming read FTrimming write SetTrimming default DefaultTrimming;
     property VertAlign: TTextAlign read FVertAlign write SetVertAlign default DefaultVertAlign;
@@ -609,7 +614,7 @@ type
   TSkTextSettingsInfo = class(TPersistent)
   public
     type
-      TBaseTextSettings = class (TSkTextSettings)
+      TBaseTextSettings = class(TSkTextSettings)
       strict private
         [unsafe] FControl: TControl;
         [unsafe] FInfo: TSkTextSettingsInfo;
@@ -619,7 +624,7 @@ type
         property Info: TSkTextSettingsInfo read FInfo;
       end;
 
-      TCustomTextSettings = class (TBaseTextSettings)
+      TCustomTextSettings = class(TBaseTextSettings)
       public
         constructor Create(const AOwner: TPersistent); override;
       published
@@ -714,6 +719,7 @@ type
           DefaultCursor = crDefault;
           DefaultFontColor = TAlphaColors.Black;
           DefaultHeightMultiplier = 0;
+          DefaultLetterSpacing = 0;
           DefaultName = 'Item 0';
           DefaultText = '';
       strict private
@@ -736,9 +742,11 @@ type
         function GetFont: TSkFontComponent;
         function GetFontColor: TAlphaColor;
         function GetHeightMultiplier: Single;
+        function GetLetterSpacing: Single;
         function GetStyledSettings: TStyledSettings;
         function IsFontColorStored: Boolean;
         function IsHeightMultiplierStored: Boolean;
+        function IsLetterSpacingStored: Boolean;
         function IsNameStored: Boolean;
         function IsStyledSettingsStored: Boolean;
         function IsTextStored: Boolean;
@@ -749,6 +757,7 @@ type
         procedure SetFont(const AValue: TSkFontComponent);
         procedure SetFontColor(const AValue: TAlphaColor);
         procedure SetHeightMultiplier(const AValue: Single);
+        procedure SetLetterSpacing(const AValue: Single);
         procedure SetName(const AValue: string);
         procedure SetStyledSettings(const AValue: TStyledSettings);
         procedure SetText(const AValue: string);
@@ -772,6 +781,7 @@ type
         property Font: TSkFontComponent read GetFont write SetFont;
         property FontColor: TAlphaColor read GetFontColor write SetFontColor stored IsFontColorStored;
         property HeightMultiplier: Single read GetHeightMultiplier write SetHeightMultiplier stored IsHeightMultiplierStored;
+        property LetterSpacing: Single read GetLetterSpacing write SetLetterSpacing stored IsLetterSpacingStored;
         /// <summary> The case-insensitive name of the item in the collection. This field cannot be empty and must be unique for his collection </summary>
         property Name: string read FName write SetName stored IsNameStored;
         property StyledSettings: TStyledSettings read GetStyledSettings write SetStyledSettings stored IsStyledSettingsStored;
@@ -823,7 +833,7 @@ type
 
       { TWordsItem }
 
-      TWordsItem = class (TCustomWordsItem)
+      TWordsItem = class(TCustomWordsItem)
       published
         property BackgroundColor;
         property Cursor;
@@ -831,6 +841,7 @@ type
         property Font;
         property FontColor;
         property HeightMultiplier;
+        property LetterSpacing;
         property Name;
         property StyledSettings;
         property TagString;
@@ -3295,6 +3306,7 @@ begin
     FontColor        := DefaultFontColor;
     HeightMultiplier := DefaultHeightMultiplier;
     HorzAlign        := DefaultHorzAlign;
+    LetterSpacing    := DefaultLetterSpacing;
     MaxLines         := DefaultMaxLines;
     Trimming         := DefaultTrimming;
     VertAlign        := DefaultVertAlign;
@@ -3306,6 +3318,7 @@ begin
     FontColor        := LSourceTextSettings.FontColor;
     HeightMultiplier := LSourceTextSettings.HeightMultiplier;
     HorzAlign        := LSourceTextSettings.HorzAlign;
+    LetterSpacing    := LSourceTextSettings.LetterSpacing;
     MaxLines         := LSourceTextSettings.MaxLines;
     Trimming         := LSourceTextSettings.Trimming;
     VertAlign        := LSourceTextSettings.VertAlign;
@@ -3339,6 +3352,7 @@ begin
     Decorations      := ATextSettings.Decorations;
     HeightMultiplier := ATextSettings.HeightMultiplier;
     HorzAlign        := ATextSettings.HorzAlign;
+    LetterSpacing    := ATextSettings.LetterSpacing;
     VertAlign        := ATextSettings.VertAlign;
     MaxLines         := ATextSettings.MaxLines;
     Trimming         := ATextSettings.Trimming;
@@ -3355,6 +3369,7 @@ begin
     (FFontColor        = LTextSettings.FontColor) and
     (FHeightMultiplier = LTextSettings.HeightMultiplier) and
     (FHorzAlign        = LTextSettings.HorzAlign) and
+    (FLetterSpacing    = LTextSettings.LetterSpacing) and
     (FMaxLines         = LTextSettings.MaxLines) and
     (FTrimming         = LTextSettings.Trimming) and
     (FVertAlign        = LTextSettings.VertAlign);
@@ -3368,6 +3383,11 @@ end;
 function TSkTextSettings.IsHeightMultiplierStored: Boolean;
 begin
   Result := not SameValue(FHeightMultiplier, DefaultHeightMultiplier, TEpsilon.Position);
+end;
+
+function TSkTextSettings.IsLetterSpacingStored: Boolean;
+begin
+  Result := not SameValue(FLetterSpacing, DefaultLetterSpacing, TEpsilon.Position);
 end;
 
 procedure TSkTextSettings.SetDecorations(const AValue: TDecorations);
@@ -3393,6 +3413,11 @@ end;
 procedure TSkTextSettings.SetHorzAlign(const AValue: TSkTextHorzAlign);
 begin
   SetValue<TSkTextHorzAlign>(FHorzAlign, AValue);
+end;
+
+procedure TSkTextSettings.SetLetterSpacing(const AValue: Single);
+begin
+  SetValue(FLetterSpacing, AValue, TEpsilon.Position);
 end;
 
 procedure TSkTextSettings.SetMaxLines(const AValue: NativeUInt);
@@ -3441,10 +3466,12 @@ begin
   if ((not AOldTextSettings.Decorations.Equals(Decorations)) or
     (AOldTextSettings.HeightMultiplier <> HeightMultiplier) or
     (AOldTextSettings.HorzAlign <> HorzAlign) or (AOldTextSettings.VertAlign <> VertAlign) or
+    (AOldTextSettings.LetterSpacing <> LetterSpacing) or
     (AOldTextSettings.Trimming <> Trimming) or (AOldTextSettings.MaxLines <> MaxLines)) and
     ((not ADefaultTextSettings.Decorations.Equals(Decorations)) or
     (ADefaultTextSettings.HeightMultiplier <> HeightMultiplier) or
     (ADefaultTextSettings.HorzAlign <> HorzAlign) or (ADefaultTextSettings.VertAlign <> VertAlign) or
+    (ADefaultTextSettings.LetterSpacing <> LetterSpacing) or
     (ADefaultTextSettings.Trimming <> Trimming) or (ADefaultTextSettings.MaxLines <> MaxLines)) then
   begin
     Exclude(AStyledSettings, TStyledSetting.Other);
@@ -3755,6 +3782,7 @@ begin
     Font             := nil;
     FontColor        := DefaultFontColor;
     HeightMultiplier := DefaultHeightMultiplier;
+    LetterSpacing    := DefaultLetterSpacing;
     Name             := UniqueName(DefaultName, Collection);
     StyledSettings   := DefaultStyledSettings;
     Text             := DefaultText;
@@ -3767,6 +3795,7 @@ begin
     Font             := LSourceItem.Font;
     FontColor        := LSourceItem.FontColor;
     HeightMultiplier := LSourceItem.HeightMultiplier;
+    LetterSpacing    := LSourceItem.LetterSpacing;
     Name             := UniqueName(LSourceItem.Name, Collection);
     StyledSettings   := LSourceItem.StyledSettings;
     Text             := LSourceItem.Text;
@@ -3834,6 +3863,11 @@ begin
   Result := FTextSettingsInfo.TextSettings.HeightMultiplier;
 end;
 
+function TSkLabel.TCustomWordsItem.GetLetterSpacing: Single;
+begin
+  Result := FTextSettingsInfo.TextSettings.LetterSpacing;
+end;
+
 function TSkLabel.TCustomWordsItem.GetStyledSettings: TStyledSettings;
 begin
   Result := FTextSettingsInfo.StyledSettings;
@@ -3847,6 +3881,11 @@ end;
 function TSkLabel.TCustomWordsItem.IsHeightMultiplierStored: Boolean;
 begin
   Result := (not SameValue(HeightMultiplier, DefaultHeightMultiplier, TEpsilon.Position)) or not (TStyledSetting.Other in StyledSettings);
+end;
+
+function TSkLabel.TCustomWordsItem.IsLetterSpacingStored: Boolean;
+begin
+  Result := (not SameValue(LetterSpacing, DefaultLetterSpacing, TEpsilon.Position)) or not (TStyledSetting.Other in StyledSettings);
 end;
 
 function TSkLabel.TCustomWordsItem.IsNameStored: Boolean;
@@ -3915,6 +3954,11 @@ end;
 procedure TSkLabel.TCustomWordsItem.SetHeightMultiplier(const AValue: Single);
 begin
   FTextSettingsInfo.TextSettings.HeightMultiplier := AValue;
+end;
+
+procedure TSkLabel.TCustomWordsItem.SetLetterSpacing(const AValue: Single);
+begin
+  FTextSettingsInfo.TextSettings.LetterSpacing := AValue;
 end;
 
 procedure TSkLabel.TCustomWordsItem.SetName(const AValue: string);
@@ -4600,11 +4644,13 @@ var
     begin
       Result.HeightMultiplier := ADefaultTextStyle.HeightMultiplier;
       SetTextStyleDecorations(Result, ResultingTextSettings.Decorations, ADrawKind);
+      Result.LetterSpacing := ADefaultTextStyle.LetterSpacing;
     end
     else
     begin
       Result.HeightMultiplier := AWordsItem.HeightMultiplier;
       SetTextStyleDecorations(Result, AWordsItem.Decorations, ADrawKind);
+      Result.LetterSpacing := AWordsItem.LetterSpacing;
     end;
   end;
 
@@ -4616,6 +4662,7 @@ var
     Result.FontSize := GetFontSize(ResultingTextSettings.Font.Size);
     Result.FontStyle := TSkFontStyle.Create(SkFontWeightValue[ResultingTextSettings.Font.Weight], SkFontWidthValue[ResultingTextSettings.Font.Stretch], SkFontSlant[ResultingTextSettings.Font.Slant]);
     Result.HeightMultiplier := ResultingTextSettings.HeightMultiplier;
+    Result.LetterSpacing := ResultingTextSettings.LetterSpacing;
     SetTextStyleDecorations(Result, ResultingTextSettings.Decorations, ADrawKind);
   end;
 
