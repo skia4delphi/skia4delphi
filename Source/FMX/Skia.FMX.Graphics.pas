@@ -14,6 +14,7 @@ unit Skia.FMX.Graphics;
 interface
 
 {$SCOPEDENUMS ON}
+
 {$IF (CompilerVersion < 35) or not DECLARED(RTLVersion111)}
   {$DEFINE MODULATE_CANVAS}
 {$ENDIF}
@@ -29,6 +30,7 @@ uses
   System.SysUtils,
   System.Types,
   System.UITypes,
+  System.Messaging,
 
   { Skia }
   Skia;
@@ -76,10 +78,11 @@ type
     function GetModulateColor: TAlphaColor;
     procedure SetModulateColor(const AColor: TAlphaColor);
   {$ENDIF}
+  private
+    FSurface: ISkSurface;
   strict private
     FDrawableHeight: Integer;
     FDrawableWidth: Integer;
-    FSurface: ISkSurface;
     function GetSamplingOptions(const AHighSpeed: Boolean = False): TSkSamplingOptions;
     procedure SetupBrush(const ABrush: TBrush; const ARect: TRectF; const AOpacity: Single; const APaint: ISkPaint);
   strict protected
@@ -157,6 +160,8 @@ type
     destructor Destroy; override;
   end;
 
+  TSkContextBeforeDestructionMessage = class(TMessage);
+
   { TGrCanvasCustom }
 
   TGrCanvasCustom = class abstract(TSkCanvasCustom)
@@ -176,11 +181,12 @@ type
     procedure PrepareContext; virtual;
     procedure Restore; override;
     function CreateCache(const AWidth, AHeight: Integer; const AColorType: TSkColorType; const APixels: Pointer; const ARowBytes: NativeUInt): ISkImage; override;
-    property Context: IGrDirectContext read FContext;
     class procedure ClearCache(const ACanvas: TSkCanvasCustom); override;
     class procedure DoClearCacheBitmap(const ACanvas: TSkCanvasCustom; const ABitmapHandle: THandle); override;
   public
     destructor Destroy; override;
+    /// <summary> Direct access to the Skia Ganesh Direct Context. This property can only be used between BeginScene and EndScene calls. </summary>
+    property Context: IGrDirectContext read FContext;
   end;
 
   { TSkTextLayout }
@@ -238,9 +244,6 @@ uses
   System.IOUtils,
   System.Math,
   System.UIConsts,
-  {$IFDEF DEBUG}
-  System.Messaging,
-  {$ENDIF}
   {$IF DEFINED(MSWINDOWS)}
   FMX.Platform.Win,
   Winapi.Windows,
@@ -1790,12 +1793,9 @@ end;
 function TGrCanvasCustom.CreateCache(const AWidth, AHeight: Integer;
   const AColorType: TSkColorType; const APixels: Pointer;
   const ARowBytes: NativeUInt): ISkImage;
-var
-  LTextureImage: ISkImage;
 begin
   Result := inherited;
-  if Result.MakeTextureImage(FContext, LTextureImage) then
-    Result := LTextureImage;
+  Result := Result.MakeTextureImage(FContext);
 end;
 
 destructor TGrCanvasCustom.Destroy;
@@ -1810,8 +1810,9 @@ begin
   if Assigned(FContext) then
   begin
     PrepareContext;
+    TMessageManager.DefaultManager.SendMessage(Self, TSkContextBeforeDestructionMessage.Create);
     inherited;
-    FContext.Dispose;
+    FContext := nil;
   end;
 end;
 
@@ -1824,8 +1825,8 @@ end;
 
 procedure TGrCanvasCustom.EndWindow;
 begin
-  Surface.FlushAndSubmit;
-  Surface.Dispose;
+  FSurface.FlushAndSubmit;
+  FSurface := nil;
   FContext.FlushAndSubmit;
   Flush;
 end;
