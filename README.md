@@ -88,7 +88,6 @@ Using the **Skia4Delphi** library it is possible to override Firemonkey's render
 * [Compatibility](#compatibility)
 * [Documentation](#documentation)
 * [Version](#version)
-* [Known issues](#known-issues)
 
   
 
