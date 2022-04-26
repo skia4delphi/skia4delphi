@@ -24,66 +24,70 @@ uses
 type
   ESkBindings = class(Exception);
 
-  { ISkNativeObject }
+  { ISkObject }
 
-  ISkNativeObject = interface
-    procedure Dispose;
+  ISkObject = interface
     function GetHandle: THandle;
     function GetOwnsHandle: Boolean;
-    function IsDisposed: Boolean;
     property Handle: THandle read GetHandle;
     property OwnsHandle: Boolean read GetOwnsHandle;
   end;
 
-  { TSkNativeObject }
-
-  TSkNativeObject = class abstract(TInterfacedObject, ISkNativeObject)
-  private
-    FHandle: THandle;
-    FOwnsHandle: Boolean;
-  strict private
-    procedure Dispose;
-    function GetHandle: THandle;
-    function GetOwnsHandle: Boolean;
-    function IsDisposed: Boolean; inline;
-  protected
-    function GetSelf: THandle; inline;
-  strict protected
-    class procedure DestroyHandle(const AHandle: THandle); virtual; abstract;
-  public
-    constructor Wrap(const AHandle: THandle; const AOwnsHandle: Boolean = True); virtual;
-    destructor Destroy; override;
-  end;
-
-  { ISkObject }
-
-  ISkObject = interface(ISkNativeObject)
-    ['{D1D9EE04-B65D-43D7-AA7F-B165DE5FA334}']
-  end;
-
   { TSkObject }
 
-  TSkObject = class abstract(TSkNativeObject, ISkObject)
+  TSkObject = class abstract(TInterfacedObject, ISkObject)
+  {$IFNDEF AUTOREFCOUNT}
+  strict private const
+    objDestroyingFlag = Integer($80000000);
+  {$ENDIF}
+  strict private
+    FHandle: THandle;
+    FOwnsHandle: Boolean;
+    {$IFNDEF AUTOREFCOUNT}
+    [Volatile] FRefCount: Integer;
+    {$ENDIF}
+    function GetOwnsHandle: Boolean;
+    {$IFNDEF AUTOREFCOUNT}
+    function GetRefCount: Integer; inline;
+    {$ENDIF}
+  protected
+    function GetHandle: THandle; inline;
   strict protected
-    class procedure DestroyHandle(const AHandle: THandle); override;
+    function QueryInterface(const IID: TGUID; out Obj): HResult; stdcall;
+    function _AddRef: Integer; stdcall;
+    function _Release: Integer; stdcall;
+    {$IFNDEF AUTOREFCOUNT}
+    class procedure __MarkDestroying(const Obj); static; inline;
+    {$ENDIF}
+    class procedure DestroyHandle(const AHandle: THandle); virtual;
+    class procedure RefHandle(const AHandle: THandle); virtual;
+    class procedure UnrefHandle(const AHandle: THandle); virtual;
+  public
+    constructor Create(const AHandle: THandle);
+    constructor Wrap(const AHandle: THandle; const AOwnsHandle: Boolean = True); virtual;
+    destructor Destroy; override;
+    class function ReleaseHandle(const AObject: ISkObject): THandle;
+    {$IFNDEF AUTOREFCOUNT}
+    procedure AfterConstruction; override;
+    procedure BeforeDestruction; override;
+    property RefCount: Integer read GetRefCount;
+    class function NewInstance: TObject; override;
+    {$ENDIF}
   end;
 
   { ISkReferenceCountedBase }
 
-  ISkReferenceCountedBase = interface(ISkNativeObject)
+  ISkReferenceCountedBase = interface(ISkObject)
     procedure Release;
     procedure Retain;
   end;
 
   { TSkReferenceCountedBase }
 
-  TSkReferenceCountedBase = class abstract(TSkNativeObject)
+  TSkReferenceCountedBase = class abstract(TSkObject)
   strict protected
     procedure Release;
     procedure Retain;
-    class procedure DestroyHandle(const AHandle: THandle); override; final;
-    class procedure RefHandle(const AHandle: THandle); virtual;
-    class procedure UnrefHandle(const AHandle: THandle); virtual;
   end;
 
   { ISkReferenceCounted }
@@ -95,7 +99,7 @@ type
   { TSkReferenceCounted }
 
   TSkReferenceCounted = class abstract(TSkReferenceCountedBase, ISkReferenceCounted)
-  strict protected
+  public
     class procedure RefHandle(const AHandle: THandle); override; final;
     class procedure UnrefHandle(const AHandle: THandle); override; final;
   end;
@@ -143,7 +147,7 @@ type
     procedure Reset; virtual;
   end;
 
-  TSkDelegateInitializeFunc<I: ISkNativeObject> = reference to function (const AContextProc: Pointer): I;
+  TSkDelegateInitializeFunc<I: ISkObject> = reference to function (const AContextProc: Pointer): I;
 
   TSkDelegateInvokeProc<T> = reference to procedure (const AProc: T);
 
@@ -157,7 +161,7 @@ type
     PProcWrapper = ^TProcWrapper;
 
   public
-    class function Initialize<I: ISkNativeObject>(const AProc: T; const AInitializeFunc: TSkDelegateInitializeFunc<I>): I; static; inline;
+    class function Initialize<I: ISkObject>(const AProc: T; const AInitializeFunc: TSkDelegateInitializeFunc<I>): I; static; inline;
     class procedure Finalize(const AContextProc: Pointer); static; inline;
     class procedure Invoke(const AContextProc: Pointer; const AInvokeProc: TSkDelegateInvokeProc<T>); static; inline;
   end;
@@ -169,11 +173,9 @@ type
   { TSkBindings }
 
   TSkBindings = record
-    class function GetSelf(const AObject: ISkNativeObject): THandle; static; inline;
     class function GetStrings(const AHandle: THandle; const AFunc: TSkGetStringsFunc): TArray<string>; static; inline;
-    class function RevokeOwnership(const AObject: ISkNativeObject): THandle; static; inline;
-    class function SafeCreate<T: TSkNativeObject, constructor>(const AHandle: THandle; const AOwnsHandle: Boolean = True): T; static; inline;
-    class function SafeGetSelf(const AObject: ISkNativeObject): THandle; static; inline;
+    class function SafeCreate<T: TSkObject, constructor>(const AHandle: THandle; const AOwnsHandle: Boolean = True): T; static; inline;
+    class function SafeGetHandle(const AObject: ISkObject): THandle; static; inline;
     class procedure SetStrings(const AHandle: THandle; const AStrings: TArray<string>; const AProc: TSkSetStringsProc); static; inline;
   end;
 
@@ -185,88 +187,157 @@ uses
   Skia.API;
 {$ENDIF}
 
-{ TSkNativeObject }
+{ TSkObject }
 
-destructor TSkNativeObject.Destroy;
+{$IFNDEF AUTOREFCOUNT}
+
+procedure TSkObject.AfterConstruction;
 begin
-  Dispose;
+  AtomicDecrement(FRefCount);
   inherited;
 end;
 
-procedure TSkNativeObject.Dispose;
+procedure TSkObject.BeforeDestruction;
 begin
-  if not IsDisposed then
-  begin
-    if FOwnsHandle then
-      DestroyHandle(FHandle);
-    FHandle := 0;
-  end;
+  inherited;
+  if RefCount <> 0 then
+    Error(reInvalidPtr);
 end;
 
-function TSkNativeObject.GetHandle: THandle;
-begin
-  Result := FHandle;
-end;
+{$ENDIF}
 
-function TSkNativeObject.GetOwnsHandle: Boolean;
-begin
-  Result := FOwnsHandle;
-end;
-
-function TSkNativeObject.GetSelf: THandle;
-begin
-  if IsDisposed then
-    raise ESkBindings.Create('Handle is already disposed');
-  Result := FHandle;
-end;
-
-function TSkNativeObject.IsDisposed: Boolean;
-begin
-  Result := (FHandle = 0);
-end;
-
-constructor TSkNativeObject.Wrap(const AHandle: THandle;
-  const AOwnsHandle: Boolean);
+constructor TSkObject.Create(const AHandle: THandle);
 begin
   inherited Create;
-  if AHandle = 0 then
-    raise ESkBindings.Create('Handle is invalid');
+  Assert(AHandle <> 0);
   FHandle     := AHandle;
-  FOwnsHandle := AOwnsHandle;
+  FOwnsHandle := True;
 end;
 
-{ TSkObject }
+destructor TSkObject.Destroy;
+begin
+  if FOwnsHandle then
+    DestroyHandle(FHandle);
+  inherited;
+end;
 
 class procedure TSkObject.DestroyHandle(const AHandle: THandle);
-begin
-  raise ESkBindings.CreateFmt('%s.DestroyHandle not implemented', [ClassName]);
-end;
-
-{ TSkReferenceCountedBase }
-
-class procedure TSkReferenceCountedBase.DestroyHandle(const AHandle: THandle);
 begin
   UnrefHandle(AHandle);
 end;
 
-class procedure TSkReferenceCountedBase.RefHandle(const AHandle: THandle);
+function TSkObject.GetHandle: THandle;
 begin
-  raise ESkBindings.CreateFmt('%s.RefHandle not implemented', [ClassName]);
+  Result := FHandle;
 end;
+
+function TSkObject.GetOwnsHandle: Boolean;
+begin
+  Result := FOwnsHandle;
+end;
+
+{$IFNDEF AUTOREFCOUNT}
+
+function TSkObject.GetRefCount: Integer;
+begin
+  Result := FRefCount and not objDestroyingFlag;
+end;
+
+class function TSkObject.NewInstance: TObject;
+begin
+  Result := inherited NewInstance;
+  TSkObject(Result).FRefCount := 1;
+end;
+
+{$ENDIF}
+
+function TSkObject.QueryInterface(const IID: TGUID; out Obj): HResult;
+begin
+  if GetInterface(IID, Obj) then
+    Result := 0
+  else
+    Result := E_NOINTERFACE;
+end;
+
+class procedure TSkObject.RefHandle(const AHandle: THandle);
+begin
+end;
+
+class function TSkObject.ReleaseHandle(const AObject: ISkObject): THandle;
+var
+  LObject: TSkObject;
+begin
+  if not Assigned(AObject) then
+    Exit(0);
+  LObject := AObject as TSkObject;
+  Result  := LObject.GetHandle;
+  if not LObject.FOwnsHandle then
+    raise ESkBindings.Create('Current object is not owner of the handle');
+  LObject.FOwnsHandle := False;
+end;
+
+class procedure TSkObject.UnrefHandle(const AHandle: THandle);
+begin
+end;
+
+constructor TSkObject.Wrap(const AHandle: THandle; const AOwnsHandle: Boolean);
+begin
+  inherited Create;
+  Assert(AHandle <> 0);
+  FHandle     := AHandle;
+  FOwnsHandle := AOwnsHandle;
+end;
+
+function TSkObject._AddRef: Integer;
+begin
+  {$IFNDEF AUTOREFCOUNT}
+  Result := AtomicIncrement(FRefCount);
+  {$ELSE}
+  Result := __ObjAddRef;
+  {$ENDIF}
+  if Result > 1 then
+    RefHandle(FHandle);
+end;
+
+function TSkObject._Release: Integer;
+begin
+  {$IFNDEF AUTOREFCOUNT}
+  Result := AtomicDecrement(FRefCount);
+  if Result = 0 then
+  begin
+    __MarkDestroying(Self);
+    Destroy;
+  end;
+  {$ELSE}
+  Result := __ObjRelease;
+  {$ENDIF}
+  if Result > 0 then
+    UnrefHandle(FHandle);
+end;
+
+{$IFNDEF AUTOREFCOUNT}
+
+class procedure TSkObject.__MarkDestroying(const Obj);
+var
+  LRef: Integer;
+begin
+  repeat
+    LRef := TSkObject(Obj).FRefCount;
+  until AtomicCmpExchange(TSkObject(Obj).FRefCount, LRef or objDestroyingFlag, LRef) = LRef;
+end;
+
+{$ENDIF}
+
+{ TSkReferenceCountedBase }
 
 procedure TSkReferenceCountedBase.Release;
 begin
-  UnrefHandle(GetSelf);
+  UnrefHandle(GetHandle);
 end;
 
 procedure TSkReferenceCountedBase.Retain;
 begin
-  RefHandle(GetSelf);
-end;
-
-class procedure TSkReferenceCountedBase.UnrefHandle(const AHandle: THandle);
-begin
-  raise ESkBindings.CreateFmt('%s.UnrefHandle not implemented', [ClassName]);
+  RefHandle(GetHandle);
 end;
 
 { TSkReferenceCounted }
@@ -346,15 +417,6 @@ end;
 
 { TSkBindings }
 
-class function TSkBindings.GetSelf(const AObject: ISkNativeObject): THandle;
-var
-  LObject: TSkNativeObject;
-begin
-  Assert(Assigned(AObject));
-  LObject := AObject as TSkNativeObject;
-  Result  := LObject.GetSelf;
-end;
-
 class function TSkBindings.GetStrings(const AHandle: THandle;
   const AFunc: TSkGetStringsFunc): TArray<string>;
 var
@@ -373,19 +435,6 @@ begin
   end;
 end;
 
-class function TSkBindings.RevokeOwnership(
-  const AObject: ISkNativeObject): THandle;
-var
-  LObject: TSkNativeObject;
-begin
-  Assert(Assigned(AObject));
-  LObject := AObject as TSkNativeObject;
-  Result  := LObject.GetSelf;
-  if not LObject.FOwnsHandle then
-    raise ESkBindings.Create('Current object is not owner of the handle');
-  LObject.FOwnsHandle := False;
-end;
-
 class function TSkBindings.SafeCreate<T>(const AHandle: THandle;
   const AOwnsHandle: Boolean): T;
 begin
@@ -394,11 +443,11 @@ begin
   Result := T.Wrap(AHandle, AOwnsHandle);
 end;
 
-class function TSkBindings.SafeGetSelf(const AObject: ISkNativeObject): THandle;
+class function TSkBindings.SafeGetHandle(const AObject: ISkObject): THandle;
 begin
   if not Assigned(AObject) then
     Exit(0);
-  Result := GetSelf(AObject);
+  Result := AObject.Handle;
 end;
 
 class procedure TSkBindings.SetStrings(const AHandle: THandle;
@@ -424,4 +473,3 @@ begin
 end;
 
 end.
-
