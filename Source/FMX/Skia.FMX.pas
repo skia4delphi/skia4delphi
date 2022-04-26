@@ -310,6 +310,8 @@ type
     function GetDuration: Double; override;
   public
     constructor Create(AOwner: TComponent); override;
+    property FixedProgress;
+    property Progress;
   published
     property Animate: Boolean read FAnimate write SetAnimate default True;
     property Duration: Double read FDuration write SetDuration stored IsDurationStored;
