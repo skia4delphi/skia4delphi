@@ -4805,8 +4805,13 @@ end;
 
 {$IF CompilerVersion >= 32}
 class function TSkGraphic.CanLoadFromStream(AStream: TStream): Boolean;
+const
+  SupportedFormats = [TSkEncodedImageFormat.WEBP, TSkEncodedImageFormat.WBMP, TSkEncodedImageFormat.DNG];
+var
+  LCodec: ISkCodec;
 begin
-  Result := TSkImage.MakeFromEncodedStream(AStream) <> nil;
+  LCodec := TSkCodec.MakeFromStream(AStream);
+  Result := Assigned(LCodec) and (LCodec.EncodedImageFormat in SupportedFormats);
 end;
 {$ENDIF}
 
