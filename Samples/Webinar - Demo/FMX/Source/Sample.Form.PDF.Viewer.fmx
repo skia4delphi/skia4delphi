@@ -1,0 +1,73 @@
+object frmPDFViewer: TfrmPDFViewer
+  Left = 0
+  Top = 0
+  Caption = 'Form1'
+  ClientHeight = 536
+  ClientWidth = 364
+  FormFactor.Width = 320
+  FormFactor.Height = 480
+  FormFactor.Devices = [Desktop]
+  OnCreate = FormCreate
+  DesignerMasterStyle = 0
+  object rctHeader: TRectangle
+    Align = Top
+    Fill.Color = claWhite
+    Sides = [Bottom]
+    Size.Width = 364.000000000000000000
+    Size.Height = 48.000000000000000000
+    Size.PlatformDefault = False
+    Stroke.Color = xFFEBEEF1
+    object lblTitle: TSkLabel
+      Align = Contents
+      Size.Width = 364.000000000000000000
+      Size.Height = 48.000000000000000000
+      Size.PlatformDefault = False
+      AutoSize = False
+      StyledSettings = [Family]
+      TextSettings.Font.Size = 18.000000000000000000
+      TextSettings.Font.Weight = Semibold
+      TextSettings.FontColor = xFF4A536F
+      TextSettings.HorzAlign = Center
+      Words = <
+        item
+          Text = 'PDF Viewer'
+        end>
+    end
+    object btnBack: TSpeedButton
+      Align = Left
+      Cursor = crHandPoint
+      Size.Width = 48.000000000000000000
+      Size.Height = 48.000000000000000000
+      Size.PlatformDefault = False
+      OnClick = btnBackClick
+      object svgBackArrow: TSkSvg
+        Align = Center
+        Size.Width = 16.000000000000000000
+        Size.Height = 16.000000000000000000
+        Size.PlatformDefault = False
+        Svg.Source = 
+          '<?xml version="1.0" encoding="iso-8859-1"?>'#13#10'<!-- Generator: Ado' +
+          'be Illustrator 19.0.0, SVG Export Plug-In . SVG Version: 6.00 Bu' +
+          'ild 0)  -->'#13#10'<svg version="1.1" id="Capa_1" xmlns="http://www.w3' +
+          '.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px' +
+          '" y="0px"'#13#10#9' viewBox="0 0 47.255 47.255" style="enable-backgroun' +
+          'd:new 0 0 47.255 47.255;" xml:space="preserve">'#13#10'<g>'#13#10#9'<path d="' +
+          'M34.941,47.255c-0.256,0-0.512-0.098-0.707-0.293L11.607,24.334c-0' +
+          '.391-0.391-0.391-1.023,0-1.414L34.234,0.293'#13#10#9#9'c0.391-0.391,1.02' +
+          '3-0.391,1.414,0s0.391,1.023,0,1.414l-21.92,21.92l21.92,21.92c0.3' +
+          '91,0.391,0.391,1.023,0,1.414'#13#10#9#9'C35.453,47.157,35.197,47.255,34.' +
+          '941,47.255z"/>'#13#10'</g>'#13#10'<g>'#13#10'</g>'#13#10'<g>'#13#10'</g>'#13#10'<g>'#13#10'</g>'#13#10'<g>'#13#10'</g>' +
+          #13#10'<g>'#13#10'</g>'#13#10'<g>'#13#10'</g>'#13#10'<g>'#13#10'</g>'#13#10'<g>'#13#10'</g>'#13#10'<g>'#13#10'</g>'#13#10'<g>'#13#10'</' +
+          'g>'#13#10'<g>'#13#10'</g>'#13#10'<g>'#13#10'</g>'#13#10'<g>'#13#10'</g>'#13#10'<g>'#13#10'</g>'#13#10'<g>'#13#10'</g>'#13#10'</svg' +
+          '>'
+      end
+    end
+  end
+  object wbrBrowser: TWebBrowser
+    Align = Client
+    Size.Width = 364.000000000000000000
+    Size.Height = 488.000000000000000000
+    Size.PlatformDefault = False
+    WindowsEngine = None
+  end
+end

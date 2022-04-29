@@ -1,0 +1,8 @@
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+    <style name="AppTheme" parent="@android:style/Theme.Material.Light.NoActionBar">
+        <item name="android:navigationBarColor">#01ffffff</item>
+        <item name="android:statusBarColor">#00000000</item>
+        <item name="android:colorPrimary">#372c7c</item>
+        <item name="android:windowBackground">@drawable/splash_image_def</item>
+    </style>
+</resources>

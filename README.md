@@ -13,7 +13,7 @@
 
 **[Skia4Delphi](https://skia4delphi.org)** is a cross-platform 2D graphics API for Delphi based on [Google's Skia](https://skia.org/) graphics library.
 
-<p><a href="https://youtu.be/hI8L4qBXTgk"><img src="Assets/Documents/video-preview.png" width="640" alt="Video Preview" /></a></p>
+<p><a href="https://www.youtube.com/watch?v=hI8L4qBXTgk&list=PLs0VGibu9RJZ8eQ_oJqfZx2jBwNT5wddU"><img src="Assets/Documents/video-preview.png" width="640" alt="Video Preview" /></a></p>
 
   
 

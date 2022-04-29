@@ -1,0 +1,28 @@
+object frmMain: TfrmMain
+  Left = 0
+  Top = 0
+  Caption = 'Bricks Game - Press space to reset'
+  ClientHeight = 347
+  ClientWidth = 640
+  Position = ScreenCenter
+  SystemStatusBar.Visibility = Invisible
+  FormFactor.Width = 320
+  FormFactor.Height = 480
+  FormFactor.Devices = [Desktop]
+  OnCreate = FormCreate
+  OnKeyDown = FormKeyDown
+  OnKeyUp = FormKeyUp
+  DesignerMasterStyle = 0
+  object SkAnimatedPaintBox1: TSkAnimatedPaintBox
+    Touch.InteractiveGestures = [DoubleTap]
+    OnGesture = SkAnimatedPaintBox1Gesture
+    Align = Client
+    HitTest = True
+    Size.Width = 640.000000000000000000
+    Size.Height = 347.000000000000000000
+    Size.PlatformDefault = False
+    OnMouseDown = SkAnimatedPaintBox1MouseDown
+    Duration = 10000.000000000000000000
+    OnAnimationDraw = SkAnimatedPaintBox1AnimationDraw
+  end
+end
