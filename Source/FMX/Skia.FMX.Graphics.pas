@@ -2865,9 +2865,9 @@ begin
   {$ELSEIF DEFINED(ANDROID)}
   Result := TGrCanvasGL;
   {$ELSE}
-  Exit(nil);
+  Result := nil;
   {$ENDIF}
-  if not Result.Initialize then
+  if Assigned(Result) and not Result.Initialize then
     Result := nil;
   {$ENDIF}
 end;
