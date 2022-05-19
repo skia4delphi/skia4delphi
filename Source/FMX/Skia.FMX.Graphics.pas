@@ -1678,7 +1678,9 @@ begin
           else
             APaint.Shader := LImage.MakeShader(GetSamplingOptions, WrapMode[ABrush.Bitmap.WrapMode], WrapMode[ABrush.Bitmap.WrapMode]);
           APaint.AlphaF := AOpacity;
-        end;
+        end
+        else
+          APaint.Alpha := 0;
       end;
   end;
 end;
