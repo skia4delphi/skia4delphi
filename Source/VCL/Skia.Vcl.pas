@@ -4811,9 +4811,15 @@ const
   SupportedFormats = [TSkEncodedImageFormat.WEBP, TSkEncodedImageFormat.WBMP, TSkEncodedImageFormat.DNG];
 var
   LCodec: ISkCodec;
+  LSavedPosition: Int64;
 begin
-  LCodec := TSkCodec.MakeFromStream(AStream);
-  Result := Assigned(LCodec) and (LCodec.EncodedImageFormat in SupportedFormats);
+  LSavedPosition := AStream.Position;
+  try
+    LCodec := TSkCodec.MakeFromStream(AStream);
+    Result := Assigned(LCodec) and (LCodec.EncodedImageFormat in SupportedFormats);
+  finally
+    AStream.Position := LSavedPosition;
+  end;
 end;
 {$ENDIF}
 
