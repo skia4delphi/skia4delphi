@@ -51,17 +51,14 @@ type
     rctPreviewBackground: TRectangle;
     sdgSaveDialog: TSaveDialog;
     odgOpenDialog: TOpenDialog;
-    tmrRepaint: TTimer;
     lytContent: TLayout;
     procedure btnClearClick(ASender: TObject);
     procedure btnOpenClick(ASender: TObject);
     procedure btnSaveClick(ASender: TObject);
-    procedure FormClose(ASender: TObject; var AAction: TCloseAction);
     procedure FormCreate(ASender: TObject);
     procedure FormKeyDown(ASender: TObject; var AKey: Word; var AKeyChar: Char; AShift: TShiftState);
     procedure lytContentDragDrop(ASender: TObject; const AData: TDragObject; const APoint: TPointF);
     procedure lytContentDragOver(ASender: TObject; const AData: TDragObject; const APoint: TPointF; var AOperation: TDragOperation);
-    procedure tmrRepaintTimer(ASender: TObject);
   private
     FAnimatedImage: TSkAnimatedImage;
     FSupportedExtensions: TArray<string>;
@@ -100,12 +97,6 @@ procedure TSkAnimatedImageEditorForm.btnSaveClick(ASender: TObject);
 begin
   if sdgSaveDialog.Execute and Assigned(FAnimatedImage) then
     TFile.WriteAllBytes(sdgSaveDialog.FileName, FAnimatedImage.Source.Data);
-end;
-
-procedure TSkAnimatedImageEditorForm.FormClose(ASender: TObject;
-  var AAction: TCloseAction);
-begin
-  tmrRepaint.Enabled := False;
 end;
 
 procedure TSkAnimatedImageEditorForm.FormCreate(ASender: TObject);
@@ -211,29 +202,15 @@ begin
   FAnimatedImage := TSkAnimatedImage.Create(Self);
   try
     FAnimatedImage.Align := TAlignLayout.Client;
-    FAnimatedImage.FixedProgress := False;
-    FAnimatedImage.Progress := 0;
     FAnimatedImage.Parent := rctPreviewBackground;
     FAnimatedImage.Source.Data := AData;
     UpdateButtons;
-    tmrRepaint.Enabled := True;
+    FAnimatedImage.Animation.Start;
     Result := inherited ShowModal;
-    tmrRepaint.Enabled := False;
     if Result = mrOk then
       AData := FAnimatedImage.Source.Data;
   finally
     FreeAndNil(FAnimatedImage);
-  end;
-end;
-
-procedure TSkAnimatedImageEditorForm.tmrRepaintTimer(ASender: TObject);
-begin
-  tmrRepaint.Enabled := False;
-  if (csDesigning in tmrRepaint.ComponentState) and Assigned(FAnimatedImage) then
-  begin
-    FAnimatedImage.Repaint;
-    Application.ProcessMessages;
-    tmrRepaint.Enabled := True;
   end;
 end;
 

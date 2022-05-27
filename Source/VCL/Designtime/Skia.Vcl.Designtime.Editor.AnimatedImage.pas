@@ -54,7 +54,6 @@ type
     imgBackgroundPicture: TImage;
     imgBackground: TImage;
     pnlPreview: TPanel;
-    tmrRepaint: TTimer;
     procedure btnCancelClick(ASender: TObject);
     procedure btnClearClick(ASender: TObject);
     procedure btnOkClick(ASender: TObject);
@@ -63,7 +62,6 @@ type
     procedure FormCreate(ASender: TObject);
     procedure FormKeyDown(ASender: TObject; var AKey: Word; AShift: TShiftState);
     procedure FormResize(ASender: TObject);
-    procedure tmrRepaintTimer(ASender: TObject);
   private
     FAnimatedImage: TSkAnimatedImage;
     FSupportedExtensions: TArray<string>;
@@ -279,26 +277,17 @@ begin
   FAnimatedImage := TSkAnimatedImage.Create(Self);
   try
     FAnimatedImage.Align := TAlign.alClient;
-    FAnimatedImage.FixedProgress := False;
-    FAnimatedImage.Progress := 0;
     FAnimatedImage.Parent := pnlPreview;
     FAnimatedImage.BringToFront;
     FAnimatedImage.Source.Data := AData;
-    tmrRepaint.Enabled := True;
     UpdateButtons;
+    FAnimatedImage.Animation.Start;
     Result := inherited ShowModal;
-    tmrRepaint.Enabled := False;
     if Result = mrOk then
       AData := FAnimatedImage.Source.Data;
   finally
     FreeAndNil(FAnimatedImage);
   end;
-end;
-
-procedure TSkAnimatedImageEditorForm.tmrRepaintTimer(ASender: TObject);
-begin
-  if (csDesigning in tmrRepaint.ComponentState) and Assigned(FAnimatedImage) then
-    FAnimatedImage.Repaint;
 end;
 
 procedure TSkAnimatedImageEditorForm.UpdateButtons;
