@@ -2212,10 +2212,10 @@ begin
   inherited Create;
   FAniList := TList<Pointer>.Create;
   FAniProcessingList := TList<Pointer>.Create;
-  FrameRate := EnsureRange(FrameRate, 5, 99);
+  FrameRate := EnsureRange(FrameRate, 5, 120);
   FAnimation := TTimer.Create(nil);
   FAnimation.Enabled := False;
-  FAnimation.Interval := Trunc(1000 / FrameRate / 10) * 10;
+  FAnimation.Interval := Trunc(1000 / FrameRate);
   FAnimation.OnTimer := OnProcess;
   if not QueryPerformanceFrequency(FPerformanceFrequency) then
     FPerformanceFrequency := 0;
@@ -2274,8 +2274,8 @@ var
   LDeltaTime: Double;
   [unsafe] LAnimation: TSkCustomAnimation;
 begin
-  FrameRate := EnsureRange(FrameRate, 5, 99);
-  FAnimation.Interval := Trunc(1000 / FrameRate / 10) * 10;
+  FrameRate := EnsureRange(FrameRate, 5, 120);
+  FAnimation.Interval := Trunc(1000 / FrameRate);
   LNewTime := GetTick;
   LDeltaTime := LNewTime - FTime;
   if LDeltaTime < TimeEpsilon then
