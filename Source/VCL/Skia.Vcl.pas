@@ -590,12 +590,14 @@ type
       { TSource }
 
       TSource = class(TPersistent)
+      public type
+        TChangeProc = procedure of object;
       strict private
         FData: TBytes;
-        FOnChange: TNotifyEvent;
+        FOnChange: TChangeProc;
         procedure SetData(const AValue: TBytes);
       public
-        constructor Create(const AOnChange: TNotifyEvent);
+        constructor Create(const AOnChange: TChangeProc);
         procedure Assign(ASource: TPersistent); override;
         function Equals(AObject: TObject): Boolean; override;
         property Data: TBytes read FData write SetData;
@@ -647,13 +649,14 @@ type
     procedure SetAnimation(const AValue: TAnimation);
     procedure SetSource(const AValue: TSource);
     procedure SetWrapMode(const AValue: TSkAnimatedImageWrapMode);
-    procedure SourceChange(ASender: TObject);
     procedure WriteData(AStream: TStream);
   strict protected
     function CreateAnimation: TSkCustomAnimatedControl.TAnimationBase; override;
     procedure DefineProperties(AFiler: TFiler); override;
     procedure Draw(const ACanvas: ISkCanvas; const ADest: TRectF; const AOpacity: Single); override;
     procedure RenderFrame(const ACanvas: ISkCanvas; const ADest: TRectF; const AProgress: Double; const AOpacity: Single); override;
+    procedure SourceChange; virtual;
+    property Codec: TAnimationCodec read FCodec;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -3053,7 +3056,7 @@ begin
     inherited;
 end;
 
-constructor TSkAnimatedImage.TSource.Create(const AOnChange: TNotifyEvent);
+constructor TSkAnimatedImage.TSource.Create(const AOnChange: TChangeProc);
 begin
   inherited Create;
   FOnChange := AOnChange;
@@ -3070,7 +3073,7 @@ begin
   begin
     FData := Copy(AValue);
     if Assigned(FOnChange) then
-      FOnChange(Self);
+      FOnChange();
   end;
 end;
 
@@ -3271,7 +3274,7 @@ begin
   end;
 end;
 
-procedure TSkAnimatedImage.SourceChange(ASender: TObject);
+procedure TSkAnimatedImage.SourceChange;
 var
   LCodecClass: TAnimationCodecClass;
   LStream: TStream;
