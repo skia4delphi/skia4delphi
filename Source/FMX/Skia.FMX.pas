@@ -3273,7 +3273,7 @@ end;
 
 procedure TSkAnimatedPaintBox.ReadDuration(AReader: TReader);
 begin
-  Animation.Duration := AReader.ReadDouble;
+  Animation.Duration := AReader.ReadFloat;
 end;
 
 procedure TSkAnimatedPaintBox.ReadLoop(AReader: TReader);
