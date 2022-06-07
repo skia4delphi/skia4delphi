@@ -46,6 +46,7 @@ type
   strict private
     procedure FlipPixels(const AWidth, AHeight: Integer; const ASrcPixels: PByte; const ASrcStride: Integer; const ADestPixels: PByte; const ADestStride: Integer); inline;
   public
+    constructor CreateFromSkImage(const AImage: ISkImage);
     procedure SkiaDraw(const AProc: TSkDrawProc; const AStartClean: Boolean = True);
     function ToSkImage: ISkImage;
   end;
@@ -1143,6 +1144,29 @@ end;
 
 { TSkBitmapHelper }
 
+constructor TSkBitmapHelper.CreateFromSkImage(const AImage: ISkImage);
+var
+  LPixels: Pointer;
+  LStride: Integer;
+begin
+  Assert(Assigned(AImage));
+  Create;
+  PixelFormat := TPixelFormat.pf32bit;
+  AlphaFormat := TAlphaFormat.afPremultiplied;
+  SetSize(AImage.Width, AImage.Height);
+  if not Empty then
+  begin
+    LStride := BytesPerScanLine(Width, 32, 32);
+    GetMem(LPixels, LStride * Height);
+    try
+      AImage.ReadPixels(TSkImageInfo.Create(Width, Height), LPixels, LStride);
+      FlipPixels(Width, Height, LPixels, LStride, ScanLine[Height - 1], LStride);
+    finally
+      FreeMem(LPixels);
+    end;
+  end;
+end;
+
 procedure TSkBitmapHelper.FlipPixels(const AWidth, AHeight: Integer;
   const ASrcPixels: PByte; const ASrcStride: Integer; const ADestPixels: PByte;
   const ADestStride: Integer);
@@ -1157,6 +1181,7 @@ procedure TSkBitmapHelper.SkiaDraw(const AProc: TSkDrawProc; const AStartClean: 
 var
   LPixmap: ISkPixmap;
   LSurface: ISkSurface;
+  LStride: Integer;
 begin
   Assert(Assigned(AProc));
   if Empty then
@@ -1166,14 +1191,15 @@ begin
     PixelFormat := TPixelFormat.pf32bit;
     AlphaFormat := TAlphaFormat.afPremultiplied;
   end;
+  LStride := BytesPerScanLine(Width, 32, 32);
   LSurface := TSkSurface.MakeRaster(Width, Height);
   LPixmap  := LSurface.PeekPixels;
   if AStartClean then
     LSurface.Canvas.Clear(TAlphaColors.Null)
   else
-    FlipPixels(Width, Height, ScanLine[Height - 1], BytesPerScanLine(Width, 32, 32), LPixmap.Pixels, LPixmap.RowBytes);
+    FlipPixels(Width, Height, ScanLine[Height - 1], LStride, LPixmap.Pixels, LPixmap.RowBytes);
   AProc(LSurface.Canvas);
-  FlipPixels(Width, Height, LPixmap.Pixels, LPixmap.RowBytes, ScanLine[Height - 1], BytesPerScanLine(Width, 32, 32));
+  FlipPixels(Width, Height, LPixmap.Pixels, LPixmap.RowBytes, ScanLine[Height - 1], LStride);
 end;
 
 function TSkBitmapHelper.ToSkImage: ISkImage;
@@ -1191,7 +1217,7 @@ begin
   LStride := BytesPerScanLine(Width, 32, 32);
   GetMem(LPixels, LStride * Height);
   try
-    FlipPixels(Width, Height, ScanLine[Height - 1], BytesPerScanLine(Width, 32, 32), LPixels, LStride);
+    FlipPixels(Width, Height, ScanLine[Height - 1], LStride, LPixels, LStride);
     Result := TSkImage.MakeFromRaster(TSkImageInfo.Create(Width, Height), LPixels, LStride);
   finally
     FreeMem(LPixels);

@@ -54,6 +54,7 @@ type
 
   TSkBitmapHelper = class helper for TBitmap
   public
+    constructor CreateFromSkImage(const AImage: ISkImage);
     procedure SkiaDraw(const AProc: TSkDrawProc; const AStartClean: Boolean = True);
     function ToSkImage: ISkImage;
   end;
@@ -1236,6 +1237,22 @@ end;
 {$ENDIF}
 
 { TSkBitmapHelper }
+
+constructor TSkBitmapHelper.CreateFromSkImage(const AImage: ISkImage);
+var
+  LData: TBitmapData;
+begin
+  Assert(Assigned(AImage));
+  Create(AImage.Width, AImage.Height);
+  if (not IsEmpty) and Map(TMapAccess.Write, LData) then
+  begin
+    try
+      AImage.ReadPixels(TSkImageInfo.Create(Width, Height, SkFmxColorType[LData.PixelFormat]), LData.Data, LData.Pitch);
+    finally
+      Unmap(LData);
+    end;
+  end;
+end;
 
 procedure TSkBitmapHelper.SkiaDraw(const AProc: TSkDrawProc; const AStartClean: Boolean);
 
