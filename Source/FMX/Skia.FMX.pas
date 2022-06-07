@@ -1254,12 +1254,42 @@ var
   LSurface: ISkSurface;
   LData: TBitmapData;
   LAccess: TMapAccess;
+  LBeginSceneCount: Integer;
 begin
   Assert(Assigned(AProc));
   if IsEmpty then
     raise ESkBitmapHelper.Create('Invalid bitmap');
   if CanvasClass.InheritsFrom(TSkCanvasCustom) then
   begin
+    {$REGION ' - Workaround RSP-38418'}
+    // - -----------------------------------------------------------------------
+    // - WORKAROUND
+    // - -----------------------------------------------------------------------
+    // -
+    // - Description:
+    // -   This code is a workaround intended to fix issue when changes the
+    // -   bitmap that has been assign to another.
+    // -
+    // - Bug report:
+    // -   https://quality.embarcadero.com/browse/RSP-38418
+    // -
+    // - -----------------------------------------------------------------------
+    {$IF CompilerVersion > 35}
+      {$MESSAGE WARN 'Check if the issue has been fixed'}
+    {$ENDIF}
+    // - -----------------------------------------------------------------------
+    if Image.RefCount > 1 then
+    begin
+      LBeginSceneCount := Canvas.BeginSceneCount;
+      CopyToNewReference;
+      while LBeginSceneCount > 0 do
+      begin
+        Canvas.BeginScene;
+        Dec(LBeginSceneCount);
+      end;
+    end;
+    // - -----------------------------------------------------------------------
+    {$ENDREGION}
     if (Canvas.BeginSceneCount = 0) and Canvas.BeginScene then
     begin
       try
