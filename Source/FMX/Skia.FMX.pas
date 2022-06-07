@@ -876,6 +876,7 @@ type
     FWordsMouseOver: TCustomWordsItem;
     procedure DeleteParagraph;
     procedure GetFitSize(var AWidth, AHeight: Single);
+    function GetLinesCount: Integer;
     function GetParagraph: ISkParagraph;
     function GetParagraphBounds: TRectF;
     function GetText: string;
@@ -928,7 +929,9 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
+    function DidExceedMaxLines: Boolean;
     property DefaultTextSettings: TSkTextSettings read GetDefaultTextSettings;
+    property LinesCount: Integer read GetLinesCount;
     {$IF CompilerVersion < 30}
     property PressedPosition: TPointF read FPressedPosition write FPressedPosition;
     {$ENDIF}
@@ -4337,6 +4340,14 @@ begin
   inherited;
 end;
 
+function TSkLabel.DidExceedMaxLines: Boolean;
+var
+  LParagraph: ISkParagraph;
+begin
+  LParagraph := Paragraph;
+  Result := Assigned(LParagraph) and (LParagraph.DidExceedMaxLines);
+end;
+
 procedure TSkLabel.DoEndUpdate;
 begin
   if (not (csLoading in ComponentState)) and FAutoSize and HasFitSizeChanged then
@@ -4588,6 +4599,17 @@ begin
     if Assigned(LParagraph) then
       ParagraphLayout(AWidth);
   end;
+end;
+
+function TSkLabel.GetLinesCount: Integer;
+var
+  LParagraph: ISkParagraph;
+begin
+  LParagraph := Paragraph;
+  if Assigned(LParagraph) then
+    Result := Length(LParagraph.LineMetrics)
+  else
+    Result := 0;
 end;
 
 function TSkLabel.GetParagraph: ISkParagraph;

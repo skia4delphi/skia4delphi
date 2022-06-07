@@ -875,6 +875,7 @@ type
     procedure DeleteParagraph;
     function GetCaption: string;
     procedure GetFitSize(var AWidth, AHeight: Single);
+    function GetLinesCount: Integer;
     function GetParagraph: ISkParagraph;
     function GetParagraphBounds: TRectF;
     function HasFitSizeChanged: Boolean;
@@ -907,8 +908,10 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
+    function DidExceedMaxLines: Boolean;
     function UseRightToLeftAlignment: Boolean; override;
     property DefaultTextSettings: TSkTextSettings read GetDefaultTextSettings;
+    property LinesCount: Integer read GetLinesCount;
     property ResultingTextSettings: TSkTextSettings read GetResultingTextSettings;
   published
     property AutoSize default True;
@@ -4219,6 +4222,14 @@ begin
   inherited;
 end;
 
+function TSkLabel.DidExceedMaxLines: Boolean;
+var
+  LParagraph: ISkParagraph;
+begin
+  LParagraph := Paragraph;
+  Result := Assigned(LParagraph) and (LParagraph.DidExceedMaxLines);
+end;
+
 procedure TSkLabel.Draw(const ACanvas: ISkCanvas; const ADest: TRectF;
   const AOpacity: Single);
 
@@ -4368,6 +4379,17 @@ begin
     if Assigned(LParagraph) then
       ParagraphLayout(AWidth);
   end;
+end;
+
+function TSkLabel.GetLinesCount: Integer;
+var
+  LParagraph: ISkParagraph;
+begin
+  LParagraph := Paragraph;
+  if Assigned(LParagraph) then
+    Result := Length(LParagraph.LineMetrics)
+  else
+    Result := 0;
 end;
 
 function TSkLabel.GetParagraph: ISkParagraph;
