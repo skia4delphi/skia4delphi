@@ -198,45 +198,24 @@ procedure TfrmPDFCreation.btnGeneratePDFClick(Sender: TObject);
 
   procedure ControlToPDF(AControl: TControl; const AOutputFileName: string);
   var
-    LBitmap: TBitmap;
-    LImage: ISkImage;
     LStream: TMemoryStream;
     LDocument: ISkDocument;
     LCanvas: ISkCanvas;
-    LSceneScale: Single;
   begin
-    if AControl.Scene = nil then
-      LSceneScale := 1
-    else
-      LSceneScale := AControl.Scene.GetSceneScale;
-    LBitmap := TBitmap.Create(Round(AControl.Width * AControl.AbsoluteScale.X * LSceneScale), Round(AControl.Height * AControl.AbsoluteScale.Y * LSceneScale));
+    LStream := TMemoryStream.Create;
     try
-      LBitmap.BitmapScale := LSceneScale;
-      LBitmap.Canvas.BeginScene;
+      LDocument := TSkDocument.MakePDF(LStream);
+      LCanvas := LDocument.BeginPage(AControl.Width, AControl.Height);
       try
-        LBitmap.Canvas.Clear(TAlphaColors.Null);
-        AControl.PaintTo(LBitmap.Canvas, AControl.LocalRect, nil);
+        LCanvas.Clear(TAlphaColors.Null);
+        AControl.PaintTo(LCanvas, AControl.LocalRect, nil);
       finally
-        LBitmap.Canvas.EndScene;
+        LDocument.EndPage;
       end;
-      LImage := LBitmap.ToSkImage;
-      LStream := TMemoryStream.Create;
-      try
-        LDocument := TSkDocument.MakePDF(LStream);
-        LCanvas := LDocument.BeginPage(LBitmap.Width, LBitmap.Height);
-        try
-          LCanvas.Clear(TAlphaColors.Null);
-          LCanvas.DrawImage(LImage, 0, 0);
-        finally
-          LDocument.EndPage;
-        end;
-        LDocument.Close;
-        LStream.SaveToFile(AOutputFileName);
-      finally
-        LStream.Free;
-      end;
+      LDocument.Close;
+      LStream.SaveToFile(AOutputFileName);
     finally
-      LBitmap.Free;
+      LStream.Free;
     end;
   end;
 

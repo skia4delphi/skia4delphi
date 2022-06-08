@@ -29,8 +29,7 @@ uses
   FMX.ActnList,
 
   { Skia }
-  Skia,
-  Skia.FMX.Graphics;
+  Skia;
 
 const
   {$IF CompilerVersion < 33}
@@ -65,6 +64,30 @@ type
   public
     procedure FromSkPath(const AValue: ISkPath);
     function ToSkPath: ISkPath;
+  end;
+
+  { TSkCanvasHelper }
+
+  TSkCanvasHelper = class helper for TCanvas
+  public
+    class function CreateFromSkCanvas(const ACanvas: ISkCanvas; const AWidth, AHeight: Integer): TCanvas; static;
+  end;
+
+  { TSkControlHelper }
+
+  TSkControlHelper = class helper for TControl
+    procedure PaintTo(const ACanvas: ISkCanvas; const ARect: TRectF; const AParent: TFmxObject = nil); overload;
+  end;
+
+  { TSkFmxCanvas }
+
+  TSkFmxCanvas = class abstract(TCanvas)
+  strict private
+    function GetSkCanvas: ISkCanvas; inline;
+  strict protected
+    FCanvas: ISkCanvas;
+  public
+    property SkCanvas: ISkCanvas read GetSkCanvas;
   end;
 
   TSkDrawEvent = procedure(ASender: TObject; const ACanvas: ISkCanvas; const ADest: TRectF; const AOpacity: Single) of object;
@@ -1086,7 +1109,10 @@ uses
   FMX.Utils,
   {$ENDIF}
   FMX.BehaviorManager,
-  FMX.Forms;
+  FMX.Forms,
+
+  { Skia }
+  Skia.FMX.Graphics;
 
 type
   { TSkDefaultAnimationCodec }
@@ -1259,13 +1285,13 @@ end;
 
 procedure TSkBitmapHelper.SkiaDraw(const AProc: TSkDrawProc; const AStartClean: Boolean);
 
-  procedure DrawInSurface(const ASurface: ISkSurface);
+  procedure DrawInSurface(const ACanvas: ISkCanvas);
   begin
-    if Assigned(ASurface) then
+    if Assigned(ACanvas) then
     begin
       if AStartClean then
-        ASurface.Canvas.Clear(TAlphaColors.Null);
-      AProc(ASurface.Canvas);
+        ACanvas.Clear(TAlphaColors.Null);
+      AProc(ACanvas);
     end;
   end;
 
@@ -1279,7 +1305,7 @@ begin
   Assert(Assigned(AProc));
   if IsEmpty then
     raise ESkBitmapHelper.Create('Invalid bitmap');
-  if CanvasClass.InheritsFrom(TSkCanvasCustom) then
+  if CanvasClass.InheritsFrom(TSkFmxCanvas) then
   begin
     {$REGION ' - Workaround RSP-38418'}
     // - -----------------------------------------------------------------------
@@ -1313,13 +1339,13 @@ begin
     if (Canvas.BeginSceneCount = 0) and Canvas.BeginScene then
     begin
       try
-        DrawInSurface(TSkCanvasCustom(Canvas).Surface);
+        DrawInSurface(TSkFmxCanvas(Canvas).SkCanvas);
       finally
         Canvas.EndScene;
       end;
     end
     else
-      DrawInSurface(TSkCanvasCustom(Canvas).Surface);
+      DrawInSurface(TSkFmxCanvas(Canvas).SkCanvas);
   end
   else
   begin
@@ -1336,7 +1362,8 @@ begin
     if Map(LAccess, LData) then
       try
         LSurface := TSkSurface.MakeRasterDirect(TSkImageInfo.Create(LData.Width, LData.Height, LColorType), LData.Data, LData.Pitch);
-        DrawInSurface(LSurface);
+        if Assigned(LSurface) then
+          DrawInSurface(LSurface.Canvas);
       finally
         Unmap(LData);
       end;
@@ -1363,6 +1390,46 @@ begin
   finally
     Unmap(LData);
   end;
+end;
+
+{ TSkCanvasHelper }
+
+class function TSkCanvasHelper.CreateFromSkCanvas(const ACanvas: ISkCanvas;
+  const AWidth, AHeight: Integer): TCanvas;
+begin
+  Result := TSkCanvasWrapper.Create(ACanvas, AWidth, AHeight)
+end;
+
+{ TSkControlHelper }
+
+procedure TSkControlHelper.PaintTo(const ACanvas: ISkCanvas;
+  const ARect: TRectF; const AParent: TFmxObject);
+var
+  LCanvas: TCanvas;
+begin
+  LCanvas := TCanvas.CreateFromSkCanvas(ACanvas, Ceil(ARect.Right), Ceil(ARect.Bottom));
+  try
+    PaintTo(LCanvas, ARect, AParent);
+  finally
+    LCanvas.Free;
+  end;
+end;
+
+{ TSkFmxCanvas }
+
+function TSkFmxCanvas.GetSkCanvas: ISkCanvas;
+{$IF CompilerVersion < 35}
+resourcestring
+  SCannotPaintOnCanvasWithoutBeginScene = 'It is not possible to perform rendering. BeginScene was not invoked.';
+{$ENDIF}
+begin
+  {$IF CompilerVersion >= 35}
+  RaiseIfBeginSceneCountZero;
+  {$ELSE}
+  if BeginSceneCount = 0 then
+    raise ECanvasException.Create(SCannotPaintOnCanvasWithoutBeginScene);
+  {$ENDIF}
+  Result := FCanvas;
 end;
 
 { TSkPathDataHelper }
@@ -1466,13 +1533,13 @@ end;
 
 procedure TSkCustomControl.Paint;
 
-  procedure DrawUsingSkia(const ASurface: ISkSurface; const ADestRect: TRectF; const AOpacity: Single);
+  procedure DrawUsingSkia(const ACanvas: ISkCanvas; const ADestRect: TRectF; const AOpacity: Single);
   begin
-    if Assigned(ASurface) then
+    if Assigned(ACanvas) then
     begin
-      Draw(ASurface.Canvas, ADestRect, AOpacity);
+      Draw(ACanvas, ADestRect, AOpacity);
       if Assigned(FOnDraw) then
-        FOnDraw(Self, ASurface.Canvas, ADestRect, AOpacity);
+        FOnDraw(Self, ACanvas, ADestRect, AOpacity);
     end;
   end;
 
@@ -1484,9 +1551,9 @@ var
   LMaxBitmapSize: Integer;
   LExceededRatio: Single;
 begin
-  if (FDrawCacheKind <> TSkDrawCacheKind.Always) and (Canvas is TSkCanvasCustom) then
+  if (FDrawCacheKind <> TSkDrawCacheKind.Always) and (Canvas is TSkFmxCanvas) then
   begin
-    DrawUsingSkia(TSkCanvasCustom(Canvas).Surface, Canvas.AlignToPixel(LocalRect), AbsoluteOpacity);
+    DrawUsingSkia(TSkFmxCanvas(Canvas).SkCanvas, Canvas.AlignToPixel(LocalRect), AbsoluteOpacity);
     FreeAndNil(FBuffer);
   end
   else
@@ -1614,13 +1681,13 @@ end;
 
 procedure TSkStyledControl.Paint;
 
-  procedure DrawUsingSkia(const ASurface: ISkSurface; const ADestRect: TRectF; const AOpacity: Single);
+  procedure DrawUsingSkia(const ACanvas: ISkCanvas; const ADestRect: TRectF; const AOpacity: Single);
   begin
-    if Assigned(ASurface) then
+    if Assigned(ACanvas) then
     begin
-      Draw(ASurface.Canvas, ADestRect, AOpacity);
+      Draw(ACanvas, ADestRect, AOpacity);
       if Assigned(FOnDraw) then
-        FOnDraw(Self, ASurface.Canvas, ADestRect, AOpacity);
+        FOnDraw(Self, ACanvas, ADestRect, AOpacity);
     end;
   end;
 
@@ -1632,9 +1699,9 @@ var
   LMaxBitmapSize: Integer;
   LExceededRatio: Single;
 begin
-  if (FDrawCacheKind <> TSkDrawCacheKind.Always) and (Canvas is TSkCanvasCustom) then
+  if (FDrawCacheKind <> TSkDrawCacheKind.Always) and (Canvas is TSkFmxCanvas) then
   begin
-    DrawUsingSkia(TSkCanvasCustom(Canvas).Surface, Canvas.AlignToPixel(LocalRect), AbsoluteOpacity);
+    DrawUsingSkia(TSkFmxCanvas(Canvas).SkCanvas, Canvas.AlignToPixel(LocalRect), AbsoluteOpacity);
     FreeAndNil(FBuffer);
   end
   else

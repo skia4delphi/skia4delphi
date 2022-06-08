@@ -33,7 +33,8 @@ uses
   System.Messaging,
 
   { Skia }
-  Skia;
+  Skia,
+  Skia.FMX;
 
 type
   ESkCanvas = class(Exception);
@@ -56,11 +57,9 @@ type
     property Width: Integer read FWidth;
   end;
 
-  TSkCanvasClass = class of TSkCanvasCustom;
+  { TSkCanvasCustomBase }
 
-  { TSkCanvasCustom }
-
-  TSkCanvasCustom = class abstract(TCanvas{$IFDEF MODULATE_CANVAS}, IModulateCanvas{$ENDIF})
+  TSkCanvasCustomBase = class abstract(TSkFmxCanvas{$IFDEF MODULATE_CANVAS}, IModulateCanvas{$ENDIF})
   strict private type
     TSaveState = class(TCanvasSaveState)
     strict protected
@@ -69,8 +68,6 @@ type
       procedure Assign(ASource: TPersistent); override;
     end;
 
-  strict private class var
-    FImageCache: TObjectDictionary<TSkCanvasCustom, TDictionary<THandle, ISkImage>>;
   {$IFDEF MODULATE_CANVAS}
   strict private
     FModulateColor: TAlphaColor;
@@ -78,53 +75,29 @@ type
     function GetModulateColor: TAlphaColor;
     procedure SetModulateColor(const AColor: TAlphaColor);
   {$ENDIF}
-  private
-    FSurface: ISkSurface;
   strict private
-    FDrawableHeight: Integer;
-    FDrawableWidth: Integer;
     function GetSamplingOptions(const AHighSpeed: Boolean = False): TSkSamplingOptions;
     procedure SetupBrush(const ABrush: TBrush; const ARect: TRectF; const AOpacity: Single; const APaint: ISkPaint);
   strict protected
-    constructor CreateFromPrinter(const APrinter: TAbstractPrinter); override;
-    {$IFDEF MSWINDOWS}
-    constructor CreateFromWindow(const AParent: TWindowHandle; const AWidth, AHeight: Integer; const AQuality: TCanvasQuality = TCanvasQuality.SystemDefault); override;
-    {$ENDIF}
-    function BeginWindow(const AContextHandle: THandle): ISkSurface; virtual; abstract;
     function BitmapToSkImage(const ABitmap: TBitmap): ISkImage;
     function BrushToSkPaint(const ABrush: TBrush; const ARect: TRectF; const AOpacity: Single): ISkPaint;
-    function CreateCache(const AWidth, AHeight: Integer; const AColorType: TSkColorType; const APixels: Pointer; const ARowBytes: NativeUInt): ISkImage; virtual;
     function CreateSaveState: TCanvasSaveState; override;
-    procedure DestroyWindow; virtual;
-    function DoBeginScene({$IF CompilerVersion < 35}const {$ENDIF}AClipRects: PClipRects = nil; AContextHandle: THandle = 0): Boolean; override; final;
     procedure DoDrawBitmap(const ABitmap: TBitmap; const ASrcRect, ADestRect: TRectF; const AOpacity: Single; const AHighSpeed: Boolean); override;
     procedure DoDrawEllipse(const ARect: TRectF; const AOpacity: Single; const ABrush: TStrokeBrush); override;
     procedure DoDrawLine(const APoint1, APoint2: TPointF; const AOpacity: Single; const ABrush: TStrokeBrush); override;
     procedure DoDrawPath(const APath: TPathData; const AOpacity: Single; const ABrush: TStrokeBrush); override;
     procedure DoDrawRect(const ARect: TRectF; const AOpacity: Single; const ABrush: TStrokeBrush); override;
-    procedure DoEndScene; override; final;
     procedure DoFillEllipse(const ARect: TRectF; const AOpacity: Single; const ABrush: TBrush); override;
     procedure DoFillPath(const APath: TPathData; const AOpacity: Single; const ABrush: TBrush); override;
     procedure DoFillRect(const ARect: TRectF; const AOpacity: Single; const ABrush: TBrush); override;
     {$IF CompilerVersion >= 30}
     procedure DoSetMatrix(const AMatrix: TMatrix); override;
     {$ENDIF}
-    procedure EndWindow; virtual;
-    procedure Resized; virtual;
     procedure Restore; virtual;
     procedure Save; virtual;
     function StrokeBrushToSkPaint(const ABrush: TStrokeBrush; const ARect: TRectF; const AOpacity: Single): ISkPaint;
-    class procedure ClearCache(const ACanvas: TSkCanvasCustom); virtual;
-    class procedure ClearCacheBitmap(const ABitmapHandle: THandle);
-    class procedure DoClearCacheBitmap(const ACanvas: TSkCanvasCustom; const ABitmapHandle: THandle); virtual;
-    class procedure DoFinalize; virtual;
-    class procedure DoFinalizeBitmap(var ABitmapHandle: THandle); override;
-    class function DoInitialize: Boolean; virtual;
-    class function DoInitializeBitmap(const AWidth, AHeight: Integer; const AScale: Single; var APixelFormat: TPixelFormat): THandle; override;
-    class function DoMapBitmap(const ABitmapHandle: THandle; const AAccess: TMapAccess; var ABitmapData: TBitmapData): Boolean; override;
-    class procedure DoUnmapBitmap(const ABitmapHandle: THandle; var ABitmapData: TBitmapData); override;
+    function TryGetBitmapCache(const ABitmap: TBitmap; out AValue: ISkImage): Boolean; virtual;
   public
-    procedure BeforeDestruction; override;
     procedure Clear(const AColor: TAlphaColor); override;
     procedure ClearRect(const ARect: TRectF; const AColor: TAlphaColor = 0); override;
     procedure ExcludeClipRect(const ARect: TRectF); override;
@@ -133,14 +106,64 @@ type
     {$IF CompilerVersion < 30}
     procedure SetMatrix(const AMatrix: TMatrix); override;
     {$ENDIF}
+    class function GetCanvasStyle: TCanvasStyles; override;
+  end;
+
+  TSkCanvasClass = class of TSkCanvasCustom;
+
+  { TSkCanvasCustom }
+
+  TSkCanvasCustom = class abstract(TSkCanvasCustomBase)
+  private
+    FSurface: ISkSurface;
+  strict private class var
+    FImageCache: TObjectDictionary<TSkCanvasCustom, TDictionary<THandle, ISkImage>>;
+  strict private
+    FDrawableHeight: Integer;
+    FDrawableWidth: Integer;
+  strict protected
+    function BeginWindow(const AContextHandle: THandle): ISkSurface; virtual; abstract;
+    function CreateCache(const AWidth, AHeight: Integer; const AColorType: TSkColorType; const APixels: Pointer; const ARowBytes: NativeUInt): ISkImage; virtual;
+    constructor CreateFromPrinter(const APrinter: TAbstractPrinter); override;
+    {$IFDEF MSWINDOWS}
+    constructor CreateFromWindow(const AParent: TWindowHandle; const AWidth, AHeight: Integer; const AQuality: TCanvasQuality = TCanvasQuality.SystemDefault); override;
+    {$ENDIF}
+    procedure DestroyWindow; virtual;
+    function DoBeginScene({$IF CompilerVersion < 35}const {$ENDIF}AClipRects: PClipRects = nil; AContextHandle: THandle = 0): Boolean; override; final;
+    procedure DoEndScene; override; final;
+    procedure EndWindow; virtual;
+    procedure Resized; virtual;
+    class procedure ClearCache(const ACanvas: TSkCanvasCustom); virtual;
+    class procedure ClearCacheBitmap(const ABitmapHandle: THandle);
+    class procedure DoClearCacheBitmap(const ACanvas: TSkCanvasCustom; const ABitmapHandle: THandle); virtual;
+    class procedure DoFinalizeBitmap(var ABitmapHandle: THandle); override;
+    class function DoInitializeBitmap(const AWidth, AHeight: Integer; const AScale: Single; var APixelFormat: TPixelFormat): THandle; override;
+    class function DoMapBitmap(const ABitmapHandle: THandle; const AAccess: TMapAccess; var ABitmapData: TBitmapData): Boolean; override;
+    class procedure DoUnmapBitmap(const ABitmapHandle: THandle; var ABitmapData: TBitmapData); override;
+    class procedure DoFinalize; virtual;
+    class function DoInitialize: Boolean; virtual;
+    function TryGetBitmapCache(const ABitmap: TBitmap; out AValue: ISkImage): Boolean; override;
+  public
+    procedure BeforeDestruction; override;
     procedure SetSize(const AWidth, AHeight: Integer); override; final;
     property DrawableHeight: Integer read FDrawableHeight;
     property DrawableWidth: Integer read FDrawableWidth;
     /// <summary> Direct access to the Skia Surface. This property just won't be nil between BeginScene and EndScene calls. </summary>
     property Surface: ISkSurface read FSurface;
     class procedure Finalize;
-    class function GetCanvasStyle: TCanvasStyles; override;
     class function Initialize: Boolean;
+  end;
+
+  { TSkCanvasWrapper }
+
+  TSkCanvasWrapper = class abstract(TSkCanvasCustomBase)
+  protected
+    class procedure DoFinalizeBitmap(var ABitmapHandle: THandle); override;
+    class function DoInitializeBitmap(const AWidth, AHeight: Integer; const AScale: Single; var APixelFormat: TPixelFormat): THandle; override;
+    class function DoMapBitmap(const ABitmapHandle: THandle; const AAccess: TMapAccess; var ABitmapData: TBitmapData): Boolean; override;
+    class procedure DoUnmapBitmap(const ABitmapHandle: THandle; var ABitmapData: TBitmapData); override;
+  public
+    constructor Create(const ACanvas: ISkCanvas; const AWidth, AHeight: Integer);
   end;
 
   { TSkCanvasRasterCustom }
@@ -290,7 +313,6 @@ uses
 
   { Skia }
   Skia.API,
-  Skia.FMX,
   Skia.FMX.Canvas.GL,
   Skia.FMX.Canvas.Metal;
 
@@ -494,8 +516,8 @@ end;
 
 procedure TSkTextLayout.DoDrawLayout(const ACanvas: TCanvas);
 begin
-  if (ACanvas is TSkCanvasCustom) and Assigned(TSkCanvasCustom(ACanvas).Surface) then
-    DoDrawLayout(TSkCanvasCustom(ACanvas).Surface.Canvas);
+  if (ACanvas is TSkFmxCanvas) and Assigned(TSkFmxCanvas(ACanvas).SkCanvas) then
+    DoDrawLayout(TSkFmxCanvas(ACanvas).SkCanvas);
 end;
 
 procedure TSkTextLayout.DoDrawLayout(const ACanvas: ISkCanvas);
@@ -1153,16 +1175,9 @@ begin
     FPixels := AllocMem(FWidth * FHeight * 4);
 end;
 
-{ TSkCanvasCustom }
+{ TSkCanvasCustomBase }
 
-procedure TSkCanvasCustom.BeforeDestruction;
-begin
-  inherited;
-  if Parent <> nil then
-    DestroyWindow;
-end;
-
-function TSkCanvasCustom.BitmapToSkImage(
+function TSkCanvasCustomBase.BitmapToSkImage(
   const ABitmap: FMX.Graphics.TBitmap): ISkImage;
 var
   LBitmapData: TBitmapData;
@@ -1173,19 +1188,7 @@ begin
   begin
     if TSkBitmapHandle(ABitmap.Handle).Pixels = nil then
       Exit(nil);
-    if (Parent <> nil) and (Assigned(FImageCache)) then
-    begin
-      if (FImageCache.ContainsKey(Self)) and (FImageCache[Self].ContainsKey(ABitmap.Handle)) then
-        Result := FImageCache[Self][ABitmap.Handle]
-      else
-      begin
-        Result := CreateCache(ABitmap.Width, ABitmap.Height, SkFmxColorType[ABitmap.PixelFormat], TSkBitmapHandle(ABitmap.Handle).Pixels, ABitmap.Width * 4);
-        if not FImageCache.ContainsKey(Self) then
-          FImageCache.Add(Self, TDictionary<THandle, ISkImage>.Create);
-        FImageCache[Self].Add(ABitmap.Handle, Result);
-      end;
-    end
-    else
+    if (Parent = nil) or not TryGetBitmapCache(ABitmap, Result) then
       Result := TSkImage.MakeFromRaster(TSkImageInfo.Create(ABitmap.Width, ABitmap.Height, SkFmxColorType[ABitmap.PixelFormat]), TSkBitmapHandle(ABitmap.Handle).Pixels, ABitmap.Width * 4);
   end
   else
@@ -1200,128 +1203,41 @@ begin
   end;
 end;
 
-function TSkCanvasCustom.BrushToSkPaint(const ABrush: TBrush;
+function TSkCanvasCustomBase.BrushToSkPaint(const ABrush: TBrush;
   const ARect: TRectF; const AOpacity: Single): ISkPaint;
 begin
   Result := TSkPaint.Create(TSkPaintStyle.Fill);
   SetupBrush(ABrush, ARect, AOpacity, Result);
 end;
 
-procedure TSkCanvasCustom.Clear(const AColor: TAlphaColor);
+procedure TSkCanvasCustomBase.Clear(const AColor: TAlphaColor);
 begin
   {$IF CompilerVersion >= 35}
   RaiseIfBeginSceneCountZero;
   {$ELSE}
   if BeginSceneCount > 0 then
   {$ENDIF}
-  FSurface.Canvas.Clear(AColor);
+  FCanvas.Clear(AColor);
 end;
 
-class procedure TSkCanvasCustom.ClearCache(const ACanvas: TSkCanvasCustom);
-begin
-  FImageCache[ACanvas].Clear;
-end;
-
-class procedure TSkCanvasCustom.ClearCacheBitmap(const ABitmapHandle: THandle);
-begin
-  TThread.Queue(nil,
-    procedure ()
-    var
-      LCanvas: TSkCanvasCustom;
-    begin
-      if Assigned(FImageCache) then
-      begin
-        for LCanvas in FImageCache.Keys do
-        begin
-          if FImageCache[LCanvas].ContainsKey(ABitmapHandle) then
-            DoClearCacheBitmap(LCanvas, ABitmapHandle);
-        end;
-      end;
-    end);
-end;
-
-procedure TSkCanvasCustom.ClearRect(const ARect: TRectF;
+procedure TSkCanvasCustomBase.ClearRect(const ARect: TRectF;
   const AColor: TAlphaColor);
 begin
-  FSurface.Canvas.Save;
+  FCanvas.Save;
   try
-    FSurface.Canvas.ClipRect(ARect);
-    FSurface.Canvas.Clear(AColor);
+    FCanvas.ClipRect(ARect);
+    FCanvas.Clear(AColor);
   finally
-    FSurface.Canvas.Restore;
+    FCanvas.Restore;
   end;
 end;
 
-function TSkCanvasCustom.CreateCache(const AWidth, AHeight: Integer;
-  const AColorType: TSkColorType; const APixels: Pointer;
-  const ARowBytes: NativeUInt): ISkImage;
-begin
-  Result := TSkImage.MakeFromRaster(TSkImageInfo.Create(AWidth, AHeight, AColorType), APixels, ARowBytes);
-end;
-
-constructor TSkCanvasCustom.CreateFromPrinter(const APrinter: TAbstractPrinter);
-begin
-  raise ESkCanvas.Create('Create from printer is not supported');
-end;
-
-{$IFDEF MSWINDOWS}
-
-constructor TSkCanvasCustom.CreateFromWindow(const AParent: TWindowHandle;
-  const AWidth, AHeight: Integer; const AQuality: TCanvasQuality);
-begin
-  inherited;
-  if WindowHandleToPlatform(Parent){$IF CompilerVersion < 30}.Form{$ENDIF}.Transparency then
-    WindowHandleToPlatform(Parent).CreateBuffer({$IF CompilerVersion < 31}Width, Height{$ELSE}WindowHandleToPlatform(Parent).WndClientSize.Width, WindowHandleToPlatform(Parent).WndClientSize.Height{$ENDIF});
-end;
-
-{$ENDIF}
-
-function TSkCanvasCustom.CreateSaveState: TCanvasSaveState;
+function TSkCanvasCustomBase.CreateSaveState: TCanvasSaveState;
 begin
   Result := TSaveState.Create;
 end;
 
-procedure TSkCanvasCustom.DestroyWindow;
-begin
-  if Assigned(FImageCache) then
-    FImageCache.Remove(Self);
-end;
-
-function TSkCanvasCustom.DoBeginScene({$IF CompilerVersion < 35}const {$ENDIF}AClipRects: PClipRects;
-  AContextHandle: THandle): Boolean;
-begin
-  Result := inherited;
-  if Result then
-  begin
-    if Bitmap <> nil then
-    begin
-      ClearCacheBitmap(Bitmap.Handle);
-      TSkBitmapHandle(Bitmap.Handle).Initialize;
-      FDrawableWidth  := Width;
-      FDrawableHeight := Height;
-      FSurface        := TSkSurface.MakeRasterDirect(TSkImageInfo.Create(Width, Height, SkFmxColorType[Bitmap.PixelFormat]), TSkBitmapHandle(Bitmap.Handle).Pixels, Width * 4);
-    end
-    else if Parent <> nil then
-    begin
-      FDrawableWidth  := Round(Width  * Scale);
-      FDrawableHeight := Round(Height * Scale);
-      FSurface        := BeginWindow(AContextHandle);
-    end
-    else
-      Exit(False);
-    Result := Assigned(FSurface);
-    if Result then
-      FSurface.Canvas.SetMatrix(TMatrix.CreateScaling(Scale, Scale));
-  end;
-end;
-
-class procedure TSkCanvasCustom.DoClearCacheBitmap(
-  const ACanvas: TSkCanvasCustom; const ABitmapHandle: THandle);
-begin
-  FImageCache[ACanvas].Remove(ABitmapHandle);
-end;
-
-procedure TSkCanvasCustom.DoDrawBitmap(const ABitmap: FMX.Graphics.TBitmap;
+procedure TSkCanvasCustomBase.DoDrawBitmap(const ABitmap: FMX.Graphics.TBitmap;
   const ASrcRect, ADestRect: TRectF; const AOpacity: Single; const AHighSpeed: Boolean);
 var
   LImage: ISkImage;
@@ -1336,11 +1252,11 @@ begin
     if FModulateColor <> TAlphaColors.Null then
       LPaint.ColorFilter := TSkColorFilter.MakeBlend(FModulateColor, TSkBlendMode.SrcIn);
     {$ENDIF}
-    FSurface.Canvas.DrawImageRect(LImage, ASrcRect, ADestRect, GetSamplingOptions(AHighSpeed), LPaint);
+    FCanvas.DrawImageRect(LImage, ASrcRect, ADestRect, GetSamplingOptions(AHighSpeed), LPaint);
   end;
 end;
 
-procedure TSkCanvasCustom.DoDrawEllipse(const ARect: TRectF;
+procedure TSkCanvasCustomBase.DoDrawEllipse(const ARect: TRectF;
   const AOpacity: Single; const ABrush: TStrokeBrush);
 var
   LPathBuilder: ISkPathBuilder;
@@ -1349,166 +1265,86 @@ begin
     Exit;
   LPathBuilder := TSkPathBuilder.Create;
   LPathBuilder.AddOval(ARect, TSkPathDirection.CW, 3);
-  FSurface.Canvas.DrawPath(LPathBuilder.Detach, StrokeBrushToSkPaint(ABrush, ARect, AOpacity));
+  FCanvas.DrawPath(LPathBuilder.Detach, StrokeBrushToSkPaint(ABrush, ARect, AOpacity));
 end;
 
-procedure TSkCanvasCustom.DoDrawLine(const APoint1, APoint2: TPointF;
+procedure TSkCanvasCustomBase.DoDrawLine(const APoint1, APoint2: TPointF;
   const AOpacity: Single; const ABrush: TStrokeBrush);
 begin
   if SameValue(ABrush.Thickness, 0, TEpsilon.Position) then
     Exit;
-  FSurface.Canvas.DrawLine(APoint1, APoint2, StrokeBrushToSkPaint(ABrush, TRectF.Create(APoint1, APoint2), AOpacity));
+  FCanvas.DrawLine(APoint1, APoint2, StrokeBrushToSkPaint(ABrush, TRectF.Create(APoint1, APoint2), AOpacity));
 end;
 
-procedure TSkCanvasCustom.DoDrawPath(const APath: TPathData;
+procedure TSkCanvasCustomBase.DoDrawPath(const APath: TPathData;
   const AOpacity: Single; const ABrush: TStrokeBrush);
 begin
   if SameValue(ABrush.Thickness, 0, TEpsilon.Position) then
     Exit;
-  FSurface.Canvas.DrawPath(APath.ToSkPath, StrokeBrushToSkPaint(ABrush, APath.GetBounds, AOpacity));
+  FCanvas.DrawPath(APath.ToSkPath, StrokeBrushToSkPaint(ABrush, APath.GetBounds, AOpacity));
 end;
 
-procedure TSkCanvasCustom.DoDrawRect(const ARect: TRectF;
+procedure TSkCanvasCustomBase.DoDrawRect(const ARect: TRectF;
   const AOpacity: Single; const ABrush: TStrokeBrush);
 begin
   if SameValue(ABrush.Thickness, 0, TEpsilon.Position) then
     Exit;
-  FSurface.Canvas.DrawRect(ARect, StrokeBrushToSkPaint(ABrush, ARect, AOpacity));
+  FCanvas.DrawRect(ARect, StrokeBrushToSkPaint(ABrush, ARect, AOpacity));
 end;
 
-procedure TSkCanvasCustom.DoEndScene;
-begin
-  if Parent <> nil then
-  begin
-    {$IFDEF MSWINDOWS}
-    if WindowHandleToPlatform(Parent){$IF CompilerVersion < 30}.Form{$ENDIF}.Transparency then
-      FSurface.ReadPixels(TSkImageInfo.Create({$IF CompilerVersion < 31}Width, Height{$ELSE}WindowHandleToPlatform(Parent).WndClientSize.Width, WindowHandleToPlatform(Parent).WndClientSize.Height{$ENDIF}), WindowHandleToPlatform(Parent).BufferBits, {$IF CompilerVersion < 31}Width{$ELSE}WindowHandleToPlatform(Parent).WndClientSize.Width{$ENDIF} * 4);
-    {$ENDIF}
-    EndWindow;
-  end;
-  FSurface := nil;
-  inherited;
-end;
-
-procedure TSkCanvasCustom.DoFillEllipse(const ARect: TRectF;
+procedure TSkCanvasCustomBase.DoFillEllipse(const ARect: TRectF;
   const AOpacity: Single; const ABrush: TBrush);
 var
   LPathBuilder: ISkPathBuilder;
 begin
   LPathBuilder := TSkPathBuilder.Create;
   LPathBuilder.AddOval(ARect, TSkPathDirection.CW, 3);
-  FSurface.Canvas.DrawPath(LPathBuilder.Detach, BrushToSkPaint(ABrush, ARect, AOpacity));
+  FCanvas.DrawPath(LPathBuilder.Detach, BrushToSkPaint(ABrush, ARect, AOpacity));
 end;
 
-procedure TSkCanvasCustom.DoFillPath(const APath: TPathData;
+procedure TSkCanvasCustomBase.DoFillPath(const APath: TPathData;
   const AOpacity: Single; const ABrush: TBrush);
 begin
-  FSurface.Canvas.DrawPath(APath.ToSkPath, BrushToSkPaint(ABrush, APath.GetBounds, AOpacity));
+  FCanvas.DrawPath(APath.ToSkPath, BrushToSkPaint(ABrush, APath.GetBounds, AOpacity));
 end;
 
-procedure TSkCanvasCustom.DoFillRect(const ARect: TRectF;
+procedure TSkCanvasCustomBase.DoFillRect(const ARect: TRectF;
   const AOpacity: Single; const ABrush: TBrush);
 begin
-  FSurface.Canvas.DrawRect(ARect, BrushToSkPaint(ABrush, ARect, AOpacity));
-end;
-
-class procedure TSkCanvasCustom.DoFinalize;
-begin
-end;
-
-class procedure TSkCanvasCustom.DoFinalizeBitmap(var ABitmapHandle: THandle);
-begin
-  ClearCacheBitmap(ABitmapHandle);
-  TSkBitmapHandle(ABitmapHandle).Free;
-end;
-
-class function TSkCanvasCustom.DoInitialize: Boolean;
-begin
-  Result := True;
-end;
-
-class function TSkCanvasCustom.DoInitializeBitmap(const AWidth,
-  AHeight: Integer; const AScale: Single;
-  var APixelFormat: TPixelFormat): THandle;
-begin
-  Result := THandle(TSkBitmapHandle.Create(AWidth, AHeight));
-  if APixelFormat = TPixelFormat.None then
-  begin
-    {$IF DEFINED(MSWINDOWS)}
-    APixelFormat := TPixelFormat.BGRA;
-    {$ELSEIF DEFINED(MACOS)}
-    if GlobalUseMetal then
-      APixelFormat := TPixelFormat.BGRA
-    else
-      APixelFormat := TPixelFormat.RGBA;
-    {$ELSE}
-    APixelFormat := TPixelFormat.RGBA;
-    {$ENDIF}
-  end;
-end;
-
-class function TSkCanvasCustom.DoMapBitmap(const ABitmapHandle: THandle;
-  const AAccess: TMapAccess; var ABitmapData: TBitmapData): Boolean;
-begin
-  if AAccess <> TMapAccess.Read then
-    ClearCacheBitmap(ABitmapHandle);
-  TSkBitmapHandle(ABitmapHandle).Initialize;
-  ABitmapData.Data  := TSkBitmapHandle(ABitmapHandle).Pixels;
-  ABitmapData.Pitch := TSkBitmapHandle(ABitmapHandle).Width * 4;
-  Result := True;
+  FCanvas.DrawRect(ARect, BrushToSkPaint(ABrush, ARect, AOpacity));
 end;
 
 {$IF CompilerVersion >= 30}
 
-procedure TSkCanvasCustom.DoSetMatrix(const AMatrix: TMatrix);
+procedure TSkCanvasCustomBase.DoSetMatrix(const AMatrix: TMatrix);
 begin
   if BeginSceneCount > 0 then
-    FSurface.Canvas.SetMatrix(AMatrix * TMatrix.CreateScaling(Scale, Scale));
+    FCanvas.SetMatrix(AMatrix * TMatrix.CreateScaling(Scale, Scale));
 end;
 
 {$ENDIF}
 
-class procedure TSkCanvasCustom.DoUnmapBitmap(const ABitmapHandle: THandle;
-  var ABitmapData: TBitmapData);
-begin
-end;
-
-procedure TSkCanvasCustom.EndWindow;
-begin
-end;
-
-procedure TSkCanvasCustom.ExcludeClipRect(const ARect: TRectF);
+procedure TSkCanvasCustomBase.ExcludeClipRect(const ARect: TRectF);
 begin
   Inc(FClippingChangeCount);
-  FSurface.Canvas.ClipRect(ARect, TSkClipOp.Difference);
+  FCanvas.ClipRect(ARect, TSkClipOp.Difference);
 end;
 
-class procedure TSkCanvasCustom.Finalize;
-var
-  LCanvas: TSkCanvasCustom;
-begin
-  DoFinalize;
-  for LCanvas in FImageCache.Keys do
-    ClearCache(LCanvas);
-  FImageCache.Free;
-  TSkiaAPI.Terminate;
-end;
-
-class function TSkCanvasCustom.GetCanvasStyle: TCanvasStyles;
+class function TSkCanvasCustomBase.GetCanvasStyle: TCanvasStyles;
 begin
   Result := [];
 end;
 
 {$IFDEF MODULATE_CANVAS}
 
-function TSkCanvasCustom.GetModulateColor: TAlphaColor;
+function TSkCanvasCustomBase.GetModulateColor: TAlphaColor;
 begin
   Result := FModulateColor;
 end;
 
 {$ENDIF}
 
-function TSkCanvasCustom.GetSamplingOptions(
+function TSkCanvasCustomBase.GetSamplingOptions(
   const AHighSpeed: Boolean): TSkSamplingOptions;
 begin
   if AHighSpeed then
@@ -1524,25 +1360,13 @@ begin
   end;
 end;
 
-class function TSkCanvasCustom.Initialize: Boolean;
-begin
-  TSkiaAPI.Initialize;
-  if not DoInitialize then
-  begin
-    TSkiaAPI.Terminate;
-    Exit(False);
-  end;
-  FImageCache := TObjectDictionary<TSkCanvasCustom, TDictionary<THandle, ISkImage>>.Create([doOwnsValues]);
-  Result      := True;
-end;
-
-procedure TSkCanvasCustom.IntersectClipRect(const ARect: TRectF);
+procedure TSkCanvasCustomBase.IntersectClipRect(const ARect: TRectF);
 begin
   Inc(FClippingChangeCount);
-  FSurface.Canvas.ClipRect(ARect);
+  FCanvas.ClipRect(ARect);
 end;
 
-function TSkCanvasCustom.PtInPath(const APoint: TPointF;
+function TSkCanvasCustomBase.PtInPath(const APoint: TPointF;
   const APath: TPathData): Boolean;
 var
   LPaint: ISkPaint;
@@ -1553,31 +1377,23 @@ begin
   Result := Assigned(LPath) and (LPath.Contains(APoint.X, APoint.Y));
 end;
 
-procedure TSkCanvasCustom.Resized;
+procedure TSkCanvasCustomBase.Restore;
 begin
-  {$IFDEF MSWINDOWS}
-  if (Parent <> nil) and (WindowHandleToPlatform(Parent){$IF CompilerVersion < 30}.Form{$ENDIF}.Transparency) then
-    WindowHandleToPlatform(Parent).ResizeBuffer({$IF CompilerVersion < 31}Width, Height{$ELSE}WindowHandleToPlatform(Parent).WndClientSize.Width, WindowHandleToPlatform(Parent).WndClientSize.Height{$ENDIF});
-  {$ENDIF}
+  FCanvas.Restore;
 end;
 
-procedure TSkCanvasCustom.Restore;
+procedure TSkCanvasCustomBase.Save;
 begin
-  FSurface.Canvas.Restore;
-end;
-
-procedure TSkCanvasCustom.Save;
-begin
-  FSurface.Canvas.Save;
+  FCanvas.Save;
 end;
 
 {$IF CompilerVersion < 30}
 
-procedure TSkCanvasCustom.SetMatrix(const AMatrix: TMatrix);
+procedure TSkCanvasCustomBase.SetMatrix(const AMatrix: TMatrix);
 begin
   inherited;
   if BeginSceneCount > 0 then
-    FSurface.Canvas.SetMatrix(AMatrix * TMatrix.CreateScaling(Scale, Scale));
+    FCanvas.SetMatrix(AMatrix * TMatrix.CreateScaling(Scale, Scale));
 end;
 
 {$ENDIF}
@@ -1585,23 +1401,14 @@ end;
 
 {$IFDEF MODULATE_CANVAS}
 
-procedure TSkCanvasCustom.SetModulateColor(const AColor: TAlphaColor);
+procedure TSkCanvasCustomBase.SetModulateColor(const AColor: TAlphaColor);
 begin
   FModulateColor := AColor;
 end;
 
 {$ENDIF}
 
-procedure TSkCanvasCustom.SetSize(const AWidth, AHeight: Integer);
-begin
-  if (Width <> AWidth) or (Height <> AHeight) then
-  begin
-    inherited;
-    Resized;
-  end;
-end;
-
-procedure TSkCanvasCustom.SetupBrush(const ABrush: TBrush; const ARect: TRectF;
+procedure TSkCanvasCustomBase.SetupBrush(const ABrush: TBrush; const ARect: TRectF;
   const AOpacity: Single; const APaint: ISkPaint);
 const
   WrapMode: array[TWrapMode.Tile..TWrapMode.TileOriginal] of TSkTileMode = (TSkTileMode.Repeat, TSkTileMode.Clamp);
@@ -1685,7 +1492,7 @@ begin
   end;
 end;
 
-function TSkCanvasCustom.StrokeBrushToSkPaint(const ABrush: TStrokeBrush;
+function TSkCanvasCustomBase.StrokeBrushToSkPaint(const ABrush: TStrokeBrush;
   const ARect: TRectF; const AOpacity: Single): ISkPaint;
 const
   StrokeCap  : array[TStrokeCap] of TSkStrokeCap = (TSkStrokeCap.Square, TSkStrokeCap.Round);
@@ -1718,20 +1525,291 @@ begin
   end;
 end;
 
-{ TSkCanvasCustom.TSaveState }
-
-procedure TSkCanvasCustom.TSaveState.Assign(ASource: TPersistent);
+function TSkCanvasCustomBase.TryGetBitmapCache(const ABitmap: FMX.Graphics.TBitmap;
+  out AValue: ISkImage): Boolean;
 begin
-  inherited;
-  if ASource is TSkCanvasCustom then
-    TSkCanvasCustom(ASource).Save;
+  Result := False;
+  AValue := nil;
 end;
 
-procedure TSkCanvasCustom.TSaveState.AssignTo(ADest: TPersistent);
+{ TSkCanvasCustomBase.TSaveState }
+
+procedure TSkCanvasCustomBase.TSaveState.Assign(ASource: TPersistent);
 begin
   inherited;
-  if ADest is TSkCanvasCustom then
-    TSkCanvasCustom(ADest).Restore;
+  if ASource is TSkCanvasCustomBase then
+    TSkCanvasCustomBase(ASource).Save;
+end;
+
+procedure TSkCanvasCustomBase.TSaveState.AssignTo(ADest: TPersistent);
+begin
+  inherited;
+  if ADest is TSkCanvasCustomBase then
+    TSkCanvasCustomBase(ADest).Restore;
+end;
+
+{ TSkCanvasCustom }
+
+procedure TSkCanvasCustom.BeforeDestruction;
+begin
+  inherited;
+  if Parent <> nil then
+    DestroyWindow;
+end;
+
+class procedure TSkCanvasCustom.ClearCache(const ACanvas: TSkCanvasCustom);
+begin
+  FImageCache[ACanvas].Clear;
+end;
+
+class procedure TSkCanvasCustom.ClearCacheBitmap(const ABitmapHandle: THandle);
+begin
+  TThread.Queue(nil,
+    procedure ()
+    var
+      LCanvas: TSkCanvasCustom;
+    begin
+      if Assigned(FImageCache) then
+      begin
+        for LCanvas in FImageCache.Keys do
+        begin
+          if FImageCache[LCanvas].ContainsKey(ABitmapHandle) then
+            DoClearCacheBitmap(LCanvas, ABitmapHandle);
+        end;
+      end;
+    end);
+end;
+
+function TSkCanvasCustom.CreateCache(const AWidth, AHeight: Integer;
+  const AColorType: TSkColorType; const APixels: Pointer;
+  const ARowBytes: NativeUInt): ISkImage;
+begin
+  Result := TSkImage.MakeFromRaster(TSkImageInfo.Create(AWidth, AHeight, AColorType), APixels, ARowBytes);
+end;
+
+constructor TSkCanvasCustom.CreateFromPrinter(const APrinter: TAbstractPrinter);
+begin
+  raise ESkCanvas.Create('Create from printer is not supported');
+end;
+
+{$IFDEF MSWINDOWS}
+
+constructor TSkCanvasCustom.CreateFromWindow(const AParent: TWindowHandle;
+  const AWidth, AHeight: Integer; const AQuality: TCanvasQuality);
+begin
+  inherited;
+  if WindowHandleToPlatform(Parent){$IF CompilerVersion < 30}.Form{$ENDIF}.Transparency then
+    WindowHandleToPlatform(Parent).CreateBuffer({$IF CompilerVersion < 31}Width, Height{$ELSE}WindowHandleToPlatform(Parent).WndClientSize.Width, WindowHandleToPlatform(Parent).WndClientSize.Height{$ENDIF});
+end;
+
+{$ENDIF}
+
+procedure TSkCanvasCustom.DestroyWindow;
+begin
+  if Assigned(FImageCache) then
+    FImageCache.Remove(Self);
+end;
+
+function TSkCanvasCustom.DoBeginScene({$IF CompilerVersion < 35}const {$ENDIF}AClipRects: PClipRects;
+  AContextHandle: THandle): Boolean;
+begin
+  Result := inherited;
+  if Result then
+  begin
+    if Bitmap <> nil then
+    begin
+      ClearCacheBitmap(Bitmap.Handle);
+      TSkBitmapHandle(Bitmap.Handle).Initialize;
+      FDrawableWidth  := Width;
+      FDrawableHeight := Height;
+      FSurface        := TSkSurface.MakeRasterDirect(TSkImageInfo.Create(Width, Height, SkFmxColorType[Bitmap.PixelFormat]), TSkBitmapHandle(Bitmap.Handle).Pixels, Width * 4);
+    end
+    else if Parent <> nil then
+    begin
+      FDrawableWidth  := Round(Width  * Scale);
+      FDrawableHeight := Round(Height * Scale);
+      FSurface        := BeginWindow(AContextHandle);
+    end
+    else
+      Exit(False);
+    Result := Assigned(FSurface);
+    if Result then
+    begin
+      FCanvas := FSurface.Canvas;
+      FCanvas.SetMatrix(TMatrix.CreateScaling(Scale, Scale));
+    end;
+  end;
+end;
+
+class procedure TSkCanvasCustom.DoClearCacheBitmap(
+  const ACanvas: TSkCanvasCustom; const ABitmapHandle: THandle);
+begin
+  FImageCache[ACanvas].Remove(ABitmapHandle);
+end;
+
+procedure TSkCanvasCustom.DoEndScene;
+begin
+  if Parent <> nil then
+  begin
+    {$IFDEF MSWINDOWS}
+    if WindowHandleToPlatform(Parent){$IF CompilerVersion < 30}.Form{$ENDIF}.Transparency then
+      FSurface.ReadPixels(TSkImageInfo.Create({$IF CompilerVersion < 31}Width, Height{$ELSE}WindowHandleToPlatform(Parent).WndClientSize.Width, WindowHandleToPlatform(Parent).WndClientSize.Height{$ENDIF}), WindowHandleToPlatform(Parent).BufferBits, {$IF CompilerVersion < 31}Width{$ELSE}WindowHandleToPlatform(Parent).WndClientSize.Width{$ENDIF} * 4);
+    {$ENDIF}
+    EndWindow;
+  end;
+  FCanvas := nil;
+  FSurface := nil;
+  inherited;
+end;
+
+class procedure TSkCanvasCustom.DoFinalize;
+begin
+end;
+
+class procedure TSkCanvasCustom.DoFinalizeBitmap(var ABitmapHandle: THandle);
+begin
+  ClearCacheBitmap(ABitmapHandle);
+  TSkBitmapHandle(ABitmapHandle).Free;
+end;
+
+class function TSkCanvasCustom.DoInitialize: Boolean;
+begin
+  Result := True;
+end;
+
+class function TSkCanvasCustom.DoInitializeBitmap(const AWidth,
+  AHeight: Integer; const AScale: Single;
+  var APixelFormat: TPixelFormat): THandle;
+begin
+  Result := THandle(TSkBitmapHandle.Create(AWidth, AHeight));
+  if APixelFormat = TPixelFormat.None then
+  begin
+    {$IF DEFINED(MSWINDOWS)}
+    APixelFormat := TPixelFormat.BGRA;
+    {$ELSEIF DEFINED(MACOS)}
+    if GlobalUseMetal then
+      APixelFormat := TPixelFormat.BGRA
+    else
+      APixelFormat := TPixelFormat.RGBA;
+    {$ELSE}
+    APixelFormat := TPixelFormat.RGBA;
+    {$ENDIF}
+  end;
+end;
+
+class function TSkCanvasCustom.DoMapBitmap(const ABitmapHandle: THandle;
+  const AAccess: TMapAccess; var ABitmapData: TBitmapData): Boolean;
+begin
+  if AAccess <> TMapAccess.Read then
+    ClearCacheBitmap(ABitmapHandle);
+  TSkBitmapHandle(ABitmapHandle).Initialize;
+  ABitmapData.Data  := TSkBitmapHandle(ABitmapHandle).Pixels;
+  ABitmapData.Pitch := TSkBitmapHandle(ABitmapHandle).Width * 4;
+  Result := True;
+end;
+
+class procedure TSkCanvasCustom.DoUnmapBitmap(const ABitmapHandle: THandle;
+  var ABitmapData: TBitmapData);
+begin
+end;
+
+procedure TSkCanvasCustom.EndWindow;
+begin
+end;
+
+class procedure TSkCanvasCustom.Finalize;
+var
+  LCanvas: TSkCanvasCustom;
+begin
+  DoFinalize;
+  for LCanvas in FImageCache.Keys do
+    ClearCache(LCanvas);
+  FImageCache.Free;
+  TSkiaAPI.Terminate;
+end;
+
+class function TSkCanvasCustom.Initialize: Boolean;
+begin
+  TSkiaAPI.Initialize;
+  if not DoInitialize then
+  begin
+    TSkiaAPI.Terminate;
+    Exit(False);
+  end;
+  FImageCache := TObjectDictionary<TSkCanvasCustom, TDictionary<THandle, ISkImage>>.Create([doOwnsValues]);
+  Result      := True;
+end;
+
+procedure TSkCanvasCustom.Resized;
+begin
+  {$IFDEF MSWINDOWS}
+  if (Parent <> nil) and (WindowHandleToPlatform(Parent){$IF CompilerVersion < 30}.Form{$ENDIF}.Transparency) then
+    WindowHandleToPlatform(Parent).ResizeBuffer({$IF CompilerVersion < 31}Width, Height{$ELSE}WindowHandleToPlatform(Parent).WndClientSize.Width, WindowHandleToPlatform(Parent).WndClientSize.Height{$ENDIF});
+  {$ENDIF}
+end;
+
+procedure TSkCanvasCustom.SetSize(const AWidth, AHeight: Integer);
+begin
+  if (Width <> AWidth) or (Height <> AHeight) then
+  begin
+    inherited;
+    Resized;
+  end;
+end;
+
+function TSkCanvasCustom.TryGetBitmapCache(const ABitmap: FMX.Graphics.TBitmap;
+  out AValue: ISkImage): Boolean;
+begin
+  Result := Assigned(FImageCache);
+  if Result then
+  begin
+    if (FImageCache.ContainsKey(Self)) and (FImageCache[Self].ContainsKey(ABitmap.Handle)) then
+      AValue := FImageCache[Self][ABitmap.Handle]
+    else
+    begin
+      AValue := CreateCache(ABitmap.Width, ABitmap.Height, SkFmxColorType[ABitmap.PixelFormat], TSkBitmapHandle(ABitmap.Handle).Pixels, ABitmap.Width * 4);
+      if not FImageCache.ContainsKey(Self) then
+        FImageCache.Add(Self, TDictionary<THandle, ISkImage>.Create);
+      FImageCache[Self].Add(ABitmap.Handle, AValue);
+    end;
+  end;
+end;
+
+{ TSkCanvasWrapper }
+
+constructor TSkCanvasWrapper.Create(const ACanvas: ISkCanvas; const AWidth,
+  AHeight: Integer);
+begin
+  inherited Create;
+  FCanvas := ACanvas;
+  Initialize;
+  SetSize(AWidth, AHeight);
+  SetMatrix(ACanvas.GetLocalToDeviceAs3x3);
+  BeginScene;
+end;
+
+class procedure TSkCanvasWrapper.DoFinalizeBitmap(var ABitmapHandle: THandle);
+begin
+  raise ESkCanvas.Create('Bitmap operations are not supported');
+end;
+
+class function TSkCanvasWrapper.DoInitializeBitmap(const AWidth,
+  AHeight: Integer; const AScale: Single;
+  var APixelFormat: TPixelFormat): THandle;
+begin
+  raise ESkCanvas.Create('Bitmap operations are not supported');
+end;
+
+class function TSkCanvasWrapper.DoMapBitmap(const ABitmapHandle: THandle;
+  const AAccess: TMapAccess; var ABitmapData: TBitmapData): Boolean;
+begin
+  raise ESkCanvas.Create('Bitmap operations are not supported');
+end;
+
+class procedure TSkCanvasWrapper.DoUnmapBitmap(const ABitmapHandle: THandle;
+  var ABitmapData: TBitmapData);
+begin
+  raise ESkCanvas.Create('Bitmap operations are not supported');
 end;
 
 { TSkCanvasRasterCustom }
@@ -1827,6 +1905,7 @@ end;
 
 procedure TGrCanvasCustom.EndWindow;
 begin
+  FCanvas := nil;
   FSurface.FlushAndSubmit;
   FSurface := nil;
   FContext.FlushAndSubmit;
