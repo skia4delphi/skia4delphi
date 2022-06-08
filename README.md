@@ -513,7 +513,7 @@ uses
   FMX.Controls,
   FMX.Graphics,
   Skia,
-  Skia.FMX.Graphics;
+  Skia.FMX;
 
 type
   TControl1 = class(TControl)
@@ -543,7 +543,7 @@ In the same way it is possible to access SkCanvas from TCanvas from a TBitmap:
 ```pascal
 uses
   Skia,
-  Skia.FMX.Graphics;
+  Skia.FMX;
 
 var
   LBitmap: TBitmap;
