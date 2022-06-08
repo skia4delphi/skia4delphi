@@ -4,9 +4,9 @@ interface
 
 uses
   { Delphi }
-  System.SysUtils, System.Types, System.UITypes, System.Classes, FMX.Types,
-  FMX.Controls, FMX.Forms, FMX.Graphics, FMX.Dialogs, FMX.Effects, FMX.StdCtrls,
-  FMX.Controls.Presentation, FMX.Objects, FMX.Layouts, System.IOUtils,
+  System.SysUtils, System.Types, System.UITypes, System.Classes, System.IOUtils,
+  FMX.Types, FMX.Controls, FMX.Forms, FMX.Graphics, FMX.Dialogs, FMX.Effects,
+  FMX.StdCtrls, FMX.Controls.Presentation, FMX.Objects, FMX.Layouts,
 
   { Skia }
   Skia, Skia.FMX;
@@ -63,6 +63,7 @@ type
   TFreehandRender = class(TInterfacedObject, IFreehandRender)
   strict private
     FCurrentPath: ISkPath;
+    FLastPoint: TPointF;
     FOldPaths: TArray<ISkPath>;
     FPathBuilder: ISkPathBuilder;
     FPressed: Boolean;
@@ -112,6 +113,7 @@ begin
   FPressed := True;
   FPathBuilder := TSkPathBuilder.Create;
   FPathBuilder.MoveTo(X, Y);
+  FLastPoint := PointF(X, Y);
   FCurrentPath := nil;
 end;
 
@@ -129,11 +131,14 @@ end;
 
 procedure TFreehandRender.OnMouseMove(ASender: TObject; AShift: TShiftState; X,
   Y: Single);
+const
+  MinPointsDistance = 5;
 begin
-  if FPressed and Assigned(FPathBuilder) then
+  if FPressed and Assigned(FPathBuilder) and (FLastPoint.Distance(PointF(X, Y)) >= MinPointsDistance) then
   begin
     FCurrentPath := nil;
     FPathBuilder.LineTo(X, Y);
+    FLastPoint := PointF(X, Y);
     (ASender as TSkPaintBox).Redraw;
   end;
 end;
