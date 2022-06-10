@@ -62,6 +62,7 @@ type
 
   TSkPathDataHelper = class helper for TPathData
   public
+    procedure AddSkPath(const AValue: ISkPath);
     procedure FromSkPath(const AValue: ISkPath);
     function ToSkPath: ISkPath;
   end;
@@ -1434,12 +1435,11 @@ end;
 
 { TSkPathDataHelper }
 
-procedure TSkPathDataHelper.FromSkPath(const AValue: ISkPath);
+procedure TSkPathDataHelper.AddSkPath(const AValue: ISkPath);
 var
   LElem: TSkPathIteratorElem;
   LPoints: TArray<TPointF>;
 begin
-  Clear;
   for LElem in AValue.GetIterator(False) do
   begin
     case LElem.Verb of
@@ -1456,6 +1456,12 @@ begin
       TSkPathVerb.Close : ClosePath;
     end;
   end;
+end;
+
+procedure TSkPathDataHelper.FromSkPath(const AValue: ISkPath);
+begin
+  Clear;
+  AddSkPath(AValue);
 end;
 
 function TSkPathDataHelper.ToSkPath: ISkPath;
