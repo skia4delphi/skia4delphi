@@ -1125,7 +1125,7 @@ begin
   {$ENDIF}
   // - -------------------------------------------------------------------------
   if LText.EndsWith(#0) then
-    LText := LText.Substring(0, LText.Length - 1);
+    LText := LText.Substring(0, LText.Length - 1) + ZeroWidthChar;
   // - -------------------------------------------------------------------------
   {$ENDREGION}
 
