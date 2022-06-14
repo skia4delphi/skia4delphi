@@ -223,9 +223,9 @@ type
       Paragraph: ISkParagraph;
       Range: TTextRange;
     end;
-  strict private
-    class var
-      FParagraphTextRangeComparer: IComparer<TParagraphItem>;
+  strict private class var
+    FAttributesRangeComparer: IComparer<TTextAttributedRange>;
+    FParagraphTextRangeComparer: IComparer<TParagraphItem>;
     class constructor Create;
   strict private
     FColor: TAlphaColor;
@@ -501,6 +501,16 @@ end;
 
 class constructor TSkTextLayout.Create;
 begin
+  FAttributesRangeComparer := TComparer<TTextAttributedRange>.Construct(
+    function(const ALeft, ARight: TTextAttributedRange): Integer
+    begin
+      if (ALeft.Range.Pos + ALeft.Range.Length) <= ARight.Range.Pos then
+        Result := -1
+      else if ALeft.Range.Pos >= (ARight.Range.Pos + ARight.Range.Length) then
+        Result := 1
+      else
+        Result := 0;
+    end);
   FParagraphTextRangeComparer := TComparer<TParagraphItem>.Construct(
     function(const ALeft, ARight: TParagraphItem): Integer
     begin
@@ -848,22 +858,11 @@ const
     I: Integer;
     LAttribute: TTextAttributedRange;
     LAttributes: TList<TTextAttributedRange>;
-    LComparer: IComparer<TTextAttributedRange>;
     LIndex: Integer;
     LNeighborAttribute: TTextAttributedRange;
   begin
     if AttributesCount = 0 then
       Exit(nil);
-    LComparer := TComparer<TTextAttributedRange>.Construct(
-      function(const ALeft, ARight: TTextAttributedRange): Integer
-      begin
-        if (ALeft.Range.Pos + ALeft.Range.Length) <= ARight.Range.Pos then
-          Result := -1
-        else if ALeft.Range.Pos >= (ARight.Range.Pos + ARight.Range.Length) then
-          Result := 1
-        else
-          Result := 0;
-      end);
     LAttributes := TList<TTextAttributedRange>.Create;
     try
       for I := 0 to AttributesCount - 1 do
@@ -878,7 +877,7 @@ const
           LAttribute.Free;
           Continue;
         end;
-        if LAttributes.BinarySearch(LAttribute, LIndex, LComparer) then
+        if LAttributes.BinarySearch(LAttribute, LIndex, FAttributesRangeComparer) then
         begin
           if (LAttributes[LIndex].Range.Pos < LAttribute.Range.Pos) and ((LAttributes[LIndex].Range.Pos + LAttributes[LIndex].Range.Length) > (LAttribute.Range.Pos + LAttribute.Range.Length)) then
           begin
