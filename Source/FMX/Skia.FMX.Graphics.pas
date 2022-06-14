@@ -1096,14 +1096,43 @@ const
   end;
 
 var
+  LText: string;
   LLines: TArray<string>;
   LPos: Integer;
   I: Integer;
 begin
-  if WordWrap or Text.IsEmpty then
-    LLines := [Text]
+  LText := Text;
+
+  {$REGION ' - Workaround RSP-38480'}
+  // - -------------------------------------------------------------------------
+  // - WORKAROUND
+  // - -------------------------------------------------------------------------
+  // -
+  // - Description:
+  // -   This code is a workaround intended to fix issues with controls that
+  // -   create the TTextLayout but doesn't set the TTextLayout.RightToLeft,
+  // -   like the TText control.
+  // -   This code is a workaround intended to fix issues with function
+  // -   FMX.Types.DelAmp with results in texts with #0 char at end of string
+  // -   when the original text contains a '&' char
+  // -
+  // - Bug report:
+  // -   https://quality.embarcadero.com/browse/RSP-38480
+  // -
+  // - -------------------------------------------------------------------------
+  {$IF CompilerVersion > 35}
+    {$MESSAGE WARN 'Check if the issue has been fixed'}
+  {$ENDIF}
+  // - -------------------------------------------------------------------------
+  if LText.EndsWith(#0) then
+    LText := LText.Substring(0, LText.Length - 1);
+  // - -------------------------------------------------------------------------
+  {$ENDREGION}
+
+  if WordWrap or LText.IsEmpty then
+    LLines := [LText]
   else
-    LLines := Text.Replace(#13#10, ZeroWidthChar + #10).Replace(#13, #10).Replace(#10, ZeroWidthChar + #10).Split([#10]);
+    LLines := LText.Replace(#13#10, ZeroWidthChar + #10).Replace(#13, #10).Replace(#10, ZeroWidthChar + #10).Split([#10]);
   LPos := 0;
   SetLength(FParagraphs, Length(LLines));
   for I := 0 to Length(LLines) - 1 do
