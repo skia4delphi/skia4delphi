@@ -53,9 +53,9 @@ type
     function ToSkImage: ISkImage;
   end;
 
-  { TSkPersistentData }
+  { TSkPersistent }
 
-  TSkPersistentData = class(TPersistent)
+  TSkPersistent = class(TPersistent)
   strict private
     FChanged: Boolean;
     FCreated: Boolean;
@@ -315,7 +315,7 @@ type
   end;
 
   { TSkCustomAnimation }
-  TSkCustomAnimation = class(TSkPersistentData)
+  TSkCustomAnimation = class(TSkPersistent)
   public const
     DefaultFrameRate = 60;
   public class var
@@ -690,7 +690,7 @@ type
 
   { TSkFontComponent }
 
-  TSkFontComponent = class(TSkPersistentData)
+  TSkFontComponent = class(TSkPersistent)
   public
     type
       TSkFontSlant = (Regular, Italic, Oblique);
@@ -738,12 +738,12 @@ type
 
   { TSkTextSettings }
 
-  TSkTextSettings = class(TSkPersistentData)
+  TSkTextSettings = class(TSkPersistent)
   public
     type
       { TDecorations }
 
-      TDecorations = class(TSkPersistentData)
+      TDecorations = class(TSkPersistent)
       strict protected
         const
           DefaultColor = TAlphaColors.Null;
@@ -3621,15 +3621,15 @@ begin
     ACodec := nil;
 end;
 
-{ TSkPersistentData }
+{ TSkPersistent }
 
-procedure TSkPersistentData.AfterConstruction;
+procedure TSkPersistent.AfterConstruction;
 begin
   inherited;
   FCreated := True;
 end;
 
-procedure TSkPersistentData.Assign(ASource: TPersistent);
+procedure TSkPersistent.Assign(ASource: TPersistent);
 begin
   if ASource <> Self then
   begin
@@ -3642,18 +3642,18 @@ begin
   end;
 end;
 
-procedure TSkPersistentData.BeginUpdate;
+procedure TSkPersistent.BeginUpdate;
 begin
   BeginUpdate(False);
 end;
 
-procedure TSkPersistentData.BeginUpdate(const AIgnoreAllChanges: Boolean);
+procedure TSkPersistent.BeginUpdate(const AIgnoreAllChanges: Boolean);
 begin
   Inc(FUpdatingCount);
   FIgnoringAllChanges := FIgnoringAllChanges or AIgnoreAllChanges;
 end;
 
-procedure TSkPersistentData.Change;
+procedure TSkPersistent.Change;
 begin
   if FUpdatingCount > 0 then
     FChanged := True
@@ -3664,23 +3664,23 @@ begin
   end;
 end;
 
-procedure TSkPersistentData.DoAssign(ASource: TPersistent);
+procedure TSkPersistent.DoAssign(ASource: TPersistent);
 begin
   inherited Assign(ASource);
 end;
 
-procedure TSkPersistentData.DoChanged;
+procedure TSkPersistent.DoChanged;
 begin
   if FCreated and Assigned(FOnChange) then
     FOnChange(Self);
 end;
 
-procedure TSkPersistentData.EndUpdate;
+procedure TSkPersistent.EndUpdate;
 begin
   EndUpdate(False);
 end;
 
-procedure TSkPersistentData.EndUpdate(const AIgnoreAllChanges: Boolean);
+procedure TSkPersistent.EndUpdate(const AIgnoreAllChanges: Boolean);
 var
   LCallChange: Boolean;
   LIgnoreChanges: Boolean;
@@ -3703,17 +3703,17 @@ begin
   end;
 end;
 
-function TSkPersistentData.GetHasChanged: Boolean;
+function TSkPersistent.GetHasChanged: Boolean;
 begin
   Result := FChanged;
 end;
 
-function TSkPersistentData.GetUpdating: Boolean;
+function TSkPersistent.GetUpdating: Boolean;
 begin
   Result := FUpdatingCount > 0;
 end;
 
-function TSkPersistentData.SetValue(var AField: Byte; const AValue: Byte): Boolean;
+function TSkPersistent.SetValue(var AField: Byte; const AValue: Byte): Boolean;
 begin
   Result := AField <> AValue;
   if Result then
@@ -3723,7 +3723,7 @@ begin
   end;
 end;
 
-function TSkPersistentData.SetValue(var AField: Word; const AValue: Word): Boolean;
+function TSkPersistent.SetValue(var AField: Word; const AValue: Word): Boolean;
 begin
   Result := AField <> AValue;
   if Result then
@@ -3733,7 +3733,7 @@ begin
   end;
 end;
 
-function TSkPersistentData.SetValue(var AField: Double; const AValue,
+function TSkPersistent.SetValue(var AField: Double; const AValue,
   AEpsilon: Double): Boolean;
 begin
   Result := not SameValue(AField, AValue, AEpsilon);
@@ -3744,7 +3744,7 @@ begin
   end;
 end;
 
-function TSkPersistentData.SetValue(var AField: TBytes; const AValue: TBytes): Boolean;
+function TSkPersistent.SetValue(var AField: TBytes; const AValue: TBytes): Boolean;
 begin
   Result := not IsSameBytes(AField, AValue);
   if Result then
@@ -3754,7 +3754,7 @@ begin
   end;
 end;
 
-function TSkPersistentData.SetValue(var AField: string; const AValue: string): Boolean;
+function TSkPersistent.SetValue(var AField: string; const AValue: string): Boolean;
 begin
   Result := AField <> AValue;
   if Result then
@@ -3764,7 +3764,7 @@ begin
   end;
 end;
 
-function TSkPersistentData.SetValue(var AField: Single; const AValue,
+function TSkPersistent.SetValue(var AField: Single; const AValue,
   AEpsilon: Single): Boolean;
 begin
   Result := not SameValue(AField, AValue, AEpsilon);
@@ -3775,7 +3775,7 @@ begin
   end;
 end;
 
-function TSkPersistentData.SetValue(var AField: Boolean;
+function TSkPersistent.SetValue(var AField: Boolean;
   const AValue: Boolean): Boolean;
 begin
   Result := AField <> AValue;
@@ -3786,7 +3786,7 @@ begin
   end;
 end;
 
-function TSkPersistentData.SetValue(var AField: Cardinal;
+function TSkPersistent.SetValue(var AField: Cardinal;
   const AValue: Cardinal): Boolean;
 begin
   Result := AField <> AValue;
@@ -3797,7 +3797,7 @@ begin
   end;
 end;
 
-function TSkPersistentData.SetValue(var AField: Integer;
+function TSkPersistent.SetValue(var AField: Integer;
   const AValue: Integer): Boolean;
 begin
   Result := AField <> AValue;
@@ -3808,7 +3808,7 @@ begin
   end;
 end;
 
-function TSkPersistentData.SetValue(var AField: Int64; const AValue: Int64): Boolean;
+function TSkPersistent.SetValue(var AField: Int64; const AValue: Int64): Boolean;
 begin
   Result := AField <> AValue;
   if Result then
@@ -3818,7 +3818,7 @@ begin
   end;
 end;
 
-function TSkPersistentData.SetValue<T>(var AField: T; const AValue: T): Boolean;
+function TSkPersistent.SetValue<T>(var AField: T; const AValue: T): Boolean;
 begin
   if Assigned(TypeInfo(T)) and (PTypeInfo(TypeInfo(T)).Kind in [TTypeKind.tkSet, TTypeKind.tkEnumeration, TTypeKind.tkRecord{$IF CompilerVersion >= 33}, TTypeKind.tkMRecord{$ENDIF}]) then
     Result := not CompareMem(@AField, @AValue, SizeOf(T))
