@@ -178,10 +178,9 @@ type
   { TSkSvgBrush }
 
   TSkSvgBrush = class(TPersistent)
-  strict private
-    const
-      DefaultGrayScale = False;
-      DefaultWrapMode = TSkSvgWrapMode.Fit;
+  strict private const
+    DefaultGrayScale = False;
+    DefaultWrapMode = TSkSvgWrapMode.Fit;
   strict private
     FDOM: ISkSVGDOM;
     FGrayScale: Boolean;
@@ -336,29 +335,28 @@ type
     SpeedRoundTo = -3;
     TimeEpsilon = 1E-3;
     TimeRoundTo = -3;
-  strict private
-    type
-      TProcess = class
-      strict private
-        // Unsafe referece for TSkAnimation in list
-        FAniList: TList<Pointer>;
-        FAniProcessingList: TList<Pointer>;
-        FAnimation: TTimer;
-        FPerformanceFrequency: Int64;
-        FTime: Double;
-        procedure DoAdd(const AAnimation: TSkCustomAnimation);
-        procedure DoRemove(const AAnimation: TSkCustomAnimation);
-        function GetTick: Double;
-        procedure OnProcess(ASender: TObject);
-      strict private
-        class var FProcess: TProcess;
-        class destructor Destroy;
-      public
-        constructor Create;
-        destructor Destroy; override;
-        class procedure Add(const AAnimation: TSkCustomAnimation); static;
-        class procedure Remove(const AAnimation: TSkCustomAnimation); static;
-      end;
+  strict private type
+    TProcess = class
+    strict private
+      // Unsafe referece for TSkAnimation in list
+      FAniList: TList<Pointer>;
+      FAniProcessingList: TList<Pointer>;
+      FAnimation: TTimer;
+      FPerformanceFrequency: Int64;
+      FTime: Double;
+      procedure DoAdd(const AAnimation: TSkCustomAnimation);
+      procedure DoRemove(const AAnimation: TSkCustomAnimation);
+      function GetTick: Double;
+      procedure OnProcess(ASender: TObject);
+    strict private
+      class var FProcess: TProcess;
+      class destructor Destroy;
+    public
+      constructor Create;
+      destructor Destroy; override;
+      class procedure Add(const AAnimation: TSkCustomAnimation); static;
+      class procedure Remove(const AAnimation: TSkCustomAnimation); static;
+    end;
   strict private
     FAllowAnimation: Boolean;
     FAutoReverse: Boolean;
@@ -458,17 +456,16 @@ type
   { TSkCustomAnimatedControl }
 
   TSkCustomAnimatedControl = class abstract(TSkCustomWinControl)
-  strict protected
-    type
-      TAnimationBase = class(TSkCustomAnimation)
-      strict private
-        FInsideDoProcess: Boolean;
-      protected
-        procedure DoChanged; override;
-        procedure DoFinish; override;
-        procedure DoProcess; override;
-        procedure DoStart; override;
-      end;
+  strict protected type
+    TAnimationBase = class(TSkCustomAnimation)
+    strict private
+      FInsideDoProcess: Boolean;
+    protected
+      procedure DoChanged; override;
+      procedure DoFinish; override;
+      procedure DoProcess; override;
+      procedure DoStart; override;
+    end;
   strict private
     FAbsoluteVisible: Boolean;
     FAbsoluteVisibleCached: Boolean;
@@ -507,33 +504,32 @@ type
   { TSkAnimatedPaintBox }
 
   TSkAnimatedPaintBox = class(TSkCustomAnimatedControl)
-  public
-    type
-      { TAnimation }
+  public type
+    { TAnimation }
 
-      TAnimation = class(TAnimationBase)
-      protected const
-        DefaultDuration = 1;
-      strict private
-        function IsDurationStored: Boolean;
-      strict protected
-        procedure DoAssign(ASource: TPersistent); override;
-      public
-        constructor Create(const AOwner: TComponent);
-        function Equals(AObject: TObject): Boolean; override;
-      published
-        property AutoReverse;
-        property Delay;
-        property Duration: Double read GetDuration write SetDuration stored IsDurationStored;
-        property Enabled;
-        property Inverse;
-        property Loop;
-        property Progress;
-        property Speed;
-        property StartFromCurrent;
-        property StartProgress;
-        property StopProgress;
-      end;
+    TAnimation = class(TAnimationBase)
+    protected const
+      DefaultDuration = 1;
+    strict private
+      function IsDurationStored: Boolean;
+    strict protected
+      procedure DoAssign(ASource: TPersistent); override;
+    public
+      constructor Create(const AOwner: TComponent);
+      function Equals(AObject: TObject): Boolean; override;
+    published
+      property AutoReverse;
+      property Delay;
+      property Duration: Double read GetDuration write SetDuration stored IsDurationStored;
+      property Enabled;
+      property Inverse;
+      property Loop;
+      property Progress;
+      property Speed;
+      property StartFromCurrent;
+      property StartProgress;
+      property StopProgress;
+    end;
   strict private
     function GetAnimation: TAnimation;
     procedure ReadAnimate(AReader: TReader);
@@ -569,74 +565,72 @@ type
   { TSkAnimatedImage }
 
   TSkAnimatedImage = class(TSkCustomAnimatedControl)
-  public
-    type
-      { TAnimation }
+  public type
+    { TAnimation }
 
-      TAnimation = class(TAnimationBase)
-      published
-        property AutoReverse;
-        property Delay;
-        property Duration;
-        property Enabled;
-        property Inverse;
-        property Loop;
-        property Progress;
-        property Speed;
-        property StartFromCurrent;
-        property StartProgress;
-        property StopProgress;
-      end;
+    TAnimation = class(TAnimationBase)
+    published
+      property AutoReverse;
+      property Delay;
+      property Duration;
+      property Enabled;
+      property Inverse;
+      property Loop;
+      property Progress;
+      property Speed;
+      property StartFromCurrent;
+      property StartProgress;
+      property StopProgress;
+    end;
 
-      { TSource }
+    { TSource }
 
-      TSource = class(TPersistent)
-      public type
-        TChangeProc = procedure of object;
-      strict private
-        FData: TBytes;
-        FOnChange: TChangeProc;
-        procedure SetData(const AValue: TBytes);
-      public
-        constructor Create(const AOnChange: TChangeProc);
-        procedure Assign(ASource: TPersistent); override;
-        function Equals(AObject: TObject): Boolean; override;
-        property Data: TBytes read FData write SetData;
-      end;
+    TSource = class(TPersistent)
+    public type
+      TChangeProc = procedure of object;
+    strict private
+      FData: TBytes;
+      FOnChange: TChangeProc;
+      procedure SetData(const AValue: TBytes);
+    public
+      constructor Create(const AOnChange: TChangeProc);
+      procedure Assign(ASource: TPersistent); override;
+      function Equals(AObject: TObject): Boolean; override;
+      property Data: TBytes read FData write SetData;
+    end;
 
-      { TFormatInfo }
+    { TFormatInfo }
 
-      TFormatInfo = record
-        Description: string;
-        Extensions: TArray<string>;
-        Name: string;
-        constructor Create(const AName, ADescription: string; const AExtensions: TArray<string>);
-      end;
+    TFormatInfo = record
+      Description: string;
+      Extensions: TArray<string>;
+      Name: string;
+      constructor Create(const AName, ADescription: string; const AExtensions: TArray<string>);
+    end;
 
-      { TAnimationCodec }
+    { TAnimationCodec }
 
-      TAnimationCodec = class
-      strict protected
-        function GetDuration: Double; virtual; abstract;
-        function GetFPS: Double; virtual; abstract;
-        function GetIsStatic: Boolean; virtual; abstract;
-        function GetSize: TSizeF; virtual; abstract;
-      public
-        procedure Render(const ACanvas: ISkCanvas; const ADest: TRectF; const AOpacity: Single); virtual; abstract;
-        procedure SeekFrameTime(const ATime: Double); virtual; abstract;
-        class function SupportedFormats: TArray<TFormatInfo>; virtual; abstract;
-        class function TryDetectFormat(const ABytes: TBytes; out AFormat: TFormatInfo): Boolean; virtual; abstract;
-        class function TryMakeFromStream(const AStream: TStream; out ACodec: TAnimationCodec): Boolean; virtual; abstract;
-        property Duration: Double read GetDuration;
-        property FPS: Double read GetFPS;
-        property IsStatic: Boolean read GetIsStatic;
-        property Size: TSizeF read GetSize;
-      end;
+    TAnimationCodec = class
+    strict protected
+      function GetDuration: Double; virtual; abstract;
+      function GetFPS: Double; virtual; abstract;
+      function GetIsStatic: Boolean; virtual; abstract;
+      function GetSize: TSizeF; virtual; abstract;
+    public
+      procedure Render(const ACanvas: ISkCanvas; const ADest: TRectF; const AOpacity: Single); virtual; abstract;
+      procedure SeekFrameTime(const ATime: Double); virtual; abstract;
+      class function SupportedFormats: TArray<TFormatInfo>; virtual; abstract;
+      class function TryDetectFormat(const ABytes: TBytes; out AFormat: TFormatInfo): Boolean; virtual; abstract;
+      class function TryMakeFromStream(const AStream: TStream; out ACodec: TAnimationCodec): Boolean; virtual; abstract;
+      property Duration: Double read GetDuration;
+      property FPS: Double read GetFPS;
+      property IsStatic: Boolean read GetIsStatic;
+      property Size: TSizeF read GetSize;
+    end;
 
-      TAnimationCodecClass = class of TAnimationCodec;
-  strict private
-    class var
-      FRegisteredCodecs: TArray<TAnimationCodecClass>;
+    TAnimationCodecClass = class of TAnimationCodec;
+  strict private class var
+    FRegisteredCodecs: TArray<TAnimationCodecClass>;
   strict private
     FCodec: TAnimationCodec;
     FSource: TSource;
@@ -691,18 +685,16 @@ type
   { TSkFontComponent }
 
   TSkFontComponent = class(TSkPersistent)
-  public
-    type
-      TSkFontSlant = (Regular, Italic, Oblique);
-      TSkFontStretch = (UltraCondensed, ExtraCondensed, Condensed, SemiCondensed, Regular, SemiExpanded, Expanded, ExtraExpanded, UltraExpanded);
-      TSkFontWeight = (Thin, UltraLight, Light, SemiLight, Regular, Medium, Semibold, Bold, UltraBold, Black, UltraBlack);
-  strict protected
-    const
-      DefaultFamilies = '';
-      DefaultSize = 14;
-      DefaultSlant = TSkFontSlant.Regular;
-      DefaultStretch = TSkFontStretch.Regular;
-      DefaultWeight = TSkFontWeight.Regular;
+  public type
+    TSkFontSlant = (Regular, Italic, Oblique);
+    TSkFontStretch = (UltraCondensed, ExtraCondensed, Condensed, SemiCondensed, Regular, SemiExpanded, Expanded, ExtraExpanded, UltraExpanded);
+    TSkFontWeight = (Thin, UltraLight, Light, SemiLight, Regular, Medium, Semibold, Bold, UltraBold, Black, UltraBlack);
+  strict protected const
+    DefaultFamilies = '';
+    DefaultSize = 14;
+    DefaultSlant = TSkFontSlant.Regular;
+    DefaultStretch = TSkFontStretch.Regular;
+    DefaultWeight = TSkFontWeight.Regular;
   strict private
     FFamilies: string;
     FSize: Single;
@@ -739,51 +731,49 @@ type
   { TSkTextSettings }
 
   TSkTextSettings = class(TSkPersistent)
-  public
-    type
-      { TDecorations }
+  public type
+    { TDecorations }
 
-      TDecorations = class(TSkPersistent)
-      strict protected
-        const
-          DefaultColor = TAlphaColors.Null;
-          DefaultDecorations = [];
-          DefaultStrokeColor = TAlphaColors.Null;
-          DefaultStyle = TSkTextDecorationStyle.Solid;
-          DefaultThickness = 1;
-      strict private
-        FColor: TAlphaColor;
-        FDecorations: TSkTextDecorations;
-        FStrokeColor: TAlphaColor;
-        FStyle: TSkTextDecorationStyle;
-        FThickness: Single;
-        procedure SetColor(const AValue: TAlphaColor);
-        procedure SetDecorations(const AValue: TSkTextDecorations);
-        procedure SetStrokeColor(const AValue: TAlphaColor);
-        procedure SetStyle(const AValue: TSkTextDecorationStyle);
-        procedure SetThickness(const AValue: Single);
-      strict protected
-        procedure DoAssign(ASource: TPersistent); override;
-        function IsThicknessStored: Boolean; virtual;
-      public
-        constructor Create;
-        function Equals(AObject: TObject): Boolean; override;
-      published
-        property Color: TAlphaColor read FColor write SetColor default DefaultColor;
-        property Decorations: TSkTextDecorations read FDecorations write SetDecorations default DefaultDecorations;
-        property StrokeColor: TAlphaColor read FStrokeColor write SetStrokeColor default DefaultStrokeColor;
-        property Style: TSkTextDecorationStyle read FStyle write SetStyle default DefaultStyle;
-        property Thickness: Single read FThickness write SetThickness stored IsThicknessStored;
-      end;
-  strict protected
-    const
-      DefaultFontColor = TAlphaColors.Black;
-      DefaultHeightMultiplier = 0;
-      DefaultHorzAlign = TSkTextHorzAlign.Leading;
-      DefaultLetterSpacing = 0;
-      DefaultMaxLines = 1;
-      DefaultTrimming = TSkTextTrimming.Word;
-      DefaultVertAlign = TSkTextVertAlign.Center;
+    TDecorations = class(TSkPersistent)
+    strict protected
+      const
+        DefaultColor = TAlphaColors.Null;
+        DefaultDecorations = [];
+        DefaultStrokeColor = TAlphaColors.Null;
+        DefaultStyle = TSkTextDecorationStyle.Solid;
+        DefaultThickness = 1;
+    strict private
+      FColor: TAlphaColor;
+      FDecorations: TSkTextDecorations;
+      FStrokeColor: TAlphaColor;
+      FStyle: TSkTextDecorationStyle;
+      FThickness: Single;
+      procedure SetColor(const AValue: TAlphaColor);
+      procedure SetDecorations(const AValue: TSkTextDecorations);
+      procedure SetStrokeColor(const AValue: TAlphaColor);
+      procedure SetStyle(const AValue: TSkTextDecorationStyle);
+      procedure SetThickness(const AValue: Single);
+    strict protected
+      procedure DoAssign(ASource: TPersistent); override;
+      function IsThicknessStored: Boolean; virtual;
+    public
+      constructor Create;
+      function Equals(AObject: TObject): Boolean; override;
+    published
+      property Color: TAlphaColor read FColor write SetColor default DefaultColor;
+      property Decorations: TSkTextDecorations read FDecorations write SetDecorations default DefaultDecorations;
+      property StrokeColor: TAlphaColor read FStrokeColor write SetStrokeColor default DefaultStrokeColor;
+      property Style: TSkTextDecorationStyle read FStyle write SetStyle default DefaultStyle;
+      property Thickness: Single read FThickness write SetThickness stored IsThicknessStored;
+    end;
+  strict protected const
+    DefaultFontColor = TAlphaColors.Black;
+    DefaultHeightMultiplier = 0;
+    DefaultHorzAlign = TSkTextHorzAlign.Leading;
+    DefaultLetterSpacing = 0;
+    DefaultMaxLines = 1;
+    DefaultTrimming = TSkTextTrimming.Word;
+    DefaultVertAlign = TSkTextVertAlign.Center;
   strict private
     FDecorations: TDecorations;
     FFont: TSkFontComponent;
@@ -849,26 +839,25 @@ type
   { TSkTextSettingsInfo }
 
   TSkTextSettingsInfo = class(TPersistent)
-  public
-    type
-      TBaseTextSettings = class(TSkTextSettings)
-      strict private
-        [unsafe] FControl: TControl;
-        [unsafe] FInfo: TSkTextSettingsInfo;
-      public
-        constructor Create(const AOwner: TPersistent); override;
-        property Control: TControl read FControl;
-        property Info: TSkTextSettingsInfo read FInfo;
-      end;
+  public type
+    TBaseTextSettings = class(TSkTextSettings)
+    strict private
+      [unsafe] FControl: TControl;
+      [unsafe] FInfo: TSkTextSettingsInfo;
+    public
+      constructor Create(const AOwner: TPersistent); override;
+      property Control: TControl read FControl;
+      property Info: TSkTextSettingsInfo read FInfo;
+    end;
 
-      TCustomTextSettings = class(TBaseTextSettings)
-      public
-        constructor Create(const AOwner: TPersistent); override;
-      published
-        property MaxLines default 0;
-      end;
+    TCustomTextSettings = class(TBaseTextSettings)
+    public
+      constructor Create(const AOwner: TPersistent); override;
+    published
+      property MaxLines default 0;
+    end;
 
-      TCustomTextSettingsClass = class of TCustomTextSettings;
+    TCustomTextSettingsClass = class of TCustomTextSettings;
   strict private
     FDefaultTextSettings: TSkTextSettings;
     FDesign: Boolean;
@@ -905,151 +894,150 @@ type
   { TSkLabel }
 
   TSkLabel = class(TSkCustomControl, ISkTextSettings)
-  public
-    type
-      TWordsCollection = class;
-      TCustomWordsItemClass = class of TCustomWordsItem;
+  public type
+    TWordsCollection = class;
+    TCustomWordsItemClass = class of TCustomWordsItem;
 
-      TCustomWordsItem = class(TCollectionItem)
-      strict protected
-        const
-          DefaultBackgroundColor = TAlphaColors.Null;
-          DefaultCaption = '';
-          DefaultCursor = crDefault;
-          DefaultFontColor = TAlphaColors.Black;
-          DefaultHeightMultiplier = 0;
-          DefaultLetterSpacing = 0;
-          DefaultName = 'Item 0';
-      strict private
-        FBackgroundColor: TAlphaColor;
-        FCaption: string;
-        FChanged: Boolean;
-        FCursor: TCursor;
-        FIgnoringAllChanges: Boolean;
-        FName: string;
-        FOnClick: TNotifyEvent;
-        FTag: NativeInt;
-        FTagFloat: Single;
-        [Weak] FTagObject: TObject;
-        FTagString: string;
-        FTextSettingsInfo: TSkTextSettingsInfo;
-        FUpdatingCount: Integer;
-        [unsafe] FWords: TWordsCollection;
-        procedure CheckName(const AName: string; AWordsCollection: TWordsCollection);
-        function GetDecorations: TSkTextSettings.TDecorations;
-        function GetFont: TSkFontComponent;
-        function GetFontColor: TAlphaColor;
-        function GetHeightMultiplier: Single;
-        function GetLetterSpacing: Single;
-        function GetStyledSettings: TSkStyledSettings;
-        function IsCaptionStored: Boolean;
-        function IsFontColorStored: Boolean;
-        function IsHeightMultiplierStored: Boolean;
-        function IsLetterSpacingStored: Boolean;
-        function IsNameStored: Boolean;
-        function IsStyledSettingsStored: Boolean;
-        procedure TextSettingsChange(ASender: TObject);
-        procedure SetBackgroundColor(const AValue: TAlphaColor);
-        procedure SetCaption(const AValue: string);
-        procedure SetCursor(const AValue: TCursor);
-        procedure SetDecorations(const AValue: TSkTextSettings.TDecorations);
-        procedure SetFont(const AValue: TSkFontComponent);
-        procedure SetFontColor(const AValue: TAlphaColor);
-        procedure SetHeightMultiplier(const AValue: Single);
-        procedure SetLetterSpacing(const AValue: Single);
-        procedure SetName(const AValue: string);
-        procedure SetStyledSettings(const AValue: TSkStyledSettings);
-        function UniqueName(const AName: string; const ACollection: TCollection): string;
-      strict protected
-        procedure DoAssign(ASource: TPersistent); virtual;
-        procedure DoChanged; virtual;
-        function GetDisplayName: string; override;
-        procedure SetCollection(AValue: TCollection); override;
-      public
-        constructor Create(ACollection: TCollection); override;
-        destructor Destroy; override;
-        procedure Assign(ASource: TPersistent); override; final;
-        procedure BeginUpdate; overload;
-        procedure Change; virtual;
-        procedure EndUpdate; overload;
-        procedure EndUpdate(const AIgnoreAllChanges: Boolean); overload; virtual;
-        property BackgroundColor: TAlphaColor read FBackgroundColor write SetBackgroundColor default DefaultBackgroundColor;
-        property Caption: string read FCaption write SetCaption stored IsCaptionStored;
-        property Cursor: TCursor read FCursor write SetCursor default crDefault;
-        property Decorations: TSkTextSettings.TDecorations read GetDecorations write SetDecorations;
-        property Font: TSkFontComponent read GetFont write SetFont;
-        property FontColor: TAlphaColor read GetFontColor write SetFontColor stored IsFontColorStored;
-        property HeightMultiplier: Single read GetHeightMultiplier write SetHeightMultiplier stored IsHeightMultiplierStored;
-        property LetterSpacing: Single read GetLetterSpacing write SetLetterSpacing stored IsLetterSpacingStored;
-        /// <summary> The case-insensitive name of the item in the collection. This field cannot be empty and must be unique for his collection </summary>
-        property Name: string read FName write SetName stored IsNameStored;
-        property StyledSettings: TSkStyledSettings read GetStyledSettings write SetStyledSettings stored IsStyledSettingsStored;
-        property Tag: NativeInt read FTag write FTag default 0;
-        property TagFloat: Single read FTagFloat write FTagFloat;
-        property TagObject: TObject read FTagObject write FTagObject;
-        property TagString: string read FTagString write FTagString;
-        property Words: TWordsCollection read FWords;
-        property OnClick: TNotifyEvent read FOnClick write FOnClick;
-      end;
+    TCustomWordsItem = class(TCollectionItem)
+    strict protected
+      const
+        DefaultBackgroundColor = TAlphaColors.Null;
+        DefaultCaption = '';
+        DefaultCursor = crDefault;
+        DefaultFontColor = TAlphaColors.Black;
+        DefaultHeightMultiplier = 0;
+        DefaultLetterSpacing = 0;
+        DefaultName = 'Item 0';
+    strict private
+      FBackgroundColor: TAlphaColor;
+      FCaption: string;
+      FChanged: Boolean;
+      FCursor: TCursor;
+      FIgnoringAllChanges: Boolean;
+      FName: string;
+      FOnClick: TNotifyEvent;
+      FTag: NativeInt;
+      FTagFloat: Single;
+      [Weak] FTagObject: TObject;
+      FTagString: string;
+      FTextSettingsInfo: TSkTextSettingsInfo;
+      FUpdatingCount: Integer;
+      [unsafe] FWords: TWordsCollection;
+      procedure CheckName(const AName: string; AWordsCollection: TWordsCollection);
+      function GetDecorations: TSkTextSettings.TDecorations;
+      function GetFont: TSkFontComponent;
+      function GetFontColor: TAlphaColor;
+      function GetHeightMultiplier: Single;
+      function GetLetterSpacing: Single;
+      function GetStyledSettings: TSkStyledSettings;
+      function IsCaptionStored: Boolean;
+      function IsFontColorStored: Boolean;
+      function IsHeightMultiplierStored: Boolean;
+      function IsLetterSpacingStored: Boolean;
+      function IsNameStored: Boolean;
+      function IsStyledSettingsStored: Boolean;
+      procedure TextSettingsChange(ASender: TObject);
+      procedure SetBackgroundColor(const AValue: TAlphaColor);
+      procedure SetCaption(const AValue: string);
+      procedure SetCursor(const AValue: TCursor);
+      procedure SetDecorations(const AValue: TSkTextSettings.TDecorations);
+      procedure SetFont(const AValue: TSkFontComponent);
+      procedure SetFontColor(const AValue: TAlphaColor);
+      procedure SetHeightMultiplier(const AValue: Single);
+      procedure SetLetterSpacing(const AValue: Single);
+      procedure SetName(const AValue: string);
+      procedure SetStyledSettings(const AValue: TSkStyledSettings);
+      function UniqueName(const AName: string; const ACollection: TCollection): string;
+    strict protected
+      procedure DoAssign(ASource: TPersistent); virtual;
+      procedure DoChanged; virtual;
+      function GetDisplayName: string; override;
+      procedure SetCollection(AValue: TCollection); override;
+    public
+      constructor Create(ACollection: TCollection); override;
+      destructor Destroy; override;
+      procedure Assign(ASource: TPersistent); override; final;
+      procedure BeginUpdate; overload;
+      procedure Change; virtual;
+      procedure EndUpdate; overload;
+      procedure EndUpdate(const AIgnoreAllChanges: Boolean); overload; virtual;
+      property BackgroundColor: TAlphaColor read FBackgroundColor write SetBackgroundColor default DefaultBackgroundColor;
+      property Caption: string read FCaption write SetCaption stored IsCaptionStored;
+      property Cursor: TCursor read FCursor write SetCursor default crDefault;
+      property Decorations: TSkTextSettings.TDecorations read GetDecorations write SetDecorations;
+      property Font: TSkFontComponent read GetFont write SetFont;
+      property FontColor: TAlphaColor read GetFontColor write SetFontColor stored IsFontColorStored;
+      property HeightMultiplier: Single read GetHeightMultiplier write SetHeightMultiplier stored IsHeightMultiplierStored;
+      property LetterSpacing: Single read GetLetterSpacing write SetLetterSpacing stored IsLetterSpacingStored;
+      /// <summary> The case-insensitive name of the item in the collection. This field cannot be empty and must be unique for his collection </summary>
+      property Name: string read FName write SetName stored IsNameStored;
+      property StyledSettings: TSkStyledSettings read GetStyledSettings write SetStyledSettings stored IsStyledSettingsStored;
+      property Tag: NativeInt read FTag write FTag default 0;
+      property TagFloat: Single read FTagFloat write FTagFloat;
+      property TagObject: TObject read FTagObject write FTagObject;
+      property TagString: string read FTagString write FTagString;
+      property Words: TWordsCollection read FWords;
+      property OnClick: TNotifyEvent read FOnClick write FOnClick;
+    end;
 
-      { TWordsCollection }
+    { TWordsCollection }
 
-      TWordsCollection = class(TOwnedCollection)
-      strict protected
-        const
-          DefaultColor = TAlphaColors.Black;
-          DefaultFontSize = 14;
-          DefaultFontSlant = TSkFontComponent.TSkFontSlant.Regular;
-          DefaultFontWeight = TSkFontComponent.TSkFontWeight.Regular;
-      strict private
-        [unsafe] FLabel: TSkLabel;
-        FOnChange: TNotifyEvent;
-        function GetItem(AIndex: Integer): TCustomWordsItem;
-        function GetItemByName(const AName: string): TCustomWordsItem;
-        procedure SetItem(AIndex: Integer; const AValue: TCustomWordsItem);
-      strict protected
-        procedure Update(AItem: TCollectionItem); override;
-      public
-        constructor Create(AOwner: TPersistent; AItemClass: TCustomWordsItemClass);
-        function Add: TCustomWordsItem; overload;
-        function Add(const ACaption: string; const AColor: TAlphaColor = DefaultColor;
-          const AFontSize: Single = DefaultFontSize;
-          const AFontWeight: TSkFontComponent.TSkFontWeight = DefaultFontWeight;
-          const AFontSlant: TSkFontComponent.TSkFontSlant = DefaultFontSlant): TCustomWordsItem; overload;
-        function AddOrSet(const AName, ACaption: string; const AFontColor: TAlphaColor = DefaultColor;
-          const AFont: TSkFontComponent = nil; const AOnClick: TNotifyEvent = nil;
-          const ACursor: TCursor = crDefault): TCustomWordsItem;
-        function Insert(AIndex: Integer): TCustomWordsItem;
-        /// <summary> Case-insensitive search of item by name</summary>
-        function IndexOf(const AName: string): Integer;
-        /// <summary> Case-insensitive search of item by name</summary>
-        property ItemByName[const AName: string]: TCustomWordsItem read GetItemByName;
-        property Items[AIndex: Integer]: TCustomWordsItem read GetItem write SetItem; default;
-        property &Label: TSkLabel read FLabel;
-        property OnChange: TNotifyEvent read FOnChange write FOnChange;
-      end;
+    TWordsCollection = class(TOwnedCollection)
+    strict protected
+      const
+        DefaultColor = TAlphaColors.Black;
+        DefaultFontSize = 14;
+        DefaultFontSlant = TSkFontComponent.TSkFontSlant.Regular;
+        DefaultFontWeight = TSkFontComponent.TSkFontWeight.Regular;
+    strict private
+      [unsafe] FLabel: TSkLabel;
+      FOnChange: TNotifyEvent;
+      function GetItem(AIndex: Integer): TCustomWordsItem;
+      function GetItemByName(const AName: string): TCustomWordsItem;
+      procedure SetItem(AIndex: Integer; const AValue: TCustomWordsItem);
+    strict protected
+      procedure Update(AItem: TCollectionItem); override;
+    public
+      constructor Create(AOwner: TPersistent; AItemClass: TCustomWordsItemClass);
+      function Add: TCustomWordsItem; overload;
+      function Add(const ACaption: string; const AColor: TAlphaColor = DefaultColor;
+        const AFontSize: Single = DefaultFontSize;
+        const AFontWeight: TSkFontComponent.TSkFontWeight = DefaultFontWeight;
+        const AFontSlant: TSkFontComponent.TSkFontSlant = DefaultFontSlant): TCustomWordsItem; overload;
+      function AddOrSet(const AName, ACaption: string; const AFontColor: TAlphaColor = DefaultColor;
+        const AFont: TSkFontComponent = nil; const AOnClick: TNotifyEvent = nil;
+        const ACursor: TCursor = crDefault): TCustomWordsItem;
+      function Insert(AIndex: Integer): TCustomWordsItem;
+      /// <summary> Case-insensitive search of item by name</summary>
+      function IndexOf(const AName: string): Integer;
+      /// <summary> Case-insensitive search of item by name</summary>
+      property ItemByName[const AName: string]: TCustomWordsItem read GetItemByName;
+      property Items[AIndex: Integer]: TCustomWordsItem read GetItem write SetItem; default;
+      property &Label: TSkLabel read FLabel;
+      property OnChange: TNotifyEvent read FOnChange write FOnChange;
+    end;
 
-      { TWordsItem }
+    { TWordsItem }
 
-      TWordsItem = class(TCustomWordsItem)
-      published
-        property BackgroundColor;
-        property Caption;
-        property Cursor;
-        property Decorations;
-        property Font;
-        property FontColor;
-        property HeightMultiplier;
-        property LetterSpacing;
-        property Name;
-        property StyledSettings;
-        property TagString;
-        property OnClick;
-      end;
+    TWordsItem = class(TCustomWordsItem)
+    published
+      property BackgroundColor;
+      property Caption;
+      property Cursor;
+      property Decorations;
+      property Font;
+      property FontColor;
+      property HeightMultiplier;
+      property LetterSpacing;
+      property Name;
+      property StyledSettings;
+      property TagString;
+      property OnClick;
+    end;
 
-      { TItemClickedMessage }
+    { TItemClickedMessage }
 
-      TItemClickedMessage = class(TMessage<TCustomWordsItem>);
+    TItemClickedMessage = class(TMessage<TCustomWordsItem>);
   strict private
     FBackgroundPicture: ISkPicture;
     FClickedPosition: TPoint;
@@ -1157,9 +1145,8 @@ type
   { TSkDefaultAnimationCodec }
 
   TSkDefaultAnimationCodec = class(TSkAnimatedImage.TAnimationCodec)
-  strict private
-    type
-      TImageFormat = (GIF, WebP);
+  strict private type
+    TImageFormat = (GIF, WebP);
   strict private
     FAnimationCodec: ISkAnimationCodecPlayer;
     FStream: TStream;
@@ -1181,9 +1168,8 @@ type
   { TSkLottieAnimationCodec }
 
   TSkLottieAnimationCodec = class(TSkAnimatedImage.TAnimationCodec)
-  strict private
-    type
-      TAnimationFormat = (Lottie, TGS);
+  strict private type
+    TAnimationFormat = (Lottie, TGS);
   strict private
     FSkottie: ISkottieAnimation;
   strict protected
