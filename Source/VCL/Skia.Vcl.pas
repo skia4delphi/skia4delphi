@@ -2777,9 +2777,9 @@ begin
   if FDuration < TimeEpsilon then
   begin
     if FInverse then
-      FProgress := FStartProgress
+      FProgress := FStopProgress
     else
-      FProgress := FStopProgress;
+      FProgress := FStartProgress;
   end
   else
     FProgress := FCurrentTime / FDuration;
@@ -3276,7 +3276,7 @@ begin
   if Assigned(FCodec) then
   begin
     if (csDesigning in ComponentState) and (not Animation.Running) and (AProgress = 0) then
-      FCodec.SeekFrameTime(Animation.Duration / 2)
+      FCodec.SeekFrameTime(Animation.Duration / 8)
     else
       FCodec.SeekFrameTime(Animation.CurrentTime);
     FCodec.Render(ACanvas, GetWrappedRect(ADest), AOpacity);
