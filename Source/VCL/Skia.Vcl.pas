@@ -48,6 +48,7 @@ type
   strict private
     procedure FlipPixels(const AWidth, AHeight: Integer; const ASrcPixels: PByte; const ASrcStride: Integer; const ADestPixels: PByte; const ADestStride: Integer); inline;
   public
+    constructor CreateFromSkImage(const AImage: ISkImage);
     procedure SkiaDraw(const AProc: TSkDrawProc; const AStartClean: Boolean = True);
     function ToSkImage: ISkImage;
   end;
@@ -1071,6 +1072,7 @@ type
     procedure DeleteParagraph;
     function GetCaption: string;
     procedure GetFitSize(var AWidth, AHeight: Single);
+    function GetLinesCount: Integer;
     function GetParagraph: ISkParagraph;
     function GetParagraphBounds: TRectF;
     function HasFitSizeChanged: Boolean;
@@ -1103,8 +1105,10 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
+    function DidExceedMaxLines: Boolean;
     function UseRightToLeftAlignment: Boolean; override;
     property DefaultTextSettings: TSkTextSettings read GetDefaultTextSettings;
+    property LinesCount: Integer read GetLinesCount;
     property ResultingTextSettings: TSkTextSettings read GetResultingTextSettings;
   published
     property AutoSize default True;
@@ -1340,6 +1344,29 @@ end;
 
 { TSkBitmapHelper }
 
+constructor TSkBitmapHelper.CreateFromSkImage(const AImage: ISkImage);
+var
+  LPixels: Pointer;
+  LStride: Integer;
+begin
+  Assert(Assigned(AImage));
+  Create;
+  PixelFormat := TPixelFormat.pf32bit;
+  AlphaFormat := TAlphaFormat.afPremultiplied;
+  SetSize(AImage.Width, AImage.Height);
+  if not Empty then
+  begin
+    LStride := BytesPerScanLine(Width, 32, 32);
+    GetMem(LPixels, LStride * Height);
+    try
+      AImage.ReadPixels(TSkImageInfo.Create(Width, Height), LPixels, LStride);
+      FlipPixels(Width, Height, LPixels, LStride, ScanLine[Height - 1], LStride);
+    finally
+      FreeMem(LPixels);
+    end;
+  end;
+end;
+
 procedure TSkBitmapHelper.FlipPixels(const AWidth, AHeight: Integer;
   const ASrcPixels: PByte; const ASrcStride: Integer; const ADestPixels: PByte;
   const ADestStride: Integer);
@@ -1354,6 +1381,7 @@ procedure TSkBitmapHelper.SkiaDraw(const AProc: TSkDrawProc; const AStartClean: 
 var
   LPixmap: ISkPixmap;
   LSurface: ISkSurface;
+  LStride: Integer;
 begin
   Assert(Assigned(AProc));
   if Empty then
@@ -1363,14 +1391,15 @@ begin
     PixelFormat := TPixelFormat.pf32bit;
     AlphaFormat := TAlphaFormat.afPremultiplied;
   end;
+  LStride := BytesPerScanLine(Width, 32, 32);
   LSurface := TSkSurface.MakeRaster(Width, Height);
   LPixmap  := LSurface.PeekPixels;
   if AStartClean then
     LSurface.Canvas.Clear(TAlphaColors.Null)
   else
-    FlipPixels(Width, Height, ScanLine[Height - 1], BytesPerScanLine(Width, 32, 32), LPixmap.Pixels, LPixmap.RowBytes);
+    FlipPixels(Width, Height, ScanLine[Height - 1], LStride, LPixmap.Pixels, LPixmap.RowBytes);
   AProc(LSurface.Canvas);
-  FlipPixels(Width, Height, LPixmap.Pixels, LPixmap.RowBytes, ScanLine[Height - 1], BytesPerScanLine(Width, 32, 32));
+  FlipPixels(Width, Height, LPixmap.Pixels, LPixmap.RowBytes, ScanLine[Height - 1], LStride);
 end;
 
 function TSkBitmapHelper.ToSkImage: ISkImage;
@@ -1388,7 +1417,7 @@ begin
   LStride := BytesPerScanLine(Width, 32, 32);
   GetMem(LPixels, LStride * Height);
   try
-    FlipPixels(Width, Height, ScanLine[Height - 1], BytesPerScanLine(Width, 32, 32), LPixels, LStride);
+    FlipPixels(Width, Height, ScanLine[Height - 1], LStride, LPixels, LStride);
     Result := TSkImage.MakeFromRaster(TSkImageInfo.Create(Width, Height), LPixels, LStride);
   finally
     FreeMem(LPixels);
@@ -4951,6 +4980,14 @@ begin
   inherited;
 end;
 
+function TSkLabel.DidExceedMaxLines: Boolean;
+var
+  LParagraph: ISkParagraph;
+begin
+  LParagraph := Paragraph;
+  Result := Assigned(LParagraph) and (LParagraph.DidExceedMaxLines);
+end;
+
 procedure TSkLabel.Draw(const ACanvas: ISkCanvas; const ADest: TRectF;
   const AOpacity: Single);
 
@@ -5100,6 +5137,17 @@ begin
     if Assigned(LParagraph) then
       ParagraphLayout(AWidth);
   end;
+end;
+
+function TSkLabel.GetLinesCount: Integer;
+var
+  LParagraph: ISkParagraph;
+begin
+  LParagraph := Paragraph;
+  if Assigned(LParagraph) then
+    Result := Length(LParagraph.LineMetrics)
+  else
+    Result := 0;
 end;
 
 function TSkLabel.GetParagraph: ISkParagraph;
@@ -5569,9 +5617,15 @@ const
   SupportedFormats = [TSkEncodedImageFormat.WEBP, TSkEncodedImageFormat.WBMP, TSkEncodedImageFormat.DNG];
 var
   LCodec: ISkCodec;
+  LSavedPosition: Int64;
 begin
-  LCodec := TSkCodec.MakeFromStream(AStream);
-  Result := Assigned(LCodec) and (LCodec.EncodedImageFormat in SupportedFormats);
+  LSavedPosition := AStream.Position;
+  try
+    LCodec := TSkCodec.MakeFromStream(AStream);
+    Result := Assigned(LCodec) and (LCodec.EncodedImageFormat in SupportedFormats);
+  finally
+    AStream.Position := LSavedPosition;
+  end;
 end;
 {$ENDIF}
 

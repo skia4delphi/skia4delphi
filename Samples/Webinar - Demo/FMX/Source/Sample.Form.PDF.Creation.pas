@@ -4,9 +4,9 @@ interface
 
 uses
   { Delphi }
-  System.SysUtils, System.Types, System.UITypes, System.Classes, FMX.Types,
-  FMX.Controls, FMX.Forms, FMX.Graphics, FMX.Dialogs, FMX.Effects, FMX.StdCtrls,
-  FMX.Controls.Presentation, FMX.Objects, FMX.Layouts, System.IOUtils,
+  System.SysUtils, System.Types, System.UITypes, System.Classes, System.IOUtils,
+  FMX.Types, FMX.Controls, FMX.Forms, FMX.Graphics, FMX.Dialogs, FMX.Effects,
+  FMX.StdCtrls, FMX.Controls.Presentation, FMX.Objects, FMX.Layouts,
 
   { Skia }
   Skia, Skia.FMX;
@@ -63,6 +63,7 @@ type
   TFreehandRender = class(TInterfacedObject, IFreehandRender)
   strict private
     FCurrentPath: ISkPath;
+    FLastPoint: TPointF;
     FOldPaths: TArray<ISkPath>;
     FPathBuilder: ISkPathBuilder;
     FPressed: Boolean;
@@ -112,6 +113,7 @@ begin
   FPressed := True;
   FPathBuilder := TSkPathBuilder.Create;
   FPathBuilder.MoveTo(X, Y);
+  FLastPoint := PointF(X, Y);
   FCurrentPath := nil;
 end;
 
@@ -129,11 +131,14 @@ end;
 
 procedure TFreehandRender.OnMouseMove(ASender: TObject; AShift: TShiftState; X,
   Y: Single);
+const
+  MinPointsDistance = 5;
 begin
-  if FPressed and Assigned(FPathBuilder) then
+  if FPressed and Assigned(FPathBuilder) and (FLastPoint.Distance(PointF(X, Y)) >= MinPointsDistance) then
   begin
     FCurrentPath := nil;
     FPathBuilder.LineTo(X, Y);
+    FLastPoint := PointF(X, Y);
     (ASender as TSkPaintBox).Redraw;
   end;
 end;
@@ -193,45 +198,24 @@ procedure TfrmPDFCreation.btnGeneratePDFClick(Sender: TObject);
 
   procedure ControlToPDF(AControl: TControl; const AOutputFileName: string);
   var
-    LBitmap: TBitmap;
-    LImage: ISkImage;
     LStream: TMemoryStream;
     LDocument: ISkDocument;
     LCanvas: ISkCanvas;
-    LSceneScale: Single;
   begin
-    if AControl.Scene = nil then
-      LSceneScale := 1
-    else
-      LSceneScale := AControl.Scene.GetSceneScale;
-    LBitmap := TBitmap.Create(Round(AControl.Width * AControl.AbsoluteScale.X * LSceneScale), Round(AControl.Height * AControl.AbsoluteScale.Y * LSceneScale));
+    LStream := TMemoryStream.Create;
     try
-      LBitmap.BitmapScale := LSceneScale;
-      LBitmap.Canvas.BeginScene;
+      LDocument := TSkDocument.MakePDF(LStream);
+      LCanvas := LDocument.BeginPage(AControl.Width, AControl.Height);
       try
-        LBitmap.Canvas.Clear(TAlphaColors.Null);
-        AControl.PaintTo(LBitmap.Canvas, AControl.LocalRect, nil);
+        LCanvas.Clear(TAlphaColors.Null);
+        AControl.PaintTo(LCanvas, AControl.LocalRect, nil);
       finally
-        LBitmap.Canvas.EndScene;
+        LDocument.EndPage;
       end;
-      LImage := LBitmap.ToSkImage;
-      LStream := TMemoryStream.Create;
-      try
-        LDocument := TSkDocument.MakePDF(LStream);
-        LCanvas := LDocument.BeginPage(LBitmap.Width, LBitmap.Height);
-        try
-          LCanvas.Clear(TAlphaColors.Null);
-          LCanvas.DrawImage(LImage, 0, 0);
-        finally
-          LDocument.EndPage;
-        end;
-        LDocument.Close;
-        LStream.SaveToFile(AOutputFileName);
-      finally
-        LStream.Free;
-      end;
+      LDocument.Close;
+      LStream.SaveToFile(AOutputFileName);
     finally
-      LBitmap.Free;
+      LStream.Free;
     end;
   end;
 

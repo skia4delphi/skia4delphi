@@ -76,8 +76,7 @@ Using the **Skia4Delphi** library it is possible to override Firemonkey's render
   * [FMX Canvas](#fmx-canvas)
     * [Enable Canvas](#enable-canvas)
     * [Benchmark](#benchmark)
-    * [Surface](#surface)
-    * [Controls](#controls)
+    * [SkCanvas from TCanvas](#skcanvas-from-tcanvas)
     * [Right-to-Left](#right-to-left)
 * [Controls VCL/FMX](#controls-vclfmx)
   * [TSkAnimatedImage](#tskanimatedimage)
@@ -497,54 +496,13 @@ The performance test is a simulation of a real application, with hundreds of con
 
   
 
-### Surface
+### SkCanvas from TCanvas
 
-Using Skia's Canvas, during the Scene of a Bitmap or Control (between the `BeginScene` and `EndScene` calls), it is possible to access the `Surface` property as follows:
+When you enable Skia's Canvas in your app, the TCanvas of the bitmaps, forms and controls are TSkFmxCanvas classes that use SkCanvas internally. So, in these cases, it is possible to access SkCanvas from a TCanvas.
 
-```pascal
-uses
-  Skia,
-  Skia.FMX.Graphics;
+#### Controls & Forms
 
-var
-  LBitmap: TBitmap;
-  LCanvas: ISkCanvas;
-begin
-  LBitmap := TBitmap.Create(300, 300);
-  try
-    if LBitmap.Canvas.BeginScene then
-    begin
-      try
-        LCanvas := TSkCanvasCustom(LBitmap.Canvas).Surface.Canvas;
-        // Draw with LCanvas...
-      finally
-        LBitmap.Canvas.EndScene;
-      end;
-    end;
-  finally
-    LBitmap.Free;
-  end;
-end;
-```
-
-  
-
-#### Remarks
-
-1. `Surface` property will only be available during Scene (between the `BeginScene` and `EndScene` calls);
-2. Canvas for UI (created from a window *eg rectangles, circles, objects inherited from TControl*) must draw exclusively from the **main thread**, while Canvas created from `TBitmap` are **thread safe**.
-
-  
-
-#### Tip
-
-If your app has background threads that do a lot of bitmap drawings, be aware that it is safe to remove the global lock from the `TCanvas` base class when Skia based Canvas is enabled, to allow your app to do truly parallel drawings, gaining a lot of performance. For that, it is necessary to make a patch in the units `FMX.Graphics.pas` and `FMX.TextLayout.pas`. [Learn more](https://quality.embarcadero.com/browse/RSP-37232)
-
-  
-
-### Controls
-
-Using Skia's Canvas, it is possible to access the Surface property from the `Paint` procedure of a control, to draw directly using Skia, as shown below:
+Accessing SkCanvas from TCanvas from a form or control:
 
 ```pascal
 unit Unit1;
@@ -555,8 +513,7 @@ uses
   FMX.Controls,
   FMX.Graphics,
   Skia,
-  Skia.FMX.Graphics;
-
+  Skia.FMX;
 
 type
   TControl1 = class(TControl)
@@ -572,10 +529,56 @@ procedure TControl1.Paint;
 var
   LCanvas: ISkCanvas;
 begin
-  LCanvas := TSkCanvasCustom(Canvas).Surface.Canvas;
+  LCanvas := TSkFmxCanvas(Canvas).SkCanvas;
   // Draw with LCanvas...
 end;
 ```
+
+
+
+#### TBitmap
+
+In the same way it is possible to access SkCanvas from TCanvas from a TBitmap:
+
+```pascal
+uses
+  Skia,
+  Skia.FMX;
+
+var
+  LBitmap: TBitmap;
+  LCanvas: ISkCanvas;
+begin
+  LBitmap := TBitmap.Create(300, 300);
+  try
+    if LBitmap.Canvas.BeginScene then
+    begin
+      try
+        LCanvas := TSkFmxCanvas(LBitmap.Canvas).SkCanvas;
+        // Draw with LCanvas...
+      finally
+        LBitmap.Canvas.EndScene;
+      end;
+    end;
+  finally
+    LBitmap.Free;
+  end;
+end;
+```
+
+
+
+#### Remarks
+
+1. `SkCanvas` property will only be available during Scene (between the `BeginScene` and `EndScene` calls). Don't worry about that in the case of controls and forms, all paint events are already executed inside the Scene;
+2. Do not store SkCanvas outside of your draw method. With each new painting, a new SkCanvas is used.
+3. Canvas for UI (created from a window *eg rectangles, circles, objects inherited from TControl*) must draw exclusively from the **main thread**, while Canvas created from `TBitmap` are **thread safe**.
+
+
+
+#### Tip
+
+If your app has background threads that do a lot of bitmap drawings, be aware that it is safe to remove the global lock from the `TCanvas` base class when Skia based Canvas is enabled, to allow your app to do truly parallel drawings, gaining a lot of performance. For that, it is necessary to make a patch in the units `FMX.Graphics.pas` and `FMX.TextLayout.pas`. [Learn more](https://quality.embarcadero.com/browse/RSP-37232)
 
   
 
@@ -670,7 +673,7 @@ The example above results in the output below:
 
 ## TSkPaintBox
 
-**TSkPaintBox** is the ideal control for painting with skia api directly on the canvas with the event `OnDraw`:
+**TSkPaintBox** is the ideal control for painting with Skia API directly on the canvas with the event `OnDraw`:
 
 ```pascal
 procedure TForm1.SkPaintBox1Draw(ASender: TObject; const ACanvas: ISkCanvas;

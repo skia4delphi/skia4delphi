@@ -26,6 +26,7 @@ uses
   FMX.TextLayout,
   System.Classes,
   System.Generics.Collections,
+  System.Generics.Defaults,
   System.Math.Vectors,
   System.SysUtils,
   System.Types,
@@ -33,7 +34,8 @@ uses
   System.Messaging,
 
   { Skia }
-  Skia;
+  Skia,
+  Skia.FMX;
 
 type
   ESkCanvas = class(Exception);
@@ -56,11 +58,9 @@ type
     property Width: Integer read FWidth;
   end;
 
-  TSkCanvasClass = class of TSkCanvasCustom;
+  { TSkCanvasCustomBase }
 
-  { TSkCanvasCustom }
-
-  TSkCanvasCustom = class abstract(TCanvas{$IFDEF MODULATE_CANVAS}, IModulateCanvas{$ENDIF})
+  TSkCanvasCustomBase = class abstract(TSkFmxCanvas{$IFDEF MODULATE_CANVAS}, IModulateCanvas{$ENDIF})
   strict private type
     TSaveState = class(TCanvasSaveState)
     strict protected
@@ -69,8 +69,6 @@ type
       procedure Assign(ASource: TPersistent); override;
     end;
 
-  strict private class var
-    FImageCache: TObjectDictionary<TSkCanvasCustom, TDictionary<THandle, ISkImage>>;
   {$IFDEF MODULATE_CANVAS}
   strict private
     FModulateColor: TAlphaColor;
@@ -78,53 +76,29 @@ type
     function GetModulateColor: TAlphaColor;
     procedure SetModulateColor(const AColor: TAlphaColor);
   {$ENDIF}
-  private
-    FSurface: ISkSurface;
   strict private
-    FDrawableHeight: Integer;
-    FDrawableWidth: Integer;
     function GetSamplingOptions(const AHighSpeed: Boolean = False): TSkSamplingOptions;
     procedure SetupBrush(const ABrush: TBrush; const ARect: TRectF; const AOpacity: Single; const APaint: ISkPaint);
   strict protected
-    constructor CreateFromPrinter(const APrinter: TAbstractPrinter); override;
-    {$IFDEF MSWINDOWS}
-    constructor CreateFromWindow(const AParent: TWindowHandle; const AWidth, AHeight: Integer; const AQuality: TCanvasQuality = TCanvasQuality.SystemDefault); override;
-    {$ENDIF}
-    function BeginWindow(const AContextHandle: THandle): ISkSurface; virtual; abstract;
     function BitmapToSkImage(const ABitmap: TBitmap): ISkImage;
     function BrushToSkPaint(const ABrush: TBrush; const ARect: TRectF; const AOpacity: Single): ISkPaint;
-    function CreateCache(const AWidth, AHeight: Integer; const AColorType: TSkColorType; const APixels: Pointer; const ARowBytes: NativeUInt): ISkImage; virtual;
     function CreateSaveState: TCanvasSaveState; override;
-    procedure DestroyWindow; virtual;
-    function DoBeginScene({$IF CompilerVersion < 35}const {$ENDIF}AClipRects: PClipRects = nil; AContextHandle: THandle = 0): Boolean; override; final;
     procedure DoDrawBitmap(const ABitmap: TBitmap; const ASrcRect, ADestRect: TRectF; const AOpacity: Single; const AHighSpeed: Boolean); override;
     procedure DoDrawEllipse(const ARect: TRectF; const AOpacity: Single; const ABrush: TStrokeBrush); override;
     procedure DoDrawLine(const APoint1, APoint2: TPointF; const AOpacity: Single; const ABrush: TStrokeBrush); override;
     procedure DoDrawPath(const APath: TPathData; const AOpacity: Single; const ABrush: TStrokeBrush); override;
     procedure DoDrawRect(const ARect: TRectF; const AOpacity: Single; const ABrush: TStrokeBrush); override;
-    procedure DoEndScene; override; final;
     procedure DoFillEllipse(const ARect: TRectF; const AOpacity: Single; const ABrush: TBrush); override;
     procedure DoFillPath(const APath: TPathData; const AOpacity: Single; const ABrush: TBrush); override;
     procedure DoFillRect(const ARect: TRectF; const AOpacity: Single; const ABrush: TBrush); override;
     {$IF CompilerVersion >= 30}
     procedure DoSetMatrix(const AMatrix: TMatrix); override;
     {$ENDIF}
-    procedure EndWindow; virtual;
-    procedure Resized; virtual;
     procedure Restore; virtual;
     procedure Save; virtual;
     function StrokeBrushToSkPaint(const ABrush: TStrokeBrush; const ARect: TRectF; const AOpacity: Single): ISkPaint;
-    class procedure ClearCache(const ACanvas: TSkCanvasCustom); virtual;
-    class procedure ClearCacheBitmap(const ABitmapHandle: THandle);
-    class procedure DoClearCacheBitmap(const ACanvas: TSkCanvasCustom; const ABitmapHandle: THandle); virtual;
-    class procedure DoFinalize; virtual;
-    class procedure DoFinalizeBitmap(var ABitmapHandle: THandle); override;
-    class function DoInitialize: Boolean; virtual;
-    class function DoInitializeBitmap(const AWidth, AHeight: Integer; const AScale: Single; var APixelFormat: TPixelFormat): THandle; override;
-    class function DoMapBitmap(const ABitmapHandle: THandle; const AAccess: TMapAccess; var ABitmapData: TBitmapData): Boolean; override;
-    class procedure DoUnmapBitmap(const ABitmapHandle: THandle; var ABitmapData: TBitmapData); override;
+    function TryGetBitmapCache(const ABitmap: TBitmap; out AValue: ISkImage): Boolean; virtual;
   public
-    procedure BeforeDestruction; override;
     procedure Clear(const AColor: TAlphaColor); override;
     procedure ClearRect(const ARect: TRectF; const AColor: TAlphaColor = 0); override;
     procedure ExcludeClipRect(const ARect: TRectF); override;
@@ -133,14 +107,64 @@ type
     {$IF CompilerVersion < 30}
     procedure SetMatrix(const AMatrix: TMatrix); override;
     {$ENDIF}
+    class function GetCanvasStyle: TCanvasStyles; override;
+  end;
+
+  TSkCanvasClass = class of TSkCanvasCustom;
+
+  { TSkCanvasCustom }
+
+  TSkCanvasCustom = class abstract(TSkCanvasCustomBase)
+  private
+    FSurface: ISkSurface;
+  strict private class var
+    FImageCache: TObjectDictionary<TSkCanvasCustom, TDictionary<THandle, ISkImage>>;
+  strict private
+    FDrawableHeight: Integer;
+    FDrawableWidth: Integer;
+  strict protected
+    function BeginWindow(const AContextHandle: THandle): ISkSurface; virtual; abstract;
+    function CreateCache(const AWidth, AHeight: Integer; const AColorType: TSkColorType; const APixels: Pointer; const ARowBytes: NativeUInt): ISkImage; virtual;
+    constructor CreateFromPrinter(const APrinter: TAbstractPrinter); override;
+    {$IFDEF MSWINDOWS}
+    constructor CreateFromWindow(const AParent: TWindowHandle; const AWidth, AHeight: Integer; const AQuality: TCanvasQuality = TCanvasQuality.SystemDefault); override;
+    {$ENDIF}
+    procedure DestroyWindow; virtual;
+    function DoBeginScene({$IF CompilerVersion < 35}const {$ENDIF}AClipRects: PClipRects = nil; AContextHandle: THandle = 0): Boolean; override; final;
+    procedure DoEndScene; override; final;
+    procedure EndWindow; virtual;
+    procedure Resized; virtual;
+    class procedure ClearCache(const ACanvas: TSkCanvasCustom); virtual;
+    class procedure ClearCacheBitmap(const ABitmapHandle: THandle);
+    class procedure DoClearCacheBitmap(const ACanvas: TSkCanvasCustom; const ABitmapHandle: THandle); virtual;
+    class procedure DoFinalizeBitmap(var ABitmapHandle: THandle); override;
+    class function DoInitializeBitmap(const AWidth, AHeight: Integer; const AScale: Single; var APixelFormat: TPixelFormat): THandle; override;
+    class function DoMapBitmap(const ABitmapHandle: THandle; const AAccess: TMapAccess; var ABitmapData: TBitmapData): Boolean; override;
+    class procedure DoUnmapBitmap(const ABitmapHandle: THandle; var ABitmapData: TBitmapData); override;
+    class procedure DoFinalize; virtual;
+    class function DoInitialize: Boolean; virtual;
+    function TryGetBitmapCache(const ABitmap: TBitmap; out AValue: ISkImage): Boolean; override;
+  public
+    procedure BeforeDestruction; override;
     procedure SetSize(const AWidth, AHeight: Integer); override; final;
     property DrawableHeight: Integer read FDrawableHeight;
     property DrawableWidth: Integer read FDrawableWidth;
     /// <summary> Direct access to the Skia Surface. This property just won't be nil between BeginScene and EndScene calls. </summary>
     property Surface: ISkSurface read FSurface;
     class procedure Finalize;
-    class function GetCanvasStyle: TCanvasStyles; override;
     class function Initialize: Boolean;
+  end;
+
+  { TSkCanvasWrapper }
+
+  TSkCanvasWrapper = class abstract(TSkCanvasCustomBase)
+  protected
+    class procedure DoFinalizeBitmap(var ABitmapHandle: THandle); override;
+    class function DoInitializeBitmap(const AWidth, AHeight: Integer; const AScale: Single; var APixelFormat: TPixelFormat): THandle; override;
+    class function DoMapBitmap(const ABitmapHandle: THandle; const AAccess: TMapAccess; var ABitmapData: TBitmapData): Boolean; override;
+    class procedure DoUnmapBitmap(const ABitmapHandle: THandle; var ABitmapData: TBitmapData); override;
+  public
+    constructor Create(const ACanvas: ISkCanvas; const AWidth, AHeight: Integer);
   end;
 
   { TSkCanvasRasterCustom }
@@ -192,16 +216,25 @@ type
   { TSkTextLayout }
 
   TSkTextLayout = class(TTextLayout)
+  strict private type
+    TParagraphItem = record
+      Bounds: TRectF;
+      Offset: TPointF;
+      Paragraph: ISkParagraph;
+      Range: TTextRange;
+    end;
+  strict private class var
+    FAttributesRangeComparer: IComparer<TTextAttributedRange>;
+    FParagraphTextRangeComparer: IComparer<TParagraphItem>;
+    class constructor Create;
   strict private
     FColor: TAlphaColor;
     FIgnoreUpdates: Boolean;
-    FMaxLines: Integer;
     FOpacity: Single;
-    FParagraph: ISkParagraph;
-    FParagraphOffset: TPointF;
+    FParagraphs: TArray<TParagraphItem>;
     FTextRect: TRectF;
+    function GetParagraphsInRange(const APos, ALength: Integer): TArray<TParagraphItem>;
     function NeedHorizontalAlignment: Boolean;
-    procedure SetMaxLines(const AValue: Integer);
     procedure UpdateParagraph;
   strict protected
     procedure DoDrawLayout(const ACanvas: TCanvas); overload; override;
@@ -216,8 +249,6 @@ type
     constructor Create(const ACanvas: TCanvas = nil); override;
     procedure ConvertToPath(const APath: TPathData); override;
     procedure RenderLayout(const ACanvas: ISkCanvas); overload;
-    /// <summary> Max lines allowed in text. When the value is different from -1, this property will be used instead of the WordWrap property. </summary>
-    property MaxLines: Integer read FMaxLines write SetMaxLines default -1;
   end;
 
 const
@@ -240,7 +271,6 @@ uses
   FMX.Consts,
   FMX.Platform,
   FMX.Surfaces,
-  System.Generics.Defaults,
   System.IOUtils,
   System.Math,
   System.UIConsts,
@@ -290,7 +320,6 @@ uses
 
   { Skia }
   Skia.API,
-  Skia.FMX,
   Skia.FMX.Canvas.GL,
   Skia.FMX.Canvas.Metal;
 
@@ -452,18 +481,61 @@ end;
 { TSkTextLayout }
 
 procedure TSkTextLayout.ConvertToPath(const APath: TPathData);
+var
+  LPath: TPathData;
+  I: Integer;
 begin
-  if Assigned(FParagraph) then
+  APath.Clear;
+  for I := 0 to Length(FParagraphs) - 1 do
   begin
-    APath.FromSkPath(FParagraph.ToPath);
-    APath.Translate(FParagraphOffset + TopLeft);
+    LPath := TPathData.Create;
+    try
+      LPath.AddSkPath(FParagraphs[I].Paragraph.ToPath);
+      LPath.Translate(FParagraphs[I].Offset + TopLeft);
+      APath.AddPath(LPath);
+    finally
+      LPath.Free;
+    end;
   end;
+end;
+
+class constructor TSkTextLayout.Create;
+begin
+  FAttributesRangeComparer := TComparer<TTextAttributedRange>.Construct(
+    function(const ALeft, ARight: TTextAttributedRange): Integer
+    begin
+      if (ALeft.Range.Pos + ALeft.Range.Length) <= ARight.Range.Pos then
+        Result := -1
+      else if ALeft.Range.Pos >= (ARight.Range.Pos + ARight.Range.Length) then
+        Result := 1
+      else
+        Result := 0;
+    end);
+  FParagraphTextRangeComparer := TComparer<TParagraphItem>.Construct(
+    function(const ALeft, ARight: TParagraphItem): Integer
+    begin
+      if (ALeft.Range.Length = 0) or (ARight.Range.Length = 0) then
+      begin
+        if InRange(ALeft.Range.Pos, ARight.Range.Pos, ARight.Range.Pos + ARight.Range.Length) or
+          InRange(ARight.Range.Pos, ALeft.Range.Pos, ALeft.Range.Pos + ALeft.Range.Length) then
+        begin
+          Result := 0;
+        end
+        else
+          Result := CompareValue(ALeft.Range.Pos, ARight.Range.Pos);
+      end
+      else if (ALeft.Range.Pos + ALeft.Range.Length) <= ARight.Range.Pos then
+        Result := -1
+      else if ALeft.Range.Pos >= (ARight.Range.Pos + ARight.Range.Length) then
+        Result := 1
+      else
+        Result := 0;
+    end);
 end;
 
 constructor TSkTextLayout.Create(const ACanvas: TCanvas);
 begin
   inherited;
-  FMaxLines := -1;
   {$REGION ' - Workaround RSP-36975'}
   // - -------------------------------------------------------------------------
   // - WORKAROUND
@@ -492,54 +564,108 @@ begin
   {$ENDREGION}
 end;
 
-procedure TSkTextLayout.DoDrawLayout(const ACanvas: TCanvas);
-begin
-  if (ACanvas is TSkCanvasCustom) and Assigned(TSkCanvasCustom(ACanvas).Surface) then
-    DoDrawLayout(TSkCanvasCustom(ACanvas).Surface.Canvas);
-end;
-
 procedure TSkTextLayout.DoDrawLayout(const ACanvas: ISkCanvas);
+var
+  I: Integer;
 begin
-  if Assigned(FParagraph) and Assigned(ACanvas) then
+  if Assigned(FParagraphs) and Assigned(ACanvas) then
   begin
     if (FColor <> Color) or (FOpacity <> Opacity) then
       UpdateParagraph;
     ACanvas.Save;
     try
       ACanvas.ClipRect(TRectF.Create(TopLeft, MaxSize.X, MaxSize.Y));
-      FParagraph.Paint(ACanvas, FParagraphOffset.X + TopLeft.X, FParagraphOffset.Y + TopLeft.Y);
+      for I := 0 to Length(FParagraphs) - 1 do
+        FParagraphs[I].Paragraph.Paint(ACanvas, FParagraphs[I].Offset.X + TopLeft.X, FParagraphs[I].Offset.Y + TopLeft.Y);
     finally
       ACanvas.Restore;
     end;
   end;
 end;
 
-function TSkTextLayout.DoPositionAtPoint(const APoint: TPointF): Integer;
+procedure TSkTextLayout.DoDrawLayout(const ACanvas: TCanvas);
 begin
-  if not Assigned(FParagraph) then
+  if (ACanvas is TSkFmxCanvas) and Assigned(TSkFmxCanvas(ACanvas).SkCanvas) then
+    DoDrawLayout(TSkFmxCanvas(ACanvas).SkCanvas);
+end;
+
+function TSkTextLayout.DoPositionAtPoint(const APoint: TPointF): Integer;
+
+  function TryGetNearestParagraphItem(const APoint: TPointF; out AItem: TParagraphItem): Boolean;
+
+    function Distance(const ARect: TRectF; const APoint : TPointF): Single;
+    begin
+      if ARect.Contains(APoint) then
+        Result := -1
+      else
+      begin
+        Result := ARect.TopLeft.Distance(APoint);
+        Result := Min(Result, ARect.BottomRight.Distance(APoint));
+        Result := Min(Result, PointF(ARect.Left, ARect.Bottom).Distance(APoint));
+        Result := Min(Result, PointF(ARect.Right, ARect.Top).Distance(APoint));
+      end;
+    end;
+
+  var
+    LDistance: Single;
+    LMinDistance: Single;
+    I: Integer;
+  begin
+    if not Assigned(FParagraphs) then
+      Exit(False);
+    LMinDistance := MaxSingle;
+    for I := 0 to Length(FParagraphs) - 1 do
+    begin
+      LDistance := Distance(FParagraphs[I].Bounds, APoint - TopLeft);
+      if LDistance < 0 then
+      begin
+        AItem := FParagraphs[I];
+        Break;
+      end;
+      if LDistance < LMinDistance then
+      begin
+        LMinDistance := LDistance;
+        AItem := FParagraphs[I];
+      end;
+    end;
+    Result := True;
+  end;
+
+var
+  LItem: TParagraphItem;
+begin
+  if not TryGetNearestParagraphItem(APoint, LItem) then
     Exit(-1);
-  Result := FParagraph.GetGlyphPositionAtCoordinate(APoint.X - TopLeft.X - FParagraphOffset.X,
-    APoint.Y - TopLeft.Y - FParagraphOffset.Y).Position;
+  Result := LItem.Paragraph.GetGlyphPositionAtCoordinate(APoint.X - TopLeft.X - LItem.Offset.X,
+    APoint.Y - TopLeft.Y - LItem.Offset.Y).Position;
 end;
 
 function TSkTextLayout.DoRegionForRange(const ARange: TTextRange): TRegion;
 
   function GetRegionForRange(const APos, ALength: Integer): TRegion;
   var
-    I: Integer;
+    LParagraphItem: TParagraphItem;
     LTextBoxes: TArray<TSkTextBox>;
+    LOldLength: Integer;
+    I: Integer;
   begin
-    LTextBoxes := FParagraph.GetRectsForRange(APos, APos + ALength, TSkRectHeightStyle.Max, TSkRectWidthStyle.Tight);
-    SetLength(Result, Length(LTextBoxes));
-    for I := 0 to Length(LTextBoxes) - 1 do
+    Result := nil;
+    for LParagraphItem in GetParagraphsInRange(APos, ALength) do
     begin
-      Result[I] := LTextBoxes[I].Rect;
-      Result[I].Offset(FParagraphOffset + TopLeft);
+      LTextBoxes := LParagraphItem.Paragraph.GetRectsForRange(APos - LParagraphItem.Range.Pos,
+        APos + ALength - LParagraphItem.Range.Pos, TSkRectHeightStyle.Max, TSkRectWidthStyle.Tight);
+      LOldLength := Length(Result);
+      SetLength(Result, LOldLength + Length(LTextBoxes));
+      for I := LOldLength to Length(LTextBoxes) - 1 do
+      begin
+        Result[I] := LTextBoxes[I].Rect;
+        Result[I].Offset(LParagraphItem.Offset + TopLeft);
+      end;
     end;
   end;
 
 begin
-  if not Assigned(FParagraph) then
+  if not Assigned(FParagraphs) then
     Exit(nil);
   if ARange.Length = 0 then
   begin
@@ -563,24 +689,50 @@ end;
 procedure TSkTextLayout.DoRenderLayout;
 type
   THorizontalAlign = (Left, Center, Right);
-
 const
   RealHorizontalTextAlign: array[TTextAlign, Boolean] of THorizontalAlign = ((THorizontalAlign.Center, THorizontalAlign.Center), (THorizontalAlign.Left,   THorizontalAlign.Right), (THorizontalAlign.Right,  THorizontalAlign.Left));
 
-  function GetTextRect: TRectF;
+  function OffsetRect(const ARect: TRectF; const ADelta: TPointF): TRectF;
+  begin
+    Result := ARect;
+    Result.Offset(ADelta);
+  end;
+
+  function CalcTextRect: TRectF;
+
+    function GetParagraphItemBounds(const AParagraphItem: TParagraphItem): TRectF;
+    var
+      LTextBox: TSkTextBox;
+      LTextBoxes: TArray<TSkTextBox>;
+    begin
+      Result := TRectF.Empty;
+      LTextBoxes := AParagraphItem.Paragraph.GetRectsForRange(0, AParagraphItem.Range.Length, TSkRectHeightStyle.Max, TSkRectWidthStyle.Tight);
+      for LTextBox in LTextBoxes do
+      begin
+        if Result.IsEmpty then
+          Result := LTextBox.Rect
+        else
+          Result := Result + LTextBox.Rect;
+      end;
+      if Result.IsEmpty then
+        Result.Height := AParagraphItem.Paragraph.Height;
+    end;
+
   var
-    LTextBox: TSkTextBox;
+    I: Integer;
+    LOffset: TPointF;
   begin
     Result := TRectF.Empty;
-    for LTextBox in FParagraph.GetRectsForRange(0, Text.Length, TSkRectHeightStyle.Max, TSkRectWidthStyle.Tight) do
+    LOffset := TPointF.Zero;
+    for I := 0 to Length(FParagraphs) - 1 do
     begin
-      if Result.IsEmpty then
-        Result := LTextBox.Rect
+      FParagraphs[I].Bounds := OffsetRect(GetParagraphItemBounds(FParagraphs[I]), LOffset);
+      if I = 0 then
+        Result := FParagraphs[I].Bounds
       else
-        Result := Result + LTextBox.Rect;
+        Result := Result + FParagraphs[I].Bounds;
+      LOffset.Y := FParagraphs[I].Bounds.Bottom;
     end;
-    if Result.IsEmpty then
-      Result.Height := FParagraph.Height;
   end;
 
   function GetParagraphOffset(ATextRect: TRectF): TPointF;
@@ -609,13 +761,23 @@ const
     Result := LRealParagraphBounds.TopLeft - ATextRect.TopLeft;
   end;
 
+var
+  LParagraphsOffset: TPointF;
+  I: Integer;
 begin
   if FIgnoreUpdates then
     Exit;
   UpdateParagraph;
-  FTextRect := GetTextRect;
-  FParagraphOffset := GetParagraphOffset(FTextRect);
-  FTextRect.Offset(FParagraphOffset);
+  FTextRect := CalcTextRect;
+  LParagraphsOffset := GetParagraphOffset(FTextRect);
+  FTextRect.Offset(LParagraphsOffset);
+  for I := 0 to Length(FParagraphs) - 1 do
+    FParagraphs[I].Bounds := OffsetRect(FParagraphs[I].Bounds, LParagraphsOffset);
+  for I := 0 to Length(FParagraphs) - 1 do
+  begin
+    FParagraphs[I].Offset := LParagraphsOffset;
+    LParagraphsOffset := LParagraphsOffset + PointF(0, FParagraphs[I].Bounds.Height);
+  end;
   case VerticalAlign of
     TTextAlign.Leading  : FTextRect.Bottom := Min(MaxSize.Y - Padding.Top - Padding.Bottom, FTextRect.Bottom);
     TTextAlign.Center   : FTextRect.Inflate(0, Min(((MaxSize.Y - Padding.Top - Padding.Bottom) - FTextRect.Height) / 2, 0));
@@ -625,6 +787,24 @@ begin
     THorizontalAlign.Left   : FTextRect.Right := Min(MaxSize.X - Padding.Left - Padding.Right, FTextRect.Right);
     THorizontalAlign.Center : FTextRect.Inflate(Min(((MaxSize.X - Padding.Left - Padding.Right) - FTextRect.Width) / 2, 0), 0);
     THorizontalAlign.Right  : FTextRect.Left := Max(FTextRect.Right - (MaxSize.X - Padding.Left - Padding.Right), FTextRect.Left);
+  end;
+end;
+
+function TSkTextLayout.GetParagraphsInRange(const APos,
+  ALength: Integer): TArray<TParagraphItem>;
+var
+  LFoundIndex: Integer;
+  LItem: TParagraphItem;
+begin
+  Result := nil;
+  LItem := Default(TParagraphItem);
+  LItem.Range := TTextRange.Create(APos, ALength);
+  if TArray.BinarySearch<TParagraphItem>(FParagraphs, LItem, LFoundIndex, FParagraphTextRangeComparer) then
+  begin
+    repeat
+      Result := Result + [FParagraphs[LFoundIndex]];
+      Inc(LFoundIndex);
+    until (LFoundIndex >= Length(FParagraphs)) or (FParagraphTextRangeComparer.Compare(FParagraphs[LFoundIndex], LItem) <> 0);
   end;
 end;
 
@@ -659,28 +839,10 @@ begin
   DoDrawLayout(ACanvas);
 end;
 
-procedure TSkTextLayout.SetMaxLines(const AValue: Integer);
-begin
-  if FMaxLines <> AValue then
-  begin
-    FMaxLines := AValue;
-    BeginUpdate;
-    try
-      {$IF CompilerVersion >= 29}
-      SetNeedUpdate;
-      {$ELSE}
-      RightToLeft := not RightToLeft;
-      RightToLeft := not RightToLeft;
-      {$ENDIF}
-    finally
-      EndUpdate;
-    end;
-  end;
-end;
-
 procedure TSkTextLayout.UpdateParagraph;
-{$IF CompilerVersion >= 31}
 const
+  ZeroWidthChar = #8203;
+{$IF CompilerVersion >= 31}
   SkFontSlant  : array[TFontSlant] of TSkFontSlant = (TSkFontSlant.Upright, TSkFontSlant.Italic, TSkFontSlant.Oblique);
   SkFontWeight : array[TFontWeight] of Integer = (100, 200, 300, 350, 400, 500, 600, 700, 800, 900, 950);
   SkFontWidth  : array[TFontStretch] of Integer = (1, 2, 3, 4, 5, 6, 7, 8, 9);
@@ -691,42 +853,31 @@ const
     Result := AValue.Split([', ', ','], TStringSplitOptions.ExcludeEmpty){$IFDEF MACOS} + ['Helvetica Neue']{$ELSEIF DEFINED(LINUX)} + ['Ubuntu']{$ENDIF};
   end;
 
-  function GetNormalizedAttributes: TArray<TTextAttributedRange>;
+  function GetNormalizedAttributes(const ASubText: string; const ASubTextPosition: Integer): TArray<TTextAttributedRange>;
   var
     I: Integer;
     LAttribute: TTextAttributedRange;
     LAttributes: TList<TTextAttributedRange>;
-    LComparer: IComparer<TTextAttributedRange>;
     LIndex: Integer;
     LNeighborAttribute: TTextAttributedRange;
   begin
     if AttributesCount = 0 then
       Exit(nil);
-    LComparer := TComparer<TTextAttributedRange>.Construct(
-      function(const ALeft, ARight: TTextAttributedRange): Integer
-      begin
-        if (ALeft.Range.Pos + ALeft.Range.Length) <= ARight.Range.Pos then
-          Result := -1
-        else if ALeft.Range.Pos >= (ARight.Range.Pos + ARight.Range.Length) then
-          Result := 1
-        else
-          Result := 0;
-      end);
     LAttributes := TList<TTextAttributedRange>.Create;
     try
       for I := 0 to AttributesCount - 1 do
       begin
-        LAttribute := TTextAttributedRange.Create(Attributes[I].Range, Attributes[I].Attribute);
+        LAttribute := TTextAttributedRange.Create(TTextRange.Create(Attributes[I].Range.Pos - ASubTextPosition, Attributes[I].Range.Length), Attributes[I].Attribute);
         if LAttribute.Range.Pos < 0 then
           LAttribute.Range := TTextRange.Create(0, LAttribute.Range.Pos + LAttribute.Range.Length);
-        if (LAttribute.Range.Pos + LAttribute.Range.Length) > Text.Length then
-          LAttribute.Range := TTextRange.Create(LAttribute.Range.Pos, LAttribute.Range.Length - ((LAttribute.Range.Pos + LAttribute.Range.Length) - Text.Length));
+        if (LAttribute.Range.Pos + LAttribute.Range.Length) > ASubText.Length then
+          LAttribute.Range := TTextRange.Create(LAttribute.Range.Pos, LAttribute.Range.Length - ((LAttribute.Range.Pos + LAttribute.Range.Length) - ASubText.Length));
         if LAttribute.Range.Length <= 0 then
         begin
           LAttribute.Free;
           Continue;
         end;
-        if LAttributes.BinarySearch(LAttribute, LIndex, LComparer) then
+        if LAttributes.BinarySearch(LAttribute, LIndex, FAttributesRangeComparer) then
         begin
           if (LAttributes[LIndex].Range.Pos < LAttribute.Range.Pos) and ((LAttributes[LIndex].Range.Pos + LAttributes[LIndex].Range.Length) > (LAttribute.Range.Pos + LAttribute.Range.Length)) then
           begin
@@ -844,11 +995,7 @@ const
       Result.TextDirection := TSkTextDirection.RightToLeft;
     if Trimming in [TTextTrimming.Character, TTextTrimming.Word] then
       Result.Ellipsis := '...';
-    if FMaxLines = 0 then
-      Result.MaxLines := High(Integer)
-    else if FMaxLines > 0 then
-      Result.MaxLines := FMaxLines
-    else if WordWrap then
+    if WordWrap then
       Result.MaxLines := High(Integer)
     else
       Result.MaxLines := 1;
@@ -882,10 +1029,10 @@ const
   // SkParagraph has several issues with the #13 line break, so the best thing to do is replace it with #10 or a zero-widh character (#8203)
   function NormalizeParagraphText(const AText: string): string;
   begin
-    Result := AText.Replace(#13#10, #8203#10).Replace(#13, #10);
+    Result := AText.Replace(#13#10, ZeroWidthChar + #10).Replace(#13, #10);
   end;
 
-  procedure DoUpdateParagraph(const AMaxLines: Integer);
+  function CreateParagraph(const AMaxLines: Integer; const ASubText: string; const ASubTextPosition: Integer): ISkParagraph;
   var
     LAttribute: TTextAttributedRange;
     LAttributes: TArray<TTextAttributedRange>;
@@ -895,15 +1042,15 @@ const
   begin
     FColor   := Color;
     FOpacity := Opacity;
-    LAttributes := GetNormalizedAttributes;
+    LAttributes := GetNormalizedAttributes(ASubText, ASubTextPosition);
     try
       LBuilder := TSkParagraphBuilder.Create(CreateParagraphStyle(LAttributes, AMaxLines), TSkTypefaceManager.Provider);
       LLastAttributeEndIndex := 0;
       for LAttribute in LAttributes do
       begin
         if LLastAttributeEndIndex < LAttribute.Range.Pos then
-          LBuilder.AddText(Text.Substring(LLastAttributeEndIndex, LAttribute.Range.Pos - LLastAttributeEndIndex));
-        LText := NormalizeParagraphText(Text.Substring(LAttribute.Range.Pos, LAttribute.Range.Length));
+          LBuilder.AddText(ASubText.Substring(LLastAttributeEndIndex, LAttribute.Range.Pos - LLastAttributeEndIndex));
+        LText := NormalizeParagraphText(ASubText.Substring(LAttribute.Range.Pos, LAttribute.Range.Length));
         if not LText.IsEmpty then
         begin
           LBuilder.PushStyle(CreateTextStyle(LAttribute.Attribute));
@@ -912,34 +1059,87 @@ const
         end;
         LLastAttributeEndIndex := LAttribute.Range.Pos + LAttribute.Range.Length;
       end;
-      if LLastAttributeEndIndex < Text.Length then
-        LBuilder.AddText(Text.Substring(LLastAttributeEndIndex, Text.Length - LLastAttributeEndIndex));
+      if LLastAttributeEndIndex < ASubText.Length then
+        LBuilder.AddText(ASubText.Substring(LLastAttributeEndIndex, ASubText.Length - LLastAttributeEndIndex));
     finally
       for LAttribute in LAttributes do
         LAttribute.DisposeOf;
     end;
-    FParagraph := LBuilder.Build;
+    Result := LBuilder.Build;
+  end;
+
+  procedure DoUpdateParagraph(var AParagraphItem: TParagraphItem; const ASubText: string);
+  {$IF CompilerVersion < 29}
+  const
+    MaxLayoutSize: TPointF = (X: $FFFF; Y: $FFFF);
+  {$ENDIF}
+  var
+    LLineMetric: TSkMetrics;
+  begin
+    AParagraphItem.Paragraph := CreateParagraph(0, ASubText, AParagraphItem.Range.Pos);
+    if NeedHorizontalAlignment then
+      AParagraphItem.Paragraph.Layout(MaxLayoutSize.X)
+    else
+      AParagraphItem.Paragraph.Layout(MaxSize.X - Padding.Left - Padding.Right);
+    if WordWrap and (AParagraphItem.Paragraph.Height > MaxSize.Y - Padding.Top - Padding.Bottom) then
+    begin
+      for LLineMetric in AParagraphItem.Paragraph.LineMetrics do
+      begin
+        if (LLineMetric.LineNumber <> 0) and (LLineMetric.Baseline + LLineMetric.Descent > MaxSize.Y - Padding.Top - Padding.Bottom) then
+        begin
+          AParagraphItem.Paragraph := CreateParagraph(LLineMetric.LineNumber, ASubText, AParagraphItem.Range.Pos);
+          AParagraphItem.Paragraph.Layout(MaxSize.X - Padding.Left - Padding.Right);
+          Break;
+        end;
+      end;
+    end;
   end;
 
 var
-  LLineMetric: TSkMetrics;
+  LText: string;
+  LLines: TArray<string>;
+  LPos: Integer;
+  I: Integer;
 begin
-  DoUpdateParagraph(0);
-  if NeedHorizontalAlignment then
-    FParagraph.Layout({$IF CompilerVersion < 29}ClosePolygon.X{$ELSE}TTextLayout.MaxLayoutSize.X{$ENDIF})
+  LText := Text;
+
+  {$REGION ' - Workaround RSP-38480'}
+  // - -------------------------------------------------------------------------
+  // - WORKAROUND
+  // - -------------------------------------------------------------------------
+  // -
+  // - Description:
+  // -   This code is a workaround intended to fix issues with controls that
+  // -   create the TTextLayout but doesn't set the TTextLayout.RightToLeft,
+  // -   like the TText control.
+  // -   This code is a workaround intended to fix issues with function
+  // -   FMX.Types.DelAmp with results in texts with #0 char at end of string
+  // -   when the original text contains a '&' char
+  // -
+  // - Bug report:
+  // -   https://quality.embarcadero.com/browse/RSP-38480
+  // -
+  // - -------------------------------------------------------------------------
+  {$IF CompilerVersion > 35}
+    {$MESSAGE WARN 'Check if the issue has been fixed'}
+  {$ENDIF}
+  // - -------------------------------------------------------------------------
+  if LText.EndsWith(#0) then
+    LText := LText.Substring(0, LText.Length - 1) + ZeroWidthChar;
+  // - -------------------------------------------------------------------------
+  {$ENDREGION}
+
+  if WordWrap or LText.IsEmpty then
+    LLines := [LText]
   else
-    FParagraph.Layout(MaxSize.X - Padding.Left - Padding.Right);
-  if WordWrap and (FParagraph.Height > MaxSize.Y - Padding.Top - Padding.Bottom) then
+    LLines := LText.Replace(#13#10, ZeroWidthChar + #10).Replace(#13, #10).Replace(#10, ZeroWidthChar + #10).Split([#10]);
+  LPos := 0;
+  SetLength(FParagraphs, Length(LLines));
+  for I := 0 to Length(LLines) - 1 do
   begin
-    for LLineMetric in FParagraph.LineMetrics do
-    begin
-      if (LLineMetric.LineNumber <> 0) and (LLineMetric.Baseline + LLineMetric.Descent > MaxSize.Y - Padding.Top - Padding.Bottom) then
-      begin
-        DoUpdateParagraph(LLineMetric.LineNumber);
-        FParagraph.Layout(MaxSize.X - Padding.Left - Padding.Right);
-        Break;
-      end;
-    end;
+    FParagraphs[I].Range := TTextRange.Create(LPos, LLines[I].Length);
+    DoUpdateParagraph(FParagraphs[I], LLines[I]);
+    Inc(LPos, LLines[I].Length);
   end;
 end;
 
@@ -947,21 +1147,21 @@ end;
 
 class constructor TSkBitmapHandleCodec.Create;
 begin
-  RegisterIfNotExists('.bmp', SVBitmaps, False);
-  RegisterIfNotExists('.gif', SVGIFImages, False);
-  RegisterIfNotExists('.ico', SVIcons, False);
-  RegisterIfNotExists('.wbmp', SWBMPImages, False);
-  RegisterIfNotExists('.webp', SVWEBPImages, True);
-  RegisterIfNotExists('.arw', SRawSony, False);
-  RegisterIfNotExists('.cr2', SRawCanon, False);
-  RegisterIfNotExists('.dng', SRawDNG, False);
-  RegisterIfNotExists('.nef', SRawNikon, False);
-  RegisterIfNotExists('.nrw', SRawNikon, False);
-  RegisterIfNotExists('.orf', SRawORF, False);
-  RegisterIfNotExists('.raf', SRawRAF, False);
-  RegisterIfNotExists('.rw2', SRawPanasonic, False);
-  RegisterIfNotExists('.pef', SRawPEF, False);
-  RegisterIfNotExists('.srw', SRawSRW, False);
+  RegisterIfNotExists('.bmp',  SVBitmaps,     False);
+  RegisterIfNotExists('.gif',  SVGIFImages,   False);
+  RegisterIfNotExists('.ico',  SVIcons,       False);
+  RegisterIfNotExists('.wbmp', SWBMPImages,   False);
+  RegisterIfNotExists('.webp', SVWEBPImages,  True);
+  RegisterIfNotExists('.arw',  SRawSony,      False);
+  RegisterIfNotExists('.cr2',  SRawCanon,     False);
+  RegisterIfNotExists('.dng',  SRawDNG,       False);
+  RegisterIfNotExists('.nef',  SRawNikon,     False);
+  RegisterIfNotExists('.nrw',  SRawNikon,     False);
+  RegisterIfNotExists('.orf',  SRawORF,       False);
+  RegisterIfNotExists('.raf',  SRawRAF,       False);
+  RegisterIfNotExists('.rw2',  SRawPanasonic, False);
+  RegisterIfNotExists('.pef',  SRawPEF,       False);
+  RegisterIfNotExists('.srw',  SRawSRW,       False);
 end;
 
 function TSkBitmapHandleCodec.FitSize(const AWidth, AHeight: Integer; const AFitWidth,
@@ -1153,16 +1353,9 @@ begin
     FPixels := AllocMem(FWidth * FHeight * 4);
 end;
 
-{ TSkCanvasCustom }
+{ TSkCanvasCustomBase }
 
-procedure TSkCanvasCustom.BeforeDestruction;
-begin
-  inherited;
-  if Parent <> nil then
-    DestroyWindow;
-end;
-
-function TSkCanvasCustom.BitmapToSkImage(
+function TSkCanvasCustomBase.BitmapToSkImage(
   const ABitmap: FMX.Graphics.TBitmap): ISkImage;
 var
   LBitmapData: TBitmapData;
@@ -1173,19 +1366,7 @@ begin
   begin
     if TSkBitmapHandle(ABitmap.Handle).Pixels = nil then
       Exit(nil);
-    if (Parent <> nil) and (Assigned(FImageCache)) then
-    begin
-      if (FImageCache.ContainsKey(Self)) and (FImageCache[Self].ContainsKey(ABitmap.Handle)) then
-        Result := FImageCache[Self][ABitmap.Handle]
-      else
-      begin
-        Result := CreateCache(ABitmap.Width, ABitmap.Height, SkFmxColorType[ABitmap.PixelFormat], TSkBitmapHandle(ABitmap.Handle).Pixels, ABitmap.Width * 4);
-        if not FImageCache.ContainsKey(Self) then
-          FImageCache.Add(Self, TDictionary<THandle, ISkImage>.Create);
-        FImageCache[Self].Add(ABitmap.Handle, Result);
-      end;
-    end
-    else
+    if (Parent = nil) or not TryGetBitmapCache(ABitmap, Result) then
       Result := TSkImage.MakeFromRaster(TSkImageInfo.Create(ABitmap.Width, ABitmap.Height, SkFmxColorType[ABitmap.PixelFormat]), TSkBitmapHandle(ABitmap.Handle).Pixels, ABitmap.Width * 4);
   end
   else
@@ -1200,128 +1381,41 @@ begin
   end;
 end;
 
-function TSkCanvasCustom.BrushToSkPaint(const ABrush: TBrush;
+function TSkCanvasCustomBase.BrushToSkPaint(const ABrush: TBrush;
   const ARect: TRectF; const AOpacity: Single): ISkPaint;
 begin
   Result := TSkPaint.Create(TSkPaintStyle.Fill);
   SetupBrush(ABrush, ARect, AOpacity, Result);
 end;
 
-procedure TSkCanvasCustom.Clear(const AColor: TAlphaColor);
+procedure TSkCanvasCustomBase.Clear(const AColor: TAlphaColor);
 begin
   {$IF CompilerVersion >= 35}
   RaiseIfBeginSceneCountZero;
   {$ELSE}
   if BeginSceneCount > 0 then
   {$ENDIF}
-  FSurface.Canvas.Clear(AColor);
+  FCanvas.Clear(AColor);
 end;
 
-class procedure TSkCanvasCustom.ClearCache(const ACanvas: TSkCanvasCustom);
-begin
-  FImageCache[ACanvas].Clear;
-end;
-
-class procedure TSkCanvasCustom.ClearCacheBitmap(const ABitmapHandle: THandle);
-begin
-  TThread.Queue(nil,
-    procedure ()
-    var
-      LCanvas: TSkCanvasCustom;
-    begin
-      if Assigned(FImageCache) then
-      begin
-        for LCanvas in FImageCache.Keys do
-        begin
-          if FImageCache[LCanvas].ContainsKey(ABitmapHandle) then
-            DoClearCacheBitmap(LCanvas, ABitmapHandle);
-        end;
-      end;
-    end);
-end;
-
-procedure TSkCanvasCustom.ClearRect(const ARect: TRectF;
+procedure TSkCanvasCustomBase.ClearRect(const ARect: TRectF;
   const AColor: TAlphaColor);
 begin
-  FSurface.Canvas.Save;
+  FCanvas.Save;
   try
-    FSurface.Canvas.ClipRect(ARect);
-    FSurface.Canvas.Clear(AColor);
+    FCanvas.ClipRect(ARect);
+    FCanvas.Clear(AColor);
   finally
-    FSurface.Canvas.Restore;
+    FCanvas.Restore;
   end;
 end;
 
-function TSkCanvasCustom.CreateCache(const AWidth, AHeight: Integer;
-  const AColorType: TSkColorType; const APixels: Pointer;
-  const ARowBytes: NativeUInt): ISkImage;
-begin
-  Result := TSkImage.MakeFromRaster(TSkImageInfo.Create(AWidth, AHeight, AColorType), APixels, ARowBytes);
-end;
-
-constructor TSkCanvasCustom.CreateFromPrinter(const APrinter: TAbstractPrinter);
-begin
-  raise ESkCanvas.Create('Create from printer is not supported');
-end;
-
-{$IFDEF MSWINDOWS}
-
-constructor TSkCanvasCustom.CreateFromWindow(const AParent: TWindowHandle;
-  const AWidth, AHeight: Integer; const AQuality: TCanvasQuality);
-begin
-  inherited;
-  if WindowHandleToPlatform(Parent){$IF CompilerVersion < 30}.Form{$ENDIF}.Transparency then
-    WindowHandleToPlatform(Parent).CreateBuffer({$IF CompilerVersion < 31}Width, Height{$ELSE}WindowHandleToPlatform(Parent).WndClientSize.Width, WindowHandleToPlatform(Parent).WndClientSize.Height{$ENDIF});
-end;
-
-{$ENDIF}
-
-function TSkCanvasCustom.CreateSaveState: TCanvasSaveState;
+function TSkCanvasCustomBase.CreateSaveState: TCanvasSaveState;
 begin
   Result := TSaveState.Create;
 end;
 
-procedure TSkCanvasCustom.DestroyWindow;
-begin
-  if Assigned(FImageCache) then
-    FImageCache.Remove(Self);
-end;
-
-function TSkCanvasCustom.DoBeginScene({$IF CompilerVersion < 35}const {$ENDIF}AClipRects: PClipRects;
-  AContextHandle: THandle): Boolean;
-begin
-  Result := inherited;
-  if Result then
-  begin
-    if Bitmap <> nil then
-    begin
-      ClearCacheBitmap(Bitmap.Handle);
-      TSkBitmapHandle(Bitmap.Handle).Initialize;
-      FDrawableWidth  := Width;
-      FDrawableHeight := Height;
-      FSurface        := TSkSurface.MakeRasterDirect(TSkImageInfo.Create(Width, Height, SkFmxColorType[Bitmap.PixelFormat]), TSkBitmapHandle(Bitmap.Handle).Pixels, Width * 4);
-    end
-    else if Parent <> nil then
-    begin
-      FDrawableWidth  := Round(Width  * Scale);
-      FDrawableHeight := Round(Height * Scale);
-      FSurface        := BeginWindow(AContextHandle);
-    end
-    else
-      Exit(False);
-    Result := Assigned(FSurface);
-    if Result then
-      FSurface.Canvas.SetMatrix(TMatrix.CreateScaling(Scale, Scale));
-  end;
-end;
-
-class procedure TSkCanvasCustom.DoClearCacheBitmap(
-  const ACanvas: TSkCanvasCustom; const ABitmapHandle: THandle);
-begin
-  FImageCache[ACanvas].Remove(ABitmapHandle);
-end;
-
-procedure TSkCanvasCustom.DoDrawBitmap(const ABitmap: FMX.Graphics.TBitmap;
+procedure TSkCanvasCustomBase.DoDrawBitmap(const ABitmap: FMX.Graphics.TBitmap;
   const ASrcRect, ADestRect: TRectF; const AOpacity: Single; const AHighSpeed: Boolean);
 var
   LImage: ISkImage;
@@ -1336,11 +1430,11 @@ begin
     if FModulateColor <> TAlphaColors.Null then
       LPaint.ColorFilter := TSkColorFilter.MakeBlend(FModulateColor, TSkBlendMode.SrcIn);
     {$ENDIF}
-    FSurface.Canvas.DrawImageRect(LImage, ASrcRect, ADestRect, GetSamplingOptions(AHighSpeed), LPaint);
+    FCanvas.DrawImageRect(LImage, ASrcRect, ADestRect, GetSamplingOptions(AHighSpeed), LPaint);
   end;
 end;
 
-procedure TSkCanvasCustom.DoDrawEllipse(const ARect: TRectF;
+procedure TSkCanvasCustomBase.DoDrawEllipse(const ARect: TRectF;
   const AOpacity: Single; const ABrush: TStrokeBrush);
 var
   LPathBuilder: ISkPathBuilder;
@@ -1349,166 +1443,86 @@ begin
     Exit;
   LPathBuilder := TSkPathBuilder.Create;
   LPathBuilder.AddOval(ARect, TSkPathDirection.CW, 3);
-  FSurface.Canvas.DrawPath(LPathBuilder.Detach, StrokeBrushToSkPaint(ABrush, ARect, AOpacity));
+  FCanvas.DrawPath(LPathBuilder.Detach, StrokeBrushToSkPaint(ABrush, ARect, AOpacity));
 end;
 
-procedure TSkCanvasCustom.DoDrawLine(const APoint1, APoint2: TPointF;
+procedure TSkCanvasCustomBase.DoDrawLine(const APoint1, APoint2: TPointF;
   const AOpacity: Single; const ABrush: TStrokeBrush);
 begin
   if SameValue(ABrush.Thickness, 0, TEpsilon.Position) then
     Exit;
-  FSurface.Canvas.DrawLine(APoint1, APoint2, StrokeBrushToSkPaint(ABrush, TRectF.Create(APoint1, APoint2), AOpacity));
+  FCanvas.DrawLine(APoint1, APoint2, StrokeBrushToSkPaint(ABrush, TRectF.Create(APoint1, APoint2), AOpacity));
 end;
 
-procedure TSkCanvasCustom.DoDrawPath(const APath: TPathData;
+procedure TSkCanvasCustomBase.DoDrawPath(const APath: TPathData;
   const AOpacity: Single; const ABrush: TStrokeBrush);
 begin
   if SameValue(ABrush.Thickness, 0, TEpsilon.Position) then
     Exit;
-  FSurface.Canvas.DrawPath(APath.ToSkPath, StrokeBrushToSkPaint(ABrush, APath.GetBounds, AOpacity));
+  FCanvas.DrawPath(APath.ToSkPath, StrokeBrushToSkPaint(ABrush, APath.GetBounds, AOpacity));
 end;
 
-procedure TSkCanvasCustom.DoDrawRect(const ARect: TRectF;
+procedure TSkCanvasCustomBase.DoDrawRect(const ARect: TRectF;
   const AOpacity: Single; const ABrush: TStrokeBrush);
 begin
   if SameValue(ABrush.Thickness, 0, TEpsilon.Position) then
     Exit;
-  FSurface.Canvas.DrawRect(ARect, StrokeBrushToSkPaint(ABrush, ARect, AOpacity));
+  FCanvas.DrawRect(ARect, StrokeBrushToSkPaint(ABrush, ARect, AOpacity));
 end;
 
-procedure TSkCanvasCustom.DoEndScene;
-begin
-  if Parent <> nil then
-  begin
-    {$IFDEF MSWINDOWS}
-    if WindowHandleToPlatform(Parent){$IF CompilerVersion < 30}.Form{$ENDIF}.Transparency then
-      FSurface.ReadPixels(TSkImageInfo.Create({$IF CompilerVersion < 31}Width, Height{$ELSE}WindowHandleToPlatform(Parent).WndClientSize.Width, WindowHandleToPlatform(Parent).WndClientSize.Height{$ENDIF}), WindowHandleToPlatform(Parent).BufferBits, {$IF CompilerVersion < 31}Width{$ELSE}WindowHandleToPlatform(Parent).WndClientSize.Width{$ENDIF} * 4);
-    {$ENDIF}
-    EndWindow;
-  end;
-  FSurface := nil;
-  inherited;
-end;
-
-procedure TSkCanvasCustom.DoFillEllipse(const ARect: TRectF;
+procedure TSkCanvasCustomBase.DoFillEllipse(const ARect: TRectF;
   const AOpacity: Single; const ABrush: TBrush);
 var
   LPathBuilder: ISkPathBuilder;
 begin
   LPathBuilder := TSkPathBuilder.Create;
   LPathBuilder.AddOval(ARect, TSkPathDirection.CW, 3);
-  FSurface.Canvas.DrawPath(LPathBuilder.Detach, BrushToSkPaint(ABrush, ARect, AOpacity));
+  FCanvas.DrawPath(LPathBuilder.Detach, BrushToSkPaint(ABrush, ARect, AOpacity));
 end;
 
-procedure TSkCanvasCustom.DoFillPath(const APath: TPathData;
+procedure TSkCanvasCustomBase.DoFillPath(const APath: TPathData;
   const AOpacity: Single; const ABrush: TBrush);
 begin
-  FSurface.Canvas.DrawPath(APath.ToSkPath, BrushToSkPaint(ABrush, APath.GetBounds, AOpacity));
+  FCanvas.DrawPath(APath.ToSkPath, BrushToSkPaint(ABrush, APath.GetBounds, AOpacity));
 end;
 
-procedure TSkCanvasCustom.DoFillRect(const ARect: TRectF;
+procedure TSkCanvasCustomBase.DoFillRect(const ARect: TRectF;
   const AOpacity: Single; const ABrush: TBrush);
 begin
-  FSurface.Canvas.DrawRect(ARect, BrushToSkPaint(ABrush, ARect, AOpacity));
-end;
-
-class procedure TSkCanvasCustom.DoFinalize;
-begin
-end;
-
-class procedure TSkCanvasCustom.DoFinalizeBitmap(var ABitmapHandle: THandle);
-begin
-  ClearCacheBitmap(ABitmapHandle);
-  TSkBitmapHandle(ABitmapHandle).Free;
-end;
-
-class function TSkCanvasCustom.DoInitialize: Boolean;
-begin
-  Result := True;
-end;
-
-class function TSkCanvasCustom.DoInitializeBitmap(const AWidth,
-  AHeight: Integer; const AScale: Single;
-  var APixelFormat: TPixelFormat): THandle;
-begin
-  Result := THandle(TSkBitmapHandle.Create(AWidth, AHeight));
-  if APixelFormat = TPixelFormat.None then
-  begin
-    {$IF DEFINED(MSWINDOWS)}
-    APixelFormat := TPixelFormat.BGRA;
-    {$ELSEIF DEFINED(MACOS)}
-    if GlobalUseMetal then
-      APixelFormat := TPixelFormat.BGRA
-    else
-      APixelFormat := TPixelFormat.RGBA;
-    {$ELSE}
-    APixelFormat := TPixelFormat.RGBA;
-    {$ENDIF}
-  end;
-end;
-
-class function TSkCanvasCustom.DoMapBitmap(const ABitmapHandle: THandle;
-  const AAccess: TMapAccess; var ABitmapData: TBitmapData): Boolean;
-begin
-  if AAccess <> TMapAccess.Read then
-    ClearCacheBitmap(ABitmapHandle);
-  TSkBitmapHandle(ABitmapHandle).Initialize;
-  ABitmapData.Data  := TSkBitmapHandle(ABitmapHandle).Pixels;
-  ABitmapData.Pitch := TSkBitmapHandle(ABitmapHandle).Width * 4;
-  Result := True;
+  FCanvas.DrawRect(ARect, BrushToSkPaint(ABrush, ARect, AOpacity));
 end;
 
 {$IF CompilerVersion >= 30}
 
-procedure TSkCanvasCustom.DoSetMatrix(const AMatrix: TMatrix);
+procedure TSkCanvasCustomBase.DoSetMatrix(const AMatrix: TMatrix);
 begin
   if BeginSceneCount > 0 then
-    FSurface.Canvas.SetMatrix(AMatrix * TMatrix.CreateScaling(Scale, Scale));
+    FCanvas.SetMatrix(AMatrix * TMatrix.CreateScaling(Scale, Scale));
 end;
 
 {$ENDIF}
 
-class procedure TSkCanvasCustom.DoUnmapBitmap(const ABitmapHandle: THandle;
-  var ABitmapData: TBitmapData);
-begin
-end;
-
-procedure TSkCanvasCustom.EndWindow;
-begin
-end;
-
-procedure TSkCanvasCustom.ExcludeClipRect(const ARect: TRectF);
+procedure TSkCanvasCustomBase.ExcludeClipRect(const ARect: TRectF);
 begin
   Inc(FClippingChangeCount);
-  FSurface.Canvas.ClipRect(ARect, TSkClipOp.Difference);
+  FCanvas.ClipRect(ARect, TSkClipOp.Difference);
 end;
 
-class procedure TSkCanvasCustom.Finalize;
-var
-  LCanvas: TSkCanvasCustom;
-begin
-  DoFinalize;
-  for LCanvas in FImageCache.Keys do
-    ClearCache(LCanvas);
-  FImageCache.Free;
-  TSkiaAPI.Terminate;
-end;
-
-class function TSkCanvasCustom.GetCanvasStyle: TCanvasStyles;
+class function TSkCanvasCustomBase.GetCanvasStyle: TCanvasStyles;
 begin
   Result := [];
 end;
 
 {$IFDEF MODULATE_CANVAS}
 
-function TSkCanvasCustom.GetModulateColor: TAlphaColor;
+function TSkCanvasCustomBase.GetModulateColor: TAlphaColor;
 begin
   Result := FModulateColor;
 end;
 
 {$ENDIF}
 
-function TSkCanvasCustom.GetSamplingOptions(
+function TSkCanvasCustomBase.GetSamplingOptions(
   const AHighSpeed: Boolean): TSkSamplingOptions;
 begin
   if AHighSpeed then
@@ -1524,25 +1538,13 @@ begin
   end;
 end;
 
-class function TSkCanvasCustom.Initialize: Boolean;
-begin
-  TSkiaAPI.Initialize;
-  if not DoInitialize then
-  begin
-    TSkiaAPI.Terminate;
-    Exit(False);
-  end;
-  FImageCache := TObjectDictionary<TSkCanvasCustom, TDictionary<THandle, ISkImage>>.Create([doOwnsValues]);
-  Result      := True;
-end;
-
-procedure TSkCanvasCustom.IntersectClipRect(const ARect: TRectF);
+procedure TSkCanvasCustomBase.IntersectClipRect(const ARect: TRectF);
 begin
   Inc(FClippingChangeCount);
-  FSurface.Canvas.ClipRect(ARect);
+  FCanvas.ClipRect(ARect);
 end;
 
-function TSkCanvasCustom.PtInPath(const APoint: TPointF;
+function TSkCanvasCustomBase.PtInPath(const APoint: TPointF;
   const APath: TPathData): Boolean;
 var
   LPaint: ISkPaint;
@@ -1553,31 +1555,23 @@ begin
   Result := Assigned(LPath) and (LPath.Contains(APoint.X, APoint.Y));
 end;
 
-procedure TSkCanvasCustom.Resized;
+procedure TSkCanvasCustomBase.Restore;
 begin
-  {$IFDEF MSWINDOWS}
-  if (Parent <> nil) and (WindowHandleToPlatform(Parent){$IF CompilerVersion < 30}.Form{$ENDIF}.Transparency) then
-    WindowHandleToPlatform(Parent).ResizeBuffer({$IF CompilerVersion < 31}Width, Height{$ELSE}WindowHandleToPlatform(Parent).WndClientSize.Width, WindowHandleToPlatform(Parent).WndClientSize.Height{$ENDIF});
-  {$ENDIF}
+  FCanvas.Restore;
 end;
 
-procedure TSkCanvasCustom.Restore;
+procedure TSkCanvasCustomBase.Save;
 begin
-  FSurface.Canvas.Restore;
-end;
-
-procedure TSkCanvasCustom.Save;
-begin
-  FSurface.Canvas.Save;
+  FCanvas.Save;
 end;
 
 {$IF CompilerVersion < 30}
 
-procedure TSkCanvasCustom.SetMatrix(const AMatrix: TMatrix);
+procedure TSkCanvasCustomBase.SetMatrix(const AMatrix: TMatrix);
 begin
   inherited;
   if BeginSceneCount > 0 then
-    FSurface.Canvas.SetMatrix(AMatrix * TMatrix.CreateScaling(Scale, Scale));
+    FCanvas.SetMatrix(AMatrix * TMatrix.CreateScaling(Scale, Scale));
 end;
 
 {$ENDIF}
@@ -1585,23 +1579,14 @@ end;
 
 {$IFDEF MODULATE_CANVAS}
 
-procedure TSkCanvasCustom.SetModulateColor(const AColor: TAlphaColor);
+procedure TSkCanvasCustomBase.SetModulateColor(const AColor: TAlphaColor);
 begin
   FModulateColor := AColor;
 end;
 
 {$ENDIF}
 
-procedure TSkCanvasCustom.SetSize(const AWidth, AHeight: Integer);
-begin
-  if (Width <> AWidth) or (Height <> AHeight) then
-  begin
-    inherited;
-    Resized;
-  end;
-end;
-
-procedure TSkCanvasCustom.SetupBrush(const ABrush: TBrush; const ARect: TRectF;
+procedure TSkCanvasCustomBase.SetupBrush(const ABrush: TBrush; const ARect: TRectF;
   const AOpacity: Single; const APaint: ISkPaint);
 const
   WrapMode: array[TWrapMode.Tile..TWrapMode.TileOriginal] of TSkTileMode = (TSkTileMode.Repeat, TSkTileMode.Clamp);
@@ -1685,7 +1670,7 @@ begin
   end;
 end;
 
-function TSkCanvasCustom.StrokeBrushToSkPaint(const ABrush: TStrokeBrush;
+function TSkCanvasCustomBase.StrokeBrushToSkPaint(const ABrush: TStrokeBrush;
   const ARect: TRectF; const AOpacity: Single): ISkPaint;
 const
   StrokeCap  : array[TStrokeCap] of TSkStrokeCap = (TSkStrokeCap.Square, TSkStrokeCap.Round);
@@ -1718,20 +1703,291 @@ begin
   end;
 end;
 
-{ TSkCanvasCustom.TSaveState }
-
-procedure TSkCanvasCustom.TSaveState.Assign(ASource: TPersistent);
+function TSkCanvasCustomBase.TryGetBitmapCache(const ABitmap: FMX.Graphics.TBitmap;
+  out AValue: ISkImage): Boolean;
 begin
-  inherited;
-  if ASource is TSkCanvasCustom then
-    TSkCanvasCustom(ASource).Save;
+  Result := False;
+  AValue := nil;
 end;
 
-procedure TSkCanvasCustom.TSaveState.AssignTo(ADest: TPersistent);
+{ TSkCanvasCustomBase.TSaveState }
+
+procedure TSkCanvasCustomBase.TSaveState.Assign(ASource: TPersistent);
 begin
   inherited;
-  if ADest is TSkCanvasCustom then
-    TSkCanvasCustom(ADest).Restore;
+  if ASource is TSkCanvasCustomBase then
+    TSkCanvasCustomBase(ASource).Save;
+end;
+
+procedure TSkCanvasCustomBase.TSaveState.AssignTo(ADest: TPersistent);
+begin
+  inherited;
+  if ADest is TSkCanvasCustomBase then
+    TSkCanvasCustomBase(ADest).Restore;
+end;
+
+{ TSkCanvasCustom }
+
+procedure TSkCanvasCustom.BeforeDestruction;
+begin
+  inherited;
+  if Parent <> nil then
+    DestroyWindow;
+end;
+
+class procedure TSkCanvasCustom.ClearCache(const ACanvas: TSkCanvasCustom);
+begin
+  FImageCache[ACanvas].Clear;
+end;
+
+class procedure TSkCanvasCustom.ClearCacheBitmap(const ABitmapHandle: THandle);
+begin
+  TThread.Queue(nil,
+    procedure ()
+    var
+      LCanvas: TSkCanvasCustom;
+    begin
+      if Assigned(FImageCache) then
+      begin
+        for LCanvas in FImageCache.Keys do
+        begin
+          if FImageCache[LCanvas].ContainsKey(ABitmapHandle) then
+            DoClearCacheBitmap(LCanvas, ABitmapHandle);
+        end;
+      end;
+    end);
+end;
+
+function TSkCanvasCustom.CreateCache(const AWidth, AHeight: Integer;
+  const AColorType: TSkColorType; const APixels: Pointer;
+  const ARowBytes: NativeUInt): ISkImage;
+begin
+  Result := TSkImage.MakeFromRaster(TSkImageInfo.Create(AWidth, AHeight, AColorType), APixels, ARowBytes);
+end;
+
+constructor TSkCanvasCustom.CreateFromPrinter(const APrinter: TAbstractPrinter);
+begin
+  raise ESkCanvas.Create('Create from printer is not supported');
+end;
+
+{$IFDEF MSWINDOWS}
+
+constructor TSkCanvasCustom.CreateFromWindow(const AParent: TWindowHandle;
+  const AWidth, AHeight: Integer; const AQuality: TCanvasQuality);
+begin
+  inherited;
+  if WindowHandleToPlatform(Parent){$IF CompilerVersion < 30}.Form{$ENDIF}.Transparency then
+    WindowHandleToPlatform(Parent).CreateBuffer({$IF CompilerVersion < 31}Width, Height{$ELSE}WindowHandleToPlatform(Parent).WndClientSize.Width, WindowHandleToPlatform(Parent).WndClientSize.Height{$ENDIF});
+end;
+
+{$ENDIF}
+
+procedure TSkCanvasCustom.DestroyWindow;
+begin
+  if Assigned(FImageCache) then
+    FImageCache.Remove(Self);
+end;
+
+function TSkCanvasCustom.DoBeginScene({$IF CompilerVersion < 35}const {$ENDIF}AClipRects: PClipRects;
+  AContextHandle: THandle): Boolean;
+begin
+  Result := inherited;
+  if Result then
+  begin
+    if Bitmap <> nil then
+    begin
+      ClearCacheBitmap(Bitmap.Handle);
+      TSkBitmapHandle(Bitmap.Handle).Initialize;
+      FDrawableWidth  := Width;
+      FDrawableHeight := Height;
+      FSurface        := TSkSurface.MakeRasterDirect(TSkImageInfo.Create(Width, Height, SkFmxColorType[Bitmap.PixelFormat]), TSkBitmapHandle(Bitmap.Handle).Pixels, Width * 4);
+    end
+    else if Parent <> nil then
+    begin
+      FDrawableWidth  := Round(Width  * Scale);
+      FDrawableHeight := Round(Height * Scale);
+      FSurface        := BeginWindow(AContextHandle);
+    end
+    else
+      Exit(False);
+    Result := Assigned(FSurface);
+    if Result then
+    begin
+      FCanvas := FSurface.Canvas;
+      FCanvas.SetMatrix(TMatrix.CreateScaling(Scale, Scale));
+    end;
+  end;
+end;
+
+class procedure TSkCanvasCustom.DoClearCacheBitmap(
+  const ACanvas: TSkCanvasCustom; const ABitmapHandle: THandle);
+begin
+  FImageCache[ACanvas].Remove(ABitmapHandle);
+end;
+
+procedure TSkCanvasCustom.DoEndScene;
+begin
+  if Parent <> nil then
+  begin
+    {$IFDEF MSWINDOWS}
+    if WindowHandleToPlatform(Parent){$IF CompilerVersion < 30}.Form{$ENDIF}.Transparency then
+      FSurface.ReadPixels(TSkImageInfo.Create({$IF CompilerVersion < 31}Width, Height{$ELSE}WindowHandleToPlatform(Parent).WndClientSize.Width, WindowHandleToPlatform(Parent).WndClientSize.Height{$ENDIF}), WindowHandleToPlatform(Parent).BufferBits, {$IF CompilerVersion < 31}Width{$ELSE}WindowHandleToPlatform(Parent).WndClientSize.Width{$ENDIF} * 4);
+    {$ENDIF}
+    EndWindow;
+  end;
+  FCanvas := nil;
+  FSurface := nil;
+  inherited;
+end;
+
+class procedure TSkCanvasCustom.DoFinalize;
+begin
+end;
+
+class procedure TSkCanvasCustom.DoFinalizeBitmap(var ABitmapHandle: THandle);
+begin
+  ClearCacheBitmap(ABitmapHandle);
+  TSkBitmapHandle(ABitmapHandle).Free;
+end;
+
+class function TSkCanvasCustom.DoInitialize: Boolean;
+begin
+  Result := True;
+end;
+
+class function TSkCanvasCustom.DoInitializeBitmap(const AWidth,
+  AHeight: Integer; const AScale: Single;
+  var APixelFormat: TPixelFormat): THandle;
+begin
+  Result := THandle(TSkBitmapHandle.Create(AWidth, AHeight));
+  if APixelFormat = TPixelFormat.None then
+  begin
+    {$IF DEFINED(MSWINDOWS)}
+    APixelFormat := TPixelFormat.BGRA;
+    {$ELSEIF DEFINED(MACOS)}
+    if GlobalUseMetal then
+      APixelFormat := TPixelFormat.BGRA
+    else
+      APixelFormat := TPixelFormat.RGBA;
+    {$ELSE}
+    APixelFormat := TPixelFormat.RGBA;
+    {$ENDIF}
+  end;
+end;
+
+class function TSkCanvasCustom.DoMapBitmap(const ABitmapHandle: THandle;
+  const AAccess: TMapAccess; var ABitmapData: TBitmapData): Boolean;
+begin
+  if AAccess <> TMapAccess.Read then
+    ClearCacheBitmap(ABitmapHandle);
+  TSkBitmapHandle(ABitmapHandle).Initialize;
+  ABitmapData.Data  := TSkBitmapHandle(ABitmapHandle).Pixels;
+  ABitmapData.Pitch := TSkBitmapHandle(ABitmapHandle).Width * 4;
+  Result := True;
+end;
+
+class procedure TSkCanvasCustom.DoUnmapBitmap(const ABitmapHandle: THandle;
+  var ABitmapData: TBitmapData);
+begin
+end;
+
+procedure TSkCanvasCustom.EndWindow;
+begin
+end;
+
+class procedure TSkCanvasCustom.Finalize;
+var
+  LCanvas: TSkCanvasCustom;
+begin
+  DoFinalize;
+  for LCanvas in FImageCache.Keys do
+    ClearCache(LCanvas);
+  FImageCache.Free;
+  TSkiaAPI.Terminate;
+end;
+
+class function TSkCanvasCustom.Initialize: Boolean;
+begin
+  TSkiaAPI.Initialize;
+  if not DoInitialize then
+  begin
+    TSkiaAPI.Terminate;
+    Exit(False);
+  end;
+  FImageCache := TObjectDictionary<TSkCanvasCustom, TDictionary<THandle, ISkImage>>.Create([doOwnsValues]);
+  Result      := True;
+end;
+
+procedure TSkCanvasCustom.Resized;
+begin
+  {$IFDEF MSWINDOWS}
+  if (Parent <> nil) and (WindowHandleToPlatform(Parent){$IF CompilerVersion < 30}.Form{$ENDIF}.Transparency) then
+    WindowHandleToPlatform(Parent).ResizeBuffer({$IF CompilerVersion < 31}Width, Height{$ELSE}WindowHandleToPlatform(Parent).WndClientSize.Width, WindowHandleToPlatform(Parent).WndClientSize.Height{$ENDIF});
+  {$ENDIF}
+end;
+
+procedure TSkCanvasCustom.SetSize(const AWidth, AHeight: Integer);
+begin
+  if (Width <> AWidth) or (Height <> AHeight) then
+  begin
+    inherited;
+    Resized;
+  end;
+end;
+
+function TSkCanvasCustom.TryGetBitmapCache(const ABitmap: FMX.Graphics.TBitmap;
+  out AValue: ISkImage): Boolean;
+begin
+  Result := Assigned(FImageCache);
+  if Result then
+  begin
+    if (FImageCache.ContainsKey(Self)) and (FImageCache[Self].ContainsKey(ABitmap.Handle)) then
+      AValue := FImageCache[Self][ABitmap.Handle]
+    else
+    begin
+      AValue := CreateCache(ABitmap.Width, ABitmap.Height, SkFmxColorType[ABitmap.PixelFormat], TSkBitmapHandle(ABitmap.Handle).Pixels, ABitmap.Width * 4);
+      if not FImageCache.ContainsKey(Self) then
+        FImageCache.Add(Self, TDictionary<THandle, ISkImage>.Create);
+      FImageCache[Self].Add(ABitmap.Handle, AValue);
+    end;
+  end;
+end;
+
+{ TSkCanvasWrapper }
+
+constructor TSkCanvasWrapper.Create(const ACanvas: ISkCanvas; const AWidth,
+  AHeight: Integer);
+begin
+  inherited Create;
+  FCanvas := ACanvas;
+  Initialize;
+  SetSize(AWidth, AHeight);
+  SetMatrix(ACanvas.GetLocalToDeviceAs3x3);
+  BeginScene;
+end;
+
+class procedure TSkCanvasWrapper.DoFinalizeBitmap(var ABitmapHandle: THandle);
+begin
+  raise ESkCanvas.Create('Bitmap operations are not supported');
+end;
+
+class function TSkCanvasWrapper.DoInitializeBitmap(const AWidth,
+  AHeight: Integer; const AScale: Single;
+  var APixelFormat: TPixelFormat): THandle;
+begin
+  raise ESkCanvas.Create('Bitmap operations are not supported');
+end;
+
+class function TSkCanvasWrapper.DoMapBitmap(const ABitmapHandle: THandle;
+  const AAccess: TMapAccess; var ABitmapData: TBitmapData): Boolean;
+begin
+  raise ESkCanvas.Create('Bitmap operations are not supported');
+end;
+
+class procedure TSkCanvasWrapper.DoUnmapBitmap(const ABitmapHandle: THandle;
+  var ABitmapData: TBitmapData);
+begin
+  raise ESkCanvas.Create('Bitmap operations are not supported');
 end;
 
 { TSkCanvasRasterCustom }
@@ -1827,6 +2083,7 @@ end;
 
 procedure TGrCanvasCustom.EndWindow;
 begin
+  FCanvas := nil;
   FSurface.FlushAndSubmit;
   FSurface := nil;
   FContext.FlushAndSubmit;
