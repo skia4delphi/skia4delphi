@@ -149,11 +149,4 @@ object SkAnimatedImageEditorForm: TSkAnimatedImageEditorForm
     Left = 32
     Top = 58
   end
-  object tmrRepaint: TTimer
-    Enabled = False
-    Interval = 33
-    OnTimer = tmrRepaintTimer
-    Left = 32
-    Top = 109
-  end
 end

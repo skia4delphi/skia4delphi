@@ -23,7 +23,9 @@ uses
   System.Types,
   System.UITypes,
   System.Classes,
+  System.Math,
   System.Messaging,
+  System.Generics.Collections,
   Vcl.Graphics,
   Vcl.Controls,
   Vcl.ExtCtrls,
@@ -51,7 +53,48 @@ type
     function ToSkImage: ISkImage;
   end;
 
+  { TSkPersistentData }
+
+  TSkPersistentData = class(TPersistent)
+  strict private
+    FChanged: Boolean;
+    FCreated: Boolean;
+    FIgnoringAllChanges: Boolean;
+    FOnChange: TNotifyEvent;
+    FUpdatingCount: Integer;
+    function GetUpdating: Boolean;
+  protected
+    procedure DoAssign(ASource: TPersistent); virtual;
+    procedure DoChanged; virtual;
+    function GetHasChanged: Boolean; virtual;
+    function SetValue(var AField: Byte; const AValue: Byte): Boolean; overload;
+    function SetValue(var AField: Word; const AValue: Word): Boolean; overload;
+    function SetValue(var AField: Cardinal; const AValue: Cardinal): Boolean; overload;
+    function SetValue(var AField: Boolean; const AValue: Boolean): Boolean; overload;
+    function SetValue(var AField: Integer; const AValue: Integer): Boolean; overload;
+    function SetValue(var AField: Int64; const AValue: Int64): Boolean; overload;
+    function SetValue(var AField: Single; const AValue: Single; const AEpsilon: Single = 0.0): Boolean; overload;
+    function SetValue(var AField: Double; const AValue: Double; const AEpsilon: Double = 0.0): Boolean; overload;
+    function SetValue(var AField: TBytes; const AValue: TBytes): Boolean; overload;
+    function SetValue(var AField: string; const AValue: string): Boolean; overload;
+    function SetValue<T>(var AField: T; const AValue: T): Boolean; overload;
+    property Created: Boolean read FCreated;
+    property UpdatingCount: Integer read FUpdatingCount;
+  public
+    procedure AfterConstruction; override;
+    procedure Assign(ASource: TPersistent); override; final;
+    procedure BeginUpdate; overload;
+    procedure BeginUpdate(const AIgnoreAllChanges: Boolean); overload; virtual;
+    procedure Change; virtual;
+    procedure EndUpdate; overload;
+    procedure EndUpdate(const AIgnoreAllChanges: Boolean); overload; virtual;
+    property HasChanged: Boolean read GetHasChanged;
+    property Updating: Boolean read GetUpdating;
+    property OnChange: TNotifyEvent read FOnChange write FOnChange;
+  end;
+
   TSkDrawEvent = procedure(ASender: TObject; const ACanvas: ISkCanvas; const ADest: TRectF; const AOpacity: Single) of object;
+  TSkDrawCacheKind = (Never, Raster, Always);
 
   { TSkCustomControl }
 
@@ -61,12 +104,12 @@ type
     FDrawBufferData: Pointer;
     FDrawBufferStride: Integer;
     FDrawCached: Boolean;
-    FDrawCacheEnabled: Boolean;
+    FDrawCacheKind: TSkDrawCacheKind;
     FOnDraw: TSkDrawEvent;
     FOpacity: Byte;
     procedure CreateBuffer(const AMemDC: HDC; out ABuffer: HBITMAP; out AData: Pointer; out AStride: Integer);
     procedure DeleteBuffers;
-    procedure SetDrawCacheEnabled(const AValue: Boolean);
+    procedure SetDrawCacheKind(const AValue: TSkDrawCacheKind);
     procedure SetOnDraw(const AValue: TSkDrawEvent);
     procedure SetOpacity(const AValue: Byte);
   {$IF CompilerVersion < 33}
@@ -80,7 +123,7 @@ type
     function NeedsRedraw: Boolean; virtual;
     procedure Paint; override; final;
     procedure Resize; override;
-    property DrawCacheEnabled: Boolean read FDrawCacheEnabled write SetDrawCacheEnabled default True;
+    property DrawCacheKind: TSkDrawCacheKind read FDrawCacheKind write SetDrawCacheKind default TSkDrawCacheKind.Raster;
     property OnDraw: TSkDrawEvent read FOnDraw write SetOnDraw;
   public
     constructor Create(AOwner: TComponent); override;
@@ -204,7 +247,7 @@ type
     FDrawBufferData: Pointer;
     FDrawBufferStride: Integer;
     FDrawCached: Boolean;
-    FDrawCacheEnabled: Boolean;
+    FDrawCacheKind: TSkDrawCacheKind;
     FDrawParentInBackground: Boolean;
     FOnDraw: TSkDrawEvent;
     FOpacity: Byte;
@@ -212,7 +255,7 @@ type
     procedure DeleteBuffers;
     procedure DrawParentImage(ADC: HDC; AInvalidateParent: Boolean = False);
     function GetOpaqueParent: TWinControl;
-    procedure SetDrawCacheEnabled(const AValue: Boolean);
+    procedure SetDrawCacheKind(const AValue: TSkDrawCacheKind);
     procedure SetDrawParentInBackground(const AValue: Boolean);
     procedure SetOnDraw(const AValue: TSkDrawEvent);
     procedure SetOpacity(const AValue: Byte);
@@ -228,7 +271,7 @@ type
     function NeedsRedraw: Boolean; virtual;
     procedure Paint; override; final;
     procedure Resize; override;
-    property DrawCacheEnabled: Boolean read FDrawCacheEnabled write SetDrawCacheEnabled default True;
+    property DrawCacheKind: TSkDrawCacheKind read FDrawCacheKind write SetDrawCacheKind default TSkDrawCacheKind.Raster;
     property DrawParentInBackground: Boolean read FDrawParentInBackground write SetDrawParentInBackground;
     property OnDraw: TSkDrawEvent read FOnDraw write SetOnDraw;
   public
@@ -271,93 +314,254 @@ type
     property OnStartDrag;
   end;
 
+  { TSkCustomAnimation }
+  TSkCustomAnimation = class(TSkPersistentData)
+  public const
+    DefaultFrameRate = 60;
+  public class var
+    FrameRate: Integer;
+  protected const
+    DefaultAutoReverse = False;
+    DefaultDelay = 0;
+    DefaultEnabled = True;
+    DefaultInverse = False;
+    DefaultLoop = True;
+    DefaultPause = False;
+    DefaultSpeed = 1;
+    DefaultStartFromCurrent = False;
+    DefaultStartProgress = 0;
+    DefaultStopProgress = 1;
+    ProgressEpsilon = 0;
+    SpeedEpsilon = 1E-3;
+    SpeedRoundTo = -3;
+    TimeEpsilon = 1E-3;
+    TimeRoundTo = -3;
+  strict private
+    type
+      TProcess = class
+      strict private
+        // Unsafe referece for TSkAnimation in list
+        FAniList: TList<Pointer>;
+        FAniProcessingList: TList<Pointer>;
+        FAnimation: TTimer;
+        FPerformanceFrequency: Int64;
+        FTime: Double;
+        procedure DoAdd(const AAnimation: TSkCustomAnimation);
+        procedure DoRemove(const AAnimation: TSkCustomAnimation);
+        function GetTick: Double;
+        procedure OnProcess(ASender: TObject);
+      strict private
+        class var FProcess: TProcess;
+        class destructor Destroy;
+      public
+        constructor Create;
+        destructor Destroy; override;
+        class procedure Add(const AAnimation: TSkCustomAnimation); static;
+        class procedure Remove(const AAnimation: TSkCustomAnimation); static;
+      end;
+  strict private
+    FAllowAnimation: Boolean;
+    FAutoReverse: Boolean;
+    FCurrentTime: Double;
+    FCurrentTimeChanged: Boolean;
+    FDelay: Double;
+    FDelayTime: Double;
+    FDuration: Double;
+    FEnabled: Boolean;
+    FEnabledChanged: Boolean;
+    FInverse: Boolean;
+    FLoop: Boolean;
+    FNeedStart: Boolean;
+    FNeedStartRepaint: Boolean;
+    [unsafe] FOwner: TComponent;
+    FPause: Boolean;
+    FProcessDuration: Double;
+    FProcessing: Boolean;
+    FProcessTime: Double;
+    FProgress: Double;
+    FRunning: Boolean;
+    FSavedInverse: Boolean;
+    FSavedProgress: Double;
+    FSpeed: Double;
+    FStartFromCurrent: Boolean;
+    FStartProgress: Double;
+    FStopProgress: Double;
+    FTickCount: Integer;
+    function CanProcessing: Boolean;
+    function DoSetCurrentTime(const AValue: Double): Boolean;
+    procedure InternalStart(const ACanProcess: Boolean);
+    function IsDelayStored: Boolean;
+    function IsProgressStored: Boolean;
+    function IsSpeedStored: Boolean;
+    function IsStartProgressStored: Boolean;
+    function IsStopProgressStored: Boolean;
+    procedure ProcessTick(ADeltaTime: Double);
+    procedure SetAllowAnimation(const AValue: Boolean);
+    procedure SetCurrentTime(const AValue: Double);
+    procedure SetDelay(const AValue: Double);
+    procedure SetEnabled(const AValue: Boolean);
+    procedure SetLoop(const AValue: Boolean);
+    procedure SetPause(const AValue: Boolean);
+    procedure SetProcessing(const AValue: Boolean);
+    procedure SetProgress(const AValue: Double);
+    procedure SetRunning(const AValue: Boolean);
+    procedure SetSpeed(const AValue: Double);
+    procedure SetStartProgress(const AValue: Double);
+    procedure SetStartValues(const ADelayTime: Double; const AStartAtEnd: Boolean);
+    procedure SetStopProgress(const AValue: Double);
+    procedure UpdateCurrentTime(const AIsRunning, ARecalcProcessDuration: Boolean); inline;
+  private
+    property SavedProgress: Double read FSavedProgress write FSavedProgress;
+  protected
+    procedure BeforePaint;
+    procedure DoAssign(ASource: TPersistent); override;
+    procedure DoChanged; override;
+    procedure DoFinish; virtual; abstract;
+    procedure DoProcess; virtual; abstract;
+    procedure DoStart; virtual; abstract;
+    function GetDuration: Double;
+    procedure SetDuration(const AValue: Double);
+    property AllowAnimation: Boolean read FAllowAnimation write SetAllowAnimation;
+    property Owner: TComponent read FOwner;
+    property Processing: Boolean read FProcessing;
+  public
+    constructor Create(const AOwner: TComponent);
+    destructor Destroy; override;
+    function Equals(AObject: TObject): Boolean; override;
+    procedure Start; virtual;
+    procedure Stop; virtual;
+    procedure StopAtCurrent; virtual;
+    property AutoReverse: Boolean read FAutoReverse write FAutoReverse default DefaultAutoReverse;
+    /// <summary> Current time of the animation in seconds </summary>
+    property CurrentTime: Double read FCurrentTime write SetCurrentTime stored False nodefault;
+    /// <summary> Delay in seconds to start the animation </summary>
+    property Delay: Double read FDelay write SetDelay stored IsDelayStored;
+    /// <summary> Duration in seconds </summary>
+    property Duration: Double read GetDuration;
+    /// <summary> Enables the animation to run automatically (in the next control's paint). </summary>
+    property Enabled: Boolean read FEnabled write SetEnabled default DefaultEnabled;
+    property Inverse: Boolean read FInverse write FInverse default DefaultInverse;
+    property Loop: Boolean read FLoop write SetLoop default DefaultLoop;
+    property Pause: Boolean read FPause write SetPause default DefaultPause;
+    /// <summary> Normalized CurrentTime (value between 0..1) </summary>
+    property Progress: Double read FProgress write SetProgress stored IsProgressStored;
+    property Running: Boolean read FRunning;
+    property Speed: Double read FSpeed write SetSpeed stored IsSpeedStored;
+    property StartFromCurrent: Boolean read FStartFromCurrent write FStartFromCurrent default DefaultStartFromCurrent;
+    property StartProgress: Double read FStartProgress write SetStartProgress stored IsStartProgressStored;
+    property StopProgress: Double read FStopProgress write SetStopProgress stored IsStopProgressStored;
+  end;
+
   TSkAnimationDrawEvent = procedure(ASender: TObject; const ACanvas: ISkCanvas; const ADest: TRectF; const AProgress: Double; const AOpacity: Single) of object;
   TSkAnimationDrawProc = reference to procedure(const ACanvas: ISkCanvas; const ADest: TRectF; const AProgress: Double; const AOpacity: Single);
 
   { TSkCustomAnimatedControl }
 
   TSkCustomAnimatedControl = class abstract(TSkCustomWinControl)
-  public
-    const
-      DefaultFPS = 60;
-      MinFPS = 60;
-  strict private
-    FAbsoluteShowing: Boolean;
-    FAbsoluteShowingCached: Boolean;
-    FAnimation: TTimer;
-    FAnimationStartTickCount: Cardinal;
-    FFixedProgress: Boolean;
-    FFPS: Double;
-    FIsStaticImage: Boolean;
-    FLoop: Boolean;
-    FOnAnimationDraw: TSkAnimationDrawEvent;
-    FOnAnimationFinished: TNotifyEvent;
-    FOnAnimationProgress: TNotifyEvent;
-    FOnAnimationStart: TNotifyEvent;
-    FProgress: Double;
-    FProgressChangedManually: Boolean;
-    FSuccessRepaint: Boolean;
-    procedure AnimationTimer(ASender: TObject);
-    procedure CMEnabledChanged(var AMessage: TMessage); message CM_ENABLEDCHANGED;
-    procedure CMShowingChanged(var AMessage: TMessage); message CM_SHOWINGCHANGED;
-    procedure CMVisibleChanged(var AMessage: TMessage); message CM_VISIBLECHANGED;
-    function GetAbsoluteShowing: Boolean;
-    function GetRunningAnimation: Boolean;
-    procedure SetFixedProgress(const AValue: Boolean);
-    procedure SetFPS(const AValue: Double);
-    procedure SetIsStaticImage(const AValue: Boolean);
-    procedure SetLoop(const AValue: Boolean);
-    procedure SetOnAnimationDraw(const AValue: TSkAnimationDrawEvent);
-    procedure SetProgress(AValue: Double);
   strict protected
+    type
+      TAnimationBase = class(TSkCustomAnimation)
+      strict private
+        FInsideDoProcess: Boolean;
+      protected
+        procedure DoChanged; override;
+        procedure DoFinish; override;
+        procedure DoProcess; override;
+        procedure DoStart; override;
+      end;
+  strict private
+    FAbsoluteVisible: Boolean;
+    FAbsoluteVisibleCached: Boolean;
+    FOnAnimationDraw: TSkAnimationDrawEvent;
+    FOnAnimationFinish: TNotifyEvent;
+    FOnAnimationProcess: TNotifyEvent;
+    FOnAnimationStart: TNotifyEvent;
+    procedure CheckAbsoluteVisible;
+    procedure CheckDuration;
+    procedure CMParentVisibleChanged(var AMessage: TMessage); message CM_PARENTVISIBLECHANGED;
+    procedure CMVisibleChanged(var AMessage: TMessage); message CM_VISIBLECHANGED;
+    function GetAbsoluteVisible: Boolean;
+    procedure SetOnAnimationDraw(const AValue: TSkAnimationDrawEvent);
+  strict protected
+    FAnimation: TAnimationBase;
     function CanRunAnimation: Boolean; virtual;
     procedure CheckAnimation;
-    procedure DoAnimationFinished; virtual;
-    procedure DoAnimationProgress; virtual;
+    function CreateAnimation: TAnimationBase; virtual; abstract;
+    procedure DoAnimationChanged; virtual;
+    procedure DoAnimationFinish; virtual;
+    procedure DoAnimationProcess; virtual;
     procedure DoAnimationStart; virtual;
     procedure Draw(const ACanvas: ISkCanvas; const ADest: TRectF; const AOpacity: Single); override;
-    function GetDuration: Double; virtual; abstract;
+    procedure ReadState(AReader: TReader); override;
     procedure RenderFrame(const ACanvas: ISkCanvas; const ADest: TRectF; const AProgress: Double; const AOpacity: Single); virtual;
-    property AbsoluteShowing: Boolean read GetAbsoluteShowing;
-    property Duration: Double read GetDuration;
-    property FixedProgress: Boolean read FFixedProgress write SetFixedProgress;
-    property FPS: Double read FFPS write SetFPS;
-    property IsStaticImage: Boolean read FIsStaticImage write SetIsStaticImage;
-    property Progress: Double read FProgress write SetProgress;
-    property Loop: Boolean read FLoop write SetLoop;
+    property AbsoluteVisible: Boolean read GetAbsoluteVisible;
     property OnAnimationDraw: TSkAnimationDrawEvent read FOnAnimationDraw write SetOnAnimationDraw;
-    property OnAnimationFinished: TNotifyEvent read FOnAnimationFinished write FOnAnimationFinished;
-    property OnAnimationProgress: TNotifyEvent read FOnAnimationProgress write FOnAnimationProgress;
+    property OnAnimationFinish: TNotifyEvent read FOnAnimationFinish write FOnAnimationFinish;
+    property OnAnimationProcess: TNotifyEvent read FOnAnimationProcess write FOnAnimationProcess;
     property OnAnimationStart: TNotifyEvent read FOnAnimationStart write FOnAnimationStart;
-    property RunningAnimation: Boolean read GetRunningAnimation;
   public
     constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
   end;
 
   { TSkAnimatedPaintBox }
 
   TSkAnimatedPaintBox = class(TSkCustomAnimatedControl)
-  strict private
-    const
-      DefaultDuration = 1;
-  strict private
-    FAnimate: Boolean;
-    FDuration: Double;
-    function IsDurationStored: Boolean;
-    procedure SetAnimate(const AValue: Boolean);
-    procedure SetDuration(const AValue: Double);
-  strict protected
-    function CanRunAnimation: Boolean; override;
-    function GetDuration: Double; override;
   public
-    constructor Create(AOwner: TComponent); override;
-    property FixedProgress;
-    property Progress;
+    type
+      { TAnimation }
+
+      TAnimation = class(TAnimationBase)
+      protected const
+        DefaultDuration = 1;
+      strict private
+        function IsDurationStored: Boolean;
+      strict protected
+        procedure DoAssign(ASource: TPersistent); override;
+      public
+        constructor Create(const AOwner: TComponent);
+        function Equals(AObject: TObject): Boolean; override;
+      published
+        property AutoReverse;
+        property Delay;
+        property Duration: Double read GetDuration write SetDuration stored IsDurationStored;
+        property Enabled;
+        property Inverse;
+        property Loop;
+        property Progress;
+        property Speed;
+        property StartFromCurrent;
+        property StartProgress;
+        property StopProgress;
+      end;
+  strict private
+    function GetAnimation: TAnimation;
+    procedure ReadAnimate(AReader: TReader);
+    procedure ReadDuration(AReader: TReader);
+    procedure ReadLoop(AReader: TReader);
+    procedure SetAnimation(const AValue: TAnimation);
+  strict protected
+    function CreateAnimation: TSkCustomAnimatedControl.TAnimationBase; override;
+    procedure DefineProperties(AFiler: TFiler); override;
   published
-    property Animate: Boolean read FAnimate write SetAnimate default True;
-    property Duration: Double read FDuration write SetDuration stored IsDurationStored;
-    property Loop default True;
+    property Animation: TAnimation read GetAnimation write SetAnimation;
     property OnAnimationDraw;
+    property OnAnimationFinish;
+    property OnAnimationProcess;
+    property OnAnimationStart;
+  end;
+
+  { TSkAnimatedPaintBoxHelper }
+
+  TSkAnimatedPaintBoxHelper = class helper for TSkAnimatedPaintBox
+  strict protected
+    function RunningAnimation: Boolean; deprecated 'Use Animation.Running instead';
+  public
+    function Animate: Boolean; deprecated 'Use Animation.Enabled instead';
+    function Duration: Double; deprecated 'Use Animation.Duration instead';
+    function FixedProgress: Boolean; deprecated 'Use Animation.Enabled instead';
+    function Loop: Boolean; deprecated 'Use Animation.Loop instead';
+    function Progress: Double; deprecated 'Use Animation.Progress instead';
   end;
 
   TSkAnimatedImageWrapMode = (Fit, FitCrop, Original, OriginalCenter, Place, Stretch);
@@ -367,15 +571,34 @@ type
   TSkAnimatedImage = class(TSkCustomAnimatedControl)
   public
     type
+      { TAnimation }
+
+      TAnimation = class(TAnimationBase)
+      published
+        property AutoReverse;
+        property Delay;
+        property Duration;
+        property Enabled;
+        property Inverse;
+        property Loop;
+        property Progress;
+        property Speed;
+        property StartFromCurrent;
+        property StartProgress;
+        property StopProgress;
+      end;
+
       { TSource }
 
       TSource = class(TPersistent)
+      public type
+        TChangeProc = procedure of object;
       strict private
         FData: TBytes;
-        FOnChange: TNotifyEvent;
+        FOnChange: TChangeProc;
         procedure SetData(const AValue: TBytes);
       public
-        constructor Create(const AOnChange: TNotifyEvent);
+        constructor Create(const AOnChange: TChangeProc);
         procedure Assign(ASource: TPersistent); override;
         function Equals(AObject: TObject): Boolean; override;
         property Data: TBytes read FData write SetData;
@@ -418,18 +641,23 @@ type
     FCodec: TAnimationCodec;
     FSource: TSource;
     FWrapMode: TSkAnimatedImageWrapMode;
+    function GetAnimation: TAnimation;
     function GetOriginalSize: TSizeF;
     procedure ReadData(AStream: TStream);
+    procedure ReadLoop(AReader: TReader);
+    procedure ReadOnAnimationFinished(AReader: TReader);
+    procedure ReadOnAnimationProgress(AReader: TReader);
+    procedure SetAnimation(const AValue: TAnimation);
     procedure SetSource(const AValue: TSource);
     procedure SetWrapMode(const AValue: TSkAnimatedImageWrapMode);
-    procedure SourceChange(ASender: TObject);
     procedure WriteData(AStream: TStream);
   strict protected
-    function CanRunAnimation: Boolean; override;
+    function CreateAnimation: TSkCustomAnimatedControl.TAnimationBase; override;
     procedure DefineProperties(AFiler: TFiler); override;
     procedure Draw(const ACanvas: ISkCanvas; const ADest: TRectF; const AOpacity: Single); override;
-    function GetDuration: Double; override;
     procedure RenderFrame(const ACanvas: ISkCanvas; const ADest: TRectF; const AProgress: Double; const AOpacity: Single); override;
+    procedure SourceChange; virtual;
+    property Codec: TAnimationCodec read FCodec;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -437,58 +665,27 @@ type
     procedure LoadFromStream(const AStream: TStream);
     class procedure RegisterCodec(const ACodecClass: TAnimationCodecClass); static;
     class property RegisteredCodecs: TArray<TAnimationCodecClass> read FRegisteredCodecs;
-    property FixedProgress;
     property OriginalSize: TSizeF read GetOriginalSize;
-    property Progress;
-    property RunningAnimation;
   published
-    property Loop default True;
+    property Animation: TAnimation read GetAnimation write SetAnimation;
     property Source: TSource read FSource write SetSource;
     property WrapMode: TSkAnimatedImageWrapMode read FWrapMode write SetWrapMode default TSkAnimatedImageWrapMode.Fit;
     property OnAnimationDraw;
-    property OnAnimationFinished;
-    property OnAnimationProgress;
+    property OnAnimationFinish;
+    property OnAnimationProcess;
     property OnAnimationStart;
   end;
 
-  { TSkPersistentData }
+  { TSkAnimatedImageHelper }
 
-  TSkPersistentData = class(TPersistent)
-  strict private
-    FChanged: Boolean;
-    FCreated: Boolean;
-    FIgnoringAllChanges: Boolean;
-    FOnChange: TNotifyEvent;
-    FUpdatingCount: Integer;
-    function GetUpdating: Boolean;
-  protected
-    procedure DoAssign(ASource: TPersistent); virtual;
-    procedure DoChanged; virtual;
-    function GetHasChanged: Boolean; virtual;
-    procedure SetValue(var AField: Byte; const AValue: Byte); overload;
-    procedure SetValue(var AField: Word; const AValue: Word); overload;
-    procedure SetValue(var AField: Cardinal; const AValue: Cardinal); overload;
-    procedure SetValue(var AField: Boolean; const AValue: Boolean); overload;
-    procedure SetValue(var AField: Integer; const AValue: Integer); overload;
-    procedure SetValue(var AField: Int64; const AValue: Int64); overload;
-    procedure SetValue(var AField: Single; const AValue: Single; const AEpsilon: Single = 0.0); overload;
-    procedure SetValue(var AField: Double; const AValue: Double; const AEpsilon: Double = 0.0); overload;
-    procedure SetValue(var AField: TBytes; const AValue: TBytes); overload;
-    procedure SetValue(var AField: string; const AValue: string); overload;
-    procedure SetValue<T>(var AField: T; const AValue: T); overload;
-    property Created: Boolean read FCreated;
-    property UpdatingCount: Integer read FUpdatingCount;
+  TSkAnimatedImageHelper = class helper for TSkAnimatedImage
+  strict protected
+    function Duration: Double; deprecated 'Use Animation.Duration instead';
   public
-    procedure AfterConstruction; override;
-    procedure Assign(ASource: TPersistent); override; final;
-    procedure BeginUpdate; overload;
-    procedure BeginUpdate(const AIgnoreAllChanges: Boolean); overload; virtual;
-    procedure Change; virtual;
-    procedure EndUpdate; overload;
-    procedure EndUpdate(const AIgnoreAllChanges: Boolean); overload; virtual;
-    property HasChanged: Boolean read GetHasChanged;
-    property Updating: Boolean read GetUpdating;
-    property OnChange: TNotifyEvent read FOnChange write FOnChange;
+    function FixedProgress: Boolean; deprecated 'Use Animation.Enabled instead';
+    function Loop: Boolean; deprecated 'Use Animation.Loop instead';
+    function Progress: Double; deprecated 'Use Animation.Progress instead';
+    function RunningAnimation: Boolean; deprecated 'Use Animation.Running instead';
   end;
 
   { TSkFontComponent }
@@ -946,7 +1143,7 @@ implementation
 
 uses
   { Delphi }
-  System.Math,
+  Winapi.MMSystem,
   System.Math.Vectors,
   System.ZLib,
   System.IOUtils,
@@ -1242,7 +1439,7 @@ constructor TSkCustomControl.Create(AOwner: TComponent);
 begin
   inherited;
   ControlStyle := ControlStyle + [csReplicatable] - [csOpaque];
-  FDrawCacheEnabled := True;
+  FDrawCacheKind := TSkDrawCacheKind.Raster;
   FOpacity := 255;
   {$IF CompilerVersion < 33}
   FScaleFactor := 1;
@@ -1326,7 +1523,7 @@ end;
 
 function TSkCustomControl.NeedsRedraw: Boolean;
 begin
-  Result := (not FDrawCacheEnabled) or (not FDrawCached);
+  Result := (not FDrawCached) or (FDrawCacheKind = TSkDrawCacheKind.Never) or (FDrawBuffer = 0);
 end;
 
 procedure TSkCustomControl.Paint;
@@ -1392,12 +1589,12 @@ begin
   inherited;
 end;
 
-procedure TSkCustomControl.SetDrawCacheEnabled(const AValue: Boolean);
+procedure TSkCustomControl.SetDrawCacheKind(const AValue: TSkDrawCacheKind);
 begin
-  if FDrawCacheEnabled <> AValue then
+  if FDrawCacheKind <> AValue then
   begin
-    FDrawCacheEnabled := AValue;
-    if not AValue then
+    FDrawCacheKind := AValue;
+    if FDrawCacheKind <> TSkDrawCacheKind.Always then
       Repaint;
   end;
 end;
@@ -1711,6 +1908,7 @@ begin
   inherited;
   FSvg := CreateSvgBrush;
   FSvg.OnChanged := SvgChanged;
+  DrawCacheKind := TSkDrawCacheKind.Always;
 end;
 
 function TSkSvg.CreateSvgBrush: TSkSvgBrush;
@@ -1758,7 +1956,7 @@ constructor TSkCustomWinControl.Create(AOwner: TComponent);
 begin
   inherited;
   ControlStyle := ControlStyle - [csOpaque];
-  FDrawCacheEnabled := True;
+  FDrawCacheKind := TSkDrawCacheKind.Raster;
   FOpacity := 255;
   {$IF CompilerVersion < 33}
   FScaleFactor := 1;
@@ -1895,7 +2093,7 @@ end;
 
 function TSkCustomWinControl.NeedsRedraw: Boolean;
 begin
-  Result := (not FDrawCacheEnabled) or (not FDrawCached);
+  Result := (not FDrawCached) or (FDrawCacheKind = TSkDrawCacheKind.Never) or (FDrawBuffer = 0);
 end;
 
 procedure TSkCustomWinControl.Paint;
@@ -1979,12 +2177,12 @@ begin
   inherited;
 end;
 
-procedure TSkCustomWinControl.SetDrawCacheEnabled(const AValue: Boolean);
+procedure TSkCustomWinControl.SetDrawCacheKind(const AValue: TSkDrawCacheKind);
 begin
-  if FDrawCacheEnabled <> AValue then
+  if FDrawCacheKind <> AValue then
   begin
-    FDrawCacheEnabled := AValue;
-    if not AValue then
+    FDrawCacheKind := AValue;
+    if FDrawCacheKind <> TSkDrawCacheKind.Always then
       Repaint;
   end;
 end;
@@ -2032,120 +2230,674 @@ begin
     inherited;
 end;
 
-{ TSkCustomAnimatedControl }
+{ TSkCustomAnimation.TProcess }
 
-procedure TSkCustomAnimatedControl.AnimationTimer(ASender: TObject);
+class procedure TSkCustomAnimation.TProcess.Add(const AAnimation: TSkCustomAnimation);
 begin
-  FSuccessRepaint := False;
-  Paint;
-  if not FSuccessRepaint then
+  if FProcess = nil then
+    FProcess := TProcess.Create;
+  FProcess.DoAdd(AAnimation);
+end;
+
+constructor TSkCustomAnimation.TProcess.Create;
+begin
+  inherited Create;
+  FAniList := TList<Pointer>.Create;
+  FAniProcessingList := TList<Pointer>.Create;
+  FrameRate := EnsureRange(FrameRate, 5, 120);
+  FAnimation := TTimer.Create(nil);
+  FAnimation.Enabled := False;
+  FAnimation.Interval := Trunc(1000 / FrameRate);
+  FAnimation.OnTimer := OnProcess;
+  if not QueryPerformanceFrequency(FPerformanceFrequency) then
+    FPerformanceFrequency := 0;
+end;
+
+destructor TSkCustomAnimation.TProcess.Destroy;
+begin
+  FreeAndNil(FAniList);
+  FAniProcessingList.Free;
+  FAnimation.Free;
+  inherited;
+end;
+
+class destructor TSkCustomAnimation.TProcess.Destroy;
+begin
+  FProcess.Free;
+  inherited;
+end;
+
+procedure TSkCustomAnimation.TProcess.DoAdd(const AAnimation: TSkCustomAnimation);
+begin
+  if FAniList.IndexOf(AAnimation) < 0 then
+    FAniList.Add(AAnimation);
+  if not FAnimation.Enabled and (FAniList.Count > 0) then
+    FTime := GetTick;
+  FAnimation.Enabled := FAniList.Count > 0;
+end;
+
+procedure TSkCustomAnimation.TProcess.DoRemove(const AAnimation: TSkCustomAnimation);
+begin
+  if FAniList <> nil then
   begin
-    FAbsoluteShowingCached := False;
-    CheckAnimation;
+    FAniList.Remove(AAnimation);
+    FAniProcessingList.Remove(AAnimation);
+    FAnimation.Enabled := FAniList.Count > 0;
   end;
 end;
 
-function TSkCustomAnimatedControl.CanRunAnimation: Boolean;
-begin
-  Result := (not FIsStaticImage) and Assigned(Parent) and (not FFixedProgress) and
-    ([csDestroying, csDesigning] * ComponentState = []) and
-    AbsoluteShowing and (Width > 0) and (Height > 0) and
-    (FLoop or not SameValue(FProgress, 1, TEpsilon.Matrix));
-end;
-
-procedure TSkCustomAnimatedControl.CheckAnimation;
-
-  procedure FixStartTickCount;
-  var
-    LNewTickCount: Int64;
-  begin
-    LNewTickCount := TThread.GetTickCount - Round(FProgress * Duration * 1000);
-    if LNewTickCount < 0 then
-      LNewTickCount := High(Cardinal) + LNewTickCount;
-    FAnimationStartTickCount := Cardinal(LNewTickCount);
-  end;
-
+function TSkCustomAnimation.TProcess.GetTick: Double;
 var
-  LCanRunAnimation: Boolean;
+  LPerformanceCounter: Int64;
 begin
-  if Assigned(FAnimation) then
+  if FPerformanceFrequency = 0 then
+    Result := timeGetTime / MSecsPerSec
+  else
   begin
-    LCanRunAnimation := CanRunAnimation;
-    if FAnimation.Enabled <> LCanRunAnimation then
+    QueryPerformanceCounter(LPerformanceCounter);
+    Result := LPerformanceCounter / FPerformanceFrequency;
+  end;
+end;
+
+procedure TSkCustomAnimation.TProcess.OnProcess(ASender: TObject);
+var
+  I: Integer;
+  LNewTime: Double;
+  LDeltaTime: Double;
+  [unsafe] LAnimation: TSkCustomAnimation;
+begin
+  FrameRate := EnsureRange(FrameRate, 5, 120);
+  FAnimation.Interval := Trunc(1000 / FrameRate);
+  LNewTime := GetTick;
+  LDeltaTime := LNewTime - FTime;
+  if LDeltaTime < TimeEpsilon then
+    Exit;
+  FTime := LNewTime;
+  if FAniList.Count > 0 then
+  begin
+    FAniProcessingList.AddRange(FAniList);
+    I := FAniProcessingList.Count - 1;
+    while I >= 0 do
     begin
-      FAnimation.Enabled := LCanRunAnimation;
-      if LCanRunAnimation then
+      if I < FAniProcessingList.Count then
       begin
-        FixStartTickCount;
-        DoAnimationStart;
+        LAnimation := FAniProcessingList[I];
+        FAniProcessingList.Delete(I);
+        if LAnimation.Running then
+          LAnimation.ProcessTick(LDeltaTime);
+        Dec(I);
       end
       else
-        DoAnimationFinished;
+        I := FAniProcessingList.Count - 1;
     end;
   end;
 end;
 
-procedure TSkCustomAnimatedControl.CMEnabledChanged(var AMessage: TMessage);
+class procedure TSkCustomAnimation.TProcess.Remove(
+  const AAnimation: TSkCustomAnimation);
 begin
-  CheckAnimation;
+  if FProcess <> nil then
+    FProcess.DoRemove(AAnimation);
+end;
+
+{ TSkCustomAnimation }
+
+procedure TSkCustomAnimation.BeforePaint;
+begin
+  if FNeedStart then
+  begin
+    if FAllowAnimation then
+      InternalStart(False)
+    else
+      FNeedStartRepaint := True;
+  end;
+end;
+
+function TSkCustomAnimation.CanProcessing: Boolean;
+begin
+  Result := FRunning and (not FPause) and (FSpeed >= SpeedEpsilon) and (FProcessDuration >= TimeEpsilon) and (FAllowAnimation or not FLoop);
+end;
+
+constructor TSkCustomAnimation.Create(const AOwner: TComponent);
+begin
+  inherited Create;
+  FOwner := AOwner;
+  Assign(nil);
+end;
+
+destructor TSkCustomAnimation.Destroy;
+begin
+  SetProcessing(False);
   inherited;
 end;
 
-procedure TSkCustomAnimatedControl.CMShowingChanged(var AMessage: TMessage);
+procedure TSkCustomAnimation.DoAssign(ASource: TPersistent);
+var
+  LSourceAnimation: TSkCustomAnimation absolute ASource;
 begin
-  FAbsoluteShowingCached := False;
-  if (not FFixedProgress) and (not FProgressChangedManually) and (not FAbsoluteShowing) and AbsoluteShowing then
+  if ASource = nil then
   begin
-    FProgress := 0;
-    FAnimationStartTickCount := TThread.GetTickCount;
+    AutoReverse      := DefaultAutoReverse;
+    Delay            := DefaultDelay;
+    Enabled          := DefaultEnabled;
+    Inverse          := DefaultInverse;
+    Loop             := DefaultLoop;
+    Pause            := DefaultPause;
+    Speed            := DefaultSpeed;
+    StartFromCurrent := DefaultStartFromCurrent;
+    StartProgress    := DefaultStartProgress;
+    StopProgress     := DefaultStopProgress;
+    DoSetCurrentTime(0);
+    SetRunning(False);
+  end
+  else if ASource is TSkCustomAnimation then
+  begin
+    AutoReverse      := LSourceAnimation.AutoReverse;
+    Delay            := LSourceAnimation.Delay;
+    Enabled          := LSourceAnimation.Enabled;
+    Inverse          := LSourceAnimation.Inverse;
+    Loop             := LSourceAnimation.Loop;
+    Pause            := LSourceAnimation.Pause;
+    Speed            := LSourceAnimation.Speed;
+    StartFromCurrent := LSourceAnimation.StartFromCurrent;
+    StartProgress    := LSourceAnimation.StartProgress;
+    StopProgress     := LSourceAnimation.StopProgress;
+    DoSetCurrentTime(LSourceAnimation.CurrentTime);
+    SetRunning(LSourceAnimation.Running);
+  end
+  else
+    inherited;
+end;
+
+procedure TSkCustomAnimation.DoChanged;
+var
+  LCanProcess: Boolean;
+begin
+  UpdateCurrentTime(FRunning, True);
+  LCanProcess := FAllowAnimation;
+
+  if FEnabledChanged then
+  begin
+    FEnabledChanged := False;
+    if not FEnabled then
+      Stop
+    else if (not Assigned(FOwner)) or (not (csDesigning in FOwner.ComponentState)) then
+    begin
+      FNeedStart := True;
+      FNeedStartRepaint := False;
+    end;
   end;
+  if FNeedStart and FNeedStartRepaint and FAllowAnimation then
+  begin
+    Start;
+    LCanProcess := False;
+  end;
+  SetProcessing(CanProcessing);
+  inherited;
+  if LCanProcess then
+    DoProcess;
+end;
+
+function TSkCustomAnimation.DoSetCurrentTime(const AValue: Double): Boolean;
+begin
+  Result := SetValue(FDelayTime, 0, TimeEpsilon);
+  Result := SetValue(FCurrentTime, EnsureRange(AValue, 0, FDuration), TimeEpsilon) or Result;
+end;
+
+function TSkCustomAnimation.Equals(AObject: TObject): Boolean;
+var
+  LSourceAnimation: TSkCustomAnimation absolute AObject;
+begin
+  Result := (AObject is TSkCustomAnimation) and
+    (FAutoReverse      = LSourceAnimation.AutoReverse) and
+    (FEnabled          = LSourceAnimation.Enabled) and
+    (FInverse          = LSourceAnimation.Inverse) and
+    (FLoop             = LSourceAnimation.Loop) and
+    (FPause            = LSourceAnimation.Pause) and
+    (FStartFromCurrent = LSourceAnimation.StartFromCurrent) and
+    (FRunning          = LSourceAnimation.Running) and
+    SameValue(FCurrentTime, LSourceAnimation.CurrentTime, TimeEpsilon) and
+    SameValue(FDelay, LSourceAnimation.Delay, TimeEpsilon) and
+    SameValue(FSpeed, LSourceAnimation.Speed, SpeedEpsilon) and
+    SameValue(FStartProgress, LSourceAnimation.StartProgress, ProgressEpsilon) and
+    SameValue(FStopProgress, LSourceAnimation.StopProgress, ProgressEpsilon);
+end;
+
+function TSkCustomAnimation.GetDuration: Double;
+begin
+  Result := FDuration;
+end;
+
+procedure TSkCustomAnimation.InternalStart(const ACanProcess: Boolean);
+begin
+  FNeedStart := False;
+  if not FLoop then
+    FTickCount := 0;
+  if FAutoReverse then
+  begin
+    if FRunning then
+      FInverse := FSavedInverse
+    else
+      FSavedInverse := FInverse;
+  end;
+  if FProcessDuration < TimeEpsilon then
+  begin
+    SetStartValues(0, True);
+    FRunning := True;
+    DoStart;
+    if ACanProcess and FAllowAnimation then
+      DoProcess;
+    FRunning := False;
+    FProcessTime := 0;
+    DoFinish;
+  end
+  else
+  begin
+    SetStartValues(FDelay, False);
+    FRunning := True;
+    FEnabled := True;
+    SetProcessing(CanProcessing);
+
+    if FDelay < TimeEpsilon then
+    begin
+      DoStart;
+      if ACanProcess and FAllowAnimation then
+        DoProcess;
+    end
+    else
+      DoStart;
+  end;
+end;
+
+function TSkCustomAnimation.IsDelayStored: Boolean;
+begin
+  Result := not SameValue(FDelay, DefaultDelay, TimeEpsilon);
+end;
+
+function TSkCustomAnimation.IsProgressStored: Boolean;
+begin
+  Result := not SameValue(FProgress, DefaultStartProgress, ProgressEpsilon);
+end;
+
+function TSkCustomAnimation.IsSpeedStored: Boolean;
+begin
+  Result := not SameValue(FSpeed, DefaultSpeed, SpeedEpsilon);
+end;
+
+function TSkCustomAnimation.IsStartProgressStored: Boolean;
+begin
+  Result := not SameValue(FStartProgress, DefaultStartProgress, ProgressEpsilon);
+end;
+
+function TSkCustomAnimation.IsStopProgressStored: Boolean;
+begin
+  Result := not SameValue(FStopProgress, DefaultStopProgress, ProgressEpsilon);
+end;
+
+procedure TSkCustomAnimation.ProcessTick(ADeltaTime: Double);
+begin
+  if Assigned(FOwner) and (csDestroying in FOwner.ComponentState) then
+    Exit;
+  SetProcessing(CanProcessing);
+  if (not FRunning) or FPause or (FSpeed < SpeedEpsilon) or (not FProcessing) then
+    Exit;
+
+  if FDelayTime >= TimeEpsilon then
+  begin
+    FDelayTime := FDelayTime - ADeltaTime;
+    if FDelayTime < TimeEpsilon then
+    begin
+      ADeltaTime := Max(-FDelayTime, 0);
+      SetStartValues(0, False);
+      if ADeltaTime < TimeEpsilon then
+        Exit;
+    end
+    else
+      Exit;
+  end;
+
+  if FInverse then
+    FProcessTime := FProcessTime - ADeltaTime * FSpeed
+  else
+    FProcessTime := FProcessTime + ADeltaTime * FSpeed;
+  if FProcessTime >= FProcessDuration then
+  begin
+    FProcessTime := FProcessDuration;
+    if FLoop then
+    begin
+      if FAutoReverse then
+      begin
+        FInverse := True;
+        FProcessTime := FProcessDuration;
+      end
+      else
+        FProcessTime := 0;
+    end
+    else
+      if FAutoReverse and (FTickCount = 0) then
+      begin
+        Inc(FTickCount);
+        FInverse := True;
+        FProcessTime := FProcessDuration;
+      end
+      else
+        FRunning := False;
+  end
+  else if FProcessTime <= 0 then
+  begin
+    FProcessTime := 0;
+    if FLoop then
+    begin
+      if FAutoReverse then
+      begin
+        FInverse := False;
+        FProcessTime := 0;
+      end
+      else
+        FProcessTime := FProcessDuration;
+    end
+    else
+      if FAutoReverse and (FTickCount = 0) then
+      begin
+        Inc(FTickCount);
+        FInverse := False;
+        FProcessTime := 0;
+      end
+      else
+        FRunning := False;
+  end;
+  UpdateCurrentTime(True, Updating);
+
+  if not FRunning then
+  begin
+    if FAutoReverse then
+      FInverse := FSavedInverse;
+    FEnabled := False;
+    SetProcessing(False);
+  end;
+
+  if FAllowAnimation then
+    DoProcess;
+  if not FRunning then
+    DoFinish;
+end;
+
+procedure TSkCustomAnimation.SetAllowAnimation(const AValue: Boolean);
+begin
+  SetValue(FAllowAnimation, AValue);
+end;
+
+procedure TSkCustomAnimation.SetCurrentTime(const AValue: Double);
+begin
+  BeginUpdate;
+  try
+    FCurrentTimeChanged := DoSetCurrentTime(RoundTo(AValue, TimeRoundTo)) or FCurrentTimeChanged;
+  finally
+    EndUpdate;
+  end;
+end;
+
+procedure TSkCustomAnimation.SetDelay(const AValue: Double);
+begin
+  FDelay := Max(0, RoundTo(AValue, TimeRoundTo));
+  FDelayTime := Min(FDelayTime, FDelay);
+end;
+
+procedure TSkCustomAnimation.SetDuration(const AValue: Double);
+begin
+  SetValue(FDuration, Max(RoundTo(AValue, TimeRoundTo), 0), TimeEpsilon);
+end;
+
+procedure TSkCustomAnimation.SetEnabled(const AValue: Boolean);
+begin
+  BeginUpdate;
+  try
+    FEnabledChanged := SetValue(FEnabled, AValue) or FEnabledChanged;
+  finally
+    EndUpdate;
+  end;
+end;
+
+procedure TSkCustomAnimation.SetLoop(const AValue: Boolean);
+begin
+  SetValue(FLoop, AValue);
+end;
+
+procedure TSkCustomAnimation.SetPause(const AValue: Boolean);
+begin
+  SetValue(FPause, AValue);
+end;
+
+procedure TSkCustomAnimation.SetProcessing(const AValue: Boolean);
+begin
+  if FProcessing <> AValue then
+  begin
+    FProcessing := AValue;
+    if FProcessing then
+      TProcess.Add(Self)
+    else
+      TProcess.Remove(Self);
+  end;
+end;
+
+procedure TSkCustomAnimation.SetProgress(const AValue: Double);
+begin
+  FSavedProgress := AValue;
+  CurrentTime := FDuration * EnsureRange(AValue, 0, 1);
+end;
+
+procedure TSkCustomAnimation.SetRunning(const AValue: Boolean);
+begin
+  SetValue(FRunning, AValue);
+end;
+
+procedure TSkCustomAnimation.SetSpeed(const AValue: Double);
+begin
+  SetValue(FSpeed, Max(RoundTo(AValue, SpeedRoundTo), 0), SpeedEpsilon);
+end;
+
+procedure TSkCustomAnimation.SetStartProgress(const AValue: Double);
+begin
+  SetValue(FStartProgress, EnsureRange(AValue, 0, 1), ProgressEpsilon);
+end;
+
+procedure TSkCustomAnimation.SetStartValues(const ADelayTime: Double; const AStartAtEnd: Boolean);
+begin
+  FDelayTime := ADelayTime;
+  if FStartFromCurrent and not AStartAtEnd then
+    FProcessTime := EnsureRange(FCurrentTime - Min(FStartProgress, FStopProgress) * FDuration, 0, FProcessDuration)
+  else
+    FProcessTime := IfThen(FInverse = AStartAtEnd, 0, FProcessDuration);
+  UpdateCurrentTime(True, Updating);
+end;
+
+procedure TSkCustomAnimation.SetStopProgress(const AValue: Double);
+begin
+  SetValue(FStopProgress, EnsureRange(AValue, 0, 1), ProgressEpsilon);
+end;
+
+procedure TSkCustomAnimation.Start;
+begin
+  InternalStart(True);
+end;
+
+procedure TSkCustomAnimation.Stop;
+begin
+  FNeedStart := False;
+  if not FRunning then
+    Exit;
+  if FAutoReverse then
+    FInverse := FSavedInverse;
+  if FInverse then
+  begin
+    FCurrentTime := 0;
+    FProgress := 0;
+  end
+  else
+  begin
+    FCurrentTime := FProcessDuration;
+    FProgress := 1;
+  end;
+  if FAllowAnimation then
+    DoProcess;
+  FRunning := False;
+  FEnabled := False;
+  SetProcessing(False);
+  DoFinish;
+end;
+
+procedure TSkCustomAnimation.StopAtCurrent;
+begin
+  FNeedStart := False;
+  if not FRunning then
+    Exit;
+  if FAutoReverse then
+    FInverse := FSavedInverse;
+  FRunning := False;
+  FEnabled := False;
+  SetProcessing(False);
+  DoFinish;
+end;
+
+procedure TSkCustomAnimation.UpdateCurrentTime(const AIsRunning, ARecalcProcessDuration: Boolean);
+begin
+  if ARecalcProcessDuration then
+  begin
+    FProcessDuration := Abs(FStopProgress - FStartProgress) * FDuration;
+    if FProcessDuration < TimeEpsilon then
+      FProcessDuration := 0;
+  end;
+  if FCurrentTimeChanged and AIsRunning then
+    FProcessTime := EnsureRange(FCurrentTime - Min(FStartProgress, FStopProgress) * FDuration, 0, FProcessDuration);
+  if AIsRunning then
+    FCurrentTime := Min(FStartProgress, FStopProgress) * FDuration + FProcessTime
+  else
+    FCurrentTime := EnsureRange(FCurrentTime, 0, FDuration);
+  FCurrentTimeChanged := False;
+  if FDuration < TimeEpsilon then
+  begin
+    if FInverse then
+      FProgress := FStartProgress
+    else
+      FProgress := FStopProgress;
+  end
+  else
+    FProgress := FCurrentTime / FDuration;
+end;
+
+{ TSkCustomAnimatedControl.TAnimationBase }
+
+procedure TSkCustomAnimatedControl.TAnimationBase.DoChanged;
+begin
+  inherited;
+  if Created then
+    TSkCustomAnimatedControl(Owner).DoAnimationChanged;
+end;
+
+procedure TSkCustomAnimatedControl.TAnimationBase.DoFinish;
+begin
+  TSkCustomAnimatedControl(Owner).DoAnimationFinish;
+end;
+
+procedure TSkCustomAnimatedControl.TAnimationBase.DoProcess;
+begin
+  if FInsideDoProcess then
+    Exit;
+  FInsideDoProcess := True;
+  try
+    TSkCustomAnimatedControl(Owner).DoAnimationProcess;
+  finally
+    FInsideDoProcess := False;
+  end;
+end;
+
+procedure TSkCustomAnimatedControl.TAnimationBase.DoStart;
+begin
+  TSkCustomAnimatedControl(Owner).DoAnimationStart;
+end;
+
+{ TSkCustomAnimatedControl }
+
+function TSkCustomAnimatedControl.CanRunAnimation: Boolean;
+begin
+  Result := Assigned(Parent) and ([csDestroying, csLoading] * ComponentState = []) and
+    AbsoluteVisible and (Width > 0) and (Height > 0) and (WindowHandle <> 0);
+end;
+
+procedure TSkCustomAnimatedControl.CheckAbsoluteVisible;
+begin
+  FAbsoluteVisibleCached := False;
+  if Assigned(FAnimation) and FAnimation.Loop and FAnimation.Running and (not FAbsoluteVisible) and AbsoluteVisible then
+    FAnimation.Start;
   CheckAnimation;
+end;
+
+procedure TSkCustomAnimatedControl.CheckAnimation;
+begin
+  if Assigned(FAnimation) then
+    FAnimation.AllowAnimation := CanRunAnimation;
+end;
+
+procedure TSkCustomAnimatedControl.CheckDuration;
+begin
+  if Assigned(FAnimation) then
+  begin
+    if SameValue(FAnimation.Duration, 0, TAnimationBase.TimeEpsilon) then
+      DrawCacheKind := TSkDrawCacheKind.Raster
+    else
+      DrawCacheKind := TSkDrawCacheKind.Never;
+  end;
+end;
+
+procedure TSkCustomAnimatedControl.CMParentVisibleChanged(
+  var AMessage: TMessage);
+begin
+  CheckAbsoluteVisible;
   inherited;
 end;
 
 procedure TSkCustomAnimatedControl.CMVisibleChanged(var AMessage: TMessage);
 begin
-  FAbsoluteShowingCached := False;
-  if (not FFixedProgress) and (not FProgressChangedManually) and (not FAbsoluteShowing) and AbsoluteShowing then
-  begin
-    FProgress := 0;
-    FAnimationStartTickCount := TThread.GetTickCount;
-  end;
-  CheckAnimation;
+  CheckAbsoluteVisible;
   inherited;
 end;
 
 constructor TSkCustomAnimatedControl.Create(AOwner: TComponent);
 begin
   inherited;
-  if csDesigning in ComponentState then
-  begin
-    FProgress := 0.5;
-    FFixedProgress := True;
-  end;
-  FIsStaticImage := True;
-  FLoop := True;
-  FFPS := DefaultFPS;
-  FAnimation := TTimer.Create(Self);
-  FAnimation.Enabled := False;
-  FAnimation.Interval := Round(1000 / FFPS);
-  FAnimation.OnTimer := AnimationTimer;
-  FAbsoluteShowing := Visible;
-  DrawCacheEnabled := FIsStaticImage;
+  FAnimation := CreateAnimation;
+  FAbsoluteVisible := Visible;
+  FAbsoluteVisibleCached := True;
+  CheckDuration;
   DrawParentInBackground := True;
 end;
 
-procedure TSkCustomAnimatedControl.DoAnimationFinished;
+destructor TSkCustomAnimatedControl.Destroy;
 begin
-  if Assigned(FOnAnimationFinished) then
-    FOnAnimationFinished(Self);
-  FProgressChangedManually := False;
+  FAnimation.Free;
+  inherited;
 end;
 
-procedure TSkCustomAnimatedControl.DoAnimationProgress;
+procedure TSkCustomAnimatedControl.DoAnimationChanged;
 begin
-  if Assigned(FOnAnimationProgress) then
-    FOnAnimationProgress(Self);
+  CheckDuration;
+end;
+
+procedure TSkCustomAnimatedControl.DoAnimationFinish;
+begin
+  if WindowHandle <> 0 then
+    Paint;
+  if Assigned(FOnAnimationFinish) then
+    FOnAnimationFinish(Self);
+end;
+
+procedure TSkCustomAnimatedControl.DoAnimationProcess;
+begin
+  CheckAnimation;
+  if WindowHandle <> 0 then
+    Paint;
+  if Assigned(FOnAnimationProcess) then
+    FOnAnimationProcess(Self);
 end;
 
 procedure TSkCustomAnimatedControl.DoAnimationStart;
@@ -2156,99 +2908,17 @@ end;
 
 procedure TSkCustomAnimatedControl.Draw(const ACanvas: ISkCanvas;
   const ADest: TRectF; const AOpacity: Single);
-
-  procedure FixElapsedSeconds(const ACurrentTickCount: Cardinal;
-    var AStartTickCount: Cardinal; var AElapsedSeconds: Double);
-  var
-    LMillisecondsElapsed: Int64;
-  begin
-    Assert(ACurrentTickCount < AStartTickCount);
-    if ACurrentTickCount >= Cardinal(Ceil(Duration * 1000)) then
-    begin
-      if FLoop then
-      begin
-        LMillisecondsElapsed := ACurrentTickCount + High(Cardinal) - AStartTickCount;
-        LMillisecondsElapsed := LMillisecondsElapsed mod Round(Duration * 1000);
-        Assert(ACurrentTickCount > LMillisecondsElapsed);
-        FAnimationStartTickCount := Cardinal(ACurrentTickCount - LMillisecondsElapsed);
-      end
-      else
-        AStartTickCount := ACurrentTickCount - Cardinal(Ceil(Duration * 1000));
-      AElapsedSeconds := (ACurrentTickCount - AStartTickCount) / 1000;
-    end
-    else
-    begin
-      LMillisecondsElapsed := ACurrentTickCount + High(Cardinal) - AStartTickCount;
-      AElapsedSeconds := LMillisecondsElapsed / 1000;
-    end;
-    Assert(AElapsedSeconds >= 0);
-  end;
-
-  function CalcProgress: Double;
-  var
-    LElapsedSeconds: Double;
-    LDuration: Double;
-    LCurrentTickCount: Cardinal;
-  begin
-    if Enabled then
-    begin
-      LCurrentTickCount := TThread.GetTickCount;
-      LElapsedSeconds := (LCurrentTickCount - FAnimationStartTickCount) / 1000;
-      if LElapsedSeconds < 0 then
-        FixElapsedSeconds(LCurrentTickCount, FAnimationStartTickCount, LElapsedSeconds);
-      LDuration := Duration;
-      if SameValue(LDuration, 0, TEpsilon.Matrix) then
-        Result := 1
-      else
-      begin
-        if FLoop then
-        begin
-          {$IF CompilerVersion >= 29}
-          LElapsedSeconds := FMod(LElapsedSeconds, LDuration);
-          {$ELSE}
-          LElapsedSeconds := (Round(LElapsedSeconds * 1000) mod Round(LDuration * 1000)) / 1000;
-          {$ENDIF}
-        end
-        else
-          LElapsedSeconds := Min(LElapsedSeconds, LDuration);
-        Result := LElapsedSeconds / LDuration;
-      end;
-    end
-    else
-      Result := FProgress;
-  end;
-
-var
-  LProgress: Double;
 begin
   inherited;
-  if Assigned(FAnimation) and not FAnimation.Enabled then
-  begin
-    if not FAbsoluteShowing then
-      FAbsoluteShowingCached := False;
+  if not FAnimation.AllowAnimation then
     CheckAnimation;
-  end;
-  if FFixedProgress then
-    LProgress := FProgress
-  else
-    LProgress := CalcProgress;
-  RenderFrame(ACanvas, ADest, LProgress, AOpacity);
-  if not SameValue(LProgress, FProgress, TEpsilon.Matrix) then
-  begin
-    FProgress := LProgress;
-    DoAnimationProgress;
-  end;
-  if (not FLoop) and SameValue(LProgress, 1, TEpsilon.Matrix) then
-  begin
-    FProgress := 1;
-    CheckAnimation;
-  end;
-  FSuccessRepaint := True;
+  FAnimation.BeforePaint;
+  RenderFrame(ACanvas, ADest, FAnimation.Progress, AOpacity);
 end;
 
-function TSkCustomAnimatedControl.GetAbsoluteShowing: Boolean;
+function TSkCustomAnimatedControl.GetAbsoluteVisible: Boolean;
 
-  function GetParentedShowing: Boolean;
+  function GetParentedVisible: Boolean;
   var
     LControl: TWinControl;
   begin
@@ -2257,7 +2927,7 @@ function TSkCustomAnimatedControl.GetAbsoluteShowing: Boolean;
     LControl := Parent;
     while LControl <> nil do
     begin
-      if not LControl.Showing then
+      if not LControl.Visible then
         Exit(False);
       LControl := LControl.Parent;
     end;
@@ -2265,17 +2935,24 @@ function TSkCustomAnimatedControl.GetAbsoluteShowing: Boolean;
   end;
 
 begin
-  if not FAbsoluteShowingCached then
+  if not FAbsoluteVisibleCached then
   begin
-    FAbsoluteShowing := GetParentedShowing;
-    FAbsoluteShowingCached := True;
+    FAbsoluteVisible := GetParentedVisible;
+    FAbsoluteVisibleCached := True;
   end;
-  Result := FAbsoluteShowing;
+  Result := FAbsoluteVisible;
 end;
 
-function TSkCustomAnimatedControl.GetRunningAnimation: Boolean;
+procedure TSkCustomAnimatedControl.ReadState(AReader: TReader);
 begin
-  Result := Assigned(FAnimation) and FAnimation.Enabled;
+  FAnimation.BeginUpdate;
+  try
+    FAnimation.SavedProgress := FAnimation.Progress;
+    inherited;
+    FAnimation.Progress := FAnimation.SavedProgress;
+  finally
+    FAnimation.EndUpdate;
+  end;
 end;
 
 procedure TSkCustomAnimatedControl.RenderFrame(const ACanvas: ISkCanvas;
@@ -2283,44 +2960,6 @@ procedure TSkCustomAnimatedControl.RenderFrame(const ACanvas: ISkCanvas;
 begin
   if Assigned(FOnAnimationDraw) then
     FOnAnimationDraw(Self, ACanvas, ADest, AProgress, AOpacity);
-end;
-
-procedure TSkCustomAnimatedControl.SetFixedProgress(const AValue: Boolean);
-begin
-  if FFixedProgress <> AValue then
-  begin
-    FFixedProgress := AValue;
-    CheckAnimation;
-  end;
-end;
-
-procedure TSkCustomAnimatedControl.SetFPS(const AValue: Double);
-begin
-  if not SameValue(FFPS, AValue, TEpsilon.Vector) then
-  begin
-    FFPS := AValue;
-    if Assigned(FAnimation) then
-      FAnimation.Interval := Round(1000 / FFPS);
-  end;
-end;
-
-procedure TSkCustomAnimatedControl.SetIsStaticImage(const AValue: Boolean);
-begin
-  if FIsStaticImage <> AValue then
-  begin
-    FIsStaticImage := AValue;
-    DrawCacheEnabled := FIsStaticImage;
-    CheckAnimation;
-  end;
-end;
-
-procedure TSkCustomAnimatedControl.SetLoop(const AValue: Boolean);
-begin
-  if FLoop <> AValue then
-  begin
-    FLoop := AValue;
-    CheckAnimation;
-  end;
 end;
 
 procedure TSkCustomAnimatedControl.SetOnAnimationDraw(const AValue: TSkAnimationDrawEvent);
@@ -2332,65 +2971,108 @@ begin
   end;
 end;
 
-procedure TSkCustomAnimatedControl.SetProgress(AValue: Double);
+{ TSkAnimatedPaintBox.TAnimation }
+
+constructor TSkAnimatedPaintBox.TAnimation.Create(const AOwner: TComponent);
 begin
-  FProgressChangedManually := True;
-  AValue := EnsureRange(AValue, 0, 1);
-  if not SameValue(FProgress, AValue, TEpsilon.Matrix) then
-  begin
-    FProgress := AValue;
-    if SameValue(FProgress, 0, TEpsilon.Matrix) then
-      FAnimationStartTickCount := TThread.GetTickCount;
-    CheckAnimation;
-    DoAnimationProgress;
-    Repaint;
-  end;
+  inherited Create(AOwner);
+  Duration := DefaultDuration;
+end;
+
+procedure TSkAnimatedPaintBox.TAnimation.DoAssign(ASource: TPersistent);
+var
+  LSourceAnimation: TSkCustomAnimation absolute ASource;
+begin
+  if ASource = nil then
+    Duration := DefaultDuration
+  else if ASource is TSkCustomAnimation then
+    Duration := LSourceAnimation.Duration;
+  inherited;
+end;
+
+function TSkAnimatedPaintBox.TAnimation.Equals(AObject: TObject): Boolean;
+var
+  LSourceAnimation: TSkCustomAnimation absolute AObject;
+begin
+  Result := inherited and SameValue(Duration, LSourceAnimation.Duration, TimeEpsilon);
+end;
+
+function TSkAnimatedPaintBox.TAnimation.IsDurationStored: Boolean;
+begin
+  Result := not SameValue(Duration, DefaultDuration, TimeEpsilon);
 end;
 
 { TSkAnimatedPaintBox }
 
-function TSkAnimatedPaintBox.CanRunAnimation: Boolean;
+function TSkAnimatedPaintBox.CreateAnimation: TSkCustomAnimatedControl.TAnimationBase;
 begin
-  Result := FAnimate and inherited;
+  Result := TAnimation.Create(Self);
 end;
 
-constructor TSkAnimatedPaintBox.Create(AOwner: TComponent);
+procedure TSkAnimatedPaintBox.DefineProperties(AFiler: TFiler);
 begin
   inherited;
-  FAnimate := True;
-  FDuration := DefaultDuration;
-  IsStaticImage := not FAnimate;
+  // Backward compatibility with version 3
+  AFiler.DefineProperty('Animate', ReadAnimate, nil, False);
+  AFiler.DefineProperty('Duration', ReadDuration, nil, False);
+  AFiler.DefineProperty('Loop', ReadLoop, nil, False);
 end;
 
-function TSkAnimatedPaintBox.GetDuration: Double;
+function TSkAnimatedPaintBox.GetAnimation: TSkAnimatedPaintBox.TAnimation;
 begin
-  Result := FDuration;
+  Result := TSkAnimatedPaintBox.TAnimation(FAnimation);
 end;
 
-function TSkAnimatedPaintBox.IsDurationStored: Boolean;
+procedure TSkAnimatedPaintBox.ReadAnimate(AReader: TReader);
 begin
-  Result := not SameValue(FDuration, DefaultDuration, TEpsilon.Vector);
+  Animation.Enabled := AReader.ReadBoolean;
 end;
 
-procedure TSkAnimatedPaintBox.SetAnimate(const AValue: Boolean);
+procedure TSkAnimatedPaintBox.ReadDuration(AReader: TReader);
 begin
-  if FAnimate <> AValue then
-  begin
-    FAnimate := AValue;
-    if FAnimate then
-      Progress := 0;
-    IsStaticImage := not FAnimate;
-    Redraw;
-  end;
+  Animation.Duration := AReader.ReadFloat;
 end;
 
-procedure TSkAnimatedPaintBox.SetDuration(const AValue: Double);
+procedure TSkAnimatedPaintBox.ReadLoop(AReader: TReader);
 begin
-  if not SameValue(FDuration, AValue, TEpsilon.Vector) then
-  begin
-    FDuration := AValue;
-    CheckAnimation;
-  end;
+  Animation.Loop := AReader.ReadBoolean;
+end;
+
+procedure TSkAnimatedPaintBox.SetAnimation(const AValue: TSkAnimatedPaintBox.TAnimation);
+begin
+  FAnimation.Assign(AValue);
+end;
+
+{ TSkAnimatedPaintBoxHelper }
+
+function TSkAnimatedPaintBoxHelper.Animate: Boolean;
+begin
+  Result := Animation.Enabled;
+end;
+
+function TSkAnimatedPaintBoxHelper.Duration: Double;
+begin
+  Result := Animation.Duration;
+end;
+
+function TSkAnimatedPaintBoxHelper.FixedProgress: Boolean;
+begin
+  Result := not Animation.Enabled;
+end;
+
+function TSkAnimatedPaintBoxHelper.Loop: Boolean;
+begin
+  Result := Animation.Loop;
+end;
+
+function TSkAnimatedPaintBoxHelper.Progress: Double;
+begin
+  Result := Animation.Progress;
+end;
+
+function TSkAnimatedPaintBoxHelper.RunningAnimation: Boolean;
+begin
+  Result := Animation.Running;
 end;
 
 { TSkAnimatedImage.TSource }
@@ -2403,7 +3085,7 @@ begin
     inherited;
 end;
 
-constructor TSkAnimatedImage.TSource.Create(const AOnChange: TNotifyEvent);
+constructor TSkAnimatedImage.TSource.Create(const AOnChange: TChangeProc);
 begin
   inherited Create;
   FOnChange := AOnChange;
@@ -2420,7 +3102,7 @@ begin
   begin
     FData := Copy(AValue);
     if Assigned(FOnChange) then
-      FOnChange(Self);
+      FOnChange();
   end;
 end;
 
@@ -2436,15 +3118,15 @@ end;
 
 { TSkAnimatedImage }
 
-function TSkAnimatedImage.CanRunAnimation: Boolean;
-begin
-  Result := Assigned(FCodec) and inherited;
-end;
-
 constructor TSkAnimatedImage.Create(AOwner: TComponent);
 begin
   inherited;
   FSource := TSource.Create(SourceChange);
+end;
+
+function TSkAnimatedImage.CreateAnimation: TSkCustomAnimatedControl.TAnimationBase;
+begin
+  Result := TAnimation.Create(Self);
 end;
 
 procedure TSkAnimatedImage.DefineProperties(AFiler: TFiler);
@@ -2460,6 +3142,10 @@ procedure TSkAnimatedImage.DefineProperties(AFiler: TFiler);
 begin
   inherited;
   AFiler.DefineBinaryProperty('Data', ReadData, WriteData, DoWrite);
+  // Backward compatibility with version 3
+  AFiler.DefineProperty('Loop', ReadLoop, nil, False);
+  AFiler.DefineProperty('OnAnimationFinished', ReadOnAnimationFinished, nil, False);
+  AFiler.DefineProperty('OnAnimationProgress', ReadOnAnimationProgress, nil, False);
 end;
 
 destructor TSkAnimatedImage.Destroy;
@@ -2478,12 +3164,9 @@ begin
     DrawDesignBorder(ACanvas, ADest, AOpacity);
 end;
 
-function TSkAnimatedImage.GetDuration: Double;
+function TSkAnimatedImage.GetAnimation: TAnimation;
 begin
-  if Assigned(FCodec) then
-    Result := FCodec.Duration
-  else
-    Result := 0;
+  Result := TSkAnimatedImage.TAnimation(FAnimation);
 end;
 
 function TSkAnimatedImage.GetOriginalSize: TSizeF;
@@ -2515,6 +3198,32 @@ begin
     FSource.Data := nil
   else
     LoadFromStream(AStream);
+end;
+
+procedure TSkAnimatedImage.ReadLoop(AReader: TReader);
+begin
+  Animation.Loop := AReader.ReadBoolean;
+end;
+
+type
+  TReaderAccess = class(TReader) end;
+
+procedure TSkAnimatedImage.ReadOnAnimationFinished(AReader: TReader);
+var
+  LMethod: TMethod;
+begin
+  LMethod := TReaderAccess(AReader).FindMethodInstance(AReader.Root, AReader.ReadIdent);
+  if LMethod.Code <> nil then
+    OnAnimationFinish := TNotifyEvent(LMethod);
+end;
+
+procedure TSkAnimatedImage.ReadOnAnimationProgress(AReader: TReader);
+var
+  LMethod: TMethod;
+begin
+  LMethod := TReaderAccess(AReader).FindMethodInstance(AReader.Root, AReader.ReadIdent);
+  if LMethod.Code <> nil then
+    OnAnimationProcess := TNotifyEvent(LMethod);
 end;
 
 class procedure TSkAnimatedImage.RegisterCodec(
@@ -2564,9 +3273,20 @@ procedure TSkAnimatedImage.RenderFrame(const ACanvas: ISkCanvas;
   end;
 
 begin
-  FCodec.SeekFrameTime(AProgress * Duration);
-  FCodec.Render(ACanvas, GetWrappedRect(ADest), AOpacity);
+  if Assigned(FCodec) then
+  begin
+    if (csDesigning in ComponentState) and (not Animation.Running) and (AProgress = 0) then
+      FCodec.SeekFrameTime(Animation.Duration / 2)
+    else
+      FCodec.SeekFrameTime(Animation.CurrentTime);
+    FCodec.Render(ACanvas, GetWrappedRect(ADest), AOpacity);
+  end;
   inherited;
+end;
+
+procedure TSkAnimatedImage.SetAnimation(const AValue: TAnimation);
+begin
+  FAnimation.Assign(AValue);
 end;
 
 procedure TSkAnimatedImage.SetSource(const AValue: TSource);
@@ -2583,7 +3303,7 @@ begin
   end;
 end;
 
-procedure TSkAnimatedImage.SourceChange(ASender: TObject);
+procedure TSkAnimatedImage.SourceChange;
 var
   LCodecClass: TAnimationCodecClass;
   LStream: TStream;
@@ -2601,10 +3321,13 @@ begin
     LStream.Free;
   end;
   if Assigned(FCodec) then
-    FPS := Max(FCodec.FPS, MinFPS);
-  if not FixedProgress then
-    Progress := 0;
-  IsStaticImage := (FCodec = nil) or FCodec.IsStatic;
+  begin
+    Animation.SetDuration(FCodec.Duration);
+    if Animation.Running then
+      Animation.Start;
+  end
+  else
+    Animation.SetDuration(0);
   Redraw;
 end;
 
@@ -2612,6 +3335,33 @@ procedure TSkAnimatedImage.WriteData(AStream: TStream);
 begin
   if FSource.Data <> nil then
     AStream.WriteBuffer(FSource.Data, Length(FSource.Data));
+end;
+
+{ TSkAnimatedImageHelper }
+
+function TSkAnimatedImageHelper.Duration: Double;
+begin
+  Result := Animation.Duration;
+end;
+
+function TSkAnimatedImageHelper.FixedProgress: Boolean;
+begin
+  Result := not Animation.Enabled;
+end;
+
+function TSkAnimatedImageHelper.Loop: Boolean;
+begin
+  Result := Animation.Loop;
+end;
+
+function TSkAnimatedImageHelper.Progress: Double;
+begin
+  Result := Animation.Progress;
+end;
+
+function TSkAnimatedImageHelper.RunningAnimation: Boolean;
+begin
+  Result := Animation.Running;
 end;
 
 { TSkDefaultAnimationCodec }
@@ -2637,7 +3387,7 @@ end;
 
 function TSkDefaultAnimationCodec.GetFPS: Double;
 begin
-  Result := TSkCustomAnimatedControl.DefaultFPS;
+  Result := TSkCustomAnimation.DefaultFrameRate;
 end;
 
 function TSkDefaultAnimationCodec.GetIsStatic: Boolean;
@@ -2963,110 +3713,118 @@ begin
   Result := FUpdatingCount > 0;
 end;
 
-procedure TSkPersistentData.SetValue(var AField: Byte; const AValue: Byte);
+function TSkPersistentData.SetValue(var AField: Byte; const AValue: Byte): Boolean;
 begin
-  if AField <> AValue then
+  Result := AField <> AValue;
+  if Result then
   begin
     AField := AValue;
     Change;
   end;
 end;
 
-procedure TSkPersistentData.SetValue(var AField: Word; const AValue: Word);
+function TSkPersistentData.SetValue(var AField: Word; const AValue: Word): Boolean;
 begin
-  if AField <> AValue then
+  Result := AField <> AValue;
+  if Result then
   begin
     AField := AValue;
     Change;
   end;
 end;
 
-procedure TSkPersistentData.SetValue(var AField: Double; const AValue,
-  AEpsilon: Double);
+function TSkPersistentData.SetValue(var AField: Double; const AValue,
+  AEpsilon: Double): Boolean;
 begin
-  if not SameValue(AField, AValue, AEpsilon) then
+  Result := not SameValue(AField, AValue, AEpsilon);
+  if Result then
   begin
     AField := AValue;
     Change;
   end;
 end;
 
-procedure TSkPersistentData.SetValue(var AField: TBytes; const AValue: TBytes);
+function TSkPersistentData.SetValue(var AField: TBytes; const AValue: TBytes): Boolean;
 begin
-  if not IsSameBytes(AField, AValue) then
+  Result := not IsSameBytes(AField, AValue);
+  if Result then
   begin
     AField := Copy(AValue);
     Change;
   end;
 end;
 
-procedure TSkPersistentData.SetValue(var AField: string; const AValue: string);
+function TSkPersistentData.SetValue(var AField: string; const AValue: string): Boolean;
 begin
-  if AField <> AValue then
+  Result := AField <> AValue;
+  if Result then
   begin
     AField := AValue;
     Change;
   end;
 end;
 
-procedure TSkPersistentData.SetValue(var AField: Single; const AValue,
-  AEpsilon: Single);
+function TSkPersistentData.SetValue(var AField: Single; const AValue,
+  AEpsilon: Single): Boolean;
 begin
-  if not SameValue(AField, AValue, AEpsilon) then
+  Result := not SameValue(AField, AValue, AEpsilon);
+  if Result then
   begin
     AField := AValue;
     Change;
   end;
 end;
 
-procedure TSkPersistentData.SetValue(var AField: Boolean;
-  const AValue: Boolean);
+function TSkPersistentData.SetValue(var AField: Boolean;
+  const AValue: Boolean): Boolean;
 begin
-  if AField <> AValue then
+  Result := AField <> AValue;
+  if Result then
   begin
     AField := AValue;
     Change;
   end;
 end;
 
-procedure TSkPersistentData.SetValue(var AField: Cardinal;
-  const AValue: Cardinal);
+function TSkPersistentData.SetValue(var AField: Cardinal;
+  const AValue: Cardinal): Boolean;
 begin
-  if AField <> AValue then
+  Result := AField <> AValue;
+  if Result then
   begin
     AField := AValue;
     Change;
   end;
 end;
 
-procedure TSkPersistentData.SetValue(var AField: Integer;
-  const AValue: Integer);
+function TSkPersistentData.SetValue(var AField: Integer;
+  const AValue: Integer): Boolean;
 begin
-  if AField <> AValue then
+  Result := AField <> AValue;
+  if Result then
   begin
     AField := AValue;
     Change;
   end;
 end;
 
-procedure TSkPersistentData.SetValue(var AField: Int64; const AValue: Int64);
+function TSkPersistentData.SetValue(var AField: Int64; const AValue: Int64): Boolean;
 begin
-  if AField <> AValue then
+  Result := AField <> AValue;
+  if Result then
   begin
     AField := AValue;
     Change;
   end;
 end;
 
-procedure TSkPersistentData.SetValue<T>(var AField: T; const AValue: T);
-var
-  LDifferent: Boolean;
+function TSkPersistentData.SetValue<T>(var AField: T; const AValue: T): Boolean;
 begin
   if Assigned(TypeInfo(T)) and (PTypeInfo(TypeInfo(T)).Kind in [TTypeKind.tkSet, TTypeKind.tkEnumeration, TTypeKind.tkRecord{$IF CompilerVersion >= 33}, TTypeKind.tkMRecord{$ENDIF}]) then
-    LDifferent := not CompareMem(@AField, @AValue, SizeOf(T))
+    Result := not CompareMem(@AField, @AValue, SizeOf(T))
   else
-    LDifferent := TComparer<T>.Default.Compare(AField, AValue) <> 0;
-  if LDifferent then
+    Result := TComparer<T>.Default.Compare(AField, AValue) <> 0;
+  if Result then
   begin
     AField := AValue;
     Change;
@@ -3147,10 +3905,10 @@ var
 begin
   Result := (AObject is TSkFontComponent) and
     (FFamilies = LFont.Families) and
-    (FSize     = LFont.Size) and
     (FSlant    = LFont.Slant) and
     (FStretch  = LFont.Stretch) and
-    (FWeight   = LFont.Weight);
+    (FWeight   = LFont.Weight) and
+    SameValue(FSize, LFont.Size, TEpsilon.FontSize);
 end;
 
 function TSkFontComponent.IsFamiliesStored: Boolean;
@@ -3190,7 +3948,7 @@ end;
 
 procedure TSkFontComponent.SetSize(const AValue: Single);
 begin
-  SetValue(FSize, AValue);
+  SetValue(FSize, AValue, TEpsilon.FontSize);
 end;
 
 procedure TSkFontComponent.SetSlant(const AValue: TSkFontSlant);
@@ -5221,6 +5979,7 @@ initialization
   TPicture.RegisterFileFormat('rw2', 'Raw Panasonic', TSkGraphic);
   TPicture.RegisterFileFormat('pef', 'Raw Pentax PEF', TSkGraphic);
   TPicture.RegisterFileFormat('srw', 'Raw Samsung SRW', TSkGraphic);
+  TSkCustomAnimation.FrameRate := TSkCustomAnimation.DefaultFrameRate;
 finalization
   TPicture.UnregisterGraphicClass(TSkGraphic);
   TPicture.UnregisterGraphicClass(TSkSvgGraphic);
