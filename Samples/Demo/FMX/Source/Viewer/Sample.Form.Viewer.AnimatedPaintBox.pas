@@ -59,7 +59,7 @@ procedure TfrmAnimatedPaintBoxViewer.apbDrawAnimationDraw(ASender: TObject;
   const AOpacity: Single);
 begin
   if Assigned(FDrawProc) then
-    FDrawProc(ACanvas, ADest, AProgress * apbDraw.Duration);
+    FDrawProc(ACanvas, ADest, apbDraw.Animation.CurrentTime);
 end;
 
 procedure TfrmAnimatedPaintBoxViewer.apbDrawMouseMove(Sender: TObject;
@@ -75,7 +75,7 @@ begin
   inherited;
   if Action <> TCloseAction.caNone then
   begin
-    apbDraw.Animate := False;
+    apbDraw.Animation.Enabled := False;
     FDrawProc := nil;
     FOnMouseMove := nil;
   end;
@@ -98,7 +98,7 @@ begin
   FDrawProc := ADrawProc;
   apbDraw.Align := TAlignLayout.Client;
   apbDraw.Redraw;
-  apbDraw.Animate := True;
+  apbDraw.Animation.Enabled := True;
   AllowScrollBoundsAnimation := not Assigned(FOnMouseMove);
   inherited Show(ATitle, ADescription);
 end;
@@ -112,7 +112,7 @@ begin
   apbDraw.Align := TAlignLayout.None;
   DrawSize := TSizeF.Create(ADrawWidth, ADrawHeight);
   apbDraw.Redraw;
-  apbDraw.Animate := True;
+  apbDraw.Animation.Enabled := True;
   AllowScrollBoundsAnimation := not Assigned(FOnMouseMove);
   inherited Show(ATitle, ADescription);
 end;
