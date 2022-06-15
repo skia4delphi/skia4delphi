@@ -205,7 +205,6 @@ begin
     FAnimatedImage.Parent := rctPreviewBackground;
     FAnimatedImage.Source.Data := AData;
     UpdateButtons;
-    FAnimatedImage.Animation.Start;
     Result := inherited ShowModal;
     if Result = mrOk then
       AData := FAnimatedImage.Source.Data;
