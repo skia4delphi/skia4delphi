@@ -5070,7 +5070,7 @@ begin
       ACanvas.SaveLayerAlpha(Round(AOpacity * 255));
     try
       ACanvas.ClipRect(ADest);
-      ACanvas.Translate(Round(ADest.Left), Round(LPositionY));
+      ACanvas.Translate(ADest.Left, LPositionY);
       if FHasCustomBackground then
       begin
         if FBackgroundPicture = nil then
