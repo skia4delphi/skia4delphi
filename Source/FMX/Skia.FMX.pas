@@ -497,6 +497,7 @@ type
 
   { TSkAnimatedPaintBox }
 
+  [ComponentPlatforms(SkSupportedPlatformsMask)]
   TSkAnimatedPaintBox = class(TSkCustomAnimatedControl)
   public type
     { TAnimation }
@@ -926,6 +927,7 @@ type
 
   { TSkStyleTextObject }
 
+  [ComponentPlatforms(SkSupportedPlatformsMask)]
   TSkStyleTextObject = class(TSkCustomStyleTextObject)
   published
     property TextSettings;
