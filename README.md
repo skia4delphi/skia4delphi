@@ -670,6 +670,12 @@ The APIs are very similar to Skia's, few methods and functions have been renamed
 Skia Version used: [chrome/m98](https://github.com/google/skia/tree/chrome/m98)
 What has changed from the original code? [Compare.](https://github.com/google/skia/compare/chrome/m98...skia4delphi:main)
 
+# Contributors
+
+<a href="https://github.com/skia4delphi/skia4delphi/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=skia4delphi/skia4delphi" />
+</a>
+
 #
 
 Help us responding a small questionnaire about our users in [this link](https://c7hppqdug11.typeform.com/to/Qc6o3ELs)
