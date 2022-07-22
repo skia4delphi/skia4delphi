@@ -678,4 +678,4 @@ What has changed from the original code? [Compare.](https://github.com/google/sk
 
 #
 
-Help us responding a small questionnaire about our users in [this link](https://c7hppqdug11.typeform.com/to/Qc6o3ELs)
+Help us responding a small questionnaire about our users in [this link](https://form.typeform.com/to/Qc6o3ELs)
