@@ -79,18 +79,20 @@ procedure TfrmRuntimeEffects.pnlShaderWithMouseClick(Sender: TObject);
 var
   LEffect: ISkRuntimeEffect;
   LPaint: ISkPaint;
+  LViewer: TfrmAnimatedPaintBoxViewer;
 begin
   LEffect := TSkRuntimeEffect.MakeForShader(TFile.ReadAllText(AssetsPath + TPath.Combine('RuntimeEffects Shaders', 'mouse.sksl')));
   LPaint := TSkPaint.Create;
   LPaint.Shader := LEffect.MakeShader(True);
 
-  ChildForm<TfrmAnimatedPaintBoxViewer>.OnMouseMove :=
+  LViewer := ChildForm<TfrmAnimatedPaintBoxViewer>;
+  LViewer.OnMouseMove :=
     procedure (const AX, AY: Single)
     begin
-      LEffect.SetUniform('iMouse', PointF(AX, AY));
+      LEffect.SetUniform('iMouse', PointF(AX / LViewer.ScaleFactor, AY / LViewer.ScaleFactor));
     end;
 
-  ChildForm<TfrmAnimatedPaintBoxViewer>.Show('Shader with Mouse', 'Shader that varies with mouse position (iMouse uniform)',
+  LViewer.Show('Shader with Mouse', 'Shader that varies with mouse position (iMouse uniform)',
     procedure (const ACanvas: ISkCanvas; const ADest: TRectF; const ASeconds: Double)
     begin
       LEffect.SetUniform('iResolution', PointF(ADest.Width, ADest.Height));
