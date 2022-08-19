@@ -10,9 +10,11 @@ uses
 {$R *.res}
 
 begin
+  {$IFDEF MACOS}
+  GlobalUseMetal := True;
+  {$ENDIF}
   GlobalUseSkia := True;
   GlobalUseSkiaRasterWhenAvailable := False;
-  GlobalUseMetal := True;
   Application.Initialize;
   Application.CreateForm(TfrmMain, frmMain);
   Application.FormFactor.Orientations := [TFormOrientation.Landscape, TFormOrientation.InvertedLandscape];

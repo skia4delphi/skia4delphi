@@ -33,7 +33,7 @@ uses
 {$ENDIF}
 
 const
-  SkVersion = '3.4.0';
+  SkVersion = '3.4.1';
 
 type
   ESkException = class(Exception);
@@ -1652,6 +1652,7 @@ type
     procedure AddCircle(const ACenterX, ACenterY, ARadius: Single; ADirection: TSkPathDirection = TSkPathDirection.CW); overload;
     procedure AddOval(const ARect: TRectF; ADirection: TSkPathDirection = TSkPathDirection.CW); overload;
     procedure AddOval(const ARect: TRectF; ADirection: TSkPathDirection; AStartIndex: Cardinal); overload;
+    procedure AddPath(const APath: ISkPath);
     procedure AddPolygon(const APolygon: TPolygon; const IsClosed: Boolean);
     procedure AddRect(const ARect: TRectF; ADirection: TSkPathDirection = TSkPathDirection.CW); overload;
     procedure AddRect(const ARect: TRectF; ADirection: TSkPathDirection; AStartIndex: Cardinal); overload;
@@ -1669,7 +1670,7 @@ type
     function GetBounds: TRectF;
     function GetFillType: TSkPathFillType;
     procedure IncReserve(const AExtraPointCount: Integer); overload;
-    procedure IncReserve(const AExtraPointCount, AExtraVerbCount: Integer);  overload;
+    procedure IncReserve(const AExtraPointCount, AExtraVerbCount: Integer); overload;
     procedure LineTo(const APoint: TPointF); overload;
     procedure LineTo(const AX, AY: Single); overload;
     procedure MoveTo(const APoint: TPointF); overload;
@@ -6497,7 +6498,7 @@ begin
   LBytesStream := TBytesStream.Create(nil);
   try
     EncodeToStream(LBytesStream, AEncodedImageFormat, AQuality);
-    Result := LBytesStream.Bytes;
+    Result := Copy(LBytesStream.Bytes, 0, LBytesStream.Size);
   finally
     LBytesStream.Free;
   end;
@@ -6887,7 +6888,7 @@ begin
   LBytesStream := TBytesStream.Create(nil);
   try
     EncodeToStream(LBytesStream, ASrc, AEncodedImageFormat, AQuality);
-    Result := LBytesStream.Bytes;
+    Result := Copy(LBytesStream.Bytes, 0, LBytesStream.Size);
   finally
     LBytesStream.Free;
   end;
@@ -7845,7 +7846,7 @@ begin
   LStream := TBytesStream.Create(nil);
   try
     SerializeToStream(LStream);
-    Result := LStream.Bytes;
+    Result := Copy(LStream.Bytes, 0, LStream.Size);
   finally
     LStream.Free;
   end;
@@ -8383,7 +8384,7 @@ begin
   LStream := TBytesStream.Create(nil);
   try
     SerializeToStream(LStream);
-    Result := LStream.Bytes;
+    Result := Copy(LStream.Bytes, 0, LStream.Size);
   finally
     LStream.Free;
   end;
@@ -9169,7 +9170,7 @@ end;
 function TSkRuntimeEffect.GetChildName(const AIndex: Integer): string;
 begin
   if (AIndex < 0) or (AIndex >= GetChildCount) then
-    raise ESkArgumentException.CreateFmt(SParamOutOfRange, ['AIndex', 0, GetChildCount]);
+    raise ESkArgumentException.CreateFmt(SParamOutOfRange, ['AIndex', AIndex, 0, GetChildCount]);
   Result := string(TSkiaAPI.sk4d_runtimeeffect_get_child_name(GetHandle, AIndex));
 end;
 
@@ -9189,7 +9190,7 @@ function TSkRuntimeEffect.GetChildType(
   const AIndex: Integer): TSkRuntimeEffectChildType;
 begin
   if (AIndex < 0) or (AIndex >= GetChildCount) then
-    raise ESkArgumentException.CreateFmt(SParamOutOfRange, ['AIndex', 0, GetChildCount]);
+    raise ESkArgumentException.CreateFmt(SParamOutOfRange, ['AIndex', AIndex, 0, GetChildCount]);
   Result := TSkRuntimeEffectChildType(TSkiaAPI.sk4d_runtimeeffect_get_child_type(GetHandle, AIndex));
 end;
 
@@ -9207,7 +9208,7 @@ end;
 function TSkRuntimeEffect.GetUniform(const AIndex: Integer): Pointer;
 begin
   if (AIndex < 0) or (AIndex >= GetUniformCount) then
-    raise ESkArgumentException.CreateFmt(SParamOutOfRange, ['AIndex', 0, GetUniformCount]);
+    raise ESkArgumentException.CreateFmt(SParamOutOfRange, ['AIndex', AIndex, 0, GetUniformCount]);
   Result := Pointer(NativeUInt(FUniformData) + GetUniformOffset(AIndex));
 end;
 
@@ -9229,14 +9230,14 @@ end;
 function TSkRuntimeEffect.GetUniformName(const AIndex: Integer): string;
 begin
   if (AIndex < 0) or (AIndex >= GetUniformCount) then
-    raise ESkArgumentException.CreateFmt(SParamOutOfRange, ['AIndex', 0, GetUniformCount]);
+    raise ESkArgumentException.CreateFmt(SParamOutOfRange, ['AIndex', AIndex, 0, GetUniformCount]);
   Result := string(TSkiaAPI.sk4d_runtimeeffect_get_uniform_name(GetHandle, AIndex));
 end;
 
 function TSkRuntimeEffect.GetUniformOffset(const AIndex: Integer): NativeUInt;
 begin
   if (AIndex < 0) or (AIndex >= GetUniformCount) then
-    raise ESkArgumentException.CreateFmt(SParamOutOfRange, ['AIndex', 0, GetUniformCount]);
+    raise ESkArgumentException.CreateFmt(SParamOutOfRange, ['AIndex', AIndex, 0, GetUniformCount]);
   Result := TSkiaAPI.sk4d_runtimeeffect_get_uniform_offset(GetHandle, AIndex);
 end;
 
@@ -9249,7 +9250,7 @@ function TSkRuntimeEffect.GetUniformType(
   const AIndex: Integer): TSkRuntimeEffectUniformType;
 begin
   if (AIndex < 0) or (AIndex >= GetUniformCount) then
-    raise ESkArgumentException.CreateFmt(SParamOutOfRange, ['AIndex', 0, GetUniformCount]);
+    raise ESkArgumentException.CreateFmt(SParamOutOfRange, ['AIndex', AIndex, 0, GetUniformCount]);
   Result := TSkRuntimeEffectUniformType(TSkiaAPI.sk4d_runtimeeffect_get_uniform_type(GetHandle, AIndex));
 end;
 
@@ -9267,7 +9268,7 @@ end;
 function TSkRuntimeEffect.GetUniformTypeCount(const AIndex: Integer): Integer;
 begin
   if (AIndex < 0) or (AIndex >= GetUniformCount) then
-    raise ESkArgumentException.CreateFmt(SParamOutOfRange, ['AIndex', 0, GetUniformCount]);
+    raise ESkArgumentException.CreateFmt(SParamOutOfRange, ['AIndex', AIndex, 0, GetUniformCount]);
   Result := TSkiaAPI.sk4d_runtimeeffect_get_uniform_type_count(GetHandle, AIndex);
 end;
 
@@ -9512,16 +9513,35 @@ end;
 
 procedure TSkRuntimeEffect.SetUniform(const AIndex: Integer;
   const AValue: TArray<Integer>);
+var
+  LValue: TArray<Single>;
+  I: Integer;
 begin
   if Length(AValue) = 0 then
     raise ESkException.Create(SInvalidOperation);
-  SetUniform(AIndex, AValue[0], Length(AValue) * SizeOf(Integer));
+  if not IsUniformTypeOrdinal(AIndex) then
+  begin
+    SetLength(LValue, Length(AValue));
+    for I := 0 to Length(AValue) - 1 do
+      LValue[I] := AValue[I];
+    SetUniform(AIndex, LValue);
+  end
+  else
+    SetUniform(AIndex, AValue[0], Length(AValue) * SizeOf(Integer));
 end;
 
 procedure TSkRuntimeEffect.SetUniform(const AIndex: Integer;
   const AValue: TSkRuntimeEffectInt2);
+var
+  LValue: TSkRuntimeEffectFloat2;
 begin
-  SetUniform(AIndex, AValue, SizeOf(AValue));
+  if not IsUniformTypeOrdinal(AIndex) then
+  begin
+    LValue := TSkRuntimeEffectFloat2.Create(AValue.V1, AValue.V2);
+    SetUniform(AIndex, LValue);
+  end
+  else
+    SetUniform(AIndex, AValue, SizeOf(AValue));
 end;
 
 procedure TSkRuntimeEffect.SetUniform(const AIndex, AValue: Integer);
@@ -9555,8 +9575,16 @@ end;
 
 procedure TSkRuntimeEffect.SetUniform(const AIndex: Integer;
   const AValue: TSkRuntimeEffectInt3);
+var
+  LValue: TSkRuntimeEffectFloat3;
 begin
-  SetUniform(AIndex, AValue, SizeOf(AValue));
+  if not IsUniformTypeOrdinal(AIndex) then
+  begin
+    LValue := TSkRuntimeEffectFloat3.Create(AValue.V1, AValue.V2, AValue.V3);
+    SetUniform(AIndex, LValue);
+  end
+  else
+    SetUniform(AIndex, AValue, SizeOf(AValue));
 end;
 
 procedure TSkRuntimeEffect.SetUniform(const AName: string;
@@ -9651,8 +9679,16 @@ end;
 
 procedure TSkRuntimeEffect.SetUniform(const AIndex: Integer;
   const AValue: TSkRuntimeEffectInt4);
+var
+  LValue: TSkRuntimeEffectFloat4;
 begin
-  SetUniform(AIndex, AValue, SizeOf(AValue));
+  if not IsUniformTypeOrdinal(AIndex) then
+  begin
+    LValue := TSkRuntimeEffectFloat4.Create(AValue.V1, AValue.V2, AValue.V3, AValue.V4);
+    SetUniform(AIndex, LValue);
+  end
+  else
+    SetUniform(AIndex, AValue, SizeOf(AValue));
 end;
 
 procedure TSkRuntimeEffect.SetUniform(const AIndex: Integer;
@@ -11909,8 +11945,14 @@ begin
 end;
 
 function TSkFileResourceProvider.Load(const APath, AName: string): TBytes;
+var
+  LFileName: string;
 begin
-  Result := TFile.ReadAllBytes(TPath.Combine(TPath.Combine(FBaseDir, APath), AName));
+  LFileName := TPath.Combine(TPath.Combine(FBaseDir, APath), AName);
+  if TFile.Exists(LFileName) then
+    Result := TFile.ReadAllBytes(LFileName)
+  else
+    Result := nil;
 end;
 
 { TSkShaper }

@@ -68,6 +68,5 @@ object frmPDFViewer: TfrmPDFViewer
     Size.Width = 364.000000000000000000
     Size.Height = 488.000000000000000000
     Size.PlatformDefault = False
-    WindowsEngine = None
   end
 end

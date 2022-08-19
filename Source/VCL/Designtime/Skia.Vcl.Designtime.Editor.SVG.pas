@@ -147,7 +147,7 @@ end;
 procedure TSkSvgEditorForm.btnSaveClick(ASender: TObject);
 begin
   if sdgSaveDialog.Execute then
-    memSource.Lines.SaveToFile(sdgSaveDialog.FileName);
+    memSource.Lines.SaveToFile(sdgSaveDialog.FileName, TEncoding.UTF8);
 end;
 
 procedure TSkSvgEditorForm.CreateWnd;
@@ -238,7 +238,7 @@ end;
 procedure TSkSvgEditorForm.LoadFromFile(const AFileName: string);
 begin
   if TFile.Exists(AFileName) then
-    memSource.Lines.LoadFromFile(AFileName);
+    memSource.Lines.LoadFromFile(AFileName, TEncoding.UTF8);
 end;
 
 procedure TSkSvgEditorForm.memSourceChange(ASender: TObject);

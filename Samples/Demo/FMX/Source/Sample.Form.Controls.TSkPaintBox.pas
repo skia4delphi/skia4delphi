@@ -58,6 +58,7 @@ type
   TFreehandRender = class(TInterfacedObject, IFreehandRender)
   strict private
     FCurrentPath: ISkPath;
+    FLastPoint: TPointF;
     FOldPaths: TArray<ISkPath>;
     FPathBuilder: ISkPathBuilder;
     FPressed: Boolean;
@@ -152,6 +153,7 @@ begin
   FPressed := True;
   FPathBuilder := TSkPathBuilder.Create;
   FPathBuilder.MoveTo(X, Y);
+  FLastPoint := PointF(X, Y);
   FCurrentPath := nil;
 end;
 
@@ -169,11 +171,14 @@ end;
 
 procedure TFreehandRender.OnMouseMove(ASender: TObject; AShift: TShiftState; X,
   Y: Single);
+const
+  MinPointsDistance = 5;
 begin
-  if FPressed and Assigned(FPathBuilder) then
+  if FPressed and Assigned(FPathBuilder) and (FLastPoint.Distance(PointF(X, Y)) >= MinPointsDistance) then
   begin
     FCurrentPath := nil;
     FPathBuilder.LineTo(X, Y);
+    FLastPoint := PointF(X, Y);
     (ASender as TSkPaintBox).Redraw;
   end;
 end;

@@ -1,3 +1,14 @@
+{************************************************************************}
+{                                                                        }
+{                              Skia4Delphi                               }
+{                                                                        }
+{ Copyright (c) 2011-2022 Google LLC.                                    }
+{ Copyright (c) 2021-2022 Skia4Delphi Project.                           }
+{                                                                        }
+{ Use of this source code is governed by a BSD-style license that can be }
+{ found in the LICENSE file.                                             }
+{                                                                        }
+{************************************************************************}
 unit Sample.Form.Main;
 
 interface
@@ -12,6 +23,8 @@ uses
   Skia.FMX, Skia;
 
 type
+  { TfrmMain }
+
   TfrmMain = class(TForm)
     saiAnimatedLogo: TSkAnimatedImage;
     fanFadeOutTransition: TFloatAnimation;

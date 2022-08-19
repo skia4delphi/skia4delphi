@@ -36,6 +36,7 @@ type
     procedure SetUniforms(const ARuntimeEffects: ISkRuntimeEffect; const AUniforms: string);
   public
     [TestCase('File "shader.mouse.sksl"', 'shader.mouse.sksl,150,100,iMouse=70.0 80.0;iResolution=150.0 100.0,,AAAAOH7+/v4fCAA5f//+/h8PDz9/////Hw8PP3////8AAAAAB8Af8D/4P/h//H/8f/x//H/8f/w')]
+    [TestCase('File "shader.mouse.sksl"', 'shader.mouse.sksl,150,100,iMouse=70 80;iResolution=150 100,,AAAAOH7+/v4fCAA5f//+/h8PDz9/////Hw8PP3////8AAAAAB8Af8D/4P/h//H/8f/x//H/8f/w')]
     [TestCase('File "shader.brightness-and-contrast.sksl"', 'shader.brightness-and-contrast.sksl,250,250,brightness=0.3;contrast=0.5,horse.webp,/fj4+Pj4+PP//Pj5+//+///9/f3///////39/f////9Q7vAa/z///v/////fPlYz/XODODBQxUI')]
     procedure TestShader(const ASkSLFileName: string; const AWidth, AHeight: Integer; const AUniforms, AChildImageFileName, AExpectedImageHash: string);
   end;
@@ -107,6 +108,7 @@ begin
   LPaint := TSkPaint.Create;
   LPaint.Shader := LEffect.MakeShader(True);
   LSurface := TSkSurface.MakeRaster(AWidth, AHeight);
+  Assert.IsNotNull(LSurface, 'Invalid ISkSurface (nil)');
   LSurface.Canvas.Clear(TAlphaColors.Null);
   SetUniforms(LEffect, AUniforms);
   LSurface.Canvas.DrawPaint(LPaint);

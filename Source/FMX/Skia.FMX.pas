@@ -62,6 +62,7 @@ type
 
   TSkPathDataHelper = class helper for TPathData
   public
+    procedure AddSkPath(const AValue: ISkPath);
     procedure FromSkPath(const AValue: ISkPath);
     function ToSkPath: ISkPath;
   end;
@@ -175,10 +176,9 @@ type
   { TSkSvgBrush }
 
   TSkSvgBrush = class(TPersistent)
-  strict private
-    const
-      DefaultGrayScale = False;
-      DefaultWrapMode = TSkSvgWrapMode.Fit;
+  strict private const
+    DefaultGrayScale = False;
+    DefaultWrapMode = TSkSvgWrapMode.Fit;
   strict private
     FDOM: ISkSVGDOM;
     FGrayScale: Boolean;
@@ -295,6 +295,7 @@ type
 
   { TSkAnimatedPaintBox }
 
+  [ComponentPlatforms(SkSupportedPlatformsMask)]
   TSkAnimatedPaintBox = class(TSkCustomAnimatedControl)
   strict private
     const
@@ -614,26 +615,25 @@ type
   { TSkTextSettingsInfo }
 
   TSkTextSettingsInfo = class(TPersistent)
-  public
-    type
-      TBaseTextSettings = class(TSkTextSettings)
-      strict private
-        [unsafe] FControl: TControl;
-        [unsafe] FInfo: TSkTextSettingsInfo;
-      public
-        constructor Create(const AOwner: TPersistent); override;
-        property Control: TControl read FControl;
-        property Info: TSkTextSettingsInfo read FInfo;
-      end;
+  public type
+    TBaseTextSettings = class(TSkTextSettings)
+    strict private
+      [unsafe] FControl: TControl;
+      [unsafe] FInfo: TSkTextSettingsInfo;
+    public
+      constructor Create(const AOwner: TPersistent); override;
+      property Control: TControl read FControl;
+      property Info: TSkTextSettingsInfo read FInfo;
+    end;
 
-      TCustomTextSettings = class(TBaseTextSettings)
-      public
-        constructor Create(const AOwner: TPersistent); override;
-      published
-        property MaxLines default 0;
-      end;
+    TCustomTextSettings = class(TBaseTextSettings)
+    public
+      constructor Create(const AOwner: TPersistent); override;
+    published
+      property MaxLines default 0;
+    end;
 
-      TCustomTextSettingsClass = class of TCustomTextSettings;
+    TCustomTextSettingsClass = class of TCustomTextSettings;
   strict private
     FDefaultTextSettings: TSkTextSettings;
     FDesign: Boolean;
@@ -700,6 +700,7 @@ type
 
   { TSkStyleTextObject }
 
+  [ComponentPlatforms(SkSupportedPlatformsMask)]
   TSkStyleTextObject = class(TSkCustomStyleTextObject)
   published
     property TextSettings;
@@ -1088,9 +1089,8 @@ type
   { TSkDefaultAnimationCodec }
 
   TSkDefaultAnimationCodec = class(TSkAnimatedImage.TAnimationCodec)
-  strict private
-    type
-      TImageFormat = (GIF, WebP);
+  strict private type
+    TImageFormat = (GIF, WebP);
   strict private
     FAnimationCodec: ISkAnimationCodecPlayer;
     FStream: TStream;
@@ -1111,9 +1111,8 @@ type
   { TSkLottieAnimationCodec }
 
   TSkLottieAnimationCodec = class(TSkAnimatedImage.TAnimationCodec)
-  strict private
-    type
-      TAnimationFormat = (Lottie, TGS);
+  strict private type
+    TAnimationFormat = (Lottie, TGS);
   strict private
     FSkottie: ISkottieAnimation;
   strict protected
@@ -1254,12 +1253,42 @@ var
   LSurface: ISkSurface;
   LData: TBitmapData;
   LAccess: TMapAccess;
+  LBeginSceneCount: Integer;
 begin
   Assert(Assigned(AProc));
   if IsEmpty then
     raise ESkBitmapHelper.Create('Invalid bitmap');
   if CanvasClass.InheritsFrom(TSkCanvasCustom) then
   begin
+    {$REGION ' - Workaround RSP-38418'}
+    // - -----------------------------------------------------------------------
+    // - WORKAROUND
+    // - -----------------------------------------------------------------------
+    // -
+    // - Description:
+    // -   This code is a workaround intended to fix issue when changes the
+    // -   bitmap that has been assign to another.
+    // -
+    // - Bug report:
+    // -   https://quality.embarcadero.com/browse/RSP-38418
+    // -
+    // - -----------------------------------------------------------------------
+    {$IF CompilerVersion > 35}
+      {$MESSAGE WARN 'Check if the issue has been fixed'}
+    {$ENDIF}
+    // - -----------------------------------------------------------------------
+    if Image.RefCount > 1 then
+    begin
+      LBeginSceneCount := Canvas.BeginSceneCount;
+      CopyToNewReference;
+      while LBeginSceneCount > 0 do
+      begin
+        Canvas.BeginScene;
+        Dec(LBeginSceneCount);
+      end;
+    end;
+    // - -----------------------------------------------------------------------
+    {$ENDREGION}
     if (Canvas.BeginSceneCount = 0) and Canvas.BeginScene then
     begin
       try
@@ -1317,12 +1346,11 @@ end;
 
 { TSkPathDataHelper }
 
-procedure TSkPathDataHelper.FromSkPath(const AValue: ISkPath);
+procedure TSkPathDataHelper.AddSkPath(const AValue: ISkPath);
 var
   LElem: TSkPathIteratorElem;
   LPoints: TArray<TPointF>;
 begin
-  Clear;
   for LElem in AValue.GetIterator(False) do
   begin
     case LElem.Verb of
@@ -1339,6 +1367,12 @@ begin
       TSkPathVerb.Close : ClosePath;
     end;
   end;
+end;
+
+procedure TSkPathDataHelper.FromSkPath(const AValue: ISkPath);
+begin
+  Clear;
+  AddSkPath(AValue);
 end;
 
 function TSkPathDataHelper.ToSkPath: ISkPath;
@@ -1594,7 +1628,7 @@ begin
     else
       LSceneScale := 1;
     LAbsoluteScale := AbsoluteScale;
-    LAbsoluteSize := TSize.Create(Round(Width * LAbsoluteScale.X * LSceneScale), Round(Height * LAbsoluteScale.Y * LSceneScale));
+    LAbsoluteSize := TSize.Create(Ceil(Width * LAbsoluteScale.X * LSceneScale), Ceil(Height * LAbsoluteScale.Y * LSceneScale));
 
     LMaxBitmapSize := Canvas.GetAttribute(TCanvasAttribute.MaxBitmapSize);
     if (LAbsoluteSize.Width > LMaxBitmapSize) or (LAbsoluteSize.Height > LMaxBitmapSize) then
@@ -3099,10 +3133,10 @@ var
 begin
   Result := (AObject is TSkFontComponent) and
     (FFamilies = LFont.Families) and
-    (FSize     = LFont.Size) and
     (FSlant    = LFont.Slant) and
     (FStretch  = LFont.Stretch) and
-    (FWeight   = LFont.Weight);
+    (FWeight   = LFont.Weight) and
+    SameValue(FSize, LFont.Size, TEpsilon.FontSize);
 end;
 
 function TSkFontComponent.IsFamiliesStored: Boolean;
@@ -3142,7 +3176,7 @@ end;
 
 procedure TSkFontComponent.SetSize(const AValue: Single);
 begin
-  SetValue(FSize, AValue);
+  SetValue(FSize, AValue, TEpsilon.FontSize);
 end;
 
 procedure TSkFontComponent.SetSlant(const AValue: TFontSlant);

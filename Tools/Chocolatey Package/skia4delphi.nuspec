@@ -9,7 +9,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2015/06/nuspec.xsd">
   <metadata>
     <id>skia4delphi</id>
-    <version>3.4.0</version>
+    <version>3.4.1</version>
     <packageSourceUrl>https://github.com/skia4delphi/skia4delphi/tree/main/Tools/Chocolatey%20Package</packageSourceUrl>
     <owners>Paulo César Botelho Barbosa,Vinícius Felipe Botelho Barbosa</owners>
     <title>Skia4Delphi</title>
@@ -39,7 +39,7 @@ Google's Skia Graphics Library serves as the graphics engine for Google Chrome a
   - `20.0` - RAD Studio 10.3 Rio
   - `21.0` - RAD Studio 10.4 Sydney
   - `22.0` - RAD Studio 11 Alexandria
-  - `all` - All RAD Studio versions detected in sysem (default)
+  - `all` - All RAD Studio versions detected in system (default)
 
   The ".0" can be omitted, so "22" is the same of "22.0".
 

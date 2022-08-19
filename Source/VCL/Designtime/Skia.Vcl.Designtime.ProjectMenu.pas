@@ -25,6 +25,7 @@ uses
   Winapi.ShLwApi,
   System.SysUtils,
   System.Classes,
+  System.Math,
   System.IOUtils,
   System.TypInfo,
   System.Generics.Collections,
@@ -757,6 +758,191 @@ procedure TSkProjectManagerMenuEnableSkia.SetSkiaEnabled(
     Result := False;
   end;
 
+  function ApplyDelphiSourceChange(var ASource: string; const AEnabled: Boolean): Boolean;
+
+    // Add the "Skia.FMX" to uses, after the FMX.Forms, if it isn't inside a ifdef
+    function AddSkiaFMXUnit(const ASourceList: TStringList): Boolean;
+    var
+      LIfDefCount: Integer;
+      I: Integer;
+    begin
+      Result := False;
+      for I := 0 to ASourceList.Count - 1 do
+        if ASourceList[I].TrimLeft.StartsWith('Skia.FMX,', True) or ASourceList[I].TrimLeft.StartsWith('Skia.FMX ', True) then
+          Exit;
+      LIfDefCount := 0;
+      for I := 0 to ASourceList.Count - 1 do
+      begin
+        if ASourceList[I].TrimLeft.StartsWith('{$IF', True) then
+          Inc(LIfDefCount);
+        if ASourceList[I].ToUpper.Contains('{$END') then
+          LIfDefCount := Max(LIfDefCount - 1, 0);
+        if ASourceList[I].TrimLeft.StartsWith('FMX.Forms,', True) or ASourceList[I].TrimLeft.StartsWith('FMX.Forms ', True) then
+        begin
+          if LIfDefCount = 0 then
+          begin
+            ASourceList.Insert(I + 1, '  Skia.FMX,');
+            Exit(True);
+          end
+          else
+            Break;
+        end;
+      end;
+    end;
+
+    function AddGlobalUseSkia(const ASourceList: TStringList): Boolean;
+    var
+      LIfDefCount: Integer;
+      I: Integer;
+    begin
+      Result := False;
+      if not ASourceList.Text.ToLower.Contains(string('Skia.FMX,').ToLower) and
+        not ASourceList.Text.ToLower.Contains(string('Skia.FMX ').ToLower) then
+      begin
+        Exit;
+      end;
+      for I := 0 to ASourceList.Count - 1 do
+        if ASourceList[I].Replace(' ', '').StartsWith('GlobalUseSkia:=True', True) then
+          Exit;
+      LIfDefCount := 0;
+      for I := ASourceList.Count - 1 downto 0 do
+      begin
+        if ASourceList[I].ToUpper.Contains('{$END') then
+          Inc(LIfDefCount);
+        if ASourceList[I].TrimLeft.StartsWith('{$IF', True) then
+          LIfDefCount := Max(LIfDefCount - 1, 0);
+        if SameText(ASourceList[I].Replace(' ', ''), 'GlobalUseSkia:=False;') and (LIfDefCount = 0) then
+          ASourceList.Delete(I);
+      end;
+      for I := 0 to ASourceList.Count - 1 do
+      begin
+        if SameText(ASourceList[I].Trim, 'begin') then
+        begin
+          ASourceList.Insert(I + 1, '  GlobalUseSkia := True;');
+          Exit(True);
+        end;
+      end;
+    end;
+
+    // Remove line starting with specific text, if it isn't inside a ifdef
+    function RemoveLineStartingWith(const ASourceList: TStringList; AStartText: string): Boolean;
+    var
+      LIfDefCount: Integer;
+      I: Integer;
+    begin
+      Result := False;
+      AStartText := AStartText.Replace(' ', '');
+      LIfDefCount := 0;
+      for I := ASourceList.Count - 1 downto 0 do
+      begin
+        if ASourceList[I].ToUpper.Contains('{$END') then
+          Inc(LIfDefCount);
+        if ASourceList[I].TrimLeft.StartsWith('{$IF', True) then
+          LIfDefCount := Max(LIfDefCount - 1, 0);
+        if ASourceList[I].Replace(' ', '').StartsWith(AStartText) then
+        begin
+          if LIfDefCount = 0 then
+          begin
+            ASourceList.Delete(I);
+            Result := True;
+          end
+          else
+            Break;
+        end;
+      end;
+    end;
+
+  var
+    LSourceList: TStringList;
+  begin
+    LSourceList := TStringList.Create;
+    try
+      {$IF CompilerVersion >= 31}
+      LSourceList.TrailingLineBreak := False;
+      {$ENDIF}
+      LSourceList.Text := ASource;
+      if AEnabled then
+      begin
+        Result := AddSkiaFMXUnit(LSourceList);
+        Result := AddGlobalUseSkia(LSourceList) or Result;
+      end
+      else
+      begin
+        Result := RemoveLineStartingWith(LSourceList, '  Skia.FMX,');
+        Result := RemoveLineStartingWith(LSourceList, '  GlobalUseSkia :=') or Result;
+        Result := RemoveLineStartingWith(LSourceList, '  GlobalUseSkiaRasterWhenAvailable :=') or Result;
+      end;
+      if Result then
+      begin
+        ASource := LSourceList.Text;
+        {$IF CompilerVersion < 31}
+        ASource := ASource.TrimRight;
+        {$ENDIF}
+      end;
+    finally
+      LSourceList.Free;
+    end;
+  end;
+
+  function GetEditorString(const ASourceEditor: IOTASourceEditor70; out AValue: string): Boolean;
+  const
+    BufferSize: Integer = 1024;
+  var
+    LReader: IOTAEditReader;
+    LReadCount: Integer;
+    LPosition: Integer;
+    LBuffer: AnsiString;
+  begin
+    LReader := ASourceEditor.CreateReader;
+    Result := Assigned(LReader);
+    if Result then
+    begin
+      AValue := '';
+      LPosition := 0;
+      repeat
+        SetLength(LBuffer, BufferSize);
+        LReadCount := LReader.GetText(LPosition, PAnsiChar(LBuffer), BufferSize);
+        SetLength(LBuffer, LReadCount);
+        AValue := AValue + string(LBuffer);
+        Inc(LPosition, LReadCount);
+      until LReadCount < BufferSize;
+    end;
+  end;
+
+  procedure SetEditorString(const ASourceEditor: IOTASourceEditor70; const AValue: string);
+  var
+    LEditorWriter: IOTAEditWriter;
+  begin
+    LEditorWriter := ASourceEditor.CreateUndoableWriter;
+    if Assigned(LEditorWriter) then
+    begin
+      LEditorWriter.CopyTo(0);
+      LEditorWriter.DeleteTo(MaxInt);
+      LEditorWriter.Insert(PAnsiChar(AnsiString(AValue)));
+      ASourceEditor.MarkModified;
+    end;
+  end;
+
+  procedure ChangeSource(const AProject: IOTAProject; const AEnabled: Boolean);
+  var
+    LSourceEditor: IOTASourceEditor70;
+    LSourceText: string;
+    I: Integer;
+  begin
+    if AProject.FrameworkType = sFrameworkTypeFMX then
+    begin
+      for I := 0 to AProject.GetModuleFileCount - 1 do
+      begin
+        if Supports(AProject.ModuleFileEditors[I], IOTASourceEditor70, LSourceEditor) and
+          GetEditorString(LSourceEditor, LSourceText) then
+        begin
+          if (AProject.Personality = sDelphiPersonality) and ApplyDelphiSourceChange(LSourceText, AEnabled) then
+            SetEditorString(LSourceEditor, LSourceText);
+        end;
+      end;
+    end;
+  end;
+
 var
   LPlatform: TSkProjectPlatform;
   LConfig: TSkProjectConfig;
@@ -769,10 +955,18 @@ begin
   // Remove remaing files from old versions
   if not AEnabled then
     TSkProjectHelper.RemoveDeployFilesOfClass(AProject);
+
   TSkProjectHelper.IsSkiaDefined[AProject] := AEnabled;
   LProjectOptions := AProject.ProjectOptions;
   if Assigned(LProjectOptions) then
     LProjectOptions.ModifiedState := True;
+  ChangeSource(AProject, AEnabled);
+
+  {$IF CompilerVersion >= 35}
+  var LProjectBuilder := AProject.ProjectBuilder;
+  if Assigned(LProjectBuilder) then
+    LProjectBuilder.BuildProject(TOTACompileMode.cmOTAClean, False, True);
+  {$ENDIF}
 end;
 
 { TSkCompileNotifier }

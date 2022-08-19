@@ -22,7 +22,7 @@ uses
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.ExtCtrls, Vcl.Dialogs,
 
   { Skia }
-  Skia.Vcl;
+  Skia, Skia.Vcl;
 
 type
   { TScrollBox }

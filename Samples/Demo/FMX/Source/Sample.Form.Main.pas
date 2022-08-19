@@ -21,7 +21,7 @@ uses
   FMX.Forms, FMX.Layouts, FMX.StdCtrls, FMX.Objects, FMX.Controls.Presentation,
 
   { Skia }
-  Skia.FMX,
+  Skia, Skia.FMX,
 
   { Sample }
   {$IF CompilerVersion < 30}

@@ -14,7 +14,9 @@ uses
 {$R *.res}
 
 begin
+  {$IFDEF MACOS}
   GlobalUseMetal := True;
+  {$ENDIF}
   GlobalUseSkia := True;
   GlobalUseSkiaRasterWhenAvailable := False;
   Application.Initialize;

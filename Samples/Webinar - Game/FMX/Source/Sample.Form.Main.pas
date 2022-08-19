@@ -1,3 +1,16 @@
+{************************************************************************}
+{                                                                        }
+{                              Skia4Delphi                               }
+{                                                                        }
+{ Copyright (c) 2011-2022 Google LLC.                                    }
+{ Copyright (c) 2021-2022 Skia4Delphi Project.                           }
+{                                                                        }
+{ Use of this source code is governed by a BSD-style license that can be }
+{ found in the LICENSE file.                                             }
+{                                                                        }
+{************************************************************************}
+unit Sample.Form.Main;
+
 // Bricks Game ported from https://www.shadertoy.com/view/MddGzf
 // Rules:
 //   - Use arrow keys or tap to move the paddle.
@@ -19,7 +32,6 @@
 //   both shaders only on the GPU.
 // Demo video:
 //   https://www.youtube.com/watch?v=2LaNI3BaOMc
-unit Sample.Form.Main;
 
 interface
 
@@ -33,6 +45,8 @@ uses
   Skia, Skia.FMX;
 
 type
+  { TfrmMain }
+
   TfrmMain = class(TForm)
     SkAnimatedPaintBox1: TSkAnimatedPaintBox;
     procedure FormCreate(Sender: TObject);
