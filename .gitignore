@@ -50,6 +50,7 @@ modules/
 *.log
 *.bak
 *.nupkg
+dunitx-results.xml
 /Benchmark/**/Binary/
 */Logs/*
 *.Logs.txt

@@ -21,7 +21,7 @@ uses
   FMX.Types, FMX.Controls.Presentation,
 
   { Skia }
-  Skia.FMX,
+  Skia, Skia.FMX,
 
   { Sample }
   Sample.Form.Base;

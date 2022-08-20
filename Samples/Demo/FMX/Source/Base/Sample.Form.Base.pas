@@ -26,7 +26,7 @@ uses
   FMX.ListBox, FMX.Controls.Presentation,
 
   { Skia }
-  Skia.FMX;
+  Skia, Skia.FMX;
 
 type
   { TScrollBox }

@@ -134,10 +134,9 @@ type
   { TSkSvgBrush }
 
   TSkSvgBrush = class(TPersistent)
-  strict private
-    const
-      DefaultGrayScale = False;
-      DefaultWrapMode = TSkSvgWrapMode.Fit;
+  strict private const
+    DefaultGrayScale = False;
+    DefaultWrapMode = TSkSvgWrapMode.Fit;
   strict private
     FDOM: ISkSVGDOM;
     FGrayScale: Boolean;
@@ -956,9 +955,8 @@ type
   { TSkDefaultAnimationCodec }
 
   TSkDefaultAnimationCodec = class(TSkAnimatedImage.TAnimationCodec)
-  strict private
-    type
-      TImageFormat = (GIF, WebP);
+  strict private type
+    TImageFormat = (GIF, WebP);
   strict private
     FAnimationCodec: ISkAnimationCodecPlayer;
     FStream: TStream;
@@ -980,9 +978,8 @@ type
   { TSkLottieAnimationCodec }
 
   TSkLottieAnimationCodec = class(TSkAnimatedImage.TAnimationCodec)
-  strict private
-    type
-      TAnimationFormat = (Lottie, TGS);
+  strict private type
+    TAnimationFormat = (Lottie, TGS);
   strict private
     FSkottie: ISkottieAnimation;
   strict protected
@@ -1157,6 +1154,7 @@ procedure TSkBitmapHelper.SkiaDraw(const AProc: TSkDrawProc; const AStartClean: 
 var
   LPixmap: ISkPixmap;
   LSurface: ISkSurface;
+  LStride: Integer;
 begin
   Assert(Assigned(AProc));
   if Empty then
@@ -1166,14 +1164,15 @@ begin
     PixelFormat := TPixelFormat.pf32bit;
     AlphaFormat := TAlphaFormat.afPremultiplied;
   end;
+  LStride := BytesPerScanLine(Width, 32, 32);
   LSurface := TSkSurface.MakeRaster(Width, Height);
   LPixmap  := LSurface.PeekPixels;
   if AStartClean then
     LSurface.Canvas.Clear(TAlphaColors.Null)
   else
-    FlipPixels(Width, Height, ScanLine[Height - 1], BytesPerScanLine(Width, 32, 32), LPixmap.Pixels, LPixmap.RowBytes);
+    FlipPixels(Width, Height, ScanLine[Height - 1], LStride, LPixmap.Pixels, LPixmap.RowBytes);
   AProc(LSurface.Canvas);
-  FlipPixels(Width, Height, LPixmap.Pixels, LPixmap.RowBytes, ScanLine[Height - 1], BytesPerScanLine(Width, 32, 32));
+  FlipPixels(Width, Height, LPixmap.Pixels, LPixmap.RowBytes, ScanLine[Height - 1], LStride);
 end;
 
 function TSkBitmapHelper.ToSkImage: ISkImage;
@@ -1191,7 +1190,7 @@ begin
   LStride := BytesPerScanLine(Width, 32, 32);
   GetMem(LPixels, LStride * Height);
   try
-    FlipPixels(Width, Height, ScanLine[Height - 1], BytesPerScanLine(Width, 32, 32), LPixels, LStride);
+    FlipPixels(Width, Height, ScanLine[Height - 1], LStride, LPixels, LStride);
     Result := TSkImage.MakeFromRaster(TSkImageInfo.Create(Width, Height), LPixels, LStride);
   finally
     FreeMem(LPixels);
@@ -3118,10 +3117,10 @@ var
 begin
   Result := (AObject is TSkFontComponent) and
     (FFamilies = LFont.Families) and
-    (FSize     = LFont.Size) and
     (FSlant    = LFont.Slant) and
     (FStretch  = LFont.Stretch) and
-    (FWeight   = LFont.Weight);
+    (FWeight   = LFont.Weight) and
+    SameValue(FSize, LFont.Size, TEpsilon.FontSize);
 end;
 
 function TSkFontComponent.IsFamiliesStored: Boolean;
@@ -3161,7 +3160,7 @@ end;
 
 procedure TSkFontComponent.SetSize(const AValue: Single);
 begin
-  SetValue(FSize, AValue);
+  SetValue(FSize, AValue, TEpsilon.FontSize);
 end;
 
 procedure TSkFontComponent.SetSlant(const AValue: TSkFontSlant);
@@ -4275,7 +4274,7 @@ begin
       ACanvas.SaveLayerAlpha(Round(AOpacity * 255));
     try
       ACanvas.ClipRect(ADest);
-      ACanvas.Translate(Round(ADest.Left), Round(LPositionY));
+      ACanvas.Translate(ADest.Left, LPositionY);
       if FHasCustomBackground then
       begin
         if FBackgroundPicture = nil then
@@ -4811,9 +4810,15 @@ const
   SupportedFormats = [TSkEncodedImageFormat.WEBP, TSkEncodedImageFormat.WBMP, TSkEncodedImageFormat.DNG];
 var
   LCodec: ISkCodec;
+  LSavedPosition: Int64;
 begin
-  LCodec := TSkCodec.MakeFromStream(AStream);
-  Result := Assigned(LCodec) and (LCodec.EncodedImageFormat in SupportedFormats);
+  LSavedPosition := AStream.Position;
+  try
+    LCodec := TSkCodec.MakeFromStream(AStream);
+    Result := Assigned(LCodec) and (LCodec.EncodedImageFormat in SupportedFormats);
+  finally
+    AStream.Position := LSavedPosition;
+  end;
 end;
 {$ENDIF}
 

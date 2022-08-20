@@ -1,6 +1,18 @@
+{************************************************************************}
+{                                                                        }
+{                              Skia4Delphi                               }
+{                                                                        }
+{ Copyright (c) 2011-2022 Google LLC.                                    }
+{ Copyright (c) 2021-2022 Skia4Delphi Project.                           }
+{                                                                        }
+{ Use of this source code is governed by a BSD-style license that can be }
+{ found in the LICENSE file.                                             }
+{                                                                        }
+{************************************************************************}
+unit Sample.QRCode.Render;
+
 // This example only focuses on QR code rendering and not encoding. There are several examples on the internet
 // of how to encode a QR code, for example: https://github.com/foxitsoftware/DelphiZXingQRCode
-unit Sample.QRCode.Render;
 
 interface
 
@@ -80,11 +92,11 @@ function TQRCodeRoundedRender.AsPath: ISkPath;
   begin
     APathBuilder.FillType := TSkPathFillType.EvenOdd;
     LRect := TRectF.Create(PointF(AColumn * FModuleSize, ARow * FModuleSize), PositionModulesCount * FModuleSize, PositionModulesCount * FModuleSize);
-    APathBuilder.AddRoundRect(TSkRoundRect.Create(LRect.Round, LRect.Width * RadiusProportion, LRect.Height * RadiusProportion));
+    APathBuilder.AddRoundRect(TSkRoundRect.Create(TRectF.Create(LRect.Round), LRect.Width * RadiusProportion, LRect.Height * RadiusProportion));
     LRect.Inflate(-FModuleSize, -FModuleSize);
-    APathBuilder.AddRoundRect(TSkRoundRect.Create(LRect.Round, LRect.Width * RadiusProportion, LRect.Height * RadiusProportion));
+    APathBuilder.AddRoundRect(TSkRoundRect.Create(TRectF.Create(LRect.Round), LRect.Width * RadiusProportion, LRect.Height * RadiusProportion));
     LRect.Inflate(-FModuleSize, -FModuleSize);
-    APathBuilder.AddRoundRect(TSkRoundRect.Create(LRect.Round, LRect.Width * RadiusProportion, LRect.Height * RadiusProportion));
+    APathBuilder.AddRoundRect(TSkRoundRect.Create(TRectF.Create(LRect.Round), LRect.Width * RadiusProportion, LRect.Height * RadiusProportion));
   end;
 
   procedure AddModuleRoundedDark(const APathBuilder: ISkPathBuilder; const ALeft, ATop, ARight, ABottom: Integer; const ARadius: Single; const NW, NE, SE, SW: Boolean);

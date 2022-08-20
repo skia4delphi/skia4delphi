@@ -1,3 +1,14 @@
+{************************************************************************}
+{                                                                        }
+{                              Skia4Delphi                               }
+{                                                                        }
+{ Copyright (c) 2011-2022 Google LLC.                                    }
+{ Copyright (c) 2021-2022 Skia4Delphi Project.                           }
+{                                                                        }
+{ Use of this source code is governed by a BSD-style license that can be }
+{ found in the LICENSE file.                                             }
+{                                                                        }
+{************************************************************************}
 unit Sample.Form.QRCode.Render;
 
 interface
@@ -6,10 +17,10 @@ uses
   { Delphi }
   System.SysUtils, System.Types, System.UITypes, System.Classes, System.Math,
   FMX.Types, FMX.Controls, FMX.Forms, FMX.Graphics, FMX.Dialogs,
-  FMX.Controls.Presentation, FMX.StdCtrls, FMX.Objects,
+  FMX.Controls.Presentation, FMX.StdCtrls, FMX.Objects, FMX.Layouts,
 
   { Skia }
-  Skia, Skia.FMX, FMX.Layouts;
+  Skia, Skia.FMX;
 
 type
   { TfrmQRCodeRender }
