@@ -3738,7 +3738,13 @@ end;
 class function TSkStreamAdapter.read_proc(context, buffer: Pointer;
   size: size_t): size_t;
 begin
-  Result := TStream(context).Read(buffer^, size);
+  if buffer <> nil then
+    Result := TStream(context).Read(buffer^, size)
+  else
+  begin
+    Result := Min(size, TStream(context).Size - TStream(context).Position);
+    TStream(context).Position := TStream(context).Position + Result;
+  end;
 end;
 
 class function TSkStreamAdapter.seek_proc(context: Pointer;

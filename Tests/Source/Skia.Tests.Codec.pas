@@ -53,7 +53,55 @@ type
     [TestCase('SkCodec WBMP (mandrill.wbmp)',         'mandrill.wbmp,2160350774')]
     [TestCase('SkCodec WebP (kung-fu-panda.webp)',    'kung-fu-panda.webp,78640289')]
     [TestCase('SkCodec WebP Animated (rocket.webp)',  'rocket.webp,2031700395')]
-    procedure TestDecode(const AImageFileName: string; const AExpectedPixmapCRC32: Cardinal);
+    procedure TestDecodeFile(const AImageFileName: string; const AExpectedPixmapCRC32: Cardinal);
+    [TestCase('SkCodec BMP (girl.bmp)',               'girl.bmp,1736216929')]
+    [TestCase('SkCodec DNG (park.dng)',               'park.dng,1955671176')]
+    [TestCase('SkCodec GIF Animated (animated.gif)',  'animated.gif,2005275412')]
+    [TestCase('SkCodec GIF Animated (developer.gif)', 'developer.gif,2166160918')]
+    [TestCase('SkCodec ICO (delphi.ico)',             'delphi.ico,2952345114')]
+    [TestCase('SkCodec JPEG (shrek.jpg)',             'shrek.jpg,1173490088')]
+    [TestCase('SkCodec PNG (elephant.png)',           'elephant.png,529596050')]
+    [TestCase('SkCodec PNG (kung-fu-panda)',          'kung-fu-panda.png,3960679947')]
+    [TestCase('SkCodec PNG (emoji1.png)',             'emoji1.png,875861993')]
+    [TestCase('SkCodec PNG (emoji2.png)',             'emoji2.png,3865023965')]
+    [TestCase('SkCodec PNG (world-time-zone.png)',    'world-time-zone.png,2305552899')]
+    [TestCase('SkCodec PNG Animated (animated.png)',  'animated.png,502650454')]
+    [TestCase('SkCodec WBMP (mandrill.wbmp)',         'mandrill.wbmp,2160350774')]
+    [TestCase('SkCodec WebP (kung-fu-panda.webp)',    'kung-fu-panda.webp,78640289')]
+    [TestCase('SkCodec WebP Animated (rocket.webp)',  'rocket.webp,2031700395')]
+    procedure TestDecodeStream(const AImageFileName: string; const AExpectedPixmapCRC32: Cardinal);
+    [TestCase('SkCodec BMP (girl.bmp)',               'girl.bmp,1736216929')]
+    [TestCase('SkCodec DNG (park.dng)',               'park.dng,1955671176')]
+    [TestCase('SkCodec GIF Animated (animated.gif)',  'animated.gif,2005275412')]
+    [TestCase('SkCodec GIF Animated (developer.gif)', 'developer.gif,2166160918')]
+    [TestCase('SkCodec ICO (delphi.ico)',             'delphi.ico,2952345114')]
+    [TestCase('SkCodec JPEG (shrek.jpg)',             'shrek.jpg,1173490088')]
+    [TestCase('SkCodec PNG (elephant.png)',           'elephant.png,529596050')]
+    [TestCase('SkCodec PNG (kung-fu-panda)',          'kung-fu-panda.png,3960679947')]
+    [TestCase('SkCodec PNG (emoji1.png)',             'emoji1.png,875861993')]
+    [TestCase('SkCodec PNG (emoji2.png)',             'emoji2.png,3865023965')]
+    [TestCase('SkCodec PNG (world-time-zone.png)',    'world-time-zone.png,2305552899')]
+    [TestCase('SkCodec PNG Animated (animated.png)',  'animated.png,502650454')]
+    [TestCase('SkCodec WBMP (mandrill.wbmp)',         'mandrill.wbmp,2160350774')]
+    [TestCase('SkCodec WebP (kung-fu-panda.webp)',    'kung-fu-panda.webp,78640289')]
+    [TestCase('SkCodec WebP Animated (rocket.webp)',  'rocket.webp,2031700395')]
+    procedure TestDecodeWithCopy(const AImageFileName: string; const AExpectedPixmapCRC32: Cardinal);
+    [TestCase('SkCodec BMP (girl.bmp)',               'girl.bmp,1736216929')]
+    [TestCase('SkCodec DNG (park.dng)',               'park.dng,1955671176')]
+    [TestCase('SkCodec GIF Animated (animated.gif)',  'animated.gif,2005275412')]
+    [TestCase('SkCodec GIF Animated (developer.gif)', 'developer.gif,2166160918')]
+    [TestCase('SkCodec ICO (delphi.ico)',             'delphi.ico,2952345114')]
+    [TestCase('SkCodec JPEG (shrek.jpg)',             'shrek.jpg,1173490088')]
+    [TestCase('SkCodec PNG (elephant.png)',           'elephant.png,529596050')]
+    [TestCase('SkCodec PNG (kung-fu-panda)',          'kung-fu-panda.png,3960679947')]
+    [TestCase('SkCodec PNG (emoji1.png)',             'emoji1.png,875861993')]
+    [TestCase('SkCodec PNG (emoji2.png)',             'emoji2.png,3865023965')]
+    [TestCase('SkCodec PNG (world-time-zone.png)',    'world-time-zone.png,2305552899')]
+    [TestCase('SkCodec PNG Animated (animated.png)',  'animated.png,502650454')]
+    [TestCase('SkCodec WBMP (mandrill.wbmp)',         'mandrill.wbmp,2160350774')]
+    [TestCase('SkCodec WebP (kung-fu-panda.webp)',    'kung-fu-panda.webp,78640289')]
+    [TestCase('SkCodec WebP Animated (rocket.webp)',  'rocket.webp,2031700395')]
+    procedure TestDecodeWithoutCopy(const AImageFileName: string; const AExpectedPixmapCRC32: Cardinal);
   end;
 
   { TSkImageCodecTests }
@@ -125,7 +173,45 @@ end;
 
 { TSkCodecTests }
 
-procedure TSkCodecTests.TestDecode(const AImageFileName: string;
+procedure TSkCodecTests.TestDecodeFile(const AImageFileName: string;
+  const AExpectedPixmapCRC32: Cardinal);
+var
+  LCodec: ISkCodec;
+begin
+  LCodec := TSkCodec.MakeFromFile(AssetsPath + AImageFileName);
+  Assert.AreEqualCRC32(AExpectedPixmapCRC32, LCodec);
+end;
+
+procedure TSkCodecTests.TestDecodeStream(const AImageFileName: string;
+  const AExpectedPixmapCRC32: Cardinal);
+var
+  LCodec: ISkCodec;
+  LStream: TMemoryStream;
+begin
+  LStream := TMemoryStream.Create;
+  try
+    LStream.LoadFromFile(AssetsPath + AImageFileName);
+    LCodec := TSkCodec.MakeFromStream(LStream);
+    Assert.AreEqualCRC32(AExpectedPixmapCRC32, LCodec);
+  finally
+    LStream.Free;
+  end;
+end;
+
+procedure TSkCodecTests.TestDecodeWithCopy(const AImageFileName: string;
+  const AExpectedPixmapCRC32: Cardinal);
+var
+  LCodec: ISkCodec;
+  LEncodedBytes: TBytes;
+begin
+  LEncodedBytes := TFile.ReadAllBytes(AssetsPath + AImageFileName);
+  LCodec := TSkCodec.MakeWithCopy(LEncodedBytes, Length(LEncodedBytes));
+  if LEncodedBytes <> nil then
+    LEncodedBytes[0] := LEncodedBytes[0] xor $FF;
+  Assert.AreEqualCRC32(AExpectedPixmapCRC32, LCodec);
+end;
+
+procedure TSkCodecTests.TestDecodeWithoutCopy(const AImageFileName: string;
   const AExpectedPixmapCRC32: Cardinal);
 var
   LCodec: ISkCodec;
