@@ -3742,8 +3742,8 @@ begin
     Result := TStream(context).Read(buffer^, size)
   else
   begin
-    Result := Min(size, TStream(context).Size - TStream(context).Position);
-    TStream(context).Position := TStream(context).Position + Result;
+    Result := Min(Int64(size), TStream(context).Size - TStream(context).Position);
+    TStream(context).Position := TStream(context).Position + Int64(Result);
   end;
 end;
 
