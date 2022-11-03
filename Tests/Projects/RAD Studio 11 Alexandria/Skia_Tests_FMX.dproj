@@ -14,8 +14,8 @@
         <MainSource>Skia_Tests_FMX.dpr</MainSource>
         <Platform Condition="'$(Platform)'==''">Win32</Platform>
         <ProjectGuid>{653AD4A9-8CF0-4FA4-95F3-727312D2DDDB}</ProjectGuid>
-        <ProjectVersion>19.3</ProjectVersion>
-        <TargetedPlatforms>168979</TargetedPlatforms>
+        <ProjectVersion>19.5</ProjectVersion>
+        <TargetedPlatforms>693267</TargetedPlatforms>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Config)'=='Base' or '$(Base)'!=''">
         <Base>true</Base>
@@ -52,6 +52,11 @@
     </PropertyGroup>
     <PropertyGroup Condition="('$(Platform)'=='iOSDevice64' and '$(Base)'=='true') or '$(Base_iOSDevice64)'!=''">
         <Base_iOSDevice64>true</Base_iOSDevice64>
+        <CfgParent>Base</CfgParent>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="('$(Platform)'=='iOSSimARM64' and '$(Base)'=='true') or '$(Base_iOSSimARM64)'!=''">
+        <Base_iOSSimARM64>true</Base_iOSSimARM64>
         <CfgParent>Base</CfgParent>
         <Base>true</Base>
     </PropertyGroup>
@@ -127,6 +132,12 @@
     </PropertyGroup>
     <PropertyGroup Condition="('$(Platform)'=='iOSDevice64' and '$(Cfg_2)'=='true') or '$(Cfg_2_iOSDevice64)'!=''">
         <Cfg_2_iOSDevice64>true</Cfg_2_iOSDevice64>
+        <CfgParent>Cfg_2</CfgParent>
+        <Cfg_2>true</Cfg_2>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="('$(Platform)'=='iOSSimARM64' and '$(Cfg_2)'=='true') or '$(Cfg_2_iOSSimARM64)'!=''">
+        <Cfg_2_iOSSimARM64>true</Cfg_2_iOSSimARM64>
         <CfgParent>Cfg_2</CfgParent>
         <Cfg_2>true</Cfg_2>
         <Base>true</Base>
@@ -259,6 +270,32 @@
         <iPhone_Spotlight120>$(BDS)\bin\Artwork\iOS\iPhone\FM_SpotlightSearchIcon_120x120.png</iPhone_Spotlight120>
         <iPhone_Spotlight80>$(BDS)\bin\Artwork\iOS\iPhone\FM_SpotlightSearchIcon_80x80.png</iPhone_Spotlight80>
     </PropertyGroup>
+    <PropertyGroup Condition="'$(Base_iOSSimARM64)'!=''">
+        <DCC_UsePackage>fmx;DbxCommonDriver;bindengine;IndyIPCommon;emsclient;FireDACCommonDriver;Skia.Package.RTL;IndyIPClient;dbxcds;FmxTeeUI;bindcompfmx;ibmonitor;FireDACSqliteDriver;DbxClientDriver;soapmidas;fmxFireDAC;dbexpress;inet;DataSnapCommon;fmxase;dbrtl;FireDACDBXDriver;Skia.Package.FMX;CustomIPTransport;DBXInterBaseDriver;IndySystem;ibxbindings;bindcomp;FireDACCommon;IndyCore;RESTBackendComponents;bindcompdbx;rtl;RESTComponents;DBXSqliteDriver;IndyIPServer;dsnapxml;DataSnapClient;DataSnapProviderClient;DataSnapFireDAC;emsclientfiredac;FireDAC;FireDACDSDriver;xmlrtl;tethering;ibxpress;dsnap;CloudService;DataSnapNativeClient;FMXTee;soaprtl;soapserver;FireDACIBDriver;$(DCC_UsePackage);$(DCC_UsePackage)</DCC_UsePackage>
+        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
+        <VerInfo_Keys>CFBundleName=$(MSBuildProjectName);CFBundleDevelopmentRegion=en;CFBundleDisplayName=Skia4Delphi Tests;CFBundleIdentifier=org.skia4delphi.tests.fmx;CFBundleInfoDictionaryVersion=7.1;CFBundleVersion=1.0.0;CFBundleShortVersionString=1.0.0;CFBundlePackageType=APPL;CFBundleSignature=????;LSRequiresIPhoneOS=true;CFBundleAllowMixedLocalizations=YES;CFBundleExecutable=$(MSBuildProjectName);UIDeviceFamily=iPhone &amp; iPad;NSLocationAlwaysUsageDescription=The reason for accessing the location information of the user;NSLocationWhenInUseUsageDescription=The reason for accessing the location information of the user;NSLocationAlwaysAndWhenInUseUsageDescription=The reason for accessing the location information of the user;UIBackgroundModes=;NSContactsUsageDescription=The reason for accessing the contacts;NSPhotoLibraryUsageDescription=The reason for accessing the photo library;NSPhotoLibraryAddUsageDescription=The reason for adding to the photo library;NSCameraUsageDescription=The reason for accessing the camera;NSFaceIDUsageDescription=The reason for accessing the face id;NSMicrophoneUsageDescription=The reason for accessing the microphone;NSSiriUsageDescription=The reason for accessing Siri;ITSAppUsesNonExemptEncryption=false;NSBluetoothAlwaysUsageDescription=The reason for accessing bluetooth;NSBluetoothPeripheralUsageDescription=The reason for accessing bluetooth peripherals;NSCalendarsUsageDescription=The reason for accessing the calendar data;NSRemindersUsageDescription=The reason for accessing the reminders;NSMotionUsageDescription=The reason for accessing the accelerometer;NSSpeechRecognitionUsageDescription=The reason for requesting to send user data to Apple&apos;s speech recognition servers;UIUserInterfaceStyle=UIUserInterfaceStyleLight</VerInfo_Keys>
+        <VerInfo_UIDeviceFamily>iPhoneAndiPad</VerInfo_UIDeviceFamily>
+        <iOS_AppStore1024>$(BDS)\bin\Artwork\iOS\iPhone\FM_ApplicationIcon_1024x1024.png</iOS_AppStore1024>
+        <iPad_AppIcon152>$(BDS)\bin\Artwork\iOS\iPad\FM_ApplicationIcon_152x152.png</iPad_AppIcon152>
+        <iPad_AppIcon167>$(BDS)\bin\Artwork\iOS\iPad\FM_ApplicationIcon_167x167.png</iPad_AppIcon167>
+        <iPad_Launch2x>$(BDS)\bin\Artwork\iOS\iPad\FM_LaunchImage_2x.png</iPad_Launch2x>
+        <iPad_LaunchDark2x>$(BDS)\bin\Artwork\iOS\iPad\FM_LaunchImageDark_2x.png</iPad_LaunchDark2x>
+        <iPad_Notification40>$(BDS)\bin\Artwork\iOS\iPad\FM_NotificationIcon_40x40.png</iPad_Notification40>
+        <iPad_Setting58>$(BDS)\bin\Artwork\iOS\iPad\FM_SettingIcon_58x58.png</iPad_Setting58>
+        <iPad_SpotLight80>$(BDS)\bin\Artwork\iOS\iPad\FM_SpotlightSearchIcon_80x80.png</iPad_SpotLight80>
+        <iPhone_AppIcon120>$(BDS)\bin\Artwork\iOS\iPhone\FM_ApplicationIcon_120x120.png</iPhone_AppIcon120>
+        <iPhone_AppIcon180>$(BDS)\bin\Artwork\iOS\iPhone\FM_ApplicationIcon_180x180.png</iPhone_AppIcon180>
+        <iPhone_Launch2x>$(BDS)\bin\Artwork\iOS\iPhone\FM_LaunchImage_2x.png</iPhone_Launch2x>
+        <iPhone_Launch3x>$(BDS)\bin\Artwork\iOS\iPhone\FM_LaunchImage_3x.png</iPhone_Launch3x>
+        <iPhone_LaunchDark2x>$(BDS)\bin\Artwork\iOS\iPhone\FM_LaunchImageDark_2x.png</iPhone_LaunchDark2x>
+        <iPhone_LaunchDark3x>$(BDS)\bin\Artwork\iOS\iPhone\FM_LaunchImageDark_3x.png</iPhone_LaunchDark3x>
+        <iPhone_Notification40>$(BDS)\bin\Artwork\iOS\iPhone\FM_NotificationIcon_40x40.png</iPhone_Notification40>
+        <iPhone_Notification60>$(BDS)\bin\Artwork\iOS\iPhone\FM_NotificationIcon_60x60.png</iPhone_Notification60>
+        <iPhone_Setting58>$(BDS)\bin\Artwork\iOS\iPhone\FM_SettingIcon_58x58.png</iPhone_Setting58>
+        <iPhone_Setting87>$(BDS)\bin\Artwork\iOS\iPhone\FM_SettingIcon_87x87.png</iPhone_Setting87>
+        <iPhone_Spotlight120>$(BDS)\bin\Artwork\iOS\iPhone\FM_SpotlightSearchIcon_120x120.png</iPhone_Spotlight120>
+        <iPhone_Spotlight80>$(BDS)\bin\Artwork\iOS\iPhone\FM_SpotlightSearchIcon_80x80.png</iPhone_Spotlight80>
+    </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1)'!=''">
         <DCC_DebugDCUs>true</DCC_DebugDCUs>
         <DCC_DebugInfoInExe>true</DCC_DebugInfoInExe>
@@ -319,20 +356,31 @@
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_UIDeviceFamily>iPhoneAndiPad</VerInfo_UIDeviceFamily>
     </PropertyGroup>
+    <PropertyGroup Condition="'$(Cfg_2_iOSSimARM64)'!=''">
+        <Cfg_2>true</Cfg_2>
+        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
+        <VerInfo_UIDeviceFamily>iPhoneAndiPad</VerInfo_UIDeviceFamily>
+    </PropertyGroup>
     <ItemGroup>
         <DelphiCompile Include="$(MainSource)">
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
+        <DCCReference Include="..\..\Source\Skia.Tests.Blender.pas"/>
         <DCCReference Include="..\..\Source\Skia.Tests.Codec.pas"/>
         <DCCReference Include="..\..\Source\Skia.Tests.ColorFilter.pas"/>
         <DCCReference Include="..\..\Source\Skia.Tests.Documents.pas"/>
         <DCCReference Include="..\..\Source\Skia.Tests.Foundation.ImageHash.pas"/>
         <DCCReference Include="..\..\Source\Skia.Tests.Foundation.pas"/>
         <DCCReference Include="..\..\Source\Skia.Tests.Foundation.Runner.pas"/>
+        <DCCReference Include="..\..\Source\Skia.Tests.Image.pas"/>
         <DCCReference Include="..\..\Source\Skia.Tests.Paragraph.pas"/>
         <DCCReference Include="..\..\Source\Skia.Tests.Path.pas"/>
+        <DCCReference Include="..\..\Source\Skia.Tests.Picture.pas"/>
+        <DCCReference Include="..\..\Source\Skia.Tests.Region.pas"/>
+        <DCCReference Include="..\..\Source\Skia.Tests.RoundRect.pas"/>
         <DCCReference Include="..\..\Source\Skia.Tests.RuntimeEffect.pas"/>
         <DCCReference Include="..\..\Source\Skia.Tests.Skottie.pas"/>
+        <DCCReference Include="..\..\Source\Skia.Tests.Surface.pas"/>
         <DCCReference Include="..\..\Source\Skia.Tests.Svg.pas"/>
         <DCCReference Include="..\..\Source\Skia.Tests.Unicode.pas"/>
         <DCCReference Include="..\..\Source\FMX\Skia.Tests.FMX.Runner.pas">
@@ -364,645 +412,8 @@
                 </Source>
                 <Excluded_Packages/>
             </Delphi.Personality>
-            <Deployment Version="3">
-                <DeployFile LocalName="$(BDS)\bin\Artwork\Android\FM_LauncherIcon_144x144.png" Configuration="Debug" Class="Android_LauncherIcon144">
-                    <Platform Name="Android">
-                        <RemoteName>ic_launcher.png</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="$(BDS)\bin\Artwork\Android\FM_LauncherIcon_144x144.png" Configuration="Debug" Class="Android_LauncherIcon144">
-                    <Platform Name="Android64">
-                        <RemoteName>ic_launcher.png</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="$(BDS)\bin\Artwork\Android\FM_LauncherIcon_144x144.png" Configuration="Release" Class="Android_LauncherIcon144">
-                    <Platform Name="Android">
-                        <RemoteName>ic_launcher.png</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="$(BDS)\bin\Artwork\Android\FM_LauncherIcon_144x144.png" Configuration="Release" Class="Android_LauncherIcon144">
-                    <Platform Name="Android64">
-                        <RemoteName>ic_launcher.png</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="$(BDS)\bin\Artwork\Android\FM_LauncherIcon_192x192.png" Configuration="Debug" Class="Android_LauncherIcon192">
-                    <Platform Name="Android">
-                        <RemoteName>ic_launcher.png</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="$(BDS)\bin\Artwork\Android\FM_LauncherIcon_192x192.png" Configuration="Debug" Class="Android_LauncherIcon192">
-                    <Platform Name="Android64">
-                        <RemoteName>ic_launcher.png</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="$(BDS)\bin\Artwork\Android\FM_LauncherIcon_192x192.png" Configuration="Release" Class="Android_LauncherIcon192">
-                    <Platform Name="Android">
-                        <RemoteName>ic_launcher.png</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="$(BDS)\bin\Artwork\Android\FM_LauncherIcon_192x192.png" Configuration="Release" Class="Android_LauncherIcon192">
-                    <Platform Name="Android64">
-                        <RemoteName>ic_launcher.png</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="$(BDS)\bin\Artwork\Android\FM_LauncherIcon_36x36.png" Configuration="Debug" Class="Android_LauncherIcon36">
-                    <Platform Name="Android">
-                        <RemoteName>ic_launcher.png</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="$(BDS)\bin\Artwork\Android\FM_LauncherIcon_36x36.png" Configuration="Debug" Class="Android_LauncherIcon36">
-                    <Platform Name="Android64">
-                        <RemoteName>ic_launcher.png</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="$(BDS)\bin\Artwork\Android\FM_LauncherIcon_36x36.png" Configuration="Release" Class="Android_LauncherIcon36">
-                    <Platform Name="Android">
-                        <RemoteName>ic_launcher.png</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="$(BDS)\bin\Artwork\Android\FM_LauncherIcon_36x36.png" Configuration="Release" Class="Android_LauncherIcon36">
-                    <Platform Name="Android64">
-                        <RemoteName>ic_launcher.png</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="$(BDS)\bin\Artwork\Android\FM_LauncherIcon_48x48.png" Configuration="Debug" Class="Android_LauncherIcon48">
-                    <Platform Name="Android">
-                        <RemoteName>ic_launcher.png</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="$(BDS)\bin\Artwork\Android\FM_LauncherIcon_48x48.png" Configuration="Debug" Class="Android_LauncherIcon48">
-                    <Platform Name="Android64">
-                        <RemoteName>ic_launcher.png</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="$(BDS)\bin\Artwork\Android\FM_LauncherIcon_48x48.png" Configuration="Release" Class="Android_LauncherIcon48">
-                    <Platform Name="Android">
-                        <RemoteName>ic_launcher.png</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="$(BDS)\bin\Artwork\Android\FM_LauncherIcon_48x48.png" Configuration="Release" Class="Android_LauncherIcon48">
-                    <Platform Name="Android64">
-                        <RemoteName>ic_launcher.png</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="$(BDS)\bin\Artwork\Android\FM_LauncherIcon_72x72.png" Configuration="Debug" Class="Android_LauncherIcon72">
-                    <Platform Name="Android">
-                        <RemoteName>ic_launcher.png</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="$(BDS)\bin\Artwork\Android\FM_LauncherIcon_72x72.png" Configuration="Debug" Class="Android_LauncherIcon72">
-                    <Platform Name="Android64">
-                        <RemoteName>ic_launcher.png</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="$(BDS)\bin\Artwork\Android\FM_LauncherIcon_72x72.png" Configuration="Release" Class="Android_LauncherIcon72">
-                    <Platform Name="Android">
-                        <RemoteName>ic_launcher.png</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="$(BDS)\bin\Artwork\Android\FM_LauncherIcon_72x72.png" Configuration="Release" Class="Android_LauncherIcon72">
-                    <Platform Name="Android64">
-                        <RemoteName>ic_launcher.png</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="$(BDS)\bin\Artwork\Android\FM_LauncherIcon_96x96.png" Configuration="Debug" Class="Android_LauncherIcon96">
-                    <Platform Name="Android">
-                        <RemoteName>ic_launcher.png</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="$(BDS)\bin\Artwork\Android\FM_LauncherIcon_96x96.png" Configuration="Debug" Class="Android_LauncherIcon96">
-                    <Platform Name="Android64">
-                        <RemoteName>ic_launcher.png</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="$(BDS)\bin\Artwork\Android\FM_LauncherIcon_96x96.png" Configuration="Release" Class="Android_LauncherIcon96">
-                    <Platform Name="Android">
-                        <RemoteName>ic_launcher.png</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="$(BDS)\bin\Artwork\Android\FM_LauncherIcon_96x96.png" Configuration="Release" Class="Android_LauncherIcon96">
-                    <Platform Name="Android64">
-                        <RemoteName>ic_launcher.png</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="$(BDS)\bin\Artwork\Android\FM_NotificationIcon_24x24.png" Configuration="Debug" Class="Android_NotificationIcon24">
-                    <Platform Name="Android">
-                        <RemoteName>ic_notification.png</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="$(BDS)\bin\Artwork\Android\FM_NotificationIcon_24x24.png" Configuration="Debug" Class="Android_NotificationIcon24">
-                    <Platform Name="Android64">
-                        <RemoteName>ic_notification.png</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="$(BDS)\bin\Artwork\Android\FM_NotificationIcon_24x24.png" Configuration="Release" Class="Android_NotificationIcon24">
-                    <Platform Name="Android">
-                        <RemoteName>ic_notification.png</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="$(BDS)\bin\Artwork\Android\FM_NotificationIcon_24x24.png" Configuration="Release" Class="Android_NotificationIcon24">
-                    <Platform Name="Android64">
-                        <RemoteName>ic_notification.png</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="$(BDS)\bin\Artwork\Android\FM_NotificationIcon_36x36.png" Configuration="Debug" Class="Android_NotificationIcon36">
-                    <Platform Name="Android">
-                        <RemoteName>ic_notification.png</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="$(BDS)\bin\Artwork\Android\FM_NotificationIcon_36x36.png" Configuration="Debug" Class="Android_NotificationIcon36">
-                    <Platform Name="Android64">
-                        <RemoteName>ic_notification.png</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="$(BDS)\bin\Artwork\Android\FM_NotificationIcon_36x36.png" Configuration="Release" Class="Android_NotificationIcon36">
-                    <Platform Name="Android">
-                        <RemoteName>ic_notification.png</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="$(BDS)\bin\Artwork\Android\FM_NotificationIcon_36x36.png" Configuration="Release" Class="Android_NotificationIcon36">
-                    <Platform Name="Android64">
-                        <RemoteName>ic_notification.png</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="$(BDS)\bin\Artwork\Android\FM_NotificationIcon_48x48.png" Configuration="Debug" Class="Android_NotificationIcon48">
-                    <Platform Name="Android">
-                        <RemoteName>ic_notification.png</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="$(BDS)\bin\Artwork\Android\FM_NotificationIcon_48x48.png" Configuration="Debug" Class="Android_NotificationIcon48">
-                    <Platform Name="Android64">
-                        <RemoteName>ic_notification.png</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="$(BDS)\bin\Artwork\Android\FM_NotificationIcon_48x48.png" Configuration="Release" Class="Android_NotificationIcon48">
-                    <Platform Name="Android">
-                        <RemoteName>ic_notification.png</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="$(BDS)\bin\Artwork\Android\FM_NotificationIcon_48x48.png" Configuration="Release" Class="Android_NotificationIcon48">
-                    <Platform Name="Android64">
-                        <RemoteName>ic_notification.png</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="$(BDS)\bin\Artwork\Android\FM_NotificationIcon_72x72.png" Configuration="Debug" Class="Android_NotificationIcon72">
-                    <Platform Name="Android">
-                        <RemoteName>ic_notification.png</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="$(BDS)\bin\Artwork\Android\FM_NotificationIcon_72x72.png" Configuration="Debug" Class="Android_NotificationIcon72">
-                    <Platform Name="Android64">
-                        <RemoteName>ic_notification.png</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="$(BDS)\bin\Artwork\Android\FM_NotificationIcon_72x72.png" Configuration="Release" Class="Android_NotificationIcon72">
-                    <Platform Name="Android">
-                        <RemoteName>ic_notification.png</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="$(BDS)\bin\Artwork\Android\FM_NotificationIcon_72x72.png" Configuration="Release" Class="Android_NotificationIcon72">
-                    <Platform Name="Android64">
-                        <RemoteName>ic_notification.png</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="$(BDS)\bin\Artwork\Android\FM_NotificationIcon_96x96.png" Configuration="Debug" Class="Android_NotificationIcon96">
-                    <Platform Name="Android">
-                        <RemoteName>ic_notification.png</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="$(BDS)\bin\Artwork\Android\FM_NotificationIcon_96x96.png" Configuration="Debug" Class="Android_NotificationIcon96">
-                    <Platform Name="Android64">
-                        <RemoteName>ic_notification.png</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="$(BDS)\bin\Artwork\Android\FM_NotificationIcon_96x96.png" Configuration="Release" Class="Android_NotificationIcon96">
-                    <Platform Name="Android">
-                        <RemoteName>ic_notification.png</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="$(BDS)\bin\Artwork\Android\FM_NotificationIcon_96x96.png" Configuration="Release" Class="Android_NotificationIcon96">
-                    <Platform Name="Android64">
-                        <RemoteName>ic_notification.png</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="$(BDS)\bin\Artwork\Android\FM_SplashImage_426x320.png" Configuration="Debug" Class="Android_SplashImage426">
-                    <Platform Name="Android">
-                        <RemoteName>splash_image.png</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="$(BDS)\bin\Artwork\Android\FM_SplashImage_426x320.png" Configuration="Debug" Class="Android_SplashImage426">
-                    <Platform Name="Android64">
-                        <RemoteName>splash_image.png</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="$(BDS)\bin\Artwork\Android\FM_SplashImage_426x320.png" Configuration="Release" Class="Android_SplashImage426">
-                    <Platform Name="Android">
-                        <RemoteName>splash_image.png</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="$(BDS)\bin\Artwork\Android\FM_SplashImage_426x320.png" Configuration="Release" Class="Android_SplashImage426">
-                    <Platform Name="Android64">
-                        <RemoteName>splash_image.png</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="$(BDS)\bin\Artwork\Android\FM_SplashImage_470x320.png" Configuration="Debug" Class="Android_SplashImage470">
-                    <Platform Name="Android">
-                        <RemoteName>splash_image.png</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="$(BDS)\bin\Artwork\Android\FM_SplashImage_470x320.png" Configuration="Debug" Class="Android_SplashImage470">
-                    <Platform Name="Android64">
-                        <RemoteName>splash_image.png</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="$(BDS)\bin\Artwork\Android\FM_SplashImage_470x320.png" Configuration="Release" Class="Android_SplashImage470">
-                    <Platform Name="Android">
-                        <RemoteName>splash_image.png</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="$(BDS)\bin\Artwork\Android\FM_SplashImage_470x320.png" Configuration="Release" Class="Android_SplashImage470">
-                    <Platform Name="Android64">
-                        <RemoteName>splash_image.png</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="$(BDS)\bin\Artwork\Android\FM_SplashImage_640x480.png" Configuration="Debug" Class="Android_SplashImage640">
-                    <Platform Name="Android">
-                        <RemoteName>splash_image.png</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="$(BDS)\bin\Artwork\Android\FM_SplashImage_640x480.png" Configuration="Debug" Class="Android_SplashImage640">
-                    <Platform Name="Android64">
-                        <RemoteName>splash_image.png</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="$(BDS)\bin\Artwork\Android\FM_SplashImage_640x480.png" Configuration="Release" Class="Android_SplashImage640">
-                    <Platform Name="Android">
-                        <RemoteName>splash_image.png</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="$(BDS)\bin\Artwork\Android\FM_SplashImage_640x480.png" Configuration="Release" Class="Android_SplashImage640">
-                    <Platform Name="Android64">
-                        <RemoteName>splash_image.png</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="$(BDS)\bin\Artwork\Android\FM_SplashImage_960x720.png" Configuration="Debug" Class="Android_SplashImage960">
-                    <Platform Name="Android">
-                        <RemoteName>splash_image.png</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="$(BDS)\bin\Artwork\Android\FM_SplashImage_960x720.png" Configuration="Debug" Class="Android_SplashImage960">
-                    <Platform Name="Android64">
-                        <RemoteName>splash_image.png</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="$(BDS)\bin\Artwork\Android\FM_SplashImage_960x720.png" Configuration="Release" Class="Android_SplashImage960">
-                    <Platform Name="Android">
-                        <RemoteName>splash_image.png</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="$(BDS)\bin\Artwork\Android\FM_SplashImage_960x720.png" Configuration="Release" Class="Android_SplashImage960">
-                    <Platform Name="Android64">
-                        <RemoteName>splash_image.png</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="$(BDS)\bin\Artwork\iOS\iPad\FM_ApplicationIcon_152x152.png" Configuration="Release" Class="iPad_AppIcon152">
-                    <Platform Name="iOSDevice64">
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="$(BDS)\bin\Artwork\iOS\iPad\FM_ApplicationIcon_167x167.png" Configuration="Release" Class="iPad_AppIcon167">
-                    <Platform Name="iOSDevice64">
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="$(BDS)\bin\Artwork\iOS\iPad\FM_LaunchImageDark_2x.png" Configuration="Release" Class="iPad_LaunchDark2x">
-                    <Platform Name="iOSDevice64">
-                        <RemoteName>FM_LaunchScreenImage_iPadDark@2x.png</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="$(BDS)\bin\Artwork\iOS\iPad\FM_LaunchImage_2x.png" Configuration="Release" Class="iPad_Launch2x">
-                    <Platform Name="iOSDevice64">
-                        <RemoteName>FM_LaunchScreenImage_iPad@2x.png</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="$(BDS)\bin\Artwork\iOS\iPad\FM_NotificationIcon_40x40.png" Configuration="Release" Class="iPad_Notification40">
-                    <Platform Name="iOSDevice64">
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="$(BDS)\bin\Artwork\iOS\iPad\FM_SettingIcon_58x58.png" Configuration="Release" Class="iPad_Setting58">
-                    <Platform Name="iOSDevice64">
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="$(BDS)\bin\Artwork\iOS\iPad\FM_SpotlightSearchIcon_80x80.png" Configuration="Release" Class="iPad_SpotLight80">
-                    <Platform Name="iOSDevice64">
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="$(BDS)\bin\Artwork\iOS\iPhone\FM_ApplicationIcon_1024x1024.png" Configuration="Release" Class="iOS_AppStore1024">
-                    <Platform Name="iOSDevice64">
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="$(BDS)\bin\Artwork\iOS\iPhone\FM_ApplicationIcon_120x120.png" Configuration="Release" Class="iPhone_AppIcon120">
-                    <Platform Name="iOSDevice64">
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="$(BDS)\bin\Artwork\iOS\iPhone\FM_ApplicationIcon_180x180.png" Configuration="Release" Class="iPhone_AppIcon180">
-                    <Platform Name="iOSDevice64">
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="$(BDS)\bin\Artwork\iOS\iPhone\FM_LaunchImageDark_2x.png" Configuration="Release" Class="iPhone_LaunchDark2x">
-                    <Platform Name="iOSDevice64">
-                        <RemoteName>FM_LaunchScreenImage_iPhoneDark@2x.png</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="$(BDS)\bin\Artwork\iOS\iPhone\FM_LaunchImageDark_3x.png" Configuration="Release" Class="iPhone_LaunchDark3x">
-                    <Platform Name="iOSDevice64">
-                        <RemoteName>FM_LaunchScreenImage_iPhoneDark@3x.png</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="$(BDS)\bin\Artwork\iOS\iPhone\FM_LaunchImage_2x.png" Configuration="Release" Class="iPhone_Launch2x">
-                    <Platform Name="iOSDevice64">
-                        <RemoteName>FM_LaunchScreenImage_iPhone@2x.png</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="$(BDS)\bin\Artwork\iOS\iPhone\FM_LaunchImage_3x.png" Configuration="Release" Class="iPhone_Launch3x">
-                    <Platform Name="iOSDevice64">
-                        <RemoteName>FM_LaunchScreenImage_iPhone@3x.png</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="$(BDS)\bin\Artwork\iOS\iPhone\FM_NotificationIcon_40x40.png" Configuration="Release" Class="iPhone_Notification40">
-                    <Platform Name="iOSDevice64">
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="$(BDS)\bin\Artwork\iOS\iPhone\FM_NotificationIcon_60x60.png" Configuration="Release" Class="iPhone_Notification60">
-                    <Platform Name="iOSDevice64">
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="$(BDS)\bin\Artwork\iOS\iPhone\FM_SettingIcon_58x58.png" Configuration="Release" Class="iPhone_Setting58">
-                    <Platform Name="iOSDevice64">
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="$(BDS)\bin\Artwork\iOS\iPhone\FM_SettingIcon_87x87.png" Configuration="Release" Class="iPhone_Setting87">
-                    <Platform Name="iOSDevice64">
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="$(BDS)\bin\Artwork\iOS\iPhone\FM_SpotlightSearchIcon_120x120.png" Configuration="Release" Class="iPhone_Spotlight120">
-                    <Platform Name="iOSDevice64">
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="$(BDS)\bin\Artwork\iOS\iPhone\FM_SpotlightSearchIcon_80x80.png" Configuration="Release" Class="iPhone_Spotlight80">
-                    <Platform Name="iOSDevice64">
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="$(BDS)\bin\delphi_PROJECTICNS.icns" Configuration="Debug" Class="ProjectOSXResource">
-                    <Platform Name="OSX64">
-                        <RemoteName>Skia_Tests_FMX.icns</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="$(BDS)\bin\delphi_PROJECTICNS.icns" Configuration="Release" Class="ProjectOSXResource">
-                    <Platform Name="OSXARM64">
-                        <RemoteName>Skia_Tests_FMX.icns</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="$(BDS)\bin\delphi_PROJECTICNS.icns" Configuration="Release" Class="ProjectOSXResource">
-                    <Platform Name="OSX64">
-                        <RemoteName>Skia_Tests_FMX.icns</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="$(BDS)\lib\android\debug\armeabi-v7a\libnative-activity.so" Configuration="Debug" Class="AndroidLibnativeArmeabiv7aFile">
-                    <Platform Name="Android64">
-                        <RemoteName>libSkia_Tests_FMX.so</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="$(BDS)\lib\android\debug\armeabi-v7a\libnative-activity.so" Configuration="Release" Class="AndroidLibnativeArmeabiv7aFile">
-                    <Platform Name="Android64">
-                        <RemoteName>libSkia_Tests_FMX.so</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="$(BDS)\lib\android\debug\armeabi\libnative-activity.so" Configuration="Debug" Class="AndroidLibnativeArmeabiFile">
-                    <Platform Name="Android">
-                        <RemoteName>libSkia_Tests_FMX.so</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="$(BDS)\lib\android\debug\armeabi\libnative-activity.so" Configuration="Debug" Class="AndroidLibnativeArmeabiFile">
-                    <Platform Name="Android64">
-                        <RemoteName>libSkia_Tests_FMX.so</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="$(BDS)\lib\android\debug\armeabi\libnative-activity.so" Configuration="Release" Class="AndroidLibnativeArmeabiFile">
-                    <Platform Name="Android">
-                        <RemoteName>libSkia_Tests_FMX.so</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="$(BDS)\lib\android\debug\armeabi\libnative-activity.so" Configuration="Release" Class="AndroidLibnativeArmeabiFile">
-                    <Platform Name="Android64">
-                        <RemoteName>libSkia_Tests_FMX.so</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="$(BDS)\lib\android\debug\mips\libnative-activity.so" Configuration="Debug" Class="AndroidLibnativeMipsFile">
-                    <Platform Name="Android">
-                        <RemoteName>libSkia_Tests_FMX.so</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="$(BDS)\lib\android\debug\mips\libnative-activity.so" Configuration="Debug" Class="AndroidLibnativeMipsFile">
-                    <Platform Name="Android64">
-                        <RemoteName>libSkia_Tests_FMX.so</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="$(BDS)\lib\android\debug\mips\libnative-activity.so" Configuration="Release" Class="AndroidLibnativeMipsFile">
-                    <Platform Name="Android">
-                        <RemoteName>libSkia_Tests_FMX.so</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="$(BDS)\lib\android\debug\mips\libnative-activity.so" Configuration="Release" Class="AndroidLibnativeMipsFile">
-                    <Platform Name="Android64">
-                        <RemoteName>libSkia_Tests_FMX.so</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="$(NDKBasePath)\prebuilt\android-arm\gdbserver\gdbserver" Configuration="Release" Class="AndroidGDBServer">
-                    <Platform Name="Android">
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile Required="true" LocalName="$(SKIADIR)\Binary\Android64\Release\libsk4d.so" Configuration="Debug" Class="Skia">
-                    <Platform Name="Android64">
-                        <RemoteDir>library\lib\arm64-v8a\</RemoteDir>
-                        <Operation>1</Operation>
-                        <RemoteName>libsk4d.so</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile Required="true" LocalName="$(SKIADIR)\Binary\Android64\Release\libsk4d.so" Configuration="Release" Class="Skia">
-                    <Platform Name="Android64">
-                        <RemoteDir>library\lib\arm64-v8a\</RemoteDir>
-                        <Operation>1</Operation>
-                        <RemoteName>libsk4d.so</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile Required="true" LocalName="$(SKIADIR)\Binary\Android\Release\libsk4d.so" Configuration="Debug" Class="Skia">
-                    <Platform Name="Android">
-                        <RemoteDir>library\lib\armeabi-v7a\</RemoteDir>
-                        <Operation>1</Operation>
-                        <RemoteName>libsk4d.so</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile Required="true" LocalName="$(SKIADIR)\Binary\Android\Release\libsk4d.so" Configuration="Release" Class="Skia">
-                    <Platform Name="Android">
-                        <RemoteDir>library\lib\armeabi-v7a\</RemoteDir>
-                        <Operation>1</Operation>
-                        <RemoteName>libsk4d.so</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile Condition="'$(AndroidAppBundle)'=='true'" Required="true" LocalName="$(SKIADIR)\Binary\Android\Release\libsk4d.so" Configuration="Release" Class="Skia">
-                    <Platform Name="Android64">
-                        <RemoteDir>library\lib\armeabi-v7a\</RemoteDir>
-                        <Operation>1</Operation>
-                        <RemoteName>libsk4d.so</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile Required="true" LocalName="$(SKIADIR)\Binary\OSX64\Release\sk4d.dylib" Configuration="Debug" Class="Skia">
-                    <Platform Name="OSX64">
-                        <RemoteDir>Contents\MacOS\</RemoteDir>
-                        <Operation>1</Operation>
-                        <RemoteName>sk4d.dylib</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile Required="true" LocalName="$(SKIADIR)\Binary\OSX64\Release\sk4d.dylib" Configuration="Release" Class="Skia">
-                    <Platform Name="OSX64">
-                        <RemoteDir>Contents\MacOS\</RemoteDir>
-                        <Operation>1</Operation>
-                        <RemoteName>sk4d.dylib</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile Required="true" LocalName="$(SKIADIR)\Binary\OSXARM64\Release\sk4d.dylib" Configuration="Debug" Class="Skia">
-                    <Platform Name="OSXARM64">
-                        <RemoteDir>Contents\MacOS\</RemoteDir>
-                        <Operation>1</Operation>
-                        <RemoteName>sk4d.dylib</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile Required="true" LocalName="$(SKIADIR)\Binary\OSXARM64\Release\sk4d.dylib" Configuration="Release" Class="Skia">
-                    <Platform Name="OSXARM64">
-                        <RemoteDir>Contents\MacOS\</RemoteDir>
-                        <Operation>1</Operation>
-                        <RemoteName>sk4d.dylib</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile Required="true" LocalName="$(SKIADIR)\Binary\Win32\Release\sk4d.dll" Configuration="Debug" Class="Skia">
-                    <Platform Name="Win32">
-                        <RemoteDir>.\</RemoteDir>
-                        <Operation>0</Operation>
-                        <RemoteName>sk4d.dll</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile Required="true" LocalName="$(SKIADIR)\Binary\Win32\Release\sk4d.dll" Configuration="Release" Class="Skia">
-                    <Platform Name="Win32">
-                        <RemoteDir>.\</RemoteDir>
-                        <Operation>0</Operation>
-                        <RemoteName>sk4d.dll</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile Required="true" LocalName="$(SKIADIR)\Binary\Win64\Release\sk4d.dll" Configuration="Debug" Class="Skia">
+            <Deployment Version="4">
+                <DeployFile Condition="'$(SKIADIR)'==''" Required="true" LocalName="$(BDS)\bin64\sk4d.dll" Configuration="Debug" Class="Skia">
                     <Platform Name="Win64">
                         <RemoteDir>.\</RemoteDir>
                         <Operation>0</Operation>
@@ -1010,16 +421,325 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile Required="true" LocalName="$(SKIADIR)\Binary\Win64\Release\sk4d.dll" Configuration="Release" Class="Skia">
+                <DeployFile Condition="'$(SKIADIR)'==''" Required="true" LocalName="$(BDS)\bin64\sk4d.dll" Configuration="Release" Class="Skia">
                     <Platform Name="Win64">
                         <RemoteDir>.\</RemoteDir>
                         <Operation>0</Operation>
                         <RemoteName>sk4d.dll</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile Condition="'$(SKIADIR)'==''" Required="true" LocalName="$(BDS)\bin\sk4d.dll" Configuration="Debug" Class="Skia">
+                    <Platform Name="Win32">
+                        <RemoteDir>.\</RemoteDir>
+                        <Operation>0</Operation>
+                        <RemoteName>sk4d.dll</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile Condition="'$(SKIADIR)'==''" Required="true" LocalName="$(BDS)\bin\sk4d.dll" Configuration="Release" Class="Skia">
+                    <Platform Name="Win32">
+                        <RemoteDir>.\</RemoteDir>
+                        <Operation>0</Operation>
+                        <RemoteName>sk4d.dll</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile Condition="'$(SKIADIR)'==''" Required="true" LocalName="$(BDS)\binandroid32\libsk4d.so" Configuration="Debug" Class="Skia">
+                    <Platform Name="Android">
+                        <RemoteDir>library\lib\armeabi-v7a\</RemoteDir>
+                        <Operation>1</Operation>
+                        <RemoteName>libsk4d.so</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile Condition="'$(SKIADIR)'=='' and '$(AndroidAppBundle)'=='true'" Required="true" LocalName="$(BDS)\binandroid32\libsk4d.so" Configuration="Debug" Class="Skia">
+                    <Platform Name="Android64">
+                        <RemoteDir>library\lib\armeabi-v7a\</RemoteDir>
+                        <Operation>1</Operation>
+                        <RemoteName>libsk4d.so</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile Condition="'$(SKIADIR)'==''" Required="true" LocalName="$(BDS)\binandroid32\libsk4d.so" Configuration="Release" Class="Skia">
+                    <Platform Name="Android">
+                        <RemoteDir>library\lib\armeabi-v7a\</RemoteDir>
+                        <Operation>1</Operation>
+                        <RemoteName>libsk4d.so</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile Condition="'$(SKIADIR)'=='' and '$(AndroidAppBundle)'=='true'" Required="true" LocalName="$(BDS)\binandroid32\libsk4d.so" Configuration="Release" Class="Skia">
+                    <Platform Name="Android64">
+                        <RemoteDir>library\lib\armeabi-v7a\</RemoteDir>
+                        <Operation>1</Operation>
+                        <RemoteName>libsk4d.so</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile Condition="'$(SKIADIR)'==''" Required="true" LocalName="$(BDS)\binandroid64\libsk4d.so" Configuration="Debug" Class="Skia">
+                    <Platform Name="Android64">
+                        <RemoteDir>library\lib\arm64-v8a\</RemoteDir>
+                        <Operation>1</Operation>
+                        <RemoteName>libsk4d.so</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile Condition="'$(SKIADIR)'==''" Required="true" LocalName="$(BDS)\binandroid64\libsk4d.so" Configuration="Release" Class="Skia">
+                    <Platform Name="Android64">
+                        <RemoteDir>library\lib\arm64-v8a\</RemoteDir>
+                        <Operation>1</Operation>
+                        <RemoteName>libsk4d.so</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile Condition="'$(SKIADIR)'==''" Required="true" LocalName="$(BDS)\biniossimarm64\libsk4d.dylib" Configuration="Debug" Class="Skia">
+                    <Platform Name="iOSSimARM64">
+                        <RemoteDir>.\</RemoteDir>
+                        <Operation>1</Operation>
+                        <RemoteName>libsk4d.dylib</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile Condition="'$(SKIADIR)'==''" Required="true" LocalName="$(BDS)\biniossimarm64\libsk4d.dylib" Configuration="Release" Class="Skia">
+                    <Platform Name="iOSSimARM64">
+                        <RemoteDir>.\</RemoteDir>
+                        <Operation>1</Operation>
+                        <RemoteName>libsk4d.dylib</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile Condition="'$(SKIADIR)'==''" Required="true" LocalName="$(BDS)\binosx64\libsk4d.dylib" Configuration="Debug" Class="Skia">
+                    <Platform Name="OSX64">
+                        <RemoteDir>Contents\MacOS\</RemoteDir>
+                        <Operation>1</Operation>
+                        <RemoteName>libsk4d.dylib</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile Condition="'$(SKIADIR)'==''" Required="true" LocalName="$(BDS)\binosx64\libsk4d.dylib" Configuration="Release" Class="Skia">
+                    <Platform Name="OSX64">
+                        <RemoteDir>Contents\MacOS\</RemoteDir>
+                        <Operation>1</Operation>
+                        <RemoteName>libsk4d.dylib</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile Condition="'$(SKIADIR)'==''" Required="true" LocalName="$(BDS)\binosxarm64\libsk4d.dylib" Configuration="Debug" Class="Skia">
+                    <Platform Name="OSXARM64">
+                        <RemoteDir>Contents\MacOS\</RemoteDir>
+                        <Operation>1</Operation>
+                        <RemoteName>libsk4d.dylib</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile Condition="'$(SKIADIR)'==''" Required="true" LocalName="$(BDS)\binosxarm64\libsk4d.dylib" Configuration="Release" Class="Skia">
+                    <Platform Name="OSXARM64">
+                        <RemoteDir>Contents\MacOS\</RemoteDir>
+                        <Operation>1</Operation>
+                        <RemoteName>libsk4d.dylib</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile Condition="'$(SKIADIR)'!=''" Required="true" LocalName="$(SKIADIR)\Binary\Shared\Android64\libsk4d.so" Configuration="Debug" Class="Skia">
+                    <Platform Name="Android64">
+                        <RemoteDir>library\lib\arm64-v8a\</RemoteDir>
+                        <Operation>1</Operation>
+                        <RemoteName>libsk4d.so</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile Condition="'$(SKIADIR)'!=''" Required="true" LocalName="$(SKIADIR)\Binary\Shared\Android64\libsk4d.so" Configuration="Release" Class="Skia">
+                    <Platform Name="Android64">
+                        <RemoteDir>library\lib\arm64-v8a\</RemoteDir>
+                        <Operation>1</Operation>
+                        <RemoteName>libsk4d.so</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile Condition="'$(SKIADIR)'!=''" Required="true" LocalName="$(SKIADIR)\Binary\Shared\Android\libsk4d.so" Configuration="Debug" Class="Skia">
+                    <Platform Name="Android">
+                        <RemoteDir>library\lib\armeabi-v7a\</RemoteDir>
+                        <Operation>1</Operation>
+                        <RemoteName>libsk4d.so</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile Condition="'$(SKIADIR)'!='' and '$(AndroidAppBundle)'=='true'" Required="true" LocalName="$(SKIADIR)\Binary\Shared\Android\libsk4d.so" Configuration="Debug" Class="Skia">
+                    <Platform Name="Android64">
+                        <RemoteDir>library\lib\armeabi-v7a\</RemoteDir>
+                        <Operation>1</Operation>
+                        <RemoteName>libsk4d.so</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile Condition="'$(SKIADIR)'!=''" Required="true" LocalName="$(SKIADIR)\Binary\Shared\Android\libsk4d.so" Configuration="Release" Class="Skia">
+                    <Platform Name="Android">
+                        <RemoteDir>library\lib\armeabi-v7a\</RemoteDir>
+                        <Operation>1</Operation>
+                        <RemoteName>libsk4d.so</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile Condition="'$(SKIADIR)'!='' and '$(AndroidAppBundle)'=='true'" Required="true" LocalName="$(SKIADIR)\Binary\Shared\Android\libsk4d.so" Configuration="Release" Class="Skia">
+                    <Platform Name="Android64">
+                        <RemoteDir>library\lib\armeabi-v7a\</RemoteDir>
+                        <Operation>1</Operation>
+                        <RemoteName>libsk4d.so</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile Condition="'$(SKIADIR)'!=''" Required="true" LocalName="$(SKIADIR)\Binary\Shared\OSX64\libsk4d.dylib" Configuration="Debug" Class="Skia">
+                    <Platform Name="OSX64">
+                        <RemoteDir>Contents\MacOS\</RemoteDir>
+                        <Operation>1</Operation>
+                        <RemoteName>libsk4d.dylib</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile Condition="'$(SKIADIR)'!=''" Required="true" LocalName="$(SKIADIR)\Binary\Shared\OSX64\libsk4d.dylib" Configuration="Release" Class="Skia">
+                    <Platform Name="OSX64">
+                        <RemoteDir>Contents\MacOS\</RemoteDir>
+                        <Operation>1</Operation>
+                        <RemoteName>libsk4d.dylib</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile Condition="'$(SKIADIR)'!=''" Required="true" LocalName="$(SKIADIR)\Binary\Shared\OSXARM64\libsk4d.dylib" Configuration="Debug" Class="Skia">
+                    <Platform Name="OSXARM64">
+                        <RemoteDir>Contents\MacOS\</RemoteDir>
+                        <Operation>1</Operation>
+                        <RemoteName>libsk4d.dylib</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile Condition="'$(SKIADIR)'!=''" Required="true" LocalName="$(SKIADIR)\Binary\Shared\OSXARM64\libsk4d.dylib" Configuration="Release" Class="Skia">
+                    <Platform Name="OSXARM64">
+                        <RemoteDir>Contents\MacOS\</RemoteDir>
+                        <Operation>1</Operation>
+                        <RemoteName>libsk4d.dylib</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile Condition="'$(SKIADIR)'!=''" Required="true" LocalName="$(SKIADIR)\Binary\Shared\Win32\sk4d.dll" Configuration="Debug" Class="Skia">
+                    <Platform Name="Win32">
+                        <RemoteDir>.\</RemoteDir>
+                        <Operation>0</Operation>
+                        <RemoteName>sk4d.dll</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile Condition="'$(SKIADIR)'!=''" Required="true" LocalName="$(SKIADIR)\Binary\Shared\Win32\sk4d.dll" Configuration="Release" Class="Skia">
+                    <Platform Name="Win32">
+                        <RemoteDir>.\</RemoteDir>
+                        <Operation>0</Operation>
+                        <RemoteName>sk4d.dll</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile Condition="'$(SKIADIR)'!=''" Required="true" LocalName="$(SKIADIR)\Binary\Shared\Win64\sk4d.dll" Configuration="Debug" Class="Skia">
+                    <Platform Name="Win64">
+                        <RemoteDir>.\</RemoteDir>
+                        <Operation>0</Operation>
+                        <RemoteName>sk4d.dll</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile Condition="'$(SKIADIR)'!=''" Required="true" LocalName="$(SKIADIR)\Binary\Shared\Win64\sk4d.dll" Configuration="Release" Class="Skia">
+                    <Platform Name="Win64">
+                        <RemoteDir>.\</RemoteDir>
+                        <Operation>0</Operation>
+                        <RemoteName>sk4d.dll</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile Condition="'$(SKIADIR)'!=''" Required="true" LocalName="$(SKIADIR)\Binary\Shared\iOSSimARM64\libsk4d.dylib" Configuration="Debug" Class="Skia">
+                    <Platform Name="iOSSimARM64">
+                        <RemoteDir>.\</RemoteDir>
+                        <Operation>1</Operation>
+                        <RemoteName>libsk4d.dylib</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile Condition="'$(SKIADIR)'!=''" Required="true" LocalName="$(SKIADIR)\Binary\Shared\iOSSimARM64\libsk4d.dylib" Configuration="Release" Class="Skia">
+                    <Platform Name="iOSSimARM64">
+                        <RemoteDir>.\</RemoteDir>
+                        <Operation>1</Operation>
+                        <RemoteName>libsk4d.dylib</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="..\..\Assets\Codec\abnt.jpg" Configuration="Debug" Class="File">
+                    <Platform Name="iOSDevice64">
+                        <RemoteDir>StartUp\Documents\Codec</RemoteDir>
+                        <RemoteName>abnt.jpg</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="iOSSimARM64">
+                        <RemoteDir>StartUp\Documents\Codec</RemoteDir>
+                        <RemoteName>abnt.jpg</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="Android">
+                        <RemoteDir>assets\internal\Codec</RemoteDir>
+                        <RemoteName>abnt.jpg</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="Android64">
+                        <RemoteDir>assets\internal\Codec</RemoteDir>
+                        <RemoteName>abnt.jpg</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="OSX64">
+                        <RemoteDir>Contents\Resources\Codec</RemoteDir>
+                        <RemoteName>abnt.jpg</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="OSXARM64">
+                        <RemoteDir>Contents\Resources\Codec</RemoteDir>
+                        <RemoteName>abnt.jpg</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="..\..\Assets\Codec\abnt.jpg" Configuration="Release" Class="File">
+                    <Platform Name="iOSDevice64">
+                        <RemoteDir>StartUp\Documents\Codec</RemoteDir>
+                        <RemoteName>abnt.jpg</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="iOSSimARM64">
+                        <RemoteDir>StartUp\Documents\Codec</RemoteDir>
+                        <RemoteName>abnt.jpg</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="Android">
+                        <RemoteDir>assets\internal\Codec</RemoteDir>
+                        <RemoteName>abnt.jpg</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="Android64">
+                        <RemoteDir>assets\internal\Codec</RemoteDir>
+                        <RemoteName>abnt.jpg</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="OSX64">
+                        <RemoteDir>Contents\Resources\Codec</RemoteDir>
+                        <RemoteName>abnt.jpg</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="OSXARM64">
+                        <RemoteDir>Contents\Resources\Codec</RemoteDir>
+                        <RemoteName>abnt.jpg</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
                 <DeployFile LocalName="..\..\Assets\Codec\animated.gif" Configuration="Debug" Class="File">
                     <Platform Name="iOSDevice64">
+                        <RemoteDir>StartUp\Documents\Codec</RemoteDir>
+                        <RemoteName>animated.gif</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="iOSSimARM64">
                         <RemoteDir>StartUp\Documents\Codec</RemoteDir>
                         <RemoteName>animated.gif</RemoteName>
                         <Overwrite>true</Overwrite>
@@ -1051,6 +771,11 @@
                         <RemoteName>animated.gif</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
+                    <Platform Name="iOSSimARM64">
+                        <RemoteDir>StartUp\Documents\Codec</RemoteDir>
+                        <RemoteName>animated.gif</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\Codec</RemoteDir>
                         <RemoteName>animated.gif</RemoteName>
@@ -1074,6 +799,11 @@
                 </DeployFile>
                 <DeployFile LocalName="..\..\Assets\Codec\animated.png" Configuration="Debug" Class="File">
                     <Platform Name="iOSDevice64">
+                        <RemoteDir>StartUp\Documents\Codec</RemoteDir>
+                        <RemoteName>animated.png</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="iOSSimARM64">
                         <RemoteDir>StartUp\Documents\Codec</RemoteDir>
                         <RemoteName>animated.png</RemoteName>
                         <Overwrite>true</Overwrite>
@@ -1105,6 +835,11 @@
                         <RemoteName>animated.png</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
+                    <Platform Name="iOSSimARM64">
+                        <RemoteDir>StartUp\Documents\Codec</RemoteDir>
+                        <RemoteName>animated.png</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\Codec</RemoteDir>
                         <RemoteName>animated.png</RemoteName>
@@ -1128,6 +863,11 @@
                 </DeployFile>
                 <DeployFile LocalName="..\..\Assets\Codec\delphi.ico" Configuration="Debug" Class="File">
                     <Platform Name="iOSDevice64">
+                        <RemoteDir>StartUp\Documents\Codec</RemoteDir>
+                        <RemoteName>delphi.ico</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="iOSSimARM64">
                         <RemoteDir>StartUp\Documents\Codec</RemoteDir>
                         <RemoteName>delphi.ico</RemoteName>
                         <Overwrite>true</Overwrite>
@@ -1159,6 +899,11 @@
                         <RemoteName>delphi.ico</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
+                    <Platform Name="iOSSimARM64">
+                        <RemoteDir>StartUp\Documents\Codec</RemoteDir>
+                        <RemoteName>delphi.ico</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\Codec</RemoteDir>
                         <RemoteName>delphi.ico</RemoteName>
@@ -1182,6 +927,11 @@
                 </DeployFile>
                 <DeployFile LocalName="..\..\Assets\Codec\developer.gif" Configuration="Debug" Class="File">
                     <Platform Name="iOSDevice64">
+                        <RemoteDir>StartUp\Documents\Codec</RemoteDir>
+                        <RemoteName>developer.gif</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="iOSSimARM64">
                         <RemoteDir>StartUp\Documents\Codec</RemoteDir>
                         <RemoteName>developer.gif</RemoteName>
                         <Overwrite>true</Overwrite>
@@ -1213,6 +963,11 @@
                         <RemoteName>developer.gif</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
+                    <Platform Name="iOSSimARM64">
+                        <RemoteDir>StartUp\Documents\Codec</RemoteDir>
+                        <RemoteName>developer.gif</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\Codec</RemoteDir>
                         <RemoteName>developer.gif</RemoteName>
@@ -1236,6 +991,11 @@
                 </DeployFile>
                 <DeployFile LocalName="..\..\Assets\Codec\elephant.png" Configuration="Debug" Class="File">
                     <Platform Name="iOSDevice64">
+                        <RemoteDir>StartUp\Documents\Codec</RemoteDir>
+                        <RemoteName>elephant.png</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="iOSSimARM64">
                         <RemoteDir>StartUp\Documents\Codec</RemoteDir>
                         <RemoteName>elephant.png</RemoteName>
                         <Overwrite>true</Overwrite>
@@ -1267,6 +1027,11 @@
                         <RemoteName>elephant.png</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
+                    <Platform Name="iOSSimARM64">
+                        <RemoteDir>StartUp\Documents\Codec</RemoteDir>
+                        <RemoteName>elephant.png</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\Codec</RemoteDir>
                         <RemoteName>elephant.png</RemoteName>
@@ -1290,6 +1055,11 @@
                 </DeployFile>
                 <DeployFile LocalName="..\..\Assets\Codec\emoji1.png" Configuration="Debug" Class="File">
                     <Platform Name="iOSDevice64">
+                        <RemoteDir>StartUp\Documents\Codec</RemoteDir>
+                        <RemoteName>emoji1.png</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="iOSSimARM64">
                         <RemoteDir>StartUp\Documents\Codec</RemoteDir>
                         <RemoteName>emoji1.png</RemoteName>
                         <Overwrite>true</Overwrite>
@@ -1321,6 +1091,11 @@
                         <RemoteName>emoji1.png</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
+                    <Platform Name="iOSSimARM64">
+                        <RemoteDir>StartUp\Documents\Codec</RemoteDir>
+                        <RemoteName>emoji1.png</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\Codec</RemoteDir>
                         <RemoteName>emoji1.png</RemoteName>
@@ -1344,6 +1119,11 @@
                 </DeployFile>
                 <DeployFile LocalName="..\..\Assets\Codec\emoji2.png" Configuration="Debug" Class="File">
                     <Platform Name="iOSDevice64">
+                        <RemoteDir>StartUp\Documents\Codec</RemoteDir>
+                        <RemoteName>emoji2.png</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="iOSSimARM64">
                         <RemoteDir>StartUp\Documents\Codec</RemoteDir>
                         <RemoteName>emoji2.png</RemoteName>
                         <Overwrite>true</Overwrite>
@@ -1375,6 +1155,11 @@
                         <RemoteName>emoji2.png</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
+                    <Platform Name="iOSSimARM64">
+                        <RemoteDir>StartUp\Documents\Codec</RemoteDir>
+                        <RemoteName>emoji2.png</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\Codec</RemoteDir>
                         <RemoteName>emoji2.png</RemoteName>
@@ -1398,6 +1183,11 @@
                 </DeployFile>
                 <DeployFile LocalName="..\..\Assets\Codec\girl.bmp" Configuration="Debug" Class="File">
                     <Platform Name="iOSDevice64">
+                        <RemoteDir>StartUp\Documents\Codec</RemoteDir>
+                        <RemoteName>girl.bmp</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="iOSSimARM64">
                         <RemoteDir>StartUp\Documents\Codec</RemoteDir>
                         <RemoteName>girl.bmp</RemoteName>
                         <Overwrite>true</Overwrite>
@@ -1429,6 +1219,11 @@
                         <RemoteName>girl.bmp</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
+                    <Platform Name="iOSSimARM64">
+                        <RemoteDir>StartUp\Documents\Codec</RemoteDir>
+                        <RemoteName>girl.bmp</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\Codec</RemoteDir>
                         <RemoteName>girl.bmp</RemoteName>
@@ -1452,6 +1247,11 @@
                 </DeployFile>
                 <DeployFile LocalName="..\..\Assets\Codec\kung-fu-panda.png" Configuration="Debug" Class="File">
                     <Platform Name="iOSDevice64">
+                        <RemoteDir>StartUp\Documents\Codec</RemoteDir>
+                        <RemoteName>kung-fu-panda.png</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="iOSSimARM64">
                         <RemoteDir>StartUp\Documents\Codec</RemoteDir>
                         <RemoteName>kung-fu-panda.png</RemoteName>
                         <Overwrite>true</Overwrite>
@@ -1483,6 +1283,11 @@
                         <RemoteName>kung-fu-panda.png</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
+                    <Platform Name="iOSSimARM64">
+                        <RemoteDir>StartUp\Documents\Codec</RemoteDir>
+                        <RemoteName>kung-fu-panda.png</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\Codec</RemoteDir>
                         <RemoteName>kung-fu-panda.png</RemoteName>
@@ -1506,6 +1311,11 @@
                 </DeployFile>
                 <DeployFile LocalName="..\..\Assets\Codec\kung-fu-panda.webp" Configuration="Debug" Class="File">
                     <Platform Name="iOSDevice64">
+                        <RemoteDir>StartUp\Documents\Codec</RemoteDir>
+                        <RemoteName>kung-fu-panda.webp</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="iOSSimARM64">
                         <RemoteDir>StartUp\Documents\Codec</RemoteDir>
                         <RemoteName>kung-fu-panda.webp</RemoteName>
                         <Overwrite>true</Overwrite>
@@ -1537,6 +1347,11 @@
                         <RemoteName>kung-fu-panda.webp</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
+                    <Platform Name="iOSSimARM64">
+                        <RemoteDir>StartUp\Documents\Codec</RemoteDir>
+                        <RemoteName>kung-fu-panda.webp</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\Codec</RemoteDir>
                         <RemoteName>kung-fu-panda.webp</RemoteName>
@@ -1560,6 +1375,11 @@
                 </DeployFile>
                 <DeployFile LocalName="..\..\Assets\Codec\mandrill.wbmp" Configuration="Debug" Class="File">
                     <Platform Name="iOSDevice64">
+                        <RemoteDir>StartUp\Documents\Codec</RemoteDir>
+                        <RemoteName>mandrill.wbmp</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="iOSSimARM64">
                         <RemoteDir>StartUp\Documents\Codec</RemoteDir>
                         <RemoteName>mandrill.wbmp</RemoteName>
                         <Overwrite>true</Overwrite>
@@ -1591,6 +1411,11 @@
                         <RemoteName>mandrill.wbmp</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
+                    <Platform Name="iOSSimARM64">
+                        <RemoteDir>StartUp\Documents\Codec</RemoteDir>
+                        <RemoteName>mandrill.wbmp</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\Codec</RemoteDir>
                         <RemoteName>mandrill.wbmp</RemoteName>
@@ -1614,6 +1439,11 @@
                 </DeployFile>
                 <DeployFile LocalName="..\..\Assets\Codec\park.dng" Configuration="Debug" Class="File">
                     <Platform Name="iOSDevice64">
+                        <RemoteDir>StartUp\Documents\Codec</RemoteDir>
+                        <RemoteName>park.dng</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="iOSSimARM64">
                         <RemoteDir>StartUp\Documents\Codec</RemoteDir>
                         <RemoteName>park.dng</RemoteName>
                         <Overwrite>true</Overwrite>
@@ -1645,6 +1475,11 @@
                         <RemoteName>park.dng</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
+                    <Platform Name="iOSSimARM64">
+                        <RemoteDir>StartUp\Documents\Codec</RemoteDir>
+                        <RemoteName>park.dng</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\Codec</RemoteDir>
                         <RemoteName>park.dng</RemoteName>
@@ -1668,6 +1503,11 @@
                 </DeployFile>
                 <DeployFile LocalName="..\..\Assets\Codec\rocket.webp" Configuration="Debug" Class="File">
                     <Platform Name="iOSDevice64">
+                        <RemoteDir>StartUp\Documents\Codec</RemoteDir>
+                        <RemoteName>rocket.webp</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="iOSSimARM64">
                         <RemoteDir>StartUp\Documents\Codec</RemoteDir>
                         <RemoteName>rocket.webp</RemoteName>
                         <Overwrite>true</Overwrite>
@@ -1699,6 +1539,11 @@
                         <RemoteName>rocket.webp</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
+                    <Platform Name="iOSSimARM64">
+                        <RemoteDir>StartUp\Documents\Codec</RemoteDir>
+                        <RemoteName>rocket.webp</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\Codec</RemoteDir>
                         <RemoteName>rocket.webp</RemoteName>
@@ -1722,6 +1567,11 @@
                 </DeployFile>
                 <DeployFile LocalName="..\..\Assets\Codec\shrek.jpg" Configuration="Debug" Class="File">
                     <Platform Name="iOSDevice64">
+                        <RemoteDir>StartUp\Documents\Codec</RemoteDir>
+                        <RemoteName>shrek.jpg</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="iOSSimARM64">
                         <RemoteDir>StartUp\Documents\Codec</RemoteDir>
                         <RemoteName>shrek.jpg</RemoteName>
                         <Overwrite>true</Overwrite>
@@ -1753,6 +1603,11 @@
                         <RemoteName>shrek.jpg</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
+                    <Platform Name="iOSSimARM64">
+                        <RemoteDir>StartUp\Documents\Codec</RemoteDir>
+                        <RemoteName>shrek.jpg</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\Codec</RemoteDir>
                         <RemoteName>shrek.jpg</RemoteName>
@@ -1776,6 +1631,11 @@
                 </DeployFile>
                 <DeployFile LocalName="..\..\Assets\Codec\world-time-zone.png" Configuration="Debug" Class="File">
                     <Platform Name="iOSDevice64">
+                        <RemoteDir>StartUp\Documents\Codec</RemoteDir>
+                        <RemoteName>world-time-zone.png</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="iOSSimARM64">
                         <RemoteDir>StartUp\Documents\Codec</RemoteDir>
                         <RemoteName>world-time-zone.png</RemoteName>
                         <Overwrite>true</Overwrite>
@@ -1807,6 +1667,11 @@
                         <RemoteName>world-time-zone.png</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
+                    <Platform Name="iOSSimARM64">
+                        <RemoteDir>StartUp\Documents\Codec</RemoteDir>
+                        <RemoteName>world-time-zone.png</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\Codec</RemoteDir>
                         <RemoteName>world-time-zone.png</RemoteName>
@@ -1828,8 +1693,205 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
+                <DeployFile LocalName="..\..\Assets\Fonts\bonheur-royale-regular.ttf" Configuration="Debug" Class="File">
+                    <Platform Name="iOSDevice64">
+                        <RemoteDir>StartUp\Documents\Fonts</RemoteDir>
+                        <RemoteName>bonheur-royale-regular.ttf</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="iOSSimARM64">
+                        <RemoteDir>StartUp\Documents\Fonts</RemoteDir>
+                        <RemoteName>bonheur-royale-regular.ttf</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="Android">
+                        <RemoteDir>assets\internal\Fonts</RemoteDir>
+                        <RemoteName>bonheur-royale-regular.ttf</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="Android64">
+                        <RemoteDir>assets\internal\Fonts</RemoteDir>
+                        <RemoteName>bonheur-royale-regular.ttf</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="OSX64">
+                        <RemoteDir>Contents\Resources\Fonts</RemoteDir>
+                        <RemoteName>bonheur-royale-regular.ttf</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="OSXARM64">
+                        <RemoteDir>Contents\Resources\Fonts</RemoteDir>
+                        <RemoteName>bonheur-royale-regular.ttf</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="..\..\Assets\Fonts\bonheur-royale-regular.ttf" Configuration="Release" Class="File">
+                    <Platform Name="iOSDevice64">
+                        <RemoteDir>StartUp\Documents\Fonts</RemoteDir>
+                        <RemoteName>bonheur-royale-regular.ttf</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="iOSSimARM64">
+                        <RemoteDir>StartUp\Documents\Fonts</RemoteDir>
+                        <RemoteName>bonheur-royale-regular.ttf</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="Android">
+                        <RemoteDir>assets\internal\Fonts</RemoteDir>
+                        <RemoteName>bonheur-royale-regular.ttf</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="Android64">
+                        <RemoteDir>assets\internal\Fonts</RemoteDir>
+                        <RemoteName>bonheur-royale-regular.ttf</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="OSX64">
+                        <RemoteDir>Contents\Resources\Fonts</RemoteDir>
+                        <RemoteName>bonheur-royale-regular.ttf</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="OSXARM64">
+                        <RemoteDir>Contents\Resources\Fonts</RemoteDir>
+                        <RemoteName>bonheur-royale-regular.ttf</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="..\..\Assets\Fonts\msuighur.ttf" Configuration="Debug" Class="File">
+                    <Platform Name="iOSDevice64">
+                        <RemoteDir>StartUp\Documents\Fonts</RemoteDir>
+                        <RemoteName>msuighur.ttf</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="iOSSimARM64">
+                        <RemoteDir>StartUp\Documents\Fonts</RemoteDir>
+                        <RemoteName>msuighur.ttf</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="Android">
+                        <RemoteDir>assets\internal\Fonts</RemoteDir>
+                        <RemoteName>msuighur.ttf</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="Android64">
+                        <RemoteDir>assets\internal\Fonts</RemoteDir>
+                        <RemoteName>msuighur.ttf</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="OSX64">
+                        <RemoteDir>Contents\Resources\Fonts</RemoteDir>
+                        <RemoteName>msuighur.ttf</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="OSXARM64">
+                        <RemoteDir>Contents\Resources\Fonts</RemoteDir>
+                        <RemoteName>msuighur.ttf</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="..\..\Assets\Fonts\msuighur.ttf" Configuration="Release" Class="File">
+                    <Platform Name="iOSDevice64">
+                        <RemoteDir>StartUp\Documents\Fonts</RemoteDir>
+                        <RemoteName>msuighur.ttf</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="iOSSimARM64">
+                        <RemoteDir>StartUp\Documents\Fonts</RemoteDir>
+                        <RemoteName>msuighur.ttf</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="Android">
+                        <RemoteDir>assets\internal\Fonts</RemoteDir>
+                        <RemoteName>msuighur.ttf</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="Android64">
+                        <RemoteDir>assets\internal\Fonts</RemoteDir>
+                        <RemoteName>msuighur.ttf</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="OSX64">
+                        <RemoteDir>Contents\Resources\Fonts</RemoteDir>
+                        <RemoteName>msuighur.ttf</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="OSXARM64">
+                        <RemoteDir>Contents\Resources\Fonts</RemoteDir>
+                        <RemoteName>msuighur.ttf</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="..\..\Assets\Fonts\nunito-extrabold.ttf" Configuration="Debug" Class="File">
+                    <Platform Name="iOSDevice64">
+                        <RemoteDir>StartUp\Documents\Fonts</RemoteDir>
+                        <RemoteName>nunito-extrabold.ttf</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="iOSSimARM64">
+                        <RemoteDir>StartUp\Documents\Fonts</RemoteDir>
+                        <RemoteName>nunito-extrabold.ttf</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="Android">
+                        <RemoteDir>assets\internal\Fonts</RemoteDir>
+                        <RemoteName>nunito-extrabold.ttf</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="Android64">
+                        <RemoteDir>assets\internal\Fonts</RemoteDir>
+                        <RemoteName>nunito-extrabold.ttf</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="OSX64">
+                        <RemoteDir>Contents\Resources\Fonts</RemoteDir>
+                        <RemoteName>nunito-extrabold.ttf</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="OSXARM64">
+                        <RemoteDir>Contents\Resources\Fonts</RemoteDir>
+                        <RemoteName>nunito-extrabold.ttf</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="..\..\Assets\Fonts\nunito-extrabold.ttf" Configuration="Release" Class="File">
+                    <Platform Name="iOSDevice64">
+                        <RemoteDir>StartUp\Documents\Fonts</RemoteDir>
+                        <RemoteName>nunito-extrabold.ttf</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="iOSSimARM64">
+                        <RemoteDir>StartUp\Documents\Fonts</RemoteDir>
+                        <RemoteName>nunito-extrabold.ttf</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="Android">
+                        <RemoteDir>assets\internal\Fonts</RemoteDir>
+                        <RemoteName>nunito-extrabold.ttf</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="Android64">
+                        <RemoteDir>assets\internal\Fonts</RemoteDir>
+                        <RemoteName>nunito-extrabold.ttf</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="OSX64">
+                        <RemoteDir>Contents\Resources\Fonts</RemoteDir>
+                        <RemoteName>nunito-extrabold.ttf</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="OSXARM64">
+                        <RemoteDir>Contents\Resources\Fonts</RemoteDir>
+                        <RemoteName>nunito-extrabold.ttf</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
                 <DeployFile LocalName="..\..\Assets\Fonts\segoeui.ttf" Configuration="Debug" Class="File">
                     <Platform Name="iOSDevice64">
+                        <RemoteDir>StartUp\Documents\Fonts</RemoteDir>
+                        <RemoteName>segoeui.ttf</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="iOSSimARM64">
                         <RemoteDir>StartUp\Documents\Fonts</RemoteDir>
                         <RemoteName>segoeui.ttf</RemoteName>
                         <Overwrite>true</Overwrite>
@@ -1861,6 +1923,11 @@
                         <RemoteName>segoeui.ttf</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
+                    <Platform Name="iOSSimARM64">
+                        <RemoteDir>StartUp\Documents\Fonts</RemoteDir>
+                        <RemoteName>segoeui.ttf</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\Fonts</RemoteDir>
                         <RemoteName>segoeui.ttf</RemoteName>
@@ -1884,6 +1951,11 @@
                 </DeployFile>
                 <DeployFile LocalName="..\..\Assets\Fonts\segoeuib.ttf" Configuration="Debug" Class="File">
                     <Platform Name="iOSDevice64">
+                        <RemoteDir>StartUp\Documents\Fonts</RemoteDir>
+                        <RemoteName>segoeuib.ttf</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="iOSSimARM64">
                         <RemoteDir>StartUp\Documents\Fonts</RemoteDir>
                         <RemoteName>segoeuib.ttf</RemoteName>
                         <Overwrite>true</Overwrite>
@@ -1915,6 +1987,11 @@
                         <RemoteName>segoeuib.ttf</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
+                    <Platform Name="iOSSimARM64">
+                        <RemoteDir>StartUp\Documents\Fonts</RemoteDir>
+                        <RemoteName>segoeuib.ttf</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\Fonts</RemoteDir>
                         <RemoteName>segoeuib.ttf</RemoteName>
@@ -1938,6 +2015,11 @@
                 </DeployFile>
                 <DeployFile LocalName="..\..\Assets\Images\horse.webp" Configuration="Debug" Class="File">
                     <Platform Name="iOSDevice64">
+                        <RemoteDir>StartUp\Documents\Images</RemoteDir>
+                        <RemoteName>horse.webp</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="iOSSimARM64">
                         <RemoteDir>StartUp\Documents\Images</RemoteDir>
                         <RemoteName>horse.webp</RemoteName>
                         <Overwrite>true</Overwrite>
@@ -1969,6 +2051,11 @@
                         <RemoteName>horse.webp</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
+                    <Platform Name="iOSSimARM64">
+                        <RemoteDir>StartUp\Documents\Images</RemoteDir>
+                        <RemoteName>horse.webp</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\Images</RemoteDir>
                         <RemoteName>horse.webp</RemoteName>
@@ -1992,6 +2079,11 @@
                 </DeployFile>
                 <DeployFile LocalName="..\..\Assets\Path\discord.elements.txt" Configuration="Debug" Class="File">
                     <Platform Name="iOSDevice64">
+                        <RemoteDir>StartUp\Documents\Path</RemoteDir>
+                        <RemoteName>discord.elements.txt</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="iOSSimARM64">
                         <RemoteDir>StartUp\Documents\Path</RemoteDir>
                         <RemoteName>discord.elements.txt</RemoteName>
                         <Overwrite>true</Overwrite>
@@ -2023,6 +2115,11 @@
                         <RemoteName>discord.elements.txt</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
+                    <Platform Name="iOSSimARM64">
+                        <RemoteDir>StartUp\Documents\Path</RemoteDir>
+                        <RemoteName>discord.elements.txt</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\Path</RemoteDir>
                         <RemoteName>discord.elements.txt</RemoteName>
@@ -2046,6 +2143,11 @@
                 </DeployFile>
                 <DeployFile LocalName="..\..\Assets\Path\discord.svg-path.txt" Configuration="Debug" Class="File">
                     <Platform Name="iOSDevice64">
+                        <RemoteDir>StartUp\Documents\Path</RemoteDir>
+                        <RemoteName>discord.svg-path.txt</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="iOSSimARM64">
                         <RemoteDir>StartUp\Documents\Path</RemoteDir>
                         <RemoteName>discord.svg-path.txt</RemoteName>
                         <Overwrite>true</Overwrite>
@@ -2077,6 +2179,11 @@
                         <RemoteName>discord.svg-path.txt</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
+                    <Platform Name="iOSSimARM64">
+                        <RemoteDir>StartUp\Documents\Path</RemoteDir>
+                        <RemoteName>discord.svg-path.txt</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\Path</RemoteDir>
                         <RemoteName>discord.svg-path.txt</RemoteName>
@@ -2100,6 +2207,11 @@
                 </DeployFile>
                 <DeployFile LocalName="..\..\Assets\Path\firefox.elements.txt" Configuration="Debug" Class="File">
                     <Platform Name="iOSDevice64">
+                        <RemoteDir>StartUp\Documents\Path</RemoteDir>
+                        <RemoteName>firefox.elements.txt</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="iOSSimARM64">
                         <RemoteDir>StartUp\Documents\Path</RemoteDir>
                         <RemoteName>firefox.elements.txt</RemoteName>
                         <Overwrite>true</Overwrite>
@@ -2131,6 +2243,11 @@
                         <RemoteName>firefox.elements.txt</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
+                    <Platform Name="iOSSimARM64">
+                        <RemoteDir>StartUp\Documents\Path</RemoteDir>
+                        <RemoteName>firefox.elements.txt</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\Path</RemoteDir>
                         <RemoteName>firefox.elements.txt</RemoteName>
@@ -2154,6 +2271,11 @@
                 </DeployFile>
                 <DeployFile LocalName="..\..\Assets\Path\firefox.svg-path.txt" Configuration="Debug" Class="File">
                     <Platform Name="iOSDevice64">
+                        <RemoteDir>StartUp\Documents\Path</RemoteDir>
+                        <RemoteName>firefox.svg-path.txt</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="iOSSimARM64">
                         <RemoteDir>StartUp\Documents\Path</RemoteDir>
                         <RemoteName>firefox.svg-path.txt</RemoteName>
                         <Overwrite>true</Overwrite>
@@ -2185,6 +2307,11 @@
                         <RemoteName>firefox.svg-path.txt</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
+                    <Platform Name="iOSSimARM64">
+                        <RemoteDir>StartUp\Documents\Path</RemoteDir>
+                        <RemoteName>firefox.svg-path.txt</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\Path</RemoteDir>
                         <RemoteName>firefox.svg-path.txt</RemoteName>
@@ -2208,6 +2335,11 @@
                 </DeployFile>
                 <DeployFile LocalName="..\..\Assets\Path\microsoft.elements.txt" Configuration="Debug" Class="File">
                     <Platform Name="iOSDevice64">
+                        <RemoteDir>StartUp\Documents\Path</RemoteDir>
+                        <RemoteName>microsoft.elements.txt</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="iOSSimARM64">
                         <RemoteDir>StartUp\Documents\Path</RemoteDir>
                         <RemoteName>microsoft.elements.txt</RemoteName>
                         <Overwrite>true</Overwrite>
@@ -2239,6 +2371,11 @@
                         <RemoteName>microsoft.elements.txt</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
+                    <Platform Name="iOSSimARM64">
+                        <RemoteDir>StartUp\Documents\Path</RemoteDir>
+                        <RemoteName>microsoft.elements.txt</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\Path</RemoteDir>
                         <RemoteName>microsoft.elements.txt</RemoteName>
@@ -2262,6 +2399,11 @@
                 </DeployFile>
                 <DeployFile LocalName="..\..\Assets\Path\microsoft.svg-path.txt" Configuration="Debug" Class="File">
                     <Platform Name="iOSDevice64">
+                        <RemoteDir>StartUp\Documents\Path</RemoteDir>
+                        <RemoteName>microsoft.svg-path.txt</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="iOSSimARM64">
                         <RemoteDir>StartUp\Documents\Path</RemoteDir>
                         <RemoteName>microsoft.svg-path.txt</RemoteName>
                         <Overwrite>true</Overwrite>
@@ -2293,6 +2435,11 @@
                         <RemoteName>microsoft.svg-path.txt</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
+                    <Platform Name="iOSSimARM64">
+                        <RemoteDir>StartUp\Documents\Path</RemoteDir>
+                        <RemoteName>microsoft.svg-path.txt</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\Path</RemoteDir>
                         <RemoteName>microsoft.svg-path.txt</RemoteName>
@@ -2316,6 +2463,11 @@
                 </DeployFile>
                 <DeployFile LocalName="..\..\Assets\Path\simple-path.elements.txt" Configuration="Debug" Class="File">
                     <Platform Name="iOSDevice64">
+                        <RemoteDir>StartUp\Documents\Path</RemoteDir>
+                        <RemoteName>simple-path.elements.txt</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="iOSSimARM64">
                         <RemoteDir>StartUp\Documents\Path</RemoteDir>
                         <RemoteName>simple-path.elements.txt</RemoteName>
                         <Overwrite>true</Overwrite>
@@ -2347,6 +2499,11 @@
                         <RemoteName>simple-path.elements.txt</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
+                    <Platform Name="iOSSimARM64">
+                        <RemoteDir>StartUp\Documents\Path</RemoteDir>
+                        <RemoteName>simple-path.elements.txt</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\Path</RemoteDir>
                         <RemoteName>simple-path.elements.txt</RemoteName>
@@ -2370,6 +2527,11 @@
                 </DeployFile>
                 <DeployFile LocalName="..\..\Assets\Path\simple-path.serialized.bin" Configuration="Debug" Class="File">
                     <Platform Name="iOSDevice64">
+                        <RemoteDir>StartUp\Documents\Path</RemoteDir>
+                        <RemoteName>simple-path.serialized.bin</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="iOSSimARM64">
                         <RemoteDir>StartUp\Documents\Path</RemoteDir>
                         <RemoteName>simple-path.serialized.bin</RemoteName>
                         <Overwrite>true</Overwrite>
@@ -2401,6 +2563,11 @@
                         <RemoteName>simple-path.serialized.bin</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
+                    <Platform Name="iOSSimARM64">
+                        <RemoteDir>StartUp\Documents\Path</RemoteDir>
+                        <RemoteName>simple-path.serialized.bin</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\Path</RemoteDir>
                         <RemoteName>simple-path.serialized.bin</RemoteName>
@@ -2424,6 +2591,11 @@
                 </DeployFile>
                 <DeployFile LocalName="..\..\Assets\Path\simple-path2.elements.txt" Configuration="Debug" Class="File">
                     <Platform Name="iOSDevice64">
+                        <RemoteDir>StartUp\Documents\Path</RemoteDir>
+                        <RemoteName>simple-path2.elements.txt</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="iOSSimARM64">
                         <RemoteDir>StartUp\Documents\Path</RemoteDir>
                         <RemoteName>simple-path2.elements.txt</RemoteName>
                         <Overwrite>true</Overwrite>
@@ -2455,6 +2627,11 @@
                         <RemoteName>simple-path2.elements.txt</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
+                    <Platform Name="iOSSimARM64">
+                        <RemoteDir>StartUp\Documents\Path</RemoteDir>
+                        <RemoteName>simple-path2.elements.txt</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\Path</RemoteDir>
                         <RemoteName>simple-path2.elements.txt</RemoteName>
@@ -2478,6 +2655,11 @@
                 </DeployFile>
                 <DeployFile LocalName="..\..\Assets\Path\telegram.elements.txt" Configuration="Debug" Class="File">
                     <Platform Name="iOSDevice64">
+                        <RemoteDir>StartUp\Documents\Path</RemoteDir>
+                        <RemoteName>telegram.elements.txt</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="iOSSimARM64">
                         <RemoteDir>StartUp\Documents\Path</RemoteDir>
                         <RemoteName>telegram.elements.txt</RemoteName>
                         <Overwrite>true</Overwrite>
@@ -2509,6 +2691,11 @@
                         <RemoteName>telegram.elements.txt</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
+                    <Platform Name="iOSSimARM64">
+                        <RemoteDir>StartUp\Documents\Path</RemoteDir>
+                        <RemoteName>telegram.elements.txt</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\Path</RemoteDir>
                         <RemoteName>telegram.elements.txt</RemoteName>
@@ -2532,6 +2719,11 @@
                 </DeployFile>
                 <DeployFile LocalName="..\..\Assets\Path\telegram.svg-path.txt" Configuration="Debug" Class="File">
                     <Platform Name="iOSDevice64">
+                        <RemoteDir>StartUp\Documents\Path</RemoteDir>
+                        <RemoteName>telegram.svg-path.txt</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="iOSSimARM64">
                         <RemoteDir>StartUp\Documents\Path</RemoteDir>
                         <RemoteName>telegram.svg-path.txt</RemoteName>
                         <Overwrite>true</Overwrite>
@@ -2563,6 +2755,11 @@
                         <RemoteName>telegram.svg-path.txt</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
+                    <Platform Name="iOSSimARM64">
+                        <RemoteDir>StartUp\Documents\Path</RemoteDir>
+                        <RemoteName>telegram.svg-path.txt</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\Path</RemoteDir>
                         <RemoteName>telegram.svg-path.txt</RemoteName>
@@ -2586,6 +2783,11 @@
                 </DeployFile>
                 <DeployFile LocalName="..\..\Assets\Path\tesla.elements.txt" Configuration="Debug" Class="File">
                     <Platform Name="iOSDevice64">
+                        <RemoteDir>StartUp\Documents\Path</RemoteDir>
+                        <RemoteName>tesla.elements.txt</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="iOSSimARM64">
                         <RemoteDir>StartUp\Documents\Path</RemoteDir>
                         <RemoteName>tesla.elements.txt</RemoteName>
                         <Overwrite>true</Overwrite>
@@ -2617,6 +2819,11 @@
                         <RemoteName>tesla.elements.txt</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
+                    <Platform Name="iOSSimARM64">
+                        <RemoteDir>StartUp\Documents\Path</RemoteDir>
+                        <RemoteName>tesla.elements.txt</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\Path</RemoteDir>
                         <RemoteName>tesla.elements.txt</RemoteName>
@@ -2640,6 +2847,11 @@
                 </DeployFile>
                 <DeployFile LocalName="..\..\Assets\Path\tesla.svg-path.txt" Configuration="Debug" Class="File">
                     <Platform Name="iOSDevice64">
+                        <RemoteDir>StartUp\Documents\Path</RemoteDir>
+                        <RemoteName>tesla.svg-path.txt</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="iOSSimARM64">
                         <RemoteDir>StartUp\Documents\Path</RemoteDir>
                         <RemoteName>tesla.svg-path.txt</RemoteName>
                         <Overwrite>true</Overwrite>
@@ -2671,6 +2883,11 @@
                         <RemoteName>tesla.svg-path.txt</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
+                    <Platform Name="iOSSimARM64">
+                        <RemoteDir>StartUp\Documents\Path</RemoteDir>
+                        <RemoteName>tesla.svg-path.txt</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\Path</RemoteDir>
                         <RemoteName>tesla.svg-path.txt</RemoteName>
@@ -2692,8 +2909,77 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
+                <DeployFile LocalName="..\..\Assets\Picture\simple-picture.skp" Configuration="Debug" Class="File">
+                    <Platform Name="iOSDevice64">
+                        <RemoteDir>StartUp\Documents\Picture</RemoteDir>
+                        <RemoteName>simple-picture.skp</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="iOSSimARM64">
+                        <RemoteDir>StartUp\Documents\Picture</RemoteDir>
+                        <RemoteName>simple-picture.skp</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="Android">
+                        <RemoteDir>assets\internal\Picture</RemoteDir>
+                        <RemoteName>simple-picture.skp</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="Android64">
+                        <RemoteDir>assets\internal\Picture</RemoteDir>
+                        <RemoteName>simple-picture.skp</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="OSX64">
+                        <RemoteDir>Contents\Resources\Picture</RemoteDir>
+                        <RemoteName>simple-picture.skp</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="OSXARM64">
+                        <RemoteDir>Contents\Resources\Picture</RemoteDir>
+                        <RemoteName>simple-picture.skp</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="..\..\Assets\Picture\simple-picture.skp" Configuration="Release" Class="File">
+                    <Platform Name="iOSDevice64">
+                        <RemoteDir>StartUp\Documents\Picture</RemoteDir>
+                        <RemoteName>simple-picture.skp</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="iOSSimARM64">
+                        <RemoteDir>StartUp\Documents\Picture</RemoteDir>
+                        <RemoteName>simple-picture.skp</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="Android">
+                        <RemoteDir>assets\internal\Picture</RemoteDir>
+                        <RemoteName>simple-picture.skp</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="Android64">
+                        <RemoteDir>assets\internal\Picture</RemoteDir>
+                        <RemoteName>simple-picture.skp</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="OSX64">
+                        <RemoteDir>Contents\Resources\Picture</RemoteDir>
+                        <RemoteName>simple-picture.skp</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="OSXARM64">
+                        <RemoteDir>Contents\Resources\Picture</RemoteDir>
+                        <RemoteName>simple-picture.skp</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
                 <DeployFile LocalName="..\..\Assets\RuntimeEffect\shader.brightness-and-contrast.sksl" Configuration="Debug" Class="File">
                     <Platform Name="iOSDevice64">
+                        <RemoteDir>StartUp\Documents\RuntimeEffect</RemoteDir>
+                        <RemoteName>shader.brightness-and-contrast.sksl</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="iOSSimARM64">
                         <RemoteDir>StartUp\Documents\RuntimeEffect</RemoteDir>
                         <RemoteName>shader.brightness-and-contrast.sksl</RemoteName>
                         <Overwrite>true</Overwrite>
@@ -2725,6 +3011,11 @@
                         <RemoteName>shader.brightness-and-contrast.sksl</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
+                    <Platform Name="iOSSimARM64">
+                        <RemoteDir>StartUp\Documents\RuntimeEffect</RemoteDir>
+                        <RemoteName>shader.brightness-and-contrast.sksl</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\RuntimeEffect</RemoteDir>
                         <RemoteName>shader.brightness-and-contrast.sksl</RemoteName>
@@ -2748,6 +3039,11 @@
                 </DeployFile>
                 <DeployFile LocalName="..\..\Assets\RuntimeEffect\shader.mouse.sksl" Configuration="Debug" Class="File">
                     <Platform Name="iOSDevice64">
+                        <RemoteDir>StartUp\Documents\RuntimeEffect</RemoteDir>
+                        <RemoteName>shader.mouse.sksl</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="iOSSimARM64">
                         <RemoteDir>StartUp\Documents\RuntimeEffect</RemoteDir>
                         <RemoteName>shader.mouse.sksl</RemoteName>
                         <Overwrite>true</Overwrite>
@@ -2779,6 +3075,11 @@
                         <RemoteName>shader.mouse.sksl</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
+                    <Platform Name="iOSSimARM64">
+                        <RemoteDir>StartUp\Documents\RuntimeEffect</RemoteDir>
+                        <RemoteName>shader.mouse.sksl</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\RuntimeEffect</RemoteDir>
                         <RemoteName>shader.mouse.sksl</RemoteName>
@@ -2802,6 +3103,11 @@
                 </DeployFile>
                 <DeployFile LocalName="..\..\Assets\Skottie\check.json" Configuration="Debug" Class="File">
                     <Platform Name="iOSDevice64">
+                        <RemoteDir>StartUp\Documents\Skottie</RemoteDir>
+                        <RemoteName>check.json</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="iOSSimARM64">
                         <RemoteDir>StartUp\Documents\Skottie</RemoteDir>
                         <RemoteName>check.json</RemoteName>
                         <Overwrite>true</Overwrite>
@@ -2833,6 +3139,11 @@
                         <RemoteName>check.json</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
+                    <Platform Name="iOSSimARM64">
+                        <RemoteDir>StartUp\Documents\Skottie</RemoteDir>
+                        <RemoteName>check.json</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\Skottie</RemoteDir>
                         <RemoteName>check.json</RemoteName>
@@ -2856,6 +3167,11 @@
                 </DeployFile>
                 <DeployFile LocalName="..\..\Assets\Skottie\rocket.json" Configuration="Debug" Class="File">
                     <Platform Name="iOSDevice64">
+                        <RemoteDir>StartUp\Documents\Skottie</RemoteDir>
+                        <RemoteName>rocket.json</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="iOSSimARM64">
                         <RemoteDir>StartUp\Documents\Skottie</RemoteDir>
                         <RemoteName>rocket.json</RemoteName>
                         <Overwrite>true</Overwrite>
@@ -2887,6 +3203,11 @@
                         <RemoteName>rocket.json</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
+                    <Platform Name="iOSSimARM64">
+                        <RemoteDir>StartUp\Documents\Skottie</RemoteDir>
+                        <RemoteName>rocket.json</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\Skottie</RemoteDir>
                         <RemoteName>rocket.json</RemoteName>
@@ -2910,6 +3231,11 @@
                 </DeployFile>
                 <DeployFile LocalName="..\..\Assets\Svg\android.svg" Configuration="Debug" Class="File">
                     <Platform Name="iOSDevice64">
+                        <RemoteDir>StartUp\Documents\Svg</RemoteDir>
+                        <RemoteName>android.svg</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="iOSSimARM64">
                         <RemoteDir>StartUp\Documents\Svg</RemoteDir>
                         <RemoteName>android.svg</RemoteName>
                         <Overwrite>true</Overwrite>
@@ -2941,6 +3267,11 @@
                         <RemoteName>android.svg</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
+                    <Platform Name="iOSSimARM64">
+                        <RemoteDir>StartUp\Documents\Svg</RemoteDir>
+                        <RemoteName>android.svg</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\Svg</RemoteDir>
                         <RemoteName>android.svg</RemoteName>
@@ -2964,6 +3295,11 @@
                 </DeployFile>
                 <DeployFile LocalName="..\..\Assets\Svg\delphi.svg" Configuration="Debug" Class="File">
                     <Platform Name="iOSDevice64">
+                        <RemoteDir>StartUp\Documents\Svg</RemoteDir>
+                        <RemoteName>delphi.svg</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="iOSSimARM64">
                         <RemoteDir>StartUp\Documents\Svg</RemoteDir>
                         <RemoteName>delphi.svg</RemoteName>
                         <Overwrite>true</Overwrite>
@@ -2995,6 +3331,11 @@
                         <RemoteName>delphi.svg</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
+                    <Platform Name="iOSSimARM64">
+                        <RemoteDir>StartUp\Documents\Svg</RemoteDir>
+                        <RemoteName>delphi.svg</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\Svg</RemoteDir>
                         <RemoteName>delphi.svg</RemoteName>
@@ -3018,6 +3359,11 @@
                 </DeployFile>
                 <DeployFile LocalName="..\..\Assets\Svg\gorilla.svg" Configuration="Debug" Class="File">
                     <Platform Name="iOSDevice64">
+                        <RemoteDir>StartUp\Documents\Svg</RemoteDir>
+                        <RemoteName>gorilla.svg</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="iOSSimARM64">
                         <RemoteDir>StartUp\Documents\Svg</RemoteDir>
                         <RemoteName>gorilla.svg</RemoteName>
                         <Overwrite>true</Overwrite>
@@ -3049,6 +3395,11 @@
                         <RemoteName>gorilla.svg</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
+                    <Platform Name="iOSSimARM64">
+                        <RemoteDir>StartUp\Documents\Svg</RemoteDir>
+                        <RemoteName>gorilla.svg</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\Svg</RemoteDir>
                         <RemoteName>gorilla.svg</RemoteName>
@@ -3072,6 +3423,11 @@
                 </DeployFile>
                 <DeployFile LocalName="..\..\Assets\Svg\lion.svg" Configuration="Debug" Class="File">
                     <Platform Name="iOSDevice64">
+                        <RemoteDir>StartUp\Documents\Svg</RemoteDir>
+                        <RemoteName>lion.svg</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="iOSSimARM64">
                         <RemoteDir>StartUp\Documents\Svg</RemoteDir>
                         <RemoteName>lion.svg</RemoteName>
                         <Overwrite>true</Overwrite>
@@ -3103,6 +3459,11 @@
                         <RemoteName>lion.svg</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
+                    <Platform Name="iOSSimARM64">
+                        <RemoteDir>StartUp\Documents\Svg</RemoteDir>
+                        <RemoteName>lion.svg</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\Svg</RemoteDir>
                         <RemoteName>lion.svg</RemoteName>
@@ -3126,6 +3487,11 @@
                 </DeployFile>
                 <DeployFile LocalName="..\..\Assets\Svg\tesla.svg" Configuration="Debug" Class="File">
                     <Platform Name="iOSDevice64">
+                        <RemoteDir>StartUp\Documents\Svg</RemoteDir>
+                        <RemoteName>tesla.svg</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="iOSSimARM64">
                         <RemoteDir>StartUp\Documents\Svg</RemoteDir>
                         <RemoteName>tesla.svg</RemoteName>
                         <Overwrite>true</Overwrite>
@@ -3157,6 +3523,11 @@
                         <RemoteName>tesla.svg</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
+                    <Platform Name="iOSSimARM64">
+                        <RemoteDir>StartUp\Documents\Svg</RemoteDir>
+                        <RemoteName>tesla.svg</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\Svg</RemoteDir>
                         <RemoteName>tesla.svg</RemoteName>
@@ -3175,294 +3546,6 @@
                     <Platform Name="OSXARM64">
                         <RemoteDir>Contents\Resources\Svg</RemoteDir>
                         <RemoteName>tesla.svg</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="Binary\Win32\Release\Skia_Tests_FMX.exe" Configuration="Release" Class="ProjectOutput">
-                    <Platform Name="Win32">
-                        <RemoteName>Skia_Tests_FMX.exe</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="bin\Android64\Debug\AndroidManifest.xml" Configuration="Debug" Class="ProjectAndroidManifest">
-                    <Platform Name="Android64">
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="bin\Android64\Debug\Skia_Tests_FMX.classes" Configuration="Debug" Class="AndroidClasses">
-                    <Platform Name="Android64">
-                        <Operation>64</Operation>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="bin\Android64\Debug\colors.xml" Configuration="Debug" Class="Android_Colors">
-                    <Platform Name="Android64">
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="bin\Android64\Debug\libSkia_Tests_FMX.so" Configuration="Debug" Class="ProjectOutput">
-                    <Platform Name="Android64">
-                        <RemoteName>libSkia_Tests_FMX.so</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="bin\Android64\Debug\splash_image_def.xml" Configuration="Debug" Class="AndroidSplashImageDef">
-                    <Platform Name="Android64">
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="bin\Android64\Debug\strings.xml" Configuration="Debug" Class="Android_Strings">
-                    <Platform Name="Android64">
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="bin\Android64\Debug\styles-v21.xml" Configuration="Debug" Class="AndroidSplashStylesV21">
-                    <Platform Name="Android64">
-                        <RemoteName>styles.xml</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="bin\Android64\Debug\styles.xml" Configuration="Debug" Class="AndroidSplashStyles">
-                    <Platform Name="Android64">
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="bin\Android64\Release\AndroidManifest.xml" Configuration="Release" Class="ProjectAndroidManifest">
-                    <Platform Name="Android64">
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="bin\Android64\Release\Skia_Tests_FMX.classes" Configuration="Release" Class="AndroidClasses">
-                    <Platform Name="Android64">
-                        <Operation>64</Operation>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="bin\Android64\Release\colors.xml" Configuration="Release" Class="Android_Colors">
-                    <Platform Name="Android64">
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="bin\Android64\Release\libSkia_Tests_FMX.so" Configuration="Release" Class="ProjectOutput">
-                    <Platform Name="Android64">
-                        <RemoteName>libSkia_Tests_FMX.so</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="bin\Android64\Release\splash_image_def.xml" Configuration="Release" Class="AndroidSplashImageDef">
-                    <Platform Name="Android64">
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="bin\Android64\Release\strings.xml" Configuration="Release" Class="Android_Strings">
-                    <Platform Name="Android64">
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="bin\Android64\Release\styles-v21.xml" Configuration="Release" Class="AndroidSplashStylesV21">
-                    <Platform Name="Android64">
-                        <RemoteName>styles.xml</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="bin\Android64\Release\styles.xml" Configuration="Release" Class="AndroidSplashStyles">
-                    <Platform Name="Android64">
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="bin\Android\Debug\AndroidManifest.xml" Configuration="Debug" Class="ProjectAndroidManifest">
-                    <Platform Name="Android">
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="bin\Android\Debug\Skia_Tests_FMX.classes" Configuration="Debug" Class="AndroidClasses">
-                    <Platform Name="Android">
-                        <Operation>64</Operation>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="bin\Android\Debug\colors.xml" Configuration="Debug" Class="Android_Colors">
-                    <Platform Name="Android">
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="bin\Android\Debug\libSkia_Tests_FMX.so" Configuration="Debug" Class="ProjectOutput">
-                    <Platform Name="Android">
-                        <RemoteName>libSkia_Tests_FMX.so</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="bin\Android\Debug\splash_image_def.xml" Configuration="Debug" Class="AndroidSplashImageDef">
-                    <Platform Name="Android">
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="bin\Android\Debug\strings.xml" Configuration="Debug" Class="Android_Strings">
-                    <Platform Name="Android">
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="bin\Android\Debug\styles-v21.xml" Configuration="Debug" Class="AndroidSplashStylesV21">
-                    <Platform Name="Android">
-                        <RemoteName>styles.xml</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="bin\Android\Debug\styles.xml" Configuration="Debug" Class="AndroidSplashStyles">
-                    <Platform Name="Android">
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="bin\Android\Release\AndroidManifest.xml" Configuration="Release" Class="ProjectAndroidManifest">
-                    <Platform Name="Android">
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="bin\Android\Release\Skia_Tests_FMX.classes" Configuration="Release" Class="AndroidClasses">
-                    <Platform Name="Android">
-                        <Operation>64</Operation>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="bin\Android\Release\colors.xml" Configuration="Release" Class="Android_Colors">
-                    <Platform Name="Android">
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="bin\Android\Release\libSkia_Tests_FMX.so" Configuration="Release" Class="ProjectOutput">
-                    <Platform Name="Android">
-                        <RemoteName>libSkia_Tests_FMX.so</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="bin\Android\Release\splash_image_def.xml" Configuration="Release" Class="AndroidSplashImageDef">
-                    <Platform Name="Android">
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="bin\Android\Release\strings.xml" Configuration="Release" Class="Android_Strings">
-                    <Platform Name="Android">
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="bin\Android\Release\styles-v21.xml" Configuration="Release" Class="AndroidSplashStylesV21">
-                    <Platform Name="Android">
-                        <RemoteName>styles.xml</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="bin\Android\Release\styles.xml" Configuration="Release" Class="AndroidSplashStyles">
-                    <Platform Name="Android">
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="bin\OSX64\Debug\Skia_Tests_FMX" Configuration="Debug" Class="ProjectOutput">
-                    <Platform Name="OSX64">
-                        <RemoteName>Skia_Tests_FMX</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="bin\OSX64\Debug\Skia_Tests_FMX.dSYM" Configuration="Debug" Class="ProjectOSXDebug">
-                    <Platform Name="OSX64">
-                        <RemoteName>Skia_Tests_FMX</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="bin\OSX64\Debug\Skia_Tests_FMX.entitlements" Configuration="Debug" Class="ProjectOSXEntitlements">
-                    <Platform Name="OSX64">
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="bin\OSX64\Debug\Skia_Tests_FMX.info.plist" Configuration="Debug" Class="ProjectOSXInfoPList">
-                    <Platform Name="OSX64">
-                        <RemoteName>Info.plist</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="bin\OSX64\Release\Skia_Tests_FMX" Configuration="Release" Class="ProjectOutput">
-                    <Platform Name="OSX64">
-                        <RemoteName>Skia_Tests_FMX</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="bin\OSX64\Release\Skia_Tests_FMX.dSYM" Configuration="Release" Class="ProjectOSXDebug">
-                    <Platform Name="OSX64">
-                        <RemoteName>Skia_Tests_FMX</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="bin\OSX64\Release\Skia_Tests_FMX.entitlements" Configuration="Release" Class="ProjectOSXEntitlements">
-                    <Platform Name="OSX64">
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="bin\OSX64\Release\Skia_Tests_FMX.info.plist" Configuration="Release" Class="ProjectOSXInfoPList">
-                    <Platform Name="OSX64">
-                        <RemoteName>Info.plist</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="bin\OSXARM64\Release\Skia_Tests_FMX" Configuration="Release" Class="ProjectOutput">
-                    <Platform Name="OSXARM64">
-                        <RemoteName>Skia_Tests_FMX</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="bin\OSXARM64\Release\Skia_Tests_FMX.dSYM" Configuration="Release" Class="ProjectOSXDebug">
-                    <Platform Name="OSXARM64">
-                        <RemoteName>Skia_Tests_FMX</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="bin\OSXARM64\Release\Skia_Tests_FMX.entitlements" Configuration="Release" Class="ProjectOSXEntitlements">
-                    <Platform Name="OSXARM64">
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="bin\OSXARM64\Release\Skia_Tests_FMX.info.plist" Configuration="Release" Class="ProjectOSXInfoPList">
-                    <Platform Name="OSXARM64">
-                        <RemoteName>Info.plist</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="bin\Win32\Debug\Skia_Tests_FMX.exe" Configuration="Debug" Class="ProjectOutput">
-                    <Platform Name="Win32">
-                        <RemoteName>Skia_Tests_FMX.exe</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="bin\Win64\Release\Skia_Tests_FMX.exe" Configuration="Release" Class="ProjectOutput">
-                    <Platform Name="Win64">
-                        <RemoteName>Skia_Tests_FMX.exe</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="bin\iOSDevice64\Release\Skia_Tests_FMX" Configuration="Release" Class="ProjectOutput">
-                    <Platform Name="iOSDevice64">
-                        <RemoteName>Skia_Tests_FMX</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="bin\iOSDevice64\Release\Skia_Tests_FMX.dSYM" Configuration="Release" Class="ProjectiOSDeviceDebug">
-                    <Platform Name="iOSDevice64">
-                        <RemoteName>Skia_Tests_FMX</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="bin\iOSDevice64\Release\Skia_Tests_FMX.entitlements" Configuration="Release" Class="ProjectiOSEntitlements">
-                    <Platform Name="iOSDevice64">
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="bin\iOSDevice64\Release\Skia_Tests_FMX.info.plist" Configuration="Release" Class="ProjectiOSInfoPList">
-                    <Platform Name="iOSDevice64">
-                        <RemoteName>Info.plist</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="bin\iOSDevice64\Release\Skia_Tests_FMX.launchscreen" Configuration="Release" Class="ProjectiOSLaunchScreen">
-                    <Platform Name="iOSDevice64">
-                        <Operation>64</Operation>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
@@ -3774,6 +3857,10 @@
                         <Operation>1</Operation>
                         <Extensions>.dylib</Extensions>
                     </Platform>
+                    <Platform Name="iOSSimARM64">
+                        <Operation>1</Operation>
+                        <Extensions>.dylib</Extensions>
+                    </Platform>
                     <Platform Name="OSX64">
                         <RemoteDir>Contents\MacOS</RemoteDir>
                         <Operation>1</Operation>
@@ -3791,6 +3878,10 @@
                 </DeployClass>
                 <DeployClass Required="true" Name="DependencyPackage">
                     <Platform Name="iOSDevice64">
+                        <Operation>1</Operation>
+                        <Extensions>.dylib</Extensions>
+                    </Platform>
+                    <Platform Name="iOSSimARM64">
                         <Operation>1</Operation>
                         <Extensions>.dylib</Extensions>
                     </Platform>
@@ -3817,6 +3908,9 @@
                         <Operation>0</Operation>
                     </Platform>
                     <Platform Name="iOSDevice64">
+                        <Operation>0</Operation>
+                    </Platform>
+                    <Platform Name="iOSSimARM64">
                         <Operation>0</Operation>
                     </Platform>
                     <Platform Name="OSX64">
@@ -3891,6 +3985,9 @@
                     <Platform Name="iOSDevice64">
                         <Operation>1</Operation>
                     </Platform>
+                    <Platform Name="iOSSimARM64">
+                        <Operation>1</Operation>
+                    </Platform>
                     <Platform Name="OSX64">
                         <RemoteDir>Contents\MacOS</RemoteDir>
                         <Operation>1</Operation>
@@ -3922,9 +4019,17 @@
                         <RemoteDir>..\$(PROJECTNAME).app.dSYM\Contents\Resources\DWARF</RemoteDir>
                         <Operation>1</Operation>
                     </Platform>
+                    <Platform Name="iOSSimARM64">
+                        <RemoteDir>..\$(PROJECTNAME).app.dSYM\Contents\Resources\DWARF</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
                 </DeployClass>
                 <DeployClass Name="ProjectiOSEntitlements">
                     <Platform Name="iOSDevice64">
+                        <RemoteDir>..\</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="iOSSimARM64">
                         <RemoteDir>..\</RemoteDir>
                         <Operation>1</Operation>
                     </Platform>
@@ -3933,15 +4038,25 @@
                     <Platform Name="iOSDevice64">
                         <Operation>1</Operation>
                     </Platform>
+                    <Platform Name="iOSSimARM64">
+                        <Operation>1</Operation>
+                    </Platform>
                 </DeployClass>
                 <DeployClass Name="ProjectiOSLaunchScreen">
                     <Platform Name="iOSDevice64">
                         <RemoteDir>..\$(PROJECTNAME).launchscreen</RemoteDir>
                         <Operation>64</Operation>
                     </Platform>
+                    <Platform Name="iOSSimARM64">
+                        <RemoteDir>..\$(PROJECTNAME).launchscreen</RemoteDir>
+                        <Operation>64</Operation>
+                    </Platform>
                 </DeployClass>
                 <DeployClass Name="ProjectiOSResource">
                     <Platform Name="iOSDevice64">
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="iOSSimARM64">
                         <Operation>1</Operation>
                     </Platform>
                 </DeployClass>
@@ -3970,9 +4085,17 @@
                         <RemoteDir>..\$(PROJECTNAME).launchscreen\Assets\AppIcon.appiconset</RemoteDir>
                         <Operation>1</Operation>
                     </Platform>
+                    <Platform Name="iOSSimARM64">
+                        <RemoteDir>..\$(PROJECTNAME).launchscreen\Assets\AppIcon.appiconset</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
                 </DeployClass>
                 <DeployClass Name="iPad_AppIcon152">
                     <Platform Name="iOSDevice64">
+                        <RemoteDir>..\$(PROJECTNAME).launchscreen\Assets\AppIcon.appiconset</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="iOSSimARM64">
                         <RemoteDir>..\$(PROJECTNAME).launchscreen\Assets\AppIcon.appiconset</RemoteDir>
                         <Operation>1</Operation>
                     </Platform>
@@ -3982,9 +4105,17 @@
                         <RemoteDir>..\$(PROJECTNAME).launchscreen\Assets\AppIcon.appiconset</RemoteDir>
                         <Operation>1</Operation>
                     </Platform>
+                    <Platform Name="iOSSimARM64">
+                        <RemoteDir>..\$(PROJECTNAME).launchscreen\Assets\AppIcon.appiconset</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
                 </DeployClass>
                 <DeployClass Name="iPad_Launch2x">
                     <Platform Name="iOSDevice64">
+                        <RemoteDir>..\$(PROJECTNAME).launchscreen\Assets\LaunchScreenImage.imageset</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="iOSSimARM64">
                         <RemoteDir>..\$(PROJECTNAME).launchscreen\Assets\LaunchScreenImage.imageset</RemoteDir>
                         <Operation>1</Operation>
                     </Platform>
@@ -3994,9 +4125,17 @@
                         <RemoteDir>..\$(PROJECTNAME).launchscreen\Assets\LaunchScreenImage.imageset</RemoteDir>
                         <Operation>1</Operation>
                     </Platform>
+                    <Platform Name="iOSSimARM64">
+                        <RemoteDir>..\$(PROJECTNAME).launchscreen\Assets\LaunchScreenImage.imageset</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
                 </DeployClass>
                 <DeployClass Name="iPad_Notification40">
                     <Platform Name="iOSDevice64">
+                        <RemoteDir>..\$(PROJECTNAME).launchscreen\Assets\AppIcon.appiconset</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="iOSSimARM64">
                         <RemoteDir>..\$(PROJECTNAME).launchscreen\Assets\AppIcon.appiconset</RemoteDir>
                         <Operation>1</Operation>
                     </Platform>
@@ -4006,9 +4145,17 @@
                         <RemoteDir>..\$(PROJECTNAME).launchscreen\Assets\AppIcon.appiconset</RemoteDir>
                         <Operation>1</Operation>
                     </Platform>
+                    <Platform Name="iOSSimARM64">
+                        <RemoteDir>..\$(PROJECTNAME).launchscreen\Assets\AppIcon.appiconset</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
                 </DeployClass>
                 <DeployClass Name="iPad_SpotLight80">
                     <Platform Name="iOSDevice64">
+                        <RemoteDir>..\$(PROJECTNAME).launchscreen\Assets\AppIcon.appiconset</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="iOSSimARM64">
                         <RemoteDir>..\$(PROJECTNAME).launchscreen\Assets\AppIcon.appiconset</RemoteDir>
                         <Operation>1</Operation>
                     </Platform>
@@ -4018,9 +4165,17 @@
                         <RemoteDir>..\$(PROJECTNAME).launchscreen\Assets\AppIcon.appiconset</RemoteDir>
                         <Operation>1</Operation>
                     </Platform>
+                    <Platform Name="iOSSimARM64">
+                        <RemoteDir>..\$(PROJECTNAME).launchscreen\Assets\AppIcon.appiconset</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
                 </DeployClass>
                 <DeployClass Name="iPhone_AppIcon180">
                     <Platform Name="iOSDevice64">
+                        <RemoteDir>..\$(PROJECTNAME).launchscreen\Assets\AppIcon.appiconset</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="iOSSimARM64">
                         <RemoteDir>..\$(PROJECTNAME).launchscreen\Assets\AppIcon.appiconset</RemoteDir>
                         <Operation>1</Operation>
                     </Platform>
@@ -4030,9 +4185,17 @@
                         <RemoteDir>..\$(PROJECTNAME).launchscreen\Assets\LaunchScreenImage.imageset</RemoteDir>
                         <Operation>1</Operation>
                     </Platform>
+                    <Platform Name="iOSSimARM64">
+                        <RemoteDir>..\$(PROJECTNAME).launchscreen\Assets\LaunchScreenImage.imageset</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
                 </DeployClass>
                 <DeployClass Name="iPhone_Launch3x">
                     <Platform Name="iOSDevice64">
+                        <RemoteDir>..\$(PROJECTNAME).launchscreen\Assets\LaunchScreenImage.imageset</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="iOSSimARM64">
                         <RemoteDir>..\$(PROJECTNAME).launchscreen\Assets\LaunchScreenImage.imageset</RemoteDir>
                         <Operation>1</Operation>
                     </Platform>
@@ -4042,9 +4205,17 @@
                         <RemoteDir>..\$(PROJECTNAME).launchscreen\Assets\LaunchScreenImage.imageset</RemoteDir>
                         <Operation>1</Operation>
                     </Platform>
+                    <Platform Name="iOSSimARM64">
+                        <RemoteDir>..\$(PROJECTNAME).launchscreen\Assets\LaunchScreenImage.imageset</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
                 </DeployClass>
                 <DeployClass Name="iPhone_LaunchDark3x">
                     <Platform Name="iOSDevice64">
+                        <RemoteDir>..\$(PROJECTNAME).launchscreen\Assets\LaunchScreenImage.imageset</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="iOSSimARM64">
                         <RemoteDir>..\$(PROJECTNAME).launchscreen\Assets\LaunchScreenImage.imageset</RemoteDir>
                         <Operation>1</Operation>
                     </Platform>
@@ -4054,9 +4225,17 @@
                         <RemoteDir>..\$(PROJECTNAME).launchscreen\Assets\AppIcon.appiconset</RemoteDir>
                         <Operation>1</Operation>
                     </Platform>
+                    <Platform Name="iOSSimARM64">
+                        <RemoteDir>..\$(PROJECTNAME).launchscreen\Assets\AppIcon.appiconset</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
                 </DeployClass>
                 <DeployClass Name="iPhone_Notification60">
                     <Platform Name="iOSDevice64">
+                        <RemoteDir>..\$(PROJECTNAME).launchscreen\Assets\AppIcon.appiconset</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="iOSSimARM64">
                         <RemoteDir>..\$(PROJECTNAME).launchscreen\Assets\AppIcon.appiconset</RemoteDir>
                         <Operation>1</Operation>
                     </Platform>
@@ -4066,9 +4245,17 @@
                         <RemoteDir>..\$(PROJECTNAME).launchscreen\Assets\AppIcon.appiconset</RemoteDir>
                         <Operation>1</Operation>
                     </Platform>
+                    <Platform Name="iOSSimARM64">
+                        <RemoteDir>..\$(PROJECTNAME).launchscreen\Assets\AppIcon.appiconset</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
                 </DeployClass>
                 <DeployClass Name="iPhone_Setting87">
                     <Platform Name="iOSDevice64">
+                        <RemoteDir>..\$(PROJECTNAME).launchscreen\Assets\AppIcon.appiconset</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="iOSSimARM64">
                         <RemoteDir>..\$(PROJECTNAME).launchscreen\Assets\AppIcon.appiconset</RemoteDir>
                         <Operation>1</Operation>
                     </Platform>
@@ -4078,9 +4265,17 @@
                         <RemoteDir>..\$(PROJECTNAME).launchscreen\Assets\AppIcon.appiconset</RemoteDir>
                         <Operation>1</Operation>
                     </Platform>
+                    <Platform Name="iOSSimARM64">
+                        <RemoteDir>..\$(PROJECTNAME).launchscreen\Assets\AppIcon.appiconset</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
                 </DeployClass>
                 <DeployClass Name="iPhone_Spotlight80">
                     <Platform Name="iOSDevice64">
+                        <RemoteDir>..\$(PROJECTNAME).launchscreen\Assets\AppIcon.appiconset</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="iOSSimARM64">
                         <RemoteDir>..\$(PROJECTNAME).launchscreen\Assets\AppIcon.appiconset</RemoteDir>
                         <Operation>1</Operation>
                     </Platform>
@@ -4092,6 +4287,7 @@
                 <ProjectRoot Platform="Win32" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="Win64" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="iOSDevice64" Name="$(PROJECTNAME).app"/>
+                <ProjectRoot Platform="iOSSimARM64" Name="$(PROJECTNAME).app"/>
             </Deployment>
             <Platforms>
                 <Platform value="Android">True</Platform>
@@ -4102,6 +4298,7 @@
                 <Platform value="Win32">True</Platform>
                 <Platform value="Win64">True</Platform>
                 <Platform value="iOSDevice64">True</Platform>
+                <Platform value="iOSSimARM64">True</Platform>
             </Platforms>
         </BorlandProject>
         <ProjectFileVersion>12</ProjectFileVersion>

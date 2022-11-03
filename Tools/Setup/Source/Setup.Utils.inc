@@ -27,12 +27,16 @@ function IsSilent: Boolean; forward;
 function IsUpgrade: Boolean; forward;
 /// <summary> Check if the installation has been executed with /verysilent parameter </summary>
 function IsVerySilent: Boolean; forward;
+/// <summary> Read a single node text and return a default value if not found </summary>
+function ReadXMLNodeText(const AXMLNode: Variant; const AXPath, ADefaultValue: string): string; forward;
 /// <summary> Show a message error </summary>
 procedure ShowError(const AMessage: string); forward;
 /// <summary> Show a formated message error </summary>
 procedure ShowErrorFmt(const AMessage: string; const AArgs: TArrayOfString); forward;
 /// <summary> Show an information message </summary>
 procedure ShowMessage(const AMessage: string); forward;
+/// <summary> Try to get the an attribute value of a xml node by the attribute name with case insensitive </summary>
+function TryGetXMLNodeAttribute(const AXMLNode: Variant; const AAttributeName: string; out AValue: string): Boolean; forward;
 /// <summary> Try to open a filename in notepad. When in very silent mode, it will fail. </summary>
 function TryOpenInNotepad(const AFileName: string): Boolean; forward;
 /// <summary> Try to open the support url defined by #LibrarySupportURL. When in very silent mode, it will fail. </summary>
@@ -175,6 +179,17 @@ begin
     TryOpenInNotepad(ExpandConstant(ExpandConstant('{log}')));
 end;
 
+function ReadXMLNodeText(const AXMLNode: Variant; const AXPath, ADefaultValue: string): string;
+var
+  LXMLNode: Variant;
+begin
+  LXMLNode := AXMLNode.SelectSingleNode(AXPath);
+  if VarIsClear(LXMLNode) then
+    Result := ADefaultValue
+  else
+    Result := LXMLNode.Text;
+end;
+
 procedure ShowError(const AMessage: string);
 var
   LIsFirstError: Boolean;
@@ -205,6 +220,22 @@ begin
   Log('Setup.Utils.ShowMessage: ' + AMessage);
   if not IsVerySilent then
     MsgBox(AMessage, mbInformation, MB_OK);
+end;
+
+function TryGetXMLNodeAttribute(const AXMLNode: Variant; const AAttributeName: string; out AValue: string): Boolean;
+var
+  I: Integer;
+begin
+  for I := 0 to AXMLNode.Attributes.Length - 1 do
+  begin
+    if SameText(AXMLNode.Attributes[I].NodeName, AAttributeName) then
+    begin
+      AValue := AXMLNode.Attributes[I].NodeValue;
+      Result := True;
+      Exit;
+    end;
+  end;
+  Result := False;
 end;
 
 function TryOpenInNotepad(const AFileName: string): Boolean;

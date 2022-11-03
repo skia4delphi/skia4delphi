@@ -12,13 +12,14 @@ object frmBase: TfrmBase
   OnCreate = FormCreate
   OnKeyDown = FormKeyDown
   DesignerMasterStyle = 0
-  object lytContent: TLayout
+  object rctContent: TRectangle
     Align = Client
+    Fill.Color = xFFF2F2F7
     Size.Width = 360.000000000000000000
     Size.Height = 604.000000000000000000
     Size.PlatformDefault = False
-    TabOrder = 0
-    OnResize = lytContentResized
+    Stroke.Kind = None
+    OnResize = rctContentResized
     object rctHeader: TRectangle
       Align = Top
       Fill.Color = claWhite
@@ -33,9 +34,10 @@ object frmBase: TfrmBase
         Size.Width = 360.000000000000000000
         Size.Height = 44.000000000000000000
         Size.PlatformDefault = False
-        StyledSettings = [Family, FontColor]
+        StyledSettings = [Family]
         TextSettings.Font.Size = 16.000000000000000000
         TextSettings.Font.Weight = Semibold
+        TextSettings.FontColor = xFF1B1B1B
         TextSettings.HorzAlign = Center
         Words = <
           item
@@ -48,6 +50,7 @@ object frmBase: TfrmBase
         Size.Width = 48.000000000000000000
         Size.Height = 44.000000000000000000
         Size.PlatformDefault = False
+        StyleLookup = 'transparentcirclebuttonstyle'
         OnClick = btnBackClick
         object svgBackArrow: TSkSvg
           Align = Center
@@ -117,7 +120,7 @@ object frmBase: TfrmBase
           Position.Y = 1.000000000000000000
           Size.Width = 295.000000000000000000
           Size.PlatformDefault = False
-          OnResize = lytContentResized
+          OnResize = rctContentResized
           StyledSettings = [Family]
           TextSettings.Font.Size = 11.000000000000000000
           TextSettings.FontColor = xFFA4A4A4

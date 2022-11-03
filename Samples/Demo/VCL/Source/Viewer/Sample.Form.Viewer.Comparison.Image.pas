@@ -54,7 +54,6 @@ begin
 
   LFrontPaint := TSkPaint.Create;
   LFrontPaint.Color := TAlphaColors.White;
-  LFrontPaint.Style := TSkPaintStyle.Fill;
 
   ACanvas.DrawImage(AImage, 0, 0);
   ACanvas.DrawRect(RectF(0, 0, AImage.Width, TitleHeight), LBackPaint);

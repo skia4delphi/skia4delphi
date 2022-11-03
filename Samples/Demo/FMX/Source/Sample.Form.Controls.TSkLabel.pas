@@ -19,7 +19,7 @@ uses
   { Delphi }
   System.SysUtils, System.Types, System.UITypes, System.Classes, System.IOUtils,
   FMX.Types, FMX.Graphics, FMX.Controls, FMX.Forms, FMX.StdCtrls, FMX.Layouts,
-  FMX.Objects,
+  FMX.Objects, FMX.Controls.Presentation,
 
   { Skia }
   Skia, Skia.FMX,
@@ -87,8 +87,8 @@ begin
       LLabel: TSkLabel absolute Result;
     begin
       // It is preferable to register only once at startup.
-      TSkTypefaceManager.RegisterTypeface(AssetsPath + 'bonheur-royale-regular.ttf');
-      TSkTypefaceManager.RegisterTypeface(AssetsPath + 'nunito-extrabold.ttf');
+      TSkDefaultProviders.RegisterTypeface(AssetsPath + 'bonheur-royale-regular.ttf');
+      TSkDefaultProviders.RegisterTypeface(AssetsPath + 'nunito-extrabold.ttf');
 
       LLabel := TSkLabel.Create(nil);
       LLabel.Align := TAlignLayout.Top;
@@ -217,7 +217,7 @@ procedure TfrmTSkLabel.OnWordClick(Sender: TObject);
 var
   LItem: TSkLabel.TWordsItem absolute Sender;
 begin
-  Showmessage(Format('Clicked text: "%s"', [LItem.Text]));
+  ShowMessage(Format('Clicked text: "%s"', [LItem.Text]));
 end;
 
 end.

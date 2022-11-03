@@ -44,12 +44,12 @@
     <PropertyGroup Condition="'$(Base)'!=''">
         <SanitizedProjectName>Skia_Package_VCL_Designtime</SanitizedProjectName>
         <DCC_BplOutput>..\..\Library\RAD Studio XE7\$(Platform)\$(Config)\Bpl</DCC_BplOutput>
-        <DCC_CBuilderOutput>All</DCC_CBuilderOutput>
         <DCC_DcpOutput>..\..\Library\RAD Studio XE7\$(Platform)\$(Config)</DCC_DcpOutput>
         <DCC_DcuOutput>..\..\Library\RAD Studio XE7\$(Platform)\$(Config)</DCC_DcuOutput>
         <DCC_Description>Skia4Delphi VCL Designtime package</DCC_Description>
         <DCC_ExeOutput>.\$(Platform)\$(Config)</DCC_ExeOutput>
         <DCC_Namespace>System;Xml;Data;Datasnap;Web;Soap;Vcl;Vcl.Imaging;Vcl.Touch;Vcl.Samples;Vcl.Shell;$(DCC_Namespace)</DCC_Namespace>
+        <DCC_OutputNeverBuildDcps>true</DCC_OutputNeverBuildDcps>
         <DCC_UnitSearchPath>..\..\Library\RAD Studio XE7\$(Platform)\$(Config);..\..\Source;..\..\Source\VCL;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
         <DesignOnlyPackage>true</DesignOnlyPackage>
         <DllSuffix>210</DllSuffix>

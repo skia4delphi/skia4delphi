@@ -50,7 +50,7 @@ inherited frmFilter: TfrmFilter
           Align = alTop
           OnClick = pnlVignetteClick
           TextSettings.Font.Size = 11.000000000000000000
-          TextSettings.FontColor = xFF9FA5A8
+          TextSettings.FontColor = xFFA0A0A1
           TextSettings.MaxLines = 1
           Words = <
             item
@@ -72,6 +72,7 @@ inherited frmFilter: TfrmFilter
           Align = alTop
           OnClick = pnlVignetteClick
           TextSettings.Font.Weight = Medium
+          TextSettings.FontColor = xFF1B1B1B
           TextSettings.MaxLines = 2
           Words = <
             item
@@ -156,7 +157,7 @@ inherited frmFilter: TfrmFilter
           Align = alTop
           OnClick = pnlHueSaturationClick
           TextSettings.Font.Size = 11.000000000000000000
-          TextSettings.FontColor = xFF9FA5A8
+          TextSettings.FontColor = xFFA0A0A1
           TextSettings.MaxLines = 1
           Words = <
             item
@@ -178,6 +179,7 @@ inherited frmFilter: TfrmFilter
           Align = alTop
           OnClick = pnlHueSaturationClick
           TextSettings.Font.Weight = Medium
+          TextSettings.FontColor = xFF1B1B1B
           TextSettings.MaxLines = 2
           Words = <
             item
@@ -262,7 +264,7 @@ inherited frmFilter: TfrmFilter
           Align = alTop
           OnClick = pnlCommonColorFilterClick
           TextSettings.Font.Size = 11.000000000000000000
-          TextSettings.FontColor = xFF9FA5A8
+          TextSettings.FontColor = xFFA0A0A1
           TextSettings.MaxLines = 1
           Words = <
             item
@@ -284,6 +286,7 @@ inherited frmFilter: TfrmFilter
           Align = alTop
           OnClick = pnlCommonColorFilterClick
           TextSettings.Font.Weight = Medium
+          TextSettings.FontColor = xFF1B1B1B
           TextSettings.MaxLines = 2
           Words = <
             item
@@ -368,7 +371,7 @@ inherited frmFilter: TfrmFilter
           Align = alTop
           OnClick = pnlBrightnessContrastClick
           TextSettings.Font.Size = 11.000000000000000000
-          TextSettings.FontColor = xFF9FA5A8
+          TextSettings.FontColor = xFFA0A0A1
           TextSettings.MaxLines = 1
           Words = <
             item
@@ -390,6 +393,7 @@ inherited frmFilter: TfrmFilter
           Align = alTop
           OnClick = pnlBrightnessContrastClick
           TextSettings.Font.Weight = Medium
+          TextSettings.FontColor = xFF1B1B1B
           TextSettings.MaxLines = 2
           Words = <
             item
@@ -474,7 +478,7 @@ inherited frmFilter: TfrmFilter
           Align = alTop
           OnClick = pnlDropShadowClick
           TextSettings.Font.Size = 11.000000000000000000
-          TextSettings.FontColor = xFF9FA5A8
+          TextSettings.FontColor = xFFA0A0A1
           TextSettings.MaxLines = 1
           Words = <
             item
@@ -496,6 +500,7 @@ inherited frmFilter: TfrmFilter
           Align = alTop
           OnClick = pnlDropShadowClick
           TextSettings.Font.Weight = Medium
+          TextSettings.FontColor = xFF1B1B1B
           TextSettings.MaxLines = 2
           Words = <
             item
@@ -580,7 +585,7 @@ inherited frmFilter: TfrmFilter
           Align = alTop
           OnClick = pnlLightingEffectsClick
           TextSettings.Font.Size = 11.000000000000000000
-          TextSettings.FontColor = xFF9FA5A8
+          TextSettings.FontColor = xFFA0A0A1
           TextSettings.MaxLines = 1
           Words = <
             item
@@ -602,6 +607,7 @@ inherited frmFilter: TfrmFilter
           Align = alTop
           OnClick = pnlLightingEffectsClick
           TextSettings.Font.Weight = Medium
+          TextSettings.FontColor = xFF1B1B1B
           TextSettings.MaxLines = 2
           Words = <
             item

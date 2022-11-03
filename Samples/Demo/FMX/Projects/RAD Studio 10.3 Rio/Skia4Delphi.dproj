@@ -110,9 +110,10 @@
         <BT_BuildType>Debug</BT_BuildType>
         <DCC_UsePackage>DBXSqliteDriver;RESTComponents;DBXInterBaseDriver;emsclientfiredac;DataSnapFireDAC;tethering;bindcompfmx;FmxTeeUI;FireDACIBDriver;fmx;FireDACDBXDriver;dbexpress;IndyCore;dsnap;DataSnapCommon;emsclient;FireDACCommon;RESTBackendComponents;soapserver;Skia.Package.FMX;bindengine;CloudService;FireDACCommonDriver;DataSnapClient;inet;bindcompdbx;IndyIPCommon;IndyIPServer;IndySystem;fmxFireDAC;FireDAC;FireDACSqliteDriver;ibmonitor;FMXTee;soaprtl;DbxCommonDriver;ibxpress;xmlrtl;soapmidas;DataSnapNativeClient;ibxbindings;rtl;DbxClientDriver;FireDACDSDriver;CustomIPTransport;bindcomp;IndyIPClient;Skia.Package.RTL;dbxcds;dsnapxml;DataSnapProviderClient;dbrtl;IndyProtocols;$(DCC_UsePackage)</DCC_UsePackage>
         <EnabledSysJars>android-support-v4.dex.jar;cloud-messaging.dex.jar;com-google-android-gms.play-services-ads-base.17.2.0.dex.jar;com-google-android-gms.play-services-ads-identifier.16.0.0.dex.jar;com-google-android-gms.play-services-ads-lite.17.2.0.dex.jar;com-google-android-gms.play-services-ads.17.2.0.dex.jar;com-google-android-gms.play-services-analytics-impl.16.0.8.dex.jar;com-google-android-gms.play-services-analytics.16.0.8.dex.jar;com-google-android-gms.play-services-base.16.0.1.dex.jar;com-google-android-gms.play-services-basement.16.2.0.dex.jar;com-google-android-gms.play-services-gass.17.2.0.dex.jar;com-google-android-gms.play-services-identity.16.0.0.dex.jar;com-google-android-gms.play-services-maps.16.1.0.dex.jar;com-google-android-gms.play-services-measurement-base.16.4.0.dex.jar;com-google-android-gms.play-services-measurement-sdk-api.16.4.0.dex.jar;com-google-android-gms.play-services-stats.16.0.1.dex.jar;com-google-android-gms.play-services-tagmanager-v4-impl.16.0.8.dex.jar;com-google-android-gms.play-services-tasks.16.0.1.dex.jar;com-google-android-gms.play-services-wallet.16.0.1.dex.jar;com-google-firebase.firebase-analytics.16.4.0.dex.jar;com-google-firebase.firebase-common.16.1.0.dex.jar;com-google-firebase.firebase-iid-interop.16.0.1.dex.jar;com-google-firebase.firebase-iid.17.1.1.dex.jar;com-google-firebase.firebase-measurement-connector.17.0.1.dex.jar;com-google-firebase.firebase-messaging.17.5.0.dex.jar;fmx.dex.jar;google-play-billing.dex.jar;google-play-licensing.dex.jar</EnabledSysJars>
+        <IncludeAndroid_Splash>False</IncludeAndroid_Splash>
         <VerInfo_Build>3</VerInfo_Build>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
-        <VerInfo_Keys>package=org.skia4delphi.demo;label=$(MSBuildProjectName);versionCode=3;versionName=3.4.1;persistent=False;restoreAnyVersion=False;installLocation=auto;largeHeap=False;theme=TitleBar;hardwareAccelerated=true;apiKey=</VerInfo_Keys>
+        <VerInfo_Keys>package=org.skia4delphi.demo;label=$(MSBuildProjectName);versionCode=3;versionName=1.0.0;persistent=False;restoreAnyVersion=False;installLocation=auto;largeHeap=False;theme=No TitleBar;hardwareAccelerated=true;apiKey=</VerInfo_Keys>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Android64)'!=''">
         <Android_LauncherIcon144>$(BDS)\bin\Artwork\Android\FM_LauncherIcon_144x144.png</Android_LauncherIcon144>
@@ -133,9 +134,10 @@
         <BT_BuildType>Debug</BT_BuildType>
         <DCC_UsePackage>DBXSqliteDriver;RESTComponents;DBXInterBaseDriver;emsclientfiredac;DataSnapFireDAC;tethering;bindcompfmx;FmxTeeUI;FireDACIBDriver;fmx;FireDACDBXDriver;dbexpress;IndyCore;dsnap;DataSnapCommon;emsclient;FireDACCommon;RESTBackendComponents;soapserver;Skia.Package.FMX;bindengine;CloudService;FireDACCommonDriver;DataSnapClient;inet;bindcompdbx;IndyIPCommon;IndyIPServer;IndySystem;fmxFireDAC;FireDAC;FireDACSqliteDriver;ibmonitor;FMXTee;soaprtl;DbxCommonDriver;ibxpress;xmlrtl;soapmidas;DataSnapNativeClient;ibxbindings;rtl;DbxClientDriver;FireDACDSDriver;CustomIPTransport;bindcomp;IndyIPClient;Skia.Package.RTL;dbxcds;dsnapxml;DataSnapProviderClient;dbrtl;IndyProtocols;$(DCC_UsePackage)</DCC_UsePackage>
         <EnabledSysJars>android-support-v4.dex.jar;cloud-messaging.dex.jar;com-google-android-gms.play-services-ads-base.17.2.0.dex.jar;com-google-android-gms.play-services-ads-identifier.16.0.0.dex.jar;com-google-android-gms.play-services-ads-lite.17.2.0.dex.jar;com-google-android-gms.play-services-ads.17.2.0.dex.jar;com-google-android-gms.play-services-analytics-impl.16.0.8.dex.jar;com-google-android-gms.play-services-analytics.16.0.8.dex.jar;com-google-android-gms.play-services-base.16.0.1.dex.jar;com-google-android-gms.play-services-basement.16.2.0.dex.jar;com-google-android-gms.play-services-gass.17.2.0.dex.jar;com-google-android-gms.play-services-identity.16.0.0.dex.jar;com-google-android-gms.play-services-maps.16.1.0.dex.jar;com-google-android-gms.play-services-measurement-base.16.4.0.dex.jar;com-google-android-gms.play-services-measurement-sdk-api.16.4.0.dex.jar;com-google-android-gms.play-services-stats.16.0.1.dex.jar;com-google-android-gms.play-services-tagmanager-v4-impl.16.0.8.dex.jar;com-google-android-gms.play-services-tasks.16.0.1.dex.jar;com-google-android-gms.play-services-wallet.16.0.1.dex.jar;com-google-firebase.firebase-analytics.16.4.0.dex.jar;com-google-firebase.firebase-common.16.1.0.dex.jar;com-google-firebase.firebase-iid-interop.16.0.1.dex.jar;com-google-firebase.firebase-iid.17.1.1.dex.jar;com-google-firebase.firebase-measurement-connector.17.0.1.dex.jar;com-google-firebase.firebase-messaging.17.5.0.dex.jar;fmx.dex.jar;google-play-billing.dex.jar;google-play-licensing.dex.jar</EnabledSysJars>
+        <IncludeAndroid_Splash>False</IncludeAndroid_Splash>
         <VerInfo_Build>3</VerInfo_Build>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
-        <VerInfo_Keys>package=org.skia4delphi.demo;label=$(MSBuildProjectName);versionCode=3;versionName=3.4.1;persistent=False;restoreAnyVersion=False;installLocation=auto;largeHeap=False;theme=TitleBar;hardwareAccelerated=true;apiKey=</VerInfo_Keys>
+        <VerInfo_Keys>package=org.skia4delphi.demo;label=$(MSBuildProjectName);versionCode=3;versionName=1.0.0;persistent=False;restoreAnyVersion=False;installLocation=auto;largeHeap=False;theme=No TitleBar;hardwareAccelerated=true;apiKey=</VerInfo_Keys>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win32)'!=''">
         <BT_BuildType>Debug</BT_BuildType>
@@ -143,7 +145,7 @@
         <DCC_UsePackage>DBXSqliteDriver;RESTComponents;DataSnapServerMidas;DBXDb2Driver;DBXInterBaseDriver;vclactnband;vclFireDAC;emsclientfiredac;DataSnapFireDAC;svnui;tethering;FireDACADSDriver;DBXMSSQLDriver;DatasnapConnectorsFreePascal;FireDACMSSQLDriver;vcltouch;vcldb;bindcompfmx;svn;DBXOracleDriver;inetdb;FmxTeeUI;emsedge;FireDACIBDriver;fmx;fmxdae;vclib;FireDACDBXDriver;dbexpress;IndyCore;vclx;dsnap;DataSnapCommon;emsclient;FireDACCommon;RESTBackendComponents;DataSnapConnectors;VCLRESTComponents;Skia.Package.VCL;soapserver;Skia.Package.FMX;vclie;bindengine;DBXMySQLDriver;FireDACOracleDriver;CloudService;FireDACMySQLDriver;DBXFirebirdDriver;FireDACCommonODBC;FireDACCommonDriver;DataSnapClient;inet;bindcompdbx;IndyIPCommon;vcl;DBXSybaseASEDriver;IndyIPServer;IndySystem;FireDACDb2Driver;dsnapcon;FireDACMSAccDriver;fmxFireDAC;FireDACInfxDriver;vclimg;TeeDB;FireDAC;emshosting;FireDACSqliteDriver;FireDACPgDriver;ibmonitor;FireDACASADriver;DBXOdbcDriver;FireDACTDataDriver;FMXTee;soaprtl;DbxCommonDriver;ibxpress;Tee;DataSnapServer;xmlrtl;soapmidas;DataSnapNativeClient;fmxobj;vclwinx;ibxbindings;rtl;emsserverresource;DbxClientDriver;FireDACDSDriver;DBXSybaseASADriver;CustomIPTransport;vcldsnap;bindcomp;appanalytics;DBXInformixDriver;IndyIPClient;Skia.Package.RTL;bindcompvcl;TeeUI;dbxcds;VclSmp;adortl;FireDACODBCDriver;DataSnapIndy10ServerTransport;dsnapxml;DataSnapProviderClient;dbrtl;inetdbxpress;FireDACMongoDBDriver;IndyProtocols;fmxase;$(DCC_UsePackage)</DCC_UsePackage>
         <Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
-        <VerInfo_Keys>CompanyName=skia4delphi.org;FileDescription=$(MSBuildProjectName);FileVersion=3.4.1.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=org.skia4delphi.demo;ProductName=$(MSBuildProjectName);ProductVersion=3.4.1.0;Comments=</VerInfo_Keys>
+        <VerInfo_Keys>CompanyName=skia4delphi.org;FileDescription=$(MSBuildProjectName);FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=org.skia4delphi.demo;ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
         <VerInfo_Locale>1033</VerInfo_Locale>
         <VerInfo_MajorVer>3</VerInfo_MajorVer>
     </PropertyGroup>
@@ -153,7 +155,7 @@
         <DCC_UsePackage>DBXSqliteDriver;RESTComponents;DataSnapServerMidas;DBXDb2Driver;DBXInterBaseDriver;vclactnband;vclFireDAC;emsclientfiredac;DataSnapFireDAC;tethering;FireDACADSDriver;DBXMSSQLDriver;DatasnapConnectorsFreePascal;FireDACMSSQLDriver;vcltouch;vcldb;bindcompfmx;DBXOracleDriver;inetdb;FmxTeeUI;emsedge;FireDACIBDriver;fmx;fmxdae;vclib;FireDACDBXDriver;dbexpress;IndyCore;vclx;dsnap;DataSnapCommon;emsclient;FireDACCommon;RESTBackendComponents;DataSnapConnectors;VCLRESTComponents;Skia.Package.VCL;soapserver;Skia.Package.FMX;vclie;bindengine;DBXMySQLDriver;FireDACOracleDriver;CloudService;FireDACMySQLDriver;DBXFirebirdDriver;FireDACCommonODBC;FireDACCommonDriver;DataSnapClient;inet;bindcompdbx;IndyIPCommon;vcl;DBXSybaseASEDriver;IndyIPServer;IndySystem;FireDACDb2Driver;dsnapcon;FireDACMSAccDriver;fmxFireDAC;FireDACInfxDriver;vclimg;TeeDB;FireDAC;emshosting;FireDACSqliteDriver;FireDACPgDriver;ibmonitor;FireDACASADriver;DBXOdbcDriver;FireDACTDataDriver;FMXTee;soaprtl;DbxCommonDriver;ibxpress;Tee;DataSnapServer;xmlrtl;soapmidas;DataSnapNativeClient;fmxobj;vclwinx;ibxbindings;rtl;emsserverresource;DbxClientDriver;FireDACDSDriver;DBXSybaseASADriver;CustomIPTransport;vcldsnap;bindcomp;appanalytics;DBXInformixDriver;IndyIPClient;Skia.Package.RTL;bindcompvcl;TeeUI;dbxcds;VclSmp;adortl;FireDACODBCDriver;DataSnapIndy10ServerTransport;dsnapxml;DataSnapProviderClient;dbrtl;inetdbxpress;FireDACMongoDBDriver;IndyProtocols;fmxase;$(DCC_UsePackage)</DCC_UsePackage>
         <Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
-        <VerInfo_Keys>CompanyName=skia4delphi.org;FileDescription=$(MSBuildProjectName);FileVersion=3.4.1.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=org.skia4delphi.demo;ProductName=$(MSBuildProjectName);ProductVersion=3.4.1.0;Comments=</VerInfo_Keys>
+        <VerInfo_Keys>CompanyName=skia4delphi.org;FileDescription=$(MSBuildProjectName);FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=org.skia4delphi.demo;ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
         <VerInfo_Locale>1033</VerInfo_Locale>
         <VerInfo_MajorVer>3</VerInfo_MajorVer>
     </PropertyGroup>
@@ -256,6 +258,10 @@
         </DCCReference>
         <DCCReference Include="..\..\Source\Sample.Form.RuntimeEffects.pas">
             <Form>frmRuntimeEffects</Form>
+            <FormType>fmx</FormType>
+        </DCCReference>
+        <DCCReference Include="..\..\Source\Sample.Form.SplashScreen.pas">
+            <Form>frmSplashScreen</Form>
             <FormType>fmx</FormType>
         </DCCReference>
         <DCCReference Include="..\..\Source\Sample.Form.Text.pas">
@@ -405,7 +411,91 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\Particles\confetti.json" Configuration="Debug" Class="File">
+                <DeployFile LocalName="..\..\Resources\splash_image_def.xml" Configuration="Debug" Class="File">
+                    <Platform Name="Android">
+                        <RemoteDir>res\drawable</RemoteDir>
+                        <RemoteName>splash_image_def.xml</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="..\..\Resources\splash_image_def.xml" Configuration="Debug" Class="File">
+                    <Platform Name="Android64">
+                        <RemoteDir>res\drawable\</RemoteDir>
+                        <RemoteName>splash_image_def.xml</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="..\..\Resources\splash_image_def.xml" Configuration="Release" Class="File">
+                    <Platform Name="Android">
+                        <RemoteDir>res\drawable\</RemoteDir>
+                        <RemoteName>splash_image_def.xml</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="..\..\Resources\splash_image_def.xml" Configuration="Release" Class="File">
+                    <Platform Name="Android64">
+                        <RemoteDir>res\drawable\</RemoteDir>
+                        <RemoteName>splash_image_def.xml</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="..\..\Resources\styles.xml" Configuration="Debug" Class="File">
+                    <Platform Name="Android">
+                        <RemoteDir>res\values\</RemoteDir>
+                        <RemoteName>styles.xml</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="..\..\Resources\styles.xml" Configuration="Debug" Class="File">
+                    <Platform Name="Android64">
+                        <RemoteDir>res\values\</RemoteDir>
+                        <RemoteName>styles.xml</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="..\..\Resources\styles.xml" Configuration="Release" Class="File">
+                    <Platform Name="Android">
+                        <RemoteDir>res\values\</RemoteDir>
+                        <RemoteName>styles.xml</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="..\..\Resources\styles.xml" Configuration="Release" Class="File">
+                    <Platform Name="Android64">
+                        <RemoteDir>res\values\</RemoteDir>
+                        <RemoteName>styles.xml</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="..\..\Resources\values-v27\styles.xml" Configuration="Debug" Class="File">
+                    <Platform Name="Android">
+                        <RemoteDir>res\values-v27\</RemoteDir>
+                        <RemoteName>styles.xml</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="..\..\Resources\values-v27\styles.xml" Configuration="Debug" Class="File">
+                    <Platform Name="Android64">
+                        <RemoteDir>res\values-v27\</RemoteDir>
+                        <RemoteName>styles.xml</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="..\..\Resources\values-v27\styles.xml" Configuration="Release" Class="File">
+                    <Platform Name="Android">
+                        <RemoteDir>res\values-v27\</RemoteDir>
+                        <RemoteName>styles.xml</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="..\..\Resources\values-v27\styles.xml" Configuration="Release" Class="File">
+                    <Platform Name="Android64">
+                        <RemoteDir>res\values-v27\</RemoteDir>
+                        <RemoteName>styles.xml</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="..\..\..\Assets\Particles\confetti.json" Configuration="Debug" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\Particles</RemoteDir>
                         <RemoteName>confetti.json</RemoteName>
@@ -417,7 +507,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\Particles\confetti.json" Configuration="Release" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\Particles\confetti.json" Configuration="Release" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\Particles</RemoteDir>
                         <RemoteName>confetti.json</RemoteName>
@@ -429,7 +519,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\Particles\cube.json" Configuration="Debug" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\Particles\cube.json" Configuration="Debug" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\Particles</RemoteDir>
                         <RemoteName>cube.json</RemoteName>
@@ -441,7 +531,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\Particles\cube.json" Configuration="Release" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\Particles\cube.json" Configuration="Release" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\Particles</RemoteDir>
                         <RemoteName>cube.json</RemoteName>
@@ -453,7 +543,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\Particles\curves.json" Configuration="Debug" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\Particles\curves.json" Configuration="Debug" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\Particles</RemoteDir>
                         <RemoteName>curves.json</RemoteName>
@@ -465,7 +555,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\Particles\curves.json" Configuration="Release" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\Particles\curves.json" Configuration="Release" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\Particles</RemoteDir>
                         <RemoteName>curves.json</RemoteName>
@@ -477,7 +567,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\Particles\fireworks.json" Configuration="Debug" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\Particles\fireworks.json" Configuration="Debug" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\Particles</RemoteDir>
                         <RemoteName>fireworks.json</RemoteName>
@@ -489,7 +579,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\Particles\fireworks.json" Configuration="Release" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\Particles\fireworks.json" Configuration="Release" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\Particles</RemoteDir>
                         <RemoteName>fireworks.json</RemoteName>
@@ -501,7 +591,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\Particles\mandrill.json" Configuration="Debug" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\Particles\mandrill.json" Configuration="Debug" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\Particles</RemoteDir>
                         <RemoteName>mandrill.json</RemoteName>
@@ -513,7 +603,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\Particles\mandrill.json" Configuration="Release" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\Particles\mandrill.json" Configuration="Release" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\Particles</RemoteDir>
                         <RemoteName>mandrill.json</RemoteName>
@@ -525,7 +615,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\Particles\mouse_track.json" Configuration="Debug" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\Particles\mouse_track.json" Configuration="Debug" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\Particles</RemoteDir>
                         <RemoteName>mouse_track.json</RemoteName>
@@ -537,7 +627,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\Particles\mouse_track.json" Configuration="Release" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\Particles\mouse_track.json" Configuration="Release" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\Particles</RemoteDir>
                         <RemoteName>mouse_track.json</RemoteName>
@@ -549,7 +639,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\Particles\mouse_trail.json" Configuration="Debug" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\Particles\mouse_trail.json" Configuration="Debug" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\Particles</RemoteDir>
                         <RemoteName>mouse_trail.json</RemoteName>
@@ -561,7 +651,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\Particles\mouse_trail.json" Configuration="Release" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\Particles\mouse_trail.json" Configuration="Release" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\Particles</RemoteDir>
                         <RemoteName>mouse_trail.json</RemoteName>
@@ -573,7 +663,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\Particles\orientation.json" Configuration="Debug" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\Particles\orientation.json" Configuration="Debug" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\Particles</RemoteDir>
                         <RemoteName>orientation.json</RemoteName>
@@ -585,7 +675,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\Particles\orientation.json" Configuration="Release" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\Particles\orientation.json" Configuration="Release" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\Particles</RemoteDir>
                         <RemoteName>orientation.json</RemoteName>
@@ -597,7 +687,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\Particles\path_spawn.json" Configuration="Debug" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\Particles\path_spawn.json" Configuration="Debug" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\Particles</RemoteDir>
                         <RemoteName>path_spawn.json</RemoteName>
@@ -609,7 +699,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\Particles\path_spawn.json" Configuration="Release" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\Particles\path_spawn.json" Configuration="Release" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\Particles</RemoteDir>
                         <RemoteName>path_spawn.json</RemoteName>
@@ -621,7 +711,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\Particles\sinusoidal_emitter.json" Configuration="Debug" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\Particles\sinusoidal_emitter.json" Configuration="Debug" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\Particles</RemoteDir>
                         <RemoteName>sinusoidal_emitter.json</RemoteName>
@@ -633,7 +723,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\Particles\sinusoidal_emitter.json" Configuration="Release" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\Particles\sinusoidal_emitter.json" Configuration="Release" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\Particles</RemoteDir>
                         <RemoteName>sinusoidal_emitter.json</RemoteName>
@@ -645,7 +735,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\Particles\spiral.json" Configuration="Debug" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\Particles\spiral.json" Configuration="Debug" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\Particles</RemoteDir>
                         <RemoteName>spiral.json</RemoteName>
@@ -657,7 +747,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\Particles\spiral.json" Configuration="Release" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\Particles\spiral.json" Configuration="Release" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\Particles</RemoteDir>
                         <RemoteName>spiral.json</RemoteName>
@@ -669,7 +759,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\Particles\sprite_frame.json" Configuration="Debug" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\Particles\sprite_frame.json" Configuration="Debug" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\Particles</RemoteDir>
                         <RemoteName>sprite_frame.json</RemoteName>
@@ -681,7 +771,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\Particles\sprite_frame.json" Configuration="Release" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\Particles\sprite_frame.json" Configuration="Release" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\Particles</RemoteDir>
                         <RemoteName>sprite_frame.json</RemoteName>
@@ -693,7 +783,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\Particles\text.json" Configuration="Debug" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\Particles\text.json" Configuration="Debug" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\Particles</RemoteDir>
                         <RemoteName>text.json</RemoteName>
@@ -705,7 +795,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\Particles\text.json" Configuration="Release" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\Particles\text.json" Configuration="Release" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\Particles</RemoteDir>
                         <RemoteName>text.json</RemoteName>
@@ -717,7 +807,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\Particles\uniforms.json" Configuration="Debug" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\Particles\uniforms.json" Configuration="Debug" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\Particles</RemoteDir>
                         <RemoteName>uniforms.json</RemoteName>
@@ -729,7 +819,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\Particles\uniforms.json" Configuration="Release" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\Particles\uniforms.json" Configuration="Release" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\Particles</RemoteDir>
                         <RemoteName>uniforms.json</RemoteName>
@@ -741,7 +831,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\Particles\variable_rate.json" Configuration="Debug" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\Particles\variable_rate.json" Configuration="Debug" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\Particles</RemoteDir>
                         <RemoteName>variable_rate.json</RemoteName>
@@ -753,7 +843,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\Particles\variable_rate.json" Configuration="Release" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\Particles\variable_rate.json" Configuration="Release" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\Particles</RemoteDir>
                         <RemoteName>variable_rate.json</RemoteName>
@@ -765,7 +855,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\Particles\warp.json" Configuration="Debug" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\Particles\warp.json" Configuration="Debug" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\Particles</RemoteDir>
                         <RemoteName>warp.json</RemoteName>
@@ -777,7 +867,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\Particles\warp.json" Configuration="Release" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\Particles\warp.json" Configuration="Release" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\Particles</RemoteDir>
                         <RemoteName>warp.json</RemoteName>
@@ -789,7 +879,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\Particles\writing.json" Configuration="Debug" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\Particles\writing.json" Configuration="Debug" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\Particles</RemoteDir>
                         <RemoteName>writing.json</RemoteName>
@@ -801,7 +891,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\Particles\writing.json" Configuration="Release" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\Particles\writing.json" Configuration="Release" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\Particles</RemoteDir>
                         <RemoteName>writing.json</RemoteName>
@@ -813,7 +903,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\RuntimeEffects Shaders\blobs.sksl" Configuration="Debug" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\RuntimeEffects Shaders\blobs.sksl" Configuration="Debug" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\RuntimeEffects Shaders</RemoteDir>
                         <RemoteName>blobs.sksl</RemoteName>
@@ -825,7 +915,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\RuntimeEffects Shaders\blobs.sksl" Configuration="Release" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\RuntimeEffects Shaders\blobs.sksl" Configuration="Release" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\RuntimeEffects Shaders</RemoteDir>
                         <RemoteName>blobs.sksl</RemoteName>
@@ -837,7 +927,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\RuntimeEffects Shaders\ether.sksl" Configuration="Debug" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\RuntimeEffects Shaders\ether.sksl" Configuration="Debug" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\RuntimeEffects Shaders</RemoteDir>
                         <RemoteName>ether.sksl</RemoteName>
@@ -849,7 +939,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\RuntimeEffects Shaders\ether.sksl" Configuration="Release" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\RuntimeEffects Shaders\ether.sksl" Configuration="Release" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\RuntimeEffects Shaders</RemoteDir>
                         <RemoteName>ether.sksl</RemoteName>
@@ -861,7 +951,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\RuntimeEffects Shaders\flame.sksl" Configuration="Debug" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\RuntimeEffects Shaders\flame.sksl" Configuration="Debug" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\RuntimeEffects Shaders</RemoteDir>
                         <RemoteName>flame.sksl</RemoteName>
@@ -873,7 +963,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\RuntimeEffects Shaders\flame.sksl" Configuration="Release" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\RuntimeEffects Shaders\flame.sksl" Configuration="Release" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\RuntimeEffects Shaders</RemoteDir>
                         <RemoteName>flame.sksl</RemoteName>
@@ -885,7 +975,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\RuntimeEffects Shaders\lava.sksl" Configuration="Debug" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\RuntimeEffects Shaders\lava.sksl" Configuration="Debug" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\RuntimeEffects Shaders</RemoteDir>
                         <RemoteName>lava.sksl</RemoteName>
@@ -897,7 +987,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\RuntimeEffects Shaders\lava.sksl" Configuration="Release" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\RuntimeEffects Shaders\lava.sksl" Configuration="Release" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\RuntimeEffects Shaders</RemoteDir>
                         <RemoteName>lava.sksl</RemoteName>
@@ -909,7 +999,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\RuntimeEffects Shaders\mouse.sksl" Configuration="Debug" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\RuntimeEffects Shaders\mouse.sksl" Configuration="Debug" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\RuntimeEffects Shaders</RemoteDir>
                         <RemoteName>mouse.sksl</RemoteName>
@@ -921,7 +1011,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\RuntimeEffects Shaders\mouse.sksl" Configuration="Release" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\RuntimeEffects Shaders\mouse.sksl" Configuration="Release" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\RuntimeEffects Shaders</RemoteDir>
                         <RemoteName>mouse.sksl</RemoteName>
@@ -933,7 +1023,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\RuntimeEffects Shaders\nested-colors.sksl" Configuration="Debug" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\RuntimeEffects Shaders\nested-colors.sksl" Configuration="Debug" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\RuntimeEffects Shaders</RemoteDir>
                         <RemoteName>nested-colors.sksl</RemoteName>
@@ -945,7 +1035,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\RuntimeEffects Shaders\nested-colors.sksl" Configuration="Release" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\RuntimeEffects Shaders\nested-colors.sksl" Configuration="Release" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\RuntimeEffects Shaders</RemoteDir>
                         <RemoteName>nested-colors.sksl</RemoteName>
@@ -957,7 +1047,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\RuntimeEffects Shaders\oleadas.sksl" Configuration="Debug" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\RuntimeEffects Shaders\oleadas.sksl" Configuration="Debug" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\RuntimeEffects Shaders</RemoteDir>
                         <RemoteName>oleadas.sksl</RemoteName>
@@ -969,7 +1059,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\RuntimeEffects Shaders\oleadas.sksl" Configuration="Release" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\RuntimeEffects Shaders\oleadas.sksl" Configuration="Release" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\RuntimeEffects Shaders</RemoteDir>
                         <RemoteName>oleadas.sksl</RemoteName>
@@ -981,7 +1071,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\RuntimeEffects Shaders\pink-grid.sksl" Configuration="Debug" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\RuntimeEffects Shaders\pink-grid.sksl" Configuration="Debug" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\RuntimeEffects Shaders</RemoteDir>
                         <RemoteName>pink-grid.sksl</RemoteName>
@@ -993,7 +1083,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\RuntimeEffects Shaders\pink-grid.sksl" Configuration="Release" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\RuntimeEffects Shaders\pink-grid.sksl" Configuration="Release" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\RuntimeEffects Shaders</RemoteDir>
                         <RemoteName>pink-grid.sksl</RemoteName>
@@ -1005,7 +1095,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\RuntimeEffects Shaders\rainbow-twister.sksl" Configuration="Debug" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\RuntimeEffects Shaders\rainbow-twister.sksl" Configuration="Debug" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\RuntimeEffects Shaders</RemoteDir>
                         <RemoteName>rainbow-twister.sksl</RemoteName>
@@ -1017,7 +1107,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\RuntimeEffects Shaders\rainbow-twister.sksl" Configuration="Release" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\RuntimeEffects Shaders\rainbow-twister.sksl" Configuration="Release" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\RuntimeEffects Shaders</RemoteDir>
                         <RemoteName>rainbow-twister.sksl</RemoteName>
@@ -1029,7 +1119,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\RuntimeEffects Shaders\shiny-circle.sksl" Configuration="Debug" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\RuntimeEffects Shaders\shiny-circle.sksl" Configuration="Debug" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\RuntimeEffects Shaders</RemoteDir>
                         <RemoteName>shiny-circle.sksl</RemoteName>
@@ -1041,7 +1131,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\RuntimeEffects Shaders\shiny-circle.sksl" Configuration="Release" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\RuntimeEffects Shaders\shiny-circle.sksl" Configuration="Release" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\RuntimeEffects Shaders</RemoteDir>
                         <RemoteName>shiny-circle.sksl</RemoteName>
@@ -1053,7 +1143,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\RuntimeEffects Shaders\strange-wave.sksl" Configuration="Debug" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\RuntimeEffects Shaders\strange-wave.sksl" Configuration="Debug" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\RuntimeEffects Shaders</RemoteDir>
                         <RemoteName>strange-wave.sksl</RemoteName>
@@ -1065,7 +1155,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\RuntimeEffects Shaders\strange-wave.sksl" Configuration="Release" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\RuntimeEffects Shaders\strange-wave.sksl" Configuration="Release" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\RuntimeEffects Shaders</RemoteDir>
                         <RemoteName>strange-wave.sksl</RemoteName>
@@ -1077,7 +1167,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\RuntimeEffects Shaders\synthwavy-sun.sksl" Configuration="Debug" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\RuntimeEffects Shaders\synthwavy-sun.sksl" Configuration="Debug" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\RuntimeEffects Shaders</RemoteDir>
                         <RemoteName>synthwavy-sun.sksl</RemoteName>
@@ -1089,7 +1179,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\RuntimeEffects Shaders\synthwavy-sun.sksl" Configuration="Release" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\RuntimeEffects Shaders\synthwavy-sun.sksl" Configuration="Release" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\RuntimeEffects Shaders</RemoteDir>
                         <RemoteName>synthwavy-sun.sksl</RemoteName>
@@ -1101,7 +1191,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\RuntimeEffects Shaders\waves.sksl" Configuration="Debug" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\RuntimeEffects Shaders\waves.sksl" Configuration="Debug" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\RuntimeEffects Shaders</RemoteDir>
                         <RemoteName>waves.sksl</RemoteName>
@@ -1113,7 +1203,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\RuntimeEffects Shaders\waves.sksl" Configuration="Release" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\RuntimeEffects Shaders\waves.sksl" Configuration="Release" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\RuntimeEffects Shaders</RemoteDir>
                         <RemoteName>waves.sksl</RemoteName>
@@ -1125,7 +1215,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\anchors-away.svg" Configuration="Debug" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\anchors-away.svg" Configuration="Debug" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\</RemoteDir>
                         <RemoteName>anchors-away.svg</RemoteName>
@@ -1137,7 +1227,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\anchors-away.svg" Configuration="Release" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\anchors-away.svg" Configuration="Release" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\</RemoteDir>
                         <RemoteName>anchors-away.svg</RemoteName>
@@ -1149,7 +1239,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\android.svg" Configuration="Debug" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\android.svg" Configuration="Debug" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\</RemoteDir>
                         <RemoteName>android.svg</RemoteName>
@@ -1161,7 +1251,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\android.svg" Configuration="Release" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\android.svg" Configuration="Release" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\</RemoteDir>
                         <RemoteName>android.svg</RemoteName>
@@ -1173,7 +1263,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\animated.gif" Configuration="Debug" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\animated.gif" Configuration="Debug" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\</RemoteDir>
                         <RemoteName>animated.gif</RemoteName>
@@ -1185,7 +1275,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\animated.gif" Configuration="Release" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\animated.gif" Configuration="Release" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\</RemoteDir>
                         <RemoteName>animated.gif</RemoteName>
@@ -1197,7 +1287,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\animated.png" Configuration="Debug" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\animated.png" Configuration="Debug" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\</RemoteDir>
                         <RemoteName>animated.png</RemoteName>
@@ -1209,7 +1299,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\animated.png" Configuration="Release" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\animated.png" Configuration="Release" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\</RemoteDir>
                         <RemoteName>animated.png</RemoteName>
@@ -1221,7 +1311,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\bat.png" Configuration="Debug" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\bat.png" Configuration="Debug" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\</RemoteDir>
                         <RemoteName>bat.png</RemoteName>
@@ -1233,7 +1323,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\bat.png" Configuration="Release" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\bat.png" Configuration="Release" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\</RemoteDir>
                         <RemoteName>bat.png</RemoteName>
@@ -1245,7 +1335,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\bee.jpg" Configuration="Debug" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\bee.jpg" Configuration="Debug" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\</RemoteDir>
                         <RemoteName>bee.jpg</RemoteName>
@@ -1257,7 +1347,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\bee.jpg" Configuration="Release" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\bee.jpg" Configuration="Release" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\</RemoteDir>
                         <RemoteName>bee.jpg</RemoteName>
@@ -1269,7 +1359,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\bonheur-royale-regular.ttf" Configuration="Debug" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\bonheur-royale-regular.ttf" Configuration="Debug" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\</RemoteDir>
                         <RemoteName>bonheur-royale-regular.ttf</RemoteName>
@@ -1281,7 +1371,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\bonheur-royale-regular.ttf" Configuration="Release" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\bonheur-royale-regular.ttf" Configuration="Release" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\</RemoteDir>
                         <RemoteName>bonheur-royale-regular.ttf</RemoteName>
@@ -1293,7 +1383,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\chat-bubble.png" Configuration="Debug" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\chat-bubble.png" Configuration="Debug" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\</RemoteDir>
                         <RemoteName>chat-bubble.png</RemoteName>
@@ -1305,7 +1395,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\chat-bubble.png" Configuration="Release" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\chat-bubble.png" Configuration="Release" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\</RemoteDir>
                         <RemoteName>chat-bubble.png</RemoteName>
@@ -1317,7 +1407,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\check.json" Configuration="Debug" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\check.json" Configuration="Debug" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\</RemoteDir>
                         <RemoteName>check.json</RemoteName>
@@ -1329,7 +1419,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\check.json" Configuration="Release" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\check.json" Configuration="Release" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\</RemoteDir>
                         <RemoteName>check.json</RemoteName>
@@ -1341,7 +1431,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\deck-card-back.png" Configuration="Debug" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\deck-card-back.png" Configuration="Debug" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\</RemoteDir>
                         <RemoteName>deck-card-back.png</RemoteName>
@@ -1353,7 +1443,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\deck-card-back.png" Configuration="Release" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\deck-card-back.png" Configuration="Release" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\</RemoteDir>
                         <RemoteName>deck-card-back.png</RemoteName>
@@ -1365,7 +1455,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\deck-card-front.png" Configuration="Debug" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\deck-card-front.png" Configuration="Debug" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\</RemoteDir>
                         <RemoteName>deck-card-front.png</RemoteName>
@@ -1377,7 +1467,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\deck-card-front.png" Configuration="Release" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\deck-card-front.png" Configuration="Release" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\</RemoteDir>
                         <RemoteName>deck-card-front.png</RemoteName>
@@ -1389,7 +1479,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\delphi.svg" Configuration="Debug" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\delphi.svg" Configuration="Debug" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\</RemoteDir>
                         <RemoteName>delphi.svg</RemoteName>
@@ -1401,7 +1491,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\delphi.svg" Configuration="Release" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\delphi.svg" Configuration="Release" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\</RemoteDir>
                         <RemoteName>delphi.svg</RemoteName>
@@ -1413,7 +1503,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\elephant.png" Configuration="Debug" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\elephant.png" Configuration="Debug" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\</RemoteDir>
                         <RemoteName>elephant.png</RemoteName>
@@ -1425,7 +1515,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\elephant.png" Configuration="Release" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\elephant.png" Configuration="Release" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\</RemoteDir>
                         <RemoteName>elephant.png</RemoteName>
@@ -1437,7 +1527,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\explosion-sprites.png" Configuration="Debug" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\explosion-sprites.png" Configuration="Debug" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\</RemoteDir>
                         <RemoteName>explosion-sprites.png</RemoteName>
@@ -1449,7 +1539,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\explosion-sprites.png" Configuration="Release" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\explosion-sprites.png" Configuration="Release" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\</RemoteDir>
                         <RemoteName>explosion-sprites.png</RemoteName>
@@ -1461,7 +1551,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\gorilla.svg" Configuration="Debug" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\gorilla.svg" Configuration="Debug" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\</RemoteDir>
                         <RemoteName>gorilla.svg</RemoteName>
@@ -1473,7 +1563,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\gorilla.svg" Configuration="Release" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\gorilla.svg" Configuration="Release" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\</RemoteDir>
                         <RemoteName>gorilla.svg</RemoteName>
@@ -1485,7 +1575,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\kung-fu-panda.png" Configuration="Debug" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\kung-fu-panda.png" Configuration="Debug" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\</RemoteDir>
                         <RemoteName>kung-fu-panda.png</RemoteName>
@@ -1497,7 +1587,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\kung-fu-panda.png" Configuration="Release" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\kung-fu-panda.png" Configuration="Release" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\</RemoteDir>
                         <RemoteName>kung-fu-panda.png</RemoteName>
@@ -1509,7 +1599,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\kung-fu-panda.webp" Configuration="Debug" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\kung-fu-panda.webp" Configuration="Debug" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\</RemoteDir>
                         <RemoteName>kung-fu-panda.webp</RemoteName>
@@ -1521,7 +1611,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\kung-fu-panda.webp" Configuration="Release" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\kung-fu-panda.webp" Configuration="Release" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\</RemoteDir>
                         <RemoteName>kung-fu-panda.webp</RemoteName>
@@ -1533,7 +1623,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\lion.svg" Configuration="Debug" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\lion.svg" Configuration="Debug" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\</RemoteDir>
                         <RemoteName>lion.svg</RemoteName>
@@ -1545,7 +1635,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\lion.svg" Configuration="Release" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\lion.svg" Configuration="Release" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\</RemoteDir>
                         <RemoteName>lion.svg</RemoteName>
@@ -1557,7 +1647,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\loading1.json" Configuration="Debug" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\loading1.json" Configuration="Debug" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\</RemoteDir>
                         <RemoteName>loading1.json</RemoteName>
@@ -1569,7 +1659,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\loading1.json" Configuration="Release" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\loading1.json" Configuration="Release" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\</RemoteDir>
                         <RemoteName>loading1.json</RemoteName>
@@ -1581,7 +1671,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\loading2.json" Configuration="Debug" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\loading2.json" Configuration="Debug" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\</RemoteDir>
                         <RemoteName>loading2.json</RemoteName>
@@ -1593,7 +1683,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\loading2.json" Configuration="Release" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\loading2.json" Configuration="Release" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\</RemoteDir>
                         <RemoteName>loading2.json</RemoteName>
@@ -1605,7 +1695,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\loading3.json" Configuration="Debug" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\loading3.json" Configuration="Debug" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\</RemoteDir>
                         <RemoteName>loading3.json</RemoteName>
@@ -1617,7 +1707,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\loading3.json" Configuration="Release" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\loading3.json" Configuration="Release" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\</RemoteDir>
                         <RemoteName>loading3.json</RemoteName>
@@ -1629,7 +1719,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\loading4.json" Configuration="Debug" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\loading4.json" Configuration="Debug" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\</RemoteDir>
                         <RemoteName>loading4.json</RemoteName>
@@ -1641,7 +1731,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\loading4.json" Configuration="Release" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\loading4.json" Configuration="Release" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\</RemoteDir>
                         <RemoteName>loading4.json</RemoteName>
@@ -1653,7 +1743,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\loading5.json" Configuration="Debug" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\loading5.json" Configuration="Debug" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\</RemoteDir>
                         <RemoteName>loading5.json</RemoteName>
@@ -1665,7 +1755,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\loading5.json" Configuration="Release" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\loading5.json" Configuration="Release" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\</RemoteDir>
                         <RemoteName>loading5.json</RemoteName>
@@ -1677,7 +1767,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\loading6.json" Configuration="Debug" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\loading6.json" Configuration="Debug" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\</RemoteDir>
                         <RemoteName>loading6.json</RemoteName>
@@ -1689,7 +1779,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\loading6.json" Configuration="Release" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\loading6.json" Configuration="Release" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\</RemoteDir>
                         <RemoteName>loading6.json</RemoteName>
@@ -1701,7 +1791,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\lorem-ipsum.txt" Configuration="Debug" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\lorem-ipsum.txt" Configuration="Debug" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\</RemoteDir>
                         <RemoteName>lorem-ipsum.txt</RemoteName>
@@ -1713,7 +1803,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\lorem-ipsum.txt" Configuration="Release" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\lorem-ipsum.txt" Configuration="Release" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\</RemoteDir>
                         <RemoteName>lorem-ipsum.txt</RemoteName>
@@ -1725,7 +1815,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\nunito-extrabold.ttf" Configuration="Debug" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\nunito-extrabold.ttf" Configuration="Debug" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\</RemoteDir>
                         <RemoteName>nunito-extrabold.ttf</RemoteName>
@@ -1737,7 +1827,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\nunito-extrabold.ttf" Configuration="Release" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\nunito-extrabold.ttf" Configuration="Release" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\</RemoteDir>
                         <RemoteName>nunito-extrabold.ttf</RemoteName>
@@ -1749,7 +1839,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\persian-lorem-ipsum.txt" Configuration="Debug" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\persian-lorem-ipsum.txt" Configuration="Debug" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\</RemoteDir>
                         <RemoteName>persian-lorem-ipsum.txt</RemoteName>
@@ -1761,7 +1851,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\persian-lorem-ipsum.txt" Configuration="Release" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\persian-lorem-ipsum.txt" Configuration="Release" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\</RemoteDir>
                         <RemoteName>persian-lorem-ipsum.txt</RemoteName>
@@ -1773,7 +1863,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\photo.webp" Configuration="Debug" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\photo.webp" Configuration="Debug" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\</RemoteDir>
                         <RemoteName>photo.webp</RemoteName>
@@ -1785,7 +1875,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\photo.webp" Configuration="Release" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\photo.webp" Configuration="Release" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\</RemoteDir>
                         <RemoteName>photo.webp</RemoteName>
@@ -1797,7 +1887,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\rocket.json" Configuration="Debug" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\rocket.json" Configuration="Debug" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\</RemoteDir>
                         <RemoteName>rocket.json</RemoteName>
@@ -1809,7 +1899,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\rocket.json" Configuration="Release" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\rocket.json" Configuration="Release" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\</RemoteDir>
                         <RemoteName>rocket.json</RemoteName>
@@ -1821,7 +1911,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\rocket.webp" Configuration="Debug" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\rocket.webp" Configuration="Debug" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\</RemoteDir>
                         <RemoteName>rocket.webp</RemoteName>
@@ -1833,7 +1923,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\rocket.webp" Configuration="Release" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\rocket.webp" Configuration="Release" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\</RemoteDir>
                         <RemoteName>rocket.webp</RemoteName>
@@ -1845,7 +1935,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\shrek.jpg" Configuration="Debug" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\shrek.jpg" Configuration="Debug" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\</RemoteDir>
                         <RemoteName>shrek.jpg</RemoteName>
@@ -1857,7 +1947,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\shrek.jpg" Configuration="Release" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\shrek.jpg" Configuration="Release" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\</RemoteDir>
                         <RemoteName>shrek.jpg</RemoteName>
@@ -1869,7 +1959,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\simpsons.webp" Configuration="Debug" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\simpsons.webp" Configuration="Debug" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\</RemoteDir>
                         <RemoteName>simpsons.webp</RemoteName>
@@ -1881,7 +1971,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\simpsons.webp" Configuration="Release" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\simpsons.webp" Configuration="Release" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\</RemoteDir>
                         <RemoteName>simpsons.webp</RemoteName>
@@ -1893,7 +1983,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\spider-man.png" Configuration="Debug" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\spider-man.png" Configuration="Debug" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\</RemoteDir>
                         <RemoteName>spider-man.png</RemoteName>
@@ -1905,7 +1995,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\spider-man.png" Configuration="Release" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\spider-man.png" Configuration="Release" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\</RemoteDir>
                         <RemoteName>spider-man.png</RemoteName>
@@ -1917,7 +2007,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\telegram-sticker.tgs" Configuration="Debug" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\telegram-sticker.tgs" Configuration="Debug" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\</RemoteDir>
                         <RemoteName>telegram-sticker.tgs</RemoteName>
@@ -1929,7 +2019,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\telegram-sticker.tgs" Configuration="Release" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\telegram-sticker.tgs" Configuration="Release" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\</RemoteDir>
                         <RemoteName>telegram-sticker.tgs</RemoteName>
@@ -1941,7 +2031,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\tesla.svg" Configuration="Debug" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\tesla.svg" Configuration="Debug" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\</RemoteDir>
                         <RemoteName>tesla.svg</RemoteName>
@@ -1953,7 +2043,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\tesla.svg" Configuration="Release" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\tesla.svg" Configuration="Release" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\</RemoteDir>
                         <RemoteName>tesla.svg</RemoteName>
@@ -1965,7 +2055,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\toy-story.jpg" Configuration="Debug" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\toy-story.jpg" Configuration="Debug" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\</RemoteDir>
                         <RemoteName>toy-story.jpg</RemoteName>
@@ -1977,7 +2067,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\Assets\Samples\toy-story.jpg" Configuration="Release" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\toy-story.jpg" Configuration="Release" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\</RemoteDir>
                         <RemoteName>toy-story.jpg</RemoteName>

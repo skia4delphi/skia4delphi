@@ -32,7 +32,6 @@ type
   [TestFixture]
   TSkRuntimeEffectTests = class(TTestBase)
   protected
-    function AssetsPath: string; override;
     procedure SetUniforms(const ARuntimeEffects: ISkRuntimeEffect; const AUniforms: string);
   public
     [TestCase('File "shader.mouse.sksl"', 'shader.mouse.sksl,150,100,iMouse=70.0 80.0;iResolution=150.0 100.0,,AAAAOH7+/v4fCAA5f//+/h8PDz9/////Hw8PP3////8AAAAAB8Af8D/4P/h//H/8f/x//H/8f/w')]
@@ -53,11 +52,6 @@ uses
   System.Math.Vectors;
 
 { TSkRuntimeEffectTests }
-
-function TSkRuntimeEffectTests.AssetsPath: string;
-begin
-  Result := CombinePaths(inherited AssetsPath, 'RuntimeEffect');
-end;
 
 procedure TSkRuntimeEffectTests.SetUniforms(
   const ARuntimeEffects: ISkRuntimeEffect; const AUniforms: string);
@@ -106,12 +100,13 @@ begin
   if FileExists(ImageAssetsPath + AChildImageFileName) then
     LEffect.SetChildShader(0, TSkImage.MakeFromEncodedFile(ImageAssetsPath + AChildImageFileName).MakeShader(TSkSamplingOptions.Low));
   LPaint := TSkPaint.Create;
-  LPaint.Shader := LEffect.MakeShader(True);
+  LPaint.Shader := LEffect.MakeShader;
   LSurface := TSkSurface.MakeRaster(AWidth, AHeight);
   Assert.IsNotNull(LSurface, 'Invalid ISkSurface (nil)');
   LSurface.Canvas.Clear(TAlphaColors.Null);
   SetUniforms(LEffect, AUniforms);
   LSurface.Canvas.DrawPaint(LPaint);
+
   Assert.AreSimilar(AExpectedImageHash, LSurface.MakeImageSnapshot);
 end;
 

@@ -9,7 +9,6 @@ object SkAnimatedImageEditorForm: TSkAnimatedImageEditorForm
   FormFactor.Height = 480
   FormFactor.Devices = [Desktop]
   OnCreate = FormCreate
-  OnClose = FormClose
   OnKeyDown = FormKeyDown
   DesignerMasterStyle = 0
   object sdgSaveDialog: TSaveDialog
@@ -125,12 +124,5 @@ object SkAnimatedImageEditorForm: TSkAnimatedImageEditorForm
       Size.PlatformDefault = False
       Stroke.Kind = None
     end
-  end
-  object tmrRepaint: TTimer
-    Enabled = False
-    Interval = 33
-    OnTimer = tmrRepaintTimer
-    Left = 32
-    Top = 109
   end
 end

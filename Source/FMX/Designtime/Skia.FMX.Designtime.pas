@@ -93,7 +93,7 @@ type
     procedure RequiresUnits(AProc: TGetStrProc); override;
   end;
 
-{$R ..\..\Assets\Resources\Components.dcr}
+{$R ..\..\..\Assets\Resources\Components.dcr}
 
 { TSkAnimatedImageSourcePropertyEditor }
 

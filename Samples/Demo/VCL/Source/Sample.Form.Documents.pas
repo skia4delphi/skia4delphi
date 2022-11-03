@@ -18,8 +18,8 @@ interface
 uses
   { Delphi }
   Winapi.Windows, Winapi.ShellAPI, System.SysUtils, System.Classes,
-  System.Types, System.UITypes, Vcl.Graphics, Vcl.Controls, Vcl.Forms,
-  Vcl.Dialogs, Vcl.ExtCtrls,
+  System.Types, System.UITypes, System.IOUtils, Vcl.Graphics, Vcl.Controls,
+  Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls,
 
   { Skia }
   Skia, Skia.Vcl,
@@ -103,7 +103,7 @@ begin
     LDocument := TSkDocument.MakeXPS(LDocumentStream);
     if LDocument = nil then
     begin
-      Showmessage('This OS doesn''t support XPS!');
+      ShowMessage('This OS doesn''t support XPS!');
       Exit;
     end;
     try
@@ -119,12 +119,12 @@ begin
   finally
     LDocumentStream.Free;
   end;
-  Showmessage('Created XPS file!');
+  ShowMessage('Created XPS file!');
 end;
 
 procedure TfrmDocuments.ViewPDF(AFileName: string);
 begin
-  AFileName := 'file://' + AFileName.Replace('\', '/');
+  AFileName := 'file://' + TPath.GetFullPath(AFileName).Replace('\', '/');
   ShellExecute(0, 'open', PChar(AFileName), nil, nil, SW_SHOWNORMAL);
 end;
 

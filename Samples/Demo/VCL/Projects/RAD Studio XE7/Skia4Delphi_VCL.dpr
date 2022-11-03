@@ -20,6 +20,7 @@ uses
   Sample.Form.Particles in '..\..\Source\Sample.Form.Particles.pas' {frmParticles},
   Sample.Form.PathsAndEffects in '..\..\Source\Sample.Form.PathsAndEffects.pas' {frmPathsAndEffects},
   Sample.Form.RuntimeEffects in '..\..\Source\Sample.Form.RuntimeEffects.pas' {frmRuntimeEffects},
+  Sample.Form.SplashScreen in '..\..\Source\Sample.Form.SplashScreen.pas' {frmSplashScreen},
   Sample.Form.Text in '..\..\Source\Sample.Form.Text.pas' {frmText},
   Sample.Form.Transforms in '..\..\Source\Sample.Form.Transforms.pas' {frmTransforms},
   Sample.Form.Unicode in '..\..\Source\Sample.Form.Unicode.pas' {frmUnicode},
@@ -41,16 +42,10 @@ begin
   Application.MainFormOnTaskbar := True;
   {$IF CompilerVersion < 34}
   if FileExists('..\..\..\Windows11.XE7.vsf') then
-  begin
     TStyleManager.LoadFromFile('..\..\..\Windows11.XE7.vsf');
-    TStyleManager.TrySetStyle('Windows11 Modern Light');
-  end;
   {$ELSE}
   if FileExists('..\..\..\Windows11.vsf') then
-  begin
     TStyleManager.LoadFromFile('..\..\..\Windows11.vsf');
-    TStyleManager.TrySetStyle('Windows11 Modern Light');
-  end;
   {$ENDIF}
   Application.CreateForm(TfrmMain, frmMain);
   Application.Run;

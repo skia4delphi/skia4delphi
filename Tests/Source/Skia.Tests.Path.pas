@@ -33,8 +33,6 @@ type
   TSkPathTests = class(TTestBase)
   private
     function CreateSimplePath: ISkPath;
-  protected
-    function AssetsPath: string; override;
   public
     [TestCase('Simple Path', 'simple-path.elements.txt')]
     procedure TestBasicIterator(const AExpectedIteratorOutputFileName: string);
@@ -59,11 +57,6 @@ uses
   System.IOUtils;
 
 { TSkPathTests }
-
-function TSkPathTests.AssetsPath: string;
-begin
-  Result := CombinePaths(inherited AssetsPath, 'Path');
-end;
 
 function TSkPathTests.CreateSimplePath: ISkPath;
 var

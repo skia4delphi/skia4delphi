@@ -93,7 +93,7 @@ begin
   if Assigned(FOnMouseDown) then
   begin
     LShouldRedraw := False;
-    FOnMouseDown(PointF(X, Y), LShouldRedraw);
+    FOnMouseDown(PointF(X, Y) / pbxDraw.ScaleFactor, LShouldRedraw);
     if LShouldRedraw then
       pbxDraw.Redraw;
   end;
@@ -108,7 +108,7 @@ begin
   if Assigned(FOnMouseMove) then
   begin
     LShouldRedraw := False;
-    FOnMouseMove(PointF(X, Y), FIsMouseDown, LShouldRedraw);
+    FOnMouseMove(PointF(X, Y) / pbxDraw.ScaleFactor, FIsMouseDown, LShouldRedraw);
     if LShouldRedraw then
       pbxDraw.Redraw;
   end;
@@ -123,7 +123,7 @@ begin
   if FIsMouseDown and Assigned(FOnMouseUp) then
   begin
     LShouldRedraw := False;
-    FOnMouseUp(PointF(X, Y), LShouldRedraw);
+    FOnMouseUp(PointF(X, Y) / pbxDraw.ScaleFactor, LShouldRedraw);
     if LShouldRedraw then
       pbxDraw.Redraw;
   end;

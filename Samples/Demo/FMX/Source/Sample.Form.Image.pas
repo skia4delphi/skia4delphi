@@ -19,6 +19,7 @@ uses
   { Delphi }
   System.SysUtils, System.Types, System.Classes, System.Math, FMX.Types,
   FMX.Controls, FMX.Forms, FMX.StdCtrls, FMX.Layouts, FMX.Objects,
+  FMX.Controls.Presentation,
 
   { Skia }
   Skia, Skia.FMX,
@@ -57,9 +58,9 @@ uses
 
 function FormatBytes(const ABytesCount: Int64): string;
 const
-  KBYTES = Int64(1024);
+  KiloByte = Int64(1024);
 begin
-  Result := Format('%s KB', [FormatFloat('0.#', ABytesCount / KBYTES)]);
+  Result := Format('%s KB', [FormatFloat('0.#', ABytesCount / KiloByte)]);
 end;
 
 procedure TfrmImage.btnEncodeWebpVsJpegClick(Sender: TObject);

@@ -34,11 +34,14 @@ uses
   ToolsAPI,
   DeploymentAPI,
   DesignIntf,
+  ILinkStrs,
+  BCCStrs,
   DCCStrs;
 
 type
   TSkProjectConfig = (Release, Debug);
-  TSkProjectPlatform = (Unknown, Win32, Win64, Android, Android64, iOSDevice32, iOSDevice64, iOSSimulator, OSX64, OSXARM64, Linux64);
+  TSkProjectPlatform = (Unknown, Win32, Win64, Android, Android64, iOSDevice32, iOSDevice64, iOSSimARM64, iOSSimulator, OSX64, OSXARM64, Linux64);
+  TSkProjectPlatforms = set of TSkProjectPlatform;
 
   { TSkDeployFile }
 
@@ -50,6 +53,7 @@ type
     Required: Boolean;
     Operation: TDeployOperation;
     Condition: string;
+    function Equals(const AProjectDeployFile: IProjectDeploymentFile; const APlatformName: string): Boolean;
   end;
 
   { TSkProjectConfigHelper }
@@ -69,8 +73,9 @@ type
   { TSkProjectMenuCreatorNotifier }
 
   TSkProjectMenuCreatorNotifier = class(TNotifierObject, IOTANotifier, IOTAProjectMenuItemCreatorNotifier)
+  strict private class var
+    FNotifierIndex: Integer;
   strict private
-    class var FNotifierIndex: Integer;
     class constructor Create;
     class destructor Destroy;
     { IOTAProjectMenuItemCreatorNotifier }
@@ -108,8 +113,8 @@ type
     procedure SetPosition(AValue: Integer);
     procedure SetVerb(const AValue: string);
     { IOTAProjectManagerMenu }
-    function GetIsMultiSelectable: Boolean;
     procedure Execute(const AMenuContextList: IInterfaceList); overload;
+    function GetIsMultiSelectable: Boolean;
     function PostExecute(const AMenuContextList: IInterfaceList): Boolean;
     function PreExecute(const AMenuContextList: IInterfaceList): Boolean;
     procedure SetIsMultiSelectable(AValue: Boolean);
@@ -130,7 +135,6 @@ type
   TSkProjectManagerMenuEnableSkia = class(TSkProjectManagerMenu)
   strict private
     FIsSkiaEnabled: Boolean;
-    procedure SetDeployFiles(const AProject: IOTAProject; const AConfig: TSkProjectConfig; const APlatform: TSkProjectPlatform; const AEnabled: Boolean);
     procedure SetSkiaEnabled(const AProject: IOTAProject; const AEnabled: Boolean);
   strict protected
     function GetEnabled: Boolean; override;
@@ -141,55 +145,64 @@ type
   { TSkCompileNotifier }
 
   TSkCompileNotifier = class(TInterfacedObject, IOTACompileNotifier)
+  strict private class var
+    FNotifierIndex: Integer;
   strict private
-    const
-      UnsupportedPlatformMessage =
-        'The Skia does not support the platform %s in this RAD Studio version.' + sLineBreak + sLineBreak +
-        'To avoid problems, disable Skia in this project (Project menu > %s) or, if you want to disable it just in ' +
-        'a specific platform, set the define directive "%s" in the project settings of this platform. In both cases, ' +
-        'be sure you are not using any Skia units, otherwise you will get "runtime error" on startup of your application.';
-    class var FNotifierIndex: Integer;
     class constructor Create;
     class destructor Destroy;
     { IOTACompileNotifier }
-    procedure ProjectCompileStarted(const AProject: IOTAProject; AMode: TOTACompileMode);
     procedure ProjectCompileFinished(const AProject: IOTAProject; AResult: TOTACompileResult);
-    procedure ProjectGroupCompileStarted(AMode: TOTACompileMode);
+    procedure ProjectCompileStarted(const AProject: IOTAProject; AMode: TOTACompileMode);
     procedure ProjectGroupCompileFinished(AResult: TOTACompileResult);
+    procedure ProjectGroupCompileStarted(AMode: TOTACompileMode);
   public
     class procedure Register; static;
+  end;
+
+  { TSkDeployFilesHelper }
+
+  TSkDeployFilesHelper = record
+  strict private
+    class function IsValidDeployFile(const AFile: IProjectDeploymentFile; const APlatformName: string; const AAllowedFiles: TArray<TSkDeployFile>): Boolean; static;
+  public
+    class procedure AddDeployFiles(const AProject: IOTAProject); static;
+    class function CanDeploy(const AProject: IOTAProject; const APlatform: TSkProjectPlatform; const AConfig: TSkProjectConfig): Boolean; static;
+    class procedure CopyToOutput(const AProject: IOTAProject; const APlatform: TSkProjectPlatform; const AConfig: TSkProjectConfig); static;
+    class procedure DeleteFromOutput(const AProject: IOTAProject); overload; static;
+    class procedure DeleteFromOutput(const AProject: IOTAProject; const APlatform: TSkProjectPlatform; const AConfig: TSkProjectConfig); overload; static;
+    class procedure EnsureDeployFiles(const AProject: IOTAProject; const APlatform: TSkProjectPlatform; const AConfig: TSkProjectConfig); static;
+    class function LocalFilesExists: Boolean; static;
+    class procedure RemoveDeployFiles(const AProject: IOTAProject); static;
   end;
 
   { TSkProjectHelper }
 
   TSkProjectHelper = record
   strict private
-    class function ContainsStringInArray(const AString: string; const AArray: TArray<string>): Boolean; static; inline;
+    class function DefinesName(const AProject: IOTAProject): string; static;
     class function GetIsSkiaDefined(const AProject: IOTAProject): Boolean; static;
     class procedure SetIsSkiaDefined(const AProject: IOTAProject; const AValue: Boolean); static;
   public
-    class procedure AddDeployFile(const AProject: IOTAProject; const AConfig: TSkProjectConfig; const ADeployFile: TSkDeployFile); static;
     class function IsSkiaDefinedForPlatform(const AProject: IOTAProject; const APlatform: TSkProjectPlatform; const AConfig: TSkProjectConfig): Boolean; static;
-    class procedure RemoveDeployFile(const AProject: IOTAProject; const AConfig: TSkProjectConfig; const APlatform: TSkProjectPlatform; ALocalFileName: string; const ARemoteDir: string); static;
-    class procedure RemoveDeployFilesOfClass(const AProject: IOTAProject); overload; static;
-    class procedure RemoveDeployFilesOfClass(const AProject: IOTAProject; const AConfig: TSkProjectConfig; const APlatform: TSkProjectPlatform); overload; static;
-    class procedure RemoveUnexpectedDeployFilesOfClass(const AProject: IOTAProject; const AConfig: TSkProjectConfig; const APlatform: TSkProjectPlatform; const AAllowedFiles: TArray<TSkDeployFile>); static;
-    class function SupportsSkiaDeployment(const AProject: IOTAProject): Boolean; static;
+    class function IsSupported(const AProject: IOTAProject): Boolean; overload; static;
+    class function IsSupported(const AProject: IOTAProject; const APlatform: TSkProjectPlatform): Boolean; overload; static;
     class property IsSkiaDefined[const AProject: IOTAProject]: Boolean read GetIsSkiaDefined write SetIsSkiaDefined;
   end;
 
   { TSkOTAHelper }
 
   TSkOTAHelper = record
+  strict private const
+    DefaultOptionsSeparator = ';'; // do not localize
+    FinalOutputDirPropertyName = 'FinalOutputDir'; // do not localize
+    OutputDirPropertyName = 'OutputDir'; // do not localize
   strict private
-    const
-      DefaultOptionsSeparator = ';';
-      OutputDirPropertyName = 'OutputDir';
-    class function ExpandConfiguration(const ASource: string; const AConfig: IOTABuildConfiguration): string; static;
+    class function ExpandConfiguration(const ASource: string; const AConfig: IOTABuildConfiguration): string; overload; static;
+    class function ExpandConfiguration(const ASource: string; const APlatform: TSkProjectPlatform; const AConfig: TSkProjectConfig): string; overload; static;
     class function ExpandEnvironmentVar(var AValue: string): Boolean; static;
     class function ExpandOutputPath(const ASource: string; const ABuildConfig: IOTABuildConfiguration): string; static;
     class function ExpandPath(const ABaseDir, ARelativeDir: string): string; static;
-    class function ExpandVars(const ASource: string): string; static;
+    class function ExpandVars(const ASource: string): string; overload; static;
     class function GetEnvironmentVars(const AVars: TStrings; AExpand: Boolean): Boolean; static;
     class function GetProjectOptionsConfigurations(const AProject: IOTAProject): IOTAProjectOptionsConfigurations; static;
     class procedure MultiSzToStrings(const ADest: TStrings; const ASource: PChar); static;
@@ -197,320 +210,141 @@ type
     class function TryGetProjectOutputPath(const AProject: IOTAProject; ABuildConfig: IOTABuildConfiguration; out AOutputPath: string): Boolean; overload; static;
   public
     class function ContainsOptionValue(const AValues, AValue: string; const ASeparator: string = DefaultOptionsSeparator): Boolean; static;
-    class function GetEnvironmentVar(const AName: string; AExpand: Boolean): string; static;
+    class function ExpandVars(const ASource: string; const APlatform: TSkProjectPlatform; const AConfig: TSkProjectConfig): string; overload; static;
     class function InsertOptionValue(const AValues, AValue: string; const ASeparator: string = DefaultOptionsSeparator): string; static;
     class function RemoveOptionValue(const AValues, AValue: string; const ASeparator: string = DefaultOptionsSeparator): string; static;
     class function TryCopyFileToOutputPath(const AProject: IOTAProject; const APlatform: TSkProjectPlatform; const AConfig: TSkProjectConfig; const AFileName: string): Boolean; static;
-    class function TryCopyFileToOutputPathOfActiveBuild(const AProject: IOTAProject; const AFileName: string): Boolean; static;
     class function TryGetBuildConfig(const AProject: IOTAProject; const APlatform: TSkProjectPlatform; const AConfig: TSkProjectConfig; out ABuildConfig: IOTABuildConfiguration): Boolean; static;
     class function TryGetProjectOutputPath(const AProject: IOTAProject; const APlatform: TSkProjectPlatform; const AConfig: TSkProjectConfig; out AOutputPath: string): Boolean; overload; static;
-    class function TryGetProjectOutputPathOfActiveBuild(const AProject: IOTAProject; out AOutputPath: string): Boolean; static;
     class function TryRemoveOutputFile(const AProject: IOTAProject; const APlatform: TSkProjectPlatform; const AConfig: TSkProjectConfig; AFileName: string): Boolean; static;
-    class function TryRemoveOutputFileOfActiveBuild(const AProject: IOTAProject; const AFileName: string): Boolean; static;
   end;
 
-  { TSkia4DelphiProject }
+  { TSkiaLibrary }
 
-  TSkia4DelphiProject = class
-  strict private
-    const
-      DeployFile: array[0..7] of TSkDeployFile = (
-        (&Platform: TSkProjectPlatform.Win32;     LocalFileName: 'Binary\Win32\Release\sk4d.dll';       RemotePath: '.\';                       CopyToOutput: True;  Required: True; Operation: TDeployOperation.doCopyOnly;   Condition: ''), // Win32
-        (&Platform: TSkProjectPlatform.Win64;     LocalFileName: 'Binary\Win64\Release\sk4d.dll';       RemotePath: '.\';                       CopyToOutput: True;  Required: True; Operation: TDeployOperation.doCopyOnly;   Condition: ''), // Win64
-        (&Platform: TSkProjectPlatform.Android;   LocalFileName: 'Binary\Android\Release\libsk4d.so';   RemotePath: 'library\lib\armeabi-v7a\'; CopyToOutput: False; Required: True; Operation: TDeployOperation.doSetExecBit; Condition: ''), // Android
-        (&Platform: TSkProjectPlatform.Android64; LocalFileName: 'Binary\Android64\Release\libsk4d.so'; RemotePath: 'library\lib\arm64-v8a\';   CopyToOutput: False; Required: True; Operation: TDeployOperation.doSetExecBit; Condition: ''), // Android64
-        (&Platform: TSkProjectPlatform.Android64; LocalFileName: 'Binary\Android\Release\libsk4d.so';   RemotePath: 'library\lib\armeabi-v7a\'; CopyToOutput: False; Required: True; Operation: TDeployOperation.doSetExecBit; Condition: '''$(AndroidAppBundle)''==''true'''), // Android64
-        (&Platform: TSkProjectPlatform.OSX64;     LocalFileName: 'Binary\OSX64\Release\sk4d.dylib';     RemotePath: 'Contents\MacOS\';          CopyToOutput: False; Required: True; Operation: TDeployOperation.doSetExecBit; Condition: ''), // OSX64
-        (&Platform: TSkProjectPlatform.OSXARM64;  LocalFileName: 'Binary\OSXARM64\Release\sk4d.dylib';  RemotePath: 'Contents\MacOS\';          CopyToOutput: False; Required: True; Operation: TDeployOperation.doSetExecBit; Condition: ''), // OSXARM64
-        (&Platform: TSkProjectPlatform.Linux64;   LocalFileName: 'Binary\Linux64\Release\libsk4d.so';   RemotePath: '.\';                       CopyToOutput: False; Required: True; Operation: TDeployOperation.doSetExecBit; Condition: '')  // Linux64
-      );
-    class var
-      FAbsolutePath: string;
-      FPath: string;
-      FPathChecked: Boolean;
-    class procedure FindPath(out APath, AAbsolutePath: string); static;
-    class function GetAbsolutePath: string; static;
-    class function GetFound: Boolean; static;
-    class function GetPath: string; static;
-    class function IsValidSkiaDir(const APath: string): Boolean; static;
+  TSkiaLibrary = class
+  strict private const
+    {$IF CompilerVersion < 28} // Below RAD Studio XE7
+    CBuilderSupportedPlatforms = [];
+    DelphiSupportedPlatforms = [];
+    {$ELSEIF CompilerVersion < 33} // RAD Studio XE7 to RAD Studio 10.2 Tokyo
+    CBuilderSupportedPlatforms = [TSkProjectPlatform.Win32, TSkProjectPlatform.Win64];
+    DelphiSupportedPlatforms = [TSkProjectPlatform.Win32, TSkProjectPlatform.Win64];
+    {$ELSEIF CompilerVersion < 35} // RAD Studio 10.3 Rio and RAD Studio 10.4 Sydney
+    CBuilderSupportedPlatforms = [TSkProjectPlatform.Win32, TSkProjectPlatform.Win64, TSkProjectPlatform.Android];
+    DelphiSupportedPlatforms = [TSkProjectPlatform.Win32, TSkProjectPlatform.Win64, TSkProjectPlatform.Android,
+      TSkProjectPlatform.Android64];
+    {$ELSE} // RAD Studio 11 Alexandria and newer
+    CBuilderSupportedPlatforms = [TSkProjectPlatform.Win32, TSkProjectPlatform.Win64, TSkProjectPlatform.Android,
+      TSkProjectPlatform.iOSDevice64];
+    DelphiSupportedPlatforms = [TSkProjectPlatform.Win32, TSkProjectPlatform.Win64, TSkProjectPlatform.Android,
+      TSkProjectPlatform.Android64, TSkProjectPlatform.iOSDevice64, TSkProjectPlatform.iOSSimARM64,
+      TSkProjectPlatform.OSX64, TSkProjectPlatform.OSXARM64, TSkProjectPlatform.Linux64];
+    {$ENDIF}
+  strict private class var
+    FBinariesChecked: Boolean;
+    FBinariesFound: Boolean;
   public
-    const
-      DeploymentClass       = 'Skia';
-      ProjectDefine         = 'SKIA';
-      ProjectDisabledDefine = 'SKIA_DISABLED';
-      SkiaDirVariable       = 'SKIADIR';
-      MenuCaption: array[Boolean] of string = ('Enable Skia', 'Disable Skia');
-      {$IF CompilerVersion < 28} // Below RAD Studio XE7
-      SupportedPlatforms = [];
-      {$ELSEIF CompilerVersion < 33} // RAD Studio XE7 to RAD Studio 10.2 Tokyo
-      SupportedPlatforms = [TSkProjectPlatform.Win32, TSkProjectPlatform.Win64];
-      {$ELSEIF CompilerVersion < 35} // RAD Studio 10.3 Rio and RAD Studio 10.4 Sydney
-      SupportedPlatforms = [TSkProjectPlatform.Win32, TSkProjectPlatform.Win64, TSkProjectPlatform.Android,
-        TSkProjectPlatform.Android64];
-      {$ELSE} // RAD Studio 11 Alexandria and newer
-      SupportedPlatforms = [TSkProjectPlatform.Win32, TSkProjectPlatform.Win64, TSkProjectPlatform.Android,
-        TSkProjectPlatform.Android64, TSkProjectPlatform.iOSDevice64, TSkProjectPlatform.OSX64,
-        TSkProjectPlatform.OSXARM64, TSkProjectPlatform.Linux64];
-      {$ENDIF}
-    class function GetDeployFiles(const APlatform: TSkProjectPlatform): TArray<TSkDeployFile>; static;
-    class property AbsolutePath: string read GetAbsolutePath;
-    class property Found: Boolean read GetFound;
-    class property Path: string read GetPath;
+    class function IsPersonalitySupported(const APersonality: string): Boolean; static;
+    class function IsSupported: Boolean; static;
+    class function SupportedPlatforms(const APersonality: string): TSkProjectPlatforms; static;
   end;
+
+resourcestring
+  sDisableSkia = 'Disable Skia';
+  sEnableSkia  = 'Enable Skia';
+  sUnsupportedPlatformMessage =
+    'The Skia does not support the platform %s in this RAD Studio version.' + sLineBreak + sLineBreak +
+    'To avoid problems, disable Skia in this project (Project menu > %s) or, if you want to disable it just in ' +
+    'a specific platform, set the define directive "%s" in the project settings of this platform. In both cases, ' +
+    'be sure you are not using any Skia units, otherwise you will get "runtime error" on startup of your application.';
 
 const
-  InvalidNotifier = -1;
+  InvalidNotifier           = -1;
+  SkiaDeploymentClass       = 'Skia'; // do not localize
+  SkiaDirVariable           = 'SKIADIR'; // do not localize
+  SkiaMenuCaption: array[Boolean] of string = (sEnableSkia, sDisableSkia);
+  SkiaProjectDefine         = 'SKIA'; // do not localize
+  SkiaProjectDisabledDefine = 'SKIA_DISABLED'; // do not localize
 
-{ TSkProjectHelper }
+  {$IF CompilerVersion >= 32}
+  SkiaPlatformsOptions: array[0..1] of
+  record
+    &Platform: TSkProjectPlatform;
+    CppLibraryPath: TArray<string>;
+    CppLinkedLibraries: TArray<string>;
+  end = (
+    (&Platform: TSkProjectPlatform.Android;     CppLibraryPath: [];                             CppLinkedLibraries: ['Skia.Package.RTL', 'Skia.Package.FMX']),
+    (&Platform: TSkProjectPlatform.iOSDevice64; CppLibraryPath: ['/usr/lib/clang/lib/darwin/']; CppLinkedLibraries: ['clang_rt.ios', 'sk4d', 'Skia.Package.RTL', 'Skia.Package.FMX'])
+  );
+  {$ENDIF}
 
-class procedure TSkProjectHelper.AddDeployFile(const AProject: IOTAProject;
-  const AConfig: TSkProjectConfig; const ADeployFile: TSkDeployFile);
-type
-  TDeployFileExistence = (DoesNotExist, AlreadyExists, NeedReplaced);
+  {$IF CompilerVersion >= 35}
+  SkiaDeployFiles: array[0..17] of TSkDeployFile = (
+    (&Platform: TSkProjectPlatform.Win32;       LocalFileName: '$(BDS)\bin\sk4d.dll';                                            RemotePath: '.\';                       CopyToOutput: True;  Required: True; Operation: TDeployOperation.doCopyOnly;   Condition: '''$('+SkiaDirVariable+')''=='''''), // Win32
+    (&Platform: TSkProjectPlatform.Win64;       LocalFileName: '$(BDS)\bin64\sk4d.dll';                                          RemotePath: '.\';                       CopyToOutput: True;  Required: True; Operation: TDeployOperation.doCopyOnly;   Condition: '''$('+SkiaDirVariable+')''=='''''), // Win64
+    (&Platform: TSkProjectPlatform.Android;     LocalFileName: '$(BDS)\binandroid32\libsk4d.so';                                 RemotePath: 'library\lib\armeabi-v7a\'; CopyToOutput: False; Required: True; Operation: TDeployOperation.doSetExecBit; Condition: '''$('+SkiaDirVariable+')''=='''''), // Android
+    (&Platform: TSkProjectPlatform.Android64;   LocalFileName: '$(BDS)\binandroid64\libsk4d.so';                                 RemotePath: 'library\lib\arm64-v8a\';   CopyToOutput: False; Required: True; Operation: TDeployOperation.doSetExecBit; Condition: '''$('+SkiaDirVariable+')''=='''''), // Android64
+    (&Platform: TSkProjectPlatform.Android64;   LocalFileName: '$(BDS)\binandroid32\libsk4d.so';                                 RemotePath: 'library\lib\armeabi-v7a\'; CopyToOutput: False; Required: True; Operation: TDeployOperation.doSetExecBit; Condition: '''$('+SkiaDirVariable+')''=='''' and ''$(AndroidAppBundle)''==''true'''), // Android64
+    (&Platform: TSkProjectPlatform.iOSSimARM64; LocalFileName: '$(BDS)\biniossimarm64\libsk4d.dylib';                            RemotePath: '.\';                       CopyToOutput: False; Required: True; Operation: TDeployOperation.doSetExecBit; Condition: '''$('+SkiaDirVariable+')''=='''''), // iOSSimARM64
+    (&Platform: TSkProjectPlatform.OSX64;       LocalFileName: '$(BDS)\binosx64\libsk4d.dylib';                                  RemotePath: 'Contents\MacOS\';          CopyToOutput: False; Required: True; Operation: TDeployOperation.doSetExecBit; Condition: '''$('+SkiaDirVariable+')''=='''''), // OSX64
+    (&Platform: TSkProjectPlatform.OSXARM64;    LocalFileName: '$(BDS)\binosxarm64\libsk4d.dylib';                               RemotePath: 'Contents\MacOS\';          CopyToOutput: False; Required: True; Operation: TDeployOperation.doSetExecBit; Condition: '''$('+SkiaDirVariable+')''=='''''), // OSXARM64
+    (&Platform: TSkProjectPlatform.Linux64;     LocalFileName: '$(BDS)\binlinux64\libsk4d.so';                                   RemotePath: '.\';                       CopyToOutput: False; Required: True; Operation: TDeployOperation.doSetExecBit; Condition: '''$('+SkiaDirVariable+')''=='''''), // Linux64
+  {$ELSE}
+  SkiaDeployFiles: array[0..8] of TSkDeployFile = (
+  {$ENDIF}
+    (&Platform: TSkProjectPlatform.Win32;       LocalFileName: '$('+SkiaDirVariable+')\Binary\Shared\Win32\sk4d.dll';            RemotePath: '.\';                       CopyToOutput: True;  Required: True; Operation: TDeployOperation.doCopyOnly;   Condition: '''$('+SkiaDirVariable+')''!='''''), // Win32
+    (&Platform: TSkProjectPlatform.Win64;       LocalFileName: '$('+SkiaDirVariable+')\Binary\Shared\Win64\sk4d.dll';            RemotePath: '.\';                       CopyToOutput: True;  Required: True; Operation: TDeployOperation.doCopyOnly;   Condition: '''$('+SkiaDirVariable+')''!='''''), // Win64
+    (&Platform: TSkProjectPlatform.Android;     LocalFileName: '$('+SkiaDirVariable+')\Binary\Shared\Android\libsk4d.so';        RemotePath: 'library\lib\armeabi-v7a\'; CopyToOutput: False; Required: True; Operation: TDeployOperation.doSetExecBit; Condition: '''$('+SkiaDirVariable+')''!='''''), // Android
+    (&Platform: TSkProjectPlatform.Android64;   LocalFileName: '$('+SkiaDirVariable+')\Binary\Shared\Android64\libsk4d.so';      RemotePath: 'library\lib\arm64-v8a\';   CopyToOutput: False; Required: True; Operation: TDeployOperation.doSetExecBit; Condition: '''$('+SkiaDirVariable+')''!='''''), // Android64
+    (&Platform: TSkProjectPlatform.Android64;   LocalFileName: '$('+SkiaDirVariable+')\Binary\Shared\Android\libsk4d.so';        RemotePath: 'library\lib\armeabi-v7a\'; CopyToOutput: False; Required: True; Operation: TDeployOperation.doSetExecBit; Condition: '''$('+SkiaDirVariable+')''!='''' and ''$(AndroidAppBundle)''==''true'''), // Android64
+    (&Platform: TSkProjectPlatform.iOSSimARM64; LocalFileName: '$('+SkiaDirVariable+')\Binary\Shared\iOSSimARM64\libsk4d.dylib'; RemotePath: '.\';                       CopyToOutput: False; Required: True; Operation: TDeployOperation.doSetExecBit; Condition: '''$('+SkiaDirVariable+')''!='''''), // iOSSimARM64
+    (&Platform: TSkProjectPlatform.OSX64;       LocalFileName: '$('+SkiaDirVariable+')\Binary\Shared\OSX64\libsk4d.dylib';       RemotePath: 'Contents\MacOS\';          CopyToOutput: False; Required: True; Operation: TDeployOperation.doSetExecBit; Condition: '''$('+SkiaDirVariable+')''!='''''), // OSX64
+    (&Platform: TSkProjectPlatform.OSXARM64;    LocalFileName: '$('+SkiaDirVariable+')\Binary\Shared\OSXARM64\libsk4d.dylib';    RemotePath: 'Contents\MacOS\';          CopyToOutput: False; Required: True; Operation: TDeployOperation.doSetExecBit; Condition: '''$('+SkiaDirVariable+')''!='''''), // OSXARM64
+    (&Platform: TSkProjectPlatform.Linux64;     LocalFileName: '$('+SkiaDirVariable+')\Binary\Shared\Linux64\libsk4d.so';        RemotePath: '.\';                       CopyToOutput: False; Required: True; Operation: TDeployOperation.doSetExecBit; Condition: '''$('+SkiaDirVariable+')''!=''''')  // Linux64
+  );
 
-  function GetDeployFileExistence(const AProjectDeployment: IProjectDeployment;
-    const ALocalFileName, ARemoteDir, APlatformName, AConfigName: string): TDeployFileExistence;
-  var
-    LRemoteFileName: string;
-    LFile: IProjectDeploymentFile;
-    LFiles: TDictionary<string, IProjectDeploymentFile>.TValueCollection;
-  begin
-    Result := TDeployFileExistence.DoesNotExist;
-    LRemoteFileName := TPath.Combine(ARemoteDir, TPath.GetFileName(ALocalFileName));
-    LFiles := AProjectDeployment.Files;
-    if Assigned(LFiles) then
-    begin
-      for LFile in LFiles do
-      begin
-        if (LFile.FilePlatform = APlatformName) and (LFile.Configuration = AConfigName) then
-        begin
-          if SameText(LRemoteFileName, TPath.Combine(LFile.RemoteDir[APlatformName], LFile.RemoteName[APlatformName])) then
-          begin
-            if (LFile.LocalName = ALocalFileName) and (LFile.DeploymentClass = TSkia4DelphiProject.DeploymentClass) and
-              (LFile.Condition = ADeployFile.Condition) and (LFile.Operation[APlatformName] = ADeployFile.Operation) and
-              LFile.Enabled[APlatformName] and LFile.Overwrite[APlatformName] and
-              (LFile.Required = ADeployFile.Required) and (Result = TDeployFileExistence.DoesNotExist) then
-            begin
-              Result := TDeployFileExistence.AlreadyExists;
-            end
-            else
-              Exit(TDeployFileExistence.NeedReplaced);
-          end;
-        end;
-      end;
-    end;
-  end;
-
-  procedure DoAddDeployFile(const AProjectDeployment: IProjectDeployment;
-    const ALocalFileName, APlatformName, AConfigName: string);
-  var
-    LFile: IProjectDeploymentFile;
-  begin
-    LFile := AProjectDeployment.CreateFile(AConfigName, APlatformName, ALocalFileName);
-    if Assigned(LFile) then
-    begin
-      LFile.Overwrite[APlatformName] := True;
-      LFile.Enabled[APlatformName] := True;
-      LFile.Required := ADeployFile.Required;
-      LFile.Condition := ADeployFile.Condition;
-      LFile.Operation[APlatformName] := ADeployFile.Operation;
-      LFile.RemoteDir[APlatformName] := ADeployFile.RemotePath;
-      LFile.DeploymentClass := TSkia4DelphiProject.DeploymentClass;
-      LFile.RemoteName[APlatformName] := TPath.GetFileName(ALocalFileName);
-      AProjectDeployment.AddFile(AConfigName, APlatformName, LFile);
-    end;
-  end;
-
-var
-  LProjectDeployment: IProjectDeployment;
-  LConfigName: string;
-  LPlatformName: string;
-  LLocalFileName: string;
-  LDeployFileExistence: TDeployFileExistence;
-begin
-  if (ADeployFile.LocalFileName <> '') and Supports(AProject, IProjectDeployment, LProjectDeployment)  then
-  begin
-    LConfigName := AConfig.ToString;
-    LPlatformName := ADeployFile.Platform.ToString;
-    LLocalFileName := TPath.Combine(TSkia4DelphiProject.Path, ADeployFile.LocalFileName);
-    LDeployFileExistence := GetDeployFileExistence(LProjectDeployment, LLocalFileName, ADeployFile.RemotePath, LPlatformName, LConfigName);
-    if LDeployFileExistence = TDeployFileExistence.NeedReplaced then
-      RemoveDeployFile(AProject, AConfig, ADeployFile.Platform, ADeployFile.LocalFileName, ADeployFile.RemotePath);
-    if LDeployFileExistence in [TDeployFileExistence.NeedReplaced, TDeployFileExistence.DoesNotExist] then
-      DoAddDeployFile(LProjectDeployment, LLocalFileName, LPlatformName, LConfigName);
-  end;
-end;
-
-class function TSkProjectHelper.ContainsStringInArray(const AString: string;
-  const AArray: TArray<string>): Boolean;
+function ContainsStringInArray(const AString: string;
+  const AArray: TArray<string>; const ACaseSensitive: Boolean = True): Boolean;
 var
   I: Integer;
 begin
   Result := False;
-  for I := Low(AArray) to High(AArray) do
-    if AArray[I] = AString then
-      Exit(True);
-end;
-
-class function TSkProjectHelper.GetIsSkiaDefined(
-  const AProject: IOTAProject): Boolean;
-var
-  LBaseConfiguration: IOTABuildConfiguration;
-  LOptionsConfigurations: IOTAProjectOptionsConfigurations;
-begin
-  Result := Assigned(AProject) and Supports(AProject.ProjectOptions, IOTAProjectOptionsConfigurations, LOptionsConfigurations);
-  if Result then
+  if ACaseSensitive then
   begin
-    LBaseConfiguration := LOptionsConfigurations.BaseConfiguration;
-    Result := Assigned(LBaseConfiguration) and
-      TSkOTAHelper.ContainsOptionValue(LBaseConfiguration.Value[sDefine], TSkia4DelphiProject.ProjectDefine);
-  end;
-end;
-
-class function TSkProjectHelper.IsSkiaDefinedForPlatform(
-  const AProject: IOTAProject; const APlatform: TSkProjectPlatform;
-  const AConfig: TSkProjectConfig): Boolean;
-var
-  LBuildConfig: IOTABuildConfiguration;
-begin
-  Assert(IsSkiaDefined[AProject]);
-  Result := TSkOTAHelper.TryGetBuildConfig(AProject, APlatform, AConfig, LBuildConfig) and
-    not TSkOTAHelper.ContainsOptionValue(LBuildConfig.Value[sDefine], TSkia4DelphiProject.ProjectDisabledDefine);
-end;
-
-class procedure TSkProjectHelper.RemoveDeployFile(const AProject: IOTAProject;
-  const AConfig: TSkProjectConfig; const APlatform: TSkProjectPlatform;
-  ALocalFileName: string; const ARemoteDir: string);
-var
-  LProjectDeployment: IProjectDeployment;
-  LFiles: TDictionary<string, IProjectDeploymentFile>.TValueCollection;
-  LFile: IProjectDeploymentFile;
-  LRemoteFileName: string;
-  LRemoveFiles: TArray<IProjectDeploymentFile>;
-begin
-  if (ALocalFileName <> '') and Supports(AProject, IProjectDeployment, LProjectDeployment) then
-  begin
-    ALocalFileName := TPath.Combine(TSkia4DelphiProject.Path, ALocalFileName);
-    LProjectDeployment.RemoveFile(AConfig.ToString, APlatform.ToString, ALocalFileName);
-    LFiles := LProjectDeployment.Files;
-    if Assigned(LFiles) then
-    begin
-      LRemoteFileName := TPath.Combine(ARemoteDir, TPath.GetFileName(ALocalFileName));
-      LRemoveFiles := [];
-      for LFile in LFiles do
-        if SameText(LRemoteFileName, TPath.Combine(LFile.RemoteDir[APlatform.ToString], LFile.RemoteName[APlatform.ToString])) then
-          LRemoveFiles := LRemoveFiles + [LFile];
-      for LFile in LRemoveFiles do
-        LProjectDeployment.RemoveFile(AConfig.ToString, APlatform.ToString, LFile.LocalName);
-    end;
-  end;
-end;
-
-class procedure TSkProjectHelper.RemoveDeployFilesOfClass(
-  const AProject: IOTAProject);
-var
-  LProjectDeployment: IProjectDeployment;
-begin
-  if Supports(AProject, IProjectDeployment, LProjectDeployment) then
-    LProjectDeployment.RemoveFilesOfClass(TSkia4DelphiProject.DeploymentClass);
-end;
-
-class procedure TSkProjectHelper.RemoveDeployFilesOfClass(
-  const AProject: IOTAProject; const AConfig: TSkProjectConfig;
-  const APlatform: TSkProjectPlatform);
-var
-  LProjectDeployment: IProjectDeployment;
-  LFile: IProjectDeploymentFile;
-  LConfigName: string;
-  LPlatformName: string;
-begin
-  if Supports(AProject, IProjectDeployment, LProjectDeployment) then
-  begin
-    LConfigName := AConfig.ToString;
-    LPlatformName := APlatform.ToString;
-    for LFile in LProjectDeployment.GetFilesOfClass(TSkia4DelphiProject.DeploymentClass) do
-      if (LFile.Configuration = LConfigName) and ContainsStringInArray(LPlatformName, LFile.Platforms) then
-        LProjectDeployment.RemoveFile(LConfigName, LPlatformName, LFile.LocalName);
-  end;
-end;
-
-class procedure TSkProjectHelper.RemoveUnexpectedDeployFilesOfClass(
-  const AProject: IOTAProject; const AConfig: TSkProjectConfig;
-  const APlatform: TSkProjectPlatform; const AAllowedFiles: TArray<TSkDeployFile>);
-
-  function IsAllowedFile(const AFile: IProjectDeploymentFile; const APlatformName: string): Boolean;
-  var
-    LDeployFile: TSkDeployFile;
-  begin
-    Result := False;
-    for LDeployFile in AAllowedFiles do
-    begin
-      if (AFile.LocalName = LDeployFile.LocalFileName) and SameText(AFile.RemoteDir[APlatformName], LDeployFile.RemotePath) and
-        SameText(AFile.RemoteName[APlatformName], TPath.GetFileName(LDeployFile.LocalFileName)) and
-        (AFile.DeploymentClass = TSkia4DelphiProject.DeploymentClass) and
-        (AFile.Condition = LDeployFile.Condition) and (AFile.Operation[APlatformName] = LDeployFile.Operation) and
-        AFile.Enabled[APlatformName] and AFile.Overwrite[APlatformName] and
-        (AFile.Required = LDeployFile.Required) then
-      begin
+    for I := Low(AArray) to High(AArray) do
+      if AArray[I] = AString then
         Exit(True);
-      end;
-    end;
-  end;
-
-var
-  LProjectDeployment: IProjectDeployment;
-  LFile: IProjectDeploymentFile;
-  LConfigName: string;
-  LPlatformName: string;
-begin
-  if Supports(AProject, IProjectDeployment, LProjectDeployment) then
+  end
+  else
   begin
-    LConfigName := AConfig.ToString;
-    LPlatformName := APlatform.ToString;
-    for LFile in LProjectDeployment.GetFilesOfClass(TSkia4DelphiProject.DeploymentClass) do
-    begin
-      if (LFile.Configuration = LConfigName) and ContainsStringInArray(LPlatformName, LFile.Platforms) and
-        not IsAllowedFile(LFile, LPlatformName) then
-      begin
-        LProjectDeployment.RemoveFile(LConfigName, LPlatformName, LFile.LocalName);
-      end;
-    end;
+    for I := Low(AArray) to High(AArray) do
+      if SameText(AArray[I], AString) then
+        Exit(True);
   end;
 end;
 
-class procedure TSkProjectHelper.SetIsSkiaDefined(const AProject: IOTAProject;
-  const AValue: Boolean);
+function GetSkiaDeployFiles(const APlatform: TSkProjectPlatform): TArray<TSkDeployFile>;
 var
-  LProjectOptions: IOTAProjectOptions;
-  LOptionsConfigurations: IOTAProjectOptionsConfigurations;
-  LBaseConfiguration: IOTABuildConfiguration;
+  LDeployFile: TSkDeployFile;
 begin
-  if Assigned(AProject) then
-  begin
-    LProjectOptions := AProject.ProjectOptions;
-    if Assigned(LProjectOptions) then
-    begin
-      if Supports(LProjectOptions, IOTAProjectOptionsConfigurations, LOptionsConfigurations) then
-      begin
-        LBaseConfiguration := LOptionsConfigurations.BaseConfiguration;
-        if Assigned(LBaseConfiguration) then
-        begin
-          if AValue then
-            LBaseConfiguration.Value[sDefine] := TSkOTAHelper.InsertOptionValue(LBaseConfiguration.Value[sDefine], TSkia4DelphiProject.ProjectDefine)
-          else
-            LBaseConfiguration.Value[sDefine] := TSkOTAHelper.RemoveOptionValue(LBaseConfiguration.Value[sDefine], TSkia4DelphiProject.ProjectDefine);
-        end;
-      end;
-      LProjectOptions.ModifiedState := True;
-    end;
-  end;
+  Result := [];
+  for LDeployFile in SkiaDeployFiles do
+    if LDeployFile.Platform = APlatform then
+      Result := Result + [LDeployFile];
 end;
 
-class function TSkProjectHelper.SupportsSkiaDeployment(
-  const AProject: IOTAProject): Boolean;
+{ TSkDeployFile }
+
+function TSkDeployFile.Equals(const AProjectDeployFile: IProjectDeploymentFile;
+  const APlatformName: string): Boolean;
 begin
-  Result := Assigned(AProject) and AProject.FileName.EndsWith('.dproj', True) and
-    ((AProject.ApplicationType = sApplication) or (AProject.ApplicationType = sConsole));
+  Result := (AProjectDeployFile.LocalName = LocalFileName) and
+    (IncludeTrailingPathDelimiter(AProjectDeployFile.RemoteDir[APlatformName]) = IncludeTrailingPathDelimiter(RemotePath)) and
+    (AProjectDeployFile.RemoteName[APlatformName] = TPath.GetFileName(LocalFileName)) and
+    (AProjectDeployFile.Condition = Condition) and (AProjectDeployFile.Operation[APlatformName] = Operation) and
+    (AProjectDeployFile.DeploymentClass = SkiaDeploymentClass) and
+    AProjectDeployFile.Enabled[APlatformName] and AProjectDeployFile.Overwrite[APlatformName] and
+    (AProjectDeployFile.Required = Required);
 end;
 
 { TSkProjectConfigHelper }
@@ -550,7 +384,8 @@ procedure TSkProjectMenuCreatorNotifier.AddMenu(const AProject: IOTAProject;
   AIsMultiSelect: Boolean);
 begin
   if (not AIsMultiSelect) and (AIdentList.IndexOf(sProjectContainer) <> -1) and
-    Assigned(AProjectManagerMenuList) and TSkProjectHelper.SupportsSkiaDeployment(AProject) then
+    Assigned(AProjectManagerMenuList) and (TSkProjectHelper.IsSkiaDefined[AProject] or
+    (TSkiaLibrary.IsSupported and TSkProjectHelper.IsSupported(AProject))) then
   begin
     AProjectManagerMenuList.Add(TSkProjectManagerMenuSeparator.Create(pmmpRunNoDebug + 10));
     AProjectManagerMenuList.Add(TSkProjectManagerMenuEnableSkia.Create(AProject, pmmpRunNoDebug + 20));
@@ -575,7 +410,7 @@ var
   LProjectManager: IOTAProjectManager;
 begin
   if (FNotifierIndex <= InvalidNotifier) and Supports(BorlandIDEServices, IOTAProjectManager, LProjectManager) then
-    FNotifierIndex := LProjectManager.AddMenuItemCreatorNotifier(TSkProjectMenuCreatorNotifier.Create);;
+    FNotifierIndex := LProjectManager.AddMenuItemCreatorNotifier(TSkProjectMenuCreatorNotifier.Create);
 end;
 
 { TSkProjectManagerMenu }
@@ -611,7 +446,7 @@ end;
 
 function TSkProjectManagerMenu.GetEnabled: Boolean;
 begin
-  Result := True; // for Show IPA, check platform etc
+  Result := True;
 end;
 
 function TSkProjectManagerMenu.GetHelpContext: Integer;
@@ -703,7 +538,7 @@ constructor TSkProjectManagerMenuEnableSkia.Create(const AProject: IOTAProject;
   const APosition: Integer);
 begin
   FIsSkiaEnabled := TSkProjectHelper.IsSkiaDefined[AProject];
-  inherited Create(TSkia4DelphiProject.MenuCaption[FIsSkiaEnabled], '', APosition,
+  inherited Create(SkiaMenuCaption[FIsSkiaEnabled], '', APosition,
     procedure()
     begin
       SetSkiaEnabled(AProject, not FIsSkiaEnabled);
@@ -712,51 +547,11 @@ end;
 
 function TSkProjectManagerMenuEnableSkia.GetEnabled: Boolean;
 begin
-  Result := FIsSkiaEnabled or TSkia4DelphiProject.Found;
-end;
-
-procedure TSkProjectManagerMenuEnableSkia.SetDeployFiles(
-  const AProject: IOTAProject; const AConfig: TSkProjectConfig;
-  const APlatform: TSkProjectPlatform; const AEnabled: Boolean);
-var
-  LDeployFile: TSkDeployFile;
-begin
-  if TSkProjectHelper.SupportsSkiaDeployment(AProject) then
-  begin
-    if AEnabled and (APlatform in TSkia4DelphiProject.SupportedPlatforms) then
-    begin
-      for LDeployFile in TSkia4DelphiProject.GetDeployFiles(APlatform) do
-        TSkProjectHelper.AddDeployFile(AProject, AConfig, LDeployFile);
-    end
-    else
-    begin
-      for LDeployFile in TSkia4DelphiProject.GetDeployFiles(APlatform) do
-      begin
-        TSkProjectHelper.RemoveDeployFile(AProject, AConfig, APlatform, LDeployFile.LocalFileName, LDeployFile.RemotePath);
-        if LDeployFile.CopyToOutput then
-          TSkOTAHelper.TryRemoveOutputFile(AProject, APlatform, AConfig, TPath.GetFileName(LDeployFile.LocalFileName));
-      end;
-    end;
-  end;
+  Result := FIsSkiaEnabled or TSkiaLibrary.IsSupported;
 end;
 
 procedure TSkProjectManagerMenuEnableSkia.SetSkiaEnabled(
   const AProject: IOTAProject; const AEnabled: Boolean);
-
-  function SupportsPlatform(const APlatform: TSkProjectPlatform): Boolean;
-  var
-    LPlatformName: string;
-    LSupportedPlatform: string;
-  begin
-    if APlatform <> TSkProjectPlatform.Unknown then
-    begin
-      LPlatformName := APlatform.ToString;
-      for LSupportedPlatform in AProject.SupportedPlatforms do
-        if SameText(LPlatformName, LSupportedPlatform) then
-          Exit(True);
-    end;
-    Result := False;
-  end;
 
   function ApplyDelphiSourceChange(var ASource: string; const AEnabled: Boolean): Boolean;
 
@@ -944,19 +739,14 @@ procedure TSkProjectManagerMenuEnableSkia.SetSkiaEnabled(
   end;
 
 var
-  LPlatform: TSkProjectPlatform;
-  LConfig: TSkProjectConfig;
   LProjectOptions: IOTAProjectOptions;
 begin
-  for LPlatform := Low(TSkProjectPlatform) to High(TSkProjectPlatform) do
-    if SupportsPlatform(LPlatform) then
-      for LConfig := Low(TSkProjectConfig) to High(TSkProjectConfig) do
-        SetDeployFiles(AProject, LConfig, LPlatform, AEnabled);
-  // Remove remaing files from old versions
-  if not AEnabled then
-    TSkProjectHelper.RemoveDeployFilesOfClass(AProject);
-
+  TSkDeployFilesHelper.RemoveDeployFiles(AProject);
   TSkProjectHelper.IsSkiaDefined[AProject] := AEnabled;
+  if AEnabled then
+    TSkDeployFilesHelper.AddDeployFiles(AProject)
+  else
+    TSkDeployFilesHelper.DeleteFromOutput(AProject);
   LProjectOptions := AProject.ProjectOptions;
   if Assigned(LProjectOptions) then
     LProjectOptions.ModifiedState := True;
@@ -992,62 +782,36 @@ end;
 procedure TSkCompileNotifier.ProjectCompileStarted(const AProject: IOTAProject;
   AMode: TOTACompileMode);
 var
-  LPlatform: TSkProjectPlatform;
   LConfig: TSkProjectConfig;
-  LDeployFile: TSkDeployFile;
+  LPlatform: TSkProjectPlatform;
 begin
-  if TSkProjectHelper.SupportsSkiaDeployment(AProject) then
+  if TSkProjectHelper.IsSupported(AProject) and TSkProjectHelper.IsSkiaDefined[AProject] then
   begin
-    if Assigned(AProject) then
-      LPlatform := TSkProjectPlatform.FromString(AProject.CurrentPlatform)
-    else
-      LPlatform := TSkProjectPlatform.Unknown;
+    LPlatform := TSkProjectPlatform.FromString(AProject.CurrentPlatform);
     if LPlatform = TSkProjectPlatform.Unknown then
       Exit;
+    LConfig := TSkProjectConfig.FromString(AProject.CurrentConfiguration);
 
-    if (AMode in [TOTACompileMode.cmOTAMake, TOTACompileMode.cmOTABuild]) and
-      TSkProjectHelper.IsSkiaDefined[AProject] and TSkia4DelphiProject.Found then
-    begin
-      LConfig := TSkProjectConfig.FromString(AProject.CurrentConfiguration);
-      if TSkProjectHelper.IsSkiaDefinedForPlatform(AProject, LPlatform, LConfig) then
-      begin
-        if LPlatform in TSkia4DelphiProject.SupportedPlatforms then
+    case AMode of
+      cmOTAMake,
+      cmOTABuild:
         begin
-          TSkProjectHelper.RemoveUnexpectedDeployFilesOfClass(AProject, LConfig, LPlatform, TSkia4DelphiProject.GetDeployFiles(LPlatform));
-          for LDeployFile in TSkia4DelphiProject.GetDeployFiles(LPlatform) do
+          TSkDeployFilesHelper.EnsureDeployFiles(AProject, LPlatform, LConfig);
+          if TSkDeployFilesHelper.CanDeploy(AProject, LPlatform, LConfig) then
+            TSkDeployFilesHelper.CopyToOutput(AProject, LPlatform, LConfig)
+          else
+            TSkDeployFilesHelper.DeleteFromOutput(AProject, LPlatform, LConfig);
+          if TSkProjectHelper.IsSkiaDefinedForPlatform(AProject, LPlatform, LConfig) and
+            not TSkProjectHelper.IsSupported(AProject, LPlatform) then
           begin
-            if LDeployFile.CopyToOutput then
-            begin
-              Assert(LDeployFile.LocalFileName <> '');
-              TSkOTAHelper.TryCopyFileToOutputPathOfActiveBuild(AProject, TPath.Combine(TSkia4DelphiProject.AbsolutePath, LDeployFile.LocalFileName));
-            end;
-            TSkProjectHelper.AddDeployFile(AProject, LConfig, LDeployFile);
+            ShowMessage(Format(sUnsupportedPlatformMessage, [AProject.CurrentPlatform, SkiaMenuCaption[True], SkiaProjectDisabledDefine]));
           end;
-        end
-        else
-        begin
-          for LDeployFile in TSkia4DelphiProject.GetDeployFiles(LPlatform) do
-            TSkProjectHelper.RemoveDeployFile(AProject, LConfig, LPlatform, LDeployFile.LocalFileName, LDeployFile.RemotePath);
-          TSkProjectHelper.RemoveDeployFilesOfClass(AProject, LConfig, LPlatform);
-          Showmessage(Format(UnsupportedPlatformMessage, [AProject.CurrentPlatform, TSkia4DelphiProject.MenuCaption[True],
-            TSkia4DelphiProject.ProjectDisabledDefine]));
         end;
-      end
-      else
-      begin
-        for LDeployFile in TSkia4DelphiProject.GetDeployFiles(LPlatform) do
-          TSkProjectHelper.RemoveDeployFile(AProject, LConfig, LPlatform, LDeployFile.LocalFileName, LDeployFile.RemotePath);
-        TSkProjectHelper.RemoveDeployFilesOfClass(AProject, LConfig, LPlatform);
-      end;
-    end
-    {$IF CompilerVersion >= 35}
-    else if (AMode = TOTACompileMode.cmOTAClean) and TSkProjectHelper.IsSkiaDefined[AProject] then
-    begin
-      for LDeployFile in TSkia4DelphiProject.GetDeployFiles(LPlatform) do
-        if LDeployFile.CopyToOutput then
-          TSkOTAHelper.TryRemoveOutputFileOfActiveBuild(AProject, TPath.GetFileName(LDeployFile.LocalFileName));
+      {$IF CompilerVersion >= 35}
+      cmOTAClean: TSkDeployFilesHelper.DeleteFromOutput(AProject, LPlatform, LConfig);
+      {$ENDIF}
+    else
     end;
-    {$ENDIF}
   end;
 end;
 
@@ -1066,6 +830,349 @@ var
 begin
   if (FNotifierIndex <= InvalidNotifier) and Supports(BorlandIDEServices, IOTACompileServices, LCompileServices) then
     FNotifierIndex := LCompileServices.AddNotifier(TSkCompileNotifier.Create);
+end;
+
+{ TSkDeployFilesHelper }
+
+class procedure TSkDeployFilesHelper.AddDeployFiles(
+  const AProject: IOTAProject);
+
+  procedure DoAddFile(const AProjectDeployment: IProjectDeployment;
+    const APlatformName, AConfigName: string; const ADeployFile: TSkDeployFile);
+  var
+    LFile: IProjectDeploymentFile;
+  begin
+    LFile := AProjectDeployment.CreateFile(AConfigName, APlatformName, ADeployFile.LocalFileName);
+    if Assigned(LFile) then
+    begin
+      LFile.Overwrite[APlatformName] := True;
+      LFile.Enabled[APlatformName] := True;
+      LFile.Required := ADeployFile.Required;
+      LFile.Condition := ADeployFile.Condition;
+      LFile.Operation[APlatformName] := ADeployFile.Operation;
+      LFile.RemoteDir[APlatformName] := ADeployFile.RemotePath;
+      LFile.DeploymentClass := SkiaDeploymentClass;
+      LFile.RemoteName[APlatformName] := TPath.GetFileName(ADeployFile.LocalFileName);
+      AProjectDeployment.AddFile(AConfigName, APlatformName, LFile);
+      AProject.MarkModified;
+    end;
+  end;
+
+  procedure SetDeployFiles(const AProjectDeployment: IProjectDeployment;
+    const AConfig: TSkProjectConfig; const APlatform: TSkProjectPlatform);
+  var
+    LDeployFile: TSkDeployFile;
+  begin
+    for LDeployFile in GetSkiaDeployFiles(APlatform) do
+      DoAddFile(AProjectDeployment, LDeployFile.Platform.ToString, AConfig.ToString, LDeployFile);
+  end;
+
+var
+  LConfig: TSkProjectConfig;
+  LPlatform: TSkProjectPlatform;
+  LProjectDeployment: IProjectDeployment;
+begin
+  if Supports(AProject, IProjectDeployment, LProjectDeployment) then
+    for LPlatform := Low(TSkProjectPlatform) to High(TSkProjectPlatform) do
+      if TSkProjectHelper.IsSupported(AProject, LPlatform) then
+        for LConfig := Low(TSkProjectConfig) to High(TSkProjectConfig) do
+          if TSkProjectHelper.IsSkiaDefinedForPlatform(AProject, LPlatform, LConfig) then
+            SetDeployFiles(LProjectDeployment, LConfig, LPlatform);
+end;
+
+class function TSkDeployFilesHelper.CanDeploy(const AProject: IOTAProject;
+  const APlatform: TSkProjectPlatform;
+  const AConfig: TSkProjectConfig): Boolean;
+begin
+  Result := TSkProjectHelper.IsSupported(AProject, APlatform) and Supports(AProject, IProjectDeployment)
+    and TSkProjectHelper.IsSkiaDefined[AProject] and TSkProjectHelper.IsSkiaDefinedForPlatform(AProject, APlatform, AConfig);
+end;
+
+class procedure TSkDeployFilesHelper.CopyToOutput(const AProject: IOTAProject;
+  const APlatform: TSkProjectPlatform; const AConfig: TSkProjectConfig);
+var
+  LDeployFile: TSkDeployFile;
+begin
+  for LDeployFile in GetSkiaDeployFiles(APlatform) do
+    if LDeployFile.CopyToOutput then
+      TSkOTAHelper.TryCopyFileToOutputPath(AProject, APlatform, AConfig, TSkOTAHelper.ExpandVars(LDeployFile.LocalFileName, APlatform, AConfig));
+end;
+
+class procedure TSkDeployFilesHelper.DeleteFromOutput(
+  const AProject: IOTAProject);
+var
+  LConfig: TSkProjectConfig;
+  LPlatform: TSkProjectPlatform;
+begin
+  for LPlatform := Low(TSkProjectPlatform) to High(TSkProjectPlatform) do
+    if TSkProjectHelper.IsSupported(AProject, LPlatform) then
+      for LConfig := Low(TSkProjectConfig) to High(TSkProjectConfig) do
+        DeleteFromOutput(AProject, LPlatform, LConfig);
+end;
+
+class procedure TSkDeployFilesHelper.DeleteFromOutput(
+  const AProject: IOTAProject; const APlatform: TSkProjectPlatform;
+  const AConfig: TSkProjectConfig);
+var
+  LDeployFile: TSkDeployFile;
+begin
+  for LDeployFile in GetSkiaDeployFiles(APlatform) do
+    if LDeployFile.CopyToOutput then
+      TSkOTAHelper.TryRemoveOutputFile(AProject, APlatform, AConfig, TPath.GetFileName(LDeployFile.LocalFileName));
+end;
+
+class procedure TSkDeployFilesHelper.EnsureDeployFiles(
+  const AProject: IOTAProject; const APlatform: TSkProjectPlatform;
+  const AConfig: TSkProjectConfig);
+
+  function HasValidSkiaFiles(const AProjectDeployment: IProjectDeployment): Boolean;
+  var
+    LFile: IProjectDeploymentFile;
+    LFiles: TDeploymentFileArray;
+    LFound: Boolean;
+    LPlatformName: string;
+    LSkiaDeployFiles: TArray<TSkDeployFile>;
+    LSkiaFile: TSkDeployFile;
+  begin
+    LPlatformName := APlatform.ToString;
+    LSkiaDeployFiles := GetSkiaDeployFiles(APlatform);
+    for LFile in AProjectDeployment.FindFiles('', AConfig.ToString, LPlatformName, '') do
+      if not IsValidDeployFile(LFile, LPlatformName, LSkiaDeployFiles) then
+        Exit(False);
+
+    LFiles := AProjectDeployment.FindFiles('', AConfig.ToString, LPlatformName, SkiaDeploymentClass);
+    for LSkiaFile in LSkiaDeployFiles do
+    begin
+      LFound := False;
+      for LFile in LFiles do
+      begin
+        if LSkiaFile.Equals(LFile, LPlatformName) then
+        begin
+          LFound := True;
+          Break;
+        end;
+      end;
+      if not LFound then
+        Exit(False);
+    end;
+    Result := True;
+  end;
+
+var
+  LProjectDeployment: IProjectDeployment;
+begin
+  if Supports(AProject, IProjectDeployment, LProjectDeployment) then
+  begin
+    if (CanDeploy(AProject, APlatform, AConfig) and not HasValidSkiaFiles(LProjectDeployment)) or
+      ((not CanDeploy(AProject, APlatform, AConfig)) and (LProjectDeployment.GetFilesOfClass(SkiaDeploymentClass) <> nil)) then
+    begin
+      RemoveDeployFiles(AProject);
+      if TSkProjectHelper.IsSkiaDefined[AProject] then
+        AddDeployFiles(AProject);
+    end;
+  end;
+end;
+
+class function TSkDeployFilesHelper.IsValidDeployFile(
+  const AFile: IProjectDeploymentFile; const APlatformName: string;
+  const AAllowedFiles: TArray<TSkDeployFile>): Boolean;
+var
+  LDeployFile: TSkDeployFile;
+begin
+  if AFile.DeploymentClass = SkiaDeploymentClass then
+  begin
+    for LDeployFile in AAllowedFiles do
+      if LDeployFile.Equals(AFile, APlatformName) then
+        Exit(True);
+    Result := False;
+  end
+  else
+  begin
+    for LDeployFile in AAllowedFiles do
+    begin
+      if SameText(IncludeTrailingPathDelimiter(AFile.RemoteDir[APlatformName]), IncludeTrailingPathDelimiter(LDeployFile.RemotePath)) and
+        SameText(AFile.RemoteName[APlatformName], TPath.GetFileName(LDeployFile.LocalFileName)) then
+      begin
+        Exit(False);
+      end;
+    end;
+    Result := True;
+  end;
+end;
+
+class function TSkDeployFilesHelper.LocalFilesExists: Boolean;
+var
+  LFile: TSkDeployFile;
+begin
+  Result := False;
+  for LFile in GetSkiaDeployFiles(TSkProjectPlatform.Win32) do
+    if TFile.Exists(TSkOTAHelper.ExpandVars(LFile.LocalFileName, TSkProjectPlatform.Win32, TSkProjectConfig.Release)) then
+      Exit(True);
+end;
+
+class procedure TSkDeployFilesHelper.RemoveDeployFiles(
+  const AProject: IOTAProject);
+var
+  LChanged: Boolean;
+  LConfig: TSkProjectConfig;
+  LConfigName: string;
+  LFile: IProjectDeploymentFile;
+  LPlatform: TSkProjectPlatform;
+  LPlatformDeployFiles: TArray<TSkDeployFile>;
+  LPlatformName: string;
+  LProjectDeployment: IProjectDeployment;
+begin
+  if Supports(AProject, IProjectDeployment, LProjectDeployment) then
+  begin
+    LChanged := LProjectDeployment.GetFilesOfClass(SkiaDeploymentClass) <> nil;
+    LProjectDeployment.RemoveFilesOfClass(SkiaDeploymentClass);
+    LProjectDeployment.RemoveClass(SkiaDeploymentClass);
+    for LPlatform := Low(TSkProjectPlatform) to High(TSkProjectPlatform) do
+    begin
+      if LPlatform = TSkProjectPlatform.Unknown then
+        Continue;
+      LPlatformDeployFiles := GetSkiaDeployFiles(LPlatform);
+      for LConfig := Low(TSkProjectConfig) to High(TSkProjectConfig) do
+      begin
+        LConfigName := LConfig.ToString;
+        LPlatformName := LPlatform.ToString;
+
+        for LFile in LProjectDeployment.FindFiles('', LConfigName, LPlatformName, '') do
+        begin
+          if LFile.DeploymentClass = SkiaDeploymentClass then
+            Continue;
+          if not IsValidDeployFile(LFile, LPlatformName, LPlatformDeployFiles) then
+          begin
+            LProjectDeployment.RemoveFile(LConfigName, LPlatformName, LFile.LocalName);
+            LChanged := True;
+          end;
+        end;
+      end;
+    end;
+    if LChanged then
+      AProject.MarkModified;
+  end;
+end;
+
+{ TSkProjectHelper }
+
+class function TSkProjectHelper.DefinesName(
+  const AProject: IOTAProject): string;
+begin
+  if AProject.Personality = sDelphiPersonality then
+    Result := DCCStrs.sDefine
+  else if AProject.Personality = sCBuilderPersonality then
+    Result := BCCStrs.sDefines
+  else
+    Result := '';
+end;
+
+class function TSkProjectHelper.GetIsSkiaDefined(
+  const AProject: IOTAProject): Boolean;
+var
+  LBaseConfiguration: IOTABuildConfiguration;
+  LOptionsConfigurations: IOTAProjectOptionsConfigurations;
+begin
+  Result := Assigned(AProject) and Supports(AProject.ProjectOptions, IOTAProjectOptionsConfigurations, LOptionsConfigurations);
+  if Result then
+  begin
+    LBaseConfiguration := LOptionsConfigurations.BaseConfiguration;
+    Result := Assigned(LBaseConfiguration) and
+      TSkOTAHelper.ContainsOptionValue(LBaseConfiguration.Value[DefinesName(AProject)], SkiaProjectDefine);
+  end;
+end;
+
+class function TSkProjectHelper.IsSkiaDefinedForPlatform(
+  const AProject: IOTAProject; const APlatform: TSkProjectPlatform;
+  const AConfig: TSkProjectConfig): Boolean;
+var
+  LBuildConfig: IOTABuildConfiguration;
+begin
+  Result := TSkOTAHelper.TryGetBuildConfig(AProject, APlatform, AConfig, LBuildConfig) and
+    not TSkOTAHelper.ContainsOptionValue(LBuildConfig.Value[DefinesName(AProject)], SkiaProjectDisabledDefine);
+end;
+
+class function TSkProjectHelper.IsSupported(
+  const AProject: IOTAProject): Boolean;
+begin
+  Result := Assigned(AProject) and TSkiaLibrary.IsPersonalitySupported(AProject.Personality) and
+    ((AProject.ApplicationType = sApplication) or (AProject.ApplicationType = sConsole)) and TSkiaLibrary.IsSupported;
+end;
+
+class function TSkProjectHelper.IsSupported(const AProject: IOTAProject;
+  const APlatform: TSkProjectPlatform): Boolean;
+begin
+  Result := IsSupported(AProject) and (APlatform in TSkiaLibrary.SupportedPlatforms(AProject.Personality)) and
+    ContainsStringInArray(APlatform.ToString, AProject.SupportedPlatforms, False);
+end;
+
+class procedure TSkProjectHelper.SetIsSkiaDefined(const AProject: IOTAProject;
+  const AValue: Boolean);
+
+  {$IF CompilerVersion >= 32}
+  procedure SetPlatformsOptions;
+  var
+    LBuildConfig: IOTABuildConfiguration;
+    LConfig: TSkProjectConfig;
+    LLibrary: string;
+    LPath: string;
+    I: Integer;
+  begin
+    if AProject.Personality <> sCBuilderPersonality then
+      Exit;
+    for I := 0 to Length(SkiaPlatformsOptions) - 1 do
+    begin
+      for LConfig := Low(TSkProjectConfig) to High(TSkProjectConfig) do
+      begin
+        if TSkOTAHelper.TryGetBuildConfig(AProject, SkiaPlatformsOptions[I].Platform, LConfig, LBuildConfig) then
+        begin
+          for LLibrary in SkiaPlatformsOptions[I].CppLinkedLibraries do
+          begin
+            if AValue then
+              LBuildConfig.Value[ILinkStrs.sAdditionalLinkerFiles] := TSkOTAHelper.InsertOptionValue(LBuildConfig.Value[ILinkStrs.sAdditionalLinkerFiles], LLibrary)
+            else
+              LBuildConfig.Value[ILinkStrs.sAdditionalLinkerFiles] := TSkOTAHelper.RemoveOptionValue(LBuildConfig.Value[ILinkStrs.sAdditionalLinkerFiles], LLibrary);
+          end;
+          for LPath in SkiaPlatformsOptions[I].CppLibraryPath do
+          begin
+            if AValue then
+              LBuildConfig.Value[ILinkStrs.sLibraryPath] := TSkOTAHelper.InsertOptionValue(LBuildConfig.Value[ILinkStrs.sLibraryPath], LPath)
+            else
+              LBuildConfig.Value[ILinkStrs.sLibraryPath] := TSkOTAHelper.RemoveOptionValue(LBuildConfig.Value[ILinkStrs.sLibraryPath], LPath);
+          end;
+        end;
+      end;
+    end;
+  end;
+  {$ENDIF}
+
+var
+  LBaseConfiguration: IOTABuildConfiguration;
+  LOptionsConfigurations: IOTAProjectOptionsConfigurations;
+  LProjectOptions: IOTAProjectOptions;
+begin
+  if Assigned(AProject) then
+  begin
+    LProjectOptions := AProject.ProjectOptions;
+    if Assigned(LProjectOptions) then
+    begin
+      if Supports(LProjectOptions, IOTAProjectOptionsConfigurations, LOptionsConfigurations) then
+      begin
+        LBaseConfiguration := LOptionsConfigurations.BaseConfiguration;
+        if Assigned(LBaseConfiguration) then
+        begin
+          if AValue then
+            LBaseConfiguration.Value[DefinesName(AProject)] := TSkOTAHelper.InsertOptionValue(LBaseConfiguration.Value[DefinesName(AProject)], SkiaProjectDefine)
+          else
+            LBaseConfiguration.Value[DefinesName(AProject)] := TSkOTAHelper.RemoveOptionValue(LBaseConfiguration.Value[DefinesName(AProject)], SkiaProjectDefine);
+        end;
+        {$IF CompilerVersion >= 32}
+        SetPlatformsOptions;
+        {$ENDIF}
+      end;
+      LProjectOptions.ModifiedState := True;
+    end;
+  end;
 end;
 
 { TSkOTAHelper }
@@ -1088,6 +1195,13 @@ class function TSkOTAHelper.ExpandConfiguration(const ASource: string;
 begin
   Result := StringReplace(ASource, '$(Platform)', AConfig.Platform, [rfReplaceAll, rfIgnoreCase]);
   Result := StringReplace(Result, '$(Config)', AConfig.Name, [rfReplaceAll, rfIgnoreCase]);
+end;
+
+class function TSkOTAHelper.ExpandConfiguration(const ASource: string;
+  const APlatform: TSkProjectPlatform; const AConfig: TSkProjectConfig): string;
+begin
+  Result := StringReplace(ASource, '$(Platform)', APlatform.ToString, [rfReplaceAll, rfIgnoreCase]);
+  Result := StringReplace(Result, '$(Config)', AConfig.ToString, [rfReplaceAll, rfIgnoreCase]);
 end;
 
 class function TSkOTAHelper.ExpandEnvironmentVar(var AValue: string): Boolean;
@@ -1129,6 +1243,12 @@ begin
     Result := LBuffer;
 end;
 
+class function TSkOTAHelper.ExpandVars(const ASource: string;
+  const APlatform: TSkProjectPlatform; const AConfig: TSkProjectConfig): string;
+begin
+  Result := ExpandVars(ExpandConfiguration(ASource, APlatform, AConfig));
+end;
+
 class function TSkOTAHelper.ExpandVars(const ASource: string): string;
 var
   LVars: TStrings;
@@ -1141,38 +1261,12 @@ begin
     try
       GetEnvironmentVars(LVars, True);
       for I := 0 to LVars.Count - 1 do
-      begin
         Result := StringReplace(Result, '$(' + LVars.Names[I] + ')', LVars.Values[LVars.Names[I]], [rfReplaceAll, rfIgnoreCase]);
+      for I := 0 to LVars.Count - 1 do
         Result := StringReplace(Result, '%' + LVars.Names[I] + '%', LVars.Values[LVars.Names[I]], [rfReplaceAll, rfIgnoreCase]);
-      end;
     finally
       LVars.Free;
     end;
-  end;
-end;
-
-class function TSkOTAHelper.GetEnvironmentVar(const AName: string; AExpand: Boolean): string;
-const
-  BufSize = 1024;
-var
-  Len: Integer;
-  Buffer: array[0..BufSize - 1] of Char;
-  LExpanded: string;
-begin
-  Result := '';
-  Len := Winapi.Windows.GetEnvironmentVariable(PChar(AName), @Buffer, BufSize);
-  if Len < BufSize then
-    SetString(Result, PChar(@Buffer), Len)
-  else
-  begin
-    SetLength(Result, Len - 1);
-    Winapi.Windows.GetEnvironmentVariable(PChar(AName), PChar(Result), Len);
-  end;
-  if AExpand then
-  begin
-    LExpanded := Result;
-    if ExpandEnvironmentVar(LExpanded) then
-      Result := LExpanded;
   end;
 end;
 
@@ -1312,22 +1406,6 @@ begin
   end;
 end;
 
-class function TSkOTAHelper.TryCopyFileToOutputPathOfActiveBuild(
-  const AProject: IOTAProject; const AFileName: string): Boolean;
-var
-  LPlatform: TSkProjectPlatform;
-  LConfig: TSkProjectConfig;
-begin
-  LPlatform := TSkProjectPlatform.Unknown;
-  LConfig := TSkProjectConfig.Release;
-  if Assigned(AProject) then
-  begin
-    LPlatform := TSkProjectPlatform.FromString(AProject.CurrentPlatform);
-    LConfig := TSkProjectConfig.FromString(AProject.CurrentConfiguration);
-  end;
-  Result := TryCopyFileToOutputPath(AProject, LPlatform, LConfig, AFileName);
-end;
-
 class function TSkOTAHelper.TryGetBuildConfig(const AProject: IOTAProject;
   const APlatform: TSkProjectPlatform; const AConfig: TSkProjectConfig;
   out ABuildConfig: IOTABuildConfiguration): Boolean;
@@ -1347,7 +1425,7 @@ begin
       for I := LOptionsConfigurations.ConfigurationCount - 1 downto 0 do
       begin
         ABuildConfig := LOptionsConfigurations.Configurations[I];
-        if ContainsOptionValue(ABuildConfig.Value[sDefine], LConfigName) then
+        if ABuildConfig.Name = LConfigName then
         begin
           ABuildConfig := ABuildConfig.PlatformConfiguration[APlatform.ToString];
           Exit(Assigned(ABuildConfig));
@@ -1395,7 +1473,10 @@ begin
 
         if Assigned(ABuildConfig) then
         begin
-          LRelativeOutputPath := LOptions.Values[OutputDirPropertyName];
+          if AProject.Personality = sCBuilderPersonality then
+            LRelativeOutputPath := LOptions.Values[FinalOutputDirPropertyName]
+          else
+            LRelativeOutputPath := LOptions.Values[OutputDirPropertyName];
           AOutputPath := ExpandOutputPath(ExpandPath(AOutputPath, LRelativeOutputPath), ABuildConfig);
           Result := True;
         end
@@ -1411,22 +1492,6 @@ begin
   end;
 end;
 
-class function TSkOTAHelper.TryGetProjectOutputPathOfActiveBuild(
-  const AProject: IOTAProject; out AOutputPath: string): Boolean;
-var
-  LPlatform: TSkProjectPlatform;
-  LConfig: TSkProjectConfig;
-begin
-  LPlatform := TSkProjectPlatform.Unknown;
-  LConfig := TSkProjectConfig.Release;
-  if Assigned(AProject) then
-  begin
-    LPlatform := TSkProjectPlatform.FromString(AProject.CurrentPlatform);
-    LConfig := TSkProjectConfig.FromString(AProject.CurrentConfiguration);
-  end;
-  Result := TryGetProjectOutputPath(AProject, LPlatform, LConfig, AOutputPath);
-end;
-
 class function TSkOTAHelper.TryRemoveOutputFile(const AProject: IOTAProject;
   const APlatform: TSkProjectPlatform; const AConfig: TSkProjectConfig;
   AFileName: string): Boolean;
@@ -1434,7 +1499,8 @@ var
   LProjectOutputPath: string;
 begin
   Result := False;
-  if (APlatform <> TSkProjectPlatform.Unknown) and TSkOTAHelper.TryGetProjectOutputPathOfActiveBuild(AProject, LProjectOutputPath) then
+  if (APlatform <> TSkProjectPlatform.Unknown) and
+    TSkOTAHelper.TryGetProjectOutputPath(AProject, APlatform, AConfig, LProjectOutputPath) then
   begin
     AFileName := TPath.Combine(LProjectOutputPath, AFileName);
     if TFile.Exists(AFileName) then
@@ -1449,72 +1515,36 @@ begin
   end;
 end;
 
-class function TSkOTAHelper.TryRemoveOutputFileOfActiveBuild(
-  const AProject: IOTAProject; const AFileName: string): Boolean;
-var
-  LPlatform: TSkProjectPlatform;
-  LConfig: TSkProjectConfig;
+{ TSkiaLibrary }
+
+class function TSkiaLibrary.IsPersonalitySupported(
+  const APersonality: string): Boolean;
 begin
-  LPlatform := TSkProjectPlatform.Unknown;
-  LConfig := TSkProjectConfig.Release;
-  if Assigned(AProject) then
-  begin
-    LPlatform := TSkProjectPlatform.FromString(AProject.CurrentPlatform);
-    LConfig := TSkProjectConfig.FromString(AProject.CurrentConfiguration);
-  end;
-  Result := TryRemoveOutputFile(AProject, LPlatform, LConfig, AFileName);
+  Result := (APersonality = sDelphiPersonality)
+    {$IFDEF SKIAEMB}or (APersonality = sCBuilderPersonality){$ENDIF};
 end;
 
-{ TSkia4DelphiProject }
-
-class procedure TSkia4DelphiProject.FindPath(out APath, AAbsolutePath: string);
+class function TSkiaLibrary.IsSupported: Boolean;
 begin
-  AAbsolutePath := TSkOTAHelper.GetEnvironmentVar(SkiaDirVariable, True);
-  if IsValidSkiaDir(AAbsolutePath) then
-    APath := '$(' + SkiaDirVariable + ')'
+  if not FBinariesChecked then
+  begin
+    FBinariesFound := TSkDeployFilesHelper.LocalFilesExists;
+    FBinariesChecked := True;
+  end;
+  Result := FBinariesFound;
+end;
+
+class function TSkiaLibrary.SupportedPlatforms(
+  const APersonality: string): TSkProjectPlatforms;
+begin
+  if not IsPersonalitySupported(APersonality) then
+    Exit([]);
+  if APersonality = sDelphiPersonality then
+    Result := DelphiSupportedPlatforms
+  else if APersonality = sCBuilderPersonality then
+    Result := CBuilderSupportedPlatforms
   else
-  begin
-    APath := '';
-    AAbsolutePath := '';
-  end;
-end;
-
-class function TSkia4DelphiProject.GetAbsolutePath: string;
-begin
-  if not FPathChecked then
-    GetPath;
-  Result := FAbsolutePath;
-end;
-
-class function TSkia4DelphiProject.GetDeployFiles(
-  const APlatform: TSkProjectPlatform): TArray<TSkDeployFile>;
-var
-  I: Integer;
-begin
-  Result := [];
-  for I := Low(DeployFile) to High(DeployFile) do
-    if DeployFile[I].Platform = APlatform then
-      Result := Result + [DeployFile[I]];
-end;
-
-class function TSkia4DelphiProject.GetFound: Boolean;
-begin
-  Result := not Path.IsEmpty;
-end;
-
-class function TSkia4DelphiProject.GetPath: string;
-begin
-  if not FPathChecked then
-  begin
-    FindPath(FPath, FAbsolutePath);
-    FPathChecked := True;
-  end;
-  Result := FPath;
-end;
-
-class function TSkia4DelphiProject.IsValidSkiaDir(const APath: string): Boolean;
-begin
-  Result := TDirectory.Exists(APath);
+    Result := [];
 end;
 
 { Register }

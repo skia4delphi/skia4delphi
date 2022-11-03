@@ -22,7 +22,7 @@ var
   LAnimatedImage: TSkAnimatedImage;
 begin
   LAnimatedimage := TSkAnimatedImage.Create(Self);
-  LAnimatedimage.LoadFromFile('Assets\Samples\rocket.json');
+  LAnimatedimage.LoadFromFile('Samples\Demo\Assets\rocket.json');
   LAnimatedimage.Parent := Self;
 end;
 ```
@@ -38,7 +38,12 @@ The example above results in the output below:
 Contains the bytes of the animated image file. To load an animated image you can set the bytes to the `Source.Data` or just use the methods `LoadFromFile` or `LoadFromStream`.
 
 
-### TSkAnimatedImage.Loop property
+### TSkAnimatedImage.Animation.Enabled property
+
+Defines if the animation will start run automatically when it becames visible in screen.
+
+
+### TSkAnimatedImage.Animation.Loop property
 
 Defines if the animation will run in an infinite loop or if it will only run completly just 1 time.
 
@@ -56,11 +61,6 @@ Specifies whether and how to resize and position the image draw inside the **TSk
 | OriginalCenter           | Display the image with its original dimensions but centered                                                                                                         |
 | Place                    | Places the image inside the destination rectangle. If the image is greater than the destination rectangle then the image is scaled down with aspect ratio preserved |
 | Stretch                  | Stretch the image to fill the entire destination rectangle                                                                                                          |
-
-
-### Play or Stop
-
-To simplify control even further, play and stop operations are done automatically, no method needs to be called. Every time the control becomes visible and enabled, the animation is started, and every time the control is invisible or disabled, the animation is stopped.
 
 
 ### VCL
@@ -90,7 +90,7 @@ var
   LAnimatedImage: TSkAnimatedImage;
 begin
   LAnimatedImage := TSkAnimatedImage.Create(Self);
-  LAnimatedImage.LoadFromFile('Assets\Samples\rocket.json');
+  LAnimatedImage.LoadFromFile('Samples\Demo\Assets\rocket.json');
   LAnimatedImage.Parent := Self;
 end;
 ```
@@ -112,7 +112,7 @@ var
   LAnimatedImage: TSkAnimatedImage;
 begin
   LAnimatedImage := TSkAnimatedImage.Create(Self);
-  LAnimatedImage.LoadFromFile('Assets\Samples\telegram-sticker.tgs');
+  LAnimatedImage.LoadFromFile('Samples\Demo\Assets\telegram-sticker.tgs');
   LAnimatedImage.Parent := Self;
 end;
 ```

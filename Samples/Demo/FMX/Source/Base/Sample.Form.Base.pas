@@ -39,7 +39,7 @@ type
   { TfrmBase }
 
   TfrmBase = class(TForm)
-    lytContent: TLayout;
+    rctContent: TRectangle;
     rctHeader: TRectangle;
     lblTitle: TSkLabel;
     svgBackArrow: TSkSvg;
@@ -55,7 +55,7 @@ type
     procedure btnBackClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormKeyDown(Sender: TObject; var Key: Word; var KeyChar: Char; Shift: TShiftState);
-    procedure lytContentResized(Sender: TObject);
+    procedure rctContentResized(Sender: TObject);
   private
     class var
       FCreatedFormsList: TList<TfrmBase>;
@@ -73,7 +73,7 @@ type
     class procedure CloseForm(const AForm: TfrmBase); static;
     class constructor Create;
     class destructor Destroy;
-    class function FormBackgroundColor: TAlphaColor; static;
+    class function FormBackgroundColor: TAlphaColor; virtual;
     class function FormBorderColor: TAlphaColor; static;
     class function GetCurrentForm: TfrmBase; static;
     class property AssetsPath: string read GetAssetsPath;
@@ -86,7 +86,7 @@ type
     {$IF CompilerVersion >= 34}
     procedure PaintBackground; override;
     {$ENDIF}
-    procedure Showmessage(const AMessage: string);
+    procedure ShowMessage(const AMessage: string);
   public
     constructor Create(AOwner: TComponent); override;
     procedure Show; reintroduce;
@@ -134,7 +134,7 @@ begin
   if (LSelfIndex >= 0) and (LSelfIndex < FCreatedFormsList.Count - 1) and (FCreatedFormsList[LSelfIndex + 1].ClassType = T) then
     Exit(T(FCreatedFormsList[LSelfIndex + 1]));
   Result := CreateForm<T>;
-  TfrmBase(Result).lytContent.Align := TAlignLayout.Client;
+  TfrmBase(Result).rctContent.Align := TAlignLayout.Client;
   TfrmBase(Result).btnBack.Visible := FShowingFormsList.Count > 0;
   TfrmBase(Result).rctGestureBar.Height := rctGestureBar.Height;
   FCreatedFormsList.Add(TfrmBase(Result));
@@ -225,7 +225,11 @@ begin
       FCreatedFormsList[I].DisposeOf;
       FCreatedFormsList.Delete(I);
     end;
-    FShowingFormsList.Last.lytContent.Visible := True;
+    FShowingFormsList.Last.rctContent.Enabled := True;
+    FShowingFormsList.Last.rctContent.Visible := True;
+    FShowingFormsList.Last.rctContent.BringToFront;
+    if FShowingFormsList.Count > 1 then
+      FShowingFormsList[FShowingFormsList.Count - 2].rctContent.Visible := True;
     if FShowingFormsList.Last = Application.MainForm then
       Application.MainForm.BiDiMode := Application.BiDiMode
     else
@@ -302,12 +306,21 @@ begin
       Application.MainForm.BiDiMode := BiDiMode;
     end;
     if FShowingFormsList.Count > 0 then
-      FShowingFormsList.Last.lytContent.Visible := False;
+    begin
+      FShowingFormsList.Last.rctContent.Visible := False;
+      TControlAccess(FShowingFormsList.Last.rctContent).DisabledOpacity := 1;
+      FShowingFormsList.Last.rctContent.Enabled := False;
+      if FShowingFormsList.Count > 1 then
+        FShowingFormsList[FShowingFormsList.Count - 2].rctContent.Visible := False;
+    end;
     FShowingFormsList.Add(Self);
-    lytContent.Parent := Application.MainForm;
+    rctContent.Parent := Application.MainForm;
+    rctContent.BringToFront;
+    if FShowingFormsList.Count > 1 then
+      FShowingFormsList[FShowingFormsList.Count - 2].rctContent.Visible := True;
   end;
   inherited;
-  lytContentResized(nil);
+  rctContentResized(nil);
 end;
 
 procedure TfrmBase.DoSystemBarsInsetsChange;
@@ -330,7 +343,7 @@ end;
 class function TfrmBase.FormBackgroundColor: TAlphaColor;
 begin
   {$IFDEF MSWINDOWS}
-  Result := $FFF9F9F9; // Mica material
+  Result := $FFFBFBFB; // Mica material
   {$ELSE}
   Result := $FFF2F2F7;
   {$ENDIF}
@@ -339,7 +352,7 @@ end;
 class function TfrmBase.FormBorderColor: TAlphaColor;
 begin
   {$IFDEF MSWINDOWS}
-  Result := $FFF3F3F3; // Mica material
+  Result := $FFF2F3F6; // Mica material
   {$ELSE}
   Result := TAlphaColors.White;
   {$ENDIF}
@@ -351,6 +364,7 @@ begin
   rctHeader.Height := 48;
   {$ENDIF}
   Fill.Color := FormBackgroundColor;
+  rctContent.Fill.Color := FormBackgroundColor;
   rctHeader.Fill.Color := FormBorderColor;
   rctTip.Fill.Color := FormBorderColor;
 end;
@@ -360,7 +374,7 @@ procedure TfrmBase.FormKeyDown(Sender: TObject; var Key: Word;
 begin
   case Key of
     vkEscape, vkBack, vkHardwareBack:
-      if GetCurrentForm <> Application.MainForm then
+      if (GetCurrentForm <> Application.MainForm) and GetCurrentForm.btnBack.ParentedVisible then
       begin
         CloseForm(GetCurrentForm);
         Key := 0;
@@ -372,7 +386,7 @@ end;
 class function TfrmBase.GetAssetsPath: string;
 begin
   {$IFDEF MSWINDOWS}
-  Result := TPath.GetFullPath('..\..\..\..\..\..\Assets\Samples\');
+  Result := TPath.GetFullPath('..\..\..\..\Assets\');
   {$ELSEIF DEFINED(IOS) or DEFINED(ANDROID)}
   Result := TPath.GetDocumentsPath;
   {$ELSEIF defined(MACOS)}
@@ -409,33 +423,6 @@ begin
   Result := rctTip.Visible;
 end;
 
-procedure TfrmBase.lytContentResized(Sender: TObject);
-begin
-  if rctTip.Visible and (rctTip.Height <> lblTipDescription.Height + 16) then
-  begin
-    rctTip.Height := lblTipDescription.Height + 16;
-    {$IF CompilerVersion >= 32}
-    TThread.ForceQueue(nil,
-      procedure
-      begin
-        TControlAccess(rctTip).Realign;
-        TControlAccess(lytContent).Realign;
-      end);
-    {$ELSE}
-    TThread.CreateAnonymousThread(
-      procedure
-      begin
-        TThread.Queue(nil,
-          procedure
-          begin
-            TControlAccess(rctTip).Realign;
-            TControlAccess(lytContent).Realign;
-          end);
-      end).Start;
-    {$ENDIF}
-  end;
-end;
-
 {$IF CompilerVersion >= 34}
 procedure TfrmBase.PaintBackground;
 begin
@@ -446,6 +433,33 @@ begin
     inherited;
 end;
 {$ENDIF}
+
+procedure TfrmBase.rctContentResized(Sender: TObject);
+begin
+  if rctTip.Visible and (rctTip.Height <> lblTipDescription.Height + 16) then
+  begin
+    rctTip.Height := lblTipDescription.Height + 16;
+    {$IF CompilerVersion >= 32}
+    TThread.ForceQueue(nil,
+      procedure
+      begin
+        TControlAccess(rctTip).Realign;
+        TControlAccess(rctContent).Realign;
+      end);
+    {$ELSE}
+    TThread.CreateAnonymousThread(
+      procedure
+      begin
+        TThread.Queue(nil,
+          procedure
+          begin
+            TControlAccess(rctTip).Realign;
+            TControlAccess(rctContent).Realign;
+          end);
+      end).Start;
+    {$ENDIF}
+  end;
+end;
 
 procedure TfrmBase.SetAllowScrollBoundsAnimation(const AValue: Boolean);
 begin
@@ -461,7 +475,7 @@ begin
   DoShow;
 end;
 
-procedure TfrmBase.Showmessage(const AMessage: string);
+procedure TfrmBase.ShowMessage(const AMessage: string);
 begin
   {$IF CompilerVersion >= 31}
   TDialogService.MessageDialog(AMessage, TMsgDlgType.mtInformation, [TMsgDlgBtn.mbOK], TMsgDlgBtn.mbOK, 0, nil);

@@ -72,7 +72,7 @@ type
     FParticlesSamplesPath: string;
     FResourceProvider: ISkResourceProvider;
     FSampleIndex: Integer;
-    FSampleTimer: TStopWatch;
+    FSampleTimer: TStopwatch;
     function GetAssetFiles: TArray<string>;
     function GetSize: TSize;
     procedure SetAssetFileIndex(const AValue: Integer);
@@ -153,7 +153,7 @@ end;
 { TParticlesAssets }
 
 type
-  TResourceProvider = class abstract(TSkResourceProviderBaseClass)
+  TResourceProvider = class(TSkResourceProviderBaseClass)
   strict private
     FAssetsPath: string;
   strict protected
@@ -212,7 +212,7 @@ begin
   FParticlesSamplesPath := AParticlesSamplesPath;
   FResourceProvider := TResourceProvider.Create(AAssetsPath);
   FSampleIndex := -1;
-  AssetFileIndex := FSampleIndex;
+  AssetFileIndex := 0;
 end;
 
 function TParticlesAssets.GetAssetFiles: TArray<string>;
@@ -264,7 +264,7 @@ begin
     end;
     FParticles.Position := PointF(0, 0);
     FParticles.Start(0, True);
-    FSampleTimer := TStopWatch.StartNew;
+    FSampleTimer := TStopwatch.StartNew;
   end;
 end;
 

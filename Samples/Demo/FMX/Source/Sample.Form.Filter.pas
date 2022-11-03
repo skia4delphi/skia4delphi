@@ -19,7 +19,7 @@ uses
   { Delphi }
   System.SysUtils, System.Types, System.UITypes, System.Classes, System.IOUtils,
   System.Math, System.Math.Vectors, FMX.Types, FMX.Controls, FMX.Forms,
-  FMX.StdCtrls, FMX.Layouts, FMX.Objects,
+  FMX.StdCtrls, FMX.Layouts, FMX.Objects, FMX.Controls.Presentation,
 
   { Skia }
   Skia, Skia.FMX,
@@ -113,7 +113,7 @@ begin
       LBrightnessMatrix.M25 := LBrightnessMatrix.M15;
       LBrightnessMatrix.M35 := LBrightnessMatrix.M15;
       LBrightnessFilter := TSkColorFilter.MakeMatrix(LBrightnessMatrix);
-      LContrastFilter := TSkColorFilter.MakeHighContrast(TSkHighContrastConfig.Create(False, TSkHighContrastConfig.TInvertStyle.NoInvert, LOptions['Contrast']));
+      LContrastFilter := TSkColorFilter.MakeHighContrast(TSkHighContrastConfig.Create(False, TSkContrastInvertStyle.NoInvert, LOptions['Contrast']));
 
       LImage := TSkImage.MakeFromEncodedFile(AssetsPath + PhotoFileName);
       LImageDest := RectF(0, 0, LImage.Width, LImage.Height).FitInto(ADest);
@@ -149,9 +149,9 @@ begin
     '    }' + sLineBreak +
     '    return color;' + sLineBreak +
     '}');
-  LEffect.SetChildShader('texture', LImage.MakeShader(TSkSamplingOptions.Medium));
+  LEffect.SetChildShaderByName('texture', LImage.MakeShader(TSkSamplingOptions.Medium));
   LPaint := TSkPaint.Create;
-  LPaint.Shader := LEffect.MakeShader(LImage.IsOpaque);
+  LPaint.Shader := LEffect.MakeShader;
 
   // Mouse events
   ChildForm<TfrmPaintBoxViewer>.OnMouseDown :=
@@ -368,9 +368,9 @@ begin
     '    }' + sLineBreak +
     '    return color;' + sLineBreak +
     '}');
-  LEffect.SetChildShader('texture', LImage.MakeShader(TSkSamplingOptions.Medium));
+  LEffect.SetChildShaderByName('texture', LImage.MakeShader(TSkSamplingOptions.Medium));
   LPaint := TSkPaint.Create;
-  LPaint.Shader := LEffect.MakeShader(LImage.IsOpaque);
+  LPaint.Shader := LEffect.MakeShader;
 
   // Mouse events
   ChildForm<TfrmPaintBoxViewer>.OnMouseDown :=
@@ -488,9 +488,9 @@ begin
     '    color.rgb *= smoothstep(0.8, size * 0.799, dist * (amount + size));' + sLineBreak +
     '    return color;' + sLineBreak +
     '}');
-  LEffect.SetChildShader('texture', LImage.MakeShader(TSkSamplingOptions.Medium));
+  LEffect.SetChildShaderByName('texture', LImage.MakeShader(TSkSamplingOptions.Medium));
   LPaint := TSkPaint.Create;
-  LPaint.Shader := LEffect.MakeShader(LImage.IsOpaque);
+  LPaint.Shader := LEffect.MakeShader;
 
   // Mouse events
   ChildForm<TfrmPaintBoxViewer>.OnMouseDown :=

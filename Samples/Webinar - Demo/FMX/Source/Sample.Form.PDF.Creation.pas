@@ -260,7 +260,7 @@ begin
   frmPDFViewer.Show(LOutputFileName);
   {$IFDEF MACOS}
   Close;
-  Showmessage('PDF generated successfully!');
+  ShowMessage('PDF generated successfully!');
   {$ENDIF}
 end;
 

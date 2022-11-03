@@ -21,16 +21,16 @@ uses
   System.Types,
   System.UITypes,
   System.Classes,
+  System.Math,
   System.Messaging,
+  System.Generics.Collections,
   FMX.Types,
   FMX.Graphics,
   FMX.Controls,
-  FMX.Ani,
   FMX.ActnList,
 
   { Skia }
-  Skia,
-  Skia.FMX.Graphics;
+  Skia;
 
 const
   {$IF CompilerVersion < 33}
@@ -38,7 +38,7 @@ const
   {$ELSEIF CompilerVersion < 35}
   SkSupportedPlatformsMask = pidWin32 or pidWin64 or pidAndroid32Arm or pidAndroid64Arm;
   {$ELSE}
-  SkSupportedPlatformsMask = pidWin32 or pidWin64 or pidLinux64 or pidAndroidArm32 or pidAndroidArm64 or pidiOSDevice64 or pidOSX64 or pidOSXArm64;
+  SkSupportedPlatformsMask = pidAllPlatforms;
   {$ENDIF}
 
 type
@@ -54,6 +54,7 @@ type
 
   TSkBitmapHelper = class helper for TBitmap
   public
+    constructor CreateFromSkImage(const AImage: ISkImage);
     procedure SkiaDraw(const AProc: TSkDrawProc; const AStartClean: Boolean = True);
     function ToSkImage: ISkImage;
   end;
@@ -62,9 +63,50 @@ type
 
   TSkPathDataHelper = class helper for TPathData
   public
+    constructor CreateFromSkPath(const AValue: ISkPath);
     procedure AddSkPath(const AValue: ISkPath);
-    procedure FromSkPath(const AValue: ISkPath);
+    procedure FromSkPath(const AValue: ISkPath); deprecated 'Use TPathData.CreateFromSkPath instead';
     function ToSkPath: ISkPath;
+  end;
+
+  { TSkPersistent }
+
+  TSkPersistent = class(TPersistent)
+  strict private
+    FChanged: Boolean;
+    FCreated: Boolean;
+    FIgnoringAllChanges: Boolean;
+    FOnChange: TNotifyEvent;
+    FUpdatingCount: Integer;
+    function GetUpdating: Boolean;
+  protected
+    procedure DoAssign(ASource: TPersistent); virtual;
+    procedure DoChanged; virtual;
+    function GetHasChanged: Boolean; virtual;
+    function SetValue(var AField: Byte; const AValue: Byte): Boolean; overload;
+    function SetValue(var AField: Word; const AValue: Word): Boolean; overload;
+    function SetValue(var AField: Cardinal; const AValue: Cardinal): Boolean; overload;
+    function SetValue(var AField: Boolean; const AValue: Boolean): Boolean; overload;
+    function SetValue(var AField: Integer; const AValue: Integer): Boolean; overload;
+    function SetValue(var AField: Int64; const AValue: Int64): Boolean; overload;
+    function SetValue(var AField: Single; const AValue: Single; const AEpsilon: Single = 0.0): Boolean; overload;
+    function SetValue(var AField: Double; const AValue: Double; const AEpsilon: Double = 0.0): Boolean; overload;
+    function SetValue(var AField: TBytes; const AValue: TBytes): Boolean; overload;
+    function SetValue(var AField: string; const AValue: string): Boolean; overload;
+    function SetValue<T>(var AField: T; const AValue: T): Boolean; overload;
+    property Created: Boolean read FCreated;
+    property UpdatingCount: Integer read FUpdatingCount;
+    property OnChange: TNotifyEvent read FOnChange write FOnChange;
+  public
+    procedure AfterConstruction; override;
+    procedure Assign(ASource: TPersistent); override; final;
+    procedure BeginUpdate; overload;
+    procedure BeginUpdate(const AIgnoreAllChanges: Boolean); overload; virtual;
+    procedure Change; virtual;
+    procedure EndUpdate; overload;
+    procedure EndUpdate(const AIgnoreAllChanges: Boolean); overload; virtual;
+    property HasChanged: Boolean read GetHasChanged;
+    property Updating: Boolean read GetUpdating;
   end;
 
   TSkDrawEvent = procedure(ASender: TObject; const ACanvas: ISkCanvas; const ADest: TRectF; const AOpacity: Single) of object;
@@ -236,60 +278,195 @@ type
     property OnDraw;
   end;
 
+  { TSkCustomAnimation }
+
+  TSkCustomAnimation = class(TSkPersistent)
+  protected const
+    DefaultAutoReverse = False;
+    DefaultDelay = 0;
+    DefaultEnabled = True;
+    DefaultInverse = False;
+    DefaultLoop = True;
+    DefaultPause = False;
+    DefaultSpeed = 1;
+    DefaultStartFromCurrent = False;
+    DefaultStartProgress = 0;
+    DefaultStopProgress = 1;
+    ProgressEpsilon = 0;
+    SpeedEpsilon = 1E-3;
+    SpeedRoundTo = -3;
+    TimeEpsilon = 1E-3;
+    TimeRoundTo = -3;
+  strict private type
+    TProcess = class
+    strict private
+      // Unsafe referece for TSkAnimation in list
+      FAniList: TList<Pointer>;
+      FAniProcessingList: TList<Pointer>;
+      [unsafe] FAniRoot: TSkCustomAnimation;
+      FAnimation: TFmxObject;
+      FTime: Double;
+      FTimerService: IFMXTimerService;
+      procedure DoAdd(const AAnimation: TSkCustomAnimation);
+      procedure DoRemove(const AAnimation: TSkCustomAnimation);
+      procedure DoRootChanged(const AAnimation: TSkCustomAnimation);
+      procedure OnProcess(ASender: TObject);
+      procedure TryFindRoot;
+    strict private
+      class var FProcess: TProcess;
+      class destructor Destroy;
+    public
+      constructor Create;
+      destructor Destroy; override;
+      class procedure Add(const AAnimation: TSkCustomAnimation); static;
+      class procedure Remove(const AAnimation: TSkCustomAnimation); static;
+      class procedure RootChanged(const AAnimation: TSkCustomAnimation); static;
+    end;
+  strict private
+    FAllowAnimation: Boolean;
+    FAutoReverse: Boolean;
+    FCurrentTime: Double;
+    FCurrentTimeChanged: Boolean;
+    FDelay: Double;
+    FDelayTime: Double;
+    FDuration: Double;
+    FEnabled: Boolean;
+    FEnabledChanged: Boolean;
+    FInverse: Boolean;
+    FLoop: Boolean;
+    FNeedStart: Boolean;
+    FNeedStartRepaint: Boolean;
+    [unsafe] FOwner: TComponent;
+    FPause: Boolean;
+    FProcessDuration: Double;
+    FProcessing: Boolean;
+    FProcessTime: Double;
+    FProgress: Double;
+    FRunning: Boolean;
+    FSavedInverse: Boolean;
+    FSavedProgress: Double;
+    FSpeed: Double;
+    FStartFromCurrent: Boolean;
+    FStartProgress: Double;
+    FStopProgress: Double;
+    FTickCount: Integer;
+    function CanProcessing: Boolean;
+    function DoSetCurrentTime(const AValue: Double): Boolean;
+    function GetRoot: IRoot;
+    procedure InternalStart(const ACanProcess: Boolean);
+    function IsDelayStored: Boolean;
+    function IsProgressStored: Boolean;
+    function IsSpeedStored: Boolean;
+    function IsStartProgressStored: Boolean;
+    function IsStopProgressStored: Boolean;
+    procedure ProcessTick(ADeltaTime: Double);
+    procedure SetAllowAnimation(const AValue: Boolean);
+    procedure SetCurrentTime(const AValue: Double);
+    procedure SetDelay(const AValue: Double);
+    procedure SetEnabled(const AValue: Boolean);
+    procedure SetLoop(const AValue: Boolean);
+    procedure SetPause(const AValue: Boolean);
+    procedure SetProcessing(const AValue: Boolean);
+    procedure SetProgress(const AValue: Double);
+    procedure SetRunning(const AValue: Boolean);
+    procedure SetSpeed(const AValue: Double);
+    procedure SetStartProgress(const AValue: Double);
+    procedure SetStartValues(const ADelayTime: Double; const AStartAtEnd: Boolean);
+    procedure SetStopProgress(const AValue: Double);
+    procedure UpdateCurrentTime(const AIsRunning, ARecalcProcessDuration: Boolean); inline;
+  private
+    property Root: IRoot read GetRoot;
+    property SavedProgress: Double read FSavedProgress write FSavedProgress;
+  protected
+    procedure BeforePaint;
+    procedure DoAssign(ASource: TPersistent); override;
+    procedure DoChanged; override;
+    procedure DoFinish; virtual; abstract;
+    procedure DoProcess; virtual; abstract;
+    procedure DoStart; virtual; abstract;
+    function GetDuration: Double;
+    procedure RootChanged;
+    procedure SetDuration(const AValue: Double);
+    property AllowAnimation: Boolean read FAllowAnimation write SetAllowAnimation;
+    property Owner: TComponent read FOwner;
+    property Processing: Boolean read FProcessing;
+  public
+    constructor Create(const AOwner: TComponent);
+    destructor Destroy; override;
+    function Equals(AObject: TObject): Boolean; override;
+    procedure Start; virtual;
+    procedure Stop; virtual;
+    procedure StopAtCurrent; virtual;
+    property AutoReverse: Boolean read FAutoReverse write FAutoReverse default DefaultAutoReverse;
+    /// <summary> Current time of the animation in seconds </summary>
+    property CurrentTime: Double read FCurrentTime write SetCurrentTime stored False nodefault;
+    /// <summary> Delay in seconds to start the animation </summary>
+    property Delay: Double read FDelay write SetDelay stored IsDelayStored;
+    /// <summary> Duration in seconds </summary>
+    property Duration: Double read GetDuration;
+    /// <summary> Enables the animation to run automatically (in the next control's paint). </summary>
+    property Enabled: Boolean read FEnabled write SetEnabled default DefaultEnabled;
+    property Inverse: Boolean read FInverse write FInverse default DefaultInverse;
+    property Loop: Boolean read FLoop write SetLoop default DefaultLoop;
+    property Pause: Boolean read FPause write SetPause default DefaultPause;
+    /// <summary> Normalized CurrentTime (value between 0..1) </summary>
+    property Progress: Double read FProgress write SetProgress stored IsProgressStored;
+    property Running: Boolean read FRunning;
+    property Speed: Double read FSpeed write SetSpeed stored IsSpeedStored;
+    property StartFromCurrent: Boolean read FStartFromCurrent write FStartFromCurrent default DefaultStartFromCurrent;
+    property StartProgress: Double read FStartProgress write SetStartProgress stored IsStartProgressStored;
+    property StopProgress: Double read FStopProgress write SetStopProgress stored IsStopProgressStored;
+  end;
+
   TSkAnimationDrawEvent = procedure(ASender: TObject; const ACanvas: ISkCanvas; const ADest: TRectF; const AProgress: Double; const AOpacity: Single) of object;
   TSkAnimationDrawProc = reference to procedure(const ACanvas: ISkCanvas; const ADest: TRectF; const AProgress: Double; const AOpacity: Single);
 
   { TSkCustomAnimatedControl }
 
   TSkCustomAnimatedControl = class abstract(TSkCustomControl)
+  protected type
+    TAnimationBase = class(TSkCustomAnimation)
+    strict private
+      FInsideDoProcess: Boolean;
+    protected
+      procedure DoChanged; override;
+      procedure DoFinish; override;
+      procedure DoProcess; override;
+      procedure DoStart; override;
+    end;
   strict private
     FAbsoluteVisible: Boolean;
     FAbsoluteVisibleCached: Boolean;
-    FAnimation: TAnimation;
-    FAnimationStartTickCount: Cardinal;
-    FFixedProgress: Boolean;
-    FIsStaticImage: Boolean;
-    FLoop: Boolean;
     FOnAnimationDraw: TSkAnimationDrawEvent;
-    FOnAnimationFinished: TNotifyEvent;
-    FOnAnimationProgress: TNotifyEvent;
+    FOnAnimationFinish: TNotifyEvent;
+    FOnAnimationProcess: TNotifyEvent;
     FOnAnimationStart: TNotifyEvent;
-    FProgress: Double;
-    FProgressChangedManually: Boolean;
-    FSuccessRepaint: Boolean;
+    FSuccessRedraw: Boolean;
+    procedure CheckDuration;
     function GetAbsoluteVisible: Boolean;
-    function GetRunningAnimation: Boolean;
-    procedure SetFixedProgress(const AValue: Boolean);
-    procedure SetIsStaticImage(const AValue: Boolean);
-    procedure SetLoop(const AValue: Boolean);
-    procedure SetProgress(AValue: Double);
-  private
-    procedure ProcessAnimation;
-    procedure SetOnAnimationDraw(const Value: TSkAnimationDrawEvent);
+    procedure SetOnAnimationDraw(const AValue: TSkAnimationDrawEvent);
   strict protected
+    FAnimation: TAnimationBase;
     procedure AncestorVisibleChanged(const AVisible: Boolean); override;
     function CanRunAnimation: Boolean; virtual;
     procedure CheckAnimation;
-    procedure DoAnimationFinished; virtual;
-    procedure DoAnimationProgress; virtual;
+    function CreateAnimation: TAnimationBase; virtual; abstract;
+    procedure DoAnimationChanged; virtual;
+    procedure DoAnimationFinish; virtual;
+    procedure DoAnimationProcess; virtual;
     procedure DoAnimationStart; virtual;
+    procedure DoRootChanged; override;
     procedure Draw(const ACanvas: ISkCanvas; const ADest: TRectF; const AOpacity: Single); override;
-    function GetDuration: Double; virtual; abstract;
-    property IsStaticImage: Boolean read FIsStaticImage write SetIsStaticImage;
+    procedure ReadState(AReader: TReader); override;
     procedure RenderFrame(const ACanvas: ISkCanvas; const ADest: TRectF; const AProgress: Double; const AOpacity: Single); virtual;
     property AbsoluteVisible: Boolean read GetAbsoluteVisible;
-    property Duration: Double read GetDuration;
-    property FixedProgress: Boolean read FFixedProgress write SetFixedProgress;
-    property Progress: Double read FProgress write SetProgress;
-    property Loop: Boolean read FLoop write SetLoop;
     property OnAnimationDraw: TSkAnimationDrawEvent read FOnAnimationDraw write SetOnAnimationDraw;
-    property OnAnimationFinished: TNotifyEvent read FOnAnimationFinished write FOnAnimationFinished;
-    property OnAnimationProgress: TNotifyEvent read FOnAnimationProgress write FOnAnimationProgress;
+    property OnAnimationFinish: TNotifyEvent read FOnAnimationFinish write FOnAnimationFinish;
+    property OnAnimationProcess: TNotifyEvent read FOnAnimationProcess write FOnAnimationProcess;
     property OnAnimationStart: TNotifyEvent read FOnAnimationStart write FOnAnimationStart;
-    property RunningAnimation: Boolean read GetRunningAnimation;
   public
     constructor Create(AOwner: TComponent); override;
-    procedure RecalcEnabled; override;
+    destructor Destroy; override;
     procedure SetNewScene(AScene: IScene); override;
   end;
 
@@ -297,27 +474,60 @@ type
 
   [ComponentPlatforms(SkSupportedPlatformsMask)]
   TSkAnimatedPaintBox = class(TSkCustomAnimatedControl)
-  strict private
-    const
+  public type
+    { TAnimation }
+
+    TAnimation = class(TAnimationBase)
+    protected const
       DefaultDuration = 1;
+    strict private
+      function IsDurationStored: Boolean;
+    strict protected
+      procedure DoAssign(ASource: TPersistent); override;
+    public
+      constructor Create(const AOwner: TFmxObject);
+      function Equals(AObject: TObject): Boolean; override;
+    published
+      property AutoReverse;
+      property Delay;
+      property Duration: Double read GetDuration write SetDuration stored IsDurationStored;
+      property Enabled;
+      property Inverse;
+      property Loop;
+      property Progress;
+      property Speed;
+      property StartFromCurrent;
+      property StartProgress;
+      property StopProgress;
+    end;
   strict private
-    FAnimate: Boolean;
-    FDuration: Double;
-    function IsDurationStored: Boolean;
-    procedure SetAnimate(const AValue: Boolean);
-    procedure SetDuration(const AValue: Double);
+    function GetAnimation: TAnimation;
+    procedure ReadAnimate(AReader: TReader);
+    procedure ReadDuration(AReader: TReader);
+    procedure ReadLoop(AReader: TReader);
+    procedure SetAnimation(const AValue: TAnimation);
   strict protected
-    function CanRunAnimation: Boolean; override;
-    function GetDuration: Double; override;
-  public
-    constructor Create(AOwner: TComponent); override;
-    property FixedProgress;
-    property Progress;
+    function CreateAnimation: TSkCustomAnimatedControl.TAnimationBase; override;
+    procedure DefineProperties(AFiler: TFiler); override;
   published
-    property Animate: Boolean read FAnimate write SetAnimate default True;
-    property Duration: Double read FDuration write SetDuration stored IsDurationStored;
-    property Loop default True;
+    property Animation: TAnimation read GetAnimation write SetAnimation;
     property OnAnimationDraw;
+    property OnAnimationFinish;
+    property OnAnimationProcess;
+    property OnAnimationStart;
+  end;
+
+  { TSkAnimatedPaintBoxHelper }
+
+  TSkAnimatedPaintBoxHelper = class helper for TSkAnimatedPaintBox
+  strict protected
+    function RunningAnimation: Boolean; deprecated 'Use Animation.Running instead';
+  public
+    function Animate: Boolean; deprecated 'Use Animation.Enabled instead';
+    function Duration: Double; deprecated 'Use Animation.Duration instead';
+    function FixedProgress: Boolean; deprecated 'Use Animation.Enabled instead';
+    function Loop: Boolean; deprecated 'Use Animation.Loop instead';
+    function Progress: Double; deprecated 'Use Animation.Progress instead';
   end;
 
   TSkAnimatedImageWrapMode = (Fit, FitCrop, Original, OriginalCenter, Place, Stretch);
@@ -326,72 +536,96 @@ type
 
   [ComponentPlatforms(SkSupportedPlatformsMask)]
   TSkAnimatedImage = class(TSkCustomAnimatedControl)
-  public
-    type
-      { TSource }
+  public type
+    { TAnimation }
 
-      TSource = class(TPersistent)
-      strict private
-        FData: TBytes;
-        FOnChange: TNotifyEvent;
-        procedure SetData(const AValue: TBytes);
-      public
-        constructor Create(const AOnChange: TNotifyEvent);
-        procedure Assign(ASource: TPersistent); override;
-        function Equals(AObject: TObject): Boolean; override;
-        property Data: TBytes read FData write SetData;
-      end;
+    TAnimation = class(TAnimationBase)
+    published
+      property AutoReverse;
+      property Delay;
+      property Duration;
+      property Enabled;
+      property Inverse;
+      property Loop;
+      property Progress;
+      property Speed;
+      property StartFromCurrent;
+      property StartProgress;
+      property StopProgress;
+    end;
 
-      { TFormatInfo }
+    { TSource }
 
-      TFormatInfo = record
-        Description: string;
-        Extensions: TArray<string>;
-        Name: string;
-        constructor Create(const AName, ADescription: string; const AExtensions: TArray<string>);
-      end;
+    TSource = class(TPersistent)
+    public type
+      TChangeProc = procedure of object;
+    strict private
+      FData: TBytes;
+      FOnChange: TChangeProc;
+      procedure SetData(const AValue: TBytes);
+    public
+      constructor Create(const AOnChange: TChangeProc);
+      procedure Assign(ASource: TPersistent); override;
+      function Equals(AObject: TObject): Boolean; override;
+      property Data: TBytes read FData write SetData;
+    end;
 
-      { TAnimationCodec }
+    { TFormatInfo }
 
-      TAnimationCodec = class
-      strict private
-        FQuality: TCanvasQuality;
-      strict protected
-        function GetDuration: Double; virtual; abstract;
-        function GetIsStatic: Boolean; virtual; abstract;
-        function GetSize: TSizeF; virtual; abstract;
-      public
-        procedure Render(const ACanvas: ISkCanvas; const ADest: TRectF; const AOpacity: Single); virtual; abstract;
-        procedure SeekFrameTime(const ATime: Double); virtual; abstract;
-        class function SupportedFormats: TArray<TFormatInfo>; virtual; abstract;
-        class function TryDetectFormat(const ABytes: TBytes; out AFormat: TFormatInfo): Boolean; virtual; abstract;
-        class function TryMakeFromStream(const AStream: TStream; out ACodec: TAnimationCodec): Boolean; virtual; abstract;
-        property Duration: Double read GetDuration;
-        property IsStatic: Boolean read GetIsStatic;
-        property Quality: TCanvasQuality read FQuality write FQuality;
-        property Size: TSizeF read GetSize;
-      end;
+    TFormatInfo = record
+      Description: string;
+      Extensions: TArray<string>;
+      Name: string;
+      constructor Create(const AName, ADescription: string; const AExtensions: TArray<string>);
+    end;
 
-      TAnimationCodecClass = class of TAnimationCodec;
-  strict private
-    class var
-      FRegisteredCodecs: TArray<TAnimationCodecClass>;
+    { TAnimationCodec }
+
+    TAnimationCodec = class
+    strict private
+      FQuality: TCanvasQuality;
+    strict protected
+      function GetDuration: Double; virtual; abstract;
+      function GetFPS: Double; virtual; abstract;
+      function GetIsStatic: Boolean; virtual; abstract;
+      function GetSize: TSizeF; virtual; abstract;
+    public
+      procedure Render(const ACanvas: ISkCanvas; const ADest: TRectF; const AOpacity: Single); virtual; abstract;
+      procedure SeekFrameTime(const ATime: Double); virtual; abstract;
+      class function SupportedFormats: TArray<TFormatInfo>; virtual; abstract;
+      class function TryDetectFormat(const ABytes: TBytes; out AFormat: TFormatInfo): Boolean; virtual; abstract;
+      class function TryMakeFromStream(const AStream: TStream; out ACodec: TAnimationCodec): Boolean; virtual; abstract;
+      property Duration: Double read GetDuration;
+      property FPS: Double read GetFPS;
+      property IsStatic: Boolean read GetIsStatic;
+      property Quality: TCanvasQuality read FQuality write FQuality;
+      property Size: TSizeF read GetSize;
+    end;
+
+    TAnimationCodecClass = class of TAnimationCodec;
+  strict private class var
+    FRegisteredCodecs: TArray<TAnimationCodecClass>;
   strict private
     FCodec: TAnimationCodec;
     FSource: TSource;
     FWrapMode: TSkAnimatedImageWrapMode;
+    function GetAnimation: TAnimation;
     function GetOriginalSize: TSizeF;
     procedure ReadData(AStream: TStream);
+    procedure ReadLoop(AReader: TReader);
+    procedure ReadOnAnimationFinished(AReader: TReader);
+    procedure ReadOnAnimationProgress(AReader: TReader);
+    procedure SetAnimation(const AValue: TAnimation);
     procedure SetSource(const AValue: TSource);
     procedure SetWrapMode(const AValue: TSkAnimatedImageWrapMode);
-    procedure SourceChange(ASender: TObject);
     procedure WriteData(AStream: TStream);
   strict protected
-    function CanRunAnimation: Boolean; override;
+    function CreateAnimation: TSkCustomAnimatedControl.TAnimationBase; override;
     procedure DefineProperties(AFiler: TFiler); override;
     procedure Draw(const ACanvas: ISkCanvas; const ADest: TRectF; const AOpacity: Single); override;
-    function GetDuration: Double; override;
     procedure RenderFrame(const ACanvas: ISkCanvas; const ADest: TRectF; const AProgress: Double; const AOpacity: Single); override;
+    procedure SourceChange; virtual;
+    property Codec: TAnimationCodec read FCodec;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -399,58 +633,27 @@ type
     procedure LoadFromStream(const AStream: TStream);
     class procedure RegisterCodec(const ACodecClass: TAnimationCodecClass); static;
     class property RegisteredCodecs: TArray<TAnimationCodecClass> read FRegisteredCodecs;
-    property FixedProgress;
     property OriginalSize: TSizeF read GetOriginalSize;
-    property Progress;
-    property RunningAnimation;
   published
-    property Loop default True;
+    property Animation: TAnimation read GetAnimation write SetAnimation;
     property Source: TSource read FSource write SetSource;
     property WrapMode: TSkAnimatedImageWrapMode read FWrapMode write SetWrapMode default TSkAnimatedImageWrapMode.Fit;
     property OnAnimationDraw;
-    property OnAnimationFinished;
-    property OnAnimationProgress;
+    property OnAnimationFinish;
+    property OnAnimationProcess;
     property OnAnimationStart;
   end;
 
-  { TSkPersistentData }
+  { TSkAnimatedImageHelper }
 
-  TSkPersistentData = class(TPersistent)
-  strict private
-    FChanged: Boolean;
-    FCreated: Boolean;
-    FIgnoringAllChanges: Boolean;
-    FOnChange: TNotifyEvent;
-    FUpdatingCount: Integer;
-    function GetUpdating: Boolean;
-  protected
-    procedure DoAssign(ASource: TPersistent); virtual;
-    procedure DoChanged; virtual;
-    function GetHasChanged: Boolean; virtual;
-    procedure SetValue(var AField: Byte; const AValue: Byte); overload;
-    procedure SetValue(var AField: Word; const AValue: Word); overload;
-    procedure SetValue(var AField: Cardinal; const AValue: Cardinal); overload;
-    procedure SetValue(var AField: Boolean; const AValue: Boolean); overload;
-    procedure SetValue(var AField: Integer; const AValue: Integer); overload;
-    procedure SetValue(var AField: Int64; const AValue: Int64); overload;
-    procedure SetValue(var AField: Single; const AValue: Single; const AEpsilon: Single = 0.0); overload;
-    procedure SetValue(var AField: Double; const AValue: Double; const AEpsilon: Double = 0.0); overload;
-    procedure SetValue(var AField: TBytes; const AValue: TBytes); overload;
-    procedure SetValue(var AField: string; const AValue: string); overload;
-    procedure SetValue<T>(var AField: T; const AValue: T); overload;
-    property Created: Boolean read FCreated;
-    property UpdatingCount: Integer read FUpdatingCount;
+  TSkAnimatedImageHelper = class helper for TSkAnimatedImage
+  strict protected
+    function Duration: Double; deprecated 'Use Animation.Duration instead';
   public
-    procedure AfterConstruction; override;
-    procedure Assign(ASource: TPersistent); override; final;
-    procedure BeginUpdate; overload;
-    procedure BeginUpdate(const AIgnoreAllChanges: Boolean); overload; virtual;
-    procedure Change; virtual;
-    procedure EndUpdate; overload;
-    procedure EndUpdate(const AIgnoreAllChanges: Boolean); overload; virtual;
-    property HasChanged: Boolean read GetHasChanged;
-    property Updating: Boolean read GetUpdating;
-    property OnChange: TNotifyEvent read FOnChange write FOnChange;
+    function FixedProgress: Boolean; deprecated 'Use Animation.Enabled instead';
+    function Loop: Boolean; deprecated 'Use Animation.Loop instead';
+    function Progress: Double; deprecated 'Use Animation.Progress instead';
+    function RunningAnimation: Boolean; deprecated 'Use Animation.Running instead';
   end;
 
   {$IF CompilerVersion < 31}
@@ -461,13 +664,12 @@ type
 
   { TSkFontComponent }
 
-  TSkFontComponent = class(TSkPersistentData)
-  strict protected
-    const
-      DefaultSize = 14;
-      DefaultSlant = TFontSlant.Regular;
-      DefaultStretch = TFontStretch.Regular;
-      DefaultWeight = TFontWeight.Regular;
+  TSkFontComponent = class(TSkPersistent)
+  strict protected const
+    DefaultSize = 14;
+    DefaultSlant = TFontSlant.Regular;
+    DefaultStretch = TFontStretch.Regular;
+    DefaultWeight = TFontWeight.Regular;
   strict private
     FFamilies: string;
     FSize: Single;
@@ -488,6 +690,7 @@ type
   public
     constructor Create;
     function Equals(AObject: TObject): Boolean; override;
+    property OnChange;
   published
     property Families: string read FFamilies write SetFamilies stored IsFamiliesStored;
     property Size: Single read FSize write SetSize stored IsSizeStored;
@@ -500,52 +703,50 @@ type
 
   { TSkTextSettings }
 
-  TSkTextSettings = class(TSkPersistentData)
-  public
-    type
-      { TDecorations }
+  TSkTextSettings = class(TSkPersistent)
+  public type
+    { TDecorations }
 
-      TDecorations = class(TSkPersistentData)
-      strict protected
-        const
-          DefaultColor = TAlphaColors.Null;
-          DefaultDecorations = [];
-          DefaultStrokeColor = TAlphaColors.Null;
-          DefaultStyle = TSkTextDecorationStyle.Solid;
-          DefaultThickness = 1;
-      strict private
-        FColor: TAlphaColor;
-        FDecorations: TSkTextDecorations;
-        FStrokeColor: TAlphaColor;
-        FStyle: TSkTextDecorationStyle;
-        FThickness: Single;
-        procedure SetColor(const AValue: TAlphaColor);
-        procedure SetDecorations(const AValue: TSkTextDecorations);
-        procedure SetStrokeColor(const AValue: TAlphaColor);
-        procedure SetStyle(const AValue: TSkTextDecorationStyle);
-        procedure SetThickness(const AValue: Single);
-      strict protected
-        procedure DoAssign(ASource: TPersistent); override;
-        function IsThicknessStored: Boolean; virtual;
-      public
-        constructor Create;
-        function Equals(AObject: TObject): Boolean; override;
-      published
-        property Color: TAlphaColor read FColor write SetColor default DefaultColor;
-        property Decorations: TSkTextDecorations read FDecorations write SetDecorations default DefaultDecorations;
-        property StrokeColor: TAlphaColor read FStrokeColor write SetStrokeColor default DefaultStrokeColor;
-        property Style: TSkTextDecorationStyle read FStyle write SetStyle default DefaultStyle;
-        property Thickness: Single read FThickness write SetThickness stored IsThicknessStored;
-      end;
-  strict protected
-    const
-      DefaultFontColor = TAlphaColors.Black;
-      DefaultHeightMultiplier = 0;
-      DefaultHorzAlign = TSkTextHorzAlign.Leading;
-      DefaultLetterSpacing = 0;
-      DefaultMaxLines = 1;
-      DefaultTrimming = TTextTrimming.Word;
-      DefaultVertAlign = TTextAlign.Center;
+    TDecorations = class(TSkPersistent)
+    strict protected
+      const
+        DefaultColor = TAlphaColors.Null;
+        DefaultDecorations = [];
+        DefaultStrokeColor = TAlphaColors.Null;
+        DefaultStyle = TSkTextDecorationStyle.Solid;
+        DefaultThickness = 1;
+    strict private
+      FColor: TAlphaColor;
+      FDecorations: TSkTextDecorations;
+      FStrokeColor: TAlphaColor;
+      FStyle: TSkTextDecorationStyle;
+      FThickness: Single;
+      procedure SetColor(const AValue: TAlphaColor);
+      procedure SetDecorations(const AValue: TSkTextDecorations);
+      procedure SetStrokeColor(const AValue: TAlphaColor);
+      procedure SetStyle(const AValue: TSkTextDecorationStyle);
+      procedure SetThickness(const AValue: Single);
+    strict protected
+      procedure DoAssign(ASource: TPersistent); override;
+      function IsThicknessStored: Boolean; virtual;
+    public
+      constructor Create;
+      function Equals(AObject: TObject): Boolean; override;
+    published
+      property Color: TAlphaColor read FColor write SetColor default DefaultColor;
+      property Decorations: TSkTextDecorations read FDecorations write SetDecorations default DefaultDecorations;
+      property StrokeColor: TAlphaColor read FStrokeColor write SetStrokeColor default DefaultStrokeColor;
+      property Style: TSkTextDecorationStyle read FStyle write SetStyle default DefaultStyle;
+      property Thickness: Single read FThickness write SetThickness stored IsThicknessStored;
+    end;
+  strict protected const
+    DefaultFontColor = TAlphaColors.Black;
+    DefaultHeightMultiplier = 0;
+    DefaultHorzAlign = TSkTextHorzAlign.Leading;
+    DefaultLetterSpacing = 0;
+    DefaultMaxLines = 1;
+    DefaultTrimming = TTextTrimming.Word;
+    DefaultVertAlign = TTextAlign.Center;
   strict private
     FDecorations: TDecorations;
     FFont: TSkFontComponent;
@@ -582,6 +783,7 @@ type
     procedure UpdateStyledSettings(const AOldTextSettings, ADefaultTextSettings: TSkTextSettings;
       var AStyledSettings: TStyledSettings); virtual;
     property Owner: TPersistent read FOwner;
+    property OnChange;
   published
     property Decorations: TDecorations read FDecorations write SetDecorations;
     property Font: TSkFontComponent read FFont write SetFont;
@@ -710,151 +912,150 @@ type
 
   [ComponentPlatforms(SkSupportedPlatformsMask)]
   TSkLabel = class(TSkStyledControl, ISkTextSettings{$IF CompilerVersion >= 29}, ICaption{$ENDIF})
-  public
-    type
-      TWordsCollection = class;
-      TCustomWordsItemClass = class of TCustomWordsItem;
+  public type
+    TWordsCollection = class;
+    TCustomWordsItemClass = class of TCustomWordsItem;
 
-      TCustomWordsItem = class(TCollectionItem)
-      strict protected
-        const
-          DefaultBackgroundColor = TAlphaColors.Null;
-          DefaultCursor = crDefault;
-          DefaultFontColor = TAlphaColors.Black;
-          DefaultHeightMultiplier = 0;
-          DefaultLetterSpacing = 0;
-          DefaultName = 'Item 0';
-          DefaultText = '';
-      strict private
-        FBackgroundColor: TAlphaColor;
-        FChanged: Boolean;
-        FCursor: TCursor;
-        FIgnoringAllChanges: Boolean;
-        FName: string;
-        FOnClick: TNotifyEvent;
-        FTag: NativeInt;
-        FTagFloat: Single;
-        [Weak] FTagObject: TObject;
-        FTagString: string;
-        FText: string;
-        FTextSettingsInfo: TSkTextSettingsInfo;
-        FUpdatingCount: Integer;
-        [unsafe] FWords: TWordsCollection;
-        procedure CheckName(const AName: string; AWordsCollection: TWordsCollection);
-        function GetDecorations: TSkTextSettings.TDecorations;
-        function GetFont: TSkFontComponent;
-        function GetFontColor: TAlphaColor;
-        function GetHeightMultiplier: Single;
-        function GetLetterSpacing: Single;
-        function GetStyledSettings: TStyledSettings;
-        function IsFontColorStored: Boolean;
-        function IsHeightMultiplierStored: Boolean;
-        function IsLetterSpacingStored: Boolean;
-        function IsNameStored: Boolean;
-        function IsStyledSettingsStored: Boolean;
-        function IsTextStored: Boolean;
-        procedure TextSettingsChange(ASender: TObject);
-        procedure SetBackgroundColor(const AValue: TAlphaColor);
-        procedure SetCursor(const AValue: TCursor);
-        procedure SetDecorations(const AValue: TSkTextSettings.TDecorations);
-        procedure SetFont(const AValue: TSkFontComponent);
-        procedure SetFontColor(const AValue: TAlphaColor);
-        procedure SetHeightMultiplier(const AValue: Single);
-        procedure SetLetterSpacing(const AValue: Single);
-        procedure SetName(const AValue: string);
-        procedure SetStyledSettings(const AValue: TStyledSettings);
-        procedure SetText(const AValue: string);
-        function UniqueName(const AName: string; const ACollection: TCollection): string;
-      strict protected
-        procedure DoAssign(ASource: TPersistent); virtual;
-        procedure DoChanged; virtual;
-        function GetDisplayName: string; override;
-        procedure SetCollection(AValue: TCollection); override;
-      public
-        constructor Create(ACollection: TCollection); override;
-        destructor Destroy; override;
-        procedure Assign(ASource: TPersistent); override; final;
-        procedure BeginUpdate; overload;
-        procedure Change; virtual;
-        procedure EndUpdate; overload;
-        procedure EndUpdate(const AIgnoreAllChanges: Boolean); overload; virtual;
-        property BackgroundColor: TAlphaColor read FBackgroundColor write SetBackgroundColor default DefaultBackgroundColor;
-        property Cursor: TCursor read FCursor write SetCursor default crDefault;
-        property Decorations: TSkTextSettings.TDecorations read GetDecorations write SetDecorations;
-        property Font: TSkFontComponent read GetFont write SetFont;
-        property FontColor: TAlphaColor read GetFontColor write SetFontColor stored IsFontColorStored;
-        property HeightMultiplier: Single read GetHeightMultiplier write SetHeightMultiplier stored IsHeightMultiplierStored;
-        property LetterSpacing: Single read GetLetterSpacing write SetLetterSpacing stored IsLetterSpacingStored;
-        /// <summary> The case-insensitive name of the item in the collection. This field cannot be empty and must be unique for his collection </summary>
-        property Name: string read FName write SetName stored IsNameStored;
-        property StyledSettings: TStyledSettings read GetStyledSettings write SetStyledSettings stored IsStyledSettingsStored;
-        property Tag: NativeInt read FTag write FTag default 0;
-        property TagFloat: Single read FTagFloat write FTagFloat;
-        property TagObject: TObject read FTagObject write FTagObject;
-        property TagString: string read FTagString write FTagString;
-        property Text: string read FText write SetText stored IsTextStored;
-        property Words: TWordsCollection read FWords;
-        property OnClick: TNotifyEvent read FOnClick write FOnClick;
-      end;
+    TCustomWordsItem = class(TCollectionItem)
+    strict protected
+      const
+        DefaultBackgroundColor = TAlphaColors.Null;
+        DefaultCursor = crDefault;
+        DefaultFontColor = TAlphaColors.Black;
+        DefaultHeightMultiplier = 0;
+        DefaultLetterSpacing = 0;
+        DefaultName = 'Item 0';
+        DefaultText = '';
+    strict private
+      FBackgroundColor: TAlphaColor;
+      FChanged: Boolean;
+      FCursor: TCursor;
+      FIgnoringAllChanges: Boolean;
+      FName: string;
+      FOnClick: TNotifyEvent;
+      FTag: NativeInt;
+      FTagFloat: Single;
+      [Weak] FTagObject: TObject;
+      FTagString: string;
+      FText: string;
+      FTextSettingsInfo: TSkTextSettingsInfo;
+      FUpdatingCount: Integer;
+      [unsafe] FWords: TWordsCollection;
+      procedure CheckName(const AName: string; AWordsCollection: TWordsCollection);
+      function GetDecorations: TSkTextSettings.TDecorations;
+      function GetFont: TSkFontComponent;
+      function GetFontColor: TAlphaColor;
+      function GetHeightMultiplier: Single;
+      function GetLetterSpacing: Single;
+      function GetStyledSettings: TStyledSettings;
+      function IsFontColorStored: Boolean;
+      function IsHeightMultiplierStored: Boolean;
+      function IsLetterSpacingStored: Boolean;
+      function IsNameStored: Boolean;
+      function IsStyledSettingsStored: Boolean;
+      function IsTextStored: Boolean;
+      procedure TextSettingsChange(ASender: TObject);
+      procedure SetBackgroundColor(const AValue: TAlphaColor);
+      procedure SetCursor(const AValue: TCursor);
+      procedure SetDecorations(const AValue: TSkTextSettings.TDecorations);
+      procedure SetFont(const AValue: TSkFontComponent);
+      procedure SetFontColor(const AValue: TAlphaColor);
+      procedure SetHeightMultiplier(const AValue: Single);
+      procedure SetLetterSpacing(const AValue: Single);
+      procedure SetName(const AValue: string);
+      procedure SetStyledSettings(const AValue: TStyledSettings);
+      procedure SetText(const AValue: string);
+      function UniqueName(const AName: string; const ACollection: TCollection): string;
+    strict protected
+      procedure DoAssign(ASource: TPersistent); virtual;
+      procedure DoChanged; virtual;
+      function GetDisplayName: string; override;
+      procedure SetCollection(AValue: TCollection); override;
+    public
+      constructor Create(ACollection: TCollection); override;
+      destructor Destroy; override;
+      procedure Assign(ASource: TPersistent); override; final;
+      procedure BeginUpdate; overload;
+      procedure Change; virtual;
+      procedure EndUpdate; overload;
+      procedure EndUpdate(const AIgnoreAllChanges: Boolean); overload; virtual;
+      property BackgroundColor: TAlphaColor read FBackgroundColor write SetBackgroundColor default DefaultBackgroundColor;
+      property Cursor: TCursor read FCursor write SetCursor default crDefault;
+      property Decorations: TSkTextSettings.TDecorations read GetDecorations write SetDecorations;
+      property Font: TSkFontComponent read GetFont write SetFont;
+      property FontColor: TAlphaColor read GetFontColor write SetFontColor stored IsFontColorStored;
+      property HeightMultiplier: Single read GetHeightMultiplier write SetHeightMultiplier stored IsHeightMultiplierStored;
+      property LetterSpacing: Single read GetLetterSpacing write SetLetterSpacing stored IsLetterSpacingStored;
+      /// <summary> The case-insensitive name of the item in the collection. This field cannot be empty and must be unique for his collection </summary>
+      property Name: string read FName write SetName stored IsNameStored;
+      property StyledSettings: TStyledSettings read GetStyledSettings write SetStyledSettings stored IsStyledSettingsStored;
+      property Tag: NativeInt read FTag write FTag default 0;
+      property TagFloat: Single read FTagFloat write FTagFloat;
+      property TagObject: TObject read FTagObject write FTagObject;
+      property TagString: string read FTagString write FTagString;
+      property Text: string read FText write SetText stored IsTextStored;
+      property Words: TWordsCollection read FWords;
+      property OnClick: TNotifyEvent read FOnClick write FOnClick;
+    end;
 
-      { TWordsCollection }
+    { TWordsCollection }
 
-      TWordsCollection = class(TOwnedCollection)
-      strict protected
-        const
-          DefaultColor = TAlphaColors.Black;
-          DefaultFontSize = 14;
-          DefaultFontSlant = TFontSlant.Regular;
-          DefaultFontWeight = TFontWeight.Regular;
-      strict private
-        [unsafe] FLabel: TSkLabel;
-        FOnChange: TNotifyEvent;
-        function GetItem(AIndex: Integer): TCustomWordsItem;
-        function GetItemByName(const AName: string): TCustomWordsItem;
-        procedure SetItem(AIndex: Integer; const AValue: TCustomWordsItem);
-      strict protected
-        procedure Update(AItem: TCollectionItem); override;
-      public
-        constructor Create(AOwner: TPersistent; AItemClass: TCustomWordsItemClass);
-        function Add: TCustomWordsItem; overload;
-        function Add(const AText: string; const AColor: TAlphaColor = DefaultColor;
-          const AFontSize: Single = DefaultFontSize;
-          const AFontWeight: TFontWeight = DefaultFontWeight;
-          const AFontSlant: TFontSlant = DefaultFontSlant): TCustomWordsItem; overload;
-        function AddOrSet(const AName, AText: string; const AFontColor: TAlphaColor = DefaultColor;
-          const AFont: TSkFontComponent = nil; const AOnClick: TNotifyEvent = nil;
-          const ACursor: TCursor = crDefault): TCustomWordsItem;
-        function Insert(AIndex: Integer): TCustomWordsItem;
-        /// <summary> Case-insensitive search of item by name</summary>
-        function IndexOf(const AName: string): Integer;
-        /// <summary> Case-insensitive search of item by name</summary>
-        property ItemByName[const AName: string]: TCustomWordsItem read GetItemByName;
-        property Items[AIndex: Integer]: TCustomWordsItem read GetItem write SetItem; default;
-        property &Label: TSkLabel read FLabel;
-        property OnChange: TNotifyEvent read FOnChange write FOnChange;
-      end;
+    TWordsCollection = class(TOwnedCollection)
+    strict protected
+      const
+        DefaultColor = TAlphaColors.Black;
+        DefaultFontSize = 14;
+        DefaultFontSlant = TFontSlant.Regular;
+        DefaultFontWeight = TFontWeight.Regular;
+    strict private
+      [unsafe] FLabel: TSkLabel;
+      FOnChange: TNotifyEvent;
+      function GetItem(AIndex: Integer): TCustomWordsItem;
+      function GetItemByName(const AName: string): TCustomWordsItem;
+      procedure SetItem(AIndex: Integer; const AValue: TCustomWordsItem);
+    strict protected
+      procedure Update(AItem: TCollectionItem); override;
+    public
+      constructor Create(AOwner: TPersistent; AItemClass: TCustomWordsItemClass);
+      function Add: TCustomWordsItem; overload;
+      function Add(const AText: string; const AColor: TAlphaColor = DefaultColor;
+        const AFontSize: Single = DefaultFontSize;
+        const AFontWeight: TFontWeight = DefaultFontWeight;
+        const AFontSlant: TFontSlant = DefaultFontSlant): TCustomWordsItem; overload;
+      function AddOrSet(const AName, AText: string; const AFontColor: TAlphaColor = DefaultColor;
+        const AFont: TSkFontComponent = nil; const AOnClick: TNotifyEvent = nil;
+        const ACursor: TCursor = crDefault): TCustomWordsItem;
+      function Insert(AIndex: Integer): TCustomWordsItem;
+      /// <summary> Case-insensitive search of item by name</summary>
+      function IndexOf(const AName: string): Integer;
+      /// <summary> Case-insensitive search of item by name</summary>
+      property ItemByName[const AName: string]: TCustomWordsItem read GetItemByName;
+      property Items[AIndex: Integer]: TCustomWordsItem read GetItem write SetItem; default;
+      property &Label: TSkLabel read FLabel;
+      property OnChange: TNotifyEvent read FOnChange write FOnChange;
+    end;
 
-      { TWordsItem }
+    { TWordsItem }
 
-      TWordsItem = class(TCustomWordsItem)
-      published
-        property BackgroundColor;
-        property Cursor;
-        property Decorations;
-        property Font;
-        property FontColor;
-        property HeightMultiplier;
-        property LetterSpacing;
-        property Name;
-        property StyledSettings;
-        property TagString;
-        property Text;
-        property OnClick;
-      end;
+    TWordsItem = class(TCustomWordsItem)
+    published
+      property BackgroundColor;
+      property Cursor;
+      property Decorations;
+      property Font;
+      property FontColor;
+      property HeightMultiplier;
+      property LetterSpacing;
+      property Name;
+      property StyledSettings;
+      property TagString;
+      property Text;
+      property OnClick;
+    end;
 
-      { TItemClickedMessage }
+    { TItemClickedMessage }
 
-      TItemClickedMessage = class(TMessage<TCustomWordsItem>);
+    TItemClickedMessage = class(TMessage<TCustomWordsItem>);
   strict private
     FAutoSize: Boolean;
     FBackgroundPicture: ISkPicture;
@@ -876,6 +1077,7 @@ type
     FWordsMouseOver: TCustomWordsItem;
     procedure DeleteParagraph;
     procedure GetFitSize(var AWidth, AHeight: Single);
+    function GetLinesCount: Integer;
     function GetParagraph: ISkParagraph;
     function GetParagraphBounds: TRectF;
     function GetText: string;
@@ -928,7 +1130,9 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
+    function DidExceedMaxLines: Boolean;
     property DefaultTextSettings: TSkTextSettings read GetDefaultTextSettings;
+    property LinesCount: Integer read GetLinesCount;
     {$IF CompilerVersion < 30}
     property PressedPosition: TPointF read FPressedPosition write FPressedPosition;
     {$ENDIF}
@@ -991,28 +1195,46 @@ type
     property OnDraw;
   end;
 
-  { TSkTypefaceManager }
+  { TSkDefaultProviders }
 
-  TSkTypefaceManager = class sealed
-  strict private
-    class var FProvider: ISkTypefaceFontProvider;
+  TSkDefaultProviders = class sealed
+  strict private class var
+    FResource: ISkResourceProvider;
+    FTypefaceFont: ISkTypefaceFontProvider;
     class constructor Create;
   public
     class procedure RegisterTypeface(const AFileName: string); overload; static;
     class procedure RegisterTypeface(const AStream: TStream); overload; static;
-    class property Provider: ISkTypefaceFontProvider read FProvider;
+    class property Resource: ISkResourceProvider read FResource write FResource;
+    class property TypefaceFont: ISkTypefaceFontProvider read FTypefaceFont;
   end;
+
+  { TSkTypefaceManager }
+
+  TSkTypefaceManager = class sealed
+  public
+    class function Provider: ISkTypefaceFontProvider; static; deprecated 'Use TSkDefaultProviders.TypefaceFont instead';
+    class procedure RegisterTypeface(const AFileName: string); overload; static; deprecated 'Use TSkDefaultProviders.RegisterTypeface instead';
+    class procedure RegisterTypeface(const AStream: TStream); overload; static; deprecated 'Use TSkDefaultProviders.RegisterTypeface instead';
+  end;
+
+procedure AddSkPathToPathData(const APathData: TPathData; const ASkPath: ISkPath);
+function BitmapToSkImage(const ABitmap: TBitmap): ISkImage;
+function PathDataToSkPath(const APathData: TPathData): ISkPath;
+procedure SkiaDraw(const ABitmap: TBitmap; const AProc: TSkDrawProc; const AStartClean: Boolean = True);
+function SkImageToBitmap(const AImage: ISkImage): TBitmap;
+function SkPathToPathData(const ASkPath: ISkPath): TPathData;
 
 const
   SkFmxColorType: array[TPixelFormat] of TSkColorType = (
     { None     } TSkColorType.Unknown,
-    { RGB      } TSkColorType.RGB888X,
+    { RGB      } TSkColorType.Unknown,
     { RGBA     } TSkColorType.RGBA8888,
     { BGR      } TSkColorType.Unknown,
     { BGRA     } TSkColorType.BGRA8888,
     { RGBA16   } TSkColorType.RGBA16161616,
-    { BGR_565  } TSkColorType.Unknown,
-    { BGRA4    } TSkColorType.Unknown,
+    { BGR_565  } TSkColorType.RGB565,
+    { BGRA4    } TSkColorType.ARGB4444,
     { BGR4     } TSkColorType.Unknown,
     { BGR5_A1  } TSkColorType.Unknown,
     { BGR5     } TSkColorType.Unknown,
@@ -1031,13 +1253,14 @@ const
     { RGBA32F  } TSkColorType.RGBAF32
   );
 
+
   SkFmxPixelFormat: array[TSkColorType] of TPixelFormat = (
     { Unknown        } TPixelFormat.None,
     { Alpha8         } TPixelFormat.A,
-    { RGB565         } TPixelFormat.None,
-    { ARGB4444       } TPixelFormat.None,
+    { RGB565         } TPixelFormat.BGR_565,
+    { ARGB4444       } TPixelFormat.BGRA4,
     { RGBA8888       } TPixelFormat.RGBA,
-    { RGB888X        } TPixelFormat.RGB,
+    { RGB888X        } TPixelFormat.None,
     { BGRA8888       } TPixelFormat.BGRA,
     { RGBA1010102    } TPixelFormat.RGB10_A2,
     { BGRA1010102    } TPixelFormat.BGR10_A2,
@@ -1053,7 +1276,8 @@ const
     { Alpha16        } TPixelFormat.None,
     { RG1616         } TPixelFormat.None,
     { RGBA16161616   } TPixelFormat.RGBA16,
-    { SRGBA8888      } TPixelFormat.None
+    { SRGBA8888      } TPixelFormat.None,
+    { R8             } TPixelFormat.None
   );
 
 var
@@ -1070,20 +1294,23 @@ implementation
 
 uses
   { Delphi }
-  System.Math,
   System.Math.Vectors,
   System.ZLib,
   System.IOUtils,
   System.TypInfo,
   System.Character,
-  System.Generics.Collections,
   System.Generics.Defaults,
   System.RTLConsts,
   {$IF CompilerVersion >= 29}
   FMX.Utils,
   {$ENDIF}
+  FMX.Platform,
   FMX.BehaviorManager,
-  FMX.Forms;
+  FMX.Forms,
+  FMX.Ani,
+
+  { Skia }
+  Skia.FMX.Graphics;
 
 type
   { TSkDefaultAnimationCodec }
@@ -1096,6 +1323,7 @@ type
     FStream: TStream;
   strict protected
     function GetDuration: Double; override;
+    function GetFPS: Double; override;
     function GetIsStatic: Boolean; override;
     function GetSize: TSizeF; override;
   public
@@ -1117,6 +1345,7 @@ type
     FSkottie: ISkottieAnimation;
   strict protected
     function GetDuration: Double; override;
+    function GetFPS: Double; override;
     function GetIsStatic: Boolean; override;
     function GetSize: TSizeF; override;
   public
@@ -1166,11 +1395,26 @@ const
   SkFontWeightValue: array[TFontWeight] of Integer = (100, 200, 300, 350, 400, 500, 600, 700, 800, 900, 950);
   SkFontWidthValue: array[TFontStretch] of Integer = (1, 2, 3, 4, 5, 6, 7, 8, 9);
 
+procedure AddSkPathToPathData(const APathData: TPathData; const ASkPath: ISkPath);
+begin
+  APathData.AddSkPath(ASkPath);
+end;
+
+function BitmapToSkImage(const ABitmap: TBitmap): ISkImage;
+begin
+  Result := ABitmap.ToSkImage;
+end;
+
 function IsSameBytes(const ALeft, ARight: TBytes): Boolean;
 begin
   Result := (ALeft = ARight) or
     ((Length(ALeft) = Length(ARight)) and
     ((Length(ALeft) = 0) or CompareMem(PByte(@ALeft[0]), PByte(@ARight[0]), Length(ALeft))));
+end;
+
+function PathDataToSkPath(const APathData: TPathData): ISkPath;
+begin
+  Result := APathData.ToSkPath;
 end;
 
 function PlaceIntoTopLeft(const ASourceRect, ADesignatedArea: TRectF): TRectF;
@@ -1179,6 +1423,21 @@ begin
   if (ASourceRect.Width > ADesignatedArea.Width) or (ASourceRect.Height > ADesignatedArea.Height) then
     Result := Result.FitInto(ADesignatedArea);
   Result.SetLocation(ADesignatedArea.TopLeft);
+end;
+
+procedure SkiaDraw(const ABitmap: TBitmap; const AProc: TSkDrawProc; const AStartClean: Boolean);
+begin
+  ABitmap.SkiaDraw(AProc, AStartClean);
+end;
+
+function SkImageToBitmap(const AImage: ISkImage): TBitmap;
+begin
+  Result := TBitmap.CreateFromSkImage(AImage);
+end;
+
+function SkPathToPathData(const ASkPath: ISkPath): TPathData;
+begin
+  Result := TPathData.CreateFromSkPath(ASkPath);
 end;
 
 {$IF CompilerVersion < 31}
@@ -1236,24 +1495,37 @@ end;
 
 { TSkBitmapHelper }
 
+constructor TSkBitmapHelper.CreateFromSkImage(const AImage: ISkImage);
+var
+  LData: TBitmapData;
+begin
+  Assert(Assigned(AImage));
+  Create(AImage.Width, AImage.Height);
+  if (not IsEmpty) and Map(TMapAccess.Write, LData) then
+  begin
+    try
+      AImage.ReadPixels(TSkImageInfo.Create(Width, Height, SkFmxColorType[LData.PixelFormat]), LData.Data, LData.Pitch);
+    finally
+      Unmap(LData);
+    end;
+  end;
+end;
+
 procedure TSkBitmapHelper.SkiaDraw(const AProc: TSkDrawProc; const AStartClean: Boolean);
 
-  procedure DrawInSurface(const ASurface: ISkSurface);
+  procedure Draw(const ACanvas: ISkCanvas);
   begin
-    if Assigned(ASurface) then
-    begin
-      if AStartClean then
-        ASurface.Canvas.Clear(TAlphaColors.Null);
-      AProc(ASurface.Canvas);
-    end;
+    if AStartClean then
+      ACanvas.Clear(TAlphaColors.Null);
+    AProc(ACanvas);
   end;
 
 var
-  LColorType: TSkColorType;
-  LSurface: ISkSurface;
-  LData: TBitmapData;
   LAccess: TMapAccess;
   LBeginSceneCount: Integer;
+  LColorType: TSkColorType;
+  LData: TBitmapData;
+  LSurface: ISkSurface;
 begin
   Assert(Assigned(AProc));
   if IsEmpty then
@@ -1273,10 +1545,7 @@ begin
     // -   https://quality.embarcadero.com/browse/RSP-38418
     // -
     // - -----------------------------------------------------------------------
-    {$IF CompilerVersion > 35}
-      {$MESSAGE WARN 'Check if the issue has been fixed'}
-    {$ENDIF}
-    // - -----------------------------------------------------------------------
+    {$IF (CompilerVersion < 35) or ((CompilerVersion = 35) and not DECLARED(RTLVersion113))}
     if Image.RefCount > 1 then
     begin
       LBeginSceneCount := Canvas.BeginSceneCount;
@@ -1287,18 +1556,22 @@ begin
         Dec(LBeginSceneCount);
       end;
     end;
+    {$ENDIF}
     // - -----------------------------------------------------------------------
     {$ENDREGION}
-    if (Canvas.BeginSceneCount = 0) and Canvas.BeginScene then
+    if Canvas.BeginSceneCount = 0 then
     begin
-      try
-        DrawInSurface(TSkCanvasCustom(Canvas).Surface);
-      finally
-        Canvas.EndScene;
+      if Canvas.BeginScene then
+      begin
+        try
+          Draw(TSkCanvasCustom(Canvas).Canvas);
+        finally
+          Canvas.EndScene;
+        end;
       end;
     end
     else
-      DrawInSurface(TSkCanvasCustom(Canvas).Surface);
+      Draw(TSkCanvasCustom(Canvas).Canvas);
   end
   else
   begin
@@ -1315,7 +1588,7 @@ begin
     if Map(LAccess, LData) then
       try
         LSurface := TSkSurface.MakeRasterDirect(TSkImageInfo.Create(LData.Width, LData.Height, LColorType), LData.Data, LData.Pitch);
-        DrawInSurface(LSurface);
+        Draw(LSurface.Canvas);
       finally
         Unmap(LData);
       end;
@@ -1338,7 +1611,7 @@ begin
   if not Map(TMapAccess.Read, LData) then
     raise ESkBitmapHelper.Create('Could not map the bitmap');
   try
-    Result := TSkImage.MakeFromRaster(TSkImageInfo.Create(Width, Height, LColorType), LData.Data, LData.Pitch);
+    Result := TSkImage.MakeRasterCopy(TSkImageInfo.Create(Width, Height, LColorType), LData.Data, LData.Pitch);
   finally
     Unmap(LData);
   end;
@@ -1369,6 +1642,12 @@ begin
   end;
 end;
 
+constructor TSkPathDataHelper.CreateFromSkPath(const AValue: ISkPath);
+begin
+  Create;
+  AddSkPath(AValue);
+end;
+
 procedure TSkPathDataHelper.FromSkPath(const AValue: ISkPath);
 begin
   Clear;
@@ -1397,6 +1676,216 @@ begin
     Inc(I);
   end;
   Result := LPathBuilder.Detach;
+end;
+
+{ TSkPersistent }
+
+procedure TSkPersistent.AfterConstruction;
+begin
+  inherited;
+  FCreated := True;
+end;
+
+procedure TSkPersistent.Assign(ASource: TPersistent);
+begin
+  if ASource <> Self then
+  begin
+    BeginUpdate;
+    try
+      DoAssign(ASource);
+    finally
+      EndUpdate;
+    end;
+  end;
+end;
+
+procedure TSkPersistent.BeginUpdate;
+begin
+  BeginUpdate(False);
+end;
+
+procedure TSkPersistent.BeginUpdate(const AIgnoreAllChanges: Boolean);
+begin
+  Inc(FUpdatingCount);
+  FIgnoringAllChanges := FIgnoringAllChanges or AIgnoreAllChanges;
+end;
+
+procedure TSkPersistent.Change;
+begin
+  if FUpdatingCount > 0 then
+    FChanged := True
+  else
+  begin
+    FChanged := False;
+    DoChanged;
+  end;
+end;
+
+procedure TSkPersistent.DoAssign(ASource: TPersistent);
+begin
+  inherited Assign(ASource);
+end;
+
+procedure TSkPersistent.DoChanged;
+begin
+  if FCreated and Assigned(FOnChange) then
+    FOnChange(Self);
+end;
+
+procedure TSkPersistent.EndUpdate;
+begin
+  EndUpdate(False);
+end;
+
+procedure TSkPersistent.EndUpdate(const AIgnoreAllChanges: Boolean);
+var
+  LCallChange: Boolean;
+  LIgnoreChanges: Boolean;
+begin
+  LIgnoreChanges := AIgnoreAllChanges or FIgnoringAllChanges;
+  LCallChange := False;
+  if FUpdatingCount <= 0 then
+    raise ESkPersistentData.Create('The object is not in update state');
+  Dec(FUpdatingCount);
+  if (not LIgnoreChanges) and HasChanged then
+    LCallChange := True
+  else
+    FChanged := False;
+  if FUpdatingCount <= 0 then
+    FIgnoringAllChanges := False;
+  if LCallChange and (FUpdatingCount = 0) then
+  begin
+    FChanged := False;
+    DoChanged;
+  end;
+end;
+
+function TSkPersistent.GetHasChanged: Boolean;
+begin
+  Result := FChanged;
+end;
+
+function TSkPersistent.GetUpdating: Boolean;
+begin
+  Result := FUpdatingCount > 0;
+end;
+
+function TSkPersistent.SetValue(var AField: Byte; const AValue: Byte): Boolean;
+begin
+  Result := AField <> AValue;
+  if Result then
+  begin
+    AField := AValue;
+    Change;
+  end;
+end;
+
+function TSkPersistent.SetValue(var AField: Word; const AValue: Word): Boolean;
+begin
+  Result := AField <> AValue;
+  if Result then
+  begin
+    AField := AValue;
+    Change;
+  end;
+end;
+
+function TSkPersistent.SetValue(var AField: Double; const AValue,
+  AEpsilon: Double): Boolean;
+begin
+  Result := not SameValue(AField, AValue, AEpsilon);
+  if Result then
+  begin
+    AField := AValue;
+    Change;
+  end;
+end;
+
+function TSkPersistent.SetValue(var AField: TBytes; const AValue: TBytes): Boolean;
+begin
+  Result := not IsSameBytes(AField, AValue);
+  if Result then
+  begin
+    AField := Copy(AValue);
+    Change;
+  end;
+end;
+
+function TSkPersistent.SetValue(var AField: string; const AValue: string): Boolean;
+begin
+  Result := AField <> AValue;
+  if Result then
+  begin
+    AField := AValue;
+    Change;
+  end;
+end;
+
+function TSkPersistent.SetValue(var AField: Single; const AValue,
+  AEpsilon: Single): Boolean;
+begin
+  Result := not SameValue(AField, AValue, AEpsilon);
+  if Result then
+  begin
+    AField := AValue;
+    Change;
+  end;
+end;
+
+function TSkPersistent.SetValue(var AField: Boolean;
+  const AValue: Boolean): Boolean;
+begin
+  Result := AField <> AValue;
+  if Result then
+  begin
+    AField := AValue;
+    Change;
+  end;
+end;
+
+function TSkPersistent.SetValue(var AField: Cardinal;
+  const AValue: Cardinal): Boolean;
+begin
+  Result := AField <> AValue;
+  if Result then
+  begin
+    AField := AValue;
+    Change;
+  end;
+end;
+
+function TSkPersistent.SetValue(var AField: Integer;
+  const AValue: Integer): Boolean;
+begin
+  Result := AField <> AValue;
+  if Result then
+  begin
+    AField := AValue;
+    Change;
+  end;
+end;
+
+function TSkPersistent.SetValue(var AField: Int64; const AValue: Int64): Boolean;
+begin
+  Result := AField <> AValue;
+  if Result then
+  begin
+    AField := AValue;
+    Change;
+  end;
+end;
+
+function TSkPersistent.SetValue<T>(var AField: T; const AValue: T): Boolean;
+begin
+  if Assigned(TypeInfo(T)) and (PTypeInfo(TypeInfo(T)).Kind in [TTypeKind.tkSet, TTypeKind.tkEnumeration, TTypeKind.tkRecord{$IF CompilerVersion >= 33}, TTypeKind.tkMRecord{$ENDIF}]) then
+    Result := not CompareMem(@AField, @AValue, SizeOf(T))
+  else
+    Result := TComparer<T>.Default.Compare(AField, AValue) <> 0;
+  if Result then
+  begin
+    AField := AValue;
+    Change;
+  end;
 end;
 
 { TSkCustomControl }
@@ -1449,28 +1938,21 @@ begin
 end;
 
 procedure TSkCustomControl.Paint;
-
-  procedure DrawUsingSkia(const ASurface: ISkSurface; const ADestRect: TRectF; const AOpacity: Single);
-  begin
-    if Assigned(ASurface) then
-    begin
-      Draw(ASurface.Canvas, ADestRect, AOpacity);
-      if Assigned(FOnDraw) then
-        FOnDraw(Self, ASurface.Canvas, ADestRect, AOpacity);
-    end;
-  end;
-
 var
-  LSceneScale: Single;
+  LAbsoluteBimapSize: TSize;
   LAbsoluteScale: TPointF;
   LAbsoluteSize: TSize;
-  LAbsoluteBimapSize: TSize;
-  LMaxBitmapSize: Integer;
+  LDestRect: TRectF;
   LExceededRatio: Single;
+  LMaxBitmapSize: Integer;
+  LSceneScale: Single;
 begin
   if (FDrawCacheKind <> TSkDrawCacheKind.Always) and (Canvas is TSkCanvasCustom) then
   begin
-    DrawUsingSkia(TSkCanvasCustom(Canvas).Surface, Canvas.AlignToPixel(LocalRect), AbsoluteOpacity);
+    LDestRect := Canvas.AlignToPixel(LocalRect);
+    Draw(TSkCanvasCustom(Canvas).Canvas, LDestRect, AbsoluteOpacity);
+    if Assigned(FOnDraw) then
+      FOnDraw(Self, TSkCanvasCustom(Canvas).Canvas, LDestRect, AbsoluteOpacity);
     FreeAndNil(FBuffer);
   end
   else
@@ -1584,7 +2066,7 @@ begin
     LPaint.AlphaF := AOpacity;
     LPaint.Color := DesignBorderColor;
     LPaint.StrokeWidth := 1;
-    LPaint.PathEffect := TSKPathEffect.MakeDash([3, 1], 0);
+    LPaint.PathEffect := TSkPathEffect.MakeDash([3, 1], 0);
     ACanvas.DrawRect(R, LPaint);
   finally
     ACanvas.Restore;
@@ -1597,28 +2079,21 @@ begin
 end;
 
 procedure TSkStyledControl.Paint;
-
-  procedure DrawUsingSkia(const ASurface: ISkSurface; const ADestRect: TRectF; const AOpacity: Single);
-  begin
-    if Assigned(ASurface) then
-    begin
-      Draw(ASurface.Canvas, ADestRect, AOpacity);
-      if Assigned(FOnDraw) then
-        FOnDraw(Self, ASurface.Canvas, ADestRect, AOpacity);
-    end;
-  end;
-
 var
-  LSceneScale: Single;
+  LAbsoluteBimapSize: TSize;
   LAbsoluteScale: TPointF;
   LAbsoluteSize: TSize;
-  LAbsoluteBimapSize: TSize;
-  LMaxBitmapSize: Integer;
+  LDestRect: TRectF;
   LExceededRatio: Single;
+  LMaxBitmapSize: Integer;
+  LSceneScale: Single;
 begin
   if (FDrawCacheKind <> TSkDrawCacheKind.Always) and (Canvas is TSkCanvasCustom) then
   begin
-    DrawUsingSkia(TSkCanvasCustom(Canvas).Surface, Canvas.AlignToPixel(LocalRect), AbsoluteOpacity);
+    LDestRect := Canvas.AlignToPixel(LocalRect);
+    Draw(TSkCanvasCustom(Canvas).Canvas, LDestRect, AbsoluteOpacity);
+    if Assigned(FOnDraw) then
+      FOnDraw(Self, TSkCanvasCustom(Canvas).Canvas, LDestRect, AbsoluteOpacity);
     FreeAndNil(FBuffer);
   end
   else
@@ -1794,7 +2269,7 @@ end;
 
 function TSkSvgBrush.MakeDOM: ISkSVGDOM;
 begin
-  Result := TSkSVGDOM.Make(FSource);
+  Result := TSkSVGDOM.Make(FSource, TSkDefaultProviders.Resource);
 end;
 
 procedure TSkSvgBrush.RecreateDOM;
@@ -1866,8 +2341,8 @@ procedure TSkSvgBrush.Render(const ACanvas: ISkCanvas; const ADestRect: TRectF;
     begin
       if AWrapMode <> TSkSvgWrapMode.Default then
       begin
-        ADOM.Root.Width  := TSkSVGLength.Create(AWrappedDest.Width,  TSkSVGLengthUnit.PX);
-        ADOM.Root.Height := TSkSVGLength.Create(AWrappedDest.Height, TSkSVGLengthUnit.PX);
+        ADOM.Root.Width  := TSkSVGLength.Create(AWrappedDest.Width,  TSkSVGLengthUnit.Pixel);
+        ADOM.Root.Height := TSkSVGLength.Create(AWrappedDest.Height, TSkSVGLengthUnit.Pixel);
       end;
     end
     else
@@ -1923,8 +2398,8 @@ begin
           begin
             if FWrapMode <> TSkSvgWrapMode.Default then
             begin
-              LDOM.Root.Width  := TSkSVGLength.Create(LWrappedDest.Width,  TSkSVGLengthUnit.PX);
-              LDOM.Root.Height := TSkSVGLength.Create(LWrappedDest.Height, TSkSVGLengthUnit.PX);
+              LDOM.Root.Width  := TSkSVGLength.Create(LWrappedDest.Width,  TSkSVGLengthUnit.Pixel);
+              LDOM.Root.Height := TSkSVGLength.Create(LWrappedDest.Height, TSkSVGLengthUnit.Pixel);
             end;
           end
           else
@@ -2016,19 +2491,664 @@ begin
   Redraw;
 end;
 
-type
-  { TRepaintAnimation }
+{ TBasicAnimation }
 
-  TRepaintAnimation = class(TAnimation)
+type
+  TBasicAnimation = class(TAnimation)
   protected
     procedure ProcessAnimation; override;
   end;
 
-{ TRepaintAnimation }
-
-procedure TRepaintAnimation.ProcessAnimation;
+procedure TBasicAnimation.ProcessAnimation;
 begin
-  TSkCustomAnimatedControl(Parent).ProcessAnimation;
+end;
+
+{ TSkCustomAnimation.TProcess }
+
+class procedure TSkCustomAnimation.TProcess.Add(const AAnimation: TSkCustomAnimation);
+begin
+  if FProcess = nil then
+    FProcess := TProcess.Create;
+  FProcess.DoAdd(AAnimation);
+end;
+
+constructor TSkCustomAnimation.TProcess.Create;
+begin
+  inherited Create;
+  if not TPlatformServices.Current.SupportsPlatformService(IFMXTimerService, FTimerService) then
+    raise EUnsupportedPlatformService.Create('IFMXTimerService');
+  FAniList := TList<Pointer>.Create;
+  FAniProcessingList := TList<Pointer>.Create;
+  FAnimation := TBasicAnimation.Create(nil);
+  TBasicAnimation(FAnimation).Loop := True;
+  TBasicAnimation(FAnimation).Duration := 30;
+  TBasicAnimation(FAnimation).OnProcess := OnProcess;
+end;
+
+destructor TSkCustomAnimation.TProcess.Destroy;
+begin
+  FreeAndNil(FAniList);
+  FAniProcessingList.Free;
+  FAnimation.Free;
+  inherited;
+end;
+
+class destructor TSkCustomAnimation.TProcess.Destroy;
+begin
+  FProcess.Free;
+  inherited;
+end;
+
+procedure TSkCustomAnimation.TProcess.DoAdd(const AAnimation: TSkCustomAnimation);
+begin
+  if FAniList.IndexOf(AAnimation) < 0 then
+    FAniList.Add(AAnimation);
+  if not TBasicAnimation(FAnimation).Enabled and (FAniList.Count > 0) then
+  begin
+    FTime := FTimerService.GetTick;
+    if Assigned(Application.MainForm) then
+    begin
+      FAnimation.SetRoot(Application.MainForm);
+      FAniRoot := nil;
+    end
+    else if Assigned(AAnimation.Root) then
+    begin
+      FAnimation.SetRoot(AAnimation.Root);
+      FAniRoot := AAnimation;
+    end;
+  end;
+  TBasicAnimation(FAnimation).Enabled := Assigned(FAnimation.Root) and (FAniList.Count > 0);
+end;
+
+procedure TSkCustomAnimation.TProcess.DoRemove(const AAnimation: TSkCustomAnimation);
+begin
+  if FAniList <> nil then
+  begin
+    FAniList.Remove(AAnimation);
+    FAniProcessingList.Remove(AAnimation);
+    if FAniRoot = AAnimation then
+    begin
+      FAnimation.SetRoot(nil);
+      FAniRoot := nil;
+      TryFindRoot;
+    end;
+    TBasicAnimation(FAnimation).Enabled := Assigned(FAnimation.Root) and (FAniList.Count > 0);
+  end;
+end;
+
+procedure TSkCustomAnimation.TProcess.DoRootChanged(const AAnimation: TSkCustomAnimation);
+begin
+  if FAniRoot = AAnimation then
+  begin
+    FAnimation.SetRoot(nil);
+    FAniRoot := nil;
+    TryFindRoot;
+  end
+  else if not Assigned(FAnimation.Root) and Assigned(AAnimation.Root) then
+  begin
+    FAnimation.SetRoot(AAnimation.Root);
+    FAniRoot := AAnimation;
+  end;
+  TBasicAnimation(FAnimation).Enabled := Assigned(FAnimation.Root) and (FAniList.Count > 0);
+end;
+
+procedure TSkCustomAnimation.TProcess.OnProcess(ASender: TObject);
+var
+  I: Integer;
+  LNewTime: Double;
+  LDeltaTime: Double;
+  [unsafe] LAnimation: TSkCustomAnimation;
+begin
+  LNewTime := FTimerService.GetTick;
+  LDeltaTime := LNewTime - FTime;
+  if LDeltaTime < TimeEpsilon then
+    Exit;
+  FTime := LNewTime;
+  if FAniList.Count > 0 then
+  begin
+    FAniProcessingList.AddRange(FAniList);
+    I := FAniProcessingList.Count - 1;
+    while I >= 0 do
+    begin
+      if I < FAniProcessingList.Count then
+      begin
+        LAnimation := FAniProcessingList[I];
+        FAniProcessingList.Delete(I);
+        if LAnimation.Running then
+          LAnimation.ProcessTick(LDeltaTime);
+        Dec(I);
+      end
+      else
+        I := FAniProcessingList.Count - 1;
+    end;
+  end;
+end;
+
+class procedure TSkCustomAnimation.TProcess.Remove(
+  const AAnimation: TSkCustomAnimation);
+begin
+  if FProcess <> nil then
+    FProcess.DoRemove(AAnimation);
+end;
+
+class procedure TSkCustomAnimation.TProcess.RootChanged(
+  const AAnimation: TSkCustomAnimation);
+begin
+  if FProcess <> nil then
+    FProcess.DoRootChanged(AAnimation);
+end;
+
+procedure TSkCustomAnimation.TProcess.TryFindRoot;
+var
+  I: Integer;
+begin
+  if Assigned(Application.MainForm) then
+  begin
+    FAnimation.SetRoot(Application.MainForm);
+    FAniRoot := nil;
+  end
+  else
+  begin
+    for I := 0 to FAniList.Count - 1 do
+    begin
+      if Assigned(TSkCustomAnimation(FAniList[I]).Root) then
+      begin
+        FAniRoot := TSkCustomAnimation(FAniList[I]);
+        FAnimation.SetRoot(FAniRoot.Root);
+        Break;
+      end;
+    end;
+  end;
+end;
+
+{ TSkCustomAnimation }
+
+procedure TSkCustomAnimation.BeforePaint;
+begin
+  if FNeedStart then
+  begin
+    if FAllowAnimation then
+      InternalStart(False)
+    else
+      FNeedStartRepaint := True;
+  end;
+end;
+
+function TSkCustomAnimation.CanProcessing: Boolean;
+begin
+  Result := FRunning and (not FPause) and (FSpeed >= SpeedEpsilon) and (FProcessDuration >= TimeEpsilon) and (FAllowAnimation or not FLoop);
+end;
+
+constructor TSkCustomAnimation.Create(const AOwner: TComponent);
+begin
+  inherited Create;
+  FOwner := AOwner;
+  Assign(nil);
+end;
+
+destructor TSkCustomAnimation.Destroy;
+begin
+  SetProcessing(False);
+  inherited;
+end;
+
+procedure TSkCustomAnimation.DoAssign(ASource: TPersistent);
+var
+  LSourceAnimation: TSkCustomAnimation absolute ASource;
+begin
+  if ASource = nil then
+  begin
+    AutoReverse      := DefaultAutoReverse;
+    Delay            := DefaultDelay;
+    Enabled          := DefaultEnabled;
+    Inverse          := DefaultInverse;
+    Loop             := DefaultLoop;
+    Pause            := DefaultPause;
+    Speed            := DefaultSpeed;
+    StartFromCurrent := DefaultStartFromCurrent;
+    StartProgress    := DefaultStartProgress;
+    StopProgress     := DefaultStopProgress;
+    DoSetCurrentTime(0);
+    SetRunning(False);
+  end
+  else if ASource is TSkCustomAnimation then
+  begin
+    AutoReverse      := LSourceAnimation.AutoReverse;
+    Delay            := LSourceAnimation.Delay;
+    Enabled          := LSourceAnimation.Enabled;
+    Inverse          := LSourceAnimation.Inverse;
+    Loop             := LSourceAnimation.Loop;
+    Pause            := LSourceAnimation.Pause;
+    Speed            := LSourceAnimation.Speed;
+    StartFromCurrent := LSourceAnimation.StartFromCurrent;
+    StartProgress    := LSourceAnimation.StartProgress;
+    StopProgress     := LSourceAnimation.StopProgress;
+    DoSetCurrentTime(LSourceAnimation.CurrentTime);
+    SetRunning(LSourceAnimation.Running);
+  end
+  else
+    inherited;
+end;
+
+procedure TSkCustomAnimation.DoChanged;
+var
+  LCanProcess: Boolean;
+begin
+  UpdateCurrentTime(FRunning, True);
+  LCanProcess := FAllowAnimation;
+
+  if FEnabledChanged then
+  begin
+    FEnabledChanged := False;
+    if not FEnabled then
+      Stop
+    else if (not Assigned(FOwner)) or (not (csDesigning in FOwner.ComponentState)) then
+    begin
+      FNeedStart := True;
+      FNeedStartRepaint := False;
+    end;
+  end;
+  if FNeedStart and FNeedStartRepaint and FAllowAnimation then
+  begin
+    Start;
+    LCanProcess := False;
+  end;
+  SetProcessing(CanProcessing);
+  inherited;
+  if LCanProcess then
+    DoProcess;
+end;
+
+function TSkCustomAnimation.DoSetCurrentTime(const AValue: Double): Boolean;
+begin
+  Result := SetValue(FDelayTime, 0, TimeEpsilon);
+  Result := SetValue(FCurrentTime, EnsureRange(AValue, 0, FDuration), TimeEpsilon) or Result;
+end;
+
+function TSkCustomAnimation.Equals(AObject: TObject): Boolean;
+var
+  LSourceAnimation: TSkCustomAnimation absolute AObject;
+begin
+  Result := (AObject is TSkCustomAnimation) and
+    (FAutoReverse      = LSourceAnimation.AutoReverse) and
+    (FEnabled          = LSourceAnimation.Enabled) and
+    (FInverse          = LSourceAnimation.Inverse) and
+    (FLoop             = LSourceAnimation.Loop) and
+    (FPause            = LSourceAnimation.Pause) and
+    (FStartFromCurrent = LSourceAnimation.StartFromCurrent) and
+    (FRunning          = LSourceAnimation.Running) and
+    SameValue(FCurrentTime, LSourceAnimation.CurrentTime, TimeEpsilon) and
+    SameValue(FDelay, LSourceAnimation.Delay, TimeEpsilon) and
+    SameValue(FSpeed, LSourceAnimation.Speed, SpeedEpsilon) and
+    SameValue(FStartProgress, LSourceAnimation.StartProgress, ProgressEpsilon) and
+    SameValue(FStopProgress, LSourceAnimation.StopProgress, ProgressEpsilon);
+end;
+
+function TSkCustomAnimation.GetDuration: Double;
+begin
+  Result := FDuration;
+end;
+
+function TSkCustomAnimation.GetRoot: IRoot;
+begin
+  if FOwner is TFmxObject then
+    Result := TFmxObject(FOwner).Root
+  else
+    Result := nil;
+end;
+
+procedure TSkCustomAnimation.InternalStart(const ACanProcess: Boolean);
+begin
+  FNeedStart := False;
+  if not FLoop then
+    FTickCount := 0;
+  if FAutoReverse then
+  begin
+    if FRunning then
+      FInverse := FSavedInverse
+    else
+      FSavedInverse := FInverse;
+  end;
+  if FProcessDuration < TimeEpsilon then
+  begin
+    SetStartValues(0, True);
+    FRunning := True;
+    DoStart;
+    if ACanProcess and FAllowAnimation then
+      DoProcess;
+    FRunning := False;
+    FProcessTime := 0;
+    DoFinish;
+  end
+  else
+  begin
+    SetStartValues(FDelay, False);
+    FRunning := True;
+    FEnabled := True;
+    SetProcessing(CanProcessing);
+
+    if FDelay < TimeEpsilon then
+    begin
+      DoStart;
+      if ACanProcess and FAllowAnimation then
+        DoProcess;
+    end
+    else
+      DoStart;
+  end;
+end;
+
+function TSkCustomAnimation.IsDelayStored: Boolean;
+begin
+  Result := not SameValue(FDelay, DefaultDelay, TimeEpsilon);
+end;
+
+function TSkCustomAnimation.IsProgressStored: Boolean;
+begin
+  Result := not SameValue(FProgress, DefaultStartProgress, ProgressEpsilon);
+end;
+
+function TSkCustomAnimation.IsSpeedStored: Boolean;
+begin
+  Result := not SameValue(FSpeed, DefaultSpeed, SpeedEpsilon);
+end;
+
+function TSkCustomAnimation.IsStartProgressStored: Boolean;
+begin
+  Result := not SameValue(FStartProgress, DefaultStartProgress, ProgressEpsilon);
+end;
+
+function TSkCustomAnimation.IsStopProgressStored: Boolean;
+begin
+  Result := not SameValue(FStopProgress, DefaultStopProgress, ProgressEpsilon);
+end;
+
+procedure TSkCustomAnimation.ProcessTick(ADeltaTime: Double);
+begin
+  if Assigned(FOwner) and (csDestroying in FOwner.ComponentState) then
+    Exit;
+  SetProcessing(CanProcessing);
+  if (not FRunning) or FPause or (FSpeed < SpeedEpsilon) or (not FProcessing) then
+    Exit;
+
+  if FDelayTime >= TimeEpsilon then
+  begin
+    FDelayTime := FDelayTime - ADeltaTime;
+    if FDelayTime < TimeEpsilon then
+    begin
+      ADeltaTime := Max(-FDelayTime, 0);
+      SetStartValues(0, False);
+      if ADeltaTime < TimeEpsilon then
+        Exit;
+    end
+    else
+      Exit;
+  end;
+
+  if FInverse then
+    FProcessTime := FProcessTime - ADeltaTime * FSpeed
+  else
+    FProcessTime := FProcessTime + ADeltaTime * FSpeed;
+  if FProcessTime >= FProcessDuration then
+  begin
+    FProcessTime := FProcessDuration;
+    if FLoop then
+    begin
+      if FAutoReverse then
+      begin
+        FInverse := True;
+        FProcessTime := FProcessDuration;
+      end
+      else
+        FProcessTime := 0;
+    end
+    else
+      if FAutoReverse and (FTickCount = 0) then
+      begin
+        Inc(FTickCount);
+        FInverse := True;
+        FProcessTime := FProcessDuration;
+      end
+      else
+        FRunning := False;
+  end
+  else if FProcessTime <= 0 then
+  begin
+    FProcessTime := 0;
+    if FLoop then
+    begin
+      if FAutoReverse then
+      begin
+        FInverse := False;
+        FProcessTime := 0;
+      end
+      else
+        FProcessTime := FProcessDuration;
+    end
+    else
+      if FAutoReverse and (FTickCount = 0) then
+      begin
+        Inc(FTickCount);
+        FInverse := False;
+        FProcessTime := 0;
+      end
+      else
+        FRunning := False;
+  end;
+  UpdateCurrentTime(True, Updating);
+
+  if not FRunning then
+  begin
+    if FAutoReverse then
+      FInverse := FSavedInverse;
+    FEnabled := False;
+    SetProcessing(False);
+  end;
+
+  if FAllowAnimation then
+    DoProcess;
+  if not FRunning then
+    DoFinish;
+end;
+
+procedure TSkCustomAnimation.RootChanged;
+begin
+  if FProcessing then
+    TProcess.RootChanged(Self);
+end;
+
+procedure TSkCustomAnimation.SetAllowAnimation(const AValue: Boolean);
+begin
+  SetValue(FAllowAnimation, AValue);
+end;
+
+procedure TSkCustomAnimation.SetCurrentTime(const AValue: Double);
+begin
+  BeginUpdate;
+  try
+    FCurrentTimeChanged := DoSetCurrentTime(RoundTo(AValue, TimeRoundTo)) or FCurrentTimeChanged;
+  finally
+    EndUpdate;
+  end;
+end;
+
+procedure TSkCustomAnimation.SetDelay(const AValue: Double);
+begin
+  FDelay := Max(0, RoundTo(AValue, TimeRoundTo));
+  FDelayTime := Min(FDelayTime, FDelay);
+end;
+
+procedure TSkCustomAnimation.SetDuration(const AValue: Double);
+begin
+  SetValue(FDuration, Max(RoundTo(AValue, TimeRoundTo), 0), TimeEpsilon);
+end;
+
+procedure TSkCustomAnimation.SetEnabled(const AValue: Boolean);
+begin
+  BeginUpdate;
+  try
+    FEnabledChanged := SetValue(FEnabled, AValue) or FEnabledChanged;
+  finally
+    EndUpdate;
+  end;
+end;
+
+procedure TSkCustomAnimation.SetLoop(const AValue: Boolean);
+begin
+  SetValue(FLoop, AValue);
+end;
+
+procedure TSkCustomAnimation.SetPause(const AValue: Boolean);
+begin
+  SetValue(FPause, AValue);
+end;
+
+procedure TSkCustomAnimation.SetProcessing(const AValue: Boolean);
+begin
+  if FProcessing <> AValue then
+  begin
+    FProcessing := AValue;
+    if FProcessing then
+      TProcess.Add(Self)
+    else
+      TProcess.Remove(Self);
+  end;
+end;
+
+procedure TSkCustomAnimation.SetProgress(const AValue: Double);
+begin
+  FSavedProgress := AValue;
+  CurrentTime := FDuration * EnsureRange(AValue, 0, 1);
+end;
+
+procedure TSkCustomAnimation.SetRunning(const AValue: Boolean);
+begin
+  SetValue(FRunning, AValue);
+end;
+
+procedure TSkCustomAnimation.SetSpeed(const AValue: Double);
+begin
+  SetValue(FSpeed, Max(RoundTo(AValue, SpeedRoundTo), 0), SpeedEpsilon);
+end;
+
+procedure TSkCustomAnimation.SetStartProgress(const AValue: Double);
+begin
+  SetValue(FStartProgress, EnsureRange(AValue, 0, 1), ProgressEpsilon);
+end;
+
+procedure TSkCustomAnimation.SetStartValues(const ADelayTime: Double; const AStartAtEnd: Boolean);
+begin
+  FDelayTime := ADelayTime;
+  if FStartFromCurrent and not AStartAtEnd then
+    FProcessTime := EnsureRange(FCurrentTime - Min(FStartProgress, FStopProgress) * FDuration, 0, FProcessDuration)
+  else
+    FProcessTime := IfThen(FInverse = AStartAtEnd, 0, FProcessDuration);
+  UpdateCurrentTime(True, Updating);
+end;
+
+procedure TSkCustomAnimation.SetStopProgress(const AValue: Double);
+begin
+  SetValue(FStopProgress, EnsureRange(AValue, 0, 1), ProgressEpsilon);
+end;
+
+procedure TSkCustomAnimation.Start;
+begin
+  InternalStart(True);
+end;
+
+procedure TSkCustomAnimation.Stop;
+begin
+  FNeedStart := False;
+  if not FRunning then
+    Exit;
+  if FAutoReverse then
+    FInverse := FSavedInverse;
+  if FInverse then
+  begin
+    FCurrentTime := 0;
+    FProgress := 0;
+  end
+  else
+  begin
+    FCurrentTime := FProcessDuration;
+    FProgress := 1;
+  end;
+  if FAllowAnimation then
+    DoProcess;
+  FRunning := False;
+  FEnabled := False;
+  SetProcessing(False);
+  DoFinish;
+end;
+
+procedure TSkCustomAnimation.StopAtCurrent;
+begin
+  FNeedStart := False;
+  if not FRunning then
+    Exit;
+  if FAutoReverse then
+    FInverse := FSavedInverse;
+  FRunning := False;
+  FEnabled := False;
+  SetProcessing(False);
+  DoFinish;
+end;
+
+procedure TSkCustomAnimation.UpdateCurrentTime(const AIsRunning, ARecalcProcessDuration: Boolean);
+begin
+  if ARecalcProcessDuration then
+  begin
+    FProcessDuration := Abs(FStopProgress - FStartProgress) * FDuration;
+    if FProcessDuration < TimeEpsilon then
+      FProcessDuration := 0;
+  end;
+  if FCurrentTimeChanged and AIsRunning then
+    FProcessTime := EnsureRange(FCurrentTime - Min(FStartProgress, FStopProgress) * FDuration, 0, FProcessDuration);
+  if AIsRunning then
+    FCurrentTime := Min(FStartProgress, FStopProgress) * FDuration + FProcessTime
+  else
+    FCurrentTime := EnsureRange(FCurrentTime, 0, FDuration);
+  FCurrentTimeChanged := False;
+  if FDuration < TimeEpsilon then
+  begin
+    if FInverse then
+      FProgress := FStopProgress
+    else
+      FProgress := FStartProgress;
+  end
+  else
+    FProgress := FCurrentTime / FDuration;
+end;
+
+{ TSkCustomAnimatedControl.TAnimationBase }
+
+procedure TSkCustomAnimatedControl.TAnimationBase.DoChanged;
+begin
+  inherited;
+  if Created then
+    TSkCustomAnimatedControl(Owner).DoAnimationChanged;
+end;
+
+procedure TSkCustomAnimatedControl.TAnimationBase.DoFinish;
+begin
+  TSkCustomAnimatedControl(Owner).DoAnimationFinish;
+end;
+
+procedure TSkCustomAnimatedControl.TAnimationBase.DoProcess;
+begin
+  if FInsideDoProcess then
+    Exit;
+  FInsideDoProcess := True;
+  try
+    TSkCustomAnimatedControl(Owner).DoAnimationProcess;
+  finally
+    FInsideDoProcess := False;
+  end;
+end;
+
+procedure TSkCustomAnimatedControl.TAnimationBase.DoStart;
+begin
+  TSkCustomAnimatedControl(Owner).DoAnimationStart;
 end;
 
 { TSkCustomAnimatedControl }
@@ -2045,92 +3165,75 @@ begin
   end
   else
     FAbsoluteVisibleCached := False;
-  if (not FFixedProgress) and (not FProgressChangedManually) and (not LLastAbsoluteVisible) and AbsoluteVisible then
-  begin
-    FProgress := 0;
-    FAnimationStartTickCount := TThread.GetTickCount;
-  end;
+  if Assigned(FAnimation) and FAnimation.Loop and FAnimation.Running and (not LLastAbsoluteVisible) and AbsoluteVisible then
+    FAnimation.Start;
   CheckAnimation;
   inherited;
 end;
 
 function TSkCustomAnimatedControl.CanRunAnimation: Boolean;
 begin
-  Result := (not FIsStaticImage) and Assigned(Scene) and (not FFixedProgress) and
-    ([csDestroying, csDesigning] * ComponentState = []) and
-    AbsoluteVisible and AbsoluteEnabled and
-    (AbsoluteWidth > 0) and (AbsoluteHeight > 0) and
-    (FLoop or not SameValue(FProgress, 1, TEpsilon.Matrix)) and
+  Result := Assigned(Scene) and ([csDestroying, csLoading] * ComponentState = []) and
+    AbsoluteVisible and
+    (not SameValue(AbsoluteWidth, 0, TEpsilon.Position)) and
+    (not SameValue(AbsoluteHeight, 0, TEpsilon.Position)) and
     (Scene.GetObject is TCommonCustomForm) and TCommonCustomForm(Scene.GetObject).Visible;
 end;
 
 procedure TSkCustomAnimatedControl.CheckAnimation;
+begin
+  if Assigned(FAnimation) then
+    FAnimation.AllowAnimation := CanRunAnimation;
+end;
 
-  procedure FixStartTickCount;
-  var
-    LNewTickCount: Int64;
-  begin
-    LNewTickCount := TThread.GetTickCount - Round(FProgress * Duration * 1000);
-    if LNewTickCount < 0 then
-      LNewTickCount := High(Cardinal) + LNewTickCount;
-    FAnimationStartTickCount := Cardinal(LNewTickCount);
-  end;
-
-var
-  LCanRunAnimation: Boolean;
+procedure TSkCustomAnimatedControl.CheckDuration;
 begin
   if Assigned(FAnimation) then
   begin
-    LCanRunAnimation := CanRunAnimation;
-    if FAnimation.Enabled <> LCanRunAnimation then
-    begin
-      FAnimation.Enabled := LCanRunAnimation;
-      if LCanRunAnimation then
-      begin
-        FixStartTickCount;
-        DoAnimationStart;
-      end
-      else
-        DoAnimationFinished;
-    end;
+    if SameValue(FAnimation.Duration, 0, TAnimationBase.TimeEpsilon) then
+      DrawCacheKind := TSkDrawCacheKind.Raster
+    else
+      DrawCacheKind := TSkDrawCacheKind.Never;
   end;
 end;
 
 constructor TSkCustomAnimatedControl.Create(AOwner: TComponent);
 begin
   inherited;
-  DisabledOpacity := 1;
-  if csDesigning in ComponentState then
-  begin
-    FProgress := 0.5;
-    FFixedProgress := True;
-  end;
-  FIsStaticImage := True;
-  FLoop := True;
-  FAnimation := TRepaintAnimation.Create(Self);
-  FAnimation.Stored := False;
-  FAnimation.Loop := True;
-  FAnimation.Duration := 30;
-  FAnimation.Parent := Self;
+  FAnimation := CreateAnimation;
   FAbsoluteVisible := Visible;
   FAbsoluteVisibleCached := True;
-  if FIsStaticImage then
-    DrawCacheKind := TSkDrawCacheKind.Raster
-  else
-    DrawCacheKind := TSkDrawCacheKind.Never;
+  CheckDuration;
 end;
 
-procedure TSkCustomAnimatedControl.DoAnimationFinished;
+destructor TSkCustomAnimatedControl.Destroy;
 begin
-  if Assigned(FOnAnimationFinished) then
-    FOnAnimationFinished(Self);
-  FProgressChangedManually := False;
+  FAnimation.Free;
+  inherited;
 end;
 
-procedure TSkCustomAnimatedControl.DoAnimationProgress;
+procedure TSkCustomAnimatedControl.DoAnimationChanged;
 begin
-  if Assigned(FOnAnimationProgress) then
-    FOnAnimationProgress(Self);
+  CheckDuration;
+  if csDesigning in ComponentState then
+    Repaint;
+end;
+
+procedure TSkCustomAnimatedControl.DoAnimationFinish;
+begin
+  Redraw;
+  if Assigned(FOnAnimationFinish) then
+    FOnAnimationFinish(Self);
+end;
+
+procedure TSkCustomAnimatedControl.DoAnimationProcess;
+begin
+  if not FSuccessRedraw then
+    CheckAnimation;
+  FSuccessRedraw := False;
+  Redraw;
+  if Assigned(FOnAnimationProcess) then
+    FOnAnimationProcess(Self);
 end;
 
 procedure TSkCustomAnimatedControl.DoAnimationStart;
@@ -2139,92 +3242,22 @@ begin
     FOnAnimationStart(Self);
 end;
 
-procedure TSkCustomAnimatedControl.Draw(const ACanvas: ISkCanvas;
-  const ADest: TRectF; const AOpacity: Single);
-
-  procedure FixElapsedSeconds(const ACurrentTickCount: Cardinal;
-    var AStartTickCount: Cardinal; var AElapsedSeconds: Double);
-  var
-    LMillisecondsElapsed: Int64;
-  begin
-    Assert(ACurrentTickCount < AStartTickCount);
-    if ACurrentTickCount >= Cardinal(Ceil(Duration * 1000)) then
-    begin
-      if FLoop then
-      begin
-        LMillisecondsElapsed := ACurrentTickCount + High(Cardinal) - AStartTickCount;
-        LMillisecondsElapsed := LMillisecondsElapsed mod Round(Duration * 1000);
-        Assert(ACurrentTickCount > LMillisecondsElapsed);
-        FAnimationStartTickCount := Cardinal(ACurrentTickCount - LMillisecondsElapsed);
-      end
-      else
-        AStartTickCount := ACurrentTickCount - Cardinal(Ceil(Duration * 1000));
-      AElapsedSeconds := (ACurrentTickCount - AStartTickCount) / 1000;
-    end
-    else
-    begin
-      LMillisecondsElapsed := ACurrentTickCount + High(Cardinal) - AStartTickCount;
-      AElapsedSeconds := LMillisecondsElapsed / 1000;
-    end;
-    Assert(AElapsedSeconds >= 0);
-  end;
-
-  function CalcProgress: Double;
-  var
-    LElapsedSeconds: Double;
-    LDuration: Double;
-    LCurrentTickCount: Cardinal;
-  begin
-    if Enabled then
-    begin
-      LCurrentTickCount := TThread.GetTickCount;
-      LElapsedSeconds := (LCurrentTickCount - FAnimationStartTickCount) / 1000;
-      if LElapsedSeconds < 0 then
-        FixElapsedSeconds(LCurrentTickCount, FAnimationStartTickCount, LElapsedSeconds);
-      LDuration := Duration;
-      if SameValue(LDuration, 0, TEpsilon.Matrix) then
-        Result := 1
-      else
-      begin
-        if FLoop then
-        begin
-          {$IF CompilerVersion >= 29}
-          LElapsedSeconds := FMod(LElapsedSeconds, LDuration);
-          {$ELSE}
-          LElapsedSeconds := (Round(LElapsedSeconds * 1000) mod Round(LDuration * 1000)) / 1000;
-          {$ENDIF}
-        end
-        else
-          LElapsedSeconds := Min(LElapsedSeconds, LDuration);
-        Result := LElapsedSeconds / LDuration;
-      end;
-    end
-    else
-      Result := FProgress;
-  end;
-
-var
-  LProgress: Double;
+procedure TSkCustomAnimatedControl.DoRootChanged;
 begin
   inherited;
-  if Assigned(FAnimation) and not FAnimation.Enabled then
+  if Assigned(FAnimation) then
+    FAnimation.RootChanged;
+end;
+
+procedure TSkCustomAnimatedControl.Draw(const ACanvas: ISkCanvas;
+  const ADest: TRectF; const AOpacity: Single);
+begin
+  inherited;
+  if not FAnimation.AllowAnimation then
     CheckAnimation;
-  if FFixedProgress then
-    LProgress := FProgress
-  else
-    LProgress := CalcProgress;
-  RenderFrame(ACanvas, ADest, LProgress, AOpacity);
-  if not SameValue(LProgress, FProgress, TEpsilon.Matrix) then
-  begin
-    FProgress := LProgress;
-    DoAnimationProgress;
-  end;
-  if (not FLoop) and SameValue(LProgress, 1, TEpsilon.Matrix) then
-  begin
-    FProgress := 1;
-    CheckAnimation;
-  end;
-  FSuccessRepaint := True;
+  FAnimation.BeforePaint;
+  RenderFrame(ACanvas, ADest, FAnimation.Progress, AOpacity);
+  FSuccessRedraw := True;
 end;
 
 function TSkCustomAnimatedControl.GetAbsoluteVisible: Boolean;
@@ -2237,23 +3270,16 @@ begin
   Result := FAbsoluteVisible;
 end;
 
-function TSkCustomAnimatedControl.GetRunningAnimation: Boolean;
+procedure TSkCustomAnimatedControl.ReadState(AReader: TReader);
 begin
-  Result := Assigned(FAnimation) and FAnimation.Enabled;
-end;
-
-procedure TSkCustomAnimatedControl.ProcessAnimation;
-begin
-  if not FSuccessRepaint then
-    CheckAnimation;
-  FSuccessRepaint := False;
-  Repaint;
-end;
-
-procedure TSkCustomAnimatedControl.RecalcEnabled;
-begin
-  inherited;
-  CheckAnimation;
+  FAnimation.BeginUpdate;
+  try
+    FAnimation.SavedProgress := FAnimation.Progress;
+    inherited;
+    FAnimation.Progress := FAnimation.SavedProgress;
+  finally
+    FAnimation.EndUpdate;
+  end;
 end;
 
 procedure TSkCustomAnimatedControl.RenderFrame(const ACanvas: ISkCanvas;
@@ -2261,37 +3287,6 @@ procedure TSkCustomAnimatedControl.RenderFrame(const ACanvas: ISkCanvas;
 begin
   if Assigned(FOnAnimationDraw) then
     FOnAnimationDraw(Self, ACanvas, ADest, AProgress, AOpacity);
-end;
-
-procedure TSkCustomAnimatedControl.SetFixedProgress(const AValue: Boolean);
-begin
-  if FFixedProgress <> AValue then
-  begin
-    FFixedProgress := AValue;
-    CheckAnimation;
-  end;
-end;
-
-procedure TSkCustomAnimatedControl.SetIsStaticImage(const AValue: Boolean);
-begin
-  if FIsStaticImage <> AValue then
-  begin
-    FIsStaticImage := AValue;
-    if FIsStaticImage then
-      DrawCacheKind := TSkDrawCacheKind.Raster
-    else
-      DrawCacheKind := TSkDrawCacheKind.Never;
-    CheckAnimation;
-  end;
-end;
-
-procedure TSkCustomAnimatedControl.SetLoop(const AValue: Boolean);
-begin
-  if FLoop <> AValue then
-  begin
-    FLoop := AValue;
-    CheckAnimation;
-  end;
 end;
 
 procedure TSkCustomAnimatedControl.SetNewScene(AScene: IScene);
@@ -2305,70 +3300,117 @@ begin
 end;
 
 procedure TSkCustomAnimatedControl.SetOnAnimationDraw(
-  const Value: TSkAnimationDrawEvent);
+  const AValue: TSkAnimationDrawEvent);
 begin
-  FOnAnimationDraw := Value;
-end;
-
-procedure TSkCustomAnimatedControl.SetProgress(AValue: Double);
-begin
-  FProgressChangedManually := True;
-  AValue := EnsureRange(AValue, 0, 1);
-  if not SameValue(FProgress, AValue, TEpsilon.Matrix) then
+  if TMethod(FOnAnimationDraw) <> TMethod(AValue) then
   begin
-    FProgress := AValue;
-    if SameValue(FProgress, 0, TEpsilon.Matrix) then
-      FAnimationStartTickCount := TThread.GetTickCount;
-    CheckAnimation;
-    DoAnimationProgress;
-    Repaint;
-  end;
-end;
-
-{ TSkAnimatedPaintBox }
-
-function TSkAnimatedPaintBox.CanRunAnimation: Boolean;
-begin
-  Result := FAnimate and inherited;
-end;
-
-constructor TSkAnimatedPaintBox.Create(AOwner: TComponent);
-begin
-  inherited;
-  FAnimate := True;
-  FDuration := DefaultDuration;
-  IsStaticImage := not FAnimate;
-end;
-
-function TSkAnimatedPaintBox.GetDuration: Double;
-begin
-  Result := FDuration;
-end;
-
-function TSkAnimatedPaintBox.IsDurationStored: Boolean;
-begin
-  Result := not SameValue(FDuration, DefaultDuration, TEpsilon.Vector);
-end;
-
-procedure TSkAnimatedPaintBox.SetAnimate(const AValue: Boolean);
-begin
-  if FAnimate <> AValue then
-  begin
-    FAnimate := AValue;
-    if FAnimate then
-      Progress := 0;
-    IsStaticImage := not FAnimate;
+    FOnAnimationDraw := AValue;
     Redraw;
   end;
 end;
 
-procedure TSkAnimatedPaintBox.SetDuration(const AValue: Double);
+{ TSkAnimatedPaintBox.TAnimation }
+
+constructor TSkAnimatedPaintBox.TAnimation.Create(const AOwner: TFmxObject);
 begin
-  if not SameValue(FDuration, AValue, TEpsilon.Vector) then
-  begin
-    FDuration := AValue;
-    CheckAnimation;
-  end;
+  inherited Create(AOwner);
+  Duration := DefaultDuration;
+end;
+
+procedure TSkAnimatedPaintBox.TAnimation.DoAssign(ASource: TPersistent);
+var
+  LSourceAnimation: TSkCustomAnimation absolute ASource;
+begin
+  if ASource = nil then
+    Duration := DefaultDuration
+  else if ASource is TSkCustomAnimation then
+    Duration := LSourceAnimation.Duration;
+  inherited;
+end;
+
+function TSkAnimatedPaintBox.TAnimation.Equals(AObject: TObject): Boolean;
+var
+  LSourceAnimation: TSkCustomAnimation absolute AObject;
+begin
+  Result := inherited and SameValue(Duration, LSourceAnimation.Duration, TimeEpsilon);
+end;
+
+function TSkAnimatedPaintBox.TAnimation.IsDurationStored: Boolean;
+begin
+  Result := not SameValue(Duration, DefaultDuration, TimeEpsilon);
+end;
+
+{ TSkAnimatedPaintBox }
+
+function TSkAnimatedPaintBox.CreateAnimation: TSkCustomAnimatedControl.TAnimationBase;
+begin
+  Result := TAnimation.Create(Self);
+end;
+
+procedure TSkAnimatedPaintBox.DefineProperties(AFiler: TFiler);
+begin
+  inherited;
+  // Backward compatibility with version 3
+  AFiler.DefineProperty('Animate', ReadAnimate, nil, False);
+  AFiler.DefineProperty('Duration', ReadDuration, nil, False);
+  AFiler.DefineProperty('Loop', ReadLoop, nil, False);
+end;
+
+function TSkAnimatedPaintBox.GetAnimation: TSkAnimatedPaintBox.TAnimation;
+begin
+  Result := TSkAnimatedPaintBox.TAnimation(FAnimation);
+end;
+
+procedure TSkAnimatedPaintBox.ReadAnimate(AReader: TReader);
+begin
+  Animation.Enabled := AReader.ReadBoolean;
+end;
+
+procedure TSkAnimatedPaintBox.ReadDuration(AReader: TReader);
+begin
+  Animation.Duration := AReader.ReadFloat;
+end;
+
+procedure TSkAnimatedPaintBox.ReadLoop(AReader: TReader);
+begin
+  Animation.Loop := AReader.ReadBoolean;
+end;
+
+procedure TSkAnimatedPaintBox.SetAnimation(const AValue: TSkAnimatedPaintBox.TAnimation);
+begin
+  FAnimation.Assign(AValue);
+end;
+
+{ TSkAnimatedPaintBoxHelper }
+
+function TSkAnimatedPaintBoxHelper.Animate: Boolean;
+begin
+  Result := Animation.Enabled;
+end;
+
+function TSkAnimatedPaintBoxHelper.Duration: Double;
+begin
+  Result := Animation.Duration;
+end;
+
+function TSkAnimatedPaintBoxHelper.FixedProgress: Boolean;
+begin
+  Result := not Animation.Enabled;
+end;
+
+function TSkAnimatedPaintBoxHelper.Loop: Boolean;
+begin
+  Result := Animation.Loop;
+end;
+
+function TSkAnimatedPaintBoxHelper.Progress: Double;
+begin
+  Result := Animation.Progress;
+end;
+
+function TSkAnimatedPaintBoxHelper.RunningAnimation: Boolean;
+begin
+  Result := Animation.Running;
 end;
 
 { TSkAnimatedImage.TSource }
@@ -2377,11 +3419,13 @@ procedure TSkAnimatedImage.TSource.Assign(ASource: TPersistent);
 begin
   if ASource is TSource then
     Data := TSource(ASource).Data
+  else if ASource = nil then
+    Data := nil
   else
     inherited;
 end;
 
-constructor TSkAnimatedImage.TSource.Create(const AOnChange: TNotifyEvent);
+constructor TSkAnimatedImage.TSource.Create(const AOnChange: TChangeProc);
 begin
   inherited Create;
   FOnChange := AOnChange;
@@ -2398,7 +3442,7 @@ begin
   begin
     FData := Copy(AValue);
     if Assigned(FOnChange) then
-      FOnChange(Self);
+      FOnChange();
   end;
 end;
 
@@ -2414,15 +3458,15 @@ end;
 
 { TSkAnimatedImage }
 
-function TSkAnimatedImage.CanRunAnimation: Boolean;
-begin
-  Result := Assigned(FCodec) and inherited;
-end;
-
 constructor TSkAnimatedImage.Create(AOwner: TComponent);
 begin
   inherited;
   FSource := TSource.Create(SourceChange);
+end;
+
+function TSkAnimatedImage.CreateAnimation: TSkCustomAnimatedControl.TAnimationBase;
+begin
+  Result := TAnimation.Create(Self);
 end;
 
 procedure TSkAnimatedImage.DefineProperties(AFiler: TFiler);
@@ -2438,6 +3482,10 @@ procedure TSkAnimatedImage.DefineProperties(AFiler: TFiler);
 begin
   inherited;
   AFiler.DefineBinaryProperty('Data', ReadData, WriteData, DoWrite);
+  // Backward compatibility with version 3
+  AFiler.DefineProperty('Loop', ReadLoop, nil, False);
+  AFiler.DefineProperty('OnAnimationFinished', ReadOnAnimationFinished, nil, False);
+  AFiler.DefineProperty('OnAnimationProgress', ReadOnAnimationProgress, nil, False);
 end;
 
 destructor TSkAnimatedImage.Destroy;
@@ -2456,12 +3504,9 @@ begin
     DrawDesignBorder(ACanvas, ADest, AOpacity);
 end;
 
-function TSkAnimatedImage.GetDuration: Double;
+function TSkAnimatedImage.GetAnimation: TSkAnimatedImage.TAnimation;
 begin
-  if Assigned(FCodec) then
-    Result := FCodec.Duration
-  else
-    Result := 0;
+  Result := TSkAnimatedImage.TAnimation(FAnimation);
 end;
 
 function TSkAnimatedImage.GetOriginalSize: TSizeF;
@@ -2493,6 +3538,32 @@ begin
     FSource.Data := nil
   else
     LoadFromStream(AStream);
+end;
+
+procedure TSkAnimatedImage.ReadLoop(AReader: TReader);
+begin
+  Animation.Loop := AReader.ReadBoolean;
+end;
+
+type
+  TReaderAccess = class(TReader) end;
+
+procedure TSkAnimatedImage.ReadOnAnimationFinished(AReader: TReader);
+var
+  LMethod: TMethod;
+begin
+  LMethod := TReaderAccess(AReader).FindMethodInstance(AReader.Root, AReader.ReadIdent);
+  if LMethod.Code <> nil then
+    OnAnimationFinish := TNotifyEvent(LMethod);
+end;
+
+procedure TSkAnimatedImage.ReadOnAnimationProgress(AReader: TReader);
+var
+  LMethod: TMethod;
+begin
+  LMethod := TReaderAccess(AReader).FindMethodInstance(AReader.Root, AReader.ReadIdent);
+  if LMethod.Code <> nil then
+    OnAnimationProcess := TNotifyEvent(LMethod);
 end;
 
 class procedure TSkAnimatedImage.RegisterCodec(
@@ -2542,10 +3613,27 @@ procedure TSkAnimatedImage.RenderFrame(const ACanvas: ISkCanvas;
   end;
 
 begin
-  FCodec.Quality := Canvas.Quality;
-  FCodec.SeekFrameTime(AProgress * Duration);
-  FCodec.Render(ACanvas, GetWrappedRect(ADest), AOpacity);
+  if Assigned(FCodec) then
+  begin
+    FCodec.Quality := Canvas.Quality;
+    if (csDesigning in ComponentState) and (not Animation.Running) and (AProgress = 0) then
+      FCodec.SeekFrameTime(Animation.Duration / 8)
+    else
+      FCodec.SeekFrameTime(Animation.CurrentTime);
+    ACanvas.Save;
+    try
+      ACanvas.ClipRect(ADest);
+      FCodec.Render(ACanvas, GetWrappedRect(ADest), AOpacity);
+    finally
+      ACanvas.Restore;
+    end;
+  end;
   inherited;
+end;
+
+procedure TSkAnimatedImage.SetAnimation(const AValue: TSkAnimatedImage.TAnimation);
+begin
+  FAnimation.Assign(AValue);
 end;
 
 procedure TSkAnimatedImage.SetSource(const AValue: TSource);
@@ -2562,7 +3650,7 @@ begin
   end;
 end;
 
-procedure TSkAnimatedImage.SourceChange(ASender: TObject);
+procedure TSkAnimatedImage.SourceChange;
 var
   LCodecClass: TAnimationCodecClass;
   LStream: TStream;
@@ -2579,9 +3667,14 @@ begin
   finally
     LStream.Free;
   end;
-  if not FixedProgress then
-    Progress := 0;
-  IsStaticImage := (FCodec = nil) or FCodec.IsStatic;
+  if Assigned(FCodec) then
+  begin
+    Animation.SetDuration(FCodec.Duration);
+    if Animation.Running then
+      Animation.Start;
+  end
+  else
+    Animation.SetDuration(0);
   Redraw;
 end;
 
@@ -2589,6 +3682,33 @@ procedure TSkAnimatedImage.WriteData(AStream: TStream);
 begin
   if FSource.Data <> nil then
     AStream.WriteBuffer(FSource.Data, Length(FSource.Data));
+end;
+
+{ TSkAnimatedImageHelper }
+
+function TSkAnimatedImageHelper.Duration: Double;
+begin
+  Result := Animation.Duration;
+end;
+
+function TSkAnimatedImageHelper.FixedProgress: Boolean;
+begin
+  Result := not Animation.Enabled;
+end;
+
+function TSkAnimatedImageHelper.Loop: Boolean;
+begin
+  Result := Animation.Loop;
+end;
+
+function TSkAnimatedImageHelper.Progress: Double;
+begin
+  Result := Animation.Progress;
+end;
+
+function TSkAnimatedImageHelper.RunningAnimation: Boolean;
+begin
+  Result := Animation.Running;
 end;
 
 { TSkDefaultAnimationCodec }
@@ -2610,6 +3730,11 @@ end;
 function TSkDefaultAnimationCodec.GetDuration: Double;
 begin
   Result := FAnimationCodec.Duration / 1000;
+end;
+
+function TSkDefaultAnimationCodec.GetFPS: Double;
+begin
+  Result := TAnimation.DefaultAniFrameRate;
 end;
 
 function TSkDefaultAnimationCodec.GetIsStatic: Boolean;
@@ -2714,6 +3839,11 @@ end;
 function TSkLottieAnimationCodec.GetDuration: Double;
 begin
   Result := FSkottie.Duration;
+end;
+
+function TSkLottieAnimationCodec.GetFPS: Double;
+begin
+  Result := FSkottie.FPS;
 end;
 
 function TSkLottieAnimationCodec.GetIsStatic: Boolean;
@@ -2821,7 +3951,7 @@ class function TSkLottieAnimationCodec.TryMakeFromStream(const AStream: TStream;
   begin
     LDecompressionStream := TDecompressionStream.Create(AStream, 31);
     try
-      Result := TSkottieAnimation.MakeFromStream(LDecompressionStream);
+      Result := TSkottieAnimation.MakeFromStream(LDecompressionStream, TSkDefaultProviders.Resource);
     finally
       LDecompressionStream.Free;
     end;
@@ -2833,215 +3963,13 @@ begin
   if IsTgs then
     LSkottie := MakeFromTgsStream(AStream)
   else
-    LSkottie := TSkottieAnimation.MakeFromStream(AStream);
+    LSkottie := TSkottieAnimation.MakeFromStream(AStream, TSkDefaultProviders.Resource);
 
   Result := Assigned(LSkottie);
   if Result then
     ACodec := TSkLottieAnimationCodec.Create(LSkottie)
   else
     ACodec := nil;
-end;
-
-{ TSkPersistentData }
-
-procedure TSkPersistentData.AfterConstruction;
-begin
-  inherited;
-  FCreated := True;
-end;
-
-procedure TSkPersistentData.Assign(ASource: TPersistent);
-begin
-  if ASource <> Self then
-  begin
-    BeginUpdate;
-    try
-      DoAssign(ASource);
-    finally
-      EndUpdate;
-    end;
-  end;
-end;
-
-procedure TSkPersistentData.BeginUpdate;
-begin
-  BeginUpdate(False);
-end;
-
-procedure TSkPersistentData.BeginUpdate(const AIgnoreAllChanges: Boolean);
-begin
-  Inc(FUpdatingCount);
-  FIgnoringAllChanges := FIgnoringAllChanges or AIgnoreAllChanges;
-end;
-
-procedure TSkPersistentData.Change;
-begin
-  if FUpdatingCount > 0 then
-    FChanged := True
-  else
-  begin
-    FChanged := False;
-    DoChanged;
-  end;
-end;
-
-procedure TSkPersistentData.DoAssign(ASource: TPersistent);
-begin
-  inherited Assign(ASource);
-end;
-
-procedure TSkPersistentData.DoChanged;
-begin
-  if FCreated and Assigned(FOnChange) then
-    FOnChange(Self);
-end;
-
-procedure TSkPersistentData.EndUpdate;
-begin
-  EndUpdate(False);
-end;
-
-procedure TSkPersistentData.EndUpdate(const AIgnoreAllChanges: Boolean);
-var
-  LCallChange: Boolean;
-  LIgnoreChanges: Boolean;
-begin
-  LIgnoreChanges := AIgnoreAllChanges or FIgnoringAllChanges;
-  LCallChange := False;
-  if FUpdatingCount <= 0 then
-    raise ESkPersistentData.Create('The object is not in update state');
-  Dec(FUpdatingCount);
-  if (not LIgnoreChanges) and HasChanged then
-    LCallChange := True
-  else
-    FChanged := False;
-  if FUpdatingCount <= 0 then
-    FIgnoringAllChanges := False;
-  if LCallChange and (FUpdatingCount = 0) then
-  begin
-    FChanged := False;
-    DoChanged;
-  end;
-end;
-
-function TSkPersistentData.GetHasChanged: Boolean;
-begin
-  Result := FChanged;
-end;
-
-function TSkPersistentData.GetUpdating: Boolean;
-begin
-  Result := FUpdatingCount > 0;
-end;
-
-procedure TSkPersistentData.SetValue(var AField: Byte; const AValue: Byte);
-begin
-  if AField <> AValue then
-  begin
-    AField := AValue;
-    Change;
-  end;
-end;
-
-procedure TSkPersistentData.SetValue(var AField: Word; const AValue: Word);
-begin
-  if AField <> AValue then
-  begin
-    AField := AValue;
-    Change;
-  end;
-end;
-
-procedure TSkPersistentData.SetValue(var AField: Double; const AValue,
-  AEpsilon: Double);
-begin
-  if not SameValue(AField, AValue, AEpsilon) then
-  begin
-    AField := AValue;
-    Change;
-  end;
-end;
-
-procedure TSkPersistentData.SetValue(var AField: TBytes; const AValue: TBytes);
-begin
-  if not IsSameBytes(AField, AValue) then
-  begin
-    AField := Copy(AValue);
-    Change;
-  end;
-end;
-
-procedure TSkPersistentData.SetValue(var AField: string; const AValue: string);
-begin
-  if AField <> AValue then
-  begin
-    AField := AValue;
-    Change;
-  end;
-end;
-
-procedure TSkPersistentData.SetValue(var AField: Single; const AValue,
-  AEpsilon: Single);
-begin
-  if not SameValue(AField, AValue, AEpsilon) then
-  begin
-    AField := AValue;
-    Change;
-  end;
-end;
-
-procedure TSkPersistentData.SetValue(var AField: Boolean;
-  const AValue: Boolean);
-begin
-  if AField <> AValue then
-  begin
-    AField := AValue;
-    Change;
-  end;
-end;
-
-procedure TSkPersistentData.SetValue(var AField: Cardinal;
-  const AValue: Cardinal);
-begin
-  if AField <> AValue then
-  begin
-    AField := AValue;
-    Change;
-  end;
-end;
-
-procedure TSkPersistentData.SetValue(var AField: Integer;
-  const AValue: Integer);
-begin
-  if AField <> AValue then
-  begin
-    AField := AValue;
-    Change;
-  end;
-end;
-
-procedure TSkPersistentData.SetValue(var AField: Int64; const AValue: Int64);
-begin
-  if AField <> AValue then
-  begin
-    AField := AValue;
-    Change;
-  end;
-end;
-
-procedure TSkPersistentData.SetValue<T>(var AField: T; const AValue: T);
-var
-  LDifferent: Boolean;
-begin
-  if Assigned(TypeInfo(T)) and (PTypeInfo(TypeInfo(T)).Kind in [TTypeKind.tkSet, TTypeKind.tkEnumeration, TTypeKind.tkRecord{$IF CompilerVersion >= 33}, TTypeKind.tkMRecord{$ENDIF}]) then
-    LDifferent := not CompareMem(@AField, @AValue, SizeOf(T))
-  else
-    LDifferent := TComparer<T>.Default.Compare(AField, AValue) <> 0;
-  if LDifferent then
-  begin
-    AField := AValue;
-    Change;
-  end;
 end;
 
 { TSkFontComponent }
@@ -4324,6 +5252,14 @@ begin
   inherited;
 end;
 
+function TSkLabel.DidExceedMaxLines: Boolean;
+var
+  LParagraph: ISkParagraph;
+begin
+  LParagraph := Paragraph;
+  Result := Assigned(LParagraph) and (LParagraph.DidExceedMaxLines);
+end;
+
 procedure TSkLabel.DoEndUpdate;
 begin
   if (not (csLoading in ComponentState)) and FAutoSize and HasFitSizeChanged then
@@ -4577,6 +5513,17 @@ begin
   end;
 end;
 
+function TSkLabel.GetLinesCount: Integer;
+var
+  LParagraph: ISkParagraph;
+begin
+  LParagraph := Paragraph;
+  if Assigned(LParagraph) then
+    Result := Length(LParagraph.LineMetrics)
+  else
+    Result := 0;
+end;
+
 function TSkLabel.GetParagraph: ISkParagraph;
 type
   TDrawKind = (Fill, Stroke);
@@ -4736,7 +5683,7 @@ var
   begin
     LFontBehavior := nil;
     LDefaultTextStyle := CreateDefaultTextStyle(ADrawKind);
-    LBuilder := TSkParagraphBuilder.Create(CreateParagraphStyle(LDefaultTextStyle), TSkTypefaceManager.Provider);
+    LBuilder := TSkParagraphBuilder.Create(CreateParagraphStyle(LDefaultTextStyle), TSkDefaultProviders.TypefaceFont);
     for I := 0 to FWords.Count- 1 do
     begin
       if FWords[I].Text = '' then
@@ -5075,21 +6022,38 @@ begin
     TextSettingsChanged(nil);
 end;
 
+{ TSkDefaultProviders }
+
+class constructor TSkDefaultProviders.Create;
+begin
+  FTypefaceFont := TSkTypefaceFontProvider.Create;
+end;
+
+class procedure TSkDefaultProviders.RegisterTypeface(const AFileName: string);
+begin
+  FTypefaceFont.RegisterTypeface(TSkTypeFace.MakeFromFile(AFileName));
+end;
+
+class procedure TSkDefaultProviders.RegisterTypeface(const AStream: TStream);
+begin
+  FTypefaceFont.RegisterTypeface(TSkTypeFace.MakeFromStream(AStream));
+end;
+
 { TSkTypefaceManager }
 
-class constructor TSkTypefaceManager.Create;
+class function TSkTypefaceManager.Provider: ISkTypefaceFontProvider;
 begin
-  FProvider := TSkTypefaceFontProvider.Create;
+  Result := TSkDefaultProviders.TypefaceFont;
 end;
 
 class procedure TSkTypefaceManager.RegisterTypeface(const AFileName: string);
 begin
-  FProvider.RegisterTypeface(TSkTypeFace.MakeFromFile(AFileName));
+  TSkDefaultProviders.RegisterTypeface(AFileName);
 end;
 
 class procedure TSkTypefaceManager.RegisterTypeface(const AStream: TStream);
 begin
-  FProvider.RegisterTypeface(TSkTypeFace.MakeFromStream(AStream));
+  TSkDefaultProviders.RegisterTypeface(AStream);
 end;
 
 { Register }
@@ -5099,10 +6063,92 @@ begin
   RegisterComponents('Skia', [TSkAnimatedImage, TSkAnimatedPaintBox, TSkLabel, TSkPaintBox, TSkStyleTextObject, TSkSvg]);
 end;
 
+{$IFDEF MSWINDOWS}
+  {$HPPEMIT '#ifdef USEPACKAGES'}
+  {$HPPEMIT '  #pragma link "Skia.Package.FMX.bpi"'}
+  {$HPPEMIT '#elif defined(__WIN32__)'}
+  {$HPPEMIT '  #pragma link "Skia.Package.FMX.lib"'}
+  {$HPPEMIT '#elif defined(_WIN64)'}
+  {$HPPEMIT '  #pragma link "Skia.Package.FMX.a"'}
+  {$HPPEMIT '#endif'}
+{$ENDIF}
+
+(*$HPPEMIT 'namespace Skia {'*)
+(*$HPPEMIT '	namespace Fmx {'*)
+(*$HPPEMIT '		namespace Types { using namespace ::Fmx::Types; }'*)
+(*$HPPEMIT '		namespace Graphics { using namespace ::Fmx::Graphics; }'*)
+(*$HPPEMIT '		namespace Controls { using namespace ::Fmx::Controls; }'*)
+(*$HPPEMIT '		namespace Ani { using namespace ::Fmx::Ani; }'*)
+(*$HPPEMIT '		namespace Actnlist { using namespace ::Fmx::Actnlist; }'*)
+(*$HPPEMIT '	}'*)
+(*$HPPEMIT '}'*)
+
+{$HPPEMIT NOUSINGNAMESPACE}
+{$HPPEMIT END '#if !defined(DELPHIHEADER_NO_IMPLICIT_NAMESPACE_USE) && !defined(NO_USING_NAMESPACE_SKIA)'}
+{$HPPEMIT END '    using ::Skia::Fmx::_di_ISkStyleTextObject;'}
+{$HPPEMIT END '    using ::Skia::Fmx::_di_ISkTextSettings;'}
+{$HPPEMIT END '    using ::Skia::Fmx::_di_TSkAnimationDrawProc;'}
+{$HPPEMIT END '    using ::Skia::Fmx::_di_TSkDrawProc;'}
+{$HPPEMIT END '    using ::Skia::Fmx::ESkBitmapHelper;'}
+{$HPPEMIT END '    using ::Skia::Fmx::ESkFMX;'}
+{$HPPEMIT END '    using ::Skia::Fmx::ESkLabel;'}
+{$HPPEMIT END '    using ::Skia::Fmx::ESkPersistentData;'}
+{$HPPEMIT END '    using ::Skia::Fmx::ESkTextSettingsInfo;'}
+{$HPPEMIT END '    using ::Skia::Fmx::ISkStyleTextObject;'}
+{$HPPEMIT END '    using ::Skia::Fmx::ISkTextSettings;'}
+{$HPPEMIT END '    using ::Skia::Fmx::TSkAnimatedImage;'}
+{$HPPEMIT END '    using ::Skia::Fmx::TSkAnimatedImageWrapMode;'}
+{$HPPEMIT END '    using ::Skia::Fmx::TSkAnimatedPaintBox;'}
+{$HPPEMIT END '    using ::Skia::Fmx::TSkAnimationDrawEvent;'}
+{$HPPEMIT END '    using ::Skia::Fmx::TSkAnimationDrawProc;'}
+{$HPPEMIT END '    using ::Skia::Fmx::TSkCustomAnimatedControl;'}
+{$HPPEMIT END '    using ::Skia::Fmx::TSkCustomAnimation;'}
+{$HPPEMIT END '    using ::Skia::Fmx::TSkCustomControl;'}
+{$HPPEMIT END '    using ::Skia::Fmx::TSkCustomStyleTextObject;'}
+{$HPPEMIT END '    using ::Skia::Fmx::TSkDefaultProviders;'}
+{$HPPEMIT END '    using ::Skia::Fmx::TSkDrawCacheKind;'}
+{$HPPEMIT END '    using ::Skia::Fmx::TSkDrawEvent;'}
+{$HPPEMIT END '    using ::Skia::Fmx::TSkDrawProc;'}
+{$HPPEMIT END '    using ::Skia::Fmx::TSkFontComponent;'}
+{$HPPEMIT END '    using ::Skia::Fmx::TSkLabel;'}
+{$HPPEMIT END '    using ::Skia::Fmx::TSkPaintBox;'}
+{$HPPEMIT END '    using ::Skia::Fmx::TSkPersistent;'}
+{$HPPEMIT END '    using ::Skia::Fmx::TSkStyledControl;'}
+{$HPPEMIT END '    using ::Skia::Fmx::TSkStyleTextObject;'}
+{$HPPEMIT END '    using ::Skia::Fmx::TSkSvg;'}
+{$HPPEMIT END '    using ::Skia::Fmx::TSkSvgBrush;'}
+{$HPPEMIT END '    using ::Skia::Fmx::TSkSvgSource;'}
+{$HPPEMIT END '    using ::Skia::Fmx::TSkSvgWrapMode;'}
+{$HPPEMIT END '    using ::Skia::Fmx::TSkTextHorzAlign;'}
+{$HPPEMIT END '    using ::Skia::Fmx::TSkTextSettings;'}
+{$HPPEMIT END '    using ::Skia::Fmx::TSkTextSettingsClass;'}
+{$HPPEMIT END '    using ::Skia::Fmx::TSkTextSettingsInfo;'}
+{$HPPEMIT END '    using ::Skia::Fmx::TSkTypefaceManager;'}
+{$HPPEMIT END '    typedef void (__fastcall *TAddSkPathToPathDataProc)(::Fmx::Graphics::TPathData* const APathData, const ::Skia::_di_ISkPath ASkPath);'}
+{$HPPEMIT END '    typedef ::Skia::_di_ISkImage (__fastcall *TBitmapToSkImageFunc)(::Fmx::Graphics::TBitmap* const ABitmap);'}
+{$HPPEMIT END '    typedef ::Skia::_di_ISkPath (__fastcall *TPathDataToSkPathFunc)(::Fmx::Graphics::TPathData* const APathData);'}
+{$HPPEMIT END '    typedef void (__fastcall *TSkiaDrawProc)(::Fmx::Graphics::TBitmap* const ABitmap, const ::Skia::Fmx::_di_TSkDrawProc AProc, const bool AStartClean);'}
+{$HPPEMIT END '    typedef ::Fmx::Graphics::TBitmap* (__fastcall *TSkImageToBitmapFunc)(const ::Skia::_di_ISkImage AImage);'}
+{$HPPEMIT END '    typedef ::Fmx::Graphics::TPathData* (__fastcall *TSkPathToPathDataFunc)(const ::Skia::_di_ISkPath ASkPath);'}
+{$HPPEMIT END '    static const int SkSupportedPlatformsMask = ::Skia::Fmx::SkSupportedPlatformsMask;'}
+{$HPPEMIT END '    static bool& GlobalDisableSkiaCodecsReplacement = ::Skia::Fmx::GlobalDisableSkiaCodecsReplacement;'}
+{$HPPEMIT END '    static bool& GlobalUseSkia = ::Skia::Fmx::GlobalUseSkia;'}
+{$HPPEMIT END '    static bool& GlobalUseSkiaRasterWhenAvailable = ::Skia::Fmx::GlobalUseSkiaRasterWhenAvailable;'}
+{$HPPEMIT END '    static ::System::StaticArray<::Skia::TSkColorType, 24>& SkFmxColorType = ::Skia::Fmx::SkFmxColorType;'}
+{$HPPEMIT END '    static ::System::StaticArray<::Fmx::Types::TPixelFormat, 23>& SkFmxPixelFormat = ::Skia::Fmx::SkFmxPixelFormat;'}
+{$HPPEMIT END '    static const TAddSkPathToPathDataProc AddSkPathToPathData = ::Skia::Fmx::AddSkPathToPathData;'}
+{$HPPEMIT END '    static const TBitmapToSkImageFunc BitmapToSkImage = ::Skia::Fmx::BitmapToSkImage;'}
+{$HPPEMIT END '    static const TPathDataToSkPathFunc PathDataToSkPath = ::Skia::Fmx::PathDataToSkPath;'}
+{$HPPEMIT END '    static const TSkiaDrawProc SkiaDraw = ::Skia::Fmx::SkiaDraw;'}
+{$HPPEMIT END '    static const TSkImageToBitmapFunc SkImageToBitmap = ::Skia::Fmx::SkImageToBitmap;'}
+{$HPPEMIT END '    static const TSkPathToPathDataFunc SkPathToPathData = ::Skia::Fmx::SkPathToPathData;'}
+{$HPPEMIT END '#endif'}
+
 initialization
   RegisterFMXClasses([TSkAnimatedImage, TSkAnimatedPaintBox, TSkCustomControl, TSkLabel, TSkPaintBox,
     TSkStyledControl, TSkCustomStyleTextObject, TSkStyleTextObject, TSkSvgBrush, TSkSvg]);
-  RegisterFMXClasses([TSkFontComponent, TSkTextSettings, TSkTextSettingsInfo, TSkTextSettings.TDecorations,
+  RegisterFMXClasses([TSkAnimatedImage.TAnimation, TSkAnimatedPaintBox.TAnimation, TSkCustomAnimation,
+    TSkFontComponent, TSkTextSettings, TSkTextSettingsInfo, TSkTextSettings.TDecorations,
     TSkLabel.TCustomWordsItem, TSkLabel.TWordsCollection]);
   TSkAnimatedImage.RegisterCodec(TSkLottieAnimationCodec);
   TSkAnimatedImage.RegisterCodec(TSkDefaultAnimationCodec);

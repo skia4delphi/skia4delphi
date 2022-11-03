@@ -49,12 +49,13 @@
     <PropertyGroup Condition="'$(Base)'!=''">
         <SanitizedProjectName>Skia_Package_RTL</SanitizedProjectName>
         <DCC_BplOutput>..\..\Library\RAD Studio 10.0 Seattle\$(Platform)\$(Config)\Bpl</DCC_BplOutput>
-        <DCC_CBuilderOutput>All</DCC_CBuilderOutput>
+        <DCC_HppOutput>..\..\Library\RAD Studio 10.0 Seattle\$(Platform)\Include</DCC_HppOutput>
         <DCC_DcpOutput>..\..\Library\RAD Studio 10.0 Seattle\$(Platform)\$(Config)</DCC_DcpOutput>
         <DCC_DcuOutput>..\..\Library\RAD Studio 10.0 Seattle\$(Platform)\$(Config)</DCC_DcuOutput>
         <DCC_Description>Skia4Delphi RTL package</DCC_Description>
         <DCC_ExeOutput>.\$(Platform)\$(Config)</DCC_ExeOutput>
         <DCC_Namespace>System;Xml;Data;Datasnap;Web;Soap;$(DCC_Namespace)</DCC_Namespace>
+        <DCC_OutputNeverBuildDcps>true</DCC_OutputNeverBuildDcps>
         <DllSuffix>230</DllSuffix>
         <GenDll>true</GenDll>
         <GenPackage>true</GenPackage>
@@ -99,7 +100,6 @@
         </DelphiCompile>
         <DCCReference Include="rtl.dcp"/>
         <DCCReference Include="..\..\Source\Skia.API.pas"/>
-        <DCCReference Include="..\..\Source\Skia.Bindings.pas"/>
         <DCCReference Include="..\..\Source\Skia.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>

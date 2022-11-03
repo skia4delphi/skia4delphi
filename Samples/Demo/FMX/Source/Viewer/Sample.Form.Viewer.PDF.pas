@@ -40,7 +40,8 @@ implementation
 uses
   { Delphi }
   Winapi.Windows,
-  Winapi.ShellAPI;
+  Winapi.ShellAPI,
+  System.IOUtils;
 {$ELSEIF defined(LINUX)}
 uses
   { Delphi }
@@ -100,7 +101,7 @@ end;
 {$ELSE}
 begin
   {$IFDEF MSWINDOWS}
-  AFileName := 'file://' + AFileName.Replace('\', '/');
+  AFileName := 'file://' + TPath.GetFullPath(AFileName).Replace('\', '/');
   ShellExecute(0, 'open', PChar(AFileName), nil, nil, SW_SHOWNORMAL);
   {$ELSEIF defined(LINUX)}
   _system(PAnsiChar('xdg-open "' + AnsiString(AFileName) + '"'));

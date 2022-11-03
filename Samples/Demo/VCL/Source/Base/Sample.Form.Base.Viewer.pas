@@ -101,9 +101,9 @@ type
   { TfrmBaseViewer }
 
   TfrmBaseViewer = class(TfrmBase)
-    procedure pnlContentResize(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormDestroy(Sender: TObject);
+    procedure pnlContentResize(Sender: TObject);
   private
     class var
       FChessBitmap: TBitmap;
@@ -171,7 +171,9 @@ begin
   LSwitch.Cursor := crHandPoint;
   LSwitch.ShowStateCaption := False;
   LSwitch.State := SwitchState[ACurrentValue];
-  LSwitch.Margins.SetBounds(0, 8, 0, 8);
+  LSwitch.ThumbWidth := 20;
+  LSwitch.Margins.SetBounds(0, 12, 0, 11);
+  LSwitch.SwitchWidth := 40;
   LSwitch.AlignWithMargins := True;
   LSwitch.OnClick := OnSwitchClick;
   AddItem(AName, ACurrentValue, LSwitch,
@@ -279,7 +281,7 @@ begin
   LLabel.AlignWithMargins := True;
   LLabel.TextSettings.Font.Size := 11;
   LLabel.TextSettings.Font.Weight := TSkFontComponent.TSkFontWeight.Medium;
-  LLabel.TextSettings.FontColor := $FF9FA5A8;
+  LLabel.TextSettings.FontColor := $FFA0A0A1;
   LLabel.Caption := AName;
   LLabel.Parent := LPanel;
   LLabel.OnResize := ControlResized;
@@ -336,7 +338,7 @@ var
   LTrackBar: TTrackBar;
   LValue: Double;
 begin
-  LValue := Min(Max(ACurrentValue, AMinValue), AMaxValue);
+  LValue := EnsureRange(ACurrentValue, AMinValue, AMaxValue);
   LTrackBar := TTrackBar.Create(FControl);
   LTrackBar.Align := alClient;
   LTrackBar.Margins.SetBounds(0, 10, 0, 11);
@@ -359,7 +361,7 @@ begin
     begin
       LTrackBar.OnChange := nil;
       try
-        LValue := Min(Max(AValue.AsOrdinal, AMinValue), AMaxValue);
+        LValue := EnsureRange(AValue.AsExtended, AMinValue, AMaxValue);
         LTrackBar.Position := Round(((LValue - AMinValue) / (AMaxValue - AMinValue)) * LTrackBar.Max);
       finally
         LTrackBar.OnChange := OnTrackBarChange;
@@ -567,7 +569,7 @@ procedure TfrmBaseViewer.ScrollBoxEraseBackground(ASender: TObject; const ADC: H
     FChessEffect.SetUniform('iOddSquareColor', TAlphaColorF.Create($FFCCCCCC));
     FChessEffect.SetUniform('iEvenSquareColor', TAlphaColorF.Create(TAlphaColors.White));
     FChessPaint := TSkPaint.Create;
-    FChessPaint.Shader := FChessEffect.MakeShader(True);
+    FChessPaint.Shader := FChessEffect.MakeShader;
   end;
 
   procedure UpdateChessBitmap;
@@ -602,11 +604,11 @@ begin
             LRect := LScrollBox.Controls[I].BoundsRect;
             ExcludeClipRect(ADC, LRect.Left, LRect.Top, LRect.Right, LRect.Bottom);
           end;
-          BitBlt(ADC, 0, 0, LScrollBox.Width, LScrollBox.Height, FChessBitmap.Canvas.Handle, 0, 0, SrcCopy);
+          BitBlt(ADC, 0, 0, LScrollBox.Width, LScrollBox.Height, FChessBitmap.Canvas.Handle, 0, 0, SRCCOPY);
           SelectClipRgn(ADC, HRGN(nil));
         end
         else
-          BitBlt(ADC, 0, 0, LScrollBox.Width, LScrollBox.Height, FChessBitmap.Canvas.Handle, 0, 0, SrcCopy);
+          BitBlt(ADC, 0, 0, LScrollBox.Width, LScrollBox.Height, FChessBitmap.Canvas.Handle, 0, 0, SRCCOPY);
       end;
     TBackgroundKind.Solid: inherited;
   end;

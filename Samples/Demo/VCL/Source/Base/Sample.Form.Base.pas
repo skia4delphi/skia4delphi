@@ -19,7 +19,7 @@ uses
   { Delphi }
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Classes, System.Types,
   System.UITypes, System.IOUtils, System.Generics.Collections, System.Math.Vectors,
-  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.ExtCtrls, Vcl.Dialogs,
+  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.ExtCtrls, Vcl.Dialogs, Vcl.Themes,
 
   { Skia }
   Skia, Skia.Vcl;
@@ -49,11 +49,11 @@ type
     pnlTipContent: TPanel;
     lblTipDescription: TSkLabel;
     pnlBack: TPanel;
-    procedure pnlContentResize(Sender: TObject);
-    procedure pnlBackClick(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
     procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure FormMouseWheel(Sender: TObject; Shift: TShiftState; WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
-    procedure FormCreate(Sender: TObject);
+    procedure pnlBackClick(Sender: TObject);
+    procedure pnlContentResize(Sender: TObject);
   private
     class var
       FCreatedFormsList: TList<TfrmBase>;
@@ -66,18 +66,21 @@ type
     class procedure CloseForm(const AForm: TfrmBase); static;
     class constructor Create;
     class destructor Destroy;
-    class function FormBackgroundColor: TColor; static;
+    class function FormBackgroundColor: TColor; virtual;
     class function FormBorderColor: TColor; static;
     class function GetCurrentForm: TfrmBase; static;
     class property AssetsPath: string read GetAssetsPath;
     class property OutputPath: string read GetOutputPath;
   protected
+    procedure BeginUpdate;
     function ChildForm<T: TForm>: T;
     procedure DoShow; override;
+    procedure EndUpdate;
     procedure ScrollBoxChanged(ASender: TObject); virtual;
     procedure ScrollBoxEraseBackground(ASender: TObject; const ADC: HDC); virtual;
-    procedure Showmessage(const AMessage: string);
+    procedure ShowMessage(const AMessage: string);
   public
+    constructor Create(AOwner: TComponent); override;
     procedure Show; reintroduce;
     function ShowModal: Integer; override;
   end;
@@ -102,6 +105,12 @@ uses
 {$R *.dfm}
 
 { TfrmBase }
+
+procedure TfrmBase.BeginUpdate;
+begin
+  SendMessage(Application.MainForm.Handle, WM_SETREDRAW, Integer(False), 0);
+  Application.MainForm.DisableAlign;
+end;
 
 function TfrmBase.ChildForm<T>: T;
 var
@@ -136,13 +145,18 @@ begin
   begin
     LFormIndex := FCreatedFormsList.IndexOf(AForm);
     Assert(LFormIndex > -1);
-    for I := FCreatedFormsList.Count - 1 downto LFormIndex do
-    begin
-      FCreatedFormsList[I].Free;
-      FShowingFormsList.Remove(FCreatedFormsList[I]);
-      FCreatedFormsList.Delete(I);
+    TfrmBase(Application.MainForm).BeginUpdate;
+    try
+      for I := FCreatedFormsList.Count - 1 downto LFormIndex do
+      begin
+        FCreatedFormsList[I].Free;
+        FShowingFormsList.Remove(FCreatedFormsList[I]);
+        FCreatedFormsList.Delete(I);
+      end;
+      FShowingFormsList.Last.pnlContent.Visible := True;
+    finally
+      TfrmBase(Application.MainForm).EndUpdate;
     end;
-    FShowingFormsList.Last.pnlContent.Visible := True;
   end;
 end;
 
@@ -157,6 +171,13 @@ class constructor TfrmBase.Create;
 begin
   FCreatedFormsList := TList<TfrmBase>.Create;
   FShowingFormsList := TList<TfrmBase>.Create;
+end;
+
+constructor TfrmBase.Create(AOwner: TComponent);
+begin
+  if Application.MainForm = nil then
+    TStyleManager.TrySetStyle('Windows11 Modern Light', False);
+  inherited;
 end;
 
 function TfrmBase.CreateForm<T>: T;
@@ -183,32 +204,49 @@ begin
 end;
 
 procedure TfrmBase.DoShow;
+var
+  LPreventUpdates: Boolean;
 begin
-  pnlTip.Visible := not lblTipDescription.Caption.IsEmpty;
-  if Self = Application.MainForm then
-  begin
-    pnlBack.Visible := False;
-    FShowingFormsList.Add(Self);
-  end
-  else
-  begin
-    if FShowingFormsList.Count > 0 then
-      FShowingFormsList.Last.pnlContent.Visible := False;
-    FShowingFormsList.Add(Self);
-    pnlContent.Parent := Application.MainForm;
+  LPreventUpdates := Assigned(Application.MainForm) and Application.MainForm.Active;
+  if LPreventUpdates then
+    BeginUpdate;
+  try
+    pnlTip.Visible := not lblTipDescription.Caption.IsEmpty;
+    if Self = Application.MainForm then
+    begin
+      pnlBack.Visible := False;
+      FShowingFormsList.Add(Self);
+    end
+    else
+    begin
+      if FShowingFormsList.Count > 0 then
+        FShowingFormsList.Last.pnlContent.Visible := False;
+      FShowingFormsList.Add(Self);
+      pnlContent.Parent := Application.MainForm;
+    end;
+    inherited;
+    pnlContentResize(nil);
+  finally
+    if LPreventUpdates then
+      EndUpdate;
   end;
-  inherited;
-  pnlContentResize(nil);
+end;
+
+procedure TfrmBase.EndUpdate;
+begin
+  Application.MainForm.EnableAlign;
+  SendMessage(Application.MainForm.Handle, WM_SETREDRAW, Integer(True), 0);
+  RedrawWindow(Application.MainForm.Handle, nil, 0, RDW_INVALIDATE or RDW_UPDATENOW or RDW_ALLCHILDREN);
 end;
 
 class function TfrmBase.FormBackgroundColor: TColor;
 begin
-  Result := $00F9F9F9; // Mica material
+  Result := $00FBFBFB; // Mica material
 end;
 
 class function TfrmBase.FormBorderColor: TColor;
 begin
-  Result := $00F3F3F3; // Mica material
+  Result := $00F6F3F2; // Mica material
 end;
 
 procedure TfrmBase.FormCreate(Sender: TObject);
@@ -225,7 +263,7 @@ procedure TfrmBase.FormKeyDown(Sender: TObject; var Key: Word;
 begin
   case Key of
     vkEscape, vkBack, vkHardwareBack:
-      if GetCurrentForm <> Application.MainForm then
+      if (GetCurrentForm <> Application.MainForm) and GetCurrentForm.pnlBack.Showing then
       begin
         CloseForm(GetCurrentForm);
         Key := 0;
@@ -248,7 +286,7 @@ end;
 
 class function TfrmBase.GetAssetsPath: string;
 begin
-  Result := TPath.GetFullPath('..\..\..\..\..\..\Assets\Samples\');
+  Result := TPath.GetFullPath('..\..\..\..\Assets\');
   if (Result <> '') and not Result.EndsWith(PathDelim) then
     Result := Result + PathDelim;
 end;
@@ -306,7 +344,7 @@ begin
   DoShow;
 end;
 
-procedure TfrmBase.Showmessage(const AMessage: string);
+procedure TfrmBase.ShowMessage(const AMessage: string);
 begin
   MessageDlg(AMessage, TMsgDlgType.mtInformation, [TMsgDlgBtn.mbOK], 0);
 end;

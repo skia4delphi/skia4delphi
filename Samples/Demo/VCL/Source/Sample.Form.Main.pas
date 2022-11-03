@@ -11,6 +11,8 @@
 {************************************************************************}
 unit Sample.Form.Main;
 
+// Style created by https://www.delphistyles.com/
+
 interface
 
 {$SCOPEDENUMS ON}
@@ -82,6 +84,7 @@ type
     svgFilterArrow: TSkSvg;
     pnlFilterLine: TPanel;
     pnlTransformsLine: TPanel;
+    procedure FormShow(Sender: TObject);
     procedure pnlBasicsClick(Sender: TObject);
     procedure pnlControlsClick(Sender: TObject);
     procedure pnlDocumentsClick(Sender: TObject);
@@ -112,11 +115,18 @@ uses
   Sample.Form.PathsAndEffects,
   Sample.Form.Particles,
   Sample.Form.RuntimeEffects,
+  Sample.Form.SplashScreen,
   Sample.Form.Text,
   Sample.Form.Transforms,
   Sample.Form.Unicode;
 
 {$R *.dfm}
+
+procedure TfrmMain.FormShow(Sender: TObject);
+begin
+  inherited;
+  ChildForm<TfrmSplashScreen>.Show;
+end;
 
 procedure TfrmMain.pnlBasicsClick(Sender: TObject);
 begin

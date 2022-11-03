@@ -24,8 +24,8 @@ package Skia.Package.RTL;
 {$LONGSTRINGS ON}
 {$OPENSTRINGS ON}
 {$OPTIMIZATION OFF}
-{$OVERFLOWCHECKS ON}
-{$RANGECHECKS ON}
+{$OVERFLOWCHECKS OFF}
+{$RANGECHECKS OFF}
 {$REFERENCEINFO ON}
 {$SAFEDIVIDE OFF}
 {$STACKFRAMES ON}
@@ -39,14 +39,14 @@ package Skia.Package.RTL;
 {$DESCRIPTION 'Skia4Delphi RTL package'}
 {$LIBSUFFIX AUTO}
 {$RUNONLY}
-{$IMPLICITBUILD ON}
+{$IMPLICITBUILD OFF}
+{$HPPEMIT NOUSINGNAMESPACE}
 
 requires
   rtl;
 
 contains
   Skia.API in '..\..\Source\Skia.API.pas',
-  Skia.Bindings in '..\..\Source\Skia.Bindings.pas',
   Skia in '..\..\Source\Skia.pas';
 
 end.

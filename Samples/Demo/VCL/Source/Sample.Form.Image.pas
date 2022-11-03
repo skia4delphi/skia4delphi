@@ -62,9 +62,9 @@ uses
 
 function FormatBytes(const ABytesCount: Int64): string;
 const
-  KBYTES = Int64(1024);
+  KiloByte = Int64(1024);
 begin
-  Result := Format('%s KB', [FormatFloat('0.#', ABytesCount / KBYTES)]);
+  Result := Format('%s KB', [FormatFloat('0.#', ABytesCount / KiloByte)]);
 end;
 
 procedure TfrmImage.pnlEncodeWebpVsJpegClick(Sender: TObject);

@@ -33,7 +33,7 @@ function TryBuildRADStudioPackages(const ARADStudioInfos: TRADStudioInfos; const
 
 // implementation
 
-// uses                            
+// uses
   #include "Source\IO.Utils.inc"
   #include "Source\Setup.Utils.inc"
 
@@ -56,7 +56,7 @@ end;
 
 function GetPlatformsAllowedToBuild(const ARADStudioInfo: TRADStudioInfo): TProjectPlatforms;
 begin
-  Result := [pfWin32, pfWin64]
+  Result := [pfWin32, pfWin64];
 end;
 
 function GetTryBuildRADStudioPackagesSteps(const ARADStudioInfos: TRADStudioInfos; const AGroupProjects: TRADStudioGroupProjects): Integer;
@@ -127,7 +127,7 @@ begin
                 Log(Format('RADStudio.Build.TryBuildRADStudioPackages: Extracted pre-build objects for %s', [LInfo.Version.Name]));
                 Break;
               end
-              else 
+              else
               begin
                 Log(Format('RADStudio.Build.TryBuildRADStudioPackages: Failed to extract pre-build objects for %s', [LInfo.Version.Name]));
                 if LInfo.Status = riToolchainNotSupported then

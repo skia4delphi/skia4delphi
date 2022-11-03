@@ -55,6 +55,8 @@ begin
   FreeAndNil(FControl);
   FControl := FControlCreationFunc();
   FControl.Parent := sbxContent;
+  if FControl.Align <> TAlign.alNone then
+    sbxContent.Realign;
 end;
 
 procedure TfrmControlViewer.Show(const ATitle, ADescription: string;

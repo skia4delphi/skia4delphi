@@ -9,59 +9,57 @@
 { found in the LICENSE file.                                             }
 {                                                                        }
 {************************************************************************}
-{$IFNDEF SKIA_EMBEDDED}
 unit Skia.API;
-{$ENDIF}
 
 interface
+
+{$HPPEMIT NOUSINGNAMESPACE}
+{$IFDEF MSWINDOWS}
+  {$HPPEMIT '#ifdef USEPACKAGES'}
+  {$HPPEMIT '  #pragma link "Skia.Package.RTL.bpi"'}
+  {$HPPEMIT '#elif defined(__WIN32__)'}
+  {$HPPEMIT '  #pragma link "Skia.Package.RTL.lib"'}
+  {$HPPEMIT '#elif defined(_WIN64)'}
+  {$HPPEMIT '  #pragma link "Skia.Package.RTL.a"'}
+  {$HPPEMIT '#endif'}
+{$ENDIF}
+
+{.$DEFINE SK_DEBUG}
 
 {$ALIGN ON}
 {$MINENUMSIZE 4}
 
-{$IF NOT DEFINED(IOS) or NOT DEFINED(CPUARM)}
-  {$DEFINE SK_DYNAMIC_LOADING}
-{$ENDIF}
-
-{$IFDEF SK_DYNAMIC_LOADING}
-
-uses
-  { Delphi }
-  {$IFDEF MSWINDOWS}
-  Winapi.Windows,
-  {$ENDIF}
-  System.SysUtils;
-
+{$IF DEFINED(IOS) and NOT DEFINED(IOSSIMULATOR)}
+  {$DEFINE SK_STATIC_LIBRARY}
 {$ENDIF}
 
 type
-  {$REGION 'C types'}
-
-  bool       = System.Boolean;
+  _bool     = Boolean;
   {$IF CompilerVersion < 31}
-  char       = System.AnsiChar;
+  _char     = AnsiChar;
   {$ELSE}
-  char       = System.UTF8Char;
+  _char     = UTF8Char;
   {$ENDIF}
-  char16_t   = System.Char;
-  double     = System.Double;
-  float      = System.Single;
-  int16_t    = System.SmallInt;
-  int32_t    = System.Integer;
-  int64_t    = System.Int64;
-  int8_t     = System.ShortInt;
-  intptr_t   = System.NativeInt;
-  long       = System.LongInt;
-  size_t     = System.NativeUInt;
-  uint16_t   = System.Word;
-  uint32_t   = System.Cardinal;
-  uint64_t   = System.UInt64;
-  uint8_t    = System.Byte;
-  uintptr_t  = System.NativeUInt;
+  char16_t  = Char;
+  _double   = Double;
+  float     = Single;
+  int16_t   = SmallInt;
+  int32_t   = Integer;
+  int64_t   = Int64;
+  int8_t    = ShortInt;
+  intptr_t  = NativeInt;
+  long      = LongInt;
+  size_t    = NativeUInt;
+  uint16_t  = Word;
+  uint32_t  = Cardinal;
+  uint64_t  = UInt64;
+  uint8_t   = Byte;
+  uintptr_t = NativeUInt;
 
-  pbool      = ^bool;
-  pchar      = ^char;
+  _pbool     = ^_bool;
+  _pchar     = ^_char;
   pchar16_t  = ^char16_t;
-  pdouble    = ^double;
+  _pdouble   = ^_double;
   pfloat     = ^float;
   pint16_t   = ^int16_t;
   pint32_t   = ^int32_t;
@@ -76,15 +74,9 @@ type
   puint8_t   = ^uint8_t;
   puintptr_t = ^uintptr_t;
 
-  {$ENDREGION}
 
-  {$REGION 'Skia types'}
+  { include/c/sk4d_types.h }
 
-  {$REGION 'include/c/sk4d_types.h'}
-  gr_backendformat_t            = THandle;
-  gr_backendrendertarget_t      = THandle;
-  gr_backendtexture_t           = THandle;
-  gr_directcontext_t            = THandle;
   sk_animcodecplayer_t          = THandle;
   sk_blender_t                  = THandle;
   sk_canvas_t                   = THandle;
@@ -94,15 +86,10 @@ type
   sk_colorspaceiccprofile_t     = THandle;
   sk_data_t                     = THandle;
   sk_document_t                 = THandle;
-  sk_dynamicmemorywstream_t     = THandle;
-  sk_filestream_t               = THandle;
-  sk_filewstream_t              = THandle;
   sk_font_t                     = THandle;
-  sk_fontmgr_t                  = THandle;
   sk_image_t                    = THandle;
   sk_imagefilter_t              = THandle;
   sk_maskfilter_t               = THandle;
-  sk_memorystream_t             = THandle;
   sk_opbuilder_t                = THandle;
   sk_paint_t                    = THandle;
   sk_path_t                     = THandle;
@@ -134,10 +121,6 @@ type
   sk_wstream_t                  = THandle;
   sk_wstreamadapter_t           = THandle;
 
-  pgr_backendformat_t            = ^gr_backendformat_t;
-  pgr_backendrendertarget_t      = ^gr_backendrendertarget_t;
-  pgr_backendtexture_t           = ^gr_backendtexture_t;
-  pgr_directcontext_t            = ^gr_directcontext_t;
   psk_animcodecplayer_t          = ^sk_animcodecplayer_t;
   psk_blender_t                  = ^sk_blender_t;
   psk_canvas_t                   = ^sk_canvas_t;
@@ -147,15 +130,10 @@ type
   psk_colorspaceiccprofile_t     = ^sk_colorspaceiccprofile_t;
   psk_data_t                     = ^sk_data_t;
   psk_document_t                 = ^sk_document_t;
-  psk_dynamicmemorywstream_t     = ^sk_dynamicmemorywstream_t;
-  psk_filestream_t               = ^sk_filestream_t;
-  psk_filewstream_t              = ^sk_filewstream_t;
   psk_font_t                     = ^sk_font_t;
-  psk_fontmgr_t                  = ^sk_fontmgr_t;
   psk_image_t                    = ^sk_image_t;
   psk_imagefilter_t              = ^sk_imagefilter_t;
   psk_maskfilter_t               = ^sk_maskfilter_t;
-  psk_memorystream_t             = ^sk_memorystream_t;
   psk_opbuilder_t                = ^sk_opbuilder_t;
   psk_paint_t                    = ^sk_paint_t;
   psk_path_t                     = ^sk_path_t;
@@ -186,18 +164,6 @@ type
   psk_vertices_t                 = ^sk_vertices_t;
   psk_wstream_t                  = ^sk_wstream_t;
   psk_wstreamadapter_t           = ^sk_wstreamadapter_t;
-
-  gr_backendapi_t = (
-    OPEN_GL_GR_BACKENDAPI,
-    METAL_GR_BACKENDAPI = 2
-  );
-  pgr_backendapi_t = ^gr_backendapi_t;
-
-  gr_surfaceorigin_t = (
-    TOP_LEFT_GR_SURFACEORIGIN,
-    BOTTOM_LEFT_GR_SURFACEORIGIN
-  );
-  pgr_surfaceorigin_t = ^gr_surfaceorigin_t;
 
   sk_alphatype_t = (
     UNKNOWN_SK_ALPHATYPE,
@@ -284,7 +250,8 @@ type
     ALPHA16_SK_COLORTYPE,
     RG1616_SK_COLORTYPE,
     RGBA16161616_SK_COLORTYPE,
-    SRGBA8888_SK_COLORTYPE
+    SRGBA8888_SK_COLORTYPE,
+    R8_SK_COLORTYPE
   );
   psk_colortype_t = ^sk_colortype_t;
 
@@ -534,29 +501,29 @@ type
   end;
   psk_color4f_t = ^sk_color4f_t;
 
-	sk_colormatrix_t = record
-	  m_11: float;
-	  m_12: float;
-	  m_13: float;
-	  m_14: float;
-	  m_15: float;
-	  m_21: float;
-	  m_22: float;
-	  m_23: float;
-	  m_24: float;
-	  m_25: float;
-	  m_31: float;
-	  m_32: float;
-	  m_33: float;
-	  m_34: float;
-	  m_35: float;
-	  m_41: float;
-	  m_42: float;
-	  m_43: float;
-	  m_44: float;
-	  m_45: float;
-	end;
-	psk_colormatrix_t = ^sk_colormatrix_t;
+  sk_colormatrix_t = record
+    m_11: float;
+    m_12: float;
+    m_13: float;
+    m_14: float;
+    m_15: float;
+    m_21: float;
+    m_22: float;
+    m_23: float;
+    m_24: float;
+    m_25: float;
+    m_31: float;
+    m_32: float;
+    m_33: float;
+    m_34: float;
+    m_35: float;
+    m_41: float;
+    m_42: float;
+    m_43: float;
+    m_44: float;
+    m_45: float;
+  end;
+  psk_colormatrix_t = ^sk_colormatrix_t;
 
   sk_colorspaceprimaries_t = record
     rx: float;
@@ -640,7 +607,7 @@ type
   psk_fontstyle_t = ^sk_fontstyle_t;
 
   sk_highcontrastconfig_t = record
-    grayscale    : bool;
+    grayscale    : _bool;
     invert_style : sk_contrastinvertstyle_t;
     contrast     : float;
   end;
@@ -742,7 +709,7 @@ type
     creation         : sk_datetime_t;
     modified         : sk_datetime_t;
     raster_dpi       : float;
-    pdfa             : bool;
+    pdfa             : _bool;
     encoding_quality : int32_t;
   end;
   psk_pdfmetadata_t = ^sk_pdfmetadata_t;
@@ -771,10 +738,11 @@ type
   psk_rotationscalematrix_t = ^sk_rotationscalematrix_t;
 
   sk_samplingoptions_t = record
-    use_cubic : bool;
-    cubic     : sk_cubicresampler_t;
-    filter    : sk_filtermode_t;
-    mipmap    : sk_mipmapmode_t;
+    max_anisotropic : int32_t;
+    use_cubic       : _bool;
+    cubic           : sk_cubicresampler_t;
+    filter          : sk_filtermode_t;
+    mipmap          : sk_mipmapmode_t;
   end;
   psk_samplingoptions_t = ^sk_samplingoptions_t;
 
@@ -802,12 +770,12 @@ type
     get_length   : function (context: Pointer): size_t; cdecl;
     get_position : function (context: Pointer): size_t; cdecl;
     read         : function (context: Pointer; buffer: Pointer; size: size_t): size_t; cdecl;
-    seek         : function (context: Pointer; position: size_t): bool; cdecl;
+    seek         : function (context: Pointer; position: size_t): _bool; cdecl;
   end;
   psk_streamadapter_procs_t = ^sk_streamadapter_procs_t;
 
   sk_wstreamadapter_procs_t = record
-    write: function  (context: Pointer; const buffer: Pointer; size: size_t): bool; cdecl;
+    write: function  (context: Pointer; const buffer: Pointer; size: size_t): _bool; cdecl;
   end;
   psk_wstreamadapter_procs_t = ^sk_wstreamadapter_procs_t;
 
@@ -817,19 +785,69 @@ type
   end;
   psk_tracememorydumpbaseclass_procs_t = ^sk_tracememorydumpbaseclass_procs_t;
 
-  // GPU
+  // Ganesh
+
+  gr_backendrendertarget_t         = THandle;
+  gr_backendtexture_t              = THandle;
+  gr_directcontext_t               = THandle;
+  gr_persistentcache_t             = THandle;
+  gr_persistentcachebaseclass_t    = THandle;
+  gr_shadererrorhandler_t          = THandle;
+  gr_shadererrorhandlerbaseclass_t = THandle;
+
+  pgr_backendrendertarget_t         = ^gr_backendrendertarget_t;
+  pgr_backendtexture_t              = ^gr_backendtexture_t;
+  pgr_directcontext_t               = ^gr_directcontext_t;
+  pgr_persistentcache_t             = ^gr_persistentcache_t;
+  pgr_persistentcachebaseclass_t    = ^gr_persistentcachebaseclass_t;
+  pgr_shadererrorhandler_t          = ^gr_shadererrorhandler_t;
+  pgr_shadererrorhandlerbaseclass_t = ^gr_shadererrorhandlerbaseclass_t;
+
+  gr_backendapi_t = (
+    OPEN_GL_GR_BACKENDAPI,
+    VULKAN_GR_BACKENDAPI,
+    METAL_GR_BACKENDAPI
+  );
+  pgr_backendapi_t = ^gr_backendapi_t;
+
+  gr_shadercachestrategy_t = (
+    SKSL_GR_SHADERCACHESTRATEGY,
+    BACKEND_SOURCE_GR_SHADERCACHESTRATEGY,
+    BACKEND_BINARY_GR_SHADERCACHESTRATEGY
+  );
+  pgr_shadercachestrategy_t = ^gr_shadercachestrategy_t;
+
+  gr_surfaceorigin_t = (
+    TOP_LEFT_GR_SURFACEORIGIN,
+    BOTTOM_LEFT_GR_SURFACEORIGIN
+  );
+  pgr_surfaceorigin_t = ^gr_surfaceorigin_t;
 
   gr_contextoptions_t = record
     buffer_map_threshold              : int32_t;
-    do_manual_mipmapping              : bool;
-    allow_path_mask_caching           : bool;
+    do_manual_mipmapping              : _bool;
+    allow_path_mask_caching           : _bool;
     glyph_cache_texture_maximum_bytes : size_t;
-    avoid_stencil_buffers             : bool;
+    avoid_stencil_buffers             : _bool;
     runtime_program_cache_size        : int32_t;
+    persistent_cache                  : gr_persistentcache_t;
+    shader_cache_strategy             : gr_shadercachestrategy_t;
+    shader_error_handler              : gr_shadererrorhandler_t;
   end;
   pgr_contextoptions_t = ^gr_contextoptions_t;
 
-  // GPU - OpenGL
+  gr_persistentcachebaseclass_procs_t = record
+    load  : function  (context: Pointer; const key_data: Pointer; key_size: size_t): sk_data_t; cdecl;
+    store : procedure (context: Pointer; const key_data: Pointer; key_size: size_t; const data: Pointer; size: size_t); cdecl;
+  end;
+  pgr_persistentcachebaseclass_procs_t = ^gr_persistentcachebaseclass_procs_t;
+
+  gr_shadererrorhandlerbaseclass_procs_t = record
+    compile_error : procedure (context: Pointer; const shader, errors: MarshaledAString); cdecl;
+  end;
+  pgr_shadererrorhandlerbaseclass_procs_t = ^gr_shadererrorhandlerbaseclass_procs_t;
+
+  // Ganesh - OpenGL
 
   gr_gl_interface_t = THandle;
 
@@ -856,7 +874,7 @@ type
 
   gr_gl_get_proc = function (context: Pointer; const name: MarshaledAString): Pointer; cdecl;
 
-  // GPU - Metal
+  // Ganesh - Metal
 
   gr_mtl_handle_t = Pointer;
 
@@ -871,9 +889,114 @@ type
     binary_archive : gr_mtl_handle_t;
   end;
   pgr_mtl_backendcontext_t = ^gr_mtl_backendcontext_t;
-  {$ENDREGION}
 
-  {$REGION 'modules/particles/include/sk4d_particles_types.h'}
+  // Ganesh - Vulkan
+
+  gr_vk_extensions_t              = THandle;
+  gr_vk_physicaldevicefeatures_t  = THandle;
+  gr_vk_physicaldevicefeatures2_t = THandle;
+
+  pgr_vk_extensions_t              = ^gr_vk_extensions_t;
+  pgr_vk_physicaldevicefeatures_t  = ^gr_vk_physicaldevicefeatures_t;
+  pgr_vk_physicaldevicefeatures2_t = ^gr_vk_physicaldevicefeatures2_t;
+
+  gr_vk_bool32_t                      = uint32_t;
+  gr_vk_chromalocation_t              = int32_t;
+  gr_vk_device_t                      = Pointer;
+  gr_vk_devicememory_t                = uint64_t;
+  gr_vk_devicesize_t                  = uint64_t;
+  gr_vk_filter_t                      = int32_t;
+  gr_vk_format_t                      = int32_t;
+  gr_vk_formatfeatureflags_t          = uint32_t;
+  gr_vk_image_t                       = uint64_t;
+  gr_vk_imagelayout_t                 = int32_t;
+  gr_vk_imagetiling_t                 = int32_t;
+  gr_vk_imageusageflags_t             = uint32_t;
+  gr_vk_instance_t                    = Pointer;
+  gr_vk_physicaldevice_t              = Pointer;
+  gr_vk_queue_t                       = Pointer;
+  gr_vk_samplerycbcrmodelconversion_t = int32_t;
+  gr_vk_samplerycbcrrange_t           = int32_t;
+  gr_vk_sharingmode_t                 = int32_t;
+
+  pgr_vk_bool32_t                      = ^gr_vk_bool32_t;
+  pgr_vk_chromalocation_t              = ^gr_vk_chromalocation_t;
+  pgr_vk_device_t                      = ^gr_vk_device_t;
+  pgr_vk_devicememory_t                = ^gr_vk_devicememory_t;
+  pgr_vk_devicesize_t                  = ^gr_vk_devicesize_t;
+  pgr_vk_filter_t                      = ^gr_vk_filter_t;
+  pgr_vk_format_t                      = ^gr_vk_format_t;
+  pgr_vk_formatfeatureflags_t          = ^gr_vk_formatfeatureflags_t;
+  pgr_vk_image_t                       = ^gr_vk_image_t;
+  pgr_vk_imagelayout_t                 = ^gr_vk_imagelayout_t;
+  pgr_vk_imagetiling_t                 = ^gr_vk_imagetiling_t;
+  pgr_vk_imageusageflags_t             = ^gr_vk_imageusageflags_t;
+  pgr_vk_instance_t                    = ^gr_vk_instance_t;
+  pgr_vk_physicaldevice_t              = ^gr_vk_physicaldevice_t;
+  pgr_vk_queue_t                       = ^gr_vk_queue_t;
+  pgr_vk_samplerycbcrmodelconversion_t = ^gr_vk_samplerycbcrmodelconversion_t;
+  pgr_vk_samplerycbcrrange_t           = ^gr_vk_samplerycbcrrange_t;
+  pgr_vk_sharingmode_t                 = ^gr_vk_sharingmode_t;
+
+  gr_vk_get_proc = function (context: Pointer; const name: MarshaledAString; instance: gr_vk_instance_t; device: gr_vk_device_t): Pointer; cdecl;
+
+  gr_vk_alloc_t = record
+    device_memory : gr_vk_devicememory_t;
+    offset        : gr_vk_devicesize_t;
+    size          : gr_vk_devicesize_t;
+    flags         : uint32_t;
+    memory        : intptr_t;
+  end;
+  pgr_vk_alloc_t = ^gr_vk_alloc_t;
+
+
+  gr_vk_backendcontext_t = record
+    instance                  : gr_vk_instance_t;
+    physical_device           : gr_vk_physicaldevice_t;
+    device                    : gr_vk_device_t;
+    queue                     : gr_vk_queue_t;
+    graphics_queue_index      : uint32_t;
+    max_version               : uint32_t;
+    extensions                : gr_vk_extensions_t;
+    physical_device_features  : gr_vk_physicaldevicefeatures_t;
+    physical_device_features2 : gr_vk_physicaldevicefeatures2_t;
+    get_context               : Pointer;
+    get_proc                  : gr_vk_get_proc;
+    protected_context         : _bool;
+  end;
+  pgr_vk_backendcontext_t = ^gr_vk_backendcontext_t;
+
+  gr_vk_ycbcrconversioninfo_t = record
+    format                        : gr_vk_format_t;
+    external_format               : uint64_t;
+    ycbcr_model                   : gr_vk_samplerycbcrmodelconversion_t;
+    ycbcr_range                   : gr_vk_samplerycbcrrange_t;
+    x_chroma_offset               : gr_vk_chromalocation_t;
+    y_chroma_offset               : gr_vk_chromalocation_t;
+    chroma_filter                 : gr_vk_filter_t;
+    force_explicit_reconstruction : gr_vk_bool32_t;
+    format_features               : gr_vk_formatfeatureflags_t;
+  end;
+  pgr_vk_ycbcrconversioninfo_t = ^gr_vk_ycbcrconversioninfo_t;
+
+  gr_vk_imageinfo_t = record
+    image                 : gr_vk_image_t;
+    alloc                 : gr_vk_alloc_t;
+    image_tiling          : gr_vk_imagetiling_t;
+    image_layout          : gr_vk_imagetiling_t;
+    format                : gr_vk_format_t;
+    image_usage_flags     : gr_vk_imageusageflags_t;
+    sample_count          : uint32_t;
+    level_count           : uint32_t;
+    current_queue_family  : uint32_t;
+    protected_image       : _bool;
+    ycbcr_conversion_info : gr_vk_ycbcrconversioninfo_t;
+    sharing_mode          : gr_vk_sharingmode_t;
+  end;
+  pgr_vk_imageinfo_t = ^gr_vk_imageinfo_t;
+
+  { modules/particles/include/sk4d_particles_types.h }
+
   sk_particleeffect_t = THandle;
 
   psk_particleeffect_t = ^sk_particleeffect_t;
@@ -884,15 +1007,17 @@ type
     slot    : int32_t;
   end;
   psk_particleuniform_t = ^sk_particleuniform_t;
-  {$ENDREGION}
 
-  {$REGION 'modules/skottie/include/sk4d_skottie_types.h'}
+
+  { modules/skottie/include/sk4d_skottie_types.h }
+
   sk_skottieanimation_t = THandle;
 
   psk_skottieanimation_t = ^sk_skottieanimation_t;
-  {$ENDREGION}
 
-  {$REGION 'modules/skparagraph/include/sk4d_paragraph_types.h'}
+
+  { modules/skparagraph/include/sk4d_paragraph_types.h }
+
   sk_paragraph_t            = THandle;
   sk_paragraphbuilder_t     = THandle;
   sk_paragraphstyle_t       = THandle;
@@ -975,16 +1100,28 @@ type
     end_index                 : size_t;
     end_excluding_whitespaces : size_t;
     end_including_newline     : size_t;
-    is_hard_break             : bool;
-    ascent                    : double;
-    descent                   : double;
-    height                    : double;
-    width                     : double;
-    left                      : double;
-    baseline                  : double;
+    is_hard_break             : _bool;
+    ascent                    : _double;
+    descent                   : _double;
+    height                    : _double;
+    width                     : _double;
+    left                      : _double;
+    baseline                  : _double;
     line_number               : size_t;
   end;
   psk_metrics_t = ^sk_metrics_t;
+
+  sk_paragraphvisitorinfo_t = record
+    font        : sk_font_t;
+    origin      : sk_point_t;
+    advance_x   : float;
+    count       : int32_t;
+    glyphs      : puint16_t;
+    positions   : psk_point_t;
+    utf8_starts : puint32_t;
+    flags       : uint32_t;
+  end;
+  psk_paragraphvisitorinfo_t = ^sk_paragraphvisitorinfo_t;
 
   sk_placeholderstyle_t = record
     width           : float;
@@ -1010,12 +1147,15 @@ type
   sk_textshadow_t = record
     color       : sk_color_t;
     offset      : sk_point_t;
-    blur_radius : double;
+    blur_radius : _double;
   end;
   psk_textshadow_t = ^sk_textshadow_t;
-  {$ENDREGION}
 
-  {$REGION 'modules/skresources/include/sk4d_resources_types.h'}
+  sk_paragraph_visit_proc = procedure (line_number: int32_t; const info: psk_paragraphvisitorinfo_t; context: Pointer); cdecl;
+
+
+  { modules/skresources/include/sk4d_resources_types.h }
+
   sk_resourceprovider_t          = THandle;
   sk_resourceproviderbaseclass_t = THandle;
 
@@ -1026,18 +1166,22 @@ type
     load: function (context: Pointer; const path, name: MarshaledAString): sk_data_t; cdecl;
   end;
   psk_resourceproviderbaseclass_procs_t = ^sk_resourceproviderbaseclass_procs_t;
-  {$ENDREGION}
 
-  {$REGION 'modules/skshaper/include/sk4d_shaper_types.h'}
+
+  { modules/skshaper/include/sk4d_shaper_types.h }
+
   sk_shaper_t = THandle;
 
   psk_shaper_t = ^sk_shaper_t;
-  {$ENDREGION}
 
-  {$REGION 'modules/skunicode/include/sk4d_unicode_types.h'}
-  sk_unicode_t  = THandle;
 
-  psk_unicode_t = ^sk_unicode_t;
+  { modules/skunicode/include/sk4d_unicode_types.h }
+
+  sk_unicode_t              = THandle;
+  sk_unicodebreakiterator_t = THandle;
+
+  psk_unicode_t              = ^sk_unicode_t;
+  psk_unicodebreakiterator_t = ^sk_unicodebreakiterator_t;
 
   sk_breaktype_t = (
     WORDS_SK_BREAKTYPE,
@@ -1052,12 +1196,19 @@ type
   );
   psk_direction_t = ^sk_direction_t;
 
+  sk_unicodebreakiteratorelem_t = record
+    position: int32_t;
+    status: int32_t;
+  end;
+  psk_unicodebreakiteratorelem_t = ^sk_unicodebreakiteratorelem_t;
+
   sk_unicode_bidi_region_proc = procedure (start, &end: int32_t; level: uint8_t; context: Pointer); cdecl;
   sk_unicode_break_proc       = procedure (position, status: int32_t; context: Pointer); cdecl;
-  sk_unicode_codepoint_proc   = procedure (unichar: sk_unichar_t; start, &end: int32_t; context: Pointer); cdecl;
-  {$ENDREGION}
+  sk_unicode_codepoint_proc   = procedure (uni_char: sk_unichar_t; start, &end: int32_t; context: Pointer); cdecl;
 
-  {$REGION 'modules/svg/include/sk4d_svg_types.h'}
+
+  { modules/svg/include/sk4d_svg_types.h }
+
   sk_svgdom_t  = THandle;
   sk_svgsvg_t  = THandle;
   sk_svgnode_t = THandle;
@@ -1112,2858 +1263,3007 @@ type
     scale: sk_svgaspectscale_t;
   end;
   psk_svgpreserveaspectratio_t = ^sk_svgpreserveaspectratio_t;
-  {$ENDREGION}
 
-  {$ENDREGION}
 
-  {$REGION 'Skia API'}
 
-  {$IFDEF SK_DYNAMIC_LOADING}
+{$IFNDEF SK_STATIC_LIBRARY}
+var
+{$ENDIF}
 
-  ESkiaAPI = class(Exception);
+  { include/c/gr4d_backendsurface.h }
 
-  {$ENDIF}
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}gr4d_backendrendertarget_create_gl         {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(width, height, sample_count, stencil_bits: int32_t; const framebuffer_info: pgr_gl_framebufferinfo_t): gr_backendrendertarget_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}gr4d_backendrendertarget_create_mtl        {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(width, height: int32_t; const texture_info: pgr_mtl_textureinfo_t): gr_backendrendertarget_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}gr4d_backendrendertarget_create_vk         {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(width, height: int32_t; const image_info: pgr_vk_imageinfo_t): gr_backendrendertarget_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}gr4d_backendrendertarget_destroy           {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: gr_backendrendertarget_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}gr4d_backendrendertarget_get_backend_api   {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: gr_backendrendertarget_t): gr_backendapi_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}gr4d_backendrendertarget_get_height        {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: gr_backendrendertarget_t): int32_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}gr4d_backendrendertarget_get_sample_count  {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: gr_backendrendertarget_t): int32_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}gr4d_backendrendertarget_get_stencil_bits  {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: gr_backendrendertarget_t): int32_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}gr4d_backendrendertarget_get_width         {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: gr_backendrendertarget_t): int32_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}gr4d_backendrendertarget_is_valid          {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: gr_backendrendertarget_t): _bool; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}gr4d_backendtexture_create_gl              {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(width, height: int32_t; is_mipmapped: _bool; const texture_info: pgr_gl_textureinfo_t): gr_backendtexture_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}gr4d_backendtexture_create_mtl             {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(width, height: int32_t; is_mipmapped: _bool; const texture_info: pgr_mtl_textureinfo_t): gr_backendtexture_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}gr4d_backendtexture_create_vk              {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(width, height: int32_t; const image_info: pgr_vk_imageinfo_t): gr_backendtexture_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}gr4d_backendtexture_destroy                {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: gr_backendtexture_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}gr4d_backendtexture_get_backend_api        {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: gr_backendtexture_t): gr_backendapi_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}gr4d_backendtexture_get_gl_framebuffer_info{$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: gr_backendtexture_t; out texture_info: gr_gl_textureinfo_t): _bool; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}gr4d_backendtexture_get_height             {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: gr_backendtexture_t): int32_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}gr4d_backendtexture_get_width              {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: gr_backendtexture_t): int32_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}gr4d_backendtexture_has_mipmaps            {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: gr_backendtexture_t): _bool; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}gr4d_backendtexture_is_valid               {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: gr_backendtexture_t): _bool; cdecl;
 
-  { TSkiaAPI }
 
-  TSkiaAPI = class sealed
-  public const
-    {$IF DEFINED(MSWINDOWS)}
-    LibName = 'sk4d.dll';
-    {$ELSEIF DEFINED(MACOS)}
-      {$IF DEFINED(IOS) and DEFINED(CPUARM)}
-      LibName = 'sk4d.a';
-      {$ELSE}
-      LibName = 'sk4d.dylib';
-      {$ENDIF}
-    {$ELSE}
-    LibName = 'libsk4d.so';
-    {$ENDIF}
-  {$IFDEF SK_DYNAMIC_LOADING}
-  strict private class var
-    [Volatile] FRefCount: Integer;
-    FLibHandle: HMODULE;
-  {$ENDIF}
-  strict private
-    class constructor Create;
-    {$IFDEF SK_DYNAMIC_LOADING}
-    class destructor Destroy;
-    {$ENDIF}
-  public
-    class procedure Initialize;
-    class procedure Terminate;
+  { include/c/gr4d_contextoptions.h }
 
-    {$REGION 'include/c/gr4d_backendsurface.h'}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}gr4d_backendrendertarget_create_gl         {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(width, height, sample_count, stencil_bits: int32_t; const framebuffer_info: pgr_gl_framebufferinfo_t): gr_backendrendertarget_t; cdecl; {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}gr4d_backendrendertarget_create_mtl        {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(width, height: int32_t; const texture_info: pgr_mtl_textureinfo_t): gr_backendrendertarget_t; cdecl;                                    {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}gr4d_backendrendertarget_destroy           {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: gr_backendrendertarget_t); cdecl;                                                                                                 {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}gr4d_backendrendertarget_get_backend_api   {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: gr_backendrendertarget_t): gr_backendapi_t; cdecl;                                                                          {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}gr4d_backendrendertarget_get_height        {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: gr_backendrendertarget_t): int32_t; cdecl;                                                                                  {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}gr4d_backendrendertarget_get_sample_count  {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: gr_backendrendertarget_t): int32_t; cdecl;                                                                                  {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}gr4d_backendrendertarget_get_stencil_bits  {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: gr_backendrendertarget_t): int32_t; cdecl;                                                                                  {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}gr4d_backendrendertarget_get_width         {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: gr_backendrendertarget_t): int32_t; cdecl;                                                                                  {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}gr4d_backendrendertarget_is_valid          {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: gr_backendrendertarget_t): bool; cdecl;                                                                                     {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}gr4d_backendtexture_create_gl              {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(width, height: int32_t; is_mipmapped: bool; const texture_info: pgr_gl_textureinfo_t): gr_backendtexture_t; cdecl;                      {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}gr4d_backendtexture_create_mtl             {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(width, height: int32_t; is_mipmapped: bool; const texture_info: pgr_mtl_textureinfo_t): gr_backendtexture_t; cdecl;                     {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}gr4d_backendtexture_destroy                {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: gr_backendtexture_t); cdecl;                                                                                                      {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}gr4d_backendtexture_get_backend_api        {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: gr_backendtexture_t): gr_backendapi_t; cdecl;                                                                               {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}gr4d_backendtexture_get_gl_framebuffer_info{$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: gr_backendtexture_t; out texture_info: gr_gl_textureinfo_t): bool; cdecl;                                                   {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}gr4d_backendtexture_get_height             {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: gr_backendtexture_t): int32_t; cdecl;                                                                                       {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}gr4d_backendtexture_get_width              {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: gr_backendtexture_t): int32_t; cdecl;                                                                                       {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}gr4d_backendtexture_has_mipmaps            {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: gr_backendtexture_t): bool; cdecl;                                                                                          {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}gr4d_backendtexture_is_valid               {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: gr_backendtexture_t): bool; cdecl;                                                                                          {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$ENDREGION}
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}gr4d_persistentcachebaseclass_create   {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(context: Pointer): gr_persistentcachebaseclass_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}gr4d_persistentcachebaseclass_destroy  {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: gr_persistentcachebaseclass_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}gr4d_persistentcachebaseclass_set_procs{$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(const procs: pgr_persistentcachebaseclass_procs_t); cdecl;
 
-    {$REGION 'include/c/gr4d_directcontext.h'}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}gr4d_directcontext_abandon_context                            {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: gr_directcontext_t); cdecl;                                                                                 {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}gr4d_directcontext_dump_memory_statistics                     {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(const self: gr_directcontext_t; trace_memory_dump: sk_tracememorydump_t); cdecl;                                  {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}gr4d_directcontext_flush                                      {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: gr_directcontext_t); cdecl;                                                                                 {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}gr4d_directcontext_flush_and_submit                           {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: gr_directcontext_t; sync_cpu: bool); cdecl;                                                                 {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}gr4d_directcontext_free_gpu_resources                         {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: gr_directcontext_t); cdecl;                                                                                 {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}gr4d_directcontext_get_backend_api                            {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: gr_directcontext_t): gr_backendapi_t; cdecl;                                                          {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}gr4d_directcontext_get_max_surface_sample_count_for_color_type{$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: gr_directcontext_t; color_type: sk_colortype_t): int32_t; cdecl;                                      {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}gr4d_directcontext_get_resource_cache_limit                   {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: gr_directcontext_t): size_t; cdecl;                                                                   {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}gr4d_directcontext_get_resource_cache_usage                   {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(const self: gr_directcontext_t; out resources: int32_t; out resources_bytes: size_t); cdecl;                      {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}gr4d_directcontext_is_abandoned                               {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(self: gr_directcontext_t): bool; cdecl;                                                                           {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}gr4d_directcontext_make_gl                                    {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const gl_interface: gr_gl_interface_t; const options: pgr_contextoptions_t): gr_directcontext_t; cdecl;           {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}gr4d_directcontext_make_metal                                 {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const backend_context: pgr_mtl_backendcontext_t; const options: pgr_contextoptions_t): gr_directcontext_t; cdecl; {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}gr4d_directcontext_perform_deferred_cleanup                   {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: gr_directcontext_t; milliseconds: int64_t); cdecl;                                                          {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}gr4d_directcontext_purge_unlocked_resources                   {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: gr_directcontext_t; scratch_resources_only: bool); cdecl;                                                   {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}gr4d_directcontext_purge_unlocked_resources2                  {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: gr_directcontext_t; bytes_to_purge: size_t; prefer_scratch_resources: bool); cdecl;                         {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}gr4d_directcontext_release_resources_and_abandon_context      {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: gr_directcontext_t); cdecl;                                                                                 {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}gr4d_directcontext_reset_context                              {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: gr_directcontext_t); cdecl;                                                                                 {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}gr4d_directcontext_set_resource_cache_limit                   {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: gr_directcontext_t; value: size_t); cdecl;                                                                  {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}gr4d_directcontext_submit                                     {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(self: gr_directcontext_t; sync_cpu: bool): bool; cdecl;                                                           {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$ENDREGION}
 
-    {$REGION 'include/c/gr4d_gl_interface.h'}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function {$ELSE}class var {$ENDIF}gr4d_gl_interface_has_extension       {$IFDEF SK_DYNAMIC_LOADING}: function {$ENDIF}(const self: gr_gl_interface_t; const name: MarshaledAString): bool; cdecl; {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function {$ELSE}class var {$ENDIF}gr4d_gl_interface_make_assembled      {$IFDEF SK_DYNAMIC_LOADING}: function {$ENDIF}(context: Pointer; proc: gr_gl_get_proc): gr_gl_interface_t; cdecl;         {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function {$ELSE}class var {$ENDIF}gr4d_gl_interface_make_assembled_gl   {$IFDEF SK_DYNAMIC_LOADING}: function {$ENDIF}(context: Pointer; proc: gr_gl_get_proc): gr_gl_interface_t; cdecl;         {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function {$ELSE}class var {$ENDIF}gr4d_gl_interface_make_assembled_gles {$IFDEF SK_DYNAMIC_LOADING}: function {$ENDIF}(context: Pointer; proc: gr_gl_get_proc): gr_gl_interface_t; cdecl;         {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function {$ELSE}class var {$ENDIF}gr4d_gl_interface_make_assembled_webgl{$IFDEF SK_DYNAMIC_LOADING}: function {$ENDIF}(context: Pointer; proc: gr_gl_get_proc): gr_gl_interface_t; cdecl;         {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function {$ELSE}class var {$ENDIF}gr4d_gl_interface_make_native         {$IFDEF SK_DYNAMIC_LOADING}: function {$ENDIF}(): gr_gl_interface_t; cdecl;                                               {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function {$ELSE}class var {$ENDIF}gr4d_gl_interface_validate            {$IFDEF SK_DYNAMIC_LOADING}: function {$ENDIF}(const self: gr_gl_interface_t): bool; cdecl;                               {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$ENDREGION}
+  { include/c/gr4d_directcontext.h }
 
-    {$REGION 'include/c/sk4d_blender.h'}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_blender_make_arithmetic{$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(k1, k2, k3, k4: float; enforce_premultiplied_color: bool): sk_blender_t; cdecl; {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_blender_make_mode      {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(mode: sk_blendmode_t): sk_blender_t; cdecl;                                     {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$ENDREGION}
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}gr4d_directcontext_abandon_context                            {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: gr_directcontext_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}gr4d_directcontext_dump_memory_statistics                     {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(const self: gr_directcontext_t; trace_memory_dump: sk_tracememorydump_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}gr4d_directcontext_flush                                      {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: gr_directcontext_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}gr4d_directcontext_flush_and_submit                           {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: gr_directcontext_t; sync_cpu: _bool); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}gr4d_directcontext_free_gpu_resources                         {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: gr_directcontext_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}gr4d_directcontext_get_backend_api                            {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: gr_directcontext_t): gr_backendapi_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}gr4d_directcontext_get_max_surface_sample_count_for_color_type{$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: gr_directcontext_t; color_type: sk_colortype_t): int32_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}gr4d_directcontext_get_resource_cache_limit                   {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: gr_directcontext_t): size_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}gr4d_directcontext_get_resource_cache_usage                   {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(const self: gr_directcontext_t; out resources: int32_t; out resources_bytes: size_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}gr4d_directcontext_is_abandoned                               {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(self: gr_directcontext_t): _bool; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}gr4d_directcontext_make_gl                                    {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const gl_interface: gr_gl_interface_t; const options: pgr_contextoptions_t): gr_directcontext_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}gr4d_directcontext_make_metal                                 {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const backend_context: pgr_mtl_backendcontext_t; const options: pgr_contextoptions_t): gr_directcontext_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}gr4d_directcontext_make_vulkan                                {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const backend_context: pgr_vk_backendcontext_t; const options: pgr_contextoptions_t): gr_directcontext_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}gr4d_directcontext_perform_deferred_cleanup                   {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: gr_directcontext_t; milliseconds: int64_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}gr4d_directcontext_purge_unlocked_resources                   {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: gr_directcontext_t; scratch_resources_only: _bool); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}gr4d_directcontext_purge_unlocked_resources2                  {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: gr_directcontext_t; bytes_to_purge: size_t; prefer_scratch_resources: _bool); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}gr4d_directcontext_release_resources_and_abandon_context      {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: gr_directcontext_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}gr4d_directcontext_reset_context                              {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: gr_directcontext_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}gr4d_directcontext_set_resource_cache_limit                   {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: gr_directcontext_t; value: size_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}gr4d_directcontext_submit                                     {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(self: gr_directcontext_t; sync_cpu: _bool): _bool; cdecl;
 
-    {$REGION 'include/c/sk4d_canvas.h'}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_canvas_clear                     {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t; color: sk_color_t); cdecl;                                                                                                                                                                                                                                                   {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_canvas_clear2                    {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t; const color: psk_color4f_t); cdecl;                                                                                                                                                                                                                                          {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_canvas_destroy                   {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t); cdecl;                                                                                                                                                                                                                                                                      {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_canvas_discard                   {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t); cdecl;                                                                                                                                                                                                                                                                      {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_canvas_clip_path                 {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t; const path: sk_path_t; op: sk_clipop_t; anti_alias: bool); cdecl;                                                                                                                                                                                                            {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_canvas_clip_rect                 {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t; const rect: psk_rect_t; op: sk_clipop_t; anti_alias: bool); cdecl;                                                                                                                                                                                                           {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_canvas_clip_region               {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t; const region: sk_region_t; op: sk_clipop_t); cdecl;                                                                                                                                                                                                                          {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_canvas_clip_rrect                {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t; const rrect: sk_rrect_t; op: sk_clipop_t; anti_alias: bool); cdecl;                                                                                                                                                                                                          {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_canvas_clip_shader               {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t; shader: sk_shader_t; op: sk_clipop_t); cdecl;                                                                                                                                                                                                                                {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_canvas_concat                    {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t; const matrix: psk_matrix44_t); cdecl;                                                                                                                                                                                                                                        {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_canvas_concat2                   {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t; const matrix: psk_matrix_t); cdecl;                                                                                                                                                                                                                                          {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_canvas_draw_annotation           {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t; const rect: psk_rect_t; const key: MarshaledAString; const value: Pointer; size: size_t); cdecl;                                                                                                                                                                             {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_canvas_draw_arc                  {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t; const oval: psk_rect_t; start_angle, sweep_angle: float; use_center: bool; const paint: sk_paint_t); cdecl;                                                                                                                                                                  {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_canvas_draw_atlas                {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t; const atlas: sk_image_t; const transforms: psk_rotationscalematrix_t; const sprites: psk_rect_t; const colors: psk_color_t; count: int32_t; blend_mode: sk_blendmode_t; const sampling: psk_samplingoptions_t; const cull_rect: psk_rect_t; const paint: sk_paint_t); cdecl; {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_canvas_draw_circle               {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t; const center: psk_point_t; radius: float; const paint: sk_paint_t); cdecl;                                                                                                                                                                                                   {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_canvas_draw_color                {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t; color: sk_color_t; blend_mode: sk_blendmode_t); cdecl;                                                                                                                                                                                                                       {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_canvas_draw_color2               {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t; const color: psk_color4f_t; blend_mode: sk_blendmode_t); cdecl;                                                                                                                                                                                                              {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_canvas_draw_glyphs               {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t; count: int32_t; const glyphs: psk_glyphid_t; const positions: psk_point_t; const origin: psk_point_t; const font: sk_font_t; const paint: sk_paint_t); cdecl;                                                                                                                {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_canvas_draw_glyphs2              {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t; count: int32_t; const glyphs: psk_glyphid_t; const matrices: psk_rotationscalematrix_t; const origin: psk_point_t; const font: sk_font_t; const paint: sk_paint_t); cdecl;                                                                                                   {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_canvas_draw_image                {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t; const image: sk_image_t; x, y: float; const sampling: psk_samplingoptions_t; const paint: sk_paint_t); cdecl;                                                                                                                                                                {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_canvas_draw_image_lattice        {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t; const image: sk_image_t; const lattice: psk_lattice_t; const dest: psk_rect_t; filter_mode: sk_filtermode_t; const paint: sk_paint_t); cdecl;                                                                                                                                {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_canvas_draw_image_nine           {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t; const image: sk_image_t; const center: psk_irect_t; const dest: psk_rect_t; filter_mode: sk_filtermode_t; const paint: sk_paint_t); cdecl;                                                                                                                                   {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_canvas_draw_image_rect           {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t; const image: sk_image_t; const src, dest: psk_rect_t; const sampling: psk_samplingoptions_t; const paint: sk_paint_t; constraint: sk_srcrectconstraint_t); cdecl;                                                                                                            {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_canvas_draw_line                 {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t; const point1, point2: psk_point_t; paint: sk_paint_t); cdecl;                                                                                                                                                                                                                {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_canvas_draw_oval                 {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t; const oval: psk_rect_t; const paint: sk_paint_t); cdecl;                                                                                                                                                                                                                     {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_canvas_draw_paint                {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t; const paint: sk_paint_t); cdecl;                                                                                                                                                                                                                                             {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_canvas_draw_patch                {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t; const cubics: psk_point_t; const colors: psk_color_t; const tex_coords: psk_point_t; blend_mode: sk_blendmode_t; const paint: sk_paint_t); cdecl;                                                                                                                            {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_canvas_draw_path                 {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t; const path: sk_path_t; const paint: sk_paint_t); cdecl;                                                                                                                                                                                                                      {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_canvas_draw_picture              {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t; const picture: sk_picture_t; const matrix: psk_matrix_t; const paint: sk_paint_t); cdecl;                                                                                                                                                                                    {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_canvas_draw_point                {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t; const point: psk_point_t; const paint: sk_paint_t); cdecl;                                                                                                                                                                                                                   {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_canvas_draw_points               {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t; mode: sk_drawpointsmode_t; count: size_t; const points: psk_point_t; const paint: sk_paint_t); cdecl;                                                                                                                                                                        {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_canvas_draw_rect                 {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t; const rect: psk_rect_t; const paint: sk_paint_t); cdecl;                                                                                                                                                                                                                     {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_canvas_draw_region               {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t; const region: sk_region_t; const paint: sk_paint_t); cdecl;                                                                                                                                                                                                                  {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_canvas_draw_rrect                {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t; const rrect: sk_rrect_t; const paint: sk_paint_t); cdecl;                                                                                                                                                                                                                    {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_canvas_draw_rrect2               {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t; const rect: psk_rect_t; radius_x, radius_y: float; const paint: sk_paint_t); cdecl;                                                                                                                                                                                          {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_canvas_draw_rrect_difference     {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t; const outer, inner: sk_rrect_t; const paint: sk_paint_t); cdecl;                                                                                                                                                                                                             {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_canvas_draw_simple_text          {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t; const text: Pointer; size: size_t; encoding: sk_textencoding_t; x, y: float; const font: sk_font_t; const paint: sk_paint_t); cdecl;                                                                                                                                         {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_canvas_draw_text_blob            {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t; const text_blob: sk_textblob_t; x, y: float; const paint: sk_paint_t); cdecl;                                                                                                                                                                                                {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_canvas_draw_vertices             {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t; const vertices: sk_vertices_t; blend_mode: sk_blendmode_t; const paint: sk_paint_t); cdecl;                                                                                                                                                                                  {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_canvas_get_device_clip_bounds    {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(const self: sk_canvas_t; out result: sk_irect_t); cdecl;                                                                                                                                                                                                                                        {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_canvas_get_local_clip_bounds     {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(const self: sk_canvas_t; out result: sk_rect_t); cdecl;                                                                                                                                                                                                                                         {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_canvas_get_local_to_device       {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(const self: sk_canvas_t; out result: sk_matrix44_t); cdecl;                                                                                                                                                                                                                                     {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_canvas_get_local_to_device_as_3x3{$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(const self: sk_canvas_t; out result: sk_matrix_t); cdecl;                                                                                                                                                                                                                                       {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_canvas_get_save_count            {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_canvas_t): int32_t; cdecl;                                                                                                                                                                                                                                                       {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_canvas_quick_reject              {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_canvas_t; const rect: psk_rect_t): bool; cdecl;                                                                                                                                                                                                                                  {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_canvas_quick_reject2             {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_canvas_t; const path: sk_path_t): bool; cdecl;                                                                                                                                                                                                                                   {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_canvas_reset_matrix              {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t); cdecl;                                                                                                                                                                                                                                                                      {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_canvas_restore                   {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t); cdecl;                                                                                                                                                                                                                                                                      {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_canvas_restore_to_count          {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t; save_count: int32_t); cdecl;                                                                                                                                                                                                                                                 {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_canvas_rotate                    {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t; degrees: float); cdecl;                                                                                                                                                                                                                                                      {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_canvas_rotate2                   {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t; degrees, px, py: float); cdecl;                                                                                                                                                                                                                                              {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_canvas_save                      {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(self: sk_canvas_t): int32_t; cdecl;                                                                                                                                                                                                                                                             {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_canvas_save_layer                {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(self: sk_canvas_t; const rect: psk_rect_t; const paint: sk_paint_t): int32_t; cdecl;                                                                                                                                                                                                            {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_canvas_save_layer_alpha          {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(self: sk_canvas_t; const rect: psk_rect_t; alpha: uint8_t): int32_t; cdecl;                                                                                                                                                                                                                     {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_canvas_scale                     {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t; sx, sy: float); cdecl;                                                                                                                                                                                                                                                       {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_canvas_set_matrix                {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t; const matrix: psk_matrix44_t); cdecl;                                                                                                                                                                                                                                        {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_canvas_set_matrix2               {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t; const matrix: psk_matrix_t); cdecl;                                                                                                                                                                                                                                          {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_canvas_skew                      {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t; kx, ky: float); cdecl;                                                                                                                                                                                                                                                       {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_canvas_translate                 {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_canvas_t; dx, dy: float); cdecl;                                                                                                                                                                                                                                                       {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$ENDREGION}
 
-    {$REGION 'include/c/sk4d_codec.h'}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_codec_destroy                   {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(codec: sk_codec_t); cdecl;                                                                                                                                {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_codec_get_dimensions            {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(const self: sk_codec_t; out result: sk_isize_t); cdecl;                                                                                                   {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_codec_get_encoded_image_format  {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_codec_t): sk_encodedimageformat_t; cdecl;                                                                                                  {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_codec_get_image                 {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(self: sk_codec_t; color_type: sk_colortype_t; alpha_type: sk_alphatype_t; color_space: sk_colorspace_t): sk_image_t; cdecl;                               {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_codec_get_pixels                {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(self: sk_codec_t; pixels: Pointer; row_bytes: size_t; color_type: sk_colortype_t; alpha_type: sk_alphatype_t; color_space: sk_colorspace_t): bool; cdecl; {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_codec_make_from_file            {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const file_name: MarshaledAString): sk_codec_t; cdecl;                                                                                                    {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_codec_make_from_stream          {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(stream: sk_stream_t): sk_codec_t; cdecl;                                                                                                                  {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_codec_make_with_copy            {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const data: Pointer; size: size_t): sk_codec_t; cdecl;                                                                                                    {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_codec_make_without_copy         {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const data: Pointer; size: size_t): sk_codec_t; cdecl;                                                                                                    {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_animcodecplayer_destroy         {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_animcodecplayer_t); cdecl;                                                                                                                       {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_animcodecplayer_get_dimensions  {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(const self: sk_animcodecplayer_t; out result: sk_isize_t); cdecl;                                                                                         {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_animcodecplayer_get_duration    {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_animcodecplayer_t): uint32_t; cdecl;                                                                                                       {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_animcodecplayer_get_frame       {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(self: sk_animcodecplayer_t): sk_image_t; cdecl;                                                                                                           {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_animcodecplayer_make_from_file  {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const file_name: MarshaledAString): sk_animcodecplayer_t; cdecl;                                                                                          {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_animcodecplayer_make_from_stream{$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(stream: sk_stream_t): sk_animcodecplayer_t; cdecl;                                                                                                        {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_animcodecplayer_seek            {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(self: sk_animcodecplayer_t; milliseconds: uint32_t): bool; cdecl;                                                                                         {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$ENDREGION}
+  { include/c/gr4d_gl_interface.h }
 
-    {$REGION 'include/c/sk4d_colorfilter.h'}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function {$ELSE}class var {$ENDIF}sk4d_colorfilter_make_blend               {$IFDEF SK_DYNAMIC_LOADING}: function {$ENDIF}(color: sk_color_t; mode: sk_blendmode_t): sk_colorfilter_t; cdecl;                {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function {$ELSE}class var {$ENDIF}sk4d_colorfilter_make_compose             {$IFDEF SK_DYNAMIC_LOADING}: function {$ENDIF}(outer, inner: sk_colorfilter_t): sk_colorfilter_t; cdecl;                         {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function {$ELSE}class var {$ENDIF}sk4d_colorfilter_make_high_contrast       {$IFDEF SK_DYNAMIC_LOADING}: function {$ENDIF}(const config: psk_highcontrastconfig_t): sk_colorfilter_t; cdecl;                 {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function {$ELSE}class var {$ENDIF}sk4d_colorfilter_make_hsla_matrix         {$IFDEF SK_DYNAMIC_LOADING}: function {$ENDIF}(const matrix: psk_colormatrix_t): sk_colorfilter_t; cdecl;                        {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function {$ELSE}class var {$ENDIF}sk4d_colorfilter_make_lighting            {$IFDEF SK_DYNAMIC_LOADING}: function {$ENDIF}(multiply, add: sk_color_t): sk_colorfilter_t; cdecl;                              {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function {$ELSE}class var {$ENDIF}sk4d_colorfilter_make_linear_to_srgb_gamma{$IFDEF SK_DYNAMIC_LOADING}: function {$ENDIF}(): sk_colorfilter_t; cdecl;                                                       {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function {$ELSE}class var {$ENDIF}sk4d_colorfilter_make_luma_color          {$IFDEF SK_DYNAMIC_LOADING}: function {$ENDIF}(): sk_colorfilter_t; cdecl;                                                       {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function {$ELSE}class var {$ENDIF}sk4d_colorfilter_make_matrix              {$IFDEF SK_DYNAMIC_LOADING}: function {$ENDIF}(const matrix: psk_colormatrix_t): sk_colorfilter_t; cdecl;                        {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function {$ELSE}class var {$ENDIF}sk4d_colorfilter_make_overdraw            {$IFDEF SK_DYNAMIC_LOADING}: function {$ENDIF}(const colors: psk_color_t): sk_colorfilter_t; cdecl;                              {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function {$ELSE}class var {$ENDIF}sk4d_colorfilter_make_table               {$IFDEF SK_DYNAMIC_LOADING}: function {$ENDIF}(const tablea_a, tablea_r, tablea_g, tablea_b: puint8_t): sk_colorfilter_t; cdecl; {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$ENDREGION}
+  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}gr4d_gl_interface_has_extension       {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(const self: gr_gl_interface_t; const name: MarshaledAString): _bool; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}gr4d_gl_interface_make_assembled      {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(context: Pointer; proc: gr_gl_get_proc): gr_gl_interface_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}gr4d_gl_interface_make_assembled_gl   {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(context: Pointer; proc: gr_gl_get_proc): gr_gl_interface_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}gr4d_gl_interface_make_assembled_gles {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(context: Pointer; proc: gr_gl_get_proc): gr_gl_interface_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}gr4d_gl_interface_make_assembled_webgl{$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(context: Pointer; proc: gr_gl_get_proc): gr_gl_interface_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}gr4d_gl_interface_make_native         {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(): gr_gl_interface_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}gr4d_gl_interface_validate            {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(const self: gr_gl_interface_t): _bool; cdecl;
 
-    {$REGION 'include/c/sk4d_colorspace.h'}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_colorspace_gamma_close_to_srgb      {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_colorspace_t): bool; cdecl;                                                                    {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_colorspace_gamma_is_linear          {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_colorspace_t): bool; cdecl;                                                                    {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_colorspace_is_equal                 {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self, color_space: sk_colorspace_t): bool; cdecl;                                                       {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_colorspace_is_numerical_transfer_fn {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_colorspace_t; out transfer_function: sk_colorspacetransferfn_t): bool; cdecl;                  {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_colorspace_is_srgb                  {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_colorspace_t): bool; cdecl;                                                                    {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_colorspace_make                     {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const profile: sk_colorspaceiccprofile_t): sk_colorspace_t; cdecl;                                            {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_colorspace_make_linear_gamma        {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_colorspace_t): sk_colorspace_t; cdecl;                                                         {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_colorspace_make_rgb                 {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const transfer_function: psk_colorspacetransferfn_t; const xyz: psk_colorspacexyz_t): sk_colorspace_t; cdecl; {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_colorspace_make_srgb                {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(): sk_colorspace_t; cdecl;                                                                                    {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_colorspace_make_srgb_gamma          {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_colorspace_t): sk_colorspace_t; cdecl;                                                         {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_colorspace_make_srgb_linear         {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(): sk_colorspace_t; cdecl;                                                                                    {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_colorspace_ref                      {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(const self: sk_colorspace_t); cdecl;                                                                          {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_colorspace_to_profile               {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_colorspace_t): sk_colorspaceiccprofile_t; cdecl;                                               {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_colorspace_to_xyz                   {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_colorspace_t; out xyz: sk_colorspacexyz_t): bool; cdecl;                                       {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_colorspace_unref                    {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(const self: sk_colorspace_t); cdecl;                                                                          {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_colorspaceiccprofile_destroy        {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_colorspaceiccprofile_t); cdecl;                                                                      {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_colorspaceiccprofile_get_buffer     {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_colorspaceiccprofile_t; size: puint32_t): puint8_t; cdecl;                                     {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_colorspaceiccprofile_make_with_parse{$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const buffer: Pointer; size: size_t): sk_colorspaceiccprofile_t; cdecl;                                       {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_colorspaceiccprofile_to_xyz         {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_colorspaceiccprofile_t; out dest: sk_colorspacexyz_t): bool; cdecl;                            {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_colorspaceprimaries_to_xyz          {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: psk_colorspaceprimaries_t; out xyz: sk_colorspacexyz_t): bool; cdecl;                             {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_colorspacetransferfn_invert         {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: psk_colorspacetransferfn_t; out transfer_function: sk_colorspacetransferfn_t): bool; cdecl;       {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_colorspacetransferfn_transform      {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: psk_colorspacetransferfn_t; x: float): float; cdecl;                                              {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$ENDREGION}
 
-    {$REGION 'include/c/sk4d_data.h'}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function {$ELSE}class var {$ENDIF}sk4d_data_make_empty    {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(): sk_data_t; cdecl;                                  {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function {$ELSE}class var {$ENDIF}sk4d_data_make_with_copy{$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const data: Pointer; size: size_t): sk_data_t; cdecl; {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$ENDREGION}
+  { include/c/gr4d_shadererrorhandler.h }
 
-    {$REGION 'include/c/sk4d_document.h'}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_document_begin_page{$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(self: sk_document_t; width, height: float; const content: psk_rect_t): sk_canvas_t; cdecl; {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_document_close     {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_document_t); cdecl;                                                               {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_document_end_page  {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_document_t); cdecl;                                                               {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_document_make_pdf  {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(w_stream: sk_wstream_t): sk_document_t; cdecl;                                             {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_document_make_pdf2 {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(w_stream: sk_wstream_t; const metadata: psk_pdfmetadata_t): sk_document_t; cdecl;          {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_document_make_xps  {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(w_stream: sk_wstream_t; dpi: float): sk_document_t; cdecl;                                 {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_document_terminate {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_document_t); cdecl;                                                               {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$ENDREGION}
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}gr4d_shadererrorhandlerbaseclass_create   {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(context: Pointer): gr_shadererrorhandlerbaseclass_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}gr4d_shadererrorhandlerbaseclass_destroy  {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: gr_shadererrorhandlerbaseclass_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}gr4d_shadererrorhandlerbaseclass_set_procs{$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(const procs: pgr_shadererrorhandlerbaseclass_procs_t); cdecl;
 
-    {$REGION 'include/c/sk4d_font.h'}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_font_create                  {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(typeface: sk_typeface_t; size, sx, kx: float): sk_font_t; cdecl;                                                                                                                 {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_font_create2                 {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const font: sk_font_t): sk_font_t; cdecl;                                                                                                                                        {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_font_destroy                 {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_font_t); cdecl;                                                                                                                                                         {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_font_get_baseline_snap       {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_font_t): bool; cdecl;                                                                                                                                             {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_font_get_edging              {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_font_t): sk_fontedging_t; cdecl;                                                                                                                                  {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_font_get_embedded_bitmaps    {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_font_t): bool; cdecl;                                                                                                                                             {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_font_get_embolden            {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_font_t): bool; cdecl;                                                                                                                                             {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_font_get_force_auto_hinting  {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_font_t): bool; cdecl;                                                                                                                                             {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_font_get_glyphs              {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_font_t; const text: Pointer; size: size_t; encoding: sk_textencoding_t; result: psk_glyphid_t; max_count: int32_t): int32_t; cdecl;                               {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_font_get_glyphs_count        {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_font_t; const text: Pointer; size: size_t; encoding: sk_textencoding_t): int32_t; cdecl;                                                                          {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_font_get_hinting             {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_font_t): sk_fonthinting_t; cdecl;                                                                                                                                 {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_font_get_horizontal_positions{$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(const self: sk_font_t; const glyphs: psk_glyphid_t; count: int32_t; result: pfloat; origin: float); cdecl;                                                                       {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_font_get_intercepts          {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_font_t; const glyphs: psk_glyphid_t; count: int32_t; const positions: psk_point_t; const bounds: pfloat; result: pfloat; const paint: sk_paint_t): size_t; cdecl; {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_font_get_linear_metrics      {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_font_t): bool; cdecl;                                                                                                                                             {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_font_get_metrics             {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_font_t; metrics: psk_fontmetrics_t): float; cdecl;                                                                                                                {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_font_get_path                {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_font_t; glyph: sk_glyphid_t): sk_path_t; cdecl;                                                                                                                   {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_font_get_paths               {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(const self: sk_font_t; const glyphs: psk_glyphid_t; count: int32_t; proc: sk_font_path_proc; proc_context: Pointer); cdecl;                                                      {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_font_get_positions           {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(const self: sk_font_t; const glyphs: psk_glyphid_t; count: int32_t; result: psk_point_t; const origin: psk_point_t); cdecl;                                                      {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_font_get_scale_x             {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_font_t): float; cdecl;                                                                                                                                            {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_font_get_size                {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_font_t): float; cdecl;                                                                                                                                            {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_font_get_skew_x              {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_font_t): float; cdecl;                                                                                                                                            {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_font_get_subpixel            {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_font_t): bool; cdecl;                                                                                                                                             {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_font_get_typeface            {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_font_t): sk_typeface_t; cdecl;                                                                                                                                    {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_font_get_typeface_or_default {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_font_t): sk_typeface_t; cdecl;                                                                                                                                    {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_font_get_widths_bounds       {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(const self: sk_font_t; const glyphs: psk_glyphid_t; count: int32_t; widths: pfloat; bounds: psk_rect_t; const paint: sk_paint_t); cdecl;                                         {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_font_is_equal                {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self, font: sk_font_t): bool; cdecl;                                                                                                                                       {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_font_measure_text            {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_font_t; const text: Pointer; size: size_t; encoding: sk_textencoding_t; bounds: psk_rect_t; const paint: sk_paint_t): float; cdecl;                               {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_font_set_baseline_snap       {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_font_t; value: bool); cdecl;                                                                                                                                            {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_font_set_edging              {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_font_t; value: sk_fontedging_t); cdecl;                                                                                                                                 {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_font_set_embedded_bitmaps    {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_font_t; value: bool); cdecl;                                                                                                                                            {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_font_set_embolden            {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_font_t; value: bool); cdecl;                                                                                                                                            {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_font_set_force_auto_hinting  {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_font_t; value: bool); cdecl;                                                                                                                                            {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_font_set_hinting             {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_font_t; value: sk_fonthinting_t); cdecl;                                                                                                                                {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_font_set_linear_metrics      {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_font_t; value: bool); cdecl;                                                                                                                                            {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_font_set_scale_x             {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_font_t; value: float); cdecl;                                                                                                                                           {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_font_set_size                {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_font_t; value: float); cdecl;                                                                                                                                           {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_font_set_skew_x              {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_font_t; value: float); cdecl;                                                                                                                                           {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_font_set_subpixel            {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_font_t; value: bool); cdecl;                                                                                                                                            {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_font_set_typeface            {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_font_t; typeface: sk_typeface_t); cdecl;                                                                                                                                {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_font_unichar_to_glyph        {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_font_t; unichar: sk_unichar_t): sk_glyphid_t; cdecl;                                                                                                              {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_font_unichars_to_glyphs      {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(const self: sk_font_t; const unichars: psk_unichar_t; count: int32_t; result: psk_glyphid_t); cdecl;                                                                             {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$ENDREGION}
 
-    {$REGION 'include/c/sk4d_graphics.h'}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_graphics_allow_jit                                      {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(); cdecl;                                        {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_graphics_dump_memory_statistics                         {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(trace_memory_dump: sk_tracememorydump_t); cdecl; {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_graphics_get_font_cache_count_limit                     {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(): int32_t; cdecl;                               {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_graphics_get_font_cache_count_used                      {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(): int32_t; cdecl;                               {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_graphics_get_font_cache_limit                           {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(): size_t; cdecl;                                {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_graphics_get_font_cache_used                            {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(): size_t; cdecl;                                {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_graphics_get_resource_cache_single_allocation_byte_limit{$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(): size_t; cdecl;                                {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_graphics_get_resource_cache_total_byte_limit            {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(): size_t; cdecl;                                {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_graphics_get_resource_cache_total_bytes_used            {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(): size_t; cdecl;                                {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_graphics_init                                           {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(); cdecl;                                        {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_graphics_purge_all_caches                               {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(); cdecl;                                        {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_graphics_purge_font_cache                               {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(); cdecl;                                        {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_graphics_purge_resource_cache                           {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(); cdecl;                                        {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_graphics_set_font_cache_count_limit                     {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(value: int32_t): int32_t; cdecl;                 {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_graphics_set_font_cache_limit                           {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(value: size_t): size_t; cdecl;                   {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_graphics_set_resource_cache_single_allocation_byte_limit{$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(value: size_t): size_t; cdecl;                   {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_graphics_set_resource_cache_total_byte_limit            {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(value: size_t): size_t; cdecl;                   {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$ENDREGION}
+  { include/c/gr4d_vk_extensions.h }
 
-    {$REGION 'include/c/sk4d_image.h'}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_image_encode_to_file           {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_image_t; const file_name: MarshaledAString; format: sk_encodedimageformat_t; quality: int32_t): bool; cdecl;                                                                                                                                        {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_image_encode_to_stream         {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_image_t; w_stream: sk_wstream_t; format: sk_encodedimageformat_t; quality: int32_t): bool; cdecl;                                                                                                                                                   {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_image_get_alpha_type           {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_image_t): sk_alphatype_t; cdecl;                                                                                                                                                                                                                    {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_image_get_color_space          {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_image_t): sk_colorspace_t; cdecl;                                                                                                                                                                                                                   {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_image_get_color_type           {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_image_t): sk_colortype_t; cdecl;                                                                                                                                                                                                                    {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_image_get_height               {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_image_t): int32_t; cdecl;                                                                                                                                                                                                                           {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_image_get_image_info           {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(const self: sk_image_t; out result: sk_imageinfo_t); cdecl;                                                                                                                                                                                                        {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_image_get_unique_id            {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_image_t): uint32_t; cdecl;                                                                                                                                                                                                                          {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_image_get_width                {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_image_t): int32_t; cdecl;                                                                                                                                                                                                                           {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_image_is_lazy_generated        {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_image_t): bool; cdecl;                                                                                                                                                                                                                              {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_image_is_texture_backed        {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_image_t): bool; cdecl;                                                                                                                                                                                                                              {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_image_is_valid                 {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_image_t; context: gr_directcontext_t): bool; cdecl;                                                                                                                                                                                                 {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_image_make_backend_texture     {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(self: sk_image_t; context: gr_directcontext_t): gr_backendtexture_t; cdecl;                                                                                                                                                                                        {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_image_make_from_adopted_texture{$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(context: gr_directcontext_t; const texture: gr_backendtexture_t; origin: gr_surfaceorigin_t; color_type: sk_colortype_t; alpha_type: sk_alphatype_t; color_space: sk_colorspace_t): sk_image_t; cdecl;                                                             {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_image_make_from_encoded_file   {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const file_name: MarshaledAString): sk_image_t; cdecl;                                                                                                                                                                                                             {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_image_make_from_encoded_stream {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(stream: sk_stream_t): sk_image_t; cdecl;                                                                                                                                                                                                                           {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_image_make_from_raster         {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const pixmap: sk_pixmap_t; proc: sk_image_raster_release_proc; proc_context: Pointer): sk_image_t; cdecl;                                                                                                                                                          {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_image_make_from_texture        {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(context: gr_directcontext_t; const texture: gr_backendtexture_t; origin: gr_surfaceorigin_t; color_type: sk_colortype_t; alpha_type: sk_alphatype_t; color_space: sk_colorspace_t; proc: sk_image_texture_release_proc; proc_context: Pointer): sk_image_t; cdecl; {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_image_make_non_texture_image   {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_image_t): sk_image_t; cdecl;                                                                                                                                                                                                                        {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_image_make_raster_copy         {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const pixmap: sk_pixmap_t): sk_image_t; cdecl;                                                                                                                                                                                                                     {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_image_make_raster_image        {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_image_t): sk_image_t; cdecl;                                                                                                                                                                                                                        {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_image_make_raw_shader          {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_image_t; tile_mode_x, tile_mode_y: sk_tilemode_t; const sampling: psk_samplingoptions_t; const local_matrix: psk_matrix_t): sk_shader_t; cdecl;                                                                                                     {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_image_make_shader              {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_image_t; tile_mode_x, tile_mode_y: sk_tilemode_t; const sampling: psk_samplingoptions_t; const local_matrix: psk_matrix_t): sk_shader_t; cdecl;                                                                                                     {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_image_make_subset              {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_image_t; const subset: psk_irect_t; context: gr_directcontext_t): sk_image_t; cdecl;                                                                                                                                                                {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_image_make_texture_image       {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_image_t; context: gr_directcontext_t; is_mipmapped: bool): sk_image_t; cdecl;                                                                                                                                                                       {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_image_make_with_filter         {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_image_t; context: gr_directcontext_t; const filter: sk_imagefilter_t; const subset, clip_bounds: psk_irect_t; out out_subset: sk_irect_t; out offset: sk_ipoint_t): sk_image_t; cdecl;                                                              {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_image_peek_pixels              {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_image_t): sk_pixmap_t; cdecl;                                                                                                                                                                                                                       {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_image_read_pixels              {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_image_t; context: gr_directcontext_t; const dest: sk_pixmap_t; src_x, src_y: int32_t; caching_hint: sk_imagecachinghint_t): bool; cdecl;                                                                                                            {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_image_scale_pixels             {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_image_t; const dest: sk_pixmap_t; const sampling: psk_samplingoptions_t; caching_hint: sk_imagecachinghint_t): bool; cdecl;                                                                                                                         {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$ENDREGION}
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}gr4d_vk_extensions_create       {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(): gr_vk_extensions_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}gr4d_vk_extensions_destroy      {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: gr_vk_extensions_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}gr4d_vk_extensions_has_extension{$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: gr_vk_extensions_t; const name: MarshaledAString; min_version: uint32_t): _bool; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}gr4d_vk_extensions_init         {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: gr_vk_extensions_t; context: Pointer; proc: gr_vk_get_proc; instance: gr_vk_instance_t; physical_device: gr_vk_physicaldevice_t; const instance_extensions: PMarshaledAString; instance_extension_count: int32_t; const device_extensions: PMarshaledAString; device_extension_count: int32_t); cdecl;
 
-    {$REGION 'include/c/sk4d_imageencoder.h'}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function {$ELSE}class var {$ENDIF}sk4d_imageencoder_encode_to_file  {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const file_name: MarshaledAString; const src: sk_pixmap_t; format: sk_encodedimageformat_t; quality: int32_t): bool; cdecl; {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function {$ELSE}class var {$ENDIF}sk4d_imageencoder_encode_to_stream{$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(w_stream: sk_wstream_t; const src: sk_pixmap_t; format: sk_encodedimageformat_t; quality: int32_t): bool; cdecl;            {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$ENDREGION}
 
-    {$REGION 'include/c/sk4d_imagefilter.h'}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function {$ELSE}class var {$ENDIF}sk4d_imagefilter_make_alpha_threshold     {$IFDEF SK_DYNAMIC_LOADING}: function {$ENDIF}(const region: sk_region_t; inner_min, outer_max: float; input: sk_imagefilter_t): sk_imagefilter_t; cdecl;                                                                                                                                  {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function {$ELSE}class var {$ENDIF}sk4d_imagefilter_make_arithmetic          {$IFDEF SK_DYNAMIC_LOADING}: function {$ENDIF}(k1, k2, k3, k4: float; enforce_premultiplied_color: bool; background, foreground: sk_imagefilter_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl;                                                                                  {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function {$ELSE}class var {$ENDIF}sk4d_imagefilter_make_blend               {$IFDEF SK_DYNAMIC_LOADING}: function {$ENDIF}(mode: sk_blendmode_t; background, foreground: sk_imagefilter_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl;                                                                                                                      {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function {$ELSE}class var {$ENDIF}sk4d_imagefilter_make_blur                {$IFDEF SK_DYNAMIC_LOADING}: function {$ENDIF}(sigma_x, sigma_y: float; tile_mode: sk_tilemode_t; input: sk_imagefilter_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl;                                                                                                          {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function {$ELSE}class var {$ENDIF}sk4d_imagefilter_make_colorfilter         {$IFDEF SK_DYNAMIC_LOADING}: function {$ENDIF}(color_filter: sk_colorfilter_t; input: sk_imagefilter_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl;                                                                                                                             {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function {$ELSE}class var {$ENDIF}sk4d_imagefilter_make_compose             {$IFDEF SK_DYNAMIC_LOADING}: function {$ENDIF}(inner, outer: sk_imagefilter_t): sk_imagefilter_t; cdecl;                                                                                                                                                                                   {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function {$ELSE}class var {$ENDIF}sk4d_imagefilter_make_dilate              {$IFDEF SK_DYNAMIC_LOADING}: function {$ENDIF}(radius_x, radius_y: float; input: sk_imagefilter_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl;                                                                                                                                  {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function {$ELSE}class var {$ENDIF}sk4d_imagefilter_make_displacement_map    {$IFDEF SK_DYNAMIC_LOADING}: function {$ENDIF}(x_channel_selector, y_channel_selector: sk_colorchannel_t; scale: float; displacement, input: sk_imagefilter_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl;                                                                      {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function {$ELSE}class var {$ENDIF}sk4d_imagefilter_make_distant_lit_diffuse {$IFDEF SK_DYNAMIC_LOADING}: function {$ENDIF}(const direction: psk_point3_t; light_color: sk_color_t; surface_scale, kd: float; input: sk_imagefilter_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl;                                                                           {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function {$ELSE}class var {$ENDIF}sk4d_imagefilter_make_distant_lit_specular{$IFDEF SK_DYNAMIC_LOADING}: function {$ENDIF}(const direction: psk_point3_t; light_color: sk_color_t; surface_scale, ks, shininess: float; input: sk_imagefilter_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl;                                                                {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function {$ELSE}class var {$ENDIF}sk4d_imagefilter_make_drop_shadow         {$IFDEF SK_DYNAMIC_LOADING}: function {$ENDIF}(dx, dy, sigma_x, sigma_y: float; color: sk_color_t; input: sk_imagefilter_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl;                                                                                                         {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function {$ELSE}class var {$ENDIF}sk4d_imagefilter_make_drop_shadow_only    {$IFDEF SK_DYNAMIC_LOADING}: function {$ENDIF}(dx, dy, sigma_x, sigma_y: float; color: sk_color_t; input: sk_imagefilter_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl;                                                                                                         {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function {$ELSE}class var {$ENDIF}sk4d_imagefilter_make_erode               {$IFDEF SK_DYNAMIC_LOADING}: function {$ENDIF}(radius_x, radius_y: float; input: sk_imagefilter_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl;                                                                                                                                  {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function {$ELSE}class var {$ENDIF}sk4d_imagefilter_make_image               {$IFDEF SK_DYNAMIC_LOADING}: function {$ENDIF}(image: sk_image_t; const src, dest: psk_rect_t; const sampling: psk_samplingoptions_t): sk_imagefilter_t; cdecl;                                                                                                                            {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function {$ELSE}class var {$ENDIF}sk4d_imagefilter_make_magnifier           {$IFDEF SK_DYNAMIC_LOADING}: function {$ENDIF}(const src: psk_rect_t; inset: float; input: sk_imagefilter_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl;                                                                                                                        {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function {$ELSE}class var {$ENDIF}sk4d_imagefilter_make_matrix_convolution  {$IFDEF SK_DYNAMIC_LOADING}: function {$ENDIF}(const kernel_size: psk_isize_t; const kernel: pfloat; gain, bias: float; const kernel_offset: psk_ipoint_t; tile_mode: sk_tilemode_t; convolve_alpha: bool; input: sk_imagefilter_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl; {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function {$ELSE}class var {$ENDIF}sk4d_imagefilter_make_matrix_transform    {$IFDEF SK_DYNAMIC_LOADING}: function {$ENDIF}(const matrix: psk_matrix_t; const sampling: psk_samplingoptions_t; input: sk_imagefilter_t): sk_imagefilter_t; cdecl;                                                                                                                       {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function {$ELSE}class var {$ENDIF}sk4d_imagefilter_make_merge               {$IFDEF SK_DYNAMIC_LOADING}: function {$ENDIF}(const filters: psk_imagefilter_t; count: int32_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl;                                                                                                                                    {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function {$ELSE}class var {$ENDIF}sk4d_imagefilter_make_offset              {$IFDEF SK_DYNAMIC_LOADING}: function {$ENDIF}(dx, dy: float; input: sk_imagefilter_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl;                                                                                                                                              {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function {$ELSE}class var {$ENDIF}sk4d_imagefilter_make_picture             {$IFDEF SK_DYNAMIC_LOADING}: function {$ENDIF}(picture: sk_picture_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl;                                                                                                                                                               {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function {$ELSE}class var {$ENDIF}sk4d_imagefilter_make_point_lit_diffuse   {$IFDEF SK_DYNAMIC_LOADING}: function {$ENDIF}(const location: psk_point3_t; light_color: sk_color_t; surface_scale, kd: float; input: sk_imagefilter_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl;                                                                            {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function {$ELSE}class var {$ENDIF}sk4d_imagefilter_make_point_lit_specular  {$IFDEF SK_DYNAMIC_LOADING}: function {$ENDIF}(const location: psk_point3_t; light_color: sk_color_t; surface_scale, ks, shininess: float; input: sk_imagefilter_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl;                                                                 {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function {$ELSE}class var {$ENDIF}sk4d_imagefilter_make_shader              {$IFDEF SK_DYNAMIC_LOADING}: function {$ENDIF}(shader: sk_shader_t; dither: bool; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl;                                                                                                                                                   {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function {$ELSE}class var {$ENDIF}sk4d_imagefilter_make_spot_lit_diffuse    {$IFDEF SK_DYNAMIC_LOADING}: function {$ENDIF}(const location, target: psk_point3_t; falloff_exponent, cutoff_angle: float; light_color: sk_color_t; surface_scale, kd: float; input: sk_imagefilter_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl;                             {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function {$ELSE}class var {$ENDIF}sk4d_imagefilter_make_spot_lit_specular   {$IFDEF SK_DYNAMIC_LOADING}: function {$ENDIF}(const location, target: psk_point3_t; falloff_exponent, cutoff_angle: float; light_color: sk_color_t; surface_scale, ks, shininess: float; input: sk_imagefilter_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl;                  {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function {$ELSE}class var {$ENDIF}sk4d_imagefilter_make_tile                {$IFDEF SK_DYNAMIC_LOADING}: function {$ENDIF}(const src, dest: psk_rect_t; input: sk_imagefilter_t): sk_imagefilter_t; cdecl;                                                                                                                                                             {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function {$ELSE}class var {$ENDIF}sk4d_imagefilter_make_with_local_matrix   {$IFDEF SK_DYNAMIC_LOADING}: function {$ENDIF}(const self: sk_imagefilter_t; const local_matrix: psk_matrix_t): sk_imagefilter_t; cdecl;                                                                                                                                                   {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
+  { include/c/sk4d_blender.h }
 
-    {$ENDREGION}
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_blender_make_arithmetic{$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(k1, k2, k3, k4: float; enforce_premultiplied_color: _bool): sk_blender_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_blender_make_mode      {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(mode: sk_blendmode_t): sk_blender_t; cdecl;
 
-    {$REGION 'include/c/sk4d_maskfilter.h'}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function {$ELSE}class var {$ENDIF}sk4d_maskfilter_make_blur       {$IFDEF SK_DYNAMIC_LOADING}: function {$ENDIF}(style: sk_blurstyle_t; sigma: float; respect_ctm: bool): sk_maskfilter_t; cdecl; {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function {$ELSE}class var {$ENDIF}sk4d_maskfilter_make_shader     {$IFDEF SK_DYNAMIC_LOADING}: function {$ENDIF}(shader: sk_shader_t): sk_maskfilter_t; cdecl;                                    {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function {$ELSE}class var {$ENDIF}sk4d_maskfilter_make_table      {$IFDEF SK_DYNAMIC_LOADING}: function {$ENDIF}(const table: puint8_t): sk_maskfilter_t; cdecl;                                  {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function {$ELSE}class var {$ENDIF}sk4d_maskfilter_make_table_clip {$IFDEF SK_DYNAMIC_LOADING}: function {$ENDIF}(min, max: uint8_t): sk_maskfilter_t; cdecl;                                      {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function {$ELSE}class var {$ENDIF}sk4d_maskfilter_make_table_gamma{$IFDEF SK_DYNAMIC_LOADING}: function {$ENDIF}(gamma: float): sk_maskfilter_t; cdecl;                                           {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$ENDREGION}
 
-    {$REGION 'include/c/sk4d_paint.h'}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_paint_create            {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(): sk_paint_t; cdecl;                                                                                            {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_paint_create2           {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const paint: sk_paint_t): sk_paint_t; cdecl;                                                                     {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_paint_destroy           {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_paint_t); cdecl;                                                                                        {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_paint_get_alpha         {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_paint_t): uint8_t; cdecl;                                                                         {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_paint_get_alphaf        {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_paint_t): float; cdecl;                                                                           {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_paint_get_anti_alias    {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_paint_t): bool; cdecl;                                                                            {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_paint_get_blender       {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_paint_t): sk_blender_t; cdecl;                                                                    {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_paint_get_color         {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_paint_t): sk_color_t; cdecl;                                                                      {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_paint_get_colorf        {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(const self: sk_paint_t; out result: sk_color4f_t); cdecl;                                                        {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_paint_get_color_filter  {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_paint_t): sk_colorfilter_t; cdecl;                                                                {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_paint_get_dither        {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_paint_t): bool; cdecl;                                                                            {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_paint_get_fill_path     {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_paint_t; const path: sk_path_t; const cull_rect: psk_rect_t; res_scale: float): sk_path_t; cdecl; {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_paint_get_image_filter  {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_paint_t): sk_imagefilter_t; cdecl;                                                                {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_paint_get_mask_filter   {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_paint_t): sk_maskfilter_t; cdecl;                                                                 {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_paint_get_path_effect   {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_paint_t): sk_patheffect_t; cdecl;                                                                 {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_paint_get_shader        {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_paint_t): sk_shader_t; cdecl;                                                                     {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_paint_get_stroke_cap    {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_paint_t): sk_strokecap_t; cdecl;                                                                  {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_paint_get_stroke_join   {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_paint_t): sk_strokejoin_t; cdecl;                                                                 {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_paint_get_stroke_miter  {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_paint_t): float; cdecl;                                                                           {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_paint_get_stroke_width  {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_paint_t): float; cdecl;                                                                           {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_paint_get_style         {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_paint_t): sk_paintstyle_t; cdecl;                                                                 {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_paint_reset             {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_paint_t); cdecl;                                                                                        {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_paint_set_alpha         {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_paint_t; value: uint8_t); cdecl;                                                                        {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_paint_set_alphaf        {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_paint_t; value: float); cdecl;                                                                          {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_paint_set_antialias     {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_paint_t; value: bool); cdecl;                                                                           {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_paint_set_argb          {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_paint_t; a, r, g, b: uint8_t); cdecl;                                                                   {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_paint_set_blender       {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_paint_t; value: sk_blender_t); cdecl;                                                                   {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_paint_set_color         {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_paint_t; value: sk_color_t); cdecl;                                                                     {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_paint_set_colorf        {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_paint_t; const value: psk_color4f_t; color_space: sk_colorspace_t); cdecl;                              {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_paint_set_color_filter  {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_paint_t; value: sk_colorfilter_t); cdecl;                                                               {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_paint_set_dither        {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_paint_t; value: bool); cdecl;                                                                           {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_paint_set_image_filter  {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_paint_t; value: sk_imagefilter_t); cdecl;                                                               {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_paint_set_mask_filter   {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_paint_t; value: sk_maskfilter_t); cdecl;                                                                {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_paint_set_path_effect   {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_paint_t; value: sk_patheffect_t); cdecl;                                                                {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_paint_set_shader        {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_paint_t; value: sk_shader_t); cdecl;                                                                    {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_paint_set_stroke_cap    {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_paint_t; value: sk_strokecap_t); cdecl;                                                                 {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_paint_set_stroke_join   {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_paint_t; value: sk_strokejoin_t); cdecl;                                                                {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_paint_set_stroke_miter  {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_paint_t; value: float); cdecl;                                                                          {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_paint_set_stroke_width  {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_paint_t; value: float); cdecl;                                                                          {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_paint_set_style         {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_paint_t; value: sk_paintstyle_t); cdecl;                                                                {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$ENDREGION}
+  { include/c/sk4d_canvas.h }
 
-    {$REGION 'include/c/sk4d_path.h'}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_opbuilder_add              {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_opbuilder_t; const path: sk_path_t; op: sk_pathop_t); cdecl;                                            {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_opbuilder_create           {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(): sk_opbuilder_t; cdecl;                                                                                        {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_opbuilder_destroy          {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_opbuilder_t); cdecl;                                                                                    {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_opbuilder_detach           {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(self: sk_opbuilder_t): sk_path_t; cdecl;                                                                         {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_path_contains              {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_path_t; x, y: float): bool; cdecl;                                                                {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_path_convert_conic_to_quads{$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const point1, point2, point3: psk_point_t; weight: float; points: psk_point_t; power2: int32_t): int32_t; cdecl; {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_path_create                {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const svg: MarshaledAString): sk_path_t; cdecl;                                                                  {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_path_create2               {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(stream: sk_stream_t): sk_path_t; cdecl;                                                                          {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_path_destroy               {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_path_t); cdecl;                                                                                         {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_path_get_bounds            {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(const self: sk_path_t; out result: sk_rect_t); cdecl;                                                            {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_path_get_fill_type         {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_path_t): sk_pathfilltype_t; cdecl;                                                                {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_path_get_last_point        {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_path_t; out result: sk_point_t): bool; cdecl;                                                     {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_path_get_segment_masks     {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_path_t): uint32_t; cdecl;                                                                         {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_path_get_tight_bounds      {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(const self: sk_path_t; out result: sk_rect_t); cdecl;                                                            {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_path_interpolate           {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self, cending: sk_path_t; weight: float): sk_path_t; cdecl;                                                {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_path_is_convex             {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_path_t): bool; cdecl;                                                                             {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_path_is_empty              {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_path_t): bool; cdecl;                                                                             {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_path_is_finite             {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_path_t): bool; cdecl;                                                                             {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_path_is_interpolatable     {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self, path: sk_path_t): bool; cdecl;                                                                       {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_path_is_last_contour_closed{$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_path_t): bool; cdecl;                                                                             {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_path_is_line               {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_path_t; lines: psk_point_t): bool; cdecl;                                                         {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_path_is_oval               {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_path_t; oval: psk_rect_t): bool; cdecl;                                                           {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_path_is_rect               {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_path_t; rect: psk_rect_t): bool; cdecl;                                                           {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_path_is_rrect              {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_path_t; rrect: sk_rrect_t): bool; cdecl;                                                          {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_path_serialize_to_stream   {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(const self: sk_path_t; w_stream: sk_wstream_t); cdecl;                                                           {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_path_to_svg                {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_path_t): sk_string_t; cdecl;                                                                      {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_path_transform             {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_path_t; const matrix: psk_matrix_t): sk_path_t; cdecl;                                            {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_pathiterator_create        {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const path: sk_path_t; force_close: bool): sk_pathiterator_t; cdecl;                                             {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_pathiterator_destroy       {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_pathiterator_t); cdecl;                                                                                 {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_pathiterator_next          {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(self: sk_pathiterator_t; out elem: sk_pathiteratorelem_t): bool; cdecl;                                          {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$ENDREGION}
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_canvas_clear                     {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_canvas_t; color: sk_color_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_canvas_clear2                    {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_canvas_t; const color: psk_color4f_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_canvas_destroy                   {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_canvas_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_canvas_discard                   {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_canvas_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_canvas_clip_path                 {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_canvas_t; const path: sk_path_t; op: sk_clipop_t; anti_alias: _bool); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_canvas_clip_rect                 {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_canvas_t; const rect: psk_rect_t; op: sk_clipop_t; anti_alias: _bool); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_canvas_clip_region               {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_canvas_t; const region: sk_region_t; op: sk_clipop_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_canvas_clip_rrect                {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_canvas_t; const rrect: sk_rrect_t; op: sk_clipop_t; anti_alias: _bool); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_canvas_clip_shader               {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_canvas_t; shader: sk_shader_t; op: sk_clipop_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_canvas_concat                    {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_canvas_t; const matrix: psk_matrix44_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_canvas_concat2                   {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_canvas_t; const matrix: psk_matrix_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_canvas_draw_annotation           {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_canvas_t; const rect: psk_rect_t; const key: MarshaledAString; const value: Pointer; size: size_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_canvas_draw_arc                  {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_canvas_t; const oval: psk_rect_t; start_angle, sweep_angle: float; use_center: _bool; const paint: sk_paint_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_canvas_draw_atlas                {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_canvas_t; const atlas: sk_image_t; const transforms: psk_rotationscalematrix_t; const sprites: psk_rect_t; const colors: psk_color_t; count: int32_t; blend_mode: sk_blendmode_t; const sampling: psk_samplingoptions_t; const cull_rect: psk_rect_t; const paint: sk_paint_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_canvas_draw_circle               {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_canvas_t; const center: psk_point_t; radius: float; const paint: sk_paint_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_canvas_draw_color                {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_canvas_t; color: sk_color_t; blend_mode: sk_blendmode_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_canvas_draw_color2               {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_canvas_t; const color: psk_color4f_t; blend_mode: sk_blendmode_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_canvas_draw_glyphs               {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_canvas_t; count: int32_t; const glyphs: psk_glyphid_t; const positions: psk_point_t; const origin: psk_point_t; const font: sk_font_t; const paint: sk_paint_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_canvas_draw_glyphs2              {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_canvas_t; count: int32_t; const glyphs: psk_glyphid_t; const matrices: psk_rotationscalematrix_t; const origin: psk_point_t; const font: sk_font_t; const paint: sk_paint_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_canvas_draw_image                {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_canvas_t; const image: sk_image_t; x, y: float; const sampling: psk_samplingoptions_t; const paint: sk_paint_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_canvas_draw_image_lattice        {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_canvas_t; const image: sk_image_t; const lattice: psk_lattice_t; const dest: psk_rect_t; filter_mode: sk_filtermode_t; const paint: sk_paint_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_canvas_draw_image_nine           {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_canvas_t; const image: sk_image_t; const center: psk_irect_t; const dest: psk_rect_t; filter_mode: sk_filtermode_t; const paint: sk_paint_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_canvas_draw_image_rect           {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_canvas_t; const image: sk_image_t; const src, dest: psk_rect_t; const sampling: psk_samplingoptions_t; const paint: sk_paint_t; constraint: sk_srcrectconstraint_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_canvas_draw_line                 {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_canvas_t; const point1, point2: psk_point_t; paint: sk_paint_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_canvas_draw_oval                 {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_canvas_t; const oval: psk_rect_t; const paint: sk_paint_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_canvas_draw_paint                {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_canvas_t; const paint: sk_paint_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_canvas_draw_patch                {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_canvas_t; const cubics: psk_point_t; const colors: psk_color_t; const tex_coords: psk_point_t; blend_mode: sk_blendmode_t; const paint: sk_paint_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_canvas_draw_path                 {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_canvas_t; const path: sk_path_t; const paint: sk_paint_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_canvas_draw_picture              {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_canvas_t; const picture: sk_picture_t; const matrix: psk_matrix_t; const paint: sk_paint_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_canvas_draw_point                {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_canvas_t; const point: psk_point_t; const paint: sk_paint_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_canvas_draw_points               {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_canvas_t; mode: sk_drawpointsmode_t; count: size_t; const points: psk_point_t; const paint: sk_paint_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_canvas_draw_rect                 {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_canvas_t; const rect: psk_rect_t; const paint: sk_paint_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_canvas_draw_region               {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_canvas_t; const region: sk_region_t; const paint: sk_paint_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_canvas_draw_rrect                {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_canvas_t; const rrect: sk_rrect_t; const paint: sk_paint_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_canvas_draw_rrect2               {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_canvas_t; const rect: psk_rect_t; radius_x, radius_y: float; const paint: sk_paint_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_canvas_draw_rrect_difference     {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_canvas_t; const outer, inner: sk_rrect_t; const paint: sk_paint_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_canvas_draw_simple_text          {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_canvas_t; const text: Pointer; size: size_t; encoding: sk_textencoding_t; x, y: float; const font: sk_font_t; const paint: sk_paint_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_canvas_draw_text_blob            {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_canvas_t; const text_blob: sk_textblob_t; x, y: float; const paint: sk_paint_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_canvas_draw_vertices             {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_canvas_t; const vertices: sk_vertices_t; blend_mode: sk_blendmode_t; const paint: sk_paint_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_canvas_get_base_props            {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(const self: sk_canvas_t; out result: sk_surfaceprops_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_canvas_get_device_clip_bounds    {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(const self: sk_canvas_t; out result: sk_irect_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_canvas_get_local_clip_bounds     {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(const self: sk_canvas_t; out result: sk_rect_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_canvas_get_local_to_device       {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(const self: sk_canvas_t; out result: sk_matrix44_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_canvas_get_local_to_device_as_3x3{$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(const self: sk_canvas_t; out result: sk_matrix_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_canvas_get_top_props             {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(const self: sk_canvas_t; out result: sk_surfaceprops_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_canvas_get_save_count            {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_canvas_t): int32_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_canvas_make_surface              {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(self: sk_canvas_t; const image_info: psk_imageinfo_t; const props: psk_surfaceprops_t): sk_surface_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_canvas_quick_reject              {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_canvas_t; const rect: psk_rect_t): _bool; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_canvas_quick_reject2             {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_canvas_t; const path: sk_path_t): _bool; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_canvas_reset_matrix              {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_canvas_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_canvas_restore                   {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_canvas_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_canvas_restore_to_count          {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_canvas_t; save_count: int32_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_canvas_rotate                    {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_canvas_t; degrees: float); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_canvas_rotate2                   {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_canvas_t; degrees, px, py: float); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_canvas_save                      {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(self: sk_canvas_t): int32_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_canvas_save_layer                {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(self: sk_canvas_t; const rect: psk_rect_t; const paint: sk_paint_t): int32_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_canvas_save_layer_alpha          {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(self: sk_canvas_t; const rect: psk_rect_t; alpha: uint8_t): int32_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_canvas_scale                     {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_canvas_t; sx, sy: float); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_canvas_set_matrix                {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_canvas_t; const matrix: psk_matrix44_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_canvas_set_matrix2               {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_canvas_t; const matrix: psk_matrix_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_canvas_skew                      {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_canvas_t; kx, ky: float); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_canvas_translate                 {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_canvas_t; dx, dy: float); cdecl;
 
-    {$REGION 'include/c/sk4d_pathbuilder.h'}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_pathbuilder_add_arc                {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_pathbuilder_t; const oval: psk_rect_t; start_angle, sweep_angle: float); cdecl;                                                                        {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_pathbuilder_add_circle             {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_pathbuilder_t; center_x, center_y, radius: float; direction: sk_pathdirection_t); cdecl;                                                               {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_pathbuilder_add_oval               {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_pathbuilder_t; const oval: psk_rect_t; direction: sk_pathdirection_t; start_index: uint32_t); cdecl;                                                   {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_pathbuilder_add_path               {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_pathbuilder_t; const path: sk_path_t); cdecl;                                                                                                          {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_pathbuilder_add_polygon            {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_pathbuilder_t; polygon: psk_point_t; count: int32_t; is_closed: bool); cdecl;                                                                          {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_pathbuilder_add_rect               {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_pathbuilder_t; const rect: psk_rect_t; direction: sk_pathdirection_t; start_index: uint32_t); cdecl;                                                   {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_pathbuilder_add_rrect              {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_pathbuilder_t; const rrect: sk_rrect_t; direction: sk_pathdirection_t; start_index: uint32_t); cdecl;                                                  {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_pathbuilder_arc_to                 {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_pathbuilder_t; const radius: psk_point_t; x_axis_rotate: float; large_arc: sk_patharcsize_t; sweep: sk_pathdirection_t; const xy: psk_point_t); cdecl; {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_pathbuilder_arc_to2                {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_pathbuilder_t; const oval: psk_rect_t; start_angle, sweep_angle: float; force_move_to: bool); cdecl;                                                   {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_pathbuilder_arc_to3                {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_pathbuilder_t; const point1, point2: psk_point_t; radius: float); cdecl;                                                                               {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_pathbuilder_close                  {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_pathbuilder_t); cdecl;                                                                                                                                 {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_pathbuilder_conic_to               {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_pathbuilder_t; const point1, point2: psk_point_t; weight: float); cdecl;                                                                               {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_pathbuilder_create                 {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(): sk_pathbuilder_t; cdecl;                                                                                                                                     {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_pathbuilder_create2                {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const path_builder: sk_pathbuilder_t): sk_pathbuilder_t; cdecl;                                                                                                 {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_pathbuilder_cubic_to               {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_pathbuilder_t; const point1, point2, point3: psk_point_t); cdecl;                                                                                      {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_pathbuilder_destroy                {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_pathbuilder_t); cdecl;                                                                                                                                 {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_pathbuilder_detach                 {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(self: sk_pathbuilder_t): sk_path_t; cdecl;                                                                                                                      {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_pathbuilder_get_bounds             {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(const self: sk_pathbuilder_t; out result: sk_rect_t); cdecl;                                                                                                    {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_pathbuilder_get_fill_type          {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_pathbuilder_t): sk_pathfilltype_t; cdecl;                                                                                                        {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_pathbuilder_inc_reserve            {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_pathbuilder_t; extra_point_count, extra_verb_count: int32_t); cdecl;                                                                                   {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_pathbuilder_line_to                {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_pathbuilder_t; const cpoint: psk_point_t); cdecl;                                                                                                      {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_pathbuilder_move_to                {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_pathbuilder_t; const cpoint: psk_point_t); cdecl;                                                                                                      {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_pathbuilder_offset                 {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_pathbuilder_t; dx, dy: float); cdecl;                                                                                                                  {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_pathbuilder_polyline_to            {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_pathbuilder_t; const points: psk_point_t; count: int32_t); cdecl;                                                                                      {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_pathbuilder_quad_to                {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_pathbuilder_t; const point1, point2: psk_point_t); cdecl;                                                                                              {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_pathbuilder_r_conic_to             {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_pathbuilder_t; const point1, point2: psk_point_t; weight: float); cdecl;                                                                               {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_pathbuilder_r_cubic_to             {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_pathbuilder_t; const point1, point2, point3: psk_point_t); cdecl;                                                                                      {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_pathbuilder_r_line_to              {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_pathbuilder_t; const point: psk_point_t); cdecl;                                                                                                       {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_pathbuilder_r_quad_to              {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_pathbuilder_t; const point1, point2: psk_point_t); cdecl;                                                                                              {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_pathbuilder_reset                  {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_pathbuilder_t); cdecl;                                                                                                                                 {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_pathbuilder_set_filltype           {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_pathbuilder_t; value: sk_pathfilltype_t); cdecl;                                                                                                       {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_pathbuilder_snapshot               {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_pathbuilder_t): sk_path_t; cdecl;                                                                                                                {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_pathbuilder_toggle_inverse_filltype{$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_pathbuilder_t); cdecl;                                                                                                                                 {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$ENDREGION}
 
-    {$REGION 'include/c/sk4d_patheffect.h'}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function {$ELSE}class var {$ENDIF}sk4d_patheffect_make_1dpath         {$IFDEF SK_DYNAMIC_LOADING}: function {$ENDIF}(const path: sk_path_t; advance, phase: float; style: sk_patheffect1dstyle_t): sk_patheffect_t; cdecl; {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function {$ELSE}class var {$ENDIF}sk4d_patheffect_make_2dline         {$IFDEF SK_DYNAMIC_LOADING}: function {$ENDIF}(width: float; const matrix: psk_matrix_t): sk_patheffect_t; cdecl;                                    {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function {$ELSE}class var {$ENDIF}sk4d_patheffect_make_2dpath         {$IFDEF SK_DYNAMIC_LOADING}: function {$ENDIF}(const matrix: psk_matrix_t; const path: sk_path_t): sk_patheffect_t; cdecl;                           {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function {$ELSE}class var {$ENDIF}sk4d_patheffect_make_compose        {$IFDEF SK_DYNAMIC_LOADING}: function {$ENDIF}(outer, inner: sk_patheffect_t): sk_patheffect_t; cdecl;                                               {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function {$ELSE}class var {$ENDIF}sk4d_patheffect_make_corner         {$IFDEF SK_DYNAMIC_LOADING}: function {$ENDIF}(radius: float): sk_patheffect_t; cdecl;                                                               {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function {$ELSE}class var {$ENDIF}sk4d_patheffect_make_dash           {$IFDEF SK_DYNAMIC_LOADING}: function {$ENDIF}(const intervals: pfloat; count: int32_t; phase: float): sk_patheffect_t; cdecl;                       {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function {$ELSE}class var {$ENDIF}sk4d_patheffect_make_discrete       {$IFDEF SK_DYNAMIC_LOADING}: function {$ENDIF}(seg_length, deviation: float; seed_assist: uint32_t): sk_patheffect_t; cdecl;                         {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function {$ELSE}class var {$ENDIF}sk4d_patheffect_make_matrix         {$IFDEF SK_DYNAMIC_LOADING}: function {$ENDIF}(const matrix: psk_matrix_t): sk_patheffect_t; cdecl;                                                  {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function {$ELSE}class var {$ENDIF}sk4d_patheffect_make_merge          {$IFDEF SK_DYNAMIC_LOADING}: function {$ENDIF}(effect1, effect2: sk_patheffect_t; op: sk_pathop_t): sk_patheffect_t; cdecl;                          {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function {$ELSE}class var {$ENDIF}sk4d_patheffect_make_stroke         {$IFDEF SK_DYNAMIC_LOADING}: function {$ENDIF}(width: float; join: sk_strokejoin_t; cap: sk_strokecap_t; miter: float): sk_patheffect_t; cdecl;      {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function {$ELSE}class var {$ENDIF}sk4d_patheffect_make_stroke_and_fill{$IFDEF SK_DYNAMIC_LOADING}: function {$ENDIF}(): sk_patheffect_t; cdecl;                                                                            {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function {$ELSE}class var {$ENDIF}sk4d_patheffect_make_sum            {$IFDEF SK_DYNAMIC_LOADING}: function {$ENDIF}(effect1, effect2: sk_patheffect_t): sk_patheffect_t; cdecl;                                           {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function {$ELSE}class var {$ENDIF}sk4d_patheffect_make_translate      {$IFDEF SK_DYNAMIC_LOADING}: function {$ENDIF}(dx, dy: float): sk_patheffect_t; cdecl;                                                          {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function {$ELSE}class var {$ENDIF}sk4d_patheffect_make_trim           {$IFDEF SK_DYNAMIC_LOADING}: function {$ENDIF}(start, stop: float; mode: sk_patheffecttrimmode_t): sk_patheffect_t; cdecl;                           {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$ENDREGION}
+  { include/c/sk4d_codec.h }
 
-    {$REGION 'include/c/sk4d_pathmeasure.h'}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_pathmeasure_create                  {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const path: sk_path_t; force_closed: bool; res_scale: float): sk_pathmeasure_t; cdecl;                     {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_pathmeasure_destroy                 {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_pathmeasure_t); cdecl;                                                                            {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_pathmeasure_get_length              {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(self: sk_pathmeasure_t): float; cdecl;                                                                     {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_pathmeasure_get_matrix              {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(self: sk_pathmeasure_t; distance: float; out matrix: sk_matrix_t; matrix_flags: uint32_t): bool; cdecl;    {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_pathmeasure_get_position_and_tangent{$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(self: sk_pathmeasure_t; distance: float; out position: sk_point_t; out tangent: sk_vector_t): bool; cdecl; {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_pathmeasure_get_segment             {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(self: sk_pathmeasure_t; start, stop: float; start_with_move_to: bool): sk_path_t; cdecl;                   {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_pathmeasure_is_closed               {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(self: sk_pathmeasure_t): bool; cdecl;                                                                      {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_pathmeasure_next_contour            {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(self: sk_pathmeasure_t): bool; cdecl;                                                                      {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$ENDREGION}
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_codec_destroy                   {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(codec: sk_codec_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_codec_get_dimensions            {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(const self: sk_codec_t; out result: sk_isize_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_codec_get_encoded_image_format  {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_codec_t): sk_encodedimageformat_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_codec_get_image                 {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(self: sk_codec_t; color_type: sk_colortype_t; alpha_type: sk_alphatype_t; color_space: sk_colorspace_t): sk_image_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_codec_get_pixels                {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(self: sk_codec_t; pixels: Pointer; row_bytes: size_t; color_type: sk_colortype_t; alpha_type: sk_alphatype_t; color_space: sk_colorspace_t): _bool; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_codec_make_from_file            {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const file_name: MarshaledAString): sk_codec_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_codec_make_from_stream          {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(stream: sk_stream_t): sk_codec_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_codec_make_with_copy            {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const data: Pointer; size: size_t): sk_codec_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_codec_make_without_copy         {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const data: Pointer; size: size_t): sk_codec_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_animcodecplayer_destroy         {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_animcodecplayer_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_animcodecplayer_get_dimensions  {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(const self: sk_animcodecplayer_t; out result: sk_isize_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_animcodecplayer_get_duration    {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_animcodecplayer_t): uint32_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_animcodecplayer_get_frame       {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(self: sk_animcodecplayer_t): sk_image_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_animcodecplayer_make_from_file  {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const file_name: MarshaledAString): sk_animcodecplayer_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_animcodecplayer_make_from_stream{$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(stream: sk_stream_t): sk_animcodecplayer_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_animcodecplayer_seek            {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(self: sk_animcodecplayer_t; milliseconds: uint32_t): _bool; cdecl;
 
-    {$REGION 'include/c/sk4d_picture.h'}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_picture_get_cull_rect      {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(const self: sk_picture_t; out result: sk_rect_t); cdecl;                                                                                                                             {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_picture_make_from_stream   {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(stream: sk_stream_t): sk_picture_t; cdecl;                                                                                                                                           {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_picture_make_shader        {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_picture_t; tile_mode_x, tile_mode_y: sk_tilemode_t; filter_mode: sk_filtermode_t; const local_matrix: psk_matrix_t; const tile_rect: psk_rect_t): sk_shader_t; cdecl; {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_picture_playback           {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(const self: sk_picture_t; canvas: sk_canvas_t); cdecl;                                                                                                                               {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_picture_serialize_to_stream{$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(const self: sk_picture_t; w_stream: sk_wstream_t); cdecl;                                                                                                                            {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$ENDREGION}
 
-    {$REGION 'include/c/sk4d_picturerecorder.h'}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_picturerecorder_begin_recording  {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(self: sk_picturerecorder_t; const bounds: psk_rect_t): sk_canvas_t; cdecl;     {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_picturerecorder_create           {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(): sk_picturerecorder_t; cdecl;                                                {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_picturerecorder_destroy          {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_picturerecorder_t); cdecl;                                            {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_picturerecorder_finish_recording {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(self: sk_picturerecorder_t): sk_picture_t; cdecl;                              {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_picturerecorder_finish_recording2{$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(self: sk_picturerecorder_t; const cull_rect: psk_rect_t): sk_picture_t; cdecl; {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$ENDREGION}
+  { include/c/sk4d_colorfilter.h }
 
-    {$REGION 'include/c/sk4d_pixmap.h'}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_pixmap_create         {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const image_info: psk_imageinfo_t; const pixels: Pointer; row_bytes: size_t): sk_pixmap_t; cdecl;                         {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_pixmap_destroy        {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_pixmap_t); cdecl;                                                                                                {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_pixmap_erase          {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_pixmap_t; color: sk_color_t; const area: psk_irect_t): bool; cdecl;                                        {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_pixmap_erase2         {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_pixmap_t; const color: psk_color4f_t; color_space: sk_colorspace_t; const area: psk_irect_t): bool; cdecl; {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_pixmap_extract_subset {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_pixmap_t; dest: sk_pixmap_t; const area: psk_irect_t): bool; cdecl;                                        {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_pixmap_get_alpha      {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_pixmap_t; x, y: int32_t): float; cdecl;                                                                    {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_pixmap_get_alpha_type {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_pixmap_t): sk_alphatype_t; cdecl;                                                                          {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_pixmap_get_color      {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_pixmap_t; x, y: int32_t): sk_color_t; cdecl;                                                               {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_pixmap_get_color_space{$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_pixmap_t): sk_colorspace_t; cdecl;                                                                         {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_pixmap_get_color_type {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_pixmap_t): sk_colortype_t; cdecl;                                                                          {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_pixmap_get_height     {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_pixmap_t): int32_t; cdecl;                                                                                 {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_pixmap_get_image_info {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(const self: sk_pixmap_t; out result: sk_imageinfo_t); cdecl;                                                              {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_pixmap_get_pixel_addr {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_pixmap_t; x, y: int32_t): Pointer; cdecl;                                                                  {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_pixmap_get_pixels     {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_pixmap_t): Pointer; cdecl;                                                                                 {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_pixmap_get_row_bytes  {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_pixmap_t): size_t; cdecl;                                                                                  {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_pixmap_get_width      {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_pixmap_t): int32_t; cdecl;                                                                                 {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_pixmap_read_pixels    {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self, dest: sk_pixmap_t; src_x, src_y: int32_t): bool; cdecl;                                                       {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_pixmap_scale_pixels   {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self, dest: sk_pixmap_t; const sampling: psk_samplingoptions_t): bool; cdecl;                                       {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_pixmap_set_colorspace {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_pixmap_t; value: sk_colorspace_t); cdecl;                                                                        {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$ENDREGION}
+  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_colorfilter_make_blend               {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(color: sk_color_t; mode: sk_blendmode_t): sk_colorfilter_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_colorfilter_make_blend2              {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(const color: psk_color4f_t; color_space: sk_colorspace_t; mode: sk_blendmode_t): sk_colorfilter_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_colorfilter_make_compose             {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(outer, inner: sk_colorfilter_t): sk_colorfilter_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_colorfilter_make_high_contrast       {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(const config: psk_highcontrastconfig_t): sk_colorfilter_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_colorfilter_make_hsla_matrix         {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(const matrix: psk_colormatrix_t): sk_colorfilter_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_colorfilter_make_lighting            {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(multiply, add: sk_color_t): sk_colorfilter_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_colorfilter_make_linear_to_srgb_gamma{$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(): sk_colorfilter_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_colorfilter_make_luma_color          {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(): sk_colorfilter_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_colorfilter_make_matrix              {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(const matrix: psk_colormatrix_t): sk_colorfilter_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_colorfilter_make_overdraw            {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(const colors: psk_color_t): sk_colorfilter_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_colorfilter_make_table               {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(const tablea_a, tablea_r, tablea_g, tablea_b: puint8_t): sk_colorfilter_t; cdecl;
 
-    {$REGION 'include/c/sk4d_refcnt.h'}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_refcnt_ref  {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(const self: sk_refcnt_t); cdecl; {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_refcnt_unref{$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(const self: sk_refcnt_t); cdecl; {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$ENDREGION}
 
-    {$REGION 'include/c/sk4d_region.h'}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_region_contains             {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self, region: sk_region_t): bool; cdecl;                                     {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_region_contains2            {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_region_t; const rect: psk_irect_t): bool; cdecl;                    {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_region_contains3            {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_region_t; x, y: int32_t): bool; cdecl;                              {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_region_create               {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(): sk_region_t; cdecl;                                                             {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_region_create2              {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const region: sk_region_t): sk_region_t; cdecl;                                    {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_region_destroy              {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_region_t); cdecl;                                                         {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_region_get_boundary_path    {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_region_t): sk_path_t; cdecl;                                        {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_region_get_bounds           {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(const self: sk_region_t; out result: sk_irect_t); cdecl;                           {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_region_intersects           {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self, region: sk_region_t): bool; cdecl;                                     {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_region_intersects2          {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_region_t; const rect: psk_irect_t): bool; cdecl;                    {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_region_is_complex           {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_region_t): bool; cdecl;                                             {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_region_is_empty             {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_region_t): bool; cdecl;                                             {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_region_is_equal             {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self, region: sk_region_t): bool; cdecl;                                     {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_region_is_rect              {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_region_t): bool; cdecl;                                             {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_region_op                   {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(self: sk_region_t; const region: sk_region_t; op: sk_regionop_t): bool; cdecl;     {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_region_op2                  {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(self: sk_region_t; const rect: psk_irect_t; op: sk_regionop_t): bool; cdecl;       {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_region_quick_contains       {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_region_t; const rect: psk_irect_t): bool; cdecl;                    {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_region_quick_reject         {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self, region: sk_region_t): bool; cdecl;                                     {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_region_quick_reject2        {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_region_t; const rect: psk_irect_t): bool; cdecl;                    {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_region_set_empty            {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_region_t); cdecl;                                                         {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_region_set_path             {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(self: sk_region_t; const path: sk_path_t; const clip: sk_region_t): bool; cdecl;   {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_region_set_rect             {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(self: sk_region_t; const rect: psk_irect_t): bool; cdecl;                          {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_region_set_rects            {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(self: sk_region_t; const rects: psk_irect_t; count: int32_t): bool; cdecl;         {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_region_translate            {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_region_t; x, y: int32_t); cdecl;                                          {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_regioncliperator_create     {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const region: sk_region_t; const clip: psk_irect_t): sk_regioncliperator_t; cdecl; {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_regioncliperator_destroy    {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_regioncliperator_t); cdecl;                                               {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_regioncliperator_get_current{$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(const self: sk_regioncliperator_t; out result: sk_irect_t); cdecl;                 {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_regioncliperator_move_next  {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(self: sk_regioncliperator_t): bool; cdecl;                                         {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_regioniterator_create       {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const region: sk_region_t): sk_regioniterator_t; cdecl;                            {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_regioniterator_destroy      {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_regioniterator_t); cdecl;                                                 {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_regioniterator_get_current  {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(const self: sk_regioniterator_t; out result: sk_irect_t); cdecl;                   {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_regioniterator_move_next    {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(self: sk_regioniterator_t): bool; cdecl;                                           {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_regioniterator_reset        {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_regioniterator_t); cdecl;                                                 {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_regionspanerator_create     {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const region: sk_region_t; y, left, right: int32_t): sk_regionspanerator_t; cdecl; {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_regionspanerator_destroy    {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_regionspanerator_t); cdecl;                                               {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_regionspanerator_next       {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(self: sk_regionspanerator_t; out elem: sk_ipoint_t): bool; cdecl;                  {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$ENDREGION}
+  { include/c/sk4d_colorspace.h }
 
-    {$REGION 'include/c/sk4d_rrect.h'}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_rrect_contains        {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_rrect_t; const rect: psk_rect_t): bool; cdecl;                                                  {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_rrect_create          {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(): sk_rrect_t; cdecl;                                                                                          {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_rrect_create2         {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const rrect: sk_rrect_t): sk_rrect_t; cdecl;                                                                   {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_rrect_deflate         {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_rrect_t; dx, dy: float); cdecl;                                                                       {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_rrect_destroy         {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_rrect_t); cdecl;                                                                                      {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_rrect_get_height      {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_rrect_t): float; cdecl;                                                                         {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_rrect_get_radii       {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(const self: sk_rrect_t; corner: sk_rrectcorner_t; out result: sk_vector_t); cdecl;                             {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_rrect_get_rect        {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(const self: sk_rrect_t; out result: sk_rect_t); cdecl;                                                         {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_rrect_get_simple_radii{$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(const self: sk_rrect_t; out result: sk_vector_t); cdecl;                                                       {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_rrect_get_width       {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_rrect_t): float; cdecl;                                                                         {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_rrect_inflate         {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_rrect_t; dx, dy: float); cdecl;                                                                       {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_rrect_is_complex      {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_rrect_t): bool; cdecl;                                                                          {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_rrect_is_empty        {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_rrect_t): bool; cdecl;                                                                          {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_rrect_is_equal        {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self, rrect: sk_rrect_t): bool; cdecl;                                                                   {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_rrect_is_nine_patch   {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_rrect_t): bool; cdecl;                                                                          {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_rrect_is_oval         {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_rrect_t): bool; cdecl;                                                                          {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_rrect_is_rect         {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_rrect_t): bool; cdecl;                                                                          {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_rrect_is_simple       {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_rrect_t): bool; cdecl;                                                                          {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_rrect_is_valid        {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_rrect_t): bool; cdecl;                                                                          {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_rrect_offset          {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_rrect_t; dx, dy: float); cdecl;                                                                       {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_rrect_set_empty       {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_rrect_t); cdecl;                                                                                      {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_rrect_set_nine_patch  {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_rrect_t; const rect: psk_rect_t; radius_left, radius_top, radius_right, radius_bottom: float); cdecl; {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_rrect_set_oval        {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_rrect_t; const rect: psk_rect_t); cdecl;                                                              {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_rrect_set_rect        {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_rrect_t; const rect: psk_rect_t); cdecl;                                                              {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_rrect_set_rect2       {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_rrect_t; const rect: psk_rect_t; const radii: psk_vector_t); cdecl;                                   {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_rrect_set_rect3       {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_rrect_t; const rect: psk_rect_t; radius_x, radius_y: float); cdecl;                                   {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_rrect_transform       {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_rrect_t; const matrix: psk_matrix_t): sk_rrect_t; cdecl;                                        {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$ENDREGION}
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_colorspace_gamma_close_to_srgb      {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_colorspace_t): _bool; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_colorspace_gamma_is_linear          {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_colorspace_t): _bool; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_colorspace_is_equal                 {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self, color_space: sk_colorspace_t): _bool; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_colorspace_is_numerical_transfer_fn {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_colorspace_t; out transfer_function: sk_colorspacetransferfn_t): _bool; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_colorspace_is_srgb                  {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_colorspace_t): _bool; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_colorspace_make                     {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const profile: sk_colorspaceiccprofile_t): sk_colorspace_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_colorspace_make_linear_gamma        {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_colorspace_t): sk_colorspace_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_colorspace_make_rgb                 {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const transfer_function: psk_colorspacetransferfn_t; const xyz: psk_colorspacexyz_t): sk_colorspace_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_colorspace_make_srgb                {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(): sk_colorspace_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_colorspace_make_srgb_gamma          {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_colorspace_t): sk_colorspace_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_colorspace_make_srgb_linear         {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(): sk_colorspace_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_colorspace_ref                      {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(const self: sk_colorspace_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_colorspace_to_profile               {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_colorspace_t): sk_colorspaceiccprofile_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_colorspace_to_xyz                   {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_colorspace_t; out xyz: sk_colorspacexyz_t): _bool; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_colorspace_unref                    {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(const self: sk_colorspace_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_colorspaceiccprofile_destroy        {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_colorspaceiccprofile_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_colorspaceiccprofile_get_buffer     {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_colorspaceiccprofile_t; size: puint32_t): puint8_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_colorspaceiccprofile_make_with_parse{$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const buffer: Pointer; size: size_t): sk_colorspaceiccprofile_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_colorspaceiccprofile_to_xyz         {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_colorspaceiccprofile_t; out dest: sk_colorspacexyz_t): _bool; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_colorspaceprimaries_to_xyz          {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: psk_colorspaceprimaries_t; out xyz: sk_colorspacexyz_t): _bool; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_colorspacetransferfn_invert         {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: psk_colorspacetransferfn_t; out transfer_function: sk_colorspacetransferfn_t): _bool; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_colorspacetransferfn_transform      {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: psk_colorspacetransferfn_t; x: float): float; cdecl;
 
-    {$REGION 'include/c/sk4d_runtimeeffect.h'}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function {$ELSE}class var {$ENDIF}sk4d_runtimeeffect_get_child_count       {$IFDEF SK_DYNAMIC_LOADING}: function {$ENDIF}(const self: sk_runtimeeffect_t): int32_t; cdecl;                                                                                                                                                                           {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function {$ELSE}class var {$ENDIF}sk4d_runtimeeffect_get_child_name        {$IFDEF SK_DYNAMIC_LOADING}: function {$ENDIF}(const self: sk_runtimeeffect_t; index: int32_t): MarshaledAString; cdecl;                                                                                                                                                  {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function {$ELSE}class var {$ENDIF}sk4d_runtimeeffect_get_child_type        {$IFDEF SK_DYNAMIC_LOADING}: function {$ENDIF}(const self: sk_runtimeeffect_t; index: int32_t): sk_runtimeeffectchildtype_t; cdecl;                                                                                                                                       {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function {$ELSE}class var {$ENDIF}sk4d_runtimeeffect_get_uniform_count     {$IFDEF SK_DYNAMIC_LOADING}: function {$ENDIF}(const self: sk_runtimeeffect_t): int32_t; cdecl;                                                                                                                                                                           {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function {$ELSE}class var {$ENDIF}sk4d_runtimeeffect_get_uniform_data_size {$IFDEF SK_DYNAMIC_LOADING}: function {$ENDIF}(const self: sk_runtimeeffect_t): size_t; cdecl;                                                                                                                                                                            {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function {$ELSE}class var {$ENDIF}sk4d_runtimeeffect_get_uniform_name      {$IFDEF SK_DYNAMIC_LOADING}: function {$ENDIF}(const self: sk_runtimeeffect_t; index: int32_t): MarshaledAString; cdecl;                                                                                                                                                  {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function {$ELSE}class var {$ENDIF}sk4d_runtimeeffect_get_uniform_offset    {$IFDEF SK_DYNAMIC_LOADING}: function {$ENDIF}(const self: sk_runtimeeffect_t; index: int32_t): size_t; cdecl;                                                                                                                                                            {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function {$ELSE}class var {$ENDIF}sk4d_runtimeeffect_get_uniform_type      {$IFDEF SK_DYNAMIC_LOADING}: function {$ENDIF}(const self: sk_runtimeeffect_t; index: int32_t): sk_runtimeeffectuniformtype_t; cdecl;                                                                                                                                     {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function {$ELSE}class var {$ENDIF}sk4d_runtimeeffect_get_uniform_type_count{$IFDEF SK_DYNAMIC_LOADING}: function {$ENDIF}(const self: sk_runtimeeffect_t; index: int32_t): int32_t; cdecl;                                                                                                                                                           {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function {$ELSE}class var {$ENDIF}sk4d_runtimeeffect_index_of_child        {$IFDEF SK_DYNAMIC_LOADING}: function {$ENDIF}(const self: sk_runtimeeffect_t; const name: MarshaledAString): int32_t; cdecl;                                                                                                                                             {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function {$ELSE}class var {$ENDIF}sk4d_runtimeeffect_index_of_uniform      {$IFDEF SK_DYNAMIC_LOADING}: function {$ENDIF}(const self: sk_runtimeeffect_t; const name: MarshaledAString): int32_t; cdecl;                                                                                                                                             {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function {$ELSE}class var {$ENDIF}sk4d_runtimeeffect_make_blender          {$IFDEF SK_DYNAMIC_LOADING}: function {$ENDIF}(const self: sk_runtimeeffect_t; const uniforms: Pointer; children: psk_blender_t): sk_blender_t; cdecl;                                                                                                                    {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function {$ELSE}class var {$ENDIF}sk4d_runtimeeffect_make_color_filter     {$IFDEF SK_DYNAMIC_LOADING}: function {$ENDIF}(const self: sk_runtimeeffect_t; const uniforms: Pointer; children: psk_colorfilter_t): sk_colorfilter_t; cdecl;                                                                                                            {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function {$ELSE}class var {$ENDIF}sk4d_runtimeeffect_make_for_blender      {$IFDEF SK_DYNAMIC_LOADING}: function {$ENDIF}(const sksl: MarshaledAString; error_text: sk_string_t): sk_runtimeeffect_t; cdecl;                                                                                                                                         {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function {$ELSE}class var {$ENDIF}sk4d_runtimeeffect_make_for_color_filter {$IFDEF SK_DYNAMIC_LOADING}: function {$ENDIF}(const sksl: MarshaledAString; error_text: sk_string_t): sk_runtimeeffect_t; cdecl;                                                                                                                                         {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function {$ELSE}class var {$ENDIF}sk4d_runtimeeffect_make_for_shader       {$IFDEF SK_DYNAMIC_LOADING}: function {$ENDIF}(const sksl: MarshaledAString; error_text: sk_string_t): sk_runtimeeffect_t; cdecl;                                                                                                                                         {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function {$ELSE}class var {$ENDIF}sk4d_runtimeeffect_make_image            {$IFDEF SK_DYNAMIC_LOADING}: function {$ENDIF}(const self: sk_runtimeeffect_t; context: gr_directcontext_t; const uniforms: Pointer; children: psk_shader_t; const local_matrix: psk_matrix_t; const image_info: psk_imageinfo_t; is_mipmapped: bool): sk_image_t; cdecl; {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function {$ELSE}class var {$ENDIF}sk4d_runtimeeffect_make_shader           {$IFDEF SK_DYNAMIC_LOADING}: function {$ENDIF}(const self: sk_runtimeeffect_t; const uniforms: Pointer; children: psk_shader_t; const local_matrix: psk_matrix_t; opaque: bool): sk_shader_t; cdecl;                                                                      {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$ENDREGION}
 
-    {$REGION 'include/c/sk4d_shader.h'}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function {$ELSE}class var {$ENDIF}sk4d_shader_make_blend                      {$IFDEF SK_DYNAMIC_LOADING}: function {$ENDIF}(mode: sk_blendmode_t; dest, src: sk_shader_t): sk_shader_t; cdecl;                                                                                                                                                                                                              {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function {$ELSE}class var {$ENDIF}sk4d_shader_make_color                      {$IFDEF SK_DYNAMIC_LOADING}: function {$ENDIF}(color: sk_color_t): sk_shader_t; cdecl;                                                                                                                                                                                                                                         {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function {$ELSE}class var {$ENDIF}sk4d_shader_make_color2                     {$IFDEF SK_DYNAMIC_LOADING}: function {$ENDIF}(const color: psk_color4f_t; color_space: sk_colorspace_t): sk_shader_t; cdecl;                                                                                                                                                                                                  {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function {$ELSE}class var {$ENDIF}sk4d_shader_make_gradient_linear            {$IFDEF SK_DYNAMIC_LOADING}: function {$ENDIF}(const points: psk_point_t; const colors: psk_color_t; const positions: pfloat; count: int32_t; tile_mode: sk_tilemode_t; const local_matrix: psk_matrix_t): sk_shader_t; cdecl;                                                                                                 {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function {$ELSE}class var {$ENDIF}sk4d_shader_make_gradient_linear2           {$IFDEF SK_DYNAMIC_LOADING}: function {$ENDIF}(const points: psk_point_t; const colors: psk_color4f_t; color_space: sk_colorspace_t; const positions: pfloat; count: int32_t; tile_mode: sk_tilemode_t; const local_matrix: psk_matrix_t): sk_shader_t; cdecl;                                                                 {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function {$ELSE}class var {$ENDIF}sk4d_shader_make_gradient_radial            {$IFDEF SK_DYNAMIC_LOADING}: function {$ENDIF}(const center: psk_point_t; radius: float; const colors: psk_color_t; const positions: pfloat; count: int32_t; tile_mode: sk_tilemode_t; const local_matrix: psk_matrix_t): sk_shader_t; cdecl;                                                                                  {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function {$ELSE}class var {$ENDIF}sk4d_shader_make_gradient_radial2           {$IFDEF SK_DYNAMIC_LOADING}: function {$ENDIF}(const center: psk_point_t; radius: float; const colors: psk_color4f_t; color_space: sk_colorspace_t; const positions: pfloat; count: int32_t; tile_mode: sk_tilemode_t; const local_matrix: psk_matrix_t): sk_shader_t; cdecl;                                                  {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function {$ELSE}class var {$ENDIF}sk4d_shader_make_gradient_sweep             {$IFDEF SK_DYNAMIC_LOADING}: function {$ENDIF}(center_x, center_y: float; const colors: psk_color_t; const positions: pfloat; count: int32_t; tile_mode: sk_tilemode_t; start_angle, end_angle: float; const local_matrix: psk_matrix_t): sk_shader_t; cdecl;                                                                  {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function {$ELSE}class var {$ENDIF}sk4d_shader_make_gradient_sweep2            {$IFDEF SK_DYNAMIC_LOADING}: function {$ENDIF}(center_x, center_y: float; const colors: psk_color4f_t; color_space: sk_colorspace_t; const positions: pfloat; count: int32_t; tile_mode: sk_tilemode_t; start_angle, end_angle: float; const local_matrix: psk_matrix_t): sk_shader_t; cdecl;                                  {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function {$ELSE}class var {$ENDIF}sk4d_shader_make_gradient_two_point_conical {$IFDEF SK_DYNAMIC_LOADING}: function {$ENDIF}(const start: psk_point_t; start_radius: float; const &end: psk_point_t; end_radius: float; const colors: psk_color_t; const positions: pfloat; count: int32_t; tile_mode: sk_tilemode_t; const local_matrix: psk_matrix_t): sk_shader_t; cdecl;                                 {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function {$ELSE}class var {$ENDIF}sk4d_shader_make_gradient_two_point_conical2{$IFDEF SK_DYNAMIC_LOADING}: function {$ENDIF}(const start: psk_point_t; start_radius: float; const &end: psk_point_t; end_radius: float; const colors: psk_color4f_t; color_space: sk_colorspace_t; const positions: pfloat; count: int32_t; tile_mode: sk_tilemode_t; const local_matrix: psk_matrix_t): sk_shader_t; cdecl; {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function {$ELSE}class var {$ENDIF}sk4d_shader_make_perlin_noise_fractal_noise {$IFDEF SK_DYNAMIC_LOADING}: function {$ENDIF}(base_frequency_x, base_frequency_y: float; num_octaves: int32_t; seed: float; const tile_size: psk_isize_t): sk_shader_t; cdecl;                                                                                                                                                {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function {$ELSE}class var {$ENDIF}sk4d_shader_make_perlin_noise_turbulence    {$IFDEF SK_DYNAMIC_LOADING}: function {$ENDIF}(base_frequency_x, base_frequency_y: float; num_octaves: int32_t; seed: float; const tile_size: psk_isize_t): sk_shader_t; cdecl;                                                                                                                                                {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function {$ELSE}class var {$ENDIF}sk4d_shader_make_with_color_filter          {$IFDEF SK_DYNAMIC_LOADING}: function {$ENDIF}(const self: sk_shader_t; color_filter: sk_colorfilter_t): sk_shader_t; cdecl;                                                                                                                                                                                                   {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function {$ELSE}class var {$ENDIF}sk4d_shader_make_with_local_matrix          {$IFDEF SK_DYNAMIC_LOADING}: function {$ENDIF}(const self: sk_shader_t; const local_matrix: psk_matrix_t): sk_shader_t; cdecl;                                                                                                                                                                                                 {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$ENDREGION}
+  { include/c/sk4d_data.h }
 
-    {$REGION 'include/c/sk4d_stream.h'}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_streamadapter_create    {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(context: Pointer): sk_streamadapter_t; cdecl;    {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_streamadapter_destroy   {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_streamadapter_t); cdecl;                {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_streamadapter_set_procs {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(const procs: psk_streamadapter_procs_t); cdecl;  {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_wstreamadapter_create   {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(context: Pointer): sk_wstreamadapter_t; cdecl;   {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_wstreamadapter_destroy  {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_wstreamadapter_t); cdecl;               {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_wstreamadapter_set_procs{$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(const procs: psk_wstreamadapter_procs_t); cdecl; {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$ENDREGION}
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_data_make_empty    {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(): sk_data_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_data_make_with_copy{$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const data: Pointer; size: size_t): sk_data_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_data_ref           {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(const self: sk_data_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_data_unref         {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(const self: sk_data_t); cdecl;
 
-    {$REGION 'include/c/sk4d_string.h'}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_string_create  {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(): sk_string_t; cdecl;                                    {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_string_destroy {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_string_t); cdecl;                                {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_string_get_text{$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_string_t): MarshaledAString; cdecl;        {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_string_set_text{$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_string_t; const value: MarshaledAString); cdecl; {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$ENDREGION}
 
-    {$REGION 'include/c/sk4d_surface.h'}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_surface_draw                    {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_surface_t; canvas: sk_canvas_t; x, y: float; paint: sk_paint_t); cdecl;                                                                                                                                                                        {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_surface_flush                   {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_surface_t); cdecl;                                                                                                                                                                                                                             {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_surface_flush_and_submit        {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_surface_t; sync_cpu: bool); cdecl;                                                                                                                                                                                                             {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_surface_get_canvas              {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(self: sk_surface_t): sk_canvas_t; cdecl;                                                                                                                                                                                                                {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_surface_get_props               {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(const self: sk_surface_t; out result: sk_surfaceprops_t); cdecl;                                                                                                                                                                                        {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_surface_make_from_ca_metal_layer{$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(context: gr_directcontext_t; layer: gr_mtl_handle_t; origin: gr_surfaceorigin_t; sample_count: int32_t; color_type: sk_colortype_t; color_space: sk_colorspace_t; const props: psk_surfaceprops_t; out drawable: gr_mtl_handle_t): sk_surface_t; cdecl; {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_surface_make_from_mtk_view      {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(context: gr_directcontext_t; layer: gr_mtl_handle_t; origin: gr_surfaceorigin_t; sample_count: int32_t; color_type: sk_colortype_t; color_space: sk_colorspace_t; const props: psk_surfaceprops_t): sk_surface_t; cdecl;                                {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_surface_make_from_render_target {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(context: gr_directcontext_t; const render_target: gr_backendrendertarget_t; origin: gr_surfaceorigin_t; color_type: sk_colortype_t; color_space: sk_colorspace_t; const props: psk_surfaceprops_t): sk_surface_t; cdecl;                                {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_surface_make_from_texture       {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(context: gr_directcontext_t; const texture: gr_backendtexture_t; origin: gr_surfaceorigin_t; sample_count: int32_t; color_type: sk_colortype_t; color_space: sk_colorspace_t; const props: psk_surfaceprops_t): sk_surface_t; cdecl;                    {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_surface_make_image_snapshot     {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(self: sk_surface_t): sk_image_t; cdecl;                                                                                                                                                                                                                 {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_surface_make_image_snapshot2    {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(self: sk_surface_t; const bounds: psk_irect_t): sk_image_t; cdecl;                                                                                                                                                                                      {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_surface_make_raster             {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const image_info: psk_imageinfo_t; row_bytes: size_t; const props: psk_surfaceprops_t): sk_surface_t; cdecl;                                                                                                                                            {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_surface_make_raster_direct      {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const pixmap: sk_pixmap_t; proc: sk_surface_raster_release_proc; proc_context: Pointer; const props: psk_surfaceprops_t): sk_surface_t; cdecl;                                                                                                          {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_surface_make_render_target      {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(context: gr_directcontext_t; is_budgeted: bool; const image_info: psk_imageinfo_t; sample_count: int32_t; origin: gr_surfaceorigin_t; const props: psk_surfaceprops_t; should_create_with_mips: bool): sk_surface_t; cdecl;                             {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_surface_peek_pixels             {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(self: sk_surface_t): sk_pixmap_t; cdecl;                                                                                                                                                                                                                {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_surface_read_pixels             {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(self: sk_surface_t; const dest: sk_pixmap_t; src_x, src_y: int32_t): bool; cdecl;                                                                                                                                                                       {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}                                                                                                                                                                         {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}                                                                                                                                                                                                    {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$ENDREGION}
+  { include/c/sk4d_document.h }
 
-    {$REGION 'include/c/sk4d_svgcanvas.h'}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function {$ELSE}class var {$ENDIF}sk4d_svgcanvas_make{$IFDEF SK_DYNAMIC_LOADING}: function {$ENDIF}(const bounds: psk_rect_t; w_stream: sk_wstream_t; flags: uint32_t): sk_canvas_t; cdecl; {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}                                                                                                                                                                        {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}                                                                                                                                                                                                    {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$ENDREGION}
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_document_begin_page{$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(self: sk_document_t; width, height: float; const content: psk_rect_t): sk_canvas_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_document_close     {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_document_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_document_end_page  {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_document_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_document_make_pdf  {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(w_stream: sk_wstream_t): sk_document_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_document_make_pdf2 {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(w_stream: sk_wstream_t; const metadata: psk_pdfmetadata_t): sk_document_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_document_make_xps  {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(w_stream: sk_wstream_t; dpi: float): sk_document_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_document_terminate {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_document_t); cdecl;
 
-    {$REGION 'include/c/sk4d_textblob.h'}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_textblob_get_intercepts                        {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_textblob_t; const bounds: pfloat; result: pfloat; const paint: sk_paint_t): int32_t; cdecl;                                               {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_textblob_make_from_text                        {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const text: Pointer; size: size_t; const font: sk_font_t; encoding: sk_textencoding_t): sk_textblob_t; cdecl;                                            {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_textblob_make_from_text_horizontally_positioned{$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const text: Pointer; size: size_t; const x_positions: pfloat; y: float; const font: sk_font_t; encoding: sk_textencoding_t): sk_textblob_t; cdecl;       {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_textblob_make_from_text_positioned             {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const text: Pointer; size: size_t; const positions: psk_point_t; const font: sk_font_t; encoding: sk_textencoding_t): sk_textblob_t; cdecl;              {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_textblob_make_from_text_transform              {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const text: Pointer; size: size_t; const matrices: psk_rotationscalematrix_t; const font: sk_font_t; encoding: sk_textencoding_t): sk_textblob_t; cdecl; {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_textblob_ref                                   {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(const self: sk_textblob_t); cdecl;                                                                                                                       {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_textblob_unref                                 {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(const self: sk_textblob_t); cdecl;                                                                                                                       {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$ENDREGION}
 
-    {$REGION 'include/c/sk4d_tracememorydump.h'}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_tracememorydumpbaseclass_create   {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(detailed_dump, dump_wrapped_objects: bool; context: Pointer): sk_tracememorydumpbaseclass_t; cdecl; {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_tracememorydumpbaseclass_destroy  {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_tracememorydumpbaseclass_t); cdecl;                                                        {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_tracememorydumpbaseclass_set_procs{$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(const procs: psk_tracememorydumpbaseclass_procs_t); cdecl;                                          {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$ENDREGION}
+  { include/c/sk4d_font.h }
 
-    {$REGION 'include/c/sk4d_typeface.h'}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_typeface_get_family_name {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_typeface_t): sk_string_t; cdecl;                                           {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_typeface_get_slant       {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_typeface_t): sk_fontslant_t; cdecl;                                        {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_typeface_get_style       {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(const self: sk_typeface_t; out result: sk_fontstyle_t); cdecl;                            {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_typeface_get_weight      {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_typeface_t): int32_t; cdecl;                                               {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_typeface_get_width       {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_typeface_t): int32_t; cdecl;                                               {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_typeface_make_default    {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(): sk_typeface_t; cdecl;                                                                  {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_typeface_make_from_file  {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const file_name: MarshaledAString; ttc_index: int32_t): sk_typeface_t; cdecl;             {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_typeface_make_from_stream{$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(stream: sk_stream_t; ttc_index: int32_t): sk_typeface_t; cdecl;                           {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_typeface_make_from_name  {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const family_name: MarshaledAString; const style: psk_fontstyle_t): sk_typeface_t; cdecl; {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$ENDREGION}
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_font_create                  {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(typeface: sk_typeface_t; size, sx, kx: float): sk_font_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_font_create2                 {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const font: sk_font_t): sk_font_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_font_destroy                 {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_font_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_font_get_baseline_snap       {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_font_t): _bool; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_font_get_edging              {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_font_t): sk_fontedging_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_font_get_embedded_bitmaps    {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_font_t): _bool; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_font_get_embolden            {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_font_t): _bool; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_font_get_force_auto_hinting  {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_font_t): _bool; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_font_get_glyphs              {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_font_t; const text: Pointer; size: size_t; encoding: sk_textencoding_t; result: psk_glyphid_t; max_count: int32_t): int32_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_font_get_glyphs_count        {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_font_t; const text: Pointer; size: size_t; encoding: sk_textencoding_t): int32_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_font_get_hinting             {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_font_t): sk_fonthinting_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_font_get_horizontal_positions{$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(const self: sk_font_t; const glyphs: psk_glyphid_t; count: int32_t; result: pfloat; origin: float); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_font_get_intercepts          {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_font_t; const glyphs: psk_glyphid_t; count: int32_t; const positions: psk_point_t; const bounds: pfloat; result: pfloat; const paint: sk_paint_t): size_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_font_get_linear_metrics      {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_font_t): _bool; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_font_get_metrics             {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_font_t; metrics: psk_fontmetrics_t): float; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_font_get_path                {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_font_t; glyph: sk_glyphid_t): sk_path_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_font_get_paths               {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(const self: sk_font_t; const glyphs: psk_glyphid_t; count: int32_t; proc: sk_font_path_proc; proc_context: Pointer); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_font_get_positions           {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(const self: sk_font_t; const glyphs: psk_glyphid_t; count: int32_t; result: psk_point_t; const origin: psk_point_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_font_get_scale_x             {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_font_t): float; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_font_get_size                {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_font_t): float; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_font_get_skew_x              {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_font_t): float; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_font_get_subpixel            {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_font_t): _bool; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_font_get_typeface            {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_font_t): sk_typeface_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_font_get_typeface_or_default {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_font_t): sk_typeface_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_font_get_widths_bounds       {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(const self: sk_font_t; const glyphs: psk_glyphid_t; count: int32_t; widths: pfloat; bounds: psk_rect_t; const paint: sk_paint_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_font_is_equal                {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self, font: sk_font_t): _bool; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_font_measure_text            {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_font_t; const text: Pointer; size: size_t; encoding: sk_textencoding_t; bounds: psk_rect_t; const paint: sk_paint_t): float; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_font_set_baseline_snap       {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_font_t; value: _bool); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_font_set_edging              {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_font_t; value: sk_fontedging_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_font_set_embedded_bitmaps    {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_font_t; value: _bool); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_font_set_embolden            {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_font_t; value: _bool); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_font_set_force_auto_hinting  {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_font_t; value: _bool); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_font_set_hinting             {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_font_t; value: sk_fonthinting_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_font_set_linear_metrics      {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_font_t; value: _bool); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_font_set_scale_x             {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_font_t; value: float); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_font_set_size                {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_font_t; value: float); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_font_set_skew_x              {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_font_t; value: float); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_font_set_subpixel            {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_font_t; value: _bool); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_font_set_typeface            {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_font_t; typeface: sk_typeface_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_font_unichar_to_glyph        {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_font_t; uni_char: sk_unichar_t): sk_glyphid_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_font_unichars_to_glyphs      {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(const self: sk_font_t; const uni_chars: psk_unichar_t; count: int32_t; result: psk_glyphid_t); cdecl;
 
-    {$REGION 'include/c/sk4d_version.h'}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function {$ELSE}class var {$ENDIF}sk4d_library_version_get_build{$IFDEF SK_DYNAMIC_LOADING}: function {$ENDIF}(): int32_t; cdecl; {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function {$ELSE}class var {$ENDIF}sk4d_library_version_get_major{$IFDEF SK_DYNAMIC_LOADING}: function {$ENDIF}(): int32_t; cdecl; {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function {$ELSE}class var {$ENDIF}sk4d_library_version_get_minor{$IFDEF SK_DYNAMIC_LOADING}: function {$ENDIF}(): int32_t; cdecl; {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$ENDREGION}
 
-    {$REGION 'include/c/sk4d_vertices.h'}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_vertices_make_copy{$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(vertex_mode: sk_vertexmode_t; vertex_count: int32_t; const positions, textures: psk_point_t; const colors: psk_color_t; index_count: int32_t; const indices: puint16_t): sk_vertices_t; cdecl; {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_vertices_ref      {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(const self: sk_vertices_t); cdecl;                                                                                                                                                             {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_vertices_unref    {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(const self: sk_vertices_t); cdecl;                                                                                                                                                             {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$ENDREGION}
+  { include/c/sk4d_graphics.h }
 
-    {$REGION 'modules/particles/include/sk4d_particleeffect.h'}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_particleeffect_get_position          {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(const self: sk_particleeffect_t; out result: sk_point_t); cdecl;                                           {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_particleeffect_get_rate              {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_particleeffect_t): float; cdecl;                                                            {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_particleeffect_get_uniform           {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(const self: sk_particleeffect_t; index: size_t; out result: sk_particleuniform_t); cdecl;                  {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_particleeffect_get_uniform_count     {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_particleeffect_t): size_t; cdecl;                                                           {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_particleeffect_get_uniform_data      {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(self: sk_particleeffect_t): pfloat; cdecl;                                                                 {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_particleeffect_get_uniform_data_count{$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_particleeffect_t): int32_t; cdecl;                                                          {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_particleeffect_get_uniform_name      {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_particleeffect_t; index: size_t): sk_string_t; cdecl;                                       {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_particleeffect_init                  {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(); cdecl;                                                                                                  {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_particleeffect_make_from_file        {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const file_name: MarshaledAString): sk_particleeffect_t; cdecl;                                            {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_particleeffect_make_from_stream      {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(stream: sk_stream_t; resource_provider: sk_resourceprovider_t): sk_particleeffect_t; cdecl;                {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_particleeffect_render                {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_particleeffect_t; canvas: sk_canvas_t); cdecl;                                                    {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_particleeffect_set_position          {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_particleeffect_t; const value: psk_point_t); cdecl;                                               {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_particleeffect_set_rate              {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_particleeffect_t; value: float); cdecl;                                                           {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_particleeffect_set_uniform           {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(self: sk_particleeffect_t; const name: MarshaledAString; const data: pfloat; count: int32_t): bool; cdecl; {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_particleeffect_start                 {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_particleeffect_t; now: double; looping: bool); cdecl;                                             {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_particleeffect_update                {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_particleeffect_t; now: double); cdecl;                                                            {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$ENDREGION}
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_graphics_allow_jit                                      {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_graphics_dump_memory_statistics                         {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(trace_memory_dump: sk_tracememorydump_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_graphics_get_font_cache_count_limit                     {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(): int32_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_graphics_get_font_cache_count_used                      {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(): int32_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_graphics_get_font_cache_limit                           {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(): size_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_graphics_get_font_cache_used                            {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(): size_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_graphics_get_resource_cache_single_allocation_byte_limit{$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(): size_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_graphics_get_resource_cache_total_byte_limit            {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(): size_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_graphics_get_resource_cache_total_bytes_used            {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(): size_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_graphics_init                                           {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_graphics_purge_all_caches                               {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_graphics_purge_font_cache                               {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_graphics_purge_resource_cache                           {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_graphics_set_font_cache_count_limit                     {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(value: int32_t): int32_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_graphics_set_font_cache_limit                           {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(value: size_t): size_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_graphics_set_resource_cache_single_allocation_byte_limit{$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(value: size_t): size_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_graphics_set_resource_cache_total_byte_limit            {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(value: size_t): size_t; cdecl;
 
-    {$REGION 'modules/skottie/include/sk4d_skottie.h'}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_skottieanimation_get_duration    {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_skottieanimation_t): double; cdecl;                                                              {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_skottieanimation_get_fps         {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_skottieanimation_t): double; cdecl;                                                              {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_skottieanimation_get_in_point    {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_skottieanimation_t): double; cdecl;                                                              {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_skottieanimation_get_out_point   {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_skottieanimation_t): double; cdecl;                                                              {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_skottieanimation_get_size        {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(const self: sk_skottieanimation_t; out result: sk_size_t); cdecl;                                               {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_skottieanimation_get_version     {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_skottieanimation_t): MarshaledAString; cdecl;                                                    {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_skottieanimation_make_from_file  {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const file_name: MarshaledAString): sk_skottieanimation_t; cdecl;                                               {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_skottieanimation_make_from_stream{$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(stream: sk_stream_t; resource_provider: sk_resourceprovider_t): sk_skottieanimation_t; cdecl;                   {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_skottieanimation_ref             {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(const self: sk_skottieanimation_t); cdecl;                                                                      {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_skottieanimation_render          {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(const self: sk_skottieanimation_t; canvas: sk_canvas_t; const dest: psk_rect_t; render_flags: uint32_t); cdecl; {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_skottieanimation_seek_frame      {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_skottieanimation_t; tick: double); cdecl;                                                              {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_skottieanimation_seek_frame_time {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_skottieanimation_t; tick: double); cdecl;                                                              {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_skottieanimation_unref           {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(const self: sk_skottieanimation_t); cdecl;                                                                      {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$ENDREGION}
 
-    {$REGION 'modules/skparagraph/include/sk4d_paragraph.h'}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_paragraph_destroy                         {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_paragraph_t); cdecl;                                                                                                                                       {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_paragraph_did_exceed_max_lines            {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(self: sk_paragraph_t): bool; cdecl;                                                                                                                                 {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_paragraph_get_alphabetic_baseline         {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(self: sk_paragraph_t): float; cdecl;                                                                                                                                {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_paragraph_get_glyph_position_at_coordinate{$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_paragraph_t; dx, dy: float; out result: sk_positionaffinity_t); cdecl;                                                                                     {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_paragraph_get_height                      {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(self: sk_paragraph_t): float; cdecl;                                                                                                                                {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_paragraph_get_ideographic_baseline        {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(self: sk_paragraph_t): float; cdecl;                                                                                                                                {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_paragraph_get_line_metrics                {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(self: sk_paragraph_t; result: psk_metrics_t): size_t; cdecl;                                                                                                        {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_paragraph_get_longest_line                {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(self: sk_paragraph_t): float; cdecl;                                                                                                                                {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_paragraph_get_max_intrinsic_width         {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(self: sk_paragraph_t): float; cdecl;                                                                                                                                {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_paragraph_get_max_width                   {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(self: sk_paragraph_t): float; cdecl;                                                                                                                                {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_paragraph_get_min_intrinsic_width         {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(self: sk_paragraph_t): float; cdecl;                                                                                                                                {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_paragraph_get_rects_for_placeholders      {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(self: sk_paragraph_t; result: psk_textbox_t): size_t; cdecl;                                                                                                        {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_paragraph_get_rects_for_range             {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(self: sk_paragraph_t; start, &end: uint32_t; rect_height_style: sk_rectheightstyle_t; rect_width_style: sk_rectwidthstyle_t; result: psk_textbox_t): size_t; cdecl; {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_paragraph_get_word_boundary               {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_paragraph_t; offset: uint32_t; out start, &end: uint32_t); cdecl;                                                                                          {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_paragraph_layout                          {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_paragraph_t; width: float); cdecl;                                                                                                                         {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_paragraph_paint                           {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_paragraph_t; canvas: sk_canvas_t; x, y: float); cdecl;                                                                                                     {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_paragraph_to_path                         {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(self: sk_paragraph_t): sk_path_t; cdecl;                                                                                                                            {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$ENDREGION}
+  { include/c/sk4d_image.h }
 
-    {$REGION 'modules/skparagraph/include/sk4d_paragraphbuilder.h'}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_paragraphbuilder_add_placeholder{$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_paragraphbuilder_t; const placeholder: psk_placeholderstyle_t); cdecl;                                                                  {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_paragraphbuilder_add_text       {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_paragraphbuilder_t; const text: pchar; size: size_t); cdecl;                                                                            {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_paragraphbuilder_build          {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(self: sk_paragraphbuilder_t): sk_paragraph_t; cdecl;                                                                                             {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_paragraphbuilder_create         {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const paragraph_style: sk_paragraphstyle_t): sk_paragraphbuilder_t; cdecl;                                                                       {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_paragraphbuilder_create2        {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const paragraph_style: sk_paragraphstyle_t; font_provider: sk_typefacefontprovider_t; enable_font_fallback: bool): sk_paragraphbuilder_t; cdecl; {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_paragraphbuilder_destroy        {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_paragraphbuilder_t); cdecl;                                                                                                             {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_paragraphbuilder_pop            {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_paragraphbuilder_t); cdecl;                                                                                                             {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_paragraphbuilder_push_style     {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_paragraphbuilder_t; const text_style: sk_textstyle_t); cdecl;                                                                           {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$ENDREGION}
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_image_encode_to_file           {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_image_t; const file_name: MarshaledAString; format: sk_encodedimageformat_t; quality: int32_t): _bool; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_image_encode_to_stream         {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_image_t; w_stream: sk_wstream_t; format: sk_encodedimageformat_t; quality: int32_t): _bool; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_image_get_alpha_type           {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_image_t): sk_alphatype_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_image_get_color_space          {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_image_t): sk_colorspace_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_image_get_color_type           {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_image_t): sk_colortype_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_image_get_height               {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_image_t): int32_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_image_get_image_info           {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(const self: sk_image_t; out result: sk_imageinfo_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_image_get_unique_id            {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_image_t): uint32_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_image_get_width                {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_image_t): int32_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_image_is_lazy_generated        {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_image_t): _bool; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_image_is_texture_backed        {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_image_t): _bool; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_image_is_valid                 {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_image_t; context: gr_directcontext_t): _bool; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_image_make_cross_context       {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(context: gr_directcontext_t; const pixmap: sk_pixmap_t; build_mips, limit_to_max_texture_size: _bool): sk_image_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_image_make_from_adopted_texture{$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(context: gr_directcontext_t; const texture: gr_backendtexture_t; origin: gr_surfaceorigin_t; color_type: sk_colortype_t; alpha_type: sk_alphatype_t; color_space: sk_colorspace_t): sk_image_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_image_make_from_encoded_file   {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const file_name: MarshaledAString): sk_image_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_image_make_from_encoded_stream {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(stream: sk_stream_t): sk_image_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_image_make_from_picture        {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(picture: sk_picture_t; const dimensions: psk_isize_t; const matrix: psk_matrix_t; const paint: sk_paint_t; color_space: sk_colorspace_t; const props: psk_surfaceprops_t): sk_image_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_image_make_from_raster         {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const pixmap: sk_pixmap_t; proc: sk_image_raster_release_proc; proc_context: Pointer): sk_image_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_image_make_from_texture        {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(context: gr_directcontext_t; const texture: gr_backendtexture_t; origin: gr_surfaceorigin_t; color_type: sk_colortype_t; alpha_type: sk_alphatype_t; color_space: sk_colorspace_t; proc: sk_image_texture_release_proc; proc_context: Pointer): sk_image_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_image_make_non_texture_image   {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_image_t): sk_image_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_image_make_raster_copy         {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const pixmap: sk_pixmap_t): sk_image_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_image_make_raster_image        {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_image_t): sk_image_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_image_make_raw_shader          {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_image_t; tile_mode_x, tile_mode_y: sk_tilemode_t; const sampling: psk_samplingoptions_t; const local_matrix: psk_matrix_t): sk_shader_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_image_make_shader              {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_image_t; tile_mode_x, tile_mode_y: sk_tilemode_t; const sampling: psk_samplingoptions_t; const local_matrix: psk_matrix_t): sk_shader_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_image_make_subset              {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_image_t; const subset: psk_irect_t; context: gr_directcontext_t): sk_image_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_image_make_texture_image       {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_image_t; context: gr_directcontext_t; is_mipmapped: _bool): sk_image_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_image_make_with_filter         {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_image_t; context: gr_directcontext_t; const filter: sk_imagefilter_t; const subset, clip_bounds: psk_irect_t; out out_subset: sk_irect_t; out offset: sk_ipoint_t): sk_image_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_image_peek_pixels              {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_image_t): sk_pixmap_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_image_read_pixels              {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_image_t; context: gr_directcontext_t; const dest: sk_pixmap_t; src_x, src_y: int32_t; caching_hint: sk_imagecachinghint_t): _bool; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_image_scale_pixels             {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_image_t; const dest: sk_pixmap_t; const sampling: psk_samplingoptions_t; caching_hint: sk_imagecachinghint_t): _bool; cdecl;
 
-    {$REGION 'modules/skparagraph/include/sk4d_paragraphstyle.h'}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_paragraphstyle_create                   {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(): sk_paragraphstyle_t; cdecl;                                                 {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_paragraphstyle_destroy                  {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_paragraphstyle_t); cdecl;                                             {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_paragraphstyle_disable_hinting          {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_paragraphstyle_t); cdecl;                                             {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_paragraphstyle_get_ellipsis             {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_paragraphstyle_t): sk_string_t; cdecl;                          {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_paragraphstyle_get_height               {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_paragraphstyle_t): float; cdecl;                                {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_paragraphstyle_get_max_lines            {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_paragraphstyle_t): size_t; cdecl;                               {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_paragraphstyle_get_strut_style          {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_paragraphstyle_t): sk_strutstyle_t; cdecl;                      {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_paragraphstyle_get_text_align           {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_paragraphstyle_t): sk_textalign_t; cdecl;                       {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_paragraphstyle_get_text_direction       {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_paragraphstyle_t): sk_textdirection_t; cdecl;                   {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_paragraphstyle_get_text_height_behaviors{$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_paragraphstyle_t): uint32_t; cdecl;                             {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_paragraphstyle_get_text_style           {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_paragraphstyle_t): sk_textstyle_t; cdecl;                       {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_paragraphstyle_set_ellipsis             {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_paragraphstyle_t; const value: MarshaledAString); cdecl;              {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_paragraphstyle_set_height               {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_paragraphstyle_t; value: float); cdecl;                               {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_paragraphstyle_set_max_lines            {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_paragraphstyle_t; value: size_t); cdecl;                              {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_paragraphstyle_set_strut_style          {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_paragraphstyle_t; const value: sk_strutstyle_t); cdecl;               {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_paragraphstyle_set_text_align           {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_paragraphstyle_t; value: sk_textalign_t); cdecl;                      {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_paragraphstyle_set_text_direction       {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_paragraphstyle_t; value: sk_textdirection_t); cdecl;                  {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_paragraphstyle_set_text_height_behaviors{$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_paragraphstyle_t; value: uint32_t); cdecl;                            {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_paragraphstyle_set_text_style           {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_paragraphstyle_t; value: sk_textstyle_t); cdecl;                      {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_strutstyle_create                       {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(): sk_strutstyle_t; cdecl;                                                     {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_strutstyle_destroy                      {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_strutstyle_t); cdecl;                                                 {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_strutstyle_get_enabled                  {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_strutstyle_t): bool; cdecl;                                     {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_strutstyle_get_font_families            {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_strutstyle_t; const result: PMarshaledAString): size_t; cdecl;  {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_strutstyle_get_font_size                {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_strutstyle_t): float; cdecl;                                    {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_strutstyle_get_font_style               {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(const self: sk_strutstyle_t; out result: sk_fontstyle_t); cdecl;               {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_strutstyle_get_force_height             {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_strutstyle_t): bool; cdecl;                                     {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_strutstyle_get_half_leading             {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_strutstyle_t): bool; cdecl;                                     {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_strutstyle_get_height_multiplier        {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_strutstyle_t): float; cdecl;                                    {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_strutstyle_get_leading                  {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_strutstyle_t): float; cdecl;                                    {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_strutstyle_is_equal                     {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_strutstyle_t; const strut_style: sk_strutstyle_t): bool; cdecl; {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_strutstyle_set_enabled                  {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_strutstyle_t; value: bool); cdecl;                                    {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_strutstyle_set_font_families            {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_strutstyle_t; const values: PMarshaledAString; count: size_t); cdecl; {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_strutstyle_set_font_size                {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_strutstyle_t; value: float); cdecl;                                   {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_strutstyle_set_font_style               {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_strutstyle_t; value: psk_fontstyle_t); cdecl;                         {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_strutstyle_set_force_height             {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_strutstyle_t; value: bool); cdecl;                                    {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_strutstyle_set_half_leading             {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_strutstyle_t; value: bool); cdecl;                                    {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_strutstyle_set_height_multiplier        {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_strutstyle_t; value: float); cdecl;                                   {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_strutstyle_set_leading                  {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_strutstyle_t; value: float); cdecl;                                   {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$ENDREGION}
 
-    {$REGION 'modules/skparagraph/include/sk4d_textstyle.h'}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_textstyle_add_font_feature        {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_textstyle_t; const feature: MarshaledAString; value: int32_t); cdecl; {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_textstyle_add_shadow              {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_textstyle_t; const shadow: psk_textshadow_t); cdecl;                  {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_textstyle_clear_background_color  {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_textstyle_t); cdecl;                                                  {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_textstyle_clear_foreground_color  {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_textstyle_t); cdecl;                                                  {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_textstyle_create                  {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(): sk_textstyle_t; cdecl;                                                      {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_textstyle_destroy                 {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_textstyle_t); cdecl;                                                  {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_textstyle_get_background          {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_textstyle_t): sk_paint_t; cdecl;                                {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_textstyle_get_color               {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_textstyle_t): sk_color_t; cdecl;                                {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_textstyle_get_decoration_color    {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_textstyle_t): sk_color_t; cdecl;                                {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_textstyle_get_decoration_style    {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_textstyle_t): sk_textdecorationstyle_t; cdecl;                  {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_textstyle_get_decoration_thickness{$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_textstyle_t): float; cdecl;                                     {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_textstyle_get_decorations         {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_textstyle_t): uint32_t; cdecl;                                  {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_textstyle_get_font_families       {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_textstyle_t; const result: PMarshaledAString): size_t; cdecl;   {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_textstyle_get_font_metrics        {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(const self: sk_textstyle_t; out result: sk_fontmetrics_t); cdecl;              {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_textstyle_get_font_size           {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_textstyle_t): float; cdecl;                                     {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_textstyle_get_font_style          {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(const self: sk_textstyle_t; out result: sk_fontstyle_t); cdecl;                {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_textstyle_get_foreground          {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_textstyle_t): sk_paint_t; cdecl;                                {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_textstyle_get_half_leading        {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_textstyle_t): bool; cdecl;                                      {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_textstyle_get_height_multiplier   {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_textstyle_t): float; cdecl;                                     {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_textstyle_get_letter_spacing      {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_textstyle_t): float; cdecl;                                     {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_textstyle_get_locale              {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_textstyle_t): sk_string_t; cdecl;                               {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_textstyle_get_word_spacing        {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_textstyle_t): float; cdecl;                                     {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_textstyle_is_equal                {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self, text_style: sk_textstyle_t): bool; cdecl;                          {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_textstyle_reset_font_features     {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_textstyle_t); cdecl;                                                  {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_textstyle_reset_shadows           {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_textstyle_t); cdecl;                                                  {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_textstyle_set_background_color    {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_textstyle_t; paint: sk_paint_t); cdecl;                               {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_textstyle_set_color               {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_textstyle_t; value: sk_color_t); cdecl;                               {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_textstyle_set_decoration_color    {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_textstyle_t; value: sk_color_t); cdecl;                               {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_textstyle_set_decoration_style    {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_textstyle_t; value: sk_textdecorationstyle_t); cdecl;                 {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_textstyle_set_decoration_thickness{$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_textstyle_t; value: float); cdecl;                                    {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_textstyle_set_decorations         {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_textstyle_t; value: uint32_t); cdecl;                                 {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_textstyle_set_font_families       {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_textstyle_t; const values: PMarshaledAString; count: size_t); cdecl;  {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_textstyle_set_font_size           {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_textstyle_t; value: float); cdecl;                                    {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_textstyle_set_font_style          {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_textstyle_t; const value: psk_fontstyle_t); cdecl;                    {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_textstyle_set_foreground_color    {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_textstyle_t; paint: sk_paint_t); cdecl;                               {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_textstyle_set_half_leading        {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_textstyle_t; value: bool); cdecl;                                     {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_textstyle_set_height_multiplier   {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_textstyle_t; value: float); cdecl;                                    {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_textstyle_set_letter_spacing      {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_textstyle_t; value: float); cdecl;                                    {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_textstyle_set_locale              {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_textstyle_t; const value: MarshaledAString); cdecl;                   {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_textstyle_set_word_spacing        {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_textstyle_t; value: float); cdecl;                                    {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$ENDREGION}
+  { include/c/sk4d_imageencoder.h }
 
-    {$REGION 'modules/skparagraph/include/sk4d_typefacefontprovider.h'}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_typefacefontprovider_create            {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(): sk_typefacefontprovider_t; cdecl;                                                                   {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_typefacefontprovider_register_typeface {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_typefacefontprovider_t; typeface: sk_typeface_t); cdecl;                                      {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_typefacefontprovider_register_typeface2{$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_typefacefontprovider_t; typeface: sk_typeface_t; const family_name: MarshaledAString); cdecl; {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$ENDREGION}
+  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_imageencoder_encode_to_file  {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(const file_name: MarshaledAString; const src: sk_pixmap_t; format: sk_encodedimageformat_t; quality: int32_t): _bool; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_imageencoder_encode_to_stream{$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(w_stream: sk_wstream_t; const src: sk_pixmap_t; format: sk_encodedimageformat_t; quality: int32_t): _bool; cdecl;
 
-    {$REGION 'modules/skresources/include/sk4d_resources.h'}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_resourceproviderbaseclass_create   {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(predecode: bool; context: Pointer): sk_resourceproviderbaseclass_t; cdecl; {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_resourceproviderbaseclass_set_procs{$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(const procs: psk_resourceproviderbaseclass_procs_t); cdecl;                {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$ENDREGION}
 
-    {$REGION 'modules/skshaper/include/sk4d_shaper.h'}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_shaper_create {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(): sk_shaper_t; cdecl;                                                                                                                                                                        {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_shaper_destroy{$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_shaper_t); cdecl;                                                                                                                                                                    {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_shaper_shape  {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_shaper_t; const text: pchar; size: size_t; const font: sk_font_t; left_to_right: bool; width: float; const offset: psk_point_t; end_point: psk_point_t): sk_textblob_t; cdecl; {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$ENDREGION}
+  { include/c/sk4d_imagefilter.h }
 
-    {$REGION 'modules/skunicode/include/sk4d_unicode.h'}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_unicode_create              {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(): sk_unicode_t; cdecl;                                                                                                                            {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_unicode_destroy             {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_unicode_t); cdecl;                                                                                                                        {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_unicode_for_each_bidi_region{$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_unicode_t; const text: puint16_t; units: int32_t; direction: sk_direction_t; proc: sk_unicode_bidi_region_proc; context: Pointer); cdecl; {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_unicode_for_each_break      {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_unicode_t; const text: pchar16_t; units: int32_t; &type: sk_breaktype_t; proc: sk_unicode_break_proc; context: Pointer); cdecl;           {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_unicode_for_each_codepoint  {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_unicode_t; const text: pchar16_t; units: int32_t; proc: sk_unicode_codepoint_proc; context: Pointer); cdecl;                              {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$ENDREGION}
+  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_imagefilter_make_alpha_threshold     {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(const region: sk_region_t; inner_min, outer_max: float; input: sk_imagefilter_t): sk_imagefilter_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_imagefilter_make_arithmetic          {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(k1, k2, k3, k4: float; enforce_premultiplied_color: _bool; background, foreground: sk_imagefilter_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_imagefilter_make_blend               {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(mode: sk_blendmode_t; background, foreground: sk_imagefilter_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_imagefilter_make_blur                {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(sigma_x, sigma_y: float; tile_mode: sk_tilemode_t; input: sk_imagefilter_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_imagefilter_make_colorfilter         {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(color_filter: sk_colorfilter_t; input: sk_imagefilter_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_imagefilter_make_compose             {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(inner, outer: sk_imagefilter_t): sk_imagefilter_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_imagefilter_make_dilate              {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(radius_x, radius_y: float; input: sk_imagefilter_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_imagefilter_make_displacement_map    {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(x_channel_selector, y_channel_selector: sk_colorchannel_t; scale: float; displacement, input: sk_imagefilter_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_imagefilter_make_distant_lit_diffuse {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(const direction: psk_point3_t; light_color: sk_color_t; surface_scale, kd: float; input: sk_imagefilter_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_imagefilter_make_distant_lit_specular{$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(const direction: psk_point3_t; light_color: sk_color_t; surface_scale, ks, shininess: float; input: sk_imagefilter_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_imagefilter_make_drop_shadow         {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(dx, dy, sigma_x, sigma_y: float; color: sk_color_t; input: sk_imagefilter_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_imagefilter_make_drop_shadow_only    {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(dx, dy, sigma_x, sigma_y: float; color: sk_color_t; input: sk_imagefilter_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_imagefilter_make_erode               {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(radius_x, radius_y: float; input: sk_imagefilter_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_imagefilter_make_image               {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(image: sk_image_t; const src, dest: psk_rect_t; const sampling: psk_samplingoptions_t): sk_imagefilter_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_imagefilter_make_magnifier           {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(const src: psk_rect_t; inset: float; input: sk_imagefilter_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_imagefilter_make_matrix_convolution  {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(const kernel_size: psk_isize_t; const kernel: pfloat; gain, bias: float; const kernel_offset: psk_ipoint_t; tile_mode: sk_tilemode_t; convolve_alpha: _bool; input: sk_imagefilter_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_imagefilter_make_matrix_transform    {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(const matrix: psk_matrix_t; const sampling: psk_samplingoptions_t; input: sk_imagefilter_t): sk_imagefilter_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_imagefilter_make_merge               {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(const filters: psk_imagefilter_t; count: int32_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_imagefilter_make_offset              {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(dx, dy: float; input: sk_imagefilter_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_imagefilter_make_picture             {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(picture: sk_picture_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_imagefilter_make_point_lit_diffuse   {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(const location: psk_point3_t; light_color: sk_color_t; surface_scale, kd: float; input: sk_imagefilter_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_imagefilter_make_point_lit_specular  {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(const location: psk_point3_t; light_color: sk_color_t; surface_scale, ks, shininess: float; input: sk_imagefilter_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_imagefilter_make_shader              {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(shader: sk_shader_t; dither: _bool; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_imagefilter_make_spot_lit_diffuse    {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(const location, target: psk_point3_t; falloff_exponent, cutoff_angle: float; light_color: sk_color_t; surface_scale, kd: float; input: sk_imagefilter_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_imagefilter_make_spot_lit_specular   {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(const location, target: psk_point3_t; falloff_exponent, cutoff_angle: float; light_color: sk_color_t; surface_scale, ks, shininess: float; input: sk_imagefilter_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_imagefilter_make_tile                {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(const src, dest: psk_rect_t; input: sk_imagefilter_t): sk_imagefilter_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_imagefilter_make_with_local_matrix   {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(const self: sk_imagefilter_t; const local_matrix: psk_matrix_t): sk_imagefilter_t; cdecl;
 
-    {$REGION 'modules/svg/include/sk4d_svgdom.h'}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_svgdom_find_node_by_id   {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(self: sk_svgdom_t; const id: MarshaledAString): sk_svgnode_t; cdecl;                {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_svgdom_get_root          {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_svgdom_t): sk_svgsvg_t; cdecl;                                       {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_svgdom_make_from_file    {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const file_name: MarshaledAString): sk_svgdom_t; cdecl;                             {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_svgdom_make_from_stream  {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(stream: sk_stream_t; resource_provider: sk_resourceprovider_t): sk_svgdom_t; cdecl; {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_svgdom_render            {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(const self: sk_svgdom_t; canvas: sk_canvas_t); cdecl;                               {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_svgdom_set_container_size{$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_svgdom_t; const size: psk_size_t); cdecl;                                  {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$ENDREGION}
 
-    {$REGION 'modules/svg/include/sk4d_svgnode.h'}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function {$ELSE}class var {$ENDIF}sk4d_svgnode_set_attribute{$IFDEF SK_DYNAMIC_LOADING}: function {$ENDIF}(self: sk_svgnode_t; const name, value: MarshaledAString): bool; cdecl; {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$ENDREGION}
 
-    {$REGION 'modules/svg/include/sk4d_svgsvg.h'}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_svgsvg_get_height               {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(const self: sk_svgsvg_t; out result: sk_svglength_t); cdecl;                                     {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_svgsvg_get_intrinsic_size       {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(const self: sk_svgsvg_t; const view_port: psk_size_t; dpi: float; out result: sk_size_t); cdecl; {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_svgsvg_get_preserve_aspect_ratio{$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(const self: sk_svgsvg_t; out result: sk_svgpreserveaspectratio_t); cdecl;                        {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class function  {$ELSE}class var {$ENDIF}sk4d_svgsvg_get_view_box             {$IFDEF SK_DYNAMIC_LOADING}: function  {$ENDIF}(const self: sk_svgsvg_t; out result: sk_rect_t): bool; cdecl;                                    {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_svgsvg_get_width                {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(const self: sk_svgsvg_t; out result: sk_svglength_t); cdecl;                                     {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_svgsvg_get_x                    {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(const self: sk_svgsvg_t; out result: sk_svglength_t); cdecl;                                     {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_svgsvg_get_y                    {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(const self: sk_svgsvg_t; out result: sk_svglength_t); cdecl;                                     {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_svgsvg_set_height               {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_svgsvg_t; value: psk_svglength_t); cdecl;                                               {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_svgsvg_set_preserve_aspect_ratio{$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_svgsvg_t; value: psk_svgpreserveaspectratio_t); cdecl;                                  {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_svgsvg_set_view_box             {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_svgsvg_t; view_box: psk_rect_t); cdecl;                                                 {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_svgsvg_set_width                {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_svgsvg_t; value: psk_svglength_t); cdecl;                                               {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_svgsvg_set_x                    {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_svgsvg_t; value: psk_svglength_t); cdecl;                                               {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$IFNDEF SK_DYNAMIC_LOADING}class procedure {$ELSE}class var {$ENDIF}sk4d_svgsvg_set_y                    {$IFDEF SK_DYNAMIC_LOADING}: procedure {$ENDIF}(self: sk_svgsvg_t; value: psk_svglength_t); cdecl;                                               {$IFNDEF SK_DYNAMIC_LOADING}static;{$ENDIF}
-    {$ENDREGION}
+  { include/c/sk4d_maskfilter.h }
 
-    {$IFDEF SK_DYNAMIC_LOADING}
-    class property LibHandle: HMODULE read FLibHandle;
-    {$ENDIF}
-  end;
+  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_maskfilter_make_blur       {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(style: sk_blurstyle_t; sigma: float; respect_ctm: _bool): sk_maskfilter_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_maskfilter_make_shader     {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(shader: sk_shader_t): sk_maskfilter_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_maskfilter_make_table      {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(const table: puint8_t): sk_maskfilter_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_maskfilter_make_table_clip {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(min, max: uint8_t): sk_maskfilter_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_maskfilter_make_table_gamma{$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(gamma: float): sk_maskfilter_t; cdecl;
 
-  {$ENDREGION}
+
+  { include/c/sk4d_paint.h }
+
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_paint_create            {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(): sk_paint_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_paint_create2           {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const paint: sk_paint_t): sk_paint_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_paint_destroy           {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_paint_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_paint_get_alpha         {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_paint_t): uint8_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_paint_get_alphaf        {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_paint_t): float; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_paint_get_anti_alias    {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_paint_t): _bool; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_paint_get_blender       {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_paint_t): sk_blender_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_paint_get_color         {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_paint_t): sk_color_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_paint_get_colorf        {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(const self: sk_paint_t; out result: sk_color4f_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_paint_get_color_filter  {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_paint_t): sk_colorfilter_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_paint_get_dither        {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_paint_t): _bool; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_paint_get_fill_path     {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_paint_t; const path: sk_path_t; const cull_rect: psk_rect_t; res_scale: float): sk_path_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_paint_get_image_filter  {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_paint_t): sk_imagefilter_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_paint_get_mask_filter   {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_paint_t): sk_maskfilter_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_paint_get_path_effect   {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_paint_t): sk_patheffect_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_paint_get_shader        {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_paint_t): sk_shader_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_paint_get_stroke_cap    {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_paint_t): sk_strokecap_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_paint_get_stroke_join   {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_paint_t): sk_strokejoin_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_paint_get_stroke_miter  {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_paint_t): float; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_paint_get_stroke_width  {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_paint_t): float; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_paint_get_style         {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_paint_t): sk_paintstyle_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_paint_reset             {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_paint_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_paint_set_alpha         {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_paint_t; value: uint8_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_paint_set_alphaf        {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_paint_t; value: float); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_paint_set_antialias     {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_paint_t; value: _bool); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_paint_set_argb          {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_paint_t; a, r, g, b: uint8_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_paint_set_blender       {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_paint_t; value: sk_blender_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_paint_set_color         {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_paint_t; value: sk_color_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_paint_set_colorf        {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_paint_t; const value: psk_color4f_t; color_space: sk_colorspace_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_paint_set_color_filter  {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_paint_t; value: sk_colorfilter_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_paint_set_dither        {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_paint_t; value: _bool); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_paint_set_image_filter  {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_paint_t; value: sk_imagefilter_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_paint_set_mask_filter   {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_paint_t; value: sk_maskfilter_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_paint_set_path_effect   {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_paint_t; value: sk_patheffect_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_paint_set_shader        {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_paint_t; value: sk_shader_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_paint_set_stroke_cap    {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_paint_t; value: sk_strokecap_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_paint_set_stroke_join   {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_paint_t; value: sk_strokejoin_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_paint_set_stroke_miter  {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_paint_t; value: float); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_paint_set_stroke_width  {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_paint_t; value: float); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_paint_set_style         {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_paint_t; value: sk_paintstyle_t); cdecl;
+
+
+  { include/c/sk4d_path.h }
+
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_opbuilder_add              {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_opbuilder_t; const path: sk_path_t; op: sk_pathop_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_opbuilder_create           {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(): sk_opbuilder_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_opbuilder_destroy          {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_opbuilder_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_opbuilder_detach           {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(self: sk_opbuilder_t): sk_path_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_path_contains              {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_path_t; x, y: float): _bool; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_path_convert_conic_to_quads{$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const point1, point2, point3: psk_point_t; weight: float; points: psk_point_t; power2: int32_t): int32_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_path_create                {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const svg: MarshaledAString): sk_path_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_path_create2               {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(stream: sk_stream_t): sk_path_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_path_destroy               {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_path_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_path_get_bounds            {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(const self: sk_path_t; out result: sk_rect_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_path_get_fill_type         {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_path_t): sk_pathfilltype_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_path_get_last_point        {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_path_t; out result: sk_point_t): _bool; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_path_get_segment_masks     {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_path_t): uint32_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_path_get_tight_bounds      {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(const self: sk_path_t; out result: sk_rect_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_path_interpolate           {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self, ending: sk_path_t; weight: float): sk_path_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_path_is_convex             {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_path_t): _bool; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_path_is_empty              {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_path_t): _bool; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_path_is_finite             {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_path_t): _bool; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_path_is_interpolatable     {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self, path: sk_path_t): _bool; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_path_is_last_contour_closed{$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_path_t): _bool; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_path_is_line               {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_path_t; lines: psk_point_t): _bool; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_path_is_oval               {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_path_t; oval: psk_rect_t): _bool; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_path_is_rect               {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_path_t; rect: psk_rect_t): _bool; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_path_is_rrect              {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_path_t; rrect: sk_rrect_t): _bool; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_path_op                    {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self, path: sk_path_t; op: sk_pathop_t): sk_path_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_path_serialize_to_stream   {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(const self: sk_path_t; w_stream: sk_wstream_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_path_to_svg                {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_path_t): sk_string_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_path_transform             {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_path_t; const matrix: psk_matrix_t): sk_path_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_pathiterator_create        {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const path: sk_path_t; force_close: _bool): sk_pathiterator_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_pathiterator_destroy       {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_pathiterator_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_pathiterator_next          {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(self: sk_pathiterator_t; out elem: sk_pathiteratorelem_t): _bool; cdecl;
+
+
+  { include/c/sk4d_pathbuilder.h }
+
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_pathbuilder_add_arc                {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_pathbuilder_t; const oval: psk_rect_t; start_angle, sweep_angle: float); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_pathbuilder_add_circle             {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_pathbuilder_t; center_x, center_y, radius: float; direction: sk_pathdirection_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_pathbuilder_add_oval               {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_pathbuilder_t; const oval: psk_rect_t; direction: sk_pathdirection_t; start_index: uint32_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_pathbuilder_add_path               {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_pathbuilder_t; const path: sk_path_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_pathbuilder_add_polygon            {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_pathbuilder_t; polygon: psk_point_t; count: int32_t; is_closed: _bool); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_pathbuilder_add_rect               {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_pathbuilder_t; const rect: psk_rect_t; direction: sk_pathdirection_t; start_index: uint32_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_pathbuilder_add_rrect              {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_pathbuilder_t; const rrect: sk_rrect_t; direction: sk_pathdirection_t; start_index: uint32_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_pathbuilder_arc_to                 {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_pathbuilder_t; const radius: psk_point_t; x_axis_rotate: float; large_arc: sk_patharcsize_t; sweep: sk_pathdirection_t; const xy: psk_point_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_pathbuilder_arc_to2                {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_pathbuilder_t; const oval: psk_rect_t; start_angle, sweep_angle: float; force_move_to: _bool); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_pathbuilder_arc_to3                {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_pathbuilder_t; const point1, point2: psk_point_t; radius: float); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_pathbuilder_close                  {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_pathbuilder_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_pathbuilder_conic_to               {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_pathbuilder_t; const point1, point2: psk_point_t; weight: float); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_pathbuilder_create                 {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(): sk_pathbuilder_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_pathbuilder_create2                {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const path_builder: sk_pathbuilder_t): sk_pathbuilder_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_pathbuilder_cubic_to               {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_pathbuilder_t; const point1, point2, point3: psk_point_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_pathbuilder_destroy                {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_pathbuilder_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_pathbuilder_detach                 {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(self: sk_pathbuilder_t): sk_path_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_pathbuilder_get_bounds             {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(const self: sk_pathbuilder_t; out result: sk_rect_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_pathbuilder_get_fill_type          {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_pathbuilder_t): sk_pathfilltype_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_pathbuilder_inc_reserve            {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_pathbuilder_t; extra_point_count, extra_verb_count: int32_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_pathbuilder_line_to                {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_pathbuilder_t; const cpoint: psk_point_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_pathbuilder_move_to                {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_pathbuilder_t; const cpoint: psk_point_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_pathbuilder_offset                 {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_pathbuilder_t; dx, dy: float); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_pathbuilder_polyline_to            {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_pathbuilder_t; const points: psk_point_t; count: int32_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_pathbuilder_quad_to                {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_pathbuilder_t; const point1, point2: psk_point_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_pathbuilder_r_conic_to             {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_pathbuilder_t; const point1, point2: psk_point_t; weight: float); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_pathbuilder_r_cubic_to             {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_pathbuilder_t; const point1, point2, point3: psk_point_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_pathbuilder_r_line_to              {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_pathbuilder_t; const point: psk_point_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_pathbuilder_r_quad_to              {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_pathbuilder_t; const point1, point2: psk_point_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_pathbuilder_reset                  {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_pathbuilder_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_pathbuilder_set_filltype           {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_pathbuilder_t; value: sk_pathfilltype_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_pathbuilder_snapshot               {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_pathbuilder_t): sk_path_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_pathbuilder_toggle_inverse_filltype{$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_pathbuilder_t); cdecl;
+
+
+  { include/c/sk4d_patheffect.h }
+
+  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_patheffect_make_1dpath         {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(const path: sk_path_t; advance, phase: float; style: sk_patheffect1dstyle_t): sk_patheffect_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_patheffect_make_2dline         {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(width: float; const matrix: psk_matrix_t): sk_patheffect_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_patheffect_make_2dpath         {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(const matrix: psk_matrix_t; const path: sk_path_t): sk_patheffect_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_patheffect_make_compose        {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(outer, inner: sk_patheffect_t): sk_patheffect_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_patheffect_make_corner         {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(radius: float): sk_patheffect_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_patheffect_make_dash           {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(const intervals: pfloat; count: int32_t; phase: float): sk_patheffect_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_patheffect_make_discrete       {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(seg_length, deviation: float; seed_assist: uint32_t): sk_patheffect_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_patheffect_make_matrix         {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(const matrix: psk_matrix_t): sk_patheffect_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_patheffect_make_merge          {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(effect1, effect2: sk_patheffect_t; op: sk_pathop_t): sk_patheffect_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_patheffect_make_stroke         {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(width: float; join: sk_strokejoin_t; cap: sk_strokecap_t; miter: float): sk_patheffect_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_patheffect_make_stroke_and_fill{$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(): sk_patheffect_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_patheffect_make_sum            {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(effect1, effect2: sk_patheffect_t): sk_patheffect_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_patheffect_make_translate      {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(dx, dy: float): sk_patheffect_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_patheffect_make_trim           {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(start, stop: float; mode: sk_patheffecttrimmode_t): sk_patheffect_t; cdecl;
+
+
+  { include/c/sk4d_pathmeasure.h }
+
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_pathmeasure_create                  {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const path: sk_path_t; force_closed: _bool; res_scale: float): sk_pathmeasure_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_pathmeasure_destroy                 {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_pathmeasure_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_pathmeasure_get_length              {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(self: sk_pathmeasure_t): float; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_pathmeasure_get_matrix              {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(self: sk_pathmeasure_t; distance: float; out matrix: sk_matrix_t; matrix_flags: uint32_t): _bool; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_pathmeasure_get_position_and_tangent{$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(self: sk_pathmeasure_t; distance: float; out position: sk_point_t; out tangent: sk_vector_t): _bool; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_pathmeasure_get_segment             {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(self: sk_pathmeasure_t; start, stop: float; start_with_move_to: _bool): sk_path_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_pathmeasure_is_closed               {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(self: sk_pathmeasure_t): _bool; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_pathmeasure_next_contour            {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(self: sk_pathmeasure_t): _bool; cdecl;
+
+
+  { include/c/sk4d_picture.h }
+
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_picture_get_cull_rect      {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(const self: sk_picture_t; out result: sk_rect_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_picture_make_from_stream   {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(stream: sk_stream_t): sk_picture_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_picture_make_shader        {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_picture_t; tile_mode_x, tile_mode_y: sk_tilemode_t; filter_mode: sk_filtermode_t; const local_matrix: psk_matrix_t; const tile_rect: psk_rect_t): sk_shader_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_picture_playback           {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(const self: sk_picture_t; canvas: sk_canvas_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_picture_serialize_to_stream{$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(const self: sk_picture_t; w_stream: sk_wstream_t); cdecl;
+
+
+  { include/c/sk4d_picturerecorder.h }
+
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_picturerecorder_begin_recording  {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(self: sk_picturerecorder_t; const bounds: psk_rect_t): sk_canvas_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_picturerecorder_create           {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(): sk_picturerecorder_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_picturerecorder_destroy          {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_picturerecorder_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_picturerecorder_finish_recording {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(self: sk_picturerecorder_t): sk_picture_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_picturerecorder_finish_recording2{$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(self: sk_picturerecorder_t; const cull_rect: psk_rect_t): sk_picture_t; cdecl;
+
+
+  { include/c/sk4d_pixmap.h }
+
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_pixmap_create         {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const image_info: psk_imageinfo_t; const pixels: Pointer; row_bytes: size_t): sk_pixmap_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_pixmap_destroy        {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_pixmap_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_pixmap_erase          {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_pixmap_t; color: sk_color_t; const area: psk_irect_t): _bool; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_pixmap_erase2         {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_pixmap_t; const color: psk_color4f_t; color_space: sk_colorspace_t; const area: psk_irect_t): _bool; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_pixmap_extract_subset {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_pixmap_t; dest: sk_pixmap_t; const area: psk_irect_t): _bool; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_pixmap_get_alpha      {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_pixmap_t; x, y: int32_t): float; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_pixmap_get_alpha_type {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_pixmap_t): sk_alphatype_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_pixmap_get_color      {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_pixmap_t; x, y: int32_t): sk_color_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_pixmap_get_color_space{$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_pixmap_t): sk_colorspace_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_pixmap_get_color_type {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_pixmap_t): sk_colortype_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_pixmap_get_colorf     {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(const self: sk_pixmap_t; x, y: int32_t; out result: sk_color4f_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_pixmap_get_height     {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_pixmap_t): int32_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_pixmap_get_image_info {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(const self: sk_pixmap_t; out result: sk_imageinfo_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_pixmap_get_pixel_addr {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_pixmap_t; x, y: int32_t): Pointer; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_pixmap_get_pixels     {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_pixmap_t): Pointer; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_pixmap_get_row_bytes  {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_pixmap_t): size_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_pixmap_get_width      {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_pixmap_t): int32_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_pixmap_read_pixels    {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self, dest: sk_pixmap_t; src_x, src_y: int32_t): _bool; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_pixmap_scale_pixels   {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self, dest: sk_pixmap_t; const sampling: psk_samplingoptions_t): _bool; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_pixmap_set_colorspace {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_pixmap_t; value: sk_colorspace_t); cdecl;
+
+
+  { include/c/sk4d_refcnt.h }
+
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_refcnt_ref  {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(const self: sk_refcnt_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_refcnt_unref{$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(const self: sk_refcnt_t); cdecl;
+
+
+  { include/c/sk4d_region.h }
+
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_region_contains             {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self, region: sk_region_t): _bool; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_region_contains2            {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_region_t; const rect: psk_irect_t): _bool; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_region_contains3            {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_region_t; x, y: int32_t): _bool; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_region_create               {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(): sk_region_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_region_create2              {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const region: sk_region_t): sk_region_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_region_destroy              {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_region_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_region_get_boundary_path    {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_region_t): sk_path_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_region_get_bounds           {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(const self: sk_region_t; out result: sk_irect_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_region_intersects           {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self, region: sk_region_t): _bool; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_region_intersects2          {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_region_t; const rect: psk_irect_t): _bool; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_region_is_complex           {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_region_t): _bool; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_region_is_empty             {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_region_t): _bool; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_region_is_equal             {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self, region: sk_region_t): _bool; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_region_is_rect              {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_region_t): _bool; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_region_op                   {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(self: sk_region_t; const region: sk_region_t; op: sk_regionop_t): _bool; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_region_op2                  {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(self: sk_region_t; const rect: psk_irect_t; op: sk_regionop_t): _bool; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_region_quick_contains       {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_region_t; const rect: psk_irect_t): _bool; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_region_quick_reject         {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self, region: sk_region_t): _bool; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_region_quick_reject2        {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_region_t; const rect: psk_irect_t): _bool; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_region_set_empty            {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_region_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_region_set_path             {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(self: sk_region_t; const path: sk_path_t; const clip: sk_region_t): _bool; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_region_set_rect             {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(self: sk_region_t; const rect: psk_irect_t): _bool; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_region_set_rects            {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(self: sk_region_t; const rects: psk_irect_t; count: int32_t): _bool; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_region_translate            {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_region_t; x, y: int32_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_regioncliperator_create     {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const region: sk_region_t; const clip: psk_irect_t): sk_regioncliperator_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_regioncliperator_destroy    {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_regioncliperator_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_regioncliperator_get_current{$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(const self: sk_regioncliperator_t; out result: sk_irect_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_regioncliperator_move_next  {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(self: sk_regioncliperator_t): _bool; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_regioniterator_create       {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const region: sk_region_t): sk_regioniterator_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_regioniterator_destroy      {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_regioniterator_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_regioniterator_get_current  {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(const self: sk_regioniterator_t; out result: sk_irect_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_regioniterator_move_next    {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(self: sk_regioniterator_t): _bool; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_regionspanerator_create     {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const region: sk_region_t; y, left, right: int32_t): sk_regionspanerator_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_regionspanerator_destroy    {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_regionspanerator_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_regionspanerator_next       {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(self: sk_regionspanerator_t; out elem: sk_ipoint_t): _bool; cdecl;
+
+
+  { include/c/sk4d_rrect.h }
+
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_rrect_contains        {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_rrect_t; const rect: psk_rect_t): _bool; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_rrect_create          {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(): sk_rrect_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_rrect_create2         {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const rrect: sk_rrect_t): sk_rrect_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_rrect_deflate         {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_rrect_t; dx, dy: float); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_rrect_destroy         {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_rrect_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_rrect_get_height      {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_rrect_t): float; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_rrect_get_radii       {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(const self: sk_rrect_t; corner: sk_rrectcorner_t; out result: sk_vector_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_rrect_get_rect        {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(const self: sk_rrect_t; out result: sk_rect_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_rrect_get_simple_radii{$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(const self: sk_rrect_t; out result: sk_vector_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_rrect_get_width       {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_rrect_t): float; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_rrect_inflate         {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_rrect_t; dx, dy: float); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_rrect_is_complex      {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_rrect_t): _bool; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_rrect_is_empty        {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_rrect_t): _bool; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_rrect_is_equal        {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self, rrect: sk_rrect_t): _bool; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_rrect_is_nine_patch   {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_rrect_t): _bool; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_rrect_is_oval         {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_rrect_t): _bool; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_rrect_is_rect         {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_rrect_t): _bool; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_rrect_is_simple       {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_rrect_t): _bool; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_rrect_is_valid        {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_rrect_t): _bool; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_rrect_offset          {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_rrect_t; dx, dy: float); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_rrect_set_empty       {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_rrect_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_rrect_set_nine_patch  {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_rrect_t; const rect: psk_rect_t; radius_left, radius_top, radius_right, radius_bottom: float); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_rrect_set_oval        {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_rrect_t; const rect: psk_rect_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_rrect_set_rect        {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_rrect_t; const rect: psk_rect_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_rrect_set_rect2       {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_rrect_t; const rect: psk_rect_t; const radii: psk_vector_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_rrect_set_rect3       {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_rrect_t; const rect: psk_rect_t; radius_x, radius_y: float); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_rrect_transform       {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_rrect_t; const matrix: psk_matrix_t): sk_rrect_t; cdecl;
+
+
+  { include/c/sk4d_runtimeeffect.h }
+
+  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_runtimeeffect_get_child_count       {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(const self: sk_runtimeeffect_t): int32_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_runtimeeffect_get_child_name        {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(const self: sk_runtimeeffect_t; index: int32_t): MarshaledAString; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_runtimeeffect_get_child_type        {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(const self: sk_runtimeeffect_t; index: int32_t): sk_runtimeeffectchildtype_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_runtimeeffect_get_uniform_count     {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(const self: sk_runtimeeffect_t): int32_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_runtimeeffect_get_uniform_data_size {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(const self: sk_runtimeeffect_t): size_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_runtimeeffect_get_uniform_name      {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(const self: sk_runtimeeffect_t; index: int32_t): MarshaledAString; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_runtimeeffect_get_uniform_offset    {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(const self: sk_runtimeeffect_t; index: int32_t): size_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_runtimeeffect_get_uniform_type      {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(const self: sk_runtimeeffect_t; index: int32_t): sk_runtimeeffectuniformtype_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_runtimeeffect_get_uniform_type_count{$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(const self: sk_runtimeeffect_t; index: int32_t): int32_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_runtimeeffect_index_of_child        {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(const self: sk_runtimeeffect_t; const name: MarshaledAString): int32_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_runtimeeffect_index_of_uniform      {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(const self: sk_runtimeeffect_t; const name: MarshaledAString): int32_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_runtimeeffect_make_blender          {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(const self: sk_runtimeeffect_t; const uniforms: Pointer; children: psk_blender_t): sk_blender_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_runtimeeffect_make_color_filter     {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(const self: sk_runtimeeffect_t; const uniforms: Pointer; children: psk_colorfilter_t): sk_colorfilter_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_runtimeeffect_make_for_blender      {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(const sksl: MarshaledAString; error_text: sk_string_t): sk_runtimeeffect_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_runtimeeffect_make_for_color_filter {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(const sksl: MarshaledAString; error_text: sk_string_t): sk_runtimeeffect_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_runtimeeffect_make_for_shader       {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(const sksl: MarshaledAString; error_text: sk_string_t): sk_runtimeeffect_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_runtimeeffect_make_image            {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(const self: sk_runtimeeffect_t; context: gr_directcontext_t; const uniforms: Pointer; children: psk_shader_t; const local_matrix: psk_matrix_t; const image_info: psk_imageinfo_t; mipmapped: _bool): sk_image_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_runtimeeffect_make_shader           {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(const self: sk_runtimeeffect_t; const uniforms: Pointer; children: psk_shader_t; const local_matrix: psk_matrix_t): sk_shader_t; cdecl;
+
+
+  { include/c/sk4d_shader.h }
+
+  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_shader_make_blend                      {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(mode: sk_blendmode_t; dest, src: sk_shader_t): sk_shader_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_shader_make_color                      {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(color: sk_color_t): sk_shader_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_shader_make_color2                     {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(const color: psk_color4f_t; color_space: sk_colorspace_t): sk_shader_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_shader_make_gradient_linear            {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(const points: psk_point_t; const colors: psk_color_t; const positions: pfloat; count: int32_t; tile_mode: sk_tilemode_t; const local_matrix: psk_matrix_t): sk_shader_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_shader_make_gradient_linear2           {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(const points: psk_point_t; const colors: psk_color4f_t; color_space: sk_colorspace_t; const positions: pfloat; count: int32_t; tile_mode: sk_tilemode_t; const local_matrix: psk_matrix_t): sk_shader_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_shader_make_gradient_radial            {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(const center: psk_point_t; radius: float; const colors: psk_color_t; const positions: pfloat; count: int32_t; tile_mode: sk_tilemode_t; const local_matrix: psk_matrix_t): sk_shader_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_shader_make_gradient_radial2           {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(const center: psk_point_t; radius: float; const colors: psk_color4f_t; color_space: sk_colorspace_t; const positions: pfloat; count: int32_t; tile_mode: sk_tilemode_t; const local_matrix: psk_matrix_t): sk_shader_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_shader_make_gradient_sweep             {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(center_x, center_y: float; const colors: psk_color_t; const positions: pfloat; count: int32_t; tile_mode: sk_tilemode_t; start_angle, end_angle: float; const local_matrix: psk_matrix_t): sk_shader_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_shader_make_gradient_sweep2            {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(center_x, center_y: float; const colors: psk_color4f_t; color_space: sk_colorspace_t; const positions: pfloat; count: int32_t; tile_mode: sk_tilemode_t; start_angle, end_angle: float; const local_matrix: psk_matrix_t): sk_shader_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_shader_make_gradient_two_point_conical {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(const start: psk_point_t; start_radius: float; const &end: psk_point_t; end_radius: float; const colors: psk_color_t; const positions: pfloat; count: int32_t; tile_mode: sk_tilemode_t; const local_matrix: psk_matrix_t): sk_shader_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_shader_make_gradient_two_point_conical2{$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(const start: psk_point_t; start_radius: float; const &end: psk_point_t; end_radius: float; const colors: psk_color4f_t; color_space: sk_colorspace_t; const positions: pfloat; count: int32_t; tile_mode: sk_tilemode_t; const local_matrix: psk_matrix_t): sk_shader_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_shader_make_perlin_noise_fractal_noise {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(base_frequency_x, base_frequency_y: float; num_octaves: int32_t; seed: float; const tile_size: psk_isize_t): sk_shader_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_shader_make_perlin_noise_turbulence    {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(base_frequency_x, base_frequency_y: float; num_octaves: int32_t; seed: float; const tile_size: psk_isize_t): sk_shader_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_shader_make_with_color_filter          {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(const self: sk_shader_t; color_filter: sk_colorfilter_t): sk_shader_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_shader_make_with_local_matrix          {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(const self: sk_shader_t; const local_matrix: psk_matrix_t): sk_shader_t; cdecl;
+
+
+  { include/c/sk4d_stream.h }
+
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_streamadapter_create    {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(context: Pointer): sk_streamadapter_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_streamadapter_destroy   {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_streamadapter_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_streamadapter_set_procs {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(const procs: psk_streamadapter_procs_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_wstreamadapter_create   {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(context: Pointer): sk_wstreamadapter_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_wstreamadapter_destroy  {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_wstreamadapter_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_wstreamadapter_set_procs{$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(const procs: psk_wstreamadapter_procs_t); cdecl;
+
+
+  { include/c/sk4d_string.h }
+
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_string_create  {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(): sk_string_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_string_destroy {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_string_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_string_get_text{$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_string_t): MarshaledAString; cdecl;
+
+
+  { include/c/sk4d_surface.h }
+
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_surface_draw                    {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_surface_t; canvas: sk_canvas_t; x, y: float; paint: sk_paint_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_surface_flush                   {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_surface_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_surface_flush_and_submit        {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_surface_t; sync_cpu: _bool); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_surface_get_canvas              {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(self: sk_surface_t): sk_canvas_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_surface_get_props               {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(const self: sk_surface_t; out result: sk_surfaceprops_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_surface_make_from_mtk_view      {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(context: gr_directcontext_t; layer: gr_mtl_handle_t; origin: gr_surfaceorigin_t; sample_count: int32_t; color_type: sk_colortype_t; color_space: sk_colorspace_t; const props: psk_surfaceprops_t): sk_surface_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_surface_make_from_render_target {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(context: gr_directcontext_t; const render_target: gr_backendrendertarget_t; origin: gr_surfaceorigin_t; color_type: sk_colortype_t; color_space: sk_colorspace_t; const props: psk_surfaceprops_t): sk_surface_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_surface_make_from_texture       {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(context: gr_directcontext_t; const texture: gr_backendtexture_t; origin: gr_surfaceorigin_t; sample_count: int32_t; color_type: sk_colortype_t; color_space: sk_colorspace_t; const props: psk_surfaceprops_t): sk_surface_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_surface_make_image_snapshot     {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(self: sk_surface_t): sk_image_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_surface_make_image_snapshot2    {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(self: sk_surface_t; const bounds: psk_irect_t): sk_image_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_surface_make_raster             {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const image_info: psk_imageinfo_t; row_bytes: size_t; const props: psk_surfaceprops_t): sk_surface_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_surface_make_raster_direct      {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const pixmap: sk_pixmap_t; proc: sk_surface_raster_release_proc; proc_context: Pointer; const props: psk_surfaceprops_t): sk_surface_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_surface_make_render_target      {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(context: gr_directcontext_t; is_budgeted: _bool; const image_info: psk_imageinfo_t; sample_count: int32_t; origin: gr_surfaceorigin_t; const props: psk_surfaceprops_t; should_create_with_mips: _bool): sk_surface_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_surface_peek_pixels             {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(self: sk_surface_t): sk_pixmap_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_surface_read_pixels             {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(self: sk_surface_t; const dest: sk_pixmap_t; src_x, src_y: int32_t): _bool; cdecl;
+
+
+  { include/c/sk4d_svgcanvas.h }
+
+  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_svgcanvas_make{$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(const bounds: psk_rect_t; w_stream: sk_wstream_t; flags: uint32_t): sk_canvas_t; cdecl;
+
+
+  { include/c/sk4d_textblob.h }
+
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_textblob_get_intercepts                        {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_textblob_t; const bounds: pfloat; result: pfloat; const paint: sk_paint_t): int32_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_textblob_make_from_text                        {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const text: Pointer; size: size_t; const font: sk_font_t; encoding: sk_textencoding_t): sk_textblob_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_textblob_make_from_text_horizontally_positioned{$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const text: Pointer; size: size_t; const x_positions: pfloat; y: float; const font: sk_font_t; encoding: sk_textencoding_t): sk_textblob_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_textblob_make_from_text_positioned             {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const text: Pointer; size: size_t; const positions: psk_point_t; const font: sk_font_t; encoding: sk_textencoding_t): sk_textblob_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_textblob_make_from_text_transform              {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const text: Pointer; size: size_t; const matrices: psk_rotationscalematrix_t; const font: sk_font_t; encoding: sk_textencoding_t): sk_textblob_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_textblob_ref                                   {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(const self: sk_textblob_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_textblob_unref                                 {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(const self: sk_textblob_t); cdecl;
+
+
+  { include/c/sk4d_tracememorydump.h }
+
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_tracememorydumpbaseclass_create   {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(detailed_dump, dump_wrapped_objects: _bool; context: Pointer): sk_tracememorydumpbaseclass_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_tracememorydumpbaseclass_destroy  {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_tracememorydumpbaseclass_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_tracememorydumpbaseclass_set_procs{$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(const procs: psk_tracememorydumpbaseclass_procs_t); cdecl;
+
+
+  { include/c/sk4d_typeface.h }
+
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_typeface_get_family_name {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_typeface_t): sk_string_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_typeface_get_slant       {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_typeface_t): sk_fontslant_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_typeface_get_style       {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(const self: sk_typeface_t; out result: sk_fontstyle_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_typeface_get_weight      {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_typeface_t): int32_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_typeface_get_width       {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_typeface_t): int32_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_typeface_make_default    {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(): sk_typeface_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_typeface_make_from_file  {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const file_name: MarshaledAString; ttc_index: int32_t): sk_typeface_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_typeface_make_from_stream{$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(stream: sk_stream_t; ttc_index: int32_t): sk_typeface_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_typeface_make_from_name  {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const family_name: MarshaledAString; const style: psk_fontstyle_t): sk_typeface_t; cdecl;
+
+
+  { include/c/sk4d_vertices.h }
+
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_vertices_make_copy{$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(vertex_mode: sk_vertexmode_t; vertex_count: int32_t; const positions, textures: psk_point_t; const colors: psk_color_t; index_count: int32_t; const indices: puint16_t): sk_vertices_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_vertices_ref      {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(const self: sk_vertices_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_vertices_unref    {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(const self: sk_vertices_t); cdecl;
+
+
+  { modules/particles/include/sk4d_particleeffect.h }
+
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_particleeffect_get_position          {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(const self: sk_particleeffect_t; out result: sk_point_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_particleeffect_get_rate              {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_particleeffect_t): float; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_particleeffect_get_uniform           {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(const self: sk_particleeffect_t; index: size_t; out result: sk_particleuniform_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_particleeffect_get_uniform_count     {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_particleeffect_t): size_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_particleeffect_get_uniform_data      {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(self: sk_particleeffect_t): pfloat; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_particleeffect_get_uniform_data_count{$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_particleeffect_t): int32_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_particleeffect_get_uniform_name      {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_particleeffect_t; index: size_t): sk_string_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_particleeffect_init                  {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_particleeffect_make_from_file        {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const file_name: MarshaledAString): sk_particleeffect_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_particleeffect_make_from_stream      {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(stream: sk_stream_t; resource_provider: sk_resourceprovider_t): sk_particleeffect_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_particleeffect_render                {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_particleeffect_t; canvas: sk_canvas_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_particleeffect_set_position          {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_particleeffect_t; const value: psk_point_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_particleeffect_set_rate              {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_particleeffect_t; value: float); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_particleeffect_set_uniform           {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(self: sk_particleeffect_t; const name: MarshaledAString; const data: pfloat; count: int32_t): _bool; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_particleeffect_start                 {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_particleeffect_t; now: _double; looping: _bool); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_particleeffect_update                {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_particleeffect_t; now: _double); cdecl;
+
+
+  { modules/skottie/include/sk4d_skottie.h }
+
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_skottieanimation_get_duration    {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_skottieanimation_t): _double; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_skottieanimation_get_fps         {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_skottieanimation_t): _double; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_skottieanimation_get_in_point    {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_skottieanimation_t): _double; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_skottieanimation_get_out_point   {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_skottieanimation_t): _double; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_skottieanimation_get_size        {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(const self: sk_skottieanimation_t; out result: sk_size_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_skottieanimation_get_version     {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_skottieanimation_t): MarshaledAString; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_skottieanimation_make_from_file  {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const file_name: MarshaledAString): sk_skottieanimation_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_skottieanimation_make_from_stream{$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(stream: sk_stream_t; resource_provider: sk_resourceprovider_t): sk_skottieanimation_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_skottieanimation_ref             {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(const self: sk_skottieanimation_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_skottieanimation_render          {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(const self: sk_skottieanimation_t; canvas: sk_canvas_t; const dest: psk_rect_t; render_flags: uint32_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_skottieanimation_seek_frame      {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_skottieanimation_t; tick: _double); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_skottieanimation_seek_frame_time {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_skottieanimation_t; tick: _double); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_skottieanimation_unref           {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(const self: sk_skottieanimation_t); cdecl;
+
+
+  { modules/skparagraph/include/sk4d_paragraph.h }
+
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_paragraph_destroy                         {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_paragraph_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_paragraph_did_exceed_max_lines            {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(self: sk_paragraph_t): _bool; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_paragraph_get_alphabetic_baseline         {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(self: sk_paragraph_t): float; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_paragraph_get_glyph_position_at_coordinate{$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_paragraph_t; dx, dy: float; out result: sk_positionaffinity_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_paragraph_get_height                      {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(self: sk_paragraph_t): float; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_paragraph_get_ideographic_baseline        {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(self: sk_paragraph_t): float; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_paragraph_get_line_metrics                {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(self: sk_paragraph_t; result: psk_metrics_t): size_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_paragraph_get_longest_line                {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(self: sk_paragraph_t): float; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_paragraph_get_max_intrinsic_width         {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(self: sk_paragraph_t): float; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_paragraph_get_max_width                   {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(self: sk_paragraph_t): float; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_paragraph_get_min_intrinsic_width         {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(self: sk_paragraph_t): float; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_paragraph_get_rects_for_placeholders      {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(self: sk_paragraph_t; result: psk_textbox_t): size_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_paragraph_get_rects_for_range             {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(self: sk_paragraph_t; start, &end: uint32_t; rect_height_style: sk_rectheightstyle_t; rect_width_style: sk_rectwidthstyle_t; result: psk_textbox_t): size_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_paragraph_get_word_boundary               {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_paragraph_t; offset: uint32_t; out start, &end: uint32_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_paragraph_layout                          {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_paragraph_t; width: float); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_paragraph_paint                           {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_paragraph_t; canvas: sk_canvas_t; x, y: float); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_paragraph_to_path                         {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(self: sk_paragraph_t): sk_path_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_paragraph_visit                           {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_paragraph_t; proc: sk_paragraph_visit_proc; proc_context: Pointer); cdecl;
+
+
+  { modules/skparagraph/include/sk4d_paragraphbuilder.h }
+
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_paragraphbuilder_add_placeholder{$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_paragraphbuilder_t; const placeholder: psk_placeholderstyle_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_paragraphbuilder_add_text       {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_paragraphbuilder_t; const text: MarshaledAString); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_paragraphbuilder_build          {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(self: sk_paragraphbuilder_t): sk_paragraph_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_paragraphbuilder_create         {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const paragraph_style: sk_paragraphstyle_t): sk_paragraphbuilder_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_paragraphbuilder_create2        {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const paragraph_style: sk_paragraphstyle_t; font_provider: sk_typefacefontprovider_t; enable_font_fallback: _bool): sk_paragraphbuilder_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_paragraphbuilder_destroy        {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_paragraphbuilder_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_paragraphbuilder_pop            {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_paragraphbuilder_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_paragraphbuilder_push_style     {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_paragraphbuilder_t; const text_style: sk_textstyle_t); cdecl;
+
+
+  { modules/skparagraph/include/sk4d_paragraphstyle.h }
+
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_paragraphstyle_create                   {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(): sk_paragraphstyle_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_paragraphstyle_destroy                  {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_paragraphstyle_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_paragraphstyle_disable_hinting          {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_paragraphstyle_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_paragraphstyle_get_ellipsis             {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_paragraphstyle_t): sk_string_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_paragraphstyle_get_height               {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_paragraphstyle_t): float; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_paragraphstyle_get_max_lines            {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_paragraphstyle_t): size_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_paragraphstyle_get_strut_style          {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_paragraphstyle_t): sk_strutstyle_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_paragraphstyle_get_text_align           {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_paragraphstyle_t): sk_textalign_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_paragraphstyle_get_text_direction       {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_paragraphstyle_t): sk_textdirection_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_paragraphstyle_get_text_height_behaviors{$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_paragraphstyle_t): uint32_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_paragraphstyle_get_text_style           {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_paragraphstyle_t): sk_textstyle_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_paragraphstyle_set_ellipsis             {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_paragraphstyle_t; const value: MarshaledAString); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_paragraphstyle_set_height               {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_paragraphstyle_t; value: float); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_paragraphstyle_set_max_lines            {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_paragraphstyle_t; value: size_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_paragraphstyle_set_strut_style          {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_paragraphstyle_t; const value: sk_strutstyle_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_paragraphstyle_set_text_align           {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_paragraphstyle_t; value: sk_textalign_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_paragraphstyle_set_text_direction       {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_paragraphstyle_t; value: sk_textdirection_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_paragraphstyle_set_text_height_behaviors{$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_paragraphstyle_t; value: uint32_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_paragraphstyle_set_text_style           {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_paragraphstyle_t; value: sk_textstyle_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_strutstyle_create                       {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(): sk_strutstyle_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_strutstyle_destroy                      {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_strutstyle_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_strutstyle_get_enabled                  {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_strutstyle_t): _bool; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_strutstyle_get_font_families            {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_strutstyle_t; const result: PMarshaledAString): size_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_strutstyle_get_font_size                {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_strutstyle_t): float; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_strutstyle_get_font_style               {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(const self: sk_strutstyle_t; out result: sk_fontstyle_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_strutstyle_get_force_height             {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_strutstyle_t): _bool; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_strutstyle_get_half_leading             {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_strutstyle_t): _bool; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_strutstyle_get_height_multiplier        {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_strutstyle_t): float; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_strutstyle_get_leading                  {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_strutstyle_t): float; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_strutstyle_is_equal                     {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_strutstyle_t; const strut_style: sk_strutstyle_t): _bool; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_strutstyle_set_enabled                  {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_strutstyle_t; value: _bool); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_strutstyle_set_font_families            {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_strutstyle_t; const values: PMarshaledAString; count: size_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_strutstyle_set_font_size                {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_strutstyle_t; value: float); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_strutstyle_set_font_style               {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_strutstyle_t; value: psk_fontstyle_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_strutstyle_set_force_height             {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_strutstyle_t; value: _bool); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_strutstyle_set_half_leading             {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_strutstyle_t; value: _bool); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_strutstyle_set_height_multiplier        {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_strutstyle_t; value: float); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_strutstyle_set_leading                  {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_strutstyle_t; value: float); cdecl;
+
+
+  { modules/skparagraph/include/sk4d_textstyle.h }
+
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_textstyle_add_font_feature        {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_textstyle_t; const feature: MarshaledAString; value: int32_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_textstyle_add_shadow              {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_textstyle_t; const shadow: psk_textshadow_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_textstyle_clear_background_color  {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_textstyle_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_textstyle_clear_foreground_color  {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_textstyle_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_textstyle_create                  {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(): sk_textstyle_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_textstyle_destroy                 {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_textstyle_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_textstyle_get_background          {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_textstyle_t): sk_paint_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_textstyle_get_color               {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_textstyle_t): sk_color_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_textstyle_get_decoration_color    {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_textstyle_t): sk_color_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_textstyle_get_decoration_style    {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_textstyle_t): sk_textdecorationstyle_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_textstyle_get_decoration_thickness{$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_textstyle_t): float; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_textstyle_get_decorations         {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_textstyle_t): uint32_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_textstyle_get_font_families       {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_textstyle_t; const result: PMarshaledAString): size_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_textstyle_get_font_metrics        {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(const self: sk_textstyle_t; out result: sk_fontmetrics_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_textstyle_get_font_size           {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_textstyle_t): float; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_textstyle_get_font_style          {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(const self: sk_textstyle_t; out result: sk_fontstyle_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_textstyle_get_foreground          {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_textstyle_t): sk_paint_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_textstyle_get_half_leading        {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_textstyle_t): _bool; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_textstyle_get_height_multiplier   {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_textstyle_t): float; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_textstyle_get_letter_spacing      {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_textstyle_t): float; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_textstyle_get_locale              {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_textstyle_t): sk_string_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_textstyle_get_word_spacing        {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_textstyle_t): float; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_textstyle_is_equal                {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self, text_style: sk_textstyle_t): _bool; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_textstyle_reset_font_features     {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_textstyle_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_textstyle_reset_shadows           {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_textstyle_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_textstyle_set_background_color    {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_textstyle_t; paint: sk_paint_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_textstyle_set_color               {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_textstyle_t; value: sk_color_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_textstyle_set_decoration_color    {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_textstyle_t; value: sk_color_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_textstyle_set_decoration_style    {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_textstyle_t; value: sk_textdecorationstyle_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_textstyle_set_decoration_thickness{$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_textstyle_t; value: float); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_textstyle_set_decorations         {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_textstyle_t; value: uint32_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_textstyle_set_font_families       {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_textstyle_t; const values: PMarshaledAString; count: size_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_textstyle_set_font_size           {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_textstyle_t; value: float); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_textstyle_set_font_style          {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_textstyle_t; const value: psk_fontstyle_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_textstyle_set_foreground_color    {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_textstyle_t; paint: sk_paint_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_textstyle_set_half_leading        {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_textstyle_t; value: _bool); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_textstyle_set_height_multiplier   {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_textstyle_t; value: float); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_textstyle_set_letter_spacing      {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_textstyle_t; value: float); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_textstyle_set_locale              {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_textstyle_t; const value: MarshaledAString); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_textstyle_set_word_spacing        {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_textstyle_t; value: float); cdecl;
+
+
+  { modules/skparagraph/include/sk4d_typefacefontprovider.h }
+
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_typefacefontprovider_create            {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(): sk_typefacefontprovider_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_typefacefontprovider_register_typeface {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_typefacefontprovider_t; typeface: sk_typeface_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_typefacefontprovider_register_typeface2{$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_typefacefontprovider_t; typeface: sk_typeface_t; const family_name: MarshaledAString); cdecl;
+
+
+  { modules/skresources/include/sk4d_resources.h }
+
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_resourceproviderbaseclass_create   {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(predecode: _bool; context: Pointer): sk_resourceproviderbaseclass_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_resourceproviderbaseclass_set_procs{$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(const procs: psk_resourceproviderbaseclass_procs_t); cdecl;
+
+
+  { modules/skshaper/include/sk4d_shaper.h }
+
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_shaper_create {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(): sk_shaper_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_shaper_destroy{$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_shaper_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_shaper_shape  {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_shaper_t; const text: MarshaledAString; const font: sk_font_t; left_to_right: _bool; width: float; const offset: psk_point_t; end_point: psk_point_t): sk_textblob_t; cdecl;
+
+
+  { modules/skunicode/include/sk4d_unicode.h }
+
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_unicode_create              {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(): sk_unicode_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_unicode_destroy             {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_unicode_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_unicode_for_each_bidi_region{$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_unicode_t; const utf16_text: puint16_t; utf16_units: int32_t; direction: sk_direction_t; proc: sk_unicode_bidi_region_proc; context: Pointer); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_unicode_for_each_break      {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_unicode_t; const utf16_text: pchar16_t; utf16_units: int32_t; &type: sk_breaktype_t; proc: sk_unicode_break_proc; context: Pointer); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_unicode_for_each_codepoint  {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_unicode_t; const utf16_text: pchar16_t; utf16_units: int32_t; proc: sk_unicode_codepoint_proc; context: Pointer); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_unicodebreakiterator_create {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(unicode: sk_unicode_t; &type: sk_breaktype_t; const text: _pchar; units: int32_t): sk_unicodebreakiterator_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_unicodebreakiterator_create2{$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(unicode: sk_unicode_t; &type: sk_breaktype_t; const utf16_text: pchar16_t; utf16_units: int32_t): sk_unicodebreakiterator_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_unicodebreakiterator_destroy{$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_unicodebreakiterator_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_unicodebreakiterator_next   {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(self: sk_unicodebreakiterator_t; out elem: sk_unicodebreakiteratorelem_t): _bool; cdecl;
+
+  { modules/svg/include/sk4d_svgdom.h }
+
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_svgdom_find_node_by_id   {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(self: sk_svgdom_t; const id: MarshaledAString): sk_svgnode_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_svgdom_get_root          {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_svgdom_t): sk_svgsvg_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_svgdom_make_from_file    {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const file_name: MarshaledAString): sk_svgdom_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_svgdom_make_from_stream  {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(stream: sk_stream_t; resource_provider: sk_resourceprovider_t): sk_svgdom_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_svgdom_render            {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(const self: sk_svgdom_t; canvas: sk_canvas_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_svgdom_set_container_size{$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_svgdom_t; const size: psk_size_t); cdecl;
+
+
+  { modules/svg/include/sk4d_svgnode.h }
+
+  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_svgnode_set_attribute{$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(self: sk_svgnode_t; const name, value: MarshaledAString): _bool; cdecl;
+
+
+  { modules/svg/include/sk4d_svgsvg.h }
+
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_svgsvg_get_height               {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(const self: sk_svgsvg_t; out result: sk_svglength_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_svgsvg_get_intrinsic_size       {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(const self: sk_svgsvg_t; const view_port: psk_size_t; dpi: float; out result: sk_size_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_svgsvg_get_preserve_aspect_ratio{$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(const self: sk_svgsvg_t; out result: sk_svgpreserveaspectratio_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_svgsvg_get_view_box             {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_svgsvg_t; out result: sk_rect_t): _bool; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_svgsvg_get_width                {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(const self: sk_svgsvg_t; out result: sk_svglength_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_svgsvg_get_x                    {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(const self: sk_svgsvg_t; out result: sk_svglength_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_svgsvg_get_y                    {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(const self: sk_svgsvg_t; out result: sk_svglength_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_svgsvg_set_height               {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_svgsvg_t; value: psk_svglength_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_svgsvg_set_preserve_aspect_ratio{$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_svgsvg_t; value: psk_svgpreserveaspectratio_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_svgsvg_set_view_box             {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_svgsvg_t; view_box: psk_rect_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_svgsvg_set_width                {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_svgsvg_t; value: psk_svglength_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_svgsvg_set_x                    {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_svgsvg_t; value: psk_svglength_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_svgsvg_set_y                    {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_svgsvg_t; value: psk_svglength_t); cdecl;
+
+procedure SkInitialize;
+procedure SkFinalize;
 
 implementation
 
 uses
   { Delphi }
-  {$IF DEFINED(ANDROID) and DEFINED(SK_DYNAMIC_LOADING)}
+{$IF DEFINED(MSWINDOWS)}
+  System.Math,
+  Winapi.Windows,
+{$ELSEIF DEFINED(ANDROID)}
   System.IOUtils,
-  {$ENDIF}
-  System.Math;
-
-{$REGION 'Dynamic loading utils'}
-
-{$IFDEF SK_DYNAMIC_LOADING}
-
-function GetProcAddress(AModule: HMODULE; AName: System.PChar): Pointer;
-begin
-  {$IFDEF MSWINDOWS}
-  Result := Winapi.Windows.GetProcAddress(AModule, AName);
-  {$ELSE}
-  Result := System.SysUtils.GetProcAddress(AModule, AName);
-  {$ENDIF}
-  if Result = nil then
-    raise ESkiaAPI.CreateFmt('"%s" function address could not be retrieved from Skia library', [AName]) at ReturnAddress;
-end;
-
 {$ENDIF}
+  System.SysUtils;
 
-{$ENDREGION}
-
-{$REGION 'Skia API'}
-
-{ TSkiaAPI }
-
-class constructor TSkiaAPI.Create;
-begin
-  SetExceptionMask(exAllArithmeticExceptions);
-{$IFDEF SK_DYNAMIC_LOADING}
-  Initialize;
-end;
-
-class destructor TSkiaAPI.Destroy;
-begin
-  Terminate;
-{$ENDIF}
-end;
-
-class procedure TSkiaAPI.Initialize;
-begin
-{$IFDEF SK_DYNAMIC_LOADING}
-  if AtomicIncrement(FRefCount) = 1 then
-  begin
-    // Some Android devices, normally old, need the full path of the library,
-    // and other devices, normally new, do not accept the full path.
-    {$IFDEF ANDROID}
-    FLibHandle := SafeLoadLibrary(TSkiaAPI.LibName);
-    if FLibHandle = 0 then
-      FLibHandle := SafeLoadLibrary(TPath.Combine(TPath.GetLibraryPath, TSkiaAPI.LibName));
-    {$ELSE}
-    FLibHandle := SafeLoadLibrary(TSkiaAPI.LibName);
-    {$ENDIF}
-    if FLibHandle = 0 then
-      raise ESkiaAPI.Create('Skia library could not be loaded');
+const
+{$IFDEF SK_STATIC_LIBRARY}
+  {$IF DEFINED(IOS) and NOT DEFINED(IOSSIMULATOR)}
+  LibraryName = 'libsk4d.a';
+  {$ENDIF}
 {$ELSE}
-end;
-{$ENDIF}
-
-    {$REGION 'include/c/gr4d_backendsurface.h'}
-    {$IFDEF SK_DYNAMIC_LOADING}
-    gr4d_backendrendertarget_create_gl          := GetProcAddress(FLibHandle, 'gr4d_backendrendertarget_create_gl');
-    gr4d_backendrendertarget_create_mtl         := GetProcAddress(FLibHandle, 'gr4d_backendrendertarget_create_mtl');
-    gr4d_backendrendertarget_destroy            := GetProcAddress(FLibHandle, 'gr4d_backendrendertarget_destroy');
-    gr4d_backendrendertarget_get_backend_api    := GetProcAddress(FLibHandle, 'gr4d_backendrendertarget_get_backend_api');
-    gr4d_backendrendertarget_get_height         := GetProcAddress(FLibHandle, 'gr4d_backendrendertarget_get_height');
-    gr4d_backendrendertarget_get_sample_count   := GetProcAddress(FLibHandle, 'gr4d_backendrendertarget_get_sample_count');
-    gr4d_backendrendertarget_get_stencil_bits   := GetProcAddress(FLibHandle, 'gr4d_backendrendertarget_get_stencil_bits');
-    gr4d_backendrendertarget_get_width          := GetProcAddress(FLibHandle, 'gr4d_backendrendertarget_get_width');
-    gr4d_backendrendertarget_is_valid           := GetProcAddress(FLibHandle, 'gr4d_backendrendertarget_is_valid');
-    gr4d_backendtexture_create_gl               := GetProcAddress(FLibHandle, 'gr4d_backendtexture_create_gl');
-    gr4d_backendtexture_create_mtl              := GetProcAddress(FLibHandle, 'gr4d_backendtexture_create_mtl');
-    gr4d_backendtexture_destroy                 := GetProcAddress(FLibHandle, 'gr4d_backendtexture_destroy');
-    gr4d_backendtexture_get_backend_api         := GetProcAddress(FLibHandle, 'gr4d_backendtexture_get_backend_api');
-    gr4d_backendtexture_get_gl_framebuffer_info := GetProcAddress(FLibHandle, 'gr4d_backendtexture_get_gl_framebuffer_info');
-    gr4d_backendtexture_get_height              := GetProcAddress(FLibHandle, 'gr4d_backendtexture_get_height');
-    gr4d_backendtexture_get_width               := GetProcAddress(FLibHandle, 'gr4d_backendtexture_get_width');
-    gr4d_backendtexture_has_mipmaps             := GetProcAddress(FLibHandle, 'gr4d_backendtexture_has_mipmaps');
-    gr4d_backendtexture_is_valid                := GetProcAddress(FLibHandle, 'gr4d_backendtexture_is_valid');
-    {$ELSE}
-    class function  TSkiaAPI.gr4d_backendrendertarget_create_gl;          external TSkiaAPI.LibName name 'gr4d_backendrendertarget_create_gl';
-    class function  TSkiaAPI.gr4d_backendrendertarget_create_mtl;         external TSkiaAPI.LibName name 'gr4d_backendrendertarget_create_mtl';
-    class procedure TSkiaAPI.gr4d_backendrendertarget_destroy;            external TSkiaAPI.LibName name 'gr4d_backendrendertarget_destroy';
-    class function  TSkiaAPI.gr4d_backendrendertarget_get_backend_api;    external TSkiaAPI.LibName name 'gr4d_backendrendertarget_get_backend_api';
-    class function  TSkiaAPI.gr4d_backendrendertarget_get_height;         external TSkiaAPI.LibName name 'gr4d_backendrendertarget_get_height';
-    class function  TSkiaAPI.gr4d_backendrendertarget_get_sample_count;   external TSkiaAPI.LibName name 'gr4d_backendrendertarget_get_sample_count';
-    class function  TSkiaAPI.gr4d_backendrendertarget_get_stencil_bits;   external TSkiaAPI.LibName name 'gr4d_backendrendertarget_get_stencil_bits';
-    class function  TSkiaAPI.gr4d_backendrendertarget_get_width;          external TSkiaAPI.LibName name 'gr4d_backendrendertarget_get_width';
-    class function  TSkiaAPI.gr4d_backendrendertarget_is_valid;           external TSkiaAPI.LibName name 'gr4d_backendrendertarget_is_valid';
-    class function  TSkiaAPI.gr4d_backendtexture_create_gl;               external TSkiaAPI.LibName name 'gr4d_backendtexture_create_gl';
-    class function  TSkiaAPI.gr4d_backendtexture_create_mtl;              external TSkiaAPI.LibName name 'gr4d_backendtexture_create_mtl';
-    class procedure TSkiaAPI.gr4d_backendtexture_destroy;                 external TSkiaAPI.LibName name 'gr4d_backendtexture_destroy';
-    class function  TSkiaAPI.gr4d_backendtexture_get_backend_api;         external TSkiaAPI.LibName name 'gr4d_backendtexture_get_backend_api';
-    class function  TSkiaAPI.gr4d_backendtexture_get_gl_framebuffer_info; external TSkiaAPI.LibName name 'gr4d_backendtexture_get_gl_framebuffer_info';
-    class function  TSkiaAPI.gr4d_backendtexture_get_height;              external TSkiaAPI.LibName name 'gr4d_backendtexture_get_height';
-    class function  TSkiaAPI.gr4d_backendtexture_get_width;               external TSkiaAPI.LibName name 'gr4d_backendtexture_get_width';
-    class function  TSkiaAPI.gr4d_backendtexture_has_mipmaps;             external TSkiaAPI.LibName name 'gr4d_backendtexture_has_mipmaps';
-    class function  TSkiaAPI.gr4d_backendtexture_is_valid;                external TSkiaAPI.LibName name 'gr4d_backendtexture_is_valid';
-    {$ENDIF}
-    {$ENDREGION}
-
-    {$REGION 'include/c/gr4d_directcontext.h'}
-    {$IFDEF SK_DYNAMIC_LOADING}
-    gr4d_directcontext_abandon_context                             := GetProcAddress(FLibHandle, 'gr4d_directcontext_abandon_context');
-    gr4d_directcontext_dump_memory_statistics                      := GetProcAddress(FLibHandle, 'gr4d_directcontext_dump_memory_statistics');
-    gr4d_directcontext_flush                                       := GetProcAddress(FLibHandle, 'gr4d_directcontext_flush');
-    gr4d_directcontext_flush_and_submit                            := GetProcAddress(FLibHandle, 'gr4d_directcontext_flush_and_submit');
-    gr4d_directcontext_free_gpu_resources                          := GetProcAddress(FLibHandle, 'gr4d_directcontext_free_gpu_resources');
-    gr4d_directcontext_get_backend_api                             := GetProcAddress(FLibHandle, 'gr4d_directcontext_get_backend_api');
-    gr4d_directcontext_get_max_surface_sample_count_for_color_type := GetProcAddress(FLibHandle, 'gr4d_directcontext_get_max_surface_sample_count_for_color_type');
-    gr4d_directcontext_get_resource_cache_limit                    := GetProcAddress(FLibHandle, 'gr4d_directcontext_get_resource_cache_limit');
-    gr4d_directcontext_get_resource_cache_usage                    := GetProcAddress(FLibHandle, 'gr4d_directcontext_get_resource_cache_usage');
-    gr4d_directcontext_is_abandoned                                := GetProcAddress(FLibHandle, 'gr4d_directcontext_is_abandoned');
-    gr4d_directcontext_make_gl                                     := GetProcAddress(FLibHandle, 'gr4d_directcontext_make_gl');
-    gr4d_directcontext_make_metal                                  := GetProcAddress(FLibHandle, 'gr4d_directcontext_make_metal');
-    gr4d_directcontext_perform_deferred_cleanup                    := GetProcAddress(FLibHandle, 'gr4d_directcontext_perform_deferred_cleanup');
-    gr4d_directcontext_purge_unlocked_resources                    := GetProcAddress(FLibHandle, 'gr4d_directcontext_purge_unlocked_resources');
-    gr4d_directcontext_purge_unlocked_resources2                   := GetProcAddress(FLibHandle, 'gr4d_directcontext_purge_unlocked_resources2');
-    gr4d_directcontext_release_resources_and_abandon_context       := GetProcAddress(FLibHandle, 'gr4d_directcontext_release_resources_and_abandon_context');
-    gr4d_directcontext_reset_context                               := GetProcAddress(FLibHandle, 'gr4d_directcontext_reset_context');
-    gr4d_directcontext_set_resource_cache_limit                    := GetProcAddress(FLibHandle, 'gr4d_directcontext_set_resource_cache_limit');
-    gr4d_directcontext_submit                                      := GetProcAddress(FLibHandle, 'gr4d_directcontext_submit');
-    {$ELSE}
-    class procedure TSkiaAPI.gr4d_directcontext_abandon_context;                             external TSkiaAPI.LibName name 'gr4d_directcontext_abandon_context';
-    class procedure TSkiaAPI.gr4d_directcontext_dump_memory_statistics;                      external TSkiaAPI.LibName name 'gr4d_directcontext_dump_memory_statistics';
-    class procedure TSkiaAPI.gr4d_directcontext_flush;                                       external TSkiaAPI.LibName name 'gr4d_directcontext_flush';
-    class procedure TSkiaAPI.gr4d_directcontext_flush_and_submit;                            external TSkiaAPI.LibName name 'gr4d_directcontext_flush_and_submit';
-    class procedure TSkiaAPI.gr4d_directcontext_free_gpu_resources;                          external TSkiaAPI.LibName name 'gr4d_directcontext_free_gpu_resources';
-    class function  TSkiaAPI.gr4d_directcontext_get_backend_api;                             external TSkiaAPI.LibName name 'gr4d_directcontext_get_backend_api';
-    class function  TSkiaAPI.gr4d_directcontext_get_max_surface_sample_count_for_color_type; external TSkiaAPI.LibName name 'gr4d_directcontext_get_max_surface_sample_count_for_color_type';
-    class function  TSkiaAPI.gr4d_directcontext_get_resource_cache_limit;                    external TSkiaAPI.LibName name 'gr4d_directcontext_get_resource_cache_limit';
-    class procedure TSkiaAPI.gr4d_directcontext_get_resource_cache_usage;                    external TSkiaAPI.LibName name 'gr4d_directcontext_get_resource_cache_usage';
-    class function  TSkiaAPI.gr4d_directcontext_is_abandoned;                                external TSkiaAPI.LibName name 'gr4d_directcontext_is_abandoned';
-    class function  TSkiaAPI.gr4d_directcontext_make_gl;                                     external TSkiaAPI.LibName name 'gr4d_directcontext_make_gl';
-    class function  TSkiaAPI.gr4d_directcontext_make_metal;                                  external TSkiaAPI.LibName name 'gr4d_directcontext_make_metal';
-    class procedure TSkiaAPI.gr4d_directcontext_perform_deferred_cleanup;                    external TSkiaAPI.LibName name 'gr4d_directcontext_perform_deferred_cleanup';
-    class procedure TSkiaAPI.gr4d_directcontext_purge_unlocked_resources;                    external TSkiaAPI.LibName name 'gr4d_directcontext_purge_unlocked_resources';
-    class procedure TSkiaAPI.gr4d_directcontext_purge_unlocked_resources2;                   external TSkiaAPI.LibName name 'gr4d_directcontext_purge_unlocked_resources2';
-    class procedure TSkiaAPI.gr4d_directcontext_release_resources_and_abandon_context;       external TSkiaAPI.LibName name 'gr4d_directcontext_release_resources_and_abandon_context';
-    class procedure TSkiaAPI.gr4d_directcontext_reset_context;                               external TSkiaAPI.LibName name 'gr4d_directcontext_reset_context';
-    class procedure TSkiaAPI.gr4d_directcontext_set_resource_cache_limit;                    external TSkiaAPI.LibName name 'gr4d_directcontext_set_resource_cache_limit';
-    class function  TSkiaAPI.gr4d_directcontext_submit;                                      external TSkiaAPI.LibName name 'gr4d_directcontext_submit';
-    {$ENDIF}
-    {$ENDREGION}
-
-    {$REGION 'include/c/gr4d_gl_interface.h'}
-    {$IFDEF SK_DYNAMIC_LOADING}
-    gr4d_gl_interface_has_extension        := GetProcAddress(FLibHandle, 'gr4d_gl_interface_has_extension');
-    gr4d_gl_interface_make_assembled       := GetProcAddress(FLibHandle, 'gr4d_gl_interface_make_assembled');
-    gr4d_gl_interface_make_assembled_gl    := GetProcAddress(FLibHandle, 'gr4d_gl_interface_make_assembled_gl');
-    gr4d_gl_interface_make_assembled_gles  := GetProcAddress(FLibHandle, 'gr4d_gl_interface_make_assembled_gles');
-    gr4d_gl_interface_make_assembled_webgl := GetProcAddress(FLibHandle, 'gr4d_gl_interface_make_assembled_webgl');
-    gr4d_gl_interface_make_native          := GetProcAddress(FLibHandle, 'gr4d_gl_interface_make_native');
-    gr4d_gl_interface_validate             := GetProcAddress(FLibHandle, 'gr4d_gl_interface_validate');
-    {$ELSE}
-    class function TSkiaAPI.gr4d_gl_interface_has_extension;        external TSkiaAPI.LibName name 'gr4d_gl_interface_has_extension';
-    class function TSkiaAPI.gr4d_gl_interface_make_assembled;       external TSkiaAPI.LibName name 'gr4d_gl_interface_make_assembled';
-    class function TSkiaAPI.gr4d_gl_interface_make_assembled_gl;    external TSkiaAPI.LibName name 'gr4d_gl_interface_make_assembled_gl';
-    class function TSkiaAPI.gr4d_gl_interface_make_assembled_gles;  external TSkiaAPI.LibName name 'gr4d_gl_interface_make_assembled_gles';
-    class function TSkiaAPI.gr4d_gl_interface_make_assembled_webgl; external TSkiaAPI.LibName name 'gr4d_gl_interface_make_assembled_webgl';
-    class function TSkiaAPI.gr4d_gl_interface_make_native;          external TSkiaAPI.LibName name 'gr4d_gl_interface_make_native';
-    class function TSkiaAPI.gr4d_gl_interface_validate;             external TSkiaAPI.LibName name 'gr4d_gl_interface_validate';
-    {$ENDIF}
-    {$ENDREGION}
-
-    {$REGION 'include/c/sk4d_blender.h'}
-    {$IFDEF SK_DYNAMIC_LOADING}
-    sk4d_blender_make_arithmetic := GetProcAddress(FLibHandle, 'sk4d_blender_make_arithmetic');
-    sk4d_blender_make_mode       := GetProcAddress(FLibHandle, 'sk4d_blender_make_mode');
-    {$ELSE}
-    class function  TSkiaAPI.sk4d_blender_make_arithmetic; external TSkiaAPI.LibName name 'sk4d_blender_make_arithmetic';
-    class function  TSkiaAPI.sk4d_blender_make_mode;       external TSkiaAPI.LibName name 'sk4d_blender_make_mode';
-    {$ENDIF}
-    {$ENDREGION}
-
-    {$REGION 'include/c/sk4d_canvas.h'}
-    {$IFDEF SK_DYNAMIC_LOADING}
-    sk4d_canvas_clear                      := GetProcAddress(FLibHandle, 'sk4d_canvas_clear');
-    sk4d_canvas_clear2                     := GetProcAddress(FLibHandle, 'sk4d_canvas_clear2');
-    sk4d_canvas_destroy                    := GetProcAddress(FLibHandle, 'sk4d_canvas_destroy');
-    sk4d_canvas_discard                    := GetProcAddress(FLibHandle, 'sk4d_canvas_discard');
-    sk4d_canvas_clip_path                  := GetProcAddress(FLibHandle, 'sk4d_canvas_clip_path');
-    sk4d_canvas_clip_rect                  := GetProcAddress(FLibHandle, 'sk4d_canvas_clip_rect');
-    sk4d_canvas_clip_region                := GetProcAddress(FLibHandle, 'sk4d_canvas_clip_region');
-    sk4d_canvas_clip_rrect                 := GetProcAddress(FLibHandle, 'sk4d_canvas_clip_rrect');
-    sk4d_canvas_clip_shader                := GetProcAddress(FLibHandle, 'sk4d_canvas_clip_shader');
-    sk4d_canvas_concat                     := GetProcAddress(FLibHandle, 'sk4d_canvas_concat');
-    sk4d_canvas_concat2                    := GetProcAddress(FLibHandle, 'sk4d_canvas_concat2');
-    sk4d_canvas_draw_annotation            := GetProcAddress(FLibHandle, 'sk4d_canvas_draw_annotation');
-    sk4d_canvas_draw_arc                   := GetProcAddress(FLibHandle, 'sk4d_canvas_draw_arc');
-    sk4d_canvas_draw_atlas                 := GetProcAddress(FLibHandle, 'sk4d_canvas_draw_atlas');
-    sk4d_canvas_draw_circle                := GetProcAddress(FLibHandle, 'sk4d_canvas_draw_circle');
-    sk4d_canvas_draw_color                 := GetProcAddress(FLibHandle, 'sk4d_canvas_draw_color');
-    sk4d_canvas_draw_color2                := GetProcAddress(FLibHandle, 'sk4d_canvas_draw_color2');
-    sk4d_canvas_draw_glyphs                := GetProcAddress(FLibHandle, 'sk4d_canvas_draw_glyphs');
-    sk4d_canvas_draw_glyphs2               := GetProcAddress(FLibHandle, 'sk4d_canvas_draw_glyphs2');
-    sk4d_canvas_draw_image                 := GetProcAddress(FLibHandle, 'sk4d_canvas_draw_image');
-    sk4d_canvas_draw_image_lattice         := GetProcAddress(FLibHandle, 'sk4d_canvas_draw_image_lattice');
-    sk4d_canvas_draw_image_nine            := GetProcAddress(FLibHandle, 'sk4d_canvas_draw_image_nine');
-    sk4d_canvas_draw_image_rect            := GetProcAddress(FLibHandle, 'sk4d_canvas_draw_image_rect');
-    sk4d_canvas_draw_line                  := GetProcAddress(FLibHandle, 'sk4d_canvas_draw_line');
-    sk4d_canvas_draw_oval                  := GetProcAddress(FLibHandle, 'sk4d_canvas_draw_oval');
-    sk4d_canvas_draw_paint                 := GetProcAddress(FLibHandle, 'sk4d_canvas_draw_paint');
-    sk4d_canvas_draw_patch                 := GetProcAddress(FLibHandle, 'sk4d_canvas_draw_patch');
-    sk4d_canvas_draw_path                  := GetProcAddress(FLibHandle, 'sk4d_canvas_draw_path');
-    sk4d_canvas_draw_picture               := GetProcAddress(FLibHandle, 'sk4d_canvas_draw_picture');
-    sk4d_canvas_draw_point                 := GetProcAddress(FLibHandle, 'sk4d_canvas_draw_point');
-    sk4d_canvas_draw_points                := GetProcAddress(FLibHandle, 'sk4d_canvas_draw_points');
-    sk4d_canvas_draw_rect                  := GetProcAddress(FLibHandle, 'sk4d_canvas_draw_rect');
-    sk4d_canvas_draw_region                := GetProcAddress(FLibHandle, 'sk4d_canvas_draw_region');
-    sk4d_canvas_draw_rrect                 := GetProcAddress(FLibHandle, 'sk4d_canvas_draw_rrect');
-    sk4d_canvas_draw_rrect2                := GetProcAddress(FLibHandle, 'sk4d_canvas_draw_rrect2');
-    sk4d_canvas_draw_rrect_difference      := GetProcAddress(FLibHandle, 'sk4d_canvas_draw_rrect_difference');
-    sk4d_canvas_draw_simple_text           := GetProcAddress(FLibHandle, 'sk4d_canvas_draw_simple_text');
-    sk4d_canvas_draw_text_blob             := GetProcAddress(FLibHandle, 'sk4d_canvas_draw_text_blob');
-    sk4d_canvas_draw_vertices              := GetProcAddress(FLibHandle, 'sk4d_canvas_draw_vertices');
-    sk4d_canvas_get_device_clip_bounds     := GetProcAddress(FLibHandle, 'sk4d_canvas_get_device_clip_bounds');
-    sk4d_canvas_get_local_clip_bounds      := GetProcAddress(FLibHandle, 'sk4d_canvas_get_local_clip_bounds');
-    sk4d_canvas_get_local_to_device        := GetProcAddress(FLibHandle, 'sk4d_canvas_get_local_to_device');
-    sk4d_canvas_get_local_to_device_as_3x3 := GetProcAddress(FLibHandle, 'sk4d_canvas_get_local_to_device_as_3x3');
-    sk4d_canvas_get_save_count             := GetProcAddress(FLibHandle, 'sk4d_canvas_get_save_count');
-    sk4d_canvas_quick_reject               := GetProcAddress(FLibHandle, 'sk4d_canvas_quick_reject');
-    sk4d_canvas_quick_reject2              := GetProcAddress(FLibHandle, 'sk4d_canvas_quick_reject2');
-    sk4d_canvas_reset_matrix               := GetProcAddress(FLibHandle, 'sk4d_canvas_reset_matrix');
-    sk4d_canvas_restore                    := GetProcAddress(FLibHandle, 'sk4d_canvas_restore');
-    sk4d_canvas_restore_to_count           := GetProcAddress(FLibHandle, 'sk4d_canvas_restore_to_count');
-    sk4d_canvas_rotate                     := GetProcAddress(FLibHandle, 'sk4d_canvas_rotate');
-    sk4d_canvas_rotate2                    := GetProcAddress(FLibHandle, 'sk4d_canvas_rotate2');
-    sk4d_canvas_save                       := GetProcAddress(FLibHandle, 'sk4d_canvas_save');
-    sk4d_canvas_save_layer                 := GetProcAddress(FLibHandle, 'sk4d_canvas_save_layer');
-    sk4d_canvas_save_layer_alpha           := GetProcAddress(FLibHandle, 'sk4d_canvas_save_layer_alpha');
-    sk4d_canvas_scale                      := GetProcAddress(FLibHandle, 'sk4d_canvas_scale');
-    sk4d_canvas_set_matrix                 := GetProcAddress(FLibHandle, 'sk4d_canvas_set_matrix');
-    sk4d_canvas_set_matrix2                := GetProcAddress(FLibHandle, 'sk4d_canvas_set_matrix2');
-    sk4d_canvas_skew                       := GetProcAddress(FLibHandle, 'sk4d_canvas_skew');
-    sk4d_canvas_translate                  := GetProcAddress(FLibHandle, 'sk4d_canvas_translate');
-    {$ELSE}
-    class procedure TSkiaAPI.sk4d_canvas_clear;                      external TSkiaAPI.LibName name 'sk4d_canvas_clear';
-    class procedure TSkiaAPI.sk4d_canvas_clear2;                     external TSkiaAPI.LibName name 'sk4d_canvas_clear2';
-    class procedure TSkiaAPI.sk4d_canvas_destroy;                    external TSkiaAPI.LibName name 'sk4d_canvas_destroy';
-    class procedure TSkiaAPI.sk4d_canvas_discard;                    external TSkiaAPI.LibName name 'sk4d_canvas_discard';
-    class procedure TSkiaAPI.sk4d_canvas_clip_path;                  external TSkiaAPI.LibName name 'sk4d_canvas_clip_path';
-    class procedure TSkiaAPI.sk4d_canvas_clip_rect;                  external TSkiaAPI.LibName name 'sk4d_canvas_clip_rect';
-    class procedure TSkiaAPI.sk4d_canvas_clip_region;                external TSkiaAPI.LibName name 'sk4d_canvas_clip_region';
-    class procedure TSkiaAPI.sk4d_canvas_clip_rrect;                 external TSkiaAPI.LibName name 'sk4d_canvas_clip_rrect';
-    class procedure TSkiaAPI.sk4d_canvas_clip_shader;                external TSkiaAPI.LibName name 'sk4d_canvas_clip_shader';
-    class procedure TSkiaAPI.sk4d_canvas_concat;                     external TSkiaAPI.LibName name 'sk4d_canvas_concat';
-    class procedure TSkiaAPI.sk4d_canvas_concat2;                    external TSkiaAPI.LibName name 'sk4d_canvas_concat2';
-    class procedure TSkiaAPI.sk4d_canvas_draw_annotation;            external TSkiaAPI.LibName name 'sk4d_canvas_draw_annotation';
-    class procedure TSkiaAPI.sk4d_canvas_draw_arc;                   external TSkiaAPI.LibName name 'sk4d_canvas_draw_arc';
-    class procedure TSkiaAPI.sk4d_canvas_draw_atlas;                 external TSkiaAPI.LibName name 'sk4d_canvas_draw_atlas';
-    class procedure TSkiaAPI.sk4d_canvas_draw_circle;                external TSkiaAPI.LibName name 'sk4d_canvas_draw_circle';
-    class procedure TSkiaAPI.sk4d_canvas_draw_color;                 external TSkiaAPI.LibName name 'sk4d_canvas_draw_color';
-    class procedure TSkiaAPI.sk4d_canvas_draw_color2;                external TSkiaAPI.LibName name 'sk4d_canvas_draw_color2';
-    class procedure TSkiaAPI.sk4d_canvas_draw_glyphs;                external TSkiaAPI.LibName name 'sk4d_canvas_draw_glyphs';
-    class procedure TSkiaAPI.sk4d_canvas_draw_glyphs2;               external TSkiaAPI.LibName name 'sk4d_canvas_draw_glyphs2';
-    class procedure TSkiaAPI.sk4d_canvas_draw_image;                 external TSkiaAPI.LibName name 'sk4d_canvas_draw_image';
-    class procedure TSkiaAPI.sk4d_canvas_draw_image_lattice;         external TSkiaAPI.LibName name 'sk4d_canvas_draw_image_lattice';
-    class procedure TSkiaAPI.sk4d_canvas_draw_image_nine;            external TSkiaAPI.LibName name 'sk4d_canvas_draw_image_nine';
-    class procedure TSkiaAPI.sk4d_canvas_draw_image_rect;            external TSkiaAPI.LibName name 'sk4d_canvas_draw_image_rect';
-    class procedure TSkiaAPI.sk4d_canvas_draw_line;                  external TSkiaAPI.LibName name 'sk4d_canvas_draw_line';
-    class procedure TSkiaAPI.sk4d_canvas_draw_oval;                  external TSkiaAPI.LibName name 'sk4d_canvas_draw_oval';
-    class procedure TSkiaAPI.sk4d_canvas_draw_paint;                 external TSkiaAPI.LibName name 'sk4d_canvas_draw_paint';
-    class procedure TSkiaAPI.sk4d_canvas_draw_patch;                 external TSkiaAPI.LibName name 'sk4d_canvas_draw_patch';
-    class procedure TSkiaAPI.sk4d_canvas_draw_path;                  external TSkiaAPI.LibName name 'sk4d_canvas_draw_path';
-    class procedure TSkiaAPI.sk4d_canvas_draw_picture;               external TSkiaAPI.LibName name 'sk4d_canvas_draw_picture';
-    class procedure TSkiaAPI.sk4d_canvas_draw_point;                 external TSkiaAPI.LibName name 'sk4d_canvas_draw_point';
-    class procedure TSkiaAPI.sk4d_canvas_draw_points;                external TSkiaAPI.LibName name 'sk4d_canvas_draw_points';
-    class procedure TSkiaAPI.sk4d_canvas_draw_rect;                  external TSkiaAPI.LibName name 'sk4d_canvas_draw_rect';
-    class procedure TSkiaAPI.sk4d_canvas_draw_region;                external TSkiaAPI.LibName name 'sk4d_canvas_draw_region';
-    class procedure TSkiaAPI.sk4d_canvas_draw_rrect;                 external TSkiaAPI.LibName name 'sk4d_canvas_draw_rrect';
-    class procedure TSkiaAPI.sk4d_canvas_draw_rrect2;                external TSkiaAPI.LibName name 'sk4d_canvas_draw_rrect2';
-    class procedure TSkiaAPI.sk4d_canvas_draw_rrect_difference;      external TSkiaAPI.LibName name 'sk4d_canvas_draw_rrect_difference';
-    class procedure TSkiaAPI.sk4d_canvas_draw_simple_text;           external TSkiaAPI.LibName name 'sk4d_canvas_draw_simple_text';
-    class procedure TSkiaAPI.sk4d_canvas_draw_text_blob;             external TSkiaAPI.LibName name 'sk4d_canvas_draw_text_blob';
-    class procedure TSkiaAPI.sk4d_canvas_draw_vertices;              external TSkiaAPI.LibName name 'sk4d_canvas_draw_vertices';
-    class procedure TSkiaAPI.sk4d_canvas_get_device_clip_bounds;     external TSkiaAPI.LibName name 'sk4d_canvas_get_device_clip_bounds';
-    class procedure TSkiaAPI.sk4d_canvas_get_local_clip_bounds;      external TSkiaAPI.LibName name 'sk4d_canvas_get_local_clip_bounds';
-    class procedure TSkiaAPI.sk4d_canvas_get_local_to_device;        external TSkiaAPI.LibName name 'sk4d_canvas_get_local_to_device';
-    class procedure TSkiaAPI.sk4d_canvas_get_local_to_device_as_3x3; external TSkiaAPI.LibName name 'sk4d_canvas_get_local_to_device_as_3x3';
-    class function  TSkiaAPI.sk4d_canvas_get_save_count;             external TSkiaAPI.LibName name 'sk4d_canvas_get_save_count';
-    class function  TSkiaAPI.sk4d_canvas_quick_reject;               external TSkiaAPI.LibName name 'sk4d_canvas_quick_reject';
-    class function  TSkiaAPI.sk4d_canvas_quick_reject2;              external TSkiaAPI.LibName name 'sk4d_canvas_quick_reject2';
-    class procedure TSkiaAPI.sk4d_canvas_reset_matrix;               external TSkiaAPI.LibName name 'sk4d_canvas_reset_matrix';
-    class procedure TSkiaAPI.sk4d_canvas_restore;                    external TSkiaAPI.LibName name 'sk4d_canvas_restore';
-    class procedure TSkiaAPI.sk4d_canvas_restore_to_count;           external TSkiaAPI.LibName name 'sk4d_canvas_restore_to_count';
-    class procedure TSkiaAPI.sk4d_canvas_rotate;                     external TSkiaAPI.LibName name 'sk4d_canvas_rotate';
-    class procedure TSkiaAPI.sk4d_canvas_rotate2;                    external TSkiaAPI.LibName name 'sk4d_canvas_rotate2';
-    class function  TSkiaAPI.sk4d_canvas_save;                       external TSkiaAPI.LibName name 'sk4d_canvas_save';
-    class function  TSkiaAPI.sk4d_canvas_save_layer;                 external TSkiaAPI.LibName name 'sk4d_canvas_save_layer';
-    class function  TSkiaAPI.sk4d_canvas_save_layer_alpha;           external TSkiaAPI.LibName name 'sk4d_canvas_save_layer_alpha';
-    class procedure TSkiaAPI.sk4d_canvas_scale;                      external TSkiaAPI.LibName name 'sk4d_canvas_scale';
-    class procedure TSkiaAPI.sk4d_canvas_set_matrix;                 external TSkiaAPI.LibName name 'sk4d_canvas_set_matrix';
-    class procedure TSkiaAPI.sk4d_canvas_set_matrix2;                external TSkiaAPI.LibName name 'sk4d_canvas_set_matrix2';
-    class procedure TSkiaAPI.sk4d_canvas_skew;                       external TSkiaAPI.LibName name 'sk4d_canvas_skew';
-    class procedure TSkiaAPI.sk4d_canvas_translate;                  external TSkiaAPI.LibName name 'sk4d_canvas_translate';
-    {$ENDIF}
-    {$ENDREGION}
-
-    {$REGION 'include/c/sk4d_codec.h'}
-    {$IFDEF SK_DYNAMIC_LOADING}
-    sk4d_codec_destroy                    := GetProcAddress(FLibHandle, 'sk4d_codec_destroy');
-    sk4d_codec_get_dimensions             := GetProcAddress(FLibHandle, 'sk4d_codec_get_dimensions');
-    sk4d_codec_get_encoded_image_format   := GetProcAddress(FLibHandle, 'sk4d_codec_get_encoded_image_format');
-    sk4d_codec_get_image                  := GetProcAddress(FLibHandle, 'sk4d_codec_get_image');
-    sk4d_codec_get_pixels                 := GetProcAddress(FLibHandle, 'sk4d_codec_get_pixels');
-    sk4d_codec_make_from_file             := GetProcAddress(FLibHandle, 'sk4d_codec_make_from_file');
-    sk4d_codec_make_from_stream           := GetProcAddress(FLibHandle, 'sk4d_codec_make_from_stream');
-    sk4d_codec_make_with_copy             := GetProcAddress(FLibHandle, 'sk4d_codec_make_with_copy');
-    sk4d_codec_make_without_copy          := GetProcAddress(FLibHandle, 'sk4d_codec_make_without_copy');
-    sk4d_animcodecplayer_destroy          := GetProcAddress(FLibHandle, 'sk4d_animcodecplayer_destroy');
-    sk4d_animcodecplayer_get_dimensions   := GetProcAddress(FLibHandle, 'sk4d_animcodecplayer_get_dimensions');
-    sk4d_animcodecplayer_get_duration     := GetProcAddress(FLibHandle, 'sk4d_animcodecplayer_get_duration');
-    sk4d_animcodecplayer_get_frame        := GetProcAddress(FLibHandle, 'sk4d_animcodecplayer_get_frame');
-    sk4d_animcodecplayer_make_from_file   := GetProcAddress(FLibHandle, 'sk4d_animcodecplayer_make_from_file');
-    sk4d_animcodecplayer_make_from_stream := GetProcAddress(FLibHandle, 'sk4d_animcodecplayer_make_from_stream');
-    sk4d_animcodecplayer_seek             := GetProcAddress(FLibHandle, 'sk4d_animcodecplayer_seek');
-    {$ELSE}
-    class procedure TSkiaAPI.sk4d_codec_destroy;                    external TSkiaAPI.LibName name 'sk4d_codec_destroy';
-    class procedure TSkiaAPI.sk4d_codec_get_dimensions;             external TSkiaAPI.LibName name 'sk4d_codec_get_dimensions';
-    class function  TSkiaAPI.sk4d_codec_get_encoded_image_format;   external TSkiaAPI.LibName name 'sk4d_codec_get_encoded_image_format';
-    class function  TSkiaAPI.sk4d_codec_get_image;                  external TSkiaAPI.LibName name 'sk4d_codec_get_image';
-    class function  TSkiaAPI.sk4d_codec_get_pixels;                 external TSkiaAPI.LibName name 'sk4d_codec_get_pixels';
-    class function  TSkiaAPI.sk4d_codec_make_from_file;             external TSkiaAPI.LibName name 'sk4d_codec_make_from_file';
-    class function  TSkiaAPI.sk4d_codec_make_from_stream;           external TSkiaAPI.LibName name 'sk4d_codec_make_from_stream';
-    class function  TSkiaAPI.sk4d_codec_make_with_copy;             external TSkiaAPI.LibName name 'sk4d_codec_make_with_copy';
-    class function  TSkiaAPI.sk4d_codec_make_without_copy;          external TSkiaAPI.LibName name 'sk4d_codec_make_without_copy';
-    class procedure TSkiaAPI.sk4d_animcodecplayer_destroy;          external TSkiaAPI.LibName name 'sk4d_animcodecplayer_destroy';
-    class procedure TSkiaAPI.sk4d_animcodecplayer_get_dimensions;   external TSkiaAPI.LibName name 'sk4d_animcodecplayer_get_dimensions';
-    class function  TSkiaAPI.sk4d_animcodecplayer_get_duration;     external TSkiaAPI.LibName name 'sk4d_animcodecplayer_get_duration';
-    class function  TSkiaAPI.sk4d_animcodecplayer_get_frame;        external TSkiaAPI.LibName name 'sk4d_animcodecplayer_get_frame';
-    class function  TSkiaAPI.sk4d_animcodecplayer_make_from_file;   external TSkiaAPI.LibName name 'sk4d_animcodecplayer_make_from_file';
-    class function  TSkiaAPI.sk4d_animcodecplayer_make_from_stream; external TSkiaAPI.LibName name 'sk4d_animcodecplayer_make_from_stream';
-    class function  TSkiaAPI.sk4d_animcodecplayer_seek;             external TSkiaAPI.LibName name 'sk4d_animcodecplayer_seek';
-    {$ENDIF}
-    {$ENDREGION}
-
-    {$REGION 'include/c/sk4d_colorfilter.h'}
-    {$IFDEF SK_DYNAMIC_LOADING}
-    sk4d_colorfilter_make_blend                := GetProcAddress(FLibHandle, 'sk4d_colorfilter_make_blend');
-    sk4d_colorfilter_make_compose              := GetProcAddress(FLibHandle, 'sk4d_colorfilter_make_compose');
-    sk4d_colorfilter_make_high_contrast        := GetProcAddress(FLibHandle, 'sk4d_colorfilter_make_high_contrast');
-    sk4d_colorfilter_make_hsla_matrix          := GetProcAddress(FLibHandle, 'sk4d_colorfilter_make_hsla_matrix');
-    sk4d_colorfilter_make_lighting             := GetProcAddress(FLibHandle, 'sk4d_colorfilter_make_lighting');
-    sk4d_colorfilter_make_linear_to_srgb_gamma := GetProcAddress(FLibHandle, 'sk4d_colorfilter_make_linear_to_srgb_gamma');
-    sk4d_colorfilter_make_luma_color           := GetProcAddress(FLibHandle, 'sk4d_colorfilter_make_luma_color');
-    sk4d_colorfilter_make_matrix               := GetProcAddress(FLibHandle, 'sk4d_colorfilter_make_matrix');
-    sk4d_colorfilter_make_overdraw             := GetProcAddress(FLibHandle, 'sk4d_colorfilter_make_overdraw');
-    sk4d_colorfilter_make_table                := GetProcAddress(FLibHandle, 'sk4d_colorfilter_make_table');
-    {$ELSE}
-    class function TSkiaAPI.sk4d_colorfilter_make_blend;                external TSkiaAPI.LibName name 'sk4d_colorfilter_make_blend';
-    class function TSkiaAPI.sk4d_colorfilter_make_compose;              external TSkiaAPI.LibName name 'sk4d_colorfilter_make_compose';
-    class function TSkiaAPI.sk4d_colorfilter_make_high_contrast;        external TSkiaAPI.LibName name 'sk4d_colorfilter_make_high_contrast';
-    class function TSkiaAPI.sk4d_colorfilter_make_hsla_matrix;          external TSkiaAPI.LibName name 'sk4d_colorfilter_make_hsla_matrix';
-    class function TSkiaAPI.sk4d_colorfilter_make_lighting;             external TSkiaAPI.LibName name 'sk4d_colorfilter_make_lighting';
-    class function TSkiaAPI.sk4d_colorfilter_make_linear_to_srgb_gamma; external TSkiaAPI.LibName name 'sk4d_colorfilter_make_linear_to_srgb_gamma';
-    class function TSkiaAPI.sk4d_colorfilter_make_luma_color;           external TSkiaAPI.LibName name 'sk4d_colorfilter_make_luma_color';
-    class function TSkiaAPI.sk4d_colorfilter_make_matrix;               external TSkiaAPI.LibName name 'sk4d_colorfilter_make_matrix';
-    class function TSkiaAPI.sk4d_colorfilter_make_overdraw;             external TSkiaAPI.LibName name 'sk4d_colorfilter_make_overdraw';
-    class function TSkiaAPI.sk4d_colorfilter_make_table;                external TSkiaAPI.LibName name 'sk4d_colorfilter_make_table';
-    {$ENDIF}
-    {$ENDREGION}
-
-    {$REGION 'include/c/sk4d_colorspace.h'}
-    {$IFDEF SK_DYNAMIC_LOADING}
-    sk4d_colorspace_gamma_close_to_srgb       := GetProcAddress(FLibHandle, 'sk4d_colorspace_gamma_close_to_srgb');
-    sk4d_colorspace_gamma_is_linear           := GetProcAddress(FLibHandle, 'sk4d_colorspace_gamma_is_linear');
-    sk4d_colorspace_is_equal                  := GetProcAddress(FLibHandle, 'sk4d_colorspace_is_equal');
-    sk4d_colorspace_is_numerical_transfer_fn  := GetProcAddress(FLibHandle, 'sk4d_colorspace_is_numerical_transfer_fn');
-    sk4d_colorspace_is_srgb                   := GetProcAddress(FLibHandle, 'sk4d_colorspace_is_srgb');
-    sk4d_colorspace_make                      := GetProcAddress(FLibHandle, 'sk4d_colorspace_make');
-    sk4d_colorspace_make_linear_gamma         := GetProcAddress(FLibHandle, 'sk4d_colorspace_make_linear_gamma');
-    sk4d_colorspace_make_rgb                  := GetProcAddress(FLibHandle, 'sk4d_colorspace_make_rgb');
-    sk4d_colorspace_make_srgb                 := GetProcAddress(FLibHandle, 'sk4d_colorspace_make_srgb');
-    sk4d_colorspace_make_srgb_gamma           := GetProcAddress(FLibHandle, 'sk4d_colorspace_make_srgb_gamma');
-    sk4d_colorspace_make_srgb_linear          := GetProcAddress(FLibHandle, 'sk4d_colorspace_make_srgb_linear');
-    sk4d_colorspace_ref                       := GetProcAddress(FLibHandle, 'sk4d_colorspace_ref');
-    sk4d_colorspace_to_profile                := GetProcAddress(FLibHandle, 'sk4d_colorspace_to_profile');
-    sk4d_colorspace_to_xyz                    := GetProcAddress(FLibHandle, 'sk4d_colorspace_to_xyz');
-    sk4d_colorspace_unref                     := GetProcAddress(FLibHandle, 'sk4d_colorspace_unref');
-    sk4d_colorspaceiccprofile_destroy         := GetProcAddress(FLibHandle, 'sk4d_colorspaceiccprofile_destroy');
-    sk4d_colorspaceiccprofile_get_buffer      := GetProcAddress(FLibHandle, 'sk4d_colorspaceiccprofile_get_buffer');
-    sk4d_colorspaceiccprofile_make_with_parse := GetProcAddress(FLibHandle, 'sk4d_colorspaceiccprofile_make_with_parse');
-    sk4d_colorspaceiccprofile_to_xyz          := GetProcAddress(FLibHandle, 'sk4d_colorspaceiccprofile_to_xyz');
-    sk4d_colorspaceprimaries_to_xyz           := GetProcAddress(FLibHandle, 'sk4d_colorspaceprimaries_to_xyz');
-    sk4d_colorspacetransferfn_invert          := GetProcAddress(FLibHandle, 'sk4d_colorspacetransferfn_invert');
-    sk4d_colorspacetransferfn_transform       := GetProcAddress(FLibHandle, 'sk4d_colorspacetransferfn_transform');
-    {$ELSE}
-    class function  TSkiaAPI.sk4d_colorspace_gamma_close_to_srgb;       external TSkiaAPI.LibName name 'sk4d_colorspace_gamma_close_to_srgb';
-    class function  TSkiaAPI.sk4d_colorspace_gamma_is_linear;           external TSkiaAPI.LibName name 'sk4d_colorspace_gamma_is_linear';
-    class function  TSkiaAPI.sk4d_colorspace_is_equal;                  external TSkiaAPI.LibName name 'sk4d_colorspace_is_equal';
-    class function  TSkiaAPI.sk4d_colorspace_is_numerical_transfer_fn;  external TSkiaAPI.LibName name 'sk4d_colorspace_is_numerical_transfer_fn';
-    class function  TSkiaAPI.sk4d_colorspace_is_srgb;                   external TSkiaAPI.LibName name 'sk4d_colorspace_is_srgb';
-    class function  TSkiaAPI.sk4d_colorspace_make;                      external TSkiaAPI.LibName name 'sk4d_colorspace_make';
-    class function  TSkiaAPI.sk4d_colorspace_make_linear_gamma;         external TSkiaAPI.LibName name 'sk4d_colorspace_make_linear_gamma';
-    class function  TSkiaAPI.sk4d_colorspace_make_rgb;                  external TSkiaAPI.LibName name 'sk4d_colorspace_make_rgb';
-    class function  TSkiaAPI.sk4d_colorspace_make_srgb;                 external TSkiaAPI.LibName name 'sk4d_colorspace_make_srgb';
-    class function  TSkiaAPI.sk4d_colorspace_make_srgb_gamma;           external TSkiaAPI.LibName name 'sk4d_colorspace_make_srgb_gamma';
-    class function  TSkiaAPI.sk4d_colorspace_make_srgb_linear;          external TSkiaAPI.LibName name 'sk4d_colorspace_make_srgb_linear';
-    class procedure TSkiaAPI.sk4d_colorspace_ref;                       external TSkiaAPI.LibName name 'sk4d_colorspace_ref';
-    class function  TSkiaAPI.sk4d_colorspace_to_profile;                external TSkiaAPI.LibName name 'sk4d_colorspace_to_profile';
-    class function  TSkiaAPI.sk4d_colorspace_to_xyz;                    external TSkiaAPI.LibName name 'sk4d_colorspace_to_xyz';
-    class procedure TSkiaAPI.sk4d_colorspace_unref;                     external TSkiaAPI.LibName name 'sk4d_colorspace_unref';
-    class procedure TSkiaAPI.sk4d_colorspaceiccprofile_destroy;         external TSkiaAPI.LibName name 'sk4d_colorspaceiccprofile_destroy';
-    class function  TSkiaAPI.sk4d_colorspaceiccprofile_get_buffer;      external TSkiaAPI.LibName name 'sk4d_colorspaceiccprofile_get_buffer';
-    class function  TSkiaAPI.sk4d_colorspaceiccprofile_make_with_parse; external TSkiaAPI.LibName name 'sk4d_colorspaceiccprofile_make_with_parse';
-    class function  TSkiaAPI.sk4d_colorspaceiccprofile_to_xyz;          external TSkiaAPI.LibName name 'sk4d_colorspaceiccprofile_to_xyz';
-    class function  TSkiaAPI.sk4d_colorspaceprimaries_to_xyz;           external TSkiaAPI.LibName name 'sk4d_colorspaceprimaries_to_xyz';
-    class function  TSkiaAPI.sk4d_colorspacetransferfn_invert;          external TSkiaAPI.LibName name 'sk4d_colorspacetransferfn_invert';
-    class function  TSkiaAPI.sk4d_colorspacetransferfn_transform;       external TSkiaAPI.LibName name 'sk4d_colorspacetransferfn_transform';
-    {$ENDIF}
-    {$ENDREGION}
-
-    {$REGION 'include/c/sk4d_data.h'}
-    {$IFDEF SK_DYNAMIC_LOADING}
-    sk4d_data_make_empty     := GetProcAddress(FLibHandle, 'sk4d_data_make_empty');
-    sk4d_data_make_with_copy := GetProcAddress(FLibHandle, 'sk4d_data_make_with_copy');
-    {$ELSE}
-    class function TSkiaAPI.sk4d_data_make_empty;     external TSkiaAPI.LibName name 'sk4d_data_make_empty';
-    class function TSkiaAPI.sk4d_data_make_with_copy; external TSkiaAPI.LibName name 'sk4d_data_make_with_copy';
-    {$ENDIF}
-    {$ENDREGION}
-
-    {$REGION 'include/c/sk4d_document.h'}
-    {$IFDEF SK_DYNAMIC_LOADING}
-    sk4d_document_begin_page := GetProcAddress(FLibHandle, 'sk4d_document_begin_page');
-    sk4d_document_close      := GetProcAddress(FLibHandle, 'sk4d_document_close');
-    sk4d_document_end_page   := GetProcAddress(FLibHandle, 'sk4d_document_end_page');
-    sk4d_document_make_pdf   := GetProcAddress(FLibHandle, 'sk4d_document_make_pdf');
-    sk4d_document_make_pdf2  := GetProcAddress(FLibHandle, 'sk4d_document_make_pdf2');
-    sk4d_document_make_xps   := GetProcAddress(FLibHandle, 'sk4d_document_make_xps');
-    sk4d_document_terminate  := GetProcAddress(FLibHandle, 'sk4d_document_terminate');
-    {$ELSE}
-    class function  TSkiaAPI.sk4d_document_begin_page; external TSkiaAPI.LibName name 'sk4d_document_begin_page';
-    class procedure TSkiaAPI.sk4d_document_close;      external TSkiaAPI.LibName name 'sk4d_document_close';
-    class procedure TSkiaAPI.sk4d_document_end_page;   external TSkiaAPI.LibName name 'sk4d_document_end_page';
-    class function  TSkiaAPI.sk4d_document_make_pdf;   external TSkiaAPI.LibName name 'sk4d_document_make_pdf';
-    class function  TSkiaAPI.sk4d_document_make_pdf2;  external TSkiaAPI.LibName name 'sk4d_document_make_pdf2';
-    class function  TSkiaAPI.sk4d_document_make_xps;   external TSkiaAPI.LibName name 'sk4d_document_make_xps';
-    class procedure TSkiaAPI.sk4d_document_terminate;  external TSkiaAPI.LibName name 'sk4d_document_terminate';
-    {$ENDIF}
-    {$ENDREGION}
-
-    {$REGION 'include/c/sk4d_font.h'}
-    {$IFDEF SK_DYNAMIC_LOADING}
-    sk4d_font_create                   := GetProcAddress(FLibHandle, 'sk4d_font_create');
-    sk4d_font_create2                  := GetProcAddress(FLibHandle, 'sk4d_font_create2');
-    sk4d_font_destroy                  := GetProcAddress(FLibHandle, 'sk4d_font_destroy');
-    sk4d_font_get_baseline_snap        := GetProcAddress(FLibHandle, 'sk4d_font_get_baseline_snap');
-    sk4d_font_get_edging               := GetProcAddress(FLibHandle, 'sk4d_font_get_edging');
-    sk4d_font_get_embedded_bitmaps     := GetProcAddress(FLibHandle, 'sk4d_font_get_embedded_bitmaps');
-    sk4d_font_get_embolden             := GetProcAddress(FLibHandle, 'sk4d_font_get_embolden');
-    sk4d_font_get_force_auto_hinting   := GetProcAddress(FLibHandle, 'sk4d_font_get_force_auto_hinting');
-    sk4d_font_get_glyphs               := GetProcAddress(FLibHandle, 'sk4d_font_get_glyphs');
-    sk4d_font_get_glyphs_count         := GetProcAddress(FLibHandle, 'sk4d_font_get_glyphs_count');
-    sk4d_font_get_hinting              := GetProcAddress(FLibHandle, 'sk4d_font_get_hinting');
-    sk4d_font_get_horizontal_positions := GetProcAddress(FLibHandle, 'sk4d_font_get_horizontal_positions');
-    sk4d_font_get_intercepts           := GetProcAddress(FLibHandle, 'sk4d_font_get_intercepts');
-    sk4d_font_get_linear_metrics       := GetProcAddress(FLibHandle, 'sk4d_font_get_linear_metrics');
-    sk4d_font_get_metrics              := GetProcAddress(FLibHandle, 'sk4d_font_get_metrics');
-    sk4d_font_get_path                 := GetProcAddress(FLibHandle, 'sk4d_font_get_path');
-    sk4d_font_get_paths                := GetProcAddress(FLibHandle, 'sk4d_font_get_paths');
-    sk4d_font_get_positions            := GetProcAddress(FLibHandle, 'sk4d_font_get_positions');
-    sk4d_font_get_scale_x              := GetProcAddress(FLibHandle, 'sk4d_font_get_scale_x');
-    sk4d_font_get_size                 := GetProcAddress(FLibHandle, 'sk4d_font_get_size');
-    sk4d_font_get_skew_x               := GetProcAddress(FLibHandle, 'sk4d_font_get_skew_x');
-    sk4d_font_get_subpixel             := GetProcAddress(FLibHandle, 'sk4d_font_get_subpixel');
-    sk4d_font_get_typeface             := GetProcAddress(FLibHandle, 'sk4d_font_get_typeface');
-    sk4d_font_get_typeface_or_default  := GetProcAddress(FLibHandle, 'sk4d_font_get_typeface_or_default');
-    sk4d_font_get_widths_bounds        := GetProcAddress(FLibHandle, 'sk4d_font_get_widths_bounds');
-    sk4d_font_is_equal                 := GetProcAddress(FLibHandle, 'sk4d_font_is_equal');
-    sk4d_font_measure_text             := GetProcAddress(FLibHandle, 'sk4d_font_measure_text');
-    sk4d_font_set_baseline_snap        := GetProcAddress(FLibHandle, 'sk4d_font_set_baseline_snap');
-    sk4d_font_set_edging               := GetProcAddress(FLibHandle, 'sk4d_font_set_edging');
-    sk4d_font_set_embedded_bitmaps     := GetProcAddress(FLibHandle, 'sk4d_font_set_embedded_bitmaps');
-    sk4d_font_set_embolden             := GetProcAddress(FLibHandle, 'sk4d_font_set_embolden');
-    sk4d_font_set_force_auto_hinting   := GetProcAddress(FLibHandle, 'sk4d_font_set_force_auto_hinting');
-    sk4d_font_set_hinting              := GetProcAddress(FLibHandle, 'sk4d_font_set_hinting');
-    sk4d_font_set_linear_metrics       := GetProcAddress(FLibHandle, 'sk4d_font_set_linear_metrics');
-    sk4d_font_set_scale_x              := GetProcAddress(FLibHandle, 'sk4d_font_set_scale_x');
-    sk4d_font_set_size                 := GetProcAddress(FLibHandle, 'sk4d_font_set_size');
-    sk4d_font_set_skew_x               := GetProcAddress(FLibHandle, 'sk4d_font_set_skew_x');
-    sk4d_font_set_subpixel             := GetProcAddress(FLibHandle, 'sk4d_font_set_subpixel');
-    sk4d_font_set_typeface             := GetProcAddress(FLibHandle, 'sk4d_font_set_typeface');
-    sk4d_font_unichar_to_glyph         := GetProcAddress(FLibHandle, 'sk4d_font_unichar_to_glyph');
-    sk4d_font_unichars_to_glyphs       := GetProcAddress(FLibHandle, 'sk4d_font_unichars_to_glyphs');
-    {$ELSE}
-    class function  TSkiaAPI.sk4d_font_create;                   external TSkiaAPI.LibName name 'sk4d_font_create';
-    class function  TSkiaAPI.sk4d_font_create2;                  external TSkiaAPI.LibName name 'sk4d_font_create2';
-    class procedure TSkiaAPI.sk4d_font_destroy;                  external TSkiaAPI.LibName name 'sk4d_font_destroy';
-    class function  TSkiaAPI.sk4d_font_get_baseline_snap;        external TSkiaAPI.LibName name 'sk4d_font_get_baseline_snap';
-    class function  TSkiaAPI.sk4d_font_get_edging;               external TSkiaAPI.LibName name 'sk4d_font_get_edging';
-    class function  TSkiaAPI.sk4d_font_get_embedded_bitmaps;     external TSkiaAPI.LibName name 'sk4d_font_get_embedded_bitmaps';
-    class function  TSkiaAPI.sk4d_font_get_embolden;             external TSkiaAPI.LibName name 'sk4d_font_get_embolden';
-    class function  TSkiaAPI.sk4d_font_get_force_auto_hinting;   external TSkiaAPI.LibName name 'sk4d_font_get_force_auto_hinting';
-    class function  TSkiaAPI.sk4d_font_get_glyphs;               external TSkiaAPI.LibName name 'sk4d_font_get_glyphs';
-    class function  TSkiaAPI.sk4d_font_get_glyphs_count;         external TSkiaAPI.LibName name 'sk4d_font_get_glyphs_count';
-    class function  TSkiaAPI.sk4d_font_get_hinting;              external TSkiaAPI.LibName name 'sk4d_font_get_hinting';
-    class procedure TSkiaAPI.sk4d_font_get_horizontal_positions; external TSkiaAPI.LibName name 'sk4d_font_get_horizontal_positions';
-    class function  TSkiaAPI.sk4d_font_get_intercepts;           external TSkiaAPI.LibName name 'sk4d_font_get_intercepts';
-    class function  TSkiaAPI.sk4d_font_get_linear_metrics;       external TSkiaAPI.LibName name 'sk4d_font_get_linear_metrics';
-    class function  TSkiaAPI.sk4d_font_get_metrics;              external TSkiaAPI.LibName name 'sk4d_font_get_metrics';
-    class function  TSkiaAPI.sk4d_font_get_path;                 external TSkiaAPI.LibName name 'sk4d_font_get_path';
-    class procedure TSkiaAPI.sk4d_font_get_paths;                external TSkiaAPI.LibName name 'sk4d_font_get_paths';
-    class procedure TSkiaAPI.sk4d_font_get_positions;            external TSkiaAPI.LibName name 'sk4d_font_get_positions';
-    class function  TSkiaAPI.sk4d_font_get_scale_x;              external TSkiaAPI.LibName name 'sk4d_font_get_scale_x';
-    class function  TSkiaAPI.sk4d_font_get_size;                 external TSkiaAPI.LibName name 'sk4d_font_get_size';
-    class function  TSkiaAPI.sk4d_font_get_skew_x;               external TSkiaAPI.LibName name 'sk4d_font_get_skew_x';
-    class function  TSkiaAPI.sk4d_font_get_subpixel;             external TSkiaAPI.LibName name 'sk4d_font_get_subpixel';
-    class function  TSkiaAPI.sk4d_font_get_typeface;             external TSkiaAPI.LibName name 'sk4d_font_get_typeface';
-    class function  TSkiaAPI.sk4d_font_get_typeface_or_default;  external TSkiaAPI.LibName name 'sk4d_font_get_typeface_or_default';
-    class procedure TSkiaAPI.sk4d_font_get_widths_bounds;        external TSkiaAPI.LibName name 'sk4d_font_get_widths_bounds';
-    class function  TSkiaAPI.sk4d_font_is_equal;                 external TSkiaAPI.LibName name 'sk4d_font_is_equal';
-    class function  TSkiaAPI.sk4d_font_measure_text;             external TSkiaAPI.LibName name 'sk4d_font_measure_text';
-    class procedure TSkiaAPI.sk4d_font_set_baseline_snap;        external TSkiaAPI.LibName name 'sk4d_font_set_baseline_snap';
-    class procedure TSkiaAPI.sk4d_font_set_edging;               external TSkiaAPI.LibName name 'sk4d_font_set_edging';
-    class procedure TSkiaAPI.sk4d_font_set_embedded_bitmaps;     external TSkiaAPI.LibName name 'sk4d_font_set_embedded_bitmaps';
-    class procedure TSkiaAPI.sk4d_font_set_embolden;             external TSkiaAPI.LibName name 'sk4d_font_set_embolden';
-    class procedure TSkiaAPI.sk4d_font_set_force_auto_hinting;   external TSkiaAPI.LibName name 'sk4d_font_set_force_auto_hinting';
-    class procedure TSkiaAPI.sk4d_font_set_hinting;              external TSkiaAPI.LibName name 'sk4d_font_set_hinting';
-    class procedure TSkiaAPI.sk4d_font_set_linear_metrics;       external TSkiaAPI.LibName name 'sk4d_font_set_linear_metrics';
-    class procedure TSkiaAPI.sk4d_font_set_scale_x;              external TSkiaAPI.LibName name 'sk4d_font_set_scale_x';
-    class procedure TSkiaAPI.sk4d_font_set_size;                 external TSkiaAPI.LibName name 'sk4d_font_set_size';
-    class procedure TSkiaAPI.sk4d_font_set_skew_x;               external TSkiaAPI.LibName name 'sk4d_font_set_skew_x';
-    class procedure TSkiaAPI.sk4d_font_set_subpixel;             external TSkiaAPI.LibName name 'sk4d_font_set_subpixel';
-    class procedure TSkiaAPI.sk4d_font_set_typeface;             external TSkiaAPI.LibName name 'sk4d_font_set_typeface';
-    class function  TSkiaAPI.sk4d_font_unichar_to_glyph;         external TSkiaAPI.LibName name 'sk4d_font_unichar_to_glyph';
-    class procedure TSkiaAPI.sk4d_font_unichars_to_glyphs;       external TSkiaAPI.LibName name 'sk4d_font_unichars_to_glyphs';
-    {$ENDIF}
-    {$ENDREGION}
-
-    {$REGION 'include/c/sk4d_graphics.h'}
-    {$IFDEF SK_DYNAMIC_LOADING}
-    sk4d_graphics_allow_jit                                       := GetProcAddress(FLibHandle, 'sk4d_graphics_allow_jit');
-    sk4d_graphics_dump_memory_statistics                          := GetProcAddress(FLibHandle, 'sk4d_graphics_dump_memory_statistics');
-    sk4d_graphics_get_font_cache_count_limit                      := GetProcAddress(FLibHandle, 'sk4d_graphics_get_font_cache_count_limit');
-    sk4d_graphics_get_font_cache_count_used                       := GetProcAddress(FLibHandle, 'sk4d_graphics_get_font_cache_count_used');
-    sk4d_graphics_get_font_cache_limit                            := GetProcAddress(FLibHandle, 'sk4d_graphics_get_font_cache_limit');
-    sk4d_graphics_get_font_cache_used                             := GetProcAddress(FLibHandle, 'sk4d_graphics_get_font_cache_used');
-    sk4d_graphics_get_resource_cache_single_allocation_byte_limit := GetProcAddress(FLibHandle, 'sk4d_graphics_get_resource_cache_single_allocation_byte_limit');
-    sk4d_graphics_get_resource_cache_total_byte_limit             := GetProcAddress(FLibHandle, 'sk4d_graphics_get_resource_cache_total_byte_limit');
-    sk4d_graphics_get_resource_cache_total_bytes_used             := GetProcAddress(FLibHandle, 'sk4d_graphics_get_resource_cache_total_bytes_used');
-    sk4d_graphics_init                                            := GetProcAddress(FLibHandle, 'sk4d_graphics_init');
-    sk4d_graphics_purge_all_caches                                := GetProcAddress(FLibHandle, 'sk4d_graphics_purge_all_caches');
-    sk4d_graphics_purge_font_cache                                := GetProcAddress(FLibHandle, 'sk4d_graphics_purge_font_cache');
-    sk4d_graphics_purge_resource_cache                            := GetProcAddress(FLibHandle, 'sk4d_graphics_purge_resource_cache');
-    sk4d_graphics_set_font_cache_count_limit                      := GetProcAddress(FLibHandle, 'sk4d_graphics_set_font_cache_count_limit');
-    sk4d_graphics_set_font_cache_limit                            := GetProcAddress(FLibHandle, 'sk4d_graphics_set_font_cache_limit');
-    sk4d_graphics_set_resource_cache_single_allocation_byte_limit := GetProcAddress(FLibHandle, 'sk4d_graphics_set_resource_cache_single_allocation_byte_limit');
-    sk4d_graphics_set_resource_cache_total_byte_limit             := GetProcAddress(FLibHandle, 'sk4d_graphics_set_resource_cache_total_byte_limit');
-    {$ELSE}
-    class procedure TSkiaAPI.sk4d_graphics_allow_jit;                                       external TSkiaAPI.LibName name 'sk4d_graphics_allow_jit';
-    class procedure TSkiaAPI.sk4d_graphics_dump_memory_statistics;                          external TSkiaAPI.LibName name 'sk4d_graphics_dump_memory_statistics';
-    class function  TSkiaAPI.sk4d_graphics_get_font_cache_count_limit;                      external TSkiaAPI.LibName name 'sk4d_graphics_get_font_cache_count_limit';
-    class function  TSkiaAPI.sk4d_graphics_get_font_cache_count_used;                       external TSkiaAPI.LibName name 'sk4d_graphics_get_font_cache_count_used';
-    class function  TSkiaAPI.sk4d_graphics_get_font_cache_limit;                            external TSkiaAPI.LibName name 'sk4d_graphics_get_font_cache_limit';
-    class function  TSkiaAPI.sk4d_graphics_get_font_cache_used;                             external TSkiaAPI.LibName name 'sk4d_graphics_get_font_cache_used';
-    class function  TSkiaAPI.sk4d_graphics_get_resource_cache_single_allocation_byte_limit; external TSkiaAPI.LibName name 'sk4d_graphics_get_resource_cache_single_allocation_byte_limit';
-    class function  TSkiaAPI.sk4d_graphics_get_resource_cache_total_byte_limit;             external TSkiaAPI.LibName name 'sk4d_graphics_get_resource_cache_total_byte_limit';
-    class function  TSkiaAPI.sk4d_graphics_get_resource_cache_total_bytes_used;             external TSkiaAPI.LibName name 'sk4d_graphics_get_resource_cache_total_bytes_used';
-    class procedure TSkiaAPI.sk4d_graphics_init;                                            external TSkiaAPI.LibName name 'sk4d_graphics_init';
-    class procedure TSkiaAPI.sk4d_graphics_purge_all_caches;                                external TSkiaAPI.LibName name 'sk4d_graphics_purge_all_caches';
-    class procedure TSkiaAPI.sk4d_graphics_purge_font_cache;                                external TSkiaAPI.LibName name 'sk4d_graphics_purge_font_cache';
-    class procedure TSkiaAPI.sk4d_graphics_purge_resource_cache;                            external TSkiaAPI.LibName name 'sk4d_graphics_purge_resource_cache';
-    class function  TSkiaAPI.sk4d_graphics_set_font_cache_count_limit;                      external TSkiaAPI.LibName name 'sk4d_graphics_set_font_cache_count_limit';
-    class function  TSkiaAPI.sk4d_graphics_set_font_cache_limit;                            external TSkiaAPI.LibName name 'sk4d_graphics_set_font_cache_limit';
-    class function  TSkiaAPI.sk4d_graphics_set_resource_cache_single_allocation_byte_limit; external TSkiaAPI.LibName name 'sk4d_graphics_set_resource_cache_single_allocation_byte_limit';
-    class function  TSkiaAPI.sk4d_graphics_set_resource_cache_total_byte_limit;             external TSkiaAPI.LibName name 'sk4d_graphics_set_resource_cache_total_byte_limit';
-    {$ENDIF}
-    {$ENDREGION}
-
-    {$REGION 'include/c/sk4d_image.h'}
-    {$IFDEF SK_DYNAMIC_LOADING}
-    sk4d_image_encode_to_file            := GetProcAddress(FLibHandle, 'sk4d_image_encode_to_file');
-    sk4d_image_encode_to_stream          := GetProcAddress(FLibHandle, 'sk4d_image_encode_to_stream');
-    sk4d_image_get_alpha_type            := GetProcAddress(FLibHandle, 'sk4d_image_get_alpha_type');
-    sk4d_image_get_color_space           := GetProcAddress(FLibHandle, 'sk4d_image_get_color_space');
-    sk4d_image_get_color_type            := GetProcAddress(FLibHandle, 'sk4d_image_get_color_type');
-    sk4d_image_get_height                := GetProcAddress(FLibHandle, 'sk4d_image_get_height');
-    sk4d_image_get_image_info            := GetProcAddress(FLibHandle, 'sk4d_image_get_image_info');
-    sk4d_image_get_unique_id             := GetProcAddress(FLibHandle, 'sk4d_image_get_unique_id');
-    sk4d_image_get_width                 := GetProcAddress(FLibHandle, 'sk4d_image_get_width');
-    sk4d_image_is_lazy_generated         := GetProcAddress(FLibHandle, 'sk4d_image_is_lazy_generated');
-    sk4d_image_is_texture_backed         := GetProcAddress(FLibHandle, 'sk4d_image_is_texture_backed');
-    sk4d_image_is_valid                  := GetProcAddress(FLibHandle, 'sk4d_image_is_valid');
-    sk4d_image_make_backend_texture      := GetProcAddress(FLibHandle, 'sk4d_image_make_backend_texture');
-    sk4d_image_make_from_adopted_texture := GetProcAddress(FLibHandle, 'sk4d_image_make_from_adopted_texture');
-    sk4d_image_make_from_encoded_file    := GetProcAddress(FLibHandle, 'sk4d_image_make_from_encoded_file');
-    sk4d_image_make_from_encoded_stream  := GetProcAddress(FLibHandle, 'sk4d_image_make_from_encoded_stream');
-    sk4d_image_make_from_raster          := GetProcAddress(FLibHandle, 'sk4d_image_make_from_raster');
-    sk4d_image_make_from_texture         := GetProcAddress(FLibHandle, 'sk4d_image_make_from_texture');
-    sk4d_image_make_non_texture_image    := GetProcAddress(FLibHandle, 'sk4d_image_make_non_texture_image');
-    sk4d_image_make_raster_copy          := GetProcAddress(FLibHandle, 'sk4d_image_make_raster_copy');
-    sk4d_image_make_raster_image         := GetProcAddress(FLibHandle, 'sk4d_image_make_raster_image');
-    sk4d_image_make_raw_shader           := GetProcAddress(FLibHandle, 'sk4d_image_make_raw_shader');
-    sk4d_image_make_shader               := GetProcAddress(FLibHandle, 'sk4d_image_make_shader');
-    sk4d_image_make_subset               := GetProcAddress(FLibHandle, 'sk4d_image_make_subset');
-    sk4d_image_make_texture_image        := GetProcAddress(FLibHandle, 'sk4d_image_make_texture_image');
-    sk4d_image_make_with_filter          := GetProcAddress(FLibHandle, 'sk4d_image_make_with_filter');
-    sk4d_image_peek_pixels               := GetProcAddress(FLibHandle, 'sk4d_image_peek_pixels');
-    sk4d_image_read_pixels               := GetProcAddress(FLibHandle, 'sk4d_image_read_pixels');
-    sk4d_image_scale_pixels              := GetProcAddress(FLibHandle, 'sk4d_image_scale_pixels');
-    {$ELSE}
-    class function  TSkiaAPI.sk4d_image_encode_to_file;            external TSkiaAPI.LibName name 'sk4d_image_encode_to_file';
-    class function  TSkiaAPI.sk4d_image_encode_to_stream;          external TSkiaAPI.LibName name 'sk4d_image_encode_to_stream';
-    class function  TSkiaAPI.sk4d_image_get_alpha_type;            external TSkiaAPI.LibName name 'sk4d_image_get_alpha_type';
-    class function  TSkiaAPI.sk4d_image_get_color_space;           external TSkiaAPI.LibName name 'sk4d_image_get_color_space';
-    class function  TSkiaAPI.sk4d_image_get_color_type;            external TSkiaAPI.LibName name 'sk4d_image_get_color_type';
-    class function  TSkiaAPI.sk4d_image_get_height;                external TSkiaAPI.LibName name 'sk4d_image_get_height';
-    class procedure TSkiaAPI.sk4d_image_get_image_info;            external TSkiaAPI.LibName name 'sk4d_image_get_image_info';
-    class function  TSkiaAPI.sk4d_image_get_unique_id;             external TSkiaAPI.LibName name 'sk4d_image_get_unique_id';
-    class function  TSkiaAPI.sk4d_image_get_width;                 external TSkiaAPI.LibName name 'sk4d_image_get_width';
-    class function  TSkiaAPI.sk4d_image_is_lazy_generated;         external TSkiaAPI.LibName name 'sk4d_image_is_lazy_generated';
-    class function  TSkiaAPI.sk4d_image_is_texture_backed;         external TSkiaAPI.LibName name 'sk4d_image_is_texture_backed';
-    class function  TSkiaAPI.sk4d_image_is_valid;                  external TSkiaAPI.LibName name 'sk4d_image_is_valid';
-    class function  TSkiaAPI.sk4d_image_make_backend_texture;      external TSkiaAPI.LibName name 'sk4d_image_make_backend_texture';
-    class function  TSkiaAPI.sk4d_image_make_from_adopted_texture; external TSkiaAPI.LibName name 'sk4d_image_make_from_adopted_texture';
-    class function  TSkiaAPI.sk4d_image_make_from_encoded_file;    external TSkiaAPI.LibName name 'sk4d_image_make_from_encoded_file';
-    class function  TSkiaAPI.sk4d_image_make_from_encoded_stream;  external TSkiaAPI.LibName name 'sk4d_image_make_from_encoded_stream';
-    class function  TSkiaAPI.sk4d_image_make_from_raster;          external TSkiaAPI.LibName name 'sk4d_image_make_from_raster';
-    class function  TSkiaAPI.sk4d_image_make_from_texture;         external TSkiaAPI.LibName name 'sk4d_image_make_from_texture';
-    class function  TSkiaAPI.sk4d_image_make_non_texture_image;    external TSkiaAPI.LibName name 'sk4d_image_make_non_texture_image';
-    class function  TSkiaAPI.sk4d_image_make_raster_copy;          external TSkiaAPI.LibName name 'sk4d_image_make_raster_copy';
-    class function  TSkiaAPI.sk4d_image_make_raster_image;         external TSkiaAPI.LibName name 'sk4d_image_make_raster_image';
-    class function  TSkiaAPI.sk4d_image_make_raw_shader;           external TSkiaAPI.LibName name 'sk4d_image_make_raw_shader';
-    class function  TSkiaAPI.sk4d_image_make_shader;               external TSkiaAPI.LibName name 'sk4d_image_make_shader';
-    class function  TSkiaAPI.sk4d_image_make_subset;               external TSkiaAPI.LibName name 'sk4d_image_make_subset';
-    class function  TSkiaAPI.sk4d_image_make_texture_image;        external TSkiaAPI.LibName name 'sk4d_image_make_texture_image';
-    class function  TSkiaAPI.sk4d_image_make_with_filter;          external TSkiaAPI.LibName name 'sk4d_image_make_with_filter';
-    class function  TSkiaAPI.sk4d_image_peek_pixels;               external TSkiaAPI.LibName name 'sk4d_image_peek_pixels';
-    class function  TSkiaAPI.sk4d_image_read_pixels;               external TSkiaAPI.LibName name 'sk4d_image_read_pixels';
-    class function  TSkiaAPI.sk4d_image_scale_pixels;              external TSkiaAPI.LibName name 'sk4d_image_scale_pixels';
-    {$ENDIF}
-    {$ENDREGION}
-
-    {$REGION 'include/c/sk4d_imageencoder.h'}
-    {$IFDEF SK_DYNAMIC_LOADING}
-    sk4d_imageencoder_encode_to_file   := GetProcAddress(FLibHandle, 'sk4d_imageencoder_encode_to_file');
-    sk4d_imageencoder_encode_to_stream := GetProcAddress(FLibHandle, 'sk4d_imageencoder_encode_to_stream');
-    {$ELSE}
-    class function TSkiaAPI.sk4d_imageencoder_encode_to_file;   external TSkiaAPI.LibName name 'sk4d_imageencoder_encode_to_file';
-    class function TSkiaAPI.sk4d_imageencoder_encode_to_stream; external TSkiaAPI.LibName name 'sk4d_imageencoder_encode_to_stream';
-    {$ENDIF}
-    {$ENDREGION}
-
-    {$REGION 'include/c/sk4d_imagefilter.h'}
-    {$IFDEF SK_DYNAMIC_LOADING}
-    sk4d_imagefilter_make_alpha_threshold      := GetProcAddress(FLibHandle, 'sk4d_imagefilter_make_alpha_threshold');
-    sk4d_imagefilter_make_arithmetic           := GetProcAddress(FLibHandle, 'sk4d_imagefilter_make_arithmetic');
-    sk4d_imagefilter_make_blend                := GetProcAddress(FLibHandle, 'sk4d_imagefilter_make_blend');
-    sk4d_imagefilter_make_blur                 := GetProcAddress(FLibHandle, 'sk4d_imagefilter_make_blur');
-    sk4d_imagefilter_make_colorfilter          := GetProcAddress(FLibHandle, 'sk4d_imagefilter_make_colorfilter');
-    sk4d_imagefilter_make_compose              := GetProcAddress(FLibHandle, 'sk4d_imagefilter_make_compose');
-    sk4d_imagefilter_make_dilate               := GetProcAddress(FLibHandle, 'sk4d_imagefilter_make_dilate');
-    sk4d_imagefilter_make_displacement_map     := GetProcAddress(FLibHandle, 'sk4d_imagefilter_make_displacement_map');
-    sk4d_imagefilter_make_distant_lit_diffuse  := GetProcAddress(FLibHandle, 'sk4d_imagefilter_make_distant_lit_diffuse');
-    sk4d_imagefilter_make_distant_lit_specular := GetProcAddress(FLibHandle, 'sk4d_imagefilter_make_distant_lit_specular');
-    sk4d_imagefilter_make_drop_shadow          := GetProcAddress(FLibHandle, 'sk4d_imagefilter_make_drop_shadow');
-    sk4d_imagefilter_make_drop_shadow_only     := GetProcAddress(FLibHandle, 'sk4d_imagefilter_make_drop_shadow_only');
-    sk4d_imagefilter_make_erode                := GetProcAddress(FLibHandle, 'sk4d_imagefilter_make_erode');
-    sk4d_imagefilter_make_image                := GetProcAddress(FLibHandle, 'sk4d_imagefilter_make_image');
-    sk4d_imagefilter_make_magnifier            := GetProcAddress(FLibHandle, 'sk4d_imagefilter_make_magnifier');
-    sk4d_imagefilter_make_matrix_convolution   := GetProcAddress(FLibHandle, 'sk4d_imagefilter_make_matrix_convolution');
-    sk4d_imagefilter_make_matrix_transform     := GetProcAddress(FLibHandle, 'sk4d_imagefilter_make_matrix_transform');
-    sk4d_imagefilter_make_merge                := GetProcAddress(FLibHandle, 'sk4d_imagefilter_make_merge');
-    sk4d_imagefilter_make_offset               := GetProcAddress(FLibHandle, 'sk4d_imagefilter_make_offset');
-    sk4d_imagefilter_make_picture              := GetProcAddress(FLibHandle, 'sk4d_imagefilter_make_picture');
-    sk4d_imagefilter_make_point_lit_diffuse    := GetProcAddress(FLibHandle, 'sk4d_imagefilter_make_point_lit_diffuse');
-    sk4d_imagefilter_make_point_lit_specular   := GetProcAddress(FLibHandle, 'sk4d_imagefilter_make_point_lit_specular');
-    sk4d_imagefilter_make_shader               := GetProcAddress(FLibHandle, 'sk4d_imagefilter_make_shader');
-    sk4d_imagefilter_make_spot_lit_diffuse     := GetProcAddress(FLibHandle, 'sk4d_imagefilter_make_spot_lit_diffuse');
-    sk4d_imagefilter_make_spot_lit_specular    := GetProcAddress(FLibHandle, 'sk4d_imagefilter_make_spot_lit_specular');
-    sk4d_imagefilter_make_tile                 := GetProcAddress(FLibHandle, 'sk4d_imagefilter_make_tile');
-    sk4d_imagefilter_make_with_local_matrix    := GetProcAddress(FLibHandle, 'sk4d_imagefilter_make_with_local_matrix');
-    {$ELSE}
-    class function TSkiaAPI.sk4d_imagefilter_make_alpha_threshold;      external TSkiaAPI.LibName name 'sk4d_imagefilter_make_alpha_threshold';
-    class function TSkiaAPI.sk4d_imagefilter_make_arithmetic;           external TSkiaAPI.LibName name 'sk4d_imagefilter_make_arithmetic';
-    class function TSkiaAPI.sk4d_imagefilter_make_blend;                external TSkiaAPI.LibName name 'sk4d_imagefilter_make_blend';
-    class function TSkiaAPI.sk4d_imagefilter_make_blur;                 external TSkiaAPI.LibName name 'sk4d_imagefilter_make_blur';
-    class function TSkiaAPI.sk4d_imagefilter_make_colorfilter;          external TSkiaAPI.LibName name 'sk4d_imagefilter_make_colorfilter';
-    class function TSkiaAPI.sk4d_imagefilter_make_compose;              external TSkiaAPI.LibName name 'sk4d_imagefilter_make_compose';
-    class function TSkiaAPI.sk4d_imagefilter_make_dilate;               external TSkiaAPI.LibName name 'sk4d_imagefilter_make_dilate';
-    class function TSkiaAPI.sk4d_imagefilter_make_displacement_map;     external TSkiaAPI.LibName name 'sk4d_imagefilter_make_displacement_map';
-    class function TSkiaAPI.sk4d_imagefilter_make_distant_lit_diffuse;  external TSkiaAPI.LibName name 'sk4d_imagefilter_make_distant_lit_diffuse';
-    class function TSkiaAPI.sk4d_imagefilter_make_distant_lit_specular; external TSkiaAPI.LibName name 'sk4d_imagefilter_make_distant_lit_specular';
-    class function TSkiaAPI.sk4d_imagefilter_make_drop_shadow;          external TSkiaAPI.LibName name 'sk4d_imagefilter_make_drop_shadow';
-    class function TSkiaAPI.sk4d_imagefilter_make_drop_shadow_only;     external TSkiaAPI.LibName name 'sk4d_imagefilter_make_drop_shadow_only';
-    class function TSkiaAPI.sk4d_imagefilter_make_erode;                external TSkiaAPI.LibName name 'sk4d_imagefilter_make_erode';
-    class function TSkiaAPI.sk4d_imagefilter_make_image;                external TSkiaAPI.LibName name 'sk4d_imagefilter_make_image';
-    class function TSkiaAPI.sk4d_imagefilter_make_magnifier;            external TSkiaAPI.LibName name 'sk4d_imagefilter_make_magnifier';
-    class function TSkiaAPI.sk4d_imagefilter_make_matrix_convolution;   external TSkiaAPI.LibName name 'sk4d_imagefilter_make_matrix_convolution';
-    class function TSkiaAPI.sk4d_imagefilter_make_matrix_transform;     external TSkiaAPI.LibName name 'sk4d_imagefilter_make_matrix_transform';
-    class function TSkiaAPI.sk4d_imagefilter_make_merge;                external TSkiaAPI.LibName name 'sk4d_imagefilter_make_merge';
-    class function TSkiaAPI.sk4d_imagefilter_make_offset;               external TSkiaAPI.LibName name 'sk4d_imagefilter_make_offset';
-    class function TSkiaAPI.sk4d_imagefilter_make_picture;              external TSkiaAPI.LibName name 'sk4d_imagefilter_make_picture';
-    class function TSkiaAPI.sk4d_imagefilter_make_point_lit_diffuse;    external TSkiaAPI.LibName name 'sk4d_imagefilter_make_point_lit_diffuse';
-    class function TSkiaAPI.sk4d_imagefilter_make_point_lit_specular;   external TSkiaAPI.LibName name 'sk4d_imagefilter_make_point_lit_specular';
-    class function TSkiaAPI.sk4d_imagefilter_make_shader;               external TSkiaAPI.LibName name 'sk4d_imagefilter_make_shader';
-    class function TSkiaAPI.sk4d_imagefilter_make_spot_lit_diffuse;     external TSkiaAPI.LibName name 'sk4d_imagefilter_make_spot_lit_diffuse';
-    class function TSkiaAPI.sk4d_imagefilter_make_spot_lit_specular;    external TSkiaAPI.LibName name 'sk4d_imagefilter_make_spot_lit_specular';
-    class function TSkiaAPI.sk4d_imagefilter_make_tile;                 external TSkiaAPI.LibName name 'sk4d_imagefilter_make_tile';
-    class function TSkiaAPI.sk4d_imagefilter_make_with_local_matrix;    external TSkiaAPI.LibName name 'sk4d_imagefilter_make_with_local_matrix';
-    {$ENDIF}
-    {$ENDREGION}
-
-    {$REGION 'include/c/sk4d_maskfilter.h'}
-    {$IFDEF SK_DYNAMIC_LOADING}
-    sk4d_maskfilter_make_blur        := GetProcAddress(FLibHandle, 'sk4d_maskfilter_make_blur');
-    sk4d_maskfilter_make_shader      := GetProcAddress(FLibHandle, 'sk4d_maskfilter_make_shader');
-    sk4d_maskfilter_make_table       := GetProcAddress(FLibHandle, 'sk4d_maskfilter_make_table');
-    sk4d_maskfilter_make_table_clip  := GetProcAddress(FLibHandle, 'sk4d_maskfilter_make_table_clip');
-    sk4d_maskfilter_make_table_gamma := GetProcAddress(FLibHandle, 'sk4d_maskfilter_make_table_gamma');
-    {$ELSE}
-    class function TSkiaAPI.sk4d_maskfilter_make_blur;        external TSkiaAPI.LibName name 'sk4d_maskfilter_make_blur';
-    class function TSkiaAPI.sk4d_maskfilter_make_shader;      external TSkiaAPI.LibName name 'sk4d_maskfilter_make_shader';
-    class function TSkiaAPI.sk4d_maskfilter_make_table;       external TSkiaAPI.LibName name 'sk4d_maskfilter_make_table';
-    class function TSkiaAPI.sk4d_maskfilter_make_table_clip;  external TSkiaAPI.LibName name 'sk4d_maskfilter_make_table_clip';
-    class function TSkiaAPI.sk4d_maskfilter_make_table_gamma; external TSkiaAPI.LibName name 'sk4d_maskfilter_make_table_gamma';
-    {$ENDIF}
-    {$ENDREGION}
-
-    {$REGION 'include/c/sk4d_paint.h'}
-    {$IFDEF SK_DYNAMIC_LOADING}
-    sk4d_paint_create             := GetProcAddress(FLibHandle, 'sk4d_paint_create');
-    sk4d_paint_create2            := GetProcAddress(FLibHandle, 'sk4d_paint_create2');
-    sk4d_paint_destroy            := GetProcAddress(FLibHandle, 'sk4d_paint_destroy');
-    sk4d_paint_get_alpha          := GetProcAddress(FLibHandle, 'sk4d_paint_get_alpha');
-    sk4d_paint_get_alphaf         := GetProcAddress(FLibHandle, 'sk4d_paint_get_alphaf');
-    sk4d_paint_get_anti_alias     := GetProcAddress(FLibHandle, 'sk4d_paint_get_anti_alias');
-    sk4d_paint_get_blender        := GetProcAddress(FLibHandle, 'sk4d_paint_get_blender');
-    sk4d_paint_get_color          := GetProcAddress(FLibHandle, 'sk4d_paint_get_color');
-    sk4d_paint_get_colorf         := GetProcAddress(FLibHandle, 'sk4d_paint_get_colorf');
-    sk4d_paint_get_color_filter   := GetProcAddress(FLibHandle, 'sk4d_paint_get_color_filter');
-    sk4d_paint_get_dither         := GetProcAddress(FLibHandle, 'sk4d_paint_get_dither');
-    sk4d_paint_get_fill_path      := GetProcAddress(FLibHandle, 'sk4d_paint_get_fill_path');
-    sk4d_paint_get_image_filter   := GetProcAddress(FLibHandle, 'sk4d_paint_get_image_filter');
-    sk4d_paint_get_mask_filter    := GetProcAddress(FLibHandle, 'sk4d_paint_get_mask_filter');
-    sk4d_paint_get_path_effect    := GetProcAddress(FLibHandle, 'sk4d_paint_get_path_effect');
-    sk4d_paint_get_shader         := GetProcAddress(FLibHandle, 'sk4d_paint_get_shader');
-    sk4d_paint_get_stroke_cap     := GetProcAddress(FLibHandle, 'sk4d_paint_get_stroke_cap');
-    sk4d_paint_get_stroke_join    := GetProcAddress(FLibHandle, 'sk4d_paint_get_stroke_join');
-    sk4d_paint_get_stroke_miter   := GetProcAddress(FLibHandle, 'sk4d_paint_get_stroke_miter');
-    sk4d_paint_get_stroke_width   := GetProcAddress(FLibHandle, 'sk4d_paint_get_stroke_width');
-    sk4d_paint_get_style          := GetProcAddress(FLibHandle, 'sk4d_paint_get_style');
-    sk4d_paint_reset              := GetProcAddress(FLibHandle, 'sk4d_paint_reset');
-    sk4d_paint_set_alpha          := GetProcAddress(FLibHandle, 'sk4d_paint_set_alpha');
-    sk4d_paint_set_alphaf         := GetProcAddress(FLibHandle, 'sk4d_paint_set_alphaf');
-    sk4d_paint_set_antialias      := GetProcAddress(FLibHandle, 'sk4d_paint_set_antialias');
-    sk4d_paint_set_argb           := GetProcAddress(FLibHandle, 'sk4d_paint_set_argb');
-    sk4d_paint_set_blender        := GetProcAddress(FLibHandle, 'sk4d_paint_set_blender');
-    sk4d_paint_set_color          := GetProcAddress(FLibHandle, 'sk4d_paint_set_color');
-    sk4d_paint_set_colorf         := GetProcAddress(FLibHandle, 'sk4d_paint_set_colorf');
-    sk4d_paint_set_color_filter   := GetProcAddress(FLibHandle, 'sk4d_paint_set_color_filter');
-    sk4d_paint_set_dither         := GetProcAddress(FLibHandle, 'sk4d_paint_set_dither');
-    sk4d_paint_set_image_filter   := GetProcAddress(FLibHandle, 'sk4d_paint_set_image_filter');
-    sk4d_paint_set_mask_filter    := GetProcAddress(FLibHandle, 'sk4d_paint_set_mask_filter');
-    sk4d_paint_set_path_effect    := GetProcAddress(FLibHandle, 'sk4d_paint_set_path_effect');
-    sk4d_paint_set_shader         := GetProcAddress(FLibHandle, 'sk4d_paint_set_shader');
-    sk4d_paint_set_stroke_cap     := GetProcAddress(FLibHandle, 'sk4d_paint_set_stroke_cap');
-    sk4d_paint_set_stroke_join    := GetProcAddress(FLibHandle, 'sk4d_paint_set_stroke_join');
-    sk4d_paint_set_stroke_miter   := GetProcAddress(FLibHandle, 'sk4d_paint_set_stroke_miter');
-    sk4d_paint_set_stroke_width   := GetProcAddress(FLibHandle, 'sk4d_paint_set_stroke_width');
-    sk4d_paint_set_style          := GetProcAddress(FLibHandle, 'sk4d_paint_set_style');
-    {$ELSE}
-    class function  TSkiaAPI.sk4d_paint_create;             external TSkiaAPI.LibName name 'sk4d_paint_create';
-    class function  TSkiaAPI.sk4d_paint_create2;            external TSkiaAPI.LibName name 'sk4d_paint_create2';
-    class procedure TSkiaAPI.sk4d_paint_destroy;            external TSkiaAPI.LibName name 'sk4d_paint_destroy';
-    class function  TSkiaAPI.sk4d_paint_get_alpha;          external TSkiaAPI.LibName name 'sk4d_paint_get_alpha';
-    class function  TSkiaAPI.sk4d_paint_get_alphaf;         external TSkiaAPI.LibName name 'sk4d_paint_get_alphaf';
-    class function  TSkiaAPI.sk4d_paint_get_anti_alias;     external TSkiaAPI.LibName name 'sk4d_paint_get_anti_alias';
-    class function  TSkiaAPI.sk4d_paint_get_blender;        external TSkiaAPI.LibName name 'sk4d_paint_get_blender';
-    class function  TSkiaAPI.sk4d_paint_get_color;          external TSkiaAPI.LibName name 'sk4d_paint_get_color';
-    class procedure TSkiaAPI.sk4d_paint_get_colorf;         external TSkiaAPI.LibName name 'sk4d_paint_get_colorf';
-    class function  TSkiaAPI.sk4d_paint_get_color_filter;   external TSkiaAPI.LibName name 'sk4d_paint_get_color_filter';
-    class function  TSkiaAPI.sk4d_paint_get_dither;         external TSkiaAPI.LibName name 'sk4d_paint_get_dither';
-    class function  TSkiaAPI.sk4d_paint_get_fill_path;      external TSkiaAPI.LibName name 'sk4d_paint_get_fill_path';
-    class function  TSkiaAPI.sk4d_paint_get_image_filter;   external TSkiaAPI.LibName name 'sk4d_paint_get_image_filter';
-    class function  TSkiaAPI.sk4d_paint_get_mask_filter;    external TSkiaAPI.LibName name 'sk4d_paint_get_mask_filter';
-    class function  TSkiaAPI.sk4d_paint_get_path_effect;    external TSkiaAPI.LibName name 'sk4d_paint_get_path_effect';
-    class function  TSkiaAPI.sk4d_paint_get_shader;         external TSkiaAPI.LibName name 'sk4d_paint_get_shader';
-    class function  TSkiaAPI.sk4d_paint_get_stroke_cap;     external TSkiaAPI.LibName name 'sk4d_paint_get_stroke_cap';
-    class function  TSkiaAPI.sk4d_paint_get_stroke_join;    external TSkiaAPI.LibName name 'sk4d_paint_get_stroke_join';
-    class function  TSkiaAPI.sk4d_paint_get_stroke_miter;   external TSkiaAPI.LibName name 'sk4d_paint_get_stroke_miter';
-    class function  TSkiaAPI.sk4d_paint_get_stroke_width;   external TSkiaAPI.LibName name 'sk4d_paint_get_stroke_width';
-    class function  TSkiaAPI.sk4d_paint_get_style;          external TSkiaAPI.LibName name 'sk4d_paint_get_style';
-    class procedure TSkiaAPI.sk4d_paint_reset;              external TSkiaAPI.LibName name 'sk4d_paint_reset';
-    class procedure TSkiaAPI.sk4d_paint_set_alpha;          external TSkiaAPI.LibName name 'sk4d_paint_set_alpha';
-    class procedure TSkiaAPI.sk4d_paint_set_alphaf;         external TSkiaAPI.LibName name 'sk4d_paint_set_alphaf';
-    class procedure TSkiaAPI.sk4d_paint_set_antialias;      external TSkiaAPI.LibName name 'sk4d_paint_set_antialias';
-    class procedure TSkiaAPI.sk4d_paint_set_argb;           external TSkiaAPI.LibName name 'sk4d_paint_set_argb';
-    class procedure TSkiaAPI.sk4d_paint_set_blender;        external TSkiaAPI.LibName name 'sk4d_paint_set_blender';
-    class procedure TSkiaAPI.sk4d_paint_set_color;          external TSkiaAPI.LibName name 'sk4d_paint_set_color';
-    class procedure TSkiaAPI.sk4d_paint_set_colorf;         external TSkiaAPI.LibName name 'sk4d_paint_set_colorf';
-    class procedure TSkiaAPI.sk4d_paint_set_color_filter;   external TSkiaAPI.LibName name 'sk4d_paint_set_color_filter';
-    class procedure TSkiaAPI.sk4d_paint_set_dither;         external TSkiaAPI.LibName name 'sk4d_paint_set_dither';
-    class procedure TSkiaAPI.sk4d_paint_set_image_filter;   external TSkiaAPI.LibName name 'sk4d_paint_set_image_filter';
-    class procedure TSkiaAPI.sk4d_paint_set_mask_filter;    external TSkiaAPI.LibName name 'sk4d_paint_set_mask_filter';
-    class procedure TSkiaAPI.sk4d_paint_set_path_effect;    external TSkiaAPI.LibName name 'sk4d_paint_set_path_effect';
-    class procedure TSkiaAPI.sk4d_paint_set_shader;         external TSkiaAPI.LibName name 'sk4d_paint_set_shader';
-    class procedure TSkiaAPI.sk4d_paint_set_stroke_cap;     external TSkiaAPI.LibName name 'sk4d_paint_set_stroke_cap';
-    class procedure TSkiaAPI.sk4d_paint_set_stroke_join;    external TSkiaAPI.LibName name 'sk4d_paint_set_stroke_join';
-    class procedure TSkiaAPI.sk4d_paint_set_stroke_miter;   external TSkiaAPI.LibName name 'sk4d_paint_set_stroke_miter';
-    class procedure TSkiaAPI.sk4d_paint_set_stroke_width;   external TSkiaAPI.LibName name 'sk4d_paint_set_stroke_width';
-    class procedure TSkiaAPI.sk4d_paint_set_style;          external TSkiaAPI.LibName name 'sk4d_paint_set_style';
-    {$ENDIF}
-    {$ENDREGION}
-
-    {$REGION 'include/c/sk4d_path.h'}
-    {$IFDEF SK_DYNAMIC_LOADING}
-    sk4d_opbuilder_add               := GetProcAddress(FLibHandle, 'sk4d_opbuilder_add');
-    sk4d_opbuilder_create            := GetProcAddress(FLibHandle, 'sk4d_opbuilder_create');
-    sk4d_opbuilder_destroy           := GetProcAddress(FLibHandle, 'sk4d_opbuilder_destroy');
-    sk4d_opbuilder_detach            := GetProcAddress(FLibHandle, 'sk4d_opbuilder_detach');
-    sk4d_path_contains               := GetProcAddress(FLibHandle, 'sk4d_path_contains');
-    sk4d_path_convert_conic_to_quads := GetProcAddress(FLibHandle, 'sk4d_path_convert_conic_to_quads');
-    sk4d_path_create                 := GetProcAddress(FLibHandle, 'sk4d_path_create');
-    sk4d_path_create2                := GetProcAddress(FLibHandle, 'sk4d_path_create2');
-    sk4d_path_destroy                := GetProcAddress(FLibHandle, 'sk4d_path_destroy');
-    sk4d_path_get_bounds             := GetProcAddress(FLibHandle, 'sk4d_path_get_bounds');
-    sk4d_path_get_fill_type          := GetProcAddress(FLibHandle, 'sk4d_path_get_fill_type');
-    sk4d_path_get_last_point         := GetProcAddress(FLibHandle, 'sk4d_path_get_last_point');
-    sk4d_path_get_segment_masks      := GetProcAddress(FLibHandle, 'sk4d_path_get_segment_masks');
-    sk4d_path_get_tight_bounds       := GetProcAddress(FLibHandle, 'sk4d_path_get_tight_bounds');
-    sk4d_path_interpolate            := GetProcAddress(FLibHandle, 'sk4d_path_interpolate');
-    sk4d_path_is_convex              := GetProcAddress(FLibHandle, 'sk4d_path_is_convex');
-    sk4d_path_is_empty               := GetProcAddress(FLibHandle, 'sk4d_path_is_empty');
-    sk4d_path_is_finite              := GetProcAddress(FLibHandle, 'sk4d_path_is_finite');
-    sk4d_path_is_interpolatable      := GetProcAddress(FLibHandle, 'sk4d_path_is_interpolatable');
-    sk4d_path_is_last_contour_closed := GetProcAddress(FLibHandle, 'sk4d_path_is_last_contour_closed');
-    sk4d_path_is_line                := GetProcAddress(FLibHandle, 'sk4d_path_is_line');
-    sk4d_path_is_oval                := GetProcAddress(FLibHandle, 'sk4d_path_is_oval');
-    sk4d_path_is_rect                := GetProcAddress(FLibHandle, 'sk4d_path_is_rect');
-    sk4d_path_is_rrect               := GetProcAddress(FLibHandle, 'sk4d_path_is_rrect');
-    sk4d_path_serialize_to_stream    := GetProcAddress(FLibHandle, 'sk4d_path_serialize_to_stream');
-    sk4d_path_to_svg                 := GetProcAddress(FLibHandle, 'sk4d_path_to_svg');
-    sk4d_path_transform              := GetProcAddress(FLibHandle, 'sk4d_path_transform');
-    sk4d_pathiterator_create         := GetProcAddress(FLibHandle, 'sk4d_pathiterator_create');
-    sk4d_pathiterator_destroy        := GetProcAddress(FLibHandle, 'sk4d_pathiterator_destroy');
-    sk4d_pathiterator_next           := GetProcAddress(FLibHandle, 'sk4d_pathiterator_next');
-    {$ELSE}
-    class procedure TSkiaAPI.sk4d_opbuilder_add;               external TSkiaAPI.LibName name 'sk4d_opbuilder_add';
-    class function  TSkiaAPI.sk4d_opbuilder_create;            external TSkiaAPI.LibName name 'sk4d_opbuilder_create';
-    class procedure TSkiaAPI.sk4d_opbuilder_destroy;           external TSkiaAPI.LibName name 'sk4d_opbuilder_destroy';
-    class function  TSkiaAPI.sk4d_opbuilder_detach;            external TSkiaAPI.LibName name 'sk4d_opbuilder_detach';
-    class function  TSkiaAPI.sk4d_path_contains;               external TSkiaAPI.LibName name 'sk4d_path_contains';
-    class function  TSkiaAPI.sk4d_path_convert_conic_to_quads; external TSkiaAPI.LibName name 'sk4d_path_convert_conic_to_quads';
-    class function  TSkiaAPI.sk4d_path_create;                 external TSkiaAPI.LibName name 'sk4d_path_create';
-    class function  TSkiaAPI.sk4d_path_create2;                external TSkiaAPI.LibName name 'sk4d_path_create2';
-    class procedure TSkiaAPI.sk4d_path_destroy;                external TSkiaAPI.LibName name 'sk4d_path_destroy';
-    class procedure TSkiaAPI.sk4d_path_get_bounds;             external TSkiaAPI.LibName name 'sk4d_path_get_bounds';
-    class function  TSkiaAPI.sk4d_path_get_fill_type;          external TSkiaAPI.LibName name 'sk4d_path_get_fill_type';
-    class function  TSkiaAPI.sk4d_path_get_last_point;         external TSkiaAPI.LibName name 'sk4d_path_get_last_point';
-    class function  TSkiaAPI.sk4d_path_get_segment_masks;      external TSkiaAPI.LibName name 'sk4d_path_get_segment_masks';
-    class procedure TSkiaAPI.sk4d_path_get_tight_bounds;       external TSkiaAPI.LibName name 'sk4d_path_get_tight_bounds';
-    class function  TSkiaAPI.sk4d_path_interpolate;            external TSkiaAPI.LibName name 'sk4d_path_interpolate';
-    class function  TSkiaAPI.sk4d_path_is_convex;              external TSkiaAPI.LibName name 'sk4d_path_is_convex';
-    class function  TSkiaAPI.sk4d_path_is_empty;               external TSkiaAPI.LibName name 'sk4d_path_is_empty';
-    class function  TSkiaAPI.sk4d_path_is_finite;              external TSkiaAPI.LibName name 'sk4d_path_is_finite';
-    class function  TSkiaAPI.sk4d_path_is_interpolatable;      external TSkiaAPI.LibName name 'sk4d_path_is_interpolatable';
-    class function  TSkiaAPI.sk4d_path_is_last_contour_closed; external TSkiaAPI.LibName name 'sk4d_path_is_last_contour_closed';
-    class function  TSkiaAPI.sk4d_path_is_line;                external TSkiaAPI.LibName name 'sk4d_path_is_line';
-    class function  TSkiaAPI.sk4d_path_is_oval;                external TSkiaAPI.LibName name 'sk4d_path_is_oval';
-    class function  TSkiaAPI.sk4d_path_is_rect;                external TSkiaAPI.LibName name 'sk4d_path_is_rect';
-    class function  TSkiaAPI.sk4d_path_is_rrect;               external TSkiaAPI.LibName name 'sk4d_path_is_rrect';
-    class procedure TSkiaAPI.sk4d_path_serialize_to_stream;    external TSkiaAPI.LibName name 'sk4d_path_serialize_to_stream';
-    class function  TSkiaAPI.sk4d_path_to_svg;                 external TSkiaAPI.LibName name 'sk4d_path_to_svg';
-    class function  TSkiaAPI.sk4d_path_transform;              external TSkiaAPI.LibName name 'sk4d_path_transform';
-    class function  TSkiaAPI.sk4d_pathiterator_create;         external TSkiaAPI.LibName name 'sk4d_pathiterator_create';
-    class procedure TSkiaAPI.sk4d_pathiterator_destroy;        external TSkiaAPI.LibName name 'sk4d_pathiterator_destroy';
-    class function  TSkiaAPI.sk4d_pathiterator_next;           external TSkiaAPI.LibName name 'sk4d_pathiterator_next';
-    {$ENDIF}
-    {$ENDREGION}
-
-    {$REGION 'include/c/sk4d_pathbuilder.h'}
-    {$IFDEF SK_DYNAMIC_LOADING}
-    sk4d_pathbuilder_add_arc                 := GetProcAddress(FLibHandle, 'sk4d_pathbuilder_add_arc');
-    sk4d_pathbuilder_add_circle              := GetProcAddress(FLibHandle, 'sk4d_pathbuilder_add_circle');
-    sk4d_pathbuilder_add_oval                := GetProcAddress(FLibHandle, 'sk4d_pathbuilder_add_oval');
-    sk4d_pathbuilder_add_path                := GetProcAddress(FLibHandle, 'sk4d_pathbuilder_add_path');
-    sk4d_pathbuilder_add_polygon             := GetProcAddress(FLibHandle, 'sk4d_pathbuilder_add_polygon');
-    sk4d_pathbuilder_add_rect                := GetProcAddress(FLibHandle, 'sk4d_pathbuilder_add_rect');
-    sk4d_pathbuilder_add_rrect               := GetProcAddress(FLibHandle, 'sk4d_pathbuilder_add_rrect');
-    sk4d_pathbuilder_arc_to                  := GetProcAddress(FLibHandle, 'sk4d_pathbuilder_arc_to');
-    sk4d_pathbuilder_arc_to2                 := GetProcAddress(FLibHandle, 'sk4d_pathbuilder_arc_to2');
-    sk4d_pathbuilder_arc_to3                 := GetProcAddress(FLibHandle, 'sk4d_pathbuilder_arc_to3');
-    sk4d_pathbuilder_close                   := GetProcAddress(FLibHandle, 'sk4d_pathbuilder_close');
-    sk4d_pathbuilder_conic_to                := GetProcAddress(FLibHandle, 'sk4d_pathbuilder_conic_to');
-    sk4d_pathbuilder_create                  := GetProcAddress(FLibHandle, 'sk4d_pathbuilder_create');
-    sk4d_pathbuilder_create2                 := GetProcAddress(FLibHandle, 'sk4d_pathbuilder_create2');
-    sk4d_pathbuilder_cubic_to                := GetProcAddress(FLibHandle, 'sk4d_pathbuilder_cubic_to');
-    sk4d_pathbuilder_destroy                 := GetProcAddress(FLibHandle, 'sk4d_pathbuilder_destroy');
-    sk4d_pathbuilder_detach                  := GetProcAddress(FLibHandle, 'sk4d_pathbuilder_detach');
-    sk4d_pathbuilder_get_bounds              := GetProcAddress(FLibHandle, 'sk4d_pathbuilder_get_bounds');
-    sk4d_pathbuilder_get_fill_type           := GetProcAddress(FLibHandle, 'sk4d_pathbuilder_get_fill_type');
-    sk4d_pathbuilder_inc_reserve             := GetProcAddress(FLibHandle, 'sk4d_pathbuilder_inc_reserve');
-    sk4d_pathbuilder_line_to                 := GetProcAddress(FLibHandle, 'sk4d_pathbuilder_line_to');
-    sk4d_pathbuilder_move_to                 := GetProcAddress(FLibHandle, 'sk4d_pathbuilder_move_to');
-    sk4d_pathbuilder_offset                  := GetProcAddress(FLibHandle, 'sk4d_pathbuilder_offset');
-    sk4d_pathbuilder_polyline_to             := GetProcAddress(FLibHandle, 'sk4d_pathbuilder_polyline_to');
-    sk4d_pathbuilder_quad_to                 := GetProcAddress(FLibHandle, 'sk4d_pathbuilder_quad_to');
-    sk4d_pathbuilder_r_conic_to              := GetProcAddress(FLibHandle, 'sk4d_pathbuilder_r_conic_to');
-    sk4d_pathbuilder_r_cubic_to              := GetProcAddress(FLibHandle, 'sk4d_pathbuilder_r_cubic_to');
-    sk4d_pathbuilder_r_line_to               := GetProcAddress(FLibHandle, 'sk4d_pathbuilder_r_line_to');
-    sk4d_pathbuilder_r_quad_to               := GetProcAddress(FLibHandle, 'sk4d_pathbuilder_r_quad_to');
-    sk4d_pathbuilder_reset                   := GetProcAddress(FLibHandle, 'sk4d_pathbuilder_reset');
-    sk4d_pathbuilder_set_filltype            := GetProcAddress(FLibHandle, 'sk4d_pathbuilder_set_filltype');
-    sk4d_pathbuilder_snapshot                := GetProcAddress(FLibHandle, 'sk4d_pathbuilder_snapshot');
-    sk4d_pathbuilder_toggle_inverse_filltype := GetProcAddress(FLibHandle, 'sk4d_pathbuilder_toggle_inverse_filltype');
-    {$ELSE}
-    class procedure TSkiaAPI.sk4d_pathbuilder_add_arc;                 external TSkiaAPI.LibName name 'sk4d_pathbuilder_add_arc';
-    class procedure TSkiaAPI.sk4d_pathbuilder_add_circle;              external TSkiaAPI.LibName name 'sk4d_pathbuilder_add_circle';
-    class procedure TSkiaAPI.sk4d_pathbuilder_add_oval;                external TSkiaAPI.LibName name 'sk4d_pathbuilder_add_oval';
-    class procedure TSkiaAPI.sk4d_pathbuilder_add_path;                external TSkiaAPI.LibName name 'sk4d_pathbuilder_add_path';
-    class procedure TSkiaAPI.sk4d_pathbuilder_add_polygon;             external TSkiaAPI.LibName name 'sk4d_pathbuilder_add_polygon';
-    class procedure TSkiaAPI.sk4d_pathbuilder_add_rect;                external TSkiaAPI.LibName name 'sk4d_pathbuilder_add_rect';
-    class procedure TSkiaAPI.sk4d_pathbuilder_add_rrect;               external TSkiaAPI.LibName name 'sk4d_pathbuilder_add_rrect';
-    class procedure TSkiaAPI.sk4d_pathbuilder_arc_to;                  external TSkiaAPI.LibName name 'sk4d_pathbuilder_arc_to';
-    class procedure TSkiaAPI.sk4d_pathbuilder_arc_to2;                 external TSkiaAPI.LibName name 'sk4d_pathbuilder_arc_to2';
-    class procedure TSkiaAPI.sk4d_pathbuilder_arc_to3;                 external TSkiaAPI.LibName name 'sk4d_pathbuilder_arc_to3';
-    class procedure TSkiaAPI.sk4d_pathbuilder_close;                   external TSkiaAPI.LibName name 'sk4d_pathbuilder_close';
-    class procedure TSkiaAPI.sk4d_pathbuilder_conic_to;                external TSkiaAPI.LibName name 'sk4d_pathbuilder_conic_to';
-    class function  TSkiaAPI.sk4d_pathbuilder_create;                  external TSkiaAPI.LibName name 'sk4d_pathbuilder_create';
-    class function  TSkiaAPI.sk4d_pathbuilder_create2;                 external TSkiaAPI.LibName name 'sk4d_pathbuilder_create2';
-    class procedure TSkiaAPI.sk4d_pathbuilder_cubic_to;                external TSkiaAPI.LibName name 'sk4d_pathbuilder_cubic_to';
-    class procedure TSkiaAPI.sk4d_pathbuilder_destroy;                 external TSkiaAPI.LibName name 'sk4d_pathbuilder_destroy';
-    class function  TSkiaAPI.sk4d_pathbuilder_detach;                  external TSkiaAPI.LibName name 'sk4d_pathbuilder_detach';
-    class procedure TSkiaAPI.sk4d_pathbuilder_get_bounds;              external TSkiaAPI.LibName name 'sk4d_pathbuilder_get_bounds';
-    class function  TSkiaAPI.sk4d_pathbuilder_get_fill_type;           external TSkiaAPI.LibName name 'sk4d_pathbuilder_get_fill_type';
-    class procedure TSkiaAPI.sk4d_pathbuilder_inc_reserve;             external TSkiaAPI.LibName name 'sk4d_pathbuilder_inc_reserve';
-    class procedure TSkiaAPI.sk4d_pathbuilder_line_to;                 external TSkiaAPI.LibName name 'sk4d_pathbuilder_line_to';
-    class procedure TSkiaAPI.sk4d_pathbuilder_move_to;                 external TSkiaAPI.LibName name 'sk4d_pathbuilder_move_to';
-    class procedure TSkiaAPI.sk4d_pathbuilder_offset;                  external TSkiaAPI.LibName name 'sk4d_pathbuilder_offset';
-    class procedure TSkiaAPI.sk4d_pathbuilder_polyline_to;             external TSkiaAPI.LibName name 'sk4d_pathbuilder_polyline_to';
-    class procedure TSkiaAPI.sk4d_pathbuilder_quad_to;                 external TSkiaAPI.LibName name 'sk4d_pathbuilder_quad_to';
-    class procedure TSkiaAPI.sk4d_pathbuilder_r_conic_to;              external TSkiaAPI.LibName name 'sk4d_pathbuilder_r_conic_to';
-    class procedure TSkiaAPI.sk4d_pathbuilder_r_cubic_to;              external TSkiaAPI.LibName name 'sk4d_pathbuilder_r_cubic_to';
-    class procedure TSkiaAPI.sk4d_pathbuilder_r_line_to;               external TSkiaAPI.LibName name 'sk4d_pathbuilder_r_line_to';
-    class procedure TSkiaAPI.sk4d_pathbuilder_r_quad_to;               external TSkiaAPI.LibName name 'sk4d_pathbuilder_r_quad_to';
-    class procedure TSkiaAPI.sk4d_pathbuilder_reset;                   external TSkiaAPI.LibName name 'sk4d_pathbuilder_reset';
-    class procedure TSkiaAPI.sk4d_pathbuilder_set_filltype;            external TSkiaAPI.LibName name 'sk4d_pathbuilder_set_filltype';
-    class function  TSkiaAPI.sk4d_pathbuilder_snapshot;                external TSkiaAPI.LibName name 'sk4d_pathbuilder_snapshot';
-    class procedure TSkiaAPI.sk4d_pathbuilder_toggle_inverse_filltype; external TSkiaAPI.LibName name 'sk4d_pathbuilder_toggle_inverse_filltype';
-    {$ENDIF}
-    {$ENDREGION}
-
-    {$REGION 'include/c/sk4d_patheffect.h'}
-    {$IFDEF SK_DYNAMIC_LOADING}
-    sk4d_patheffect_make_1dpath          := GetProcAddress(FLibHandle, 'sk4d_patheffect_make_1dpath');
-    sk4d_patheffect_make_2dline          := GetProcAddress(FLibHandle, 'sk4d_patheffect_make_2dline');
-    sk4d_patheffect_make_2dpath          := GetProcAddress(FLibHandle, 'sk4d_patheffect_make_2dpath');
-    sk4d_patheffect_make_compose         := GetProcAddress(FLibHandle, 'sk4d_patheffect_make_compose');
-    sk4d_patheffect_make_corner          := GetProcAddress(FLibHandle, 'sk4d_patheffect_make_corner');
-    sk4d_patheffect_make_dash            := GetProcAddress(FLibHandle, 'sk4d_patheffect_make_dash');
-    sk4d_patheffect_make_discrete        := GetProcAddress(FLibHandle, 'sk4d_patheffect_make_discrete');
-    sk4d_patheffect_make_matrix          := GetProcAddress(FLibHandle, 'sk4d_patheffect_make_matrix');
-    sk4d_patheffect_make_merge           := GetProcAddress(FLibHandle, 'sk4d_patheffect_make_merge');
-    sk4d_patheffect_make_stroke          := GetProcAddress(FLibHandle, 'sk4d_patheffect_make_stroke');
-    sk4d_patheffect_make_stroke_and_fill := GetProcAddress(FLibHandle, 'sk4d_patheffect_make_stroke_and_fill');
-    sk4d_patheffect_make_sum             := GetProcAddress(FLibHandle, 'sk4d_patheffect_make_sum');
-    sk4d_patheffect_make_translate       := GetProcAddress(FLibHandle, 'sk4d_patheffect_make_translate');
-    sk4d_patheffect_make_trim            := GetProcAddress(FLibHandle, 'sk4d_patheffect_make_trim');
-    {$ELSE}
-    class function TSkiaAPI.sk4d_patheffect_make_1dpath;          external TSkiaAPI.LibName name 'sk4d_patheffect_make_1dpath';
-    class function TSkiaAPI.sk4d_patheffect_make_2dline;          external TSkiaAPI.LibName name 'sk4d_patheffect_make_2dline';
-    class function TSkiaAPI.sk4d_patheffect_make_2dpath;          external TSkiaAPI.LibName name 'sk4d_patheffect_make_2dpath';
-    class function TSkiaAPI.sk4d_patheffect_make_compose;         external TSkiaAPI.LibName name 'sk4d_patheffect_make_compose';
-    class function TSkiaAPI.sk4d_patheffect_make_corner;          external TSkiaAPI.LibName name 'sk4d_patheffect_make_corner';
-    class function TSkiaAPI.sk4d_patheffect_make_dash;            external TSkiaAPI.LibName name 'sk4d_patheffect_make_dash';
-    class function TSkiaAPI.sk4d_patheffect_make_discrete;        external TSkiaAPI.LibName name 'sk4d_patheffect_make_discrete';
-    class function TSkiaAPI.sk4d_patheffect_make_matrix;          external TSkiaAPI.LibName name 'sk4d_patheffect_make_matrix';
-    class function TSkiaAPI.sk4d_patheffect_make_merge;           external TSkiaAPI.LibName name 'sk4d_patheffect_make_merge';
-    class function TSkiaAPI.sk4d_patheffect_make_stroke;          external TSkiaAPI.LibName name 'sk4d_patheffect_make_stroke';
-    class function TSkiaAPI.sk4d_patheffect_make_stroke_and_fill; external TSkiaAPI.LibName name 'sk4d_patheffect_make_stroke_and_fill';
-    class function TSkiaAPI.sk4d_patheffect_make_sum;             external TSkiaAPI.LibName name 'sk4d_patheffect_make_sum';
-    class function TSkiaAPI.sk4d_patheffect_make_translate;       external TSkiaAPI.LibName name 'sk4d_patheffect_make_translate';
-    class function TSkiaAPI.sk4d_patheffect_make_trim;            external TSkiaAPI.LibName name 'sk4d_patheffect_make_trim';
-    {$ENDIF}
-    {$ENDREGION}
-
-    {$REGION 'include/c/sk4d_pathmeasure.h'}
-    {$IFDEF SK_DYNAMIC_LOADING}
-    sk4d_pathmeasure_create                   := GetProcAddress(FLibHandle, 'sk4d_pathmeasure_create');
-    sk4d_pathmeasure_destroy                  := GetProcAddress(FLibHandle, 'sk4d_pathmeasure_destroy');
-    sk4d_pathmeasure_get_length               := GetProcAddress(FLibHandle, 'sk4d_pathmeasure_get_length');
-    sk4d_pathmeasure_get_matrix               := GetProcAddress(FLibHandle, 'sk4d_pathmeasure_get_matrix');
-    sk4d_pathmeasure_get_position_and_tangent := GetProcAddress(FLibHandle, 'sk4d_pathmeasure_get_position_and_tangent');
-    sk4d_pathmeasure_get_segment              := GetProcAddress(FLibHandle, 'sk4d_pathmeasure_get_segment');
-    sk4d_pathmeasure_is_closed                := GetProcAddress(FLibHandle, 'sk4d_pathmeasure_is_closed');
-    sk4d_pathmeasure_next_contour             := GetProcAddress(FLibHandle, 'sk4d_pathmeasure_next_contour');
-    {$ELSE}
-    class function  TSkiaAPI.sk4d_pathmeasure_create;                   external TSkiaAPI.LibName name 'sk4d_pathmeasure_create';
-    class procedure TSkiaAPI.sk4d_pathmeasure_destroy;                  external TSkiaAPI.LibName name 'sk4d_pathmeasure_destroy';
-    class function  TSkiaAPI.sk4d_pathmeasure_get_length;               external TSkiaAPI.LibName name 'sk4d_pathmeasure_get_length';
-    class function  TSkiaAPI.sk4d_pathmeasure_get_matrix;               external TSkiaAPI.LibName name 'sk4d_pathmeasure_get_matrix';
-    class function  TSkiaAPI.sk4d_pathmeasure_get_position_and_tangent; external TSkiaAPI.LibName name 'sk4d_pathmeasure_get_position_and_tangent';
-    class function  TSkiaAPI.sk4d_pathmeasure_get_segment;              external TSkiaAPI.LibName name 'sk4d_pathmeasure_get_segment';
-    class function  TSkiaAPI.sk4d_pathmeasure_is_closed;                external TSkiaAPI.LibName name 'sk4d_pathmeasure_is_closed';
-    class function  TSkiaAPI.sk4d_pathmeasure_next_contour;             external TSkiaAPI.LibName name 'sk4d_pathmeasure_next_contour';
-    {$ENDIF}
-    {$ENDREGION}
-
-    {$REGION 'include/c/sk4d_picture.h'}
-    {$IFDEF SK_DYNAMIC_LOADING}
-    sk4d_picture_get_cull_rect       := GetProcAddress(FLibHandle, 'sk4d_picture_get_cull_rect');
-    sk4d_picture_make_from_stream    := GetProcAddress(FLibHandle, 'sk4d_picture_make_from_stream');
-    sk4d_picture_make_shader         := GetProcAddress(FLibHandle, 'sk4d_picture_make_shader');
-    sk4d_picture_playback            := GetProcAddress(FLibHandle, 'sk4d_picture_playback');
-    sk4d_picture_serialize_to_stream := GetProcAddress(FLibHandle, 'sk4d_picture_serialize_to_stream');
-    {$ELSE}
-    class procedure TSkiaAPI.sk4d_picture_get_cull_rect;       external TSkiaAPI.LibName name 'sk4d_picture_get_cull_rect';
-    class function  TSkiaAPI.sk4d_picture_make_from_stream;    external TSkiaAPI.LibName name 'sk4d_picture_make_from_stream';
-    class function  TSkiaAPI.sk4d_picture_make_shader;         external TSkiaAPI.LibName name 'sk4d_picture_make_shader';
-    class procedure TSkiaAPI.sk4d_picture_playback;            external TSkiaAPI.LibName name 'sk4d_picture_playback';
-    class procedure TSkiaAPI.sk4d_picture_serialize_to_stream; external TSkiaAPI.LibName name 'sk4d_picture_serialize_to_stream';
-    {$ENDIF}
-    {$ENDREGION}
-
-    {$REGION 'include/c/sk4d_picturerecorder.h'}
-    {$IFDEF SK_DYNAMIC_LOADING}
-    sk4d_picturerecorder_begin_recording   := GetProcAddress(FLibHandle, 'sk4d_picturerecorder_begin_recording');
-    sk4d_picturerecorder_create            := GetProcAddress(FLibHandle, 'sk4d_picturerecorder_create');
-    sk4d_picturerecorder_destroy           := GetProcAddress(FLibHandle, 'sk4d_picturerecorder_destroy');
-    sk4d_picturerecorder_finish_recording  := GetProcAddress(FLibHandle, 'sk4d_picturerecorder_finish_recording');
-    sk4d_picturerecorder_finish_recording2 := GetProcAddress(FLibHandle, 'sk4d_picturerecorder_finish_recording2');
-    {$ELSE}
-    class function  TSkiaAPI.sk4d_picturerecorder_begin_recording;   external TSkiaAPI.LibName name 'sk4d_picturerecorder_begin_recording';
-    class function  TSkiaAPI.sk4d_picturerecorder_create;            external TSkiaAPI.LibName name 'sk4d_picturerecorder_create';
-    class procedure TSkiaAPI.sk4d_picturerecorder_destroy;           external TSkiaAPI.LibName name 'sk4d_picturerecorder_destroy';
-    class function  TSkiaAPI.sk4d_picturerecorder_finish_recording;  external TSkiaAPI.LibName name 'sk4d_picturerecorder_finish_recording';
-    class function  TSkiaAPI.sk4d_picturerecorder_finish_recording2; external TSkiaAPI.LibName name 'sk4d_picturerecorder_finish_recording2';
-    {$ENDIF}
-    {$ENDREGION}
-
-    {$REGION 'include/c/sk4d_pixmap.h'}
-    {$IFDEF SK_DYNAMIC_LOADING}
-    sk4d_pixmap_create          := GetProcAddress(FLibHandle, 'sk4d_pixmap_create');
-    sk4d_pixmap_destroy         := GetProcAddress(FLibHandle, 'sk4d_pixmap_destroy');
-    sk4d_pixmap_erase           := GetProcAddress(FLibHandle, 'sk4d_pixmap_erase');
-    sk4d_pixmap_erase2          := GetProcAddress(FLibHandle, 'sk4d_pixmap_erase2');
-    sk4d_pixmap_extract_subset  := GetProcAddress(FLibHandle, 'sk4d_pixmap_extract_subset');
-    sk4d_pixmap_get_alpha       := GetProcAddress(FLibHandle, 'sk4d_pixmap_get_alpha');
-    sk4d_pixmap_get_alpha_type  := GetProcAddress(FLibHandle, 'sk4d_pixmap_get_alpha_type');
-    sk4d_pixmap_get_color       := GetProcAddress(FLibHandle, 'sk4d_pixmap_get_color');
-    sk4d_pixmap_get_color_space := GetProcAddress(FLibHandle, 'sk4d_pixmap_get_color_space');
-    sk4d_pixmap_get_color_type  := GetProcAddress(FLibHandle, 'sk4d_pixmap_get_color_type');
-    sk4d_pixmap_get_height      := GetProcAddress(FLibHandle, 'sk4d_pixmap_get_height');
-    sk4d_pixmap_get_image_info  := GetProcAddress(FLibHandle, 'sk4d_pixmap_get_image_info');
-    sk4d_pixmap_get_pixel_addr  := GetProcAddress(FLibHandle, 'sk4d_pixmap_get_pixel_addr');
-    sk4d_pixmap_get_pixels      := GetProcAddress(FLibHandle, 'sk4d_pixmap_get_pixels');
-    sk4d_pixmap_get_row_bytes   := GetProcAddress(FLibHandle, 'sk4d_pixmap_get_row_bytes');
-    sk4d_pixmap_get_width       := GetProcAddress(FLibHandle, 'sk4d_pixmap_get_width');
-    sk4d_pixmap_read_pixels     := GetProcAddress(FLibHandle, 'sk4d_pixmap_read_pixels');
-    sk4d_pixmap_scale_pixels    := GetProcAddress(FLibHandle, 'sk4d_pixmap_scale_pixels');
-    sk4d_pixmap_set_colorspace  := GetProcAddress(FLibHandle, 'sk4d_pixmap_set_colorspace');
-    {$ELSE}
-    class function  TSkiaAPI.sk4d_pixmap_create;          external TSkiaAPI.LibName name 'sk4d_pixmap_create';
-    class procedure TSkiaAPI.sk4d_pixmap_destroy;         external TSkiaAPI.LibName name 'sk4d_pixmap_destroy';
-    class function  TSkiaAPI.sk4d_pixmap_erase;           external TSkiaAPI.LibName name 'sk4d_pixmap_erase';
-    class function  TSkiaAPI.sk4d_pixmap_erase2;          external TSkiaAPI.LibName name 'sk4d_pixmap_erase2';
-    class function  TSkiaAPI.sk4d_pixmap_extract_subset;  external TSkiaAPI.LibName name 'sk4d_pixmap_extract_subset';
-    class function  TSkiaAPI.sk4d_pixmap_get_alpha;       external TSkiaAPI.LibName name 'sk4d_pixmap_get_alpha';
-    class function  TSkiaAPI.sk4d_pixmap_get_alpha_type;  external TSkiaAPI.LibName name 'sk4d_pixmap_get_alpha_type';
-    class function  TSkiaAPI.sk4d_pixmap_get_color;       external TSkiaAPI.LibName name 'sk4d_pixmap_get_color';
-    class function  TSkiaAPI.sk4d_pixmap_get_color_space; external TSkiaAPI.LibName name 'sk4d_pixmap_get_color_space';
-    class function  TSkiaAPI.sk4d_pixmap_get_color_type;  external TSkiaAPI.LibName name 'sk4d_pixmap_get_color_type';
-    class function  TSkiaAPI.sk4d_pixmap_get_height;      external TSkiaAPI.LibName name 'sk4d_pixmap_get_height';
-    class procedure TSkiaAPI.sk4d_pixmap_get_image_info;  external TSkiaAPI.LibName name 'sk4d_pixmap_get_image_info';
-    class function  TSkiaAPI.sk4d_pixmap_get_pixel_addr;  external TSkiaAPI.LibName name 'sk4d_pixmap_get_pixel_addr';
-    class function  TSkiaAPI.sk4d_pixmap_get_pixels;      external TSkiaAPI.LibName name 'sk4d_pixmap_get_pixels';
-    class function  TSkiaAPI.sk4d_pixmap_get_row_bytes;   external TSkiaAPI.LibName name 'sk4d_pixmap_get_row_bytes';
-    class function  TSkiaAPI.sk4d_pixmap_get_width;       external TSkiaAPI.LibName name 'sk4d_pixmap_get_width';
-    class function  TSkiaAPI.sk4d_pixmap_read_pixels;     external TSkiaAPI.LibName name 'sk4d_pixmap_read_pixels';
-    class function  TSkiaAPI.sk4d_pixmap_scale_pixels;    external TSkiaAPI.LibName name 'sk4d_pixmap_scale_pixels';
-    class procedure TSkiaAPI.sk4d_pixmap_set_colorspace;  external TSkiaAPI.LibName name 'sk4d_pixmap_set_colorspace';
-    {$ENDIF}
-    {$ENDREGION}
-
-    {$REGION 'include/c/sk4d_refcnt.h'}
-    {$IFDEF SK_DYNAMIC_LOADING}
-    sk4d_refcnt_ref   := GetProcAddress(FLibHandle, 'sk4d_refcnt_ref');
-    sk4d_refcnt_unref := GetProcAddress(FLibHandle, 'sk4d_refcnt_unref');
-    {$ELSE}
-    class procedure TSkiaAPI.sk4d_refcnt_ref;   external TSkiaAPI.LibName name 'sk4d_refcnt_ref';
-    class procedure TSkiaAPI.sk4d_refcnt_unref; external TSkiaAPI.LibName name 'sk4d_refcnt_unref';
-    {$ENDIF}
-    {$ENDREGION}
-
-    {$REGION 'include/c/sk4d_region.h'}
-    {$IFDEF SK_DYNAMIC_LOADING}
-    sk4d_region_contains              := GetProcAddress(FLibHandle, 'sk4d_region_contains');
-    sk4d_region_contains2             := GetProcAddress(FLibHandle, 'sk4d_region_contains2');
-    sk4d_region_contains3             := GetProcAddress(FLibHandle, 'sk4d_region_contains3');
-    sk4d_region_create                := GetProcAddress(FLibHandle, 'sk4d_region_create');
-    sk4d_region_create2               := GetProcAddress(FLibHandle, 'sk4d_region_create2');
-    sk4d_region_destroy               := GetProcAddress(FLibHandle, 'sk4d_region_destroy');
-    sk4d_region_get_boundary_path     := GetProcAddress(FLibHandle, 'sk4d_region_get_boundary_path');
-    sk4d_region_get_bounds            := GetProcAddress(FLibHandle, 'sk4d_region_get_bounds');
-    sk4d_region_intersects            := GetProcAddress(FLibHandle, 'sk4d_region_intersects');
-    sk4d_region_intersects2           := GetProcAddress(FLibHandle, 'sk4d_region_intersects2');
-    sk4d_region_is_complex            := GetProcAddress(FLibHandle, 'sk4d_region_is_complex');
-    sk4d_region_is_empty              := GetProcAddress(FLibHandle, 'sk4d_region_is_empty');
-    sk4d_region_is_equal              := GetProcAddress(FLibHandle, 'sk4d_region_is_equal');
-    sk4d_region_is_rect               := GetProcAddress(FLibHandle, 'sk4d_region_is_rect');
-    sk4d_region_op                    := GetProcAddress(FLibHandle, 'sk4d_region_op');
-    sk4d_region_op2                   := GetProcAddress(FLibHandle, 'sk4d_region_op2');
-    sk4d_region_quick_contains        := GetProcAddress(FLibHandle, 'sk4d_region_quick_contains');
-    sk4d_region_quick_reject          := GetProcAddress(FLibHandle, 'sk4d_region_quick_reject');
-    sk4d_region_quick_reject2         := GetProcAddress(FLibHandle, 'sk4d_region_quick_reject2');
-    sk4d_region_set_empty             := GetProcAddress(FLibHandle, 'sk4d_region_set_empty');
-    sk4d_region_set_path              := GetProcAddress(FLibHandle, 'sk4d_region_set_path');
-    sk4d_region_set_rect              := GetProcAddress(FLibHandle, 'sk4d_region_set_rect');
-    sk4d_region_set_rects             := GetProcAddress(FLibHandle, 'sk4d_region_set_rects');
-    sk4d_region_translate             := GetProcAddress(FLibHandle, 'sk4d_region_translate');
-    sk4d_regioncliperator_create      := GetProcAddress(FLibHandle, 'sk4d_regioncliperator_create');
-    sk4d_regioncliperator_destroy     := GetProcAddress(FLibHandle, 'sk4d_regioncliperator_destroy');
-    sk4d_regioncliperator_get_current := GetProcAddress(FLibHandle, 'sk4d_regioncliperator_get_current');
-    sk4d_regioncliperator_move_next   := GetProcAddress(FLibHandle, 'sk4d_regioncliperator_move_next');
-    sk4d_regioniterator_create        := GetProcAddress(FLibHandle, 'sk4d_regioniterator_create');
-    sk4d_regioniterator_destroy       := GetProcAddress(FLibHandle, 'sk4d_regioniterator_destroy');
-    sk4d_regioniterator_get_current   := GetProcAddress(FLibHandle, 'sk4d_regioniterator_get_current');
-    sk4d_regioniterator_move_next     := GetProcAddress(FLibHandle, 'sk4d_regioniterator_move_next');
-    sk4d_regioniterator_reset         := GetProcAddress(FLibHandle, 'sk4d_regioniterator_reset');
-    sk4d_regionspanerator_create      := GetProcAddress(FLibHandle, 'sk4d_regionspanerator_create');
-    sk4d_regionspanerator_destroy     := GetProcAddress(FLibHandle, 'sk4d_regionspanerator_destroy');
-    sk4d_regionspanerator_next        := GetProcAddress(FLibHandle, 'sk4d_regionspanerator_next');
-    {$ELSE}
-    class function  TSkiaAPI.sk4d_region_contains;              external TSkiaAPI.LibName name 'sk4d_region_contains';
-    class function  TSkiaAPI.sk4d_region_contains2;             external TSkiaAPI.LibName name 'sk4d_region_contains2';
-    class function  TSkiaAPI.sk4d_region_contains3;             external TSkiaAPI.LibName name 'sk4d_region_contains3';
-    class function  TSkiaAPI.sk4d_region_create;                external TSkiaAPI.LibName name 'sk4d_region_create';
-    class function  TSkiaAPI.sk4d_region_create2;               external TSkiaAPI.LibName name 'sk4d_region_create2';
-    class procedure TSkiaAPI.sk4d_region_destroy;               external TSkiaAPI.LibName name 'sk4d_region_destroy';
-    class function  TSkiaAPI.sk4d_region_get_boundary_path;     external TSkiaAPI.LibName name 'sk4d_region_get_boundary_path';
-    class procedure TSkiaAPI.sk4d_region_get_bounds;            external TSkiaAPI.LibName name 'sk4d_region_get_bounds';
-    class function  TSkiaAPI.sk4d_region_intersects;            external TSkiaAPI.LibName name 'sk4d_region_intersects';
-    class function  TSkiaAPI.sk4d_region_intersects2;           external TSkiaAPI.LibName name 'sk4d_region_intersects2';
-    class function  TSkiaAPI.sk4d_region_is_complex;            external TSkiaAPI.LibName name 'sk4d_region_is_complex';
-    class function  TSkiaAPI.sk4d_region_is_empty;              external TSkiaAPI.LibName name 'sk4d_region_is_empty';
-    class function  TSkiaAPI.sk4d_region_is_equal;              external TSkiaAPI.LibName name 'sk4d_region_is_equal';
-    class function  TSkiaAPI.sk4d_region_is_rect;               external TSkiaAPI.LibName name 'sk4d_region_is_rect';
-    class function  TSkiaAPI.sk4d_region_op;                    external TSkiaAPI.LibName name 'sk4d_region_op';
-    class function  TSkiaAPI.sk4d_region_op2;                   external TSkiaAPI.LibName name 'sk4d_region_op2';
-    class function  TSkiaAPI.sk4d_region_quick_contains;        external TSkiaAPI.LibName name 'sk4d_region_quick_contains';
-    class function  TSkiaAPI.sk4d_region_quick_reject;          external TSkiaAPI.LibName name 'sk4d_region_quick_reject';
-    class function  TSkiaAPI.sk4d_region_quick_reject2;         external TSkiaAPI.LibName name 'sk4d_region_quick_reject2';
-    class procedure TSkiaAPI.sk4d_region_set_empty;             external TSkiaAPI.LibName name 'sk4d_region_set_empty';
-    class function  TSkiaAPI.sk4d_region_set_path;              external TSkiaAPI.LibName name 'sk4d_region_set_path';
-    class function  TSkiaAPI.sk4d_region_set_rect;              external TSkiaAPI.LibName name 'sk4d_region_set_rect';
-    class function  TSkiaAPI.sk4d_region_set_rects;             external TSkiaAPI.LibName name 'sk4d_region_set_rects';
-    class procedure TSkiaAPI.sk4d_region_translate;             external TSkiaAPI.LibName name 'sk4d_region_translate';
-    class function  TSkiaAPI.sk4d_regioncliperator_create;      external TSkiaAPI.LibName name 'sk4d_regioncliperator_create';
-    class procedure TSkiaAPI.sk4d_regioncliperator_destroy;     external TSkiaAPI.LibName name 'sk4d_regioncliperator_destroy';
-    class procedure TSkiaAPI.sk4d_regioncliperator_get_current; external TSkiaAPI.LibName name 'sk4d_regioncliperator_get_current';
-    class function  TSkiaAPI.sk4d_regioncliperator_move_next;   external TSkiaAPI.LibName name 'sk4d_regioncliperator_move_next';
-    class function  TSkiaAPI.sk4d_regioniterator_create;        external TSkiaAPI.LibName name 'sk4d_regioniterator_create';
-    class procedure TSkiaAPI.sk4d_regioniterator_destroy;       external TSkiaAPI.LibName name 'sk4d_regioniterator_destroy';
-    class procedure TSkiaAPI.sk4d_regioniterator_get_current;   external TSkiaAPI.LibName name 'sk4d_regioniterator_get_current';
-    class function  TSkiaAPI.sk4d_regioniterator_move_next;     external TSkiaAPI.LibName name 'sk4d_regioniterator_move_next';
-    class procedure TSkiaAPI.sk4d_regioniterator_reset;         external TSkiaAPI.LibName name 'sk4d_regioniterator_reset';
-    class function  TSkiaAPI.sk4d_regionspanerator_create;      external TSkiaAPI.LibName name 'sk4d_regionspanerator_create';
-    class procedure TSkiaAPI.sk4d_regionspanerator_destroy;     external TSkiaAPI.LibName name 'sk4d_regionspanerator_destroy';
-    class function  TSkiaAPI.sk4d_regionspanerator_next;        external TSkiaAPI.LibName name 'sk4d_regionspanerator_next';
-    {$ENDIF}
-    {$ENDREGION}
-
-    {$REGION 'include/c/sk4d_rrect.h'}
-    {$IFDEF SK_DYNAMIC_LOADING}
-    sk4d_rrect_contains         := GetProcAddress(FLibHandle, 'sk4d_rrect_contains');
-    sk4d_rrect_create           := GetProcAddress(FLibHandle, 'sk4d_rrect_create');
-    sk4d_rrect_create2          := GetProcAddress(FLibHandle, 'sk4d_rrect_create2');
-    sk4d_rrect_deflate          := GetProcAddress(FLibHandle, 'sk4d_rrect_deflate');
-    sk4d_rrect_destroy          := GetProcAddress(FLibHandle, 'sk4d_rrect_destroy');
-    sk4d_rrect_get_height       := GetProcAddress(FLibHandle, 'sk4d_rrect_get_height');
-    sk4d_rrect_get_radii        := GetProcAddress(FLibHandle, 'sk4d_rrect_get_radii');
-    sk4d_rrect_get_rect         := GetProcAddress(FLibHandle, 'sk4d_rrect_get_rect');
-    sk4d_rrect_get_simple_radii := GetProcAddress(FLibHandle, 'sk4d_rrect_get_simple_radii');
-    sk4d_rrect_get_width        := GetProcAddress(FLibHandle, 'sk4d_rrect_get_width');
-    sk4d_rrect_inflate          := GetProcAddress(FLibHandle, 'sk4d_rrect_inflate');
-    sk4d_rrect_is_complex       := GetProcAddress(FLibHandle, 'sk4d_rrect_is_complex');
-    sk4d_rrect_is_empty         := GetProcAddress(FLibHandle, 'sk4d_rrect_is_empty');
-    sk4d_rrect_is_equal         := GetProcAddress(FLibHandle, 'sk4d_rrect_is_equal');
-    sk4d_rrect_is_nine_patch    := GetProcAddress(FLibHandle, 'sk4d_rrect_is_nine_patch');
-    sk4d_rrect_is_oval          := GetProcAddress(FLibHandle, 'sk4d_rrect_is_oval');
-    sk4d_rrect_is_rect          := GetProcAddress(FLibHandle, 'sk4d_rrect_is_rect');
-    sk4d_rrect_is_simple        := GetProcAddress(FLibHandle, 'sk4d_rrect_is_simple');
-    sk4d_rrect_is_valid         := GetProcAddress(FLibHandle, 'sk4d_rrect_is_valid');
-    sk4d_rrect_offset           := GetProcAddress(FLibHandle, 'sk4d_rrect_offset');
-    sk4d_rrect_set_empty        := GetProcAddress(FLibHandle, 'sk4d_rrect_set_empty');
-    sk4d_rrect_set_nine_patch   := GetProcAddress(FLibHandle, 'sk4d_rrect_set_nine_patch');
-    sk4d_rrect_set_oval         := GetProcAddress(FLibHandle, 'sk4d_rrect_set_oval');
-    sk4d_rrect_set_rect         := GetProcAddress(FLibHandle, 'sk4d_rrect_set_rect');
-    sk4d_rrect_set_rect2        := GetProcAddress(FLibHandle, 'sk4d_rrect_set_rect2');
-    sk4d_rrect_set_rect3        := GetProcAddress(FLibHandle, 'sk4d_rrect_set_rect3');
-    sk4d_rrect_transform        := GetProcAddress(FLibHandle, 'sk4d_rrect_transform');
-    {$ELSE}
-    class function  TSkiaAPI.sk4d_rrect_contains;         external TSkiaAPI.LibName name 'sk4d_rrect_contains';
-    class function  TSkiaAPI.sk4d_rrect_create;           external TSkiaAPI.LibName name 'sk4d_rrect_create';
-    class function  TSkiaAPI.sk4d_rrect_create2;          external TSkiaAPI.LibName name 'sk4d_rrect_create2';
-    class procedure TSkiaAPI.sk4d_rrect_deflate;          external TSkiaAPI.LibName name 'sk4d_rrect_deflate';
-    class procedure TSkiaAPI.sk4d_rrect_destroy;          external TSkiaAPI.LibName name 'sk4d_rrect_destroy';
-    class function  TSkiaAPI.sk4d_rrect_get_height;       external TSkiaAPI.LibName name 'sk4d_rrect_get_height';
-    class procedure TSkiaAPI.sk4d_rrect_get_radii;        external TSkiaAPI.LibName name 'sk4d_rrect_get_radii';
-    class procedure TSkiaAPI.sk4d_rrect_get_rect;         external TSkiaAPI.LibName name 'sk4d_rrect_get_rect';
-    class procedure TSkiaAPI.sk4d_rrect_get_simple_radii; external TSkiaAPI.LibName name 'sk4d_rrect_get_simple_radii';
-    class function  TSkiaAPI.sk4d_rrect_get_width;        external TSkiaAPI.LibName name 'sk4d_rrect_get_width';
-    class procedure TSkiaAPI.sk4d_rrect_inflate;          external TSkiaAPI.LibName name 'sk4d_rrect_inflate';
-    class function  TSkiaAPI.sk4d_rrect_is_complex;       external TSkiaAPI.LibName name 'sk4d_rrect_is_complex';
-    class function  TSkiaAPI.sk4d_rrect_is_empty;         external TSkiaAPI.LibName name 'sk4d_rrect_is_empty';
-    class function  TSkiaAPI.sk4d_rrect_is_equal;         external TSkiaAPI.LibName name 'sk4d_rrect_is_equal';
-    class function  TSkiaAPI.sk4d_rrect_is_nine_patch;    external TSkiaAPI.LibName name 'sk4d_rrect_is_nine_patch';
-    class function  TSkiaAPI.sk4d_rrect_is_oval;          external TSkiaAPI.LibName name 'sk4d_rrect_is_oval';
-    class function  TSkiaAPI.sk4d_rrect_is_rect;          external TSkiaAPI.LibName name 'sk4d_rrect_is_rect';
-    class function  TSkiaAPI.sk4d_rrect_is_simple;        external TSkiaAPI.LibName name 'sk4d_rrect_is_simple';
-    class function  TSkiaAPI.sk4d_rrect_is_valid;         external TSkiaAPI.LibName name 'sk4d_rrect_is_valid';
-    class procedure TSkiaAPI.sk4d_rrect_offset;           external TSkiaAPI.LibName name 'sk4d_rrect_offset';
-    class procedure TSkiaAPI.sk4d_rrect_set_empty;        external TSkiaAPI.LibName name 'sk4d_rrect_set_empty';
-    class procedure TSkiaAPI.sk4d_rrect_set_nine_patch;   external TSkiaAPI.LibName name 'sk4d_rrect_set_nine_patch';
-    class procedure TSkiaAPI.sk4d_rrect_set_oval;         external TSkiaAPI.LibName name 'sk4d_rrect_set_oval';
-    class procedure TSkiaAPI.sk4d_rrect_set_rect;         external TSkiaAPI.LibName name 'sk4d_rrect_set_rect';
-    class procedure TSkiaAPI.sk4d_rrect_set_rect2;        external TSkiaAPI.LibName name 'sk4d_rrect_set_rect2';
-    class procedure TSkiaAPI.sk4d_rrect_set_rect3;        external TSkiaAPI.LibName name 'sk4d_rrect_set_rect3';
-    class function  TSkiaAPI.sk4d_rrect_transform;        external TSkiaAPI.LibName name 'sk4d_rrect_transform';
-    {$ENDIF}
-    {$ENDREGION}
-
-    {$REGION 'include/c/sk4d_runtimeeffect.h'}
-    {$IFDEF SK_DYNAMIC_LOADING}
-    sk4d_runtimeeffect_get_child_count        := GetProcAddress(FLibHandle, 'sk4d_runtimeeffect_get_child_count');
-    sk4d_runtimeeffect_get_child_name         := GetProcAddress(FLibHandle, 'sk4d_runtimeeffect_get_child_name');
-    sk4d_runtimeeffect_get_child_type         := GetProcAddress(FLibHandle, 'sk4d_runtimeeffect_get_child_type');
-    sk4d_runtimeeffect_get_uniform_count      := GetProcAddress(FLibHandle, 'sk4d_runtimeeffect_get_uniform_count');
-    sk4d_runtimeeffect_get_uniform_data_size  := GetProcAddress(FLibHandle, 'sk4d_runtimeeffect_get_uniform_data_size');
-    sk4d_runtimeeffect_get_uniform_name       := GetProcAddress(FLibHandle, 'sk4d_runtimeeffect_get_uniform_name');
-    sk4d_runtimeeffect_get_uniform_offset     := GetProcAddress(FLibHandle, 'sk4d_runtimeeffect_get_uniform_offset');
-    sk4d_runtimeeffect_get_uniform_type       := GetProcAddress(FLibHandle, 'sk4d_runtimeeffect_get_uniform_type');
-    sk4d_runtimeeffect_get_uniform_type_count := GetProcAddress(FLibHandle, 'sk4d_runtimeeffect_get_uniform_type_count');
-    sk4d_runtimeeffect_index_of_child         := GetProcAddress(FLibHandle, 'sk4d_runtimeeffect_index_of_child');
-    sk4d_runtimeeffect_index_of_uniform       := GetProcAddress(FLibHandle, 'sk4d_runtimeeffect_index_of_uniform');
-    sk4d_runtimeeffect_make_blender           := GetProcAddress(FLibHandle, 'sk4d_runtimeeffect_make_blender');
-    sk4d_runtimeeffect_make_color_filter      := GetProcAddress(FLibHandle, 'sk4d_runtimeeffect_make_color_filter');
-    sk4d_runtimeeffect_make_for_blender       := GetProcAddress(FLibHandle, 'sk4d_runtimeeffect_make_for_blender');
-    sk4d_runtimeeffect_make_for_color_filter  := GetProcAddress(FLibHandle, 'sk4d_runtimeeffect_make_for_color_filter');
-    sk4d_runtimeeffect_make_for_shader        := GetProcAddress(FLibHandle, 'sk4d_runtimeeffect_make_for_shader');
-    sk4d_runtimeeffect_make_image             := GetProcAddress(FLibHandle, 'sk4d_runtimeeffect_make_image');
-    sk4d_runtimeeffect_make_shader            := GetProcAddress(FLibHandle, 'sk4d_runtimeeffect_make_shader');
-    {$ELSE}
-    class function TSkiaAPI.sk4d_runtimeeffect_get_child_count;        external TSkiaAPI.LibName name 'sk4d_runtimeeffect_get_child_count';
-    class function TSkiaAPI.sk4d_runtimeeffect_get_child_name;         external TSkiaAPI.LibName name 'sk4d_runtimeeffect_get_child_name';
-    class function TSkiaAPI.sk4d_runtimeeffect_get_child_type;         external TSkiaAPI.LibName name 'sk4d_runtimeeffect_get_child_type';
-    class function TSkiaAPI.sk4d_runtimeeffect_get_uniform_count;      external TSkiaAPI.LibName name 'sk4d_runtimeeffect_get_uniform_count';
-    class function TSkiaAPI.sk4d_runtimeeffect_get_uniform_data_size;  external TSkiaAPI.LibName name 'sk4d_runtimeeffect_get_uniform_data_size';
-    class function TSkiaAPI.sk4d_runtimeeffect_get_uniform_name;       external TSkiaAPI.LibName name 'sk4d_runtimeeffect_get_uniform_name';
-    class function TSkiaAPI.sk4d_runtimeeffect_get_uniform_offset;     external TSkiaAPI.LibName name 'sk4d_runtimeeffect_get_uniform_offset';
-    class function TSkiaAPI.sk4d_runtimeeffect_get_uniform_type;       external TSkiaAPI.LibName name 'sk4d_runtimeeffect_get_uniform_type';
-    class function TSkiaAPI.sk4d_runtimeeffect_get_uniform_type_count; external TSkiaAPI.LibName name 'sk4d_runtimeeffect_get_uniform_type_count';
-    class function TSkiaAPI.sk4d_runtimeeffect_index_of_child;         external TSkiaAPI.LibName name 'sk4d_runtimeeffect_index_of_child';
-    class function TSkiaAPI.sk4d_runtimeeffect_index_of_uniform;       external TSkiaAPI.LibName name 'sk4d_runtimeeffect_index_of_uniform';
-    class function TSkiaAPI.sk4d_runtimeeffect_make_blender;           external TSkiaAPI.LibName name 'sk4d_runtimeeffect_make_blender';
-    class function TSkiaAPI.sk4d_runtimeeffect_make_color_filter;      external TSkiaAPI.LibName name 'sk4d_runtimeeffect_make_color_filter';
-    class function TSkiaAPI.sk4d_runtimeeffect_make_for_blender;       external TSkiaAPI.LibName name 'sk4d_runtimeeffect_make_for_blender';
-    class function TSkiaAPI.sk4d_runtimeeffect_make_for_color_filter;  external TSkiaAPI.LibName name 'sk4d_runtimeeffect_make_for_color_filter';
-    class function TSkiaAPI.sk4d_runtimeeffect_make_for_shader;        external TSkiaAPI.LibName name 'sk4d_runtimeeffect_make_for_shader';
-    class function TSkiaAPI.sk4d_runtimeeffect_make_image;             external TSkiaAPI.LibName name 'sk4d_runtimeeffect_make_image';
-    class function TSkiaAPI.sk4d_runtimeeffect_make_shader;            external TSkiaAPI.LibName name 'sk4d_runtimeeffect_make_shader';
-    {$ENDIF}
-    {$ENDREGION}
-
-    {$REGION 'include/c/sk4d_shader.h'}
-    {$IFDEF SK_DYNAMIC_LOADING}
-    sk4d_shader_make_blend                       := GetProcAddress(FLibHandle, 'sk4d_shader_make_blend');
-    sk4d_shader_make_color                       := GetProcAddress(FLibHandle, 'sk4d_shader_make_color');
-    sk4d_shader_make_color2                      := GetProcAddress(FLibHandle, 'sk4d_shader_make_color2');
-    sk4d_shader_make_gradient_linear             := GetProcAddress(FLibHandle, 'sk4d_shader_make_gradient_linear');
-    sk4d_shader_make_gradient_linear2            := GetProcAddress(FLibHandle, 'sk4d_shader_make_gradient_linear2');
-    sk4d_shader_make_gradient_radial             := GetProcAddress(FLibHandle, 'sk4d_shader_make_gradient_radial');
-    sk4d_shader_make_gradient_radial2            := GetProcAddress(FLibHandle, 'sk4d_shader_make_gradient_radial2');
-    sk4d_shader_make_gradient_sweep              := GetProcAddress(FLibHandle, 'sk4d_shader_make_gradient_sweep');
-    sk4d_shader_make_gradient_sweep2             := GetProcAddress(FLibHandle, 'sk4d_shader_make_gradient_sweep2');
-    sk4d_shader_make_gradient_two_point_conical  := GetProcAddress(FLibHandle, 'sk4d_shader_make_gradient_two_point_conical');
-    sk4d_shader_make_gradient_two_point_conical2 := GetProcAddress(FLibHandle, 'sk4d_shader_make_gradient_two_point_conical2');
-    sk4d_shader_make_perlin_noise_fractal_noise  := GetProcAddress(FLibHandle, 'sk4d_shader_make_perlin_noise_fractal_noise');
-    sk4d_shader_make_perlin_noise_turbulence     := GetProcAddress(FLibHandle, 'sk4d_shader_make_perlin_noise_turbulence');
-    sk4d_shader_make_with_color_filter           := GetProcAddress(FLibHandle, 'sk4d_shader_make_with_color_filter');
-    sk4d_shader_make_with_local_matrix           := GetProcAddress(FLibHandle, 'sk4d_shader_make_with_local_matrix');
-    {$ELSE}
-    class function TSkiaAPI.sk4d_shader_make_blend;                       external TSkiaAPI.LibName name 'sk4d_shader_make_blend';
-    class function TSkiaAPI.sk4d_shader_make_color;                       external TSkiaAPI.LibName name 'sk4d_shader_make_color';
-    class function TSkiaAPI.sk4d_shader_make_color2;                      external TSkiaAPI.LibName name 'sk4d_shader_make_color2';
-    class function TSkiaAPI.sk4d_shader_make_gradient_linear;             external TSkiaAPI.LibName name 'sk4d_shader_make_gradient_linear';
-    class function TSkiaAPI.sk4d_shader_make_gradient_linear2;            external TSkiaAPI.LibName name 'sk4d_shader_make_gradient_linear2';
-    class function TSkiaAPI.sk4d_shader_make_gradient_radial;             external TSkiaAPI.LibName name 'sk4d_shader_make_gradient_radial';
-    class function TSkiaAPI.sk4d_shader_make_gradient_radial2;            external TSkiaAPI.LibName name 'sk4d_shader_make_gradient_radial2';
-    class function TSkiaAPI.sk4d_shader_make_gradient_sweep;              external TSkiaAPI.LibName name 'sk4d_shader_make_gradient_sweep';
-    class function TSkiaAPI.sk4d_shader_make_gradient_sweep2;             external TSkiaAPI.LibName name 'sk4d_shader_make_gradient_sweep2';
-    class function TSkiaAPI.sk4d_shader_make_gradient_two_point_conical;  external TSkiaAPI.LibName name 'sk4d_shader_make_gradient_two_point_conical';
-    class function TSkiaAPI.sk4d_shader_make_gradient_two_point_conical2; external TSkiaAPI.LibName name 'sk4d_shader_make_gradient_two_point_conical2';
-    class function TSkiaAPI.sk4d_shader_make_perlin_noise_fractal_noise;  external TSkiaAPI.LibName name 'sk4d_shader_make_perlin_noise_fractal_noise';
-    class function TSkiaAPI.sk4d_shader_make_perlin_noise_turbulence;     external TSkiaAPI.LibName name 'sk4d_shader_make_perlin_noise_turbulence';
-    class function TSkiaAPI.sk4d_shader_make_with_color_filter;           external TSkiaAPI.LibName name 'sk4d_shader_make_with_color_filter';
-    class function TSkiaAPI.sk4d_shader_make_with_local_matrix;           external TSkiaAPI.LibName name 'sk4d_shader_make_with_local_matrix';
-    {$ENDIF}
-    {$ENDREGION}
-
-    {$REGION 'include/c/sk4d_stream.h'}
-    {$IFDEF SK_DYNAMIC_LOADING}
-    sk4d_streamadapter_create     := GetProcAddress(FLibHandle, 'sk4d_streamadapter_create');
-    sk4d_streamadapter_destroy    := GetProcAddress(FLibHandle, 'sk4d_streamadapter_destroy');
-    sk4d_streamadapter_set_procs  := GetProcAddress(FLibHandle, 'sk4d_streamadapter_set_procs');
-    sk4d_wstreamadapter_create    := GetProcAddress(FLibHandle, 'sk4d_wstreamadapter_create');
-    sk4d_wstreamadapter_destroy   := GetProcAddress(FLibHandle, 'sk4d_wstreamadapter_destroy');
-    sk4d_wstreamadapter_set_procs := GetProcAddress(FLibHandle, 'sk4d_wstreamadapter_set_procs');
-    {$ELSE}
-    class function  TSkiaAPI.sk4d_streamadapter_create;     external TSkiaAPI.LibName name 'sk4d_streamadapter_create';
-    class procedure TSkiaAPI.sk4d_streamadapter_destroy;    external TSkiaAPI.LibName name 'sk4d_streamadapter_destroy';
-    class procedure TSkiaAPI.sk4d_streamadapter_set_procs;  external TSkiaAPI.LibName name 'sk4d_streamadapter_set_procs';
-    class function  TSkiaAPI.sk4d_wstreamadapter_create;    external TSkiaAPI.LibName name 'sk4d_wstreamadapter_create';
-    class procedure TSkiaAPI.sk4d_wstreamadapter_destroy;   external TSkiaAPI.LibName name 'sk4d_wstreamadapter_destroy';
-    class procedure TSkiaAPI.sk4d_wstreamadapter_set_procs; external TSkiaAPI.LibName name 'sk4d_wstreamadapter_set_procs';
-    {$ENDIF}
-    {$ENDREGION}
-
-    {$REGION 'include/c/sk4d_string.h'}
-    {$IFDEF SK_DYNAMIC_LOADING}
-    sk4d_string_create   := GetProcAddress(FLibHandle, 'sk4d_string_create');
-    sk4d_string_destroy  := GetProcAddress(FLibHandle, 'sk4d_string_destroy');
-    sk4d_string_get_text := GetProcAddress(FLibHandle, 'sk4d_string_get_text');
-    sk4d_string_set_text := GetProcAddress(FLibHandle, 'sk4d_string_set_text');
-    {$ELSE}
-    class function  TSkiaAPI.sk4d_string_create;   external TSkiaAPI.LibName name 'sk4d_string_create';
-    class procedure TSkiaAPI.sk4d_string_destroy;  external TSkiaAPI.LibName name 'sk4d_string_destroy';
-    class function  TSkiaAPI.sk4d_string_get_text; external TSkiaAPI.LibName name 'sk4d_string_get_text';
-    class procedure TSkiaAPI.sk4d_string_set_text; external TSkiaAPI.LibName name 'sk4d_string_set_text';
-    {$ENDIF}
-    {$ENDREGION}
-
-    {$REGION 'include/c/sk4d_surface.h'}
-    {$IFDEF SK_DYNAMIC_LOADING}
-    sk4d_surface_draw                     := GetProcAddress(FLibHandle, 'sk4d_surface_draw');
-    sk4d_surface_flush                    := GetProcAddress(FLibHandle, 'sk4d_surface_flush');
-    sk4d_surface_flush_and_submit         := GetProcAddress(FLibHandle, 'sk4d_surface_flush_and_submit');
-    sk4d_surface_get_canvas               := GetProcAddress(FLibHandle, 'sk4d_surface_get_canvas');
-    sk4d_surface_get_props                := GetProcAddress(FLibHandle, 'sk4d_surface_get_props');
-    sk4d_surface_make_from_ca_metal_layer := GetProcAddress(FLibHandle, 'sk4d_surface_make_from_ca_metal_layer');
-    sk4d_surface_make_from_mtk_view       := GetProcAddress(FLibHandle, 'sk4d_surface_make_from_mtk_view');
-    sk4d_surface_make_from_render_target  := GetProcAddress(FLibHandle, 'sk4d_surface_make_from_render_target');
-    sk4d_surface_make_from_texture        := GetProcAddress(FLibHandle, 'sk4d_surface_make_from_texture');
-    sk4d_surface_make_image_snapshot      := GetProcAddress(FLibHandle, 'sk4d_surface_make_image_snapshot');
-    sk4d_surface_make_image_snapshot2     := GetProcAddress(FLibHandle, 'sk4d_surface_make_image_snapshot2');
-    sk4d_surface_make_raster              := GetProcAddress(FLibHandle, 'sk4d_surface_make_raster');
-    sk4d_surface_make_raster_direct       := GetProcAddress(FLibHandle, 'sk4d_surface_make_raster_direct');
-    sk4d_surface_make_render_target       := GetProcAddress(FLibHandle, 'sk4d_surface_make_render_target');
-    sk4d_surface_peek_pixels              := GetProcAddress(FLibHandle, 'sk4d_surface_peek_pixels');
-    sk4d_surface_read_pixels              := GetProcAddress(FLibHandle, 'sk4d_surface_read_pixels');
-    {$ELSE}
-    class procedure TSkiaAPI.sk4d_surface_draw;                     external TSkiaAPI.LibName name 'sk4d_surface_draw';
-    class procedure TSkiaAPI.sk4d_surface_flush;                    external TSkiaAPI.LibName name 'sk4d_surface_flush';
-    class procedure TSkiaAPI.sk4d_surface_flush_and_submit;         external TSkiaAPI.LibName name 'sk4d_surface_flush_and_submit';
-    class function  TSkiaAPI.sk4d_surface_get_canvas;               external TSkiaAPI.LibName name 'sk4d_surface_get_canvas';
-    class procedure TSkiaAPI.sk4d_surface_get_props;                external TSkiaAPI.LibName name 'sk4d_surface_get_props';
-    class function  TSkiaAPI.sk4d_surface_make_from_ca_metal_layer; external TSkiaAPI.LibName name 'sk4d_surface_make_from_ca_metal_layer';
-    class function  TSkiaAPI.sk4d_surface_make_from_mtk_view;       external TSkiaAPI.LibName name 'sk4d_surface_make_from_mtk_view';
-    class function  TSkiaAPI.sk4d_surface_make_from_render_target;  external TSkiaAPI.LibName name 'sk4d_surface_make_from_render_target';
-    class function  TSkiaAPI.sk4d_surface_make_from_texture;        external TSkiaAPI.LibName name 'sk4d_surface_make_from_texture';
-    class function  TSkiaAPI.sk4d_surface_make_image_snapshot;      external TSkiaAPI.LibName name 'sk4d_surface_make_image_snapshot';
-    class function  TSkiaAPI.sk4d_surface_make_image_snapshot2;     external TSkiaAPI.LibName name 'sk4d_surface_make_image_snapshot2';
-    class function  TSkiaAPI.sk4d_surface_make_raster;              external TSkiaAPI.LibName name 'sk4d_surface_make_raster';
-    class function  TSkiaAPI.sk4d_surface_make_raster_direct;       external TSkiaAPI.LibName name 'sk4d_surface_make_raster_direct';
-    class function  TSkiaAPI.sk4d_surface_make_render_target;       external TSkiaAPI.LibName name 'sk4d_surface_make_render_target';
-    class function  TSkiaAPI.sk4d_surface_peek_pixels;              external TSkiaAPI.LibName name 'sk4d_surface_peek_pixels';
-    class function  TSkiaAPI.sk4d_surface_read_pixels;              external TSkiaAPI.LibName name 'sk4d_surface_read_pixels';
-    {$ENDIF}
-    {$ENDREGION}
-
-    {$REGION 'include/c/sk4d_svgcanvas.h'}
-    {$IFDEF SK_DYNAMIC_LOADING}
-    sk4d_svgcanvas_make := GetProcAddress(FLibHandle, 'sk4d_svgcanvas_make');
-    {$ELSE}
-    class function TSkiaAPI.sk4d_svgcanvas_make; external TSkiaAPI.LibName name 'sk4d_svgcanvas_make';
-    {$ENDIF}
-    {$ENDREGION}
-
-    {$REGION 'include/c/sk4d_textblob.h'}
-    {$IFDEF SK_DYNAMIC_LOADING}
-    sk4d_textblob_get_intercepts                         := GetProcAddress(FLibHandle, 'sk4d_textblob_get_intercepts');
-    sk4d_textblob_make_from_text                         := GetProcAddress(FLibHandle, 'sk4d_textblob_make_from_text');
-    sk4d_textblob_make_from_text_horizontally_positioned := GetProcAddress(FLibHandle, 'sk4d_textblob_make_from_text_horizontally_positioned');
-    sk4d_textblob_make_from_text_positioned              := GetProcAddress(FLibHandle, 'sk4d_textblob_make_from_text_positioned');
-    sk4d_textblob_make_from_text_transform               := GetProcAddress(FLibHandle, 'sk4d_textblob_make_from_text_transform');
-    sk4d_textblob_ref                                    := GetProcAddress(FLibHandle, 'sk4d_textblob_ref');
-    sk4d_textblob_unref                                  := GetProcAddress(FLibHandle, 'sk4d_textblob_unref');
-    {$ELSE}
-    class function  TSkiaAPI.sk4d_textblob_get_intercepts;                         external TSkiaAPI.LibName name 'sk4d_textblob_get_intercepts';
-    class function  TSkiaAPI.sk4d_textblob_make_from_text;                         external TSkiaAPI.LibName name 'sk4d_textblob_make_from_text';
-    class function  TSkiaAPI.sk4d_textblob_make_from_text_horizontally_positioned; external TSkiaAPI.LibName name 'sk4d_textblob_make_from_text_horizontally_positioned';
-    class function  TSkiaAPI.sk4d_textblob_make_from_text_positioned;              external TSkiaAPI.LibName name 'sk4d_textblob_make_from_text_positioned';
-    class function  TSkiaAPI.sk4d_textblob_make_from_text_transform;               external TSkiaAPI.LibName name 'sk4d_textblob_make_from_text_transform';
-    class procedure TSkiaAPI.sk4d_textblob_ref;                                    external TSkiaAPI.LibName name 'sk4d_textblob_ref';
-    class procedure TSkiaAPI.sk4d_textblob_unref;                                  external TSkiaAPI.LibName name 'sk4d_textblob_unref';
-
-    {$ENDIF}
-    {$ENDREGION}
-
-    {$REGION 'include/c/sk4d_tracememorydump.h'}
-    {$IFDEF SK_DYNAMIC_LOADING}
-    sk4d_tracememorydumpbaseclass_create    := GetProcAddress(FLibHandle, 'sk4d_tracememorydumpbaseclass_create');
-    sk4d_tracememorydumpbaseclass_destroy   := GetProcAddress(FLibHandle, 'sk4d_tracememorydumpbaseclass_destroy');
-    sk4d_tracememorydumpbaseclass_set_procs := GetProcAddress(FLibHandle, 'sk4d_tracememorydumpbaseclass_set_procs');
-    {$ELSE}
-    class function  TSkiaAPI.sk4d_tracememorydumpbaseclass_create;    external TSkiaAPI.LibName name 'sk4d_tracememorydumpbaseclass_create';
-    class procedure TSkiaAPI.sk4d_tracememorydumpbaseclass_destroy;   external TSkiaAPI.LibName name 'sk4d_tracememorydumpbaseclass_destroy';
-    class procedure TSkiaAPI.sk4d_tracememorydumpbaseclass_set_procs; external TSkiaAPI.LibName name 'sk4d_tracememorydumpbaseclass_set_procs';
-    {$ENDIF}
-    {$ENDREGION}
-
-    {$REGION 'include/c/sk4d_typeface.h'}
-    {$IFDEF SK_DYNAMIC_LOADING}
-    sk4d_typeface_get_family_name  := GetProcAddress(FLibHandle, 'sk4d_typeface_get_family_name');
-    sk4d_typeface_get_slant        := GetProcAddress(FLibHandle, 'sk4d_typeface_get_slant');
-    sk4d_typeface_get_style        := GetProcAddress(FLibHandle, 'sk4d_typeface_get_style');
-    sk4d_typeface_get_weight       := GetProcAddress(FLibHandle, 'sk4d_typeface_get_weight');
-    sk4d_typeface_get_width        := GetProcAddress(FLibHandle, 'sk4d_typeface_get_width');
-    sk4d_typeface_make_default     := GetProcAddress(FLibHandle, 'sk4d_typeface_make_default');
-    sk4d_typeface_make_from_file   := GetProcAddress(FLibHandle, 'sk4d_typeface_make_from_file');
-    sk4d_typeface_make_from_stream := GetProcAddress(FLibHandle, 'sk4d_typeface_make_from_stream');
-    sk4d_typeface_make_from_name   := GetProcAddress(FLibHandle, 'sk4d_typeface_make_from_name');
-    {$ELSE}
-    class function  TSkiaAPI.sk4d_typeface_get_family_name;  external TSkiaAPI.LibName name 'sk4d_typeface_get_family_name';
-    class function  TSkiaAPI.sk4d_typeface_get_slant;        external TSkiaAPI.LibName name 'sk4d_typeface_get_slant';
-    class procedure TSkiaAPI.sk4d_typeface_get_style;        external TSkiaAPI.LibName name 'sk4d_typeface_get_style';
-    class function  TSkiaAPI.sk4d_typeface_get_weight;       external TSkiaAPI.LibName name 'sk4d_typeface_get_weight';
-    class function  TSkiaAPI.sk4d_typeface_get_width;        external TSkiaAPI.LibName name 'sk4d_typeface_get_width';
-    class function  TSkiaAPI.sk4d_typeface_make_default;     external TSkiaAPI.LibName name 'sk4d_typeface_make_default';
-    class function  TSkiaAPI.sk4d_typeface_make_from_file;   external TSkiaAPI.LibName name 'sk4d_typeface_make_from_file';
-    class function  TSkiaAPI.sk4d_typeface_make_from_stream; external TSkiaAPI.LibName name 'sk4d_typeface_make_from_stream';
-    class function  TSkiaAPI.sk4d_typeface_make_from_name;   external TSkiaAPI.LibName name 'sk4d_typeface_make_from_name';
-    {$ENDIF}
-    {$ENDREGION}
-
-    {$REGION 'include/c/sk4d_version.h'}
-    {$IFDEF SK_DYNAMIC_LOADING}
-    sk4d_library_version_get_build := GetProcAddress(FLibHandle, 'sk4d_library_version_get_build');
-    sk4d_library_version_get_major := GetProcAddress(FLibHandle, 'sk4d_library_version_get_major');
-    sk4d_library_version_get_minor := GetProcAddress(FLibHandle, 'sk4d_library_version_get_minor');
-    {$ELSE}
-    class function TSkiaAPI.sk4d_library_version_get_build; external TSkiaAPI.LibName name 'sk4d_library_version_get_build';
-    class function TSkiaAPI.sk4d_library_version_get_major; external TSkiaAPI.LibName name 'sk4d_library_version_get_major';
-    class function TSkiaAPI.sk4d_library_version_get_minor; external TSkiaAPI.LibName name 'sk4d_library_version_get_minor';
-    {$ENDIF}
-    {$ENDREGION}
-
-    {$REGION 'include/c/sk4d_vertices.h'}
-    {$IFDEF SK_DYNAMIC_LOADING}
-    sk4d_vertices_make_copy := GetProcAddress(FLibHandle, 'sk4d_vertices_make_copy');
-    sk4d_vertices_ref       := GetProcAddress(FLibHandle, 'sk4d_vertices_ref');
-    sk4d_vertices_unref     := GetProcAddress(FLibHandle, 'sk4d_vertices_unref');
-    {$ELSE}
-    class function  TSkiaAPI.sk4d_vertices_make_copy; external TSkiaAPI.LibName name 'sk4d_vertices_make_copy';
-    class procedure TSkiaAPI.sk4d_vertices_ref;       external TSkiaAPI.LibName name 'sk4d_vertices_ref';
-    class procedure TSkiaAPI.sk4d_vertices_unref;     external TSkiaAPI.LibName name 'sk4d_vertices_unref';
-    {$ENDIF}
-    {$ENDREGION}
-
-    {$REGION 'modules/particles/include/sk4d_particleeffect.h'}
-    {$IFDEF SK_DYNAMIC_LOADING}
-    sk4d_particleeffect_get_position           := GetProcAddress(FLibHandle, 'sk4d_particleeffect_get_position');
-    sk4d_particleeffect_get_rate               := GetProcAddress(FLibHandle, 'sk4d_particleeffect_get_rate');
-    sk4d_particleeffect_get_uniform            := GetProcAddress(FLibHandle, 'sk4d_particleeffect_get_uniform');
-    sk4d_particleeffect_get_uniform_count      := GetProcAddress(FLibHandle, 'sk4d_particleeffect_get_uniform_count');
-    sk4d_particleeffect_get_uniform_data       := GetProcAddress(FLibHandle, 'sk4d_particleeffect_get_uniform_data');
-    sk4d_particleeffect_get_uniform_data_count := GetProcAddress(FLibHandle, 'sk4d_particleeffect_get_uniform_data_count');
-    sk4d_particleeffect_get_uniform_name       := GetProcAddress(FLibHandle, 'sk4d_particleeffect_get_uniform_name');
-    sk4d_particleeffect_init                   := GetProcAddress(FLibHandle, 'sk4d_particleeffect_init');
-    sk4d_particleeffect_make_from_file         := GetProcAddress(FLibHandle, 'sk4d_particleeffect_make_from_file');
-    sk4d_particleeffect_make_from_stream       := GetProcAddress(FLibHandle, 'sk4d_particleeffect_make_from_stream');
-    sk4d_particleeffect_render                 := GetProcAddress(FLibHandle, 'sk4d_particleeffect_render');
-    sk4d_particleeffect_set_position           := GetProcAddress(FLibHandle, 'sk4d_particleeffect_set_position');
-    sk4d_particleeffect_set_rate               := GetProcAddress(FLibHandle, 'sk4d_particleeffect_set_rate');
-    sk4d_particleeffect_set_uniform            := GetProcAddress(FLibHandle, 'sk4d_particleeffect_set_uniform');
-    sk4d_particleeffect_start                  := GetProcAddress(FLibHandle, 'sk4d_particleeffect_start');
-    sk4d_particleeffect_update                 := GetProcAddress(FLibHandle, 'sk4d_particleeffect_update');
-    {$ELSE}
-    class procedure TSkiaAPI.sk4d_particleeffect_get_position;           external TSkiaAPI.LibName name 'sk4d_particleeffect_get_position';
-    class function  TSkiaAPI.sk4d_particleeffect_get_rate;               external TSkiaAPI.LibName name 'sk4d_particleeffect_get_rate';
-    class procedure TSkiaAPI.sk4d_particleeffect_get_uniform;            external TSkiaAPI.LibName name 'sk4d_particleeffect_get_uniform';
-    class function  TSkiaAPI.sk4d_particleeffect_get_uniform_count;      external TSkiaAPI.LibName name 'sk4d_particleeffect_get_uniform_count';
-    class function  TSkiaAPI.sk4d_particleeffect_get_uniform_data;       external TSkiaAPI.LibName name 'sk4d_particleeffect_get_uniform_data';
-    class function  TSkiaAPI.sk4d_particleeffect_get_uniform_data_count; external TSkiaAPI.LibName name 'sk4d_particleeffect_get_uniform_data_count';
-    class function  TSkiaAPI.sk4d_particleeffect_get_uniform_name;       external TSkiaAPI.LibName name 'sk4d_particleeffect_get_uniform_name';
-    class procedure TSkiaAPI.sk4d_particleeffect_init;                   external TSkiaAPI.LibName name 'sk4d_particleeffect_init';
-    class function  TSkiaAPI.sk4d_particleeffect_make_from_file;         external TSkiaAPI.LibName name 'sk4d_particleeffect_make_from_file';
-    class function  TSkiaAPI.sk4d_particleeffect_make_from_stream;       external TSkiaAPI.LibName name 'sk4d_particleeffect_make_from_stream';
-    class procedure TSkiaAPI.sk4d_particleeffect_render;                 external TSkiaAPI.LibName name 'sk4d_particleeffect_render';
-    class procedure TSkiaAPI.sk4d_particleeffect_set_position;           external TSkiaAPI.LibName name 'sk4d_particleeffect_set_position';
-    class procedure TSkiaAPI.sk4d_particleeffect_set_rate;               external TSkiaAPI.LibName name 'sk4d_particleeffect_set_rate';
-    class function  TSkiaAPI.sk4d_particleeffect_set_uniform;            external TSkiaAPI.LibName name 'sk4d_particleeffect_set_uniform';
-    class procedure TSkiaAPI.sk4d_particleeffect_start;                  external TSkiaAPI.LibName name 'sk4d_particleeffect_start';
-    class procedure TSkiaAPI.sk4d_particleeffect_update;                 external TSkiaAPI.LibName name 'sk4d_particleeffect_update';
-    {$ENDIF}
-    {$ENDREGION}
-
-    {$REGION 'modules/skottie/include/sk4d_skottie.h'}
-    {$IFDEF SK_DYNAMIC_LOADING}
-    sk4d_skottieanimation_get_duration     := GetProcAddress(FLibHandle, 'sk4d_skottieanimation_get_duration');
-    sk4d_skottieanimation_get_fps          := GetProcAddress(FLibHandle, 'sk4d_skottieanimation_get_fps');
-    sk4d_skottieanimation_get_in_point     := GetProcAddress(FLibHandle, 'sk4d_skottieanimation_get_in_point');
-    sk4d_skottieanimation_get_out_point    := GetProcAddress(FLibHandle, 'sk4d_skottieanimation_get_out_point');
-    sk4d_skottieanimation_get_size         := GetProcAddress(FLibHandle, 'sk4d_skottieanimation_get_size');
-    sk4d_skottieanimation_get_version      := GetProcAddress(FLibHandle, 'sk4d_skottieanimation_get_version');
-    sk4d_skottieanimation_make_from_file   := GetProcAddress(FLibHandle, 'sk4d_skottieanimation_make_from_file');
-    sk4d_skottieanimation_make_from_stream := GetProcAddress(FLibHandle, 'sk4d_skottieanimation_make_from_stream');
-    sk4d_skottieanimation_ref              := GetProcAddress(FLibHandle, 'sk4d_skottieanimation_ref');
-    sk4d_skottieanimation_render           := GetProcAddress(FLibHandle, 'sk4d_skottieanimation_render');
-    sk4d_skottieanimation_seek_frame       := GetProcAddress(FLibHandle, 'sk4d_skottieanimation_seek_frame');
-    sk4d_skottieanimation_seek_frame_time  := GetProcAddress(FLibHandle, 'sk4d_skottieanimation_seek_frame_time');
-    sk4d_skottieanimation_unref            := GetProcAddress(FLibHandle, 'sk4d_skottieanimation_unref');
-    {$ELSE}
-    class function  TSkiaAPI.sk4d_skottieanimation_get_duration;     external TSkiaAPI.LibName name 'sk4d_skottieanimation_get_duration';
-    class function  TSkiaAPI.sk4d_skottieanimation_get_fps;          external TSkiaAPI.LibName name 'sk4d_skottieanimation_get_fps';
-    class function  TSkiaAPI.sk4d_skottieanimation_get_in_point;     external TSkiaAPI.LibName name 'sk4d_skottieanimation_get_in_point';
-    class function  TSkiaAPI.sk4d_skottieanimation_get_out_point;    external TSkiaAPI.LibName name 'sk4d_skottieanimation_get_out_point';
-    class procedure TSkiaAPI.sk4d_skottieanimation_get_size;         external TSkiaAPI.LibName name 'sk4d_skottieanimation_get_size';
-    class function  TSkiaAPI.sk4d_skottieanimation_get_version;      external TSkiaAPI.LibName name 'sk4d_skottieanimation_get_version';
-    class function  TSkiaAPI.sk4d_skottieanimation_make_from_file;   external TSkiaAPI.LibName name 'sk4d_skottieanimation_make_from_file';
-    class function  TSkiaAPI.sk4d_skottieanimation_make_from_stream; external TSkiaAPI.LibName name 'sk4d_skottieanimation_make_from_stream';
-    class procedure TSkiaAPI.sk4d_skottieanimation_ref;              external TSkiaAPI.LibName name 'sk4d_skottieanimation_ref';
-    class procedure TSkiaAPI.sk4d_skottieanimation_render;           external TSkiaAPI.LibName name 'sk4d_skottieanimation_render';
-    class procedure TSkiaAPI.sk4d_skottieanimation_seek_frame;       external TSkiaAPI.LibName name 'sk4d_skottieanimation_seek_frame';
-    class procedure TSkiaAPI.sk4d_skottieanimation_seek_frame_time;  external TSkiaAPI.LibName name 'sk4d_skottieanimation_seek_frame_time';
-    class procedure TSkiaAPI.sk4d_skottieanimation_unref;            external TSkiaAPI.LibName name 'sk4d_skottieanimation_unref';
-    {$ENDIF}
-    {$ENDREGION}
-
-    {$REGION 'modules/skparagraph/include/sk4d_paragraph.h'}
-    {$IFDEF SK_DYNAMIC_LOADING}
-    sk4d_paragraph_destroy                          := GetProcAddress(FLibHandle, 'sk4d_paragraph_destroy');
-    sk4d_paragraph_did_exceed_max_lines             := GetProcAddress(FLibHandle, 'sk4d_paragraph_did_exceed_max_lines');
-    sk4d_paragraph_get_alphabetic_baseline          := GetProcAddress(FLibHandle, 'sk4d_paragraph_get_alphabetic_baseline');
-    sk4d_paragraph_get_glyph_position_at_coordinate := GetProcAddress(FLibHandle, 'sk4d_paragraph_get_glyph_position_at_coordinate');
-    sk4d_paragraph_get_height                       := GetProcAddress(FLibHandle, 'sk4d_paragraph_get_height');
-    sk4d_paragraph_get_ideographic_baseline         := GetProcAddress(FLibHandle, 'sk4d_paragraph_get_ideographic_baseline');
-    sk4d_paragraph_get_line_metrics                 := GetProcAddress(FLibHandle, 'sk4d_paragraph_get_line_metrics');
-    sk4d_paragraph_get_longest_line                 := GetProcAddress(FLibHandle, 'sk4d_paragraph_get_longest_line');
-    sk4d_paragraph_get_max_intrinsic_width          := GetProcAddress(FLibHandle, 'sk4d_paragraph_get_max_intrinsic_width');
-    sk4d_paragraph_get_max_width                    := GetProcAddress(FLibHandle, 'sk4d_paragraph_get_max_width');
-    sk4d_paragraph_get_min_intrinsic_width          := GetProcAddress(FLibHandle, 'sk4d_paragraph_get_min_intrinsic_width');
-    sk4d_paragraph_get_rects_for_placeholders       := GetProcAddress(FLibHandle, 'sk4d_paragraph_get_rects_for_placeholders');
-    sk4d_paragraph_get_rects_for_range              := GetProcAddress(FLibHandle, 'sk4d_paragraph_get_rects_for_range');
-    sk4d_paragraph_get_word_boundary                := GetProcAddress(FLibHandle, 'sk4d_paragraph_get_word_boundary');
-    sk4d_paragraph_layout                           := GetProcAddress(FLibHandle, 'sk4d_paragraph_layout');
-    sk4d_paragraph_paint                            := GetProcAddress(FLibHandle, 'sk4d_paragraph_paint');
-    sk4d_paragraph_to_path                          := GetProcAddress(FLibHandle, 'sk4d_paragraph_to_path');
-    {$ELSE}
-    class procedure TSkiaAPI.sk4d_paragraph_destroy;                          external TSkiaAPI.LibName name 'sk4d_paragraph_destroy';
-    class function  TSkiaAPI.sk4d_paragraph_did_exceed_max_lines;             external TSkiaAPI.LibName name 'sk4d_paragraph_did_exceed_max_lines';
-    class function  TSkiaAPI.sk4d_paragraph_get_alphabetic_baseline;          external TSkiaAPI.LibName name 'sk4d_paragraph_get_alphabetic_baseline';
-    class procedure TSkiaAPI.sk4d_paragraph_get_glyph_position_at_coordinate; external TSkiaAPI.LibName name 'sk4d_paragraph_get_glyph_position_at_coordinate';
-    class function  TSkiaAPI.sk4d_paragraph_get_height;                       external TSkiaAPI.LibName name 'sk4d_paragraph_get_height';
-    class function  TSkiaAPI.sk4d_paragraph_get_ideographic_baseline;         external TSkiaAPI.LibName name 'sk4d_paragraph_get_ideographic_baseline';
-    class function  TSkiaAPI.sk4d_paragraph_get_line_metrics;                 external TSkiaAPI.LibName name 'sk4d_paragraph_get_line_metrics';
-    class function  TSkiaAPI.sk4d_paragraph_get_longest_line;                 external TSkiaAPI.LibName name 'sk4d_paragraph_get_longest_line';
-    class function  TSkiaAPI.sk4d_paragraph_get_max_intrinsic_width;          external TSkiaAPI.LibName name 'sk4d_paragraph_get_max_intrinsic_width';
-    class function  TSkiaAPI.sk4d_paragraph_get_max_width;                    external TSkiaAPI.LibName name 'sk4d_paragraph_get_max_width';
-    class function  TSkiaAPI.sk4d_paragraph_get_min_intrinsic_width;          external TSkiaAPI.LibName name 'sk4d_paragraph_get_min_intrinsic_width';
-    class function  TSkiaAPI.sk4d_paragraph_get_rects_for_placeholders;       external TSkiaAPI.LibName name 'sk4d_paragraph_get_rects_for_placeholders';
-    class function  TSkiaAPI.sk4d_paragraph_get_rects_for_range;              external TSkiaAPI.LibName name 'sk4d_paragraph_get_rects_for_range';
-    class procedure TSkiaAPI.sk4d_paragraph_get_word_boundary;                external TSkiaAPI.LibName name 'sk4d_paragraph_get_word_boundary';
-    class procedure TSkiaAPI.sk4d_paragraph_layout;                           external TSkiaAPI.LibName name 'sk4d_paragraph_layout';
-    class procedure TSkiaAPI.sk4d_paragraph_paint;                            external TSkiaAPI.LibName name 'sk4d_paragraph_paint';
-    class function  TSkiaAPI.sk4d_paragraph_to_path;                          external TSkiaAPI.LibName name 'sk4d_paragraph_to_path';
-    {$ENDIF}
-    {$ENDREGION}
-
-    {$REGION 'modules/skparagraph/include/sk4d_paragraphbuilder.h'}
-    {$IFDEF SK_DYNAMIC_LOADING}
-    sk4d_paragraphbuilder_add_placeholder := GetProcAddress(FLibHandle, 'sk4d_paragraphbuilder_add_placeholder');
-    sk4d_paragraphbuilder_add_text        := GetProcAddress(FLibHandle, 'sk4d_paragraphbuilder_add_text');
-    sk4d_paragraphbuilder_build           := GetProcAddress(FLibHandle, 'sk4d_paragraphbuilder_build');
-    sk4d_paragraphbuilder_create          := GetProcAddress(FLibHandle, 'sk4d_paragraphbuilder_create');
-    sk4d_paragraphbuilder_create2         := GetProcAddress(FLibHandle, 'sk4d_paragraphbuilder_create2');
-    sk4d_paragraphbuilder_destroy         := GetProcAddress(FLibHandle, 'sk4d_paragraphbuilder_destroy');
-    sk4d_paragraphbuilder_pop             := GetProcAddress(FLibHandle, 'sk4d_paragraphbuilder_pop');
-    sk4d_paragraphbuilder_push_style      := GetProcAddress(FLibHandle, 'sk4d_paragraphbuilder_push_style');
-    {$ELSE}
-    class procedure TSkiaAPI.sk4d_paragraphbuilder_add_placeholder; external TSkiaAPI.LibName name 'sk4d_paragraphbuilder_add_placeholder';
-    class procedure TSkiaAPI.sk4d_paragraphbuilder_add_text;        external TSkiaAPI.LibName name 'sk4d_paragraphbuilder_add_text';
-    class function  TSkiaAPI.sk4d_paragraphbuilder_build;           external TSkiaAPI.LibName name 'sk4d_paragraphbuilder_build';
-    class function  TSkiaAPI.sk4d_paragraphbuilder_create;          external TSkiaAPI.LibName name 'sk4d_paragraphbuilder_create';
-    class function  TSkiaAPI.sk4d_paragraphbuilder_create2;         external TSkiaAPI.LibName name 'sk4d_paragraphbuilder_create2';
-    class procedure TSkiaAPI.sk4d_paragraphbuilder_destroy;         external TSkiaAPI.LibName name 'sk4d_paragraphbuilder_destroy';
-    class procedure TSkiaAPI.sk4d_paragraphbuilder_pop;             external TSkiaAPI.LibName name 'sk4d_paragraphbuilder_pop';
-    class procedure TSkiaAPI.sk4d_paragraphbuilder_push_style;      external TSkiaAPI.LibName name 'sk4d_paragraphbuilder_push_style';
-    {$ENDIF}
-    {$ENDREGION}
-
-    {$REGION 'modules/skparagraph/include/sk4d_paragraphstyle.h'}
-    {$IFDEF SK_DYNAMIC_LOADING}
-    sk4d_paragraphstyle_create                    := GetProcAddress(FLibHandle, 'sk4d_paragraphstyle_create');
-    sk4d_paragraphstyle_destroy                   := GetProcAddress(FLibHandle, 'sk4d_paragraphstyle_destroy');
-    sk4d_paragraphstyle_disable_hinting           := GetProcAddress(FLibHandle, 'sk4d_paragraphstyle_disable_hinting');
-    sk4d_paragraphstyle_get_ellipsis              := GetProcAddress(FLibHandle, 'sk4d_paragraphstyle_get_ellipsis');
-    sk4d_paragraphstyle_get_height                := GetProcAddress(FLibHandle, 'sk4d_paragraphstyle_get_height');
-    sk4d_paragraphstyle_get_max_lines             := GetProcAddress(FLibHandle, 'sk4d_paragraphstyle_get_max_lines');
-    sk4d_paragraphstyle_get_strut_style           := GetProcAddress(FLibHandle, 'sk4d_paragraphstyle_get_strut_style');
-    sk4d_paragraphstyle_get_text_align            := GetProcAddress(FLibHandle, 'sk4d_paragraphstyle_get_text_align');
-    sk4d_paragraphstyle_get_text_direction        := GetProcAddress(FLibHandle, 'sk4d_paragraphstyle_get_text_direction');
-    sk4d_paragraphstyle_get_text_height_behaviors := GetProcAddress(FLibHandle, 'sk4d_paragraphstyle_get_text_height_behaviors');
-    sk4d_paragraphstyle_get_text_style            := GetProcAddress(FLibHandle, 'sk4d_paragraphstyle_get_text_style');
-    sk4d_paragraphstyle_set_ellipsis              := GetProcAddress(FLibHandle, 'sk4d_paragraphstyle_set_ellipsis');
-    sk4d_paragraphstyle_set_height                := GetProcAddress(FLibHandle, 'sk4d_paragraphstyle_set_height');
-    sk4d_paragraphstyle_set_max_lines             := GetProcAddress(FLibHandle, 'sk4d_paragraphstyle_set_max_lines');
-    sk4d_paragraphstyle_set_strut_style           := GetProcAddress(FLibHandle, 'sk4d_paragraphstyle_set_strut_style');
-    sk4d_paragraphstyle_set_text_align            := GetProcAddress(FLibHandle, 'sk4d_paragraphstyle_set_text_align');
-    sk4d_paragraphstyle_set_text_direction        := GetProcAddress(FLibHandle, 'sk4d_paragraphstyle_set_text_direction');
-    sk4d_paragraphstyle_set_text_height_behaviors := GetProcAddress(FLibHandle, 'sk4d_paragraphstyle_set_text_height_behaviors');
-    sk4d_paragraphstyle_set_text_style            := GetProcAddress(FLibHandle, 'sk4d_paragraphstyle_set_text_style');
-    sk4d_strutstyle_create                        := GetProcAddress(FLibHandle, 'sk4d_strutstyle_create');
-    sk4d_strutstyle_destroy                       := GetProcAddress(FLibHandle, 'sk4d_strutstyle_destroy');
-    sk4d_strutstyle_get_enabled                   := GetProcAddress(FLibHandle, 'sk4d_strutstyle_get_enabled');
-    sk4d_strutstyle_get_font_families             := GetProcAddress(FLibHandle, 'sk4d_strutstyle_get_font_families');
-    sk4d_strutstyle_get_font_size                 := GetProcAddress(FLibHandle, 'sk4d_strutstyle_get_font_size');
-    sk4d_strutstyle_get_font_style                := GetProcAddress(FLibHandle, 'sk4d_strutstyle_get_font_style');
-    sk4d_strutstyle_get_force_height              := GetProcAddress(FLibHandle, 'sk4d_strutstyle_get_force_height');
-    sk4d_strutstyle_get_half_leading              := GetProcAddress(FLibHandle, 'sk4d_strutstyle_get_half_leading');
-    sk4d_strutstyle_get_height_multiplier         := GetProcAddress(FLibHandle, 'sk4d_strutstyle_get_height_multiplier');
-    sk4d_strutstyle_get_leading                   := GetProcAddress(FLibHandle, 'sk4d_strutstyle_get_leading');
-    sk4d_strutstyle_is_equal                      := GetProcAddress(FLibHandle, 'sk4d_strutstyle_is_equal');
-    sk4d_strutstyle_set_enabled                   := GetProcAddress(FLibHandle, 'sk4d_strutstyle_set_enabled');
-    sk4d_strutstyle_set_font_families             := GetProcAddress(FLibHandle, 'sk4d_strutstyle_set_font_families');
-    sk4d_strutstyle_set_font_size                 := GetProcAddress(FLibHandle, 'sk4d_strutstyle_set_font_size');
-    sk4d_strutstyle_set_font_style                := GetProcAddress(FLibHandle, 'sk4d_strutstyle_set_font_style');
-    sk4d_strutstyle_set_force_height              := GetProcAddress(FLibHandle, 'sk4d_strutstyle_set_force_height');
-    sk4d_strutstyle_set_half_leading              := GetProcAddress(FLibHandle, 'sk4d_strutstyle_set_half_leading');
-    sk4d_strutstyle_set_height_multiplier         := GetProcAddress(FLibHandle, 'sk4d_strutstyle_set_height_multiplier');
-    sk4d_strutstyle_set_leading                   := GetProcAddress(FLibHandle, 'sk4d_strutstyle_set_leading');
-    {$ELSE}
-    class function  TSkiaAPI.sk4d_paragraphstyle_create;                    external TSkiaAPI.LibName name 'sk4d_paragraphstyle_create';
-    class procedure TSkiaAPI.sk4d_paragraphstyle_destroy;                   external TSkiaAPI.LibName name 'sk4d_paragraphstyle_destroy';
-    class procedure TSkiaAPI.sk4d_paragraphstyle_disable_hinting;           external TSkiaAPI.LibName name 'sk4d_paragraphstyle_disable_hinting';
-    class function  TSkiaAPI.sk4d_paragraphstyle_get_ellipsis;              external TSkiaAPI.LibName name 'sk4d_paragraphstyle_get_ellipsis';
-    class function  TSkiaAPI.sk4d_paragraphstyle_get_height;                external TSkiaAPI.LibName name 'sk4d_paragraphstyle_get_height';
-    class function  TSkiaAPI.sk4d_paragraphstyle_get_max_lines;             external TSkiaAPI.LibName name 'sk4d_paragraphstyle_get_max_lines';
-    class function  TSkiaAPI.sk4d_paragraphstyle_get_strut_style;           external TSkiaAPI.LibName name 'sk4d_paragraphstyle_get_strut_style';
-    class function  TSkiaAPI.sk4d_paragraphstyle_get_text_align;            external TSkiaAPI.LibName name 'sk4d_paragraphstyle_get_text_align';
-    class function  TSkiaAPI.sk4d_paragraphstyle_get_text_direction;        external TSkiaAPI.LibName name 'sk4d_paragraphstyle_get_text_direction';
-    class function  TSkiaAPI.sk4d_paragraphstyle_get_text_height_behaviors; external TSkiaAPI.LibName name 'sk4d_paragraphstyle_get_text_height_behaviors';
-    class function  TSkiaAPI.sk4d_paragraphstyle_get_text_style;            external TSkiaAPI.LibName name 'sk4d_paragraphstyle_get_text_style';
-    class procedure TSkiaAPI.sk4d_paragraphstyle_set_ellipsis;              external TSkiaAPI.LibName name 'sk4d_paragraphstyle_set_ellipsis';
-    class procedure TSkiaAPI.sk4d_paragraphstyle_set_height;                external TSkiaAPI.LibName name 'sk4d_paragraphstyle_set_height';
-    class procedure TSkiaAPI.sk4d_paragraphstyle_set_max_lines;             external TSkiaAPI.LibName name 'sk4d_paragraphstyle_set_max_lines';
-    class procedure TSkiaAPI.sk4d_paragraphstyle_set_strut_style;           external TSkiaAPI.LibName name 'sk4d_paragraphstyle_set_strut_style';
-    class procedure TSkiaAPI.sk4d_paragraphstyle_set_text_align;            external TSkiaAPI.LibName name 'sk4d_paragraphstyle_set_text_align';
-    class procedure TSkiaAPI.sk4d_paragraphstyle_set_text_direction;        external TSkiaAPI.LibName name 'sk4d_paragraphstyle_set_text_direction';
-    class procedure TSkiaAPI.sk4d_paragraphstyle_set_text_height_behaviors; external TSkiaAPI.LibName name 'sk4d_paragraphstyle_set_text_height_behaviors';
-    class procedure TSkiaAPI.sk4d_paragraphstyle_set_text_style;            external TSkiaAPI.LibName name 'sk4d_paragraphstyle_set_text_style';
-    class function  TSkiaAPI.sk4d_strutstyle_create;                        external TSkiaAPI.LibName name 'sk4d_strutstyle_create';
-    class procedure TSkiaAPI.sk4d_strutstyle_destroy;                       external TSkiaAPI.LibName name 'sk4d_strutstyle_destroy';
-    class function  TSkiaAPI.sk4d_strutstyle_get_enabled;                   external TSkiaAPI.LibName name 'sk4d_strutstyle_get_enabled';
-    class function  TSkiaAPI.sk4d_strutstyle_get_font_families;             external TSkiaAPI.LibName name 'sk4d_strutstyle_get_font_families';
-    class function  TSkiaAPI.sk4d_strutstyle_get_font_size;                 external TSkiaAPI.LibName name 'sk4d_strutstyle_get_font_size';
-    class procedure TSkiaAPI.sk4d_strutstyle_get_font_style;                external TSkiaAPI.LibName name 'sk4d_strutstyle_get_font_style';
-    class function  TSkiaAPI.sk4d_strutstyle_get_force_height;              external TSkiaAPI.LibName name 'sk4d_strutstyle_get_force_height';
-    class function  TSkiaAPI.sk4d_strutstyle_get_half_leading;              external TSkiaAPI.LibName name 'sk4d_strutstyle_get_half_leading';
-    class function  TSkiaAPI.sk4d_strutstyle_get_height_multiplier;         external TSkiaAPI.LibName name 'sk4d_strutstyle_get_height_multiplier';
-    class function  TSkiaAPI.sk4d_strutstyle_get_leading;                   external TSkiaAPI.LibName name 'sk4d_strutstyle_get_leading';
-    class function  TSkiaAPI.sk4d_strutstyle_is_equal;                      external TSkiaAPI.LibName name 'sk4d_strutstyle_is_equal';
-    class procedure TSkiaAPI.sk4d_strutstyle_set_enabled;                   external TSkiaAPI.LibName name 'sk4d_strutstyle_set_enabled';
-    class procedure TSkiaAPI.sk4d_strutstyle_set_font_families;             external TSkiaAPI.LibName name 'sk4d_strutstyle_set_font_families';
-    class procedure TSkiaAPI.sk4d_strutstyle_set_font_size;                 external TSkiaAPI.LibName name 'sk4d_strutstyle_set_font_size';
-    class procedure TSkiaAPI.sk4d_strutstyle_set_font_style;                external TSkiaAPI.LibName name 'sk4d_strutstyle_set_font_style';
-    class procedure TSkiaAPI.sk4d_strutstyle_set_force_height;              external TSkiaAPI.LibName name 'sk4d_strutstyle_set_force_height';
-    class procedure TSkiaAPI.sk4d_strutstyle_set_half_leading;              external TSkiaAPI.LibName name 'sk4d_strutstyle_set_half_leading';
-    class procedure TSkiaAPI.sk4d_strutstyle_set_height_multiplier;         external TSkiaAPI.LibName name 'sk4d_strutstyle_set_height_multiplier';
-    class procedure TSkiaAPI.sk4d_strutstyle_set_leading;                   external TSkiaAPI.LibName name 'sk4d_strutstyle_set_leading';
-    {$ENDIF}
-    {$ENDREGION}
-
-    {$REGION 'modules/skparagraph/include/sk4d_textstyle.h'}
-    {$IFDEF SK_DYNAMIC_LOADING}
-    sk4d_textstyle_add_font_feature         := GetProcAddress(FLibHandle, 'sk4d_textstyle_add_font_feature');
-    sk4d_textstyle_add_shadow               := GetProcAddress(FLibHandle, 'sk4d_textstyle_add_shadow');
-    sk4d_textstyle_clear_background_color   := GetProcAddress(FLibHandle, 'sk4d_textstyle_clear_background_color');
-    sk4d_textstyle_clear_foreground_color   := GetProcAddress(FLibHandle, 'sk4d_textstyle_clear_foreground_color');
-    sk4d_textstyle_create                   := GetProcAddress(FLibHandle, 'sk4d_textstyle_create');
-    sk4d_textstyle_destroy                  := GetProcAddress(FLibHandle, 'sk4d_textstyle_destroy');
-    sk4d_textstyle_get_background           := GetProcAddress(FLibHandle, 'sk4d_textstyle_get_background');
-    sk4d_textstyle_get_color                := GetProcAddress(FLibHandle, 'sk4d_textstyle_get_color');
-    sk4d_textstyle_get_decoration_color     := GetProcAddress(FLibHandle, 'sk4d_textstyle_get_decoration_color');
-    sk4d_textstyle_get_decoration_style     := GetProcAddress(FLibHandle, 'sk4d_textstyle_get_decoration_style');
-    sk4d_textstyle_get_decoration_thickness := GetProcAddress(FLibHandle, 'sk4d_textstyle_get_decoration_thickness');
-    sk4d_textstyle_get_decorations          := GetProcAddress(FLibHandle, 'sk4d_textstyle_get_decorations');
-    sk4d_textstyle_get_font_families        := GetProcAddress(FLibHandle, 'sk4d_textstyle_get_font_families');
-    sk4d_textstyle_get_font_metrics         := GetProcAddress(FLibHandle, 'sk4d_textstyle_get_font_metrics');
-    sk4d_textstyle_get_font_size            := GetProcAddress(FLibHandle, 'sk4d_textstyle_get_font_size');
-    sk4d_textstyle_get_font_style           := GetProcAddress(FLibHandle, 'sk4d_textstyle_get_font_style');
-    sk4d_textstyle_get_foreground           := GetProcAddress(FLibHandle, 'sk4d_textstyle_get_foreground');
-    sk4d_textstyle_get_half_leading         := GetProcAddress(FLibHandle, 'sk4d_textstyle_get_half_leading');
-    sk4d_textstyle_get_height_multiplier    := GetProcAddress(FLibHandle, 'sk4d_textstyle_get_height_multiplier');
-    sk4d_textstyle_get_letter_spacing       := GetProcAddress(FLibHandle, 'sk4d_textstyle_get_letter_spacing');
-    sk4d_textstyle_get_locale               := GetProcAddress(FLibHandle, 'sk4d_textstyle_get_locale');
-    sk4d_textstyle_get_word_spacing         := GetProcAddress(FLibHandle, 'sk4d_textstyle_get_word_spacing');
-    sk4d_textstyle_is_equal                 := GetProcAddress(FLibHandle, 'sk4d_textstyle_is_equal');
-    sk4d_textstyle_reset_font_features      := GetProcAddress(FLibHandle, 'sk4d_textstyle_reset_font_features');
-    sk4d_textstyle_reset_shadows            := GetProcAddress(FLibHandle, 'sk4d_textstyle_reset_shadows');
-    sk4d_textstyle_set_background_color     := GetProcAddress(FLibHandle, 'sk4d_textstyle_set_background_color');
-    sk4d_textstyle_set_color                := GetProcAddress(FLibHandle, 'sk4d_textstyle_set_color');
-    sk4d_textstyle_set_decoration_color     := GetProcAddress(FLibHandle, 'sk4d_textstyle_set_decoration_color');
-    sk4d_textstyle_set_decoration_style     := GetProcAddress(FLibHandle, 'sk4d_textstyle_set_decoration_style');
-    sk4d_textstyle_set_decoration_thickness := GetProcAddress(FLibHandle, 'sk4d_textstyle_set_decoration_thickness');
-    sk4d_textstyle_set_decorations          := GetProcAddress(FLibHandle, 'sk4d_textstyle_set_decorations');
-    sk4d_textstyle_set_font_families        := GetProcAddress(FLibHandle, 'sk4d_textstyle_set_font_families');
-    sk4d_textstyle_set_font_size            := GetProcAddress(FLibHandle, 'sk4d_textstyle_set_font_size');
-    sk4d_textstyle_set_font_style           := GetProcAddress(FLibHandle, 'sk4d_textstyle_set_font_style');
-    sk4d_textstyle_set_foreground_color     := GetProcAddress(FLibHandle, 'sk4d_textstyle_set_foreground_color');
-    sk4d_textstyle_set_half_leading         := GetProcAddress(FLibHandle, 'sk4d_textstyle_set_half_leading');
-    sk4d_textstyle_set_height_multiplier    := GetProcAddress(FLibHandle, 'sk4d_textstyle_set_height_multiplier');
-    sk4d_textstyle_set_letter_spacing       := GetProcAddress(FLibHandle, 'sk4d_textstyle_set_letter_spacing');
-    sk4d_textstyle_set_locale               := GetProcAddress(FLibHandle, 'sk4d_textstyle_set_locale');
-    sk4d_textstyle_set_word_spacing         := GetProcAddress(FLibHandle, 'sk4d_textstyle_set_word_spacing');
-    {$ELSE}
-    class procedure TSkiaAPI.sk4d_textstyle_add_font_feature;         external TSkiaAPI.LibName name 'sk4d_textstyle_add_font_feature';
-    class procedure TSkiaAPI.sk4d_textstyle_add_shadow;               external TSkiaAPI.LibName name 'sk4d_textstyle_add_shadow';
-    class procedure TSkiaAPI.sk4d_textstyle_clear_background_color;   external TSkiaAPI.LibName name 'sk4d_textstyle_clear_background_color';
-    class procedure TSkiaAPI.sk4d_textstyle_clear_foreground_color;   external TSkiaAPI.LibName name 'sk4d_textstyle_clear_foreground_color';
-    class function  TSkiaAPI.sk4d_textstyle_create;                   external TSkiaAPI.LibName name 'sk4d_textstyle_create';
-    class procedure TSkiaAPI.sk4d_textstyle_destroy;                  external TSkiaAPI.LibName name 'sk4d_textstyle_destroy';
-    class function  TSkiaAPI.sk4d_textstyle_get_background;           external TSkiaAPI.LibName name 'sk4d_textstyle_get_background';
-    class function  TSkiaAPI.sk4d_textstyle_get_color;                external TSkiaAPI.LibName name 'sk4d_textstyle_get_color';
-    class function  TSkiaAPI.sk4d_textstyle_get_decoration_color;     external TSkiaAPI.LibName name 'sk4d_textstyle_get_decoration_color';
-    class function  TSkiaAPI.sk4d_textstyle_get_decoration_style;     external TSkiaAPI.LibName name 'sk4d_textstyle_get_decoration_style';
-    class function  TSkiaAPI.sk4d_textstyle_get_decoration_thickness; external TSkiaAPI.LibName name 'sk4d_textstyle_get_decoration_thickness';
-    class function  TSkiaAPI.sk4d_textstyle_get_decorations;          external TSkiaAPI.LibName name 'sk4d_textstyle_get_decorations';
-    class function  TSkiaAPI.sk4d_textstyle_get_font_families;        external TSkiaAPI.LibName name 'sk4d_textstyle_get_font_families';
-    class procedure TSkiaAPI.sk4d_textstyle_get_font_metrics;         external TSkiaAPI.LibName name 'sk4d_textstyle_get_font_metrics';
-    class function  TSkiaAPI.sk4d_textstyle_get_font_size;            external TSkiaAPI.LibName name 'sk4d_textstyle_get_font_size';
-    class procedure TSkiaAPI.sk4d_textstyle_get_font_style;           external TSkiaAPI.LibName name 'sk4d_textstyle_get_font_style';
-    class function  TSkiaAPI.sk4d_textstyle_get_foreground;           external TSkiaAPI.LibName name 'sk4d_textstyle_get_foreground';
-    class function  TSkiaAPI.sk4d_textstyle_get_half_leading;         external TSkiaAPI.LibName name 'sk4d_textstyle_get_half_leading';
-    class function  TSkiaAPI.sk4d_textstyle_get_height_multiplier;    external TSkiaAPI.LibName name 'sk4d_textstyle_get_height_multiplier';
-    class function  TSkiaAPI.sk4d_textstyle_get_letter_spacing;       external TSkiaAPI.LibName name 'sk4d_textstyle_get_letter_spacing';
-    class function  TSkiaAPI.sk4d_textstyle_get_locale;               external TSkiaAPI.LibName name 'sk4d_textstyle_get_locale';
-    class function  TSkiaAPI.sk4d_textstyle_get_word_spacing;         external TSkiaAPI.LibName name 'sk4d_textstyle_get_word_spacing';
-    class function  TSkiaAPI.sk4d_textstyle_is_equal;                 external TSkiaAPI.LibName name 'sk4d_textstyle_is_equal';
-    class procedure TSkiaAPI.sk4d_textstyle_reset_font_features;      external TSkiaAPI.LibName name 'sk4d_textstyle_reset_font_features';
-    class procedure TSkiaAPI.sk4d_textstyle_reset_shadows;            external TSkiaAPI.LibName name 'sk4d_textstyle_reset_shadows';
-    class procedure TSkiaAPI.sk4d_textstyle_set_background_color;     external TSkiaAPI.LibName name 'sk4d_textstyle_set_background_color';
-    class procedure TSkiaAPI.sk4d_textstyle_set_color;                external TSkiaAPI.LibName name 'sk4d_textstyle_set_color';
-    class procedure TSkiaAPI.sk4d_textstyle_set_decoration_color;     external TSkiaAPI.LibName name 'sk4d_textstyle_set_decoration_color';
-    class procedure TSkiaAPI.sk4d_textstyle_set_decoration_style;     external TSkiaAPI.LibName name 'sk4d_textstyle_set_decoration_style';
-    class procedure TSkiaAPI.sk4d_textstyle_set_decoration_thickness; external TSkiaAPI.LibName name 'sk4d_textstyle_set_decoration_thickness';
-    class procedure TSkiaAPI.sk4d_textstyle_set_decorations;          external TSkiaAPI.LibName name 'sk4d_textstyle_set_decorations';
-    class procedure TSkiaAPI.sk4d_textstyle_set_font_families;        external TSkiaAPI.LibName name 'sk4d_textstyle_set_font_families';
-    class procedure TSkiaAPI.sk4d_textstyle_set_font_size;            external TSkiaAPI.LibName name 'sk4d_textstyle_set_font_size';
-    class procedure TSkiaAPI.sk4d_textstyle_set_font_style;           external TSkiaAPI.LibName name 'sk4d_textstyle_set_font_style';
-    class procedure TSkiaAPI.sk4d_textstyle_set_foreground_color;     external TSkiaAPI.LibName name 'sk4d_textstyle_set_foreground_color';
-    class procedure TSkiaAPI.sk4d_textstyle_set_half_leading;         external TSkiaAPI.LibName name 'sk4d_textstyle_set_half_leading';
-    class procedure TSkiaAPI.sk4d_textstyle_set_height_multiplier;    external TSkiaAPI.LibName name 'sk4d_textstyle_set_height_multiplier';
-    class procedure TSkiaAPI.sk4d_textstyle_set_letter_spacing;       external TSkiaAPI.LibName name 'sk4d_textstyle_set_letter_spacing';
-    class procedure TSkiaAPI.sk4d_textstyle_set_locale;               external TSkiaAPI.LibName name 'sk4d_textstyle_set_locale';
-    class procedure TSkiaAPI.sk4d_textstyle_set_word_spacing;         external TSkiaAPI.LibName name 'sk4d_textstyle_set_word_spacing';
-    {$ENDIF}
-    {$ENDREGION}
-
-    {$REGION 'modules/skparagraph/include/sk4d_typefacefontprovider.h'}
-    {$IFDEF SK_DYNAMIC_LOADING}
-    sk4d_typefacefontprovider_create             := GetProcAddress(FLibHandle, 'sk4d_typefacefontprovider_create');
-    sk4d_typefacefontprovider_register_typeface  := GetProcAddress(FLibHandle, 'sk4d_typefacefontprovider_register_typeface');
-    sk4d_typefacefontprovider_register_typeface2 := GetProcAddress(FLibHandle, 'sk4d_typefacefontprovider_register_typeface2');
-    {$ELSE}
-    class function  TSkiaAPI.sk4d_typefacefontprovider_create;             external TSkiaAPI.LibName name 'sk4d_typefacefontprovider_create';
-    class procedure TSkiaAPI.sk4d_typefacefontprovider_register_typeface;  external TSkiaAPI.LibName name 'sk4d_typefacefontprovider_register_typeface';
-    class procedure TSkiaAPI.sk4d_typefacefontprovider_register_typeface2; external TSkiaAPI.LibName name 'sk4d_typefacefontprovider_register_typeface2';
-    {$ENDIF}
-    {$ENDREGION}
-
-    {$REGION 'modules/skresources/include/sk4d_resources.h'}
-    {$IFDEF SK_DYNAMIC_LOADING}
-    sk4d_resourceproviderbaseclass_create    := GetProcAddress(FLibHandle, 'sk4d_resourceproviderbaseclass_create');
-    sk4d_resourceproviderbaseclass_set_procs := GetProcAddress(FLibHandle, 'sk4d_resourceproviderbaseclass_set_procs');
-    {$ELSE}
-    class function  TSkiaAPI.sk4d_resourceproviderbaseclass_create;    external TSkiaAPI.LibName name 'sk4d_resourceproviderbaseclass_create';
-    class procedure TSkiaAPI.sk4d_resourceproviderbaseclass_set_procs; external TSkiaAPI.LibName name 'sk4d_resourceproviderbaseclass_set_procs';
-    {$ENDIF}
-    {$ENDREGION}
-
-    {$REGION 'modules/skshaper/include/sk4d_shaper.h'}
-    {$IFDEF SK_DYNAMIC_LOADING}
-    sk4d_shaper_create  := GetProcAddress(FLibHandle, 'sk4d_shaper_create');
-    sk4d_shaper_destroy := GetProcAddress(FLibHandle, 'sk4d_shaper_destroy');
-    sk4d_shaper_shape   := GetProcAddress(FLibHandle, 'sk4d_shaper_shape');
-    {$ELSE}
-    class function  TSkiaAPI.sk4d_shaper_create;  external TSkiaAPI.LibName name 'sk4d_shaper_create';
-    class procedure TSkiaAPI.sk4d_shaper_destroy; external TSkiaAPI.LibName name 'sk4d_shaper_destroy';
-    class function  TSkiaAPI.sk4d_shaper_shape;   external TSkiaAPI.LibName name 'sk4d_shaper_shape';
-    {$ENDIF}
-    {$ENDREGION}
-
-    {$REGION 'modules/skunicode/include/sk4d_unicode.h'}
-    {$IFDEF SK_DYNAMIC_LOADING}
-    sk4d_unicode_create               := GetProcAddress(FLibHandle, 'sk4d_unicode_create');
-    sk4d_unicode_destroy              := GetProcAddress(FLibHandle, 'sk4d_unicode_destroy');
-    sk4d_unicode_for_each_bidi_region := GetProcAddress(FLibHandle, 'sk4d_unicode_for_each_bidi_region');
-    sk4d_unicode_for_each_break       := GetProcAddress(FLibHandle, 'sk4d_unicode_for_each_break');
-    sk4d_unicode_for_each_codepoint   := GetProcAddress(FLibHandle, 'sk4d_unicode_for_each_codepoint');
-    {$ELSE}
-    class function  TSkiaAPI.sk4d_unicode_create;               external TSkiaAPI.LibName name 'sk4d_unicode_create';
-    class procedure TSkiaAPI.sk4d_unicode_destroy;              external TSkiaAPI.LibName name 'sk4d_unicode_destroy';
-    class procedure TSkiaAPI.sk4d_unicode_for_each_bidi_region; external TSkiaAPI.LibName name 'sk4d_unicode_for_each_bidi_region';
-    class procedure TSkiaAPI.sk4d_unicode_for_each_break;       external TSkiaAPI.LibName name 'sk4d_unicode_for_each_break';
-    class procedure TSkiaAPI.sk4d_unicode_for_each_codepoint;   external TSkiaAPI.LibName name 'sk4d_unicode_for_each_codepoint';
-    {$ENDIF}
-    {$ENDREGION}
-
-    {$REGION 'modules/svg/include/sk4d_svgdom.h'}
-    {$IFDEF SK_DYNAMIC_LOADING}
-    sk4d_svgdom_find_node_by_id    := GetProcAddress(FLibHandle, 'sk4d_svgdom_find_node_by_id');
-    sk4d_svgdom_get_root           := GetProcAddress(FLibHandle, 'sk4d_svgdom_get_root');
-    sk4d_svgdom_make_from_file     := GetProcAddress(FLibHandle, 'sk4d_svgdom_make_from_file');
-    sk4d_svgdom_make_from_stream   := GetProcAddress(FLibHandle, 'sk4d_svgdom_make_from_stream');
-    sk4d_svgdom_render             := GetProcAddress(FLibHandle, 'sk4d_svgdom_render');
-    sk4d_svgdom_set_container_size := GetProcAddress(FLibHandle, 'sk4d_svgdom_set_container_size');
-    {$ELSE}
-    class function  TSkiaAPI.sk4d_svgdom_find_node_by_id;    external TSkiaAPI.LibName name 'sk4d_svgdom_find_node_by_id';
-    class function  TSkiaAPI.sk4d_svgdom_get_root;           external TSkiaAPI.LibName name 'sk4d_svgdom_get_root';
-    class function  TSkiaAPI.sk4d_svgdom_make_from_file;     external TSkiaAPI.LibName name 'sk4d_svgdom_make_from_file';
-    class function  TSkiaAPI.sk4d_svgdom_make_from_stream;   external TSkiaAPI.LibName name 'sk4d_svgdom_make_from_stream';
-    class procedure TSkiaAPI.sk4d_svgdom_render;             external TSkiaAPI.LibName name 'sk4d_svgdom_render';
-    class procedure TSkiaAPI.sk4d_svgdom_set_container_size; external TSkiaAPI.LibName name 'sk4d_svgdom_set_container_size';
-    {$ENDIF}
-    {$ENDREGION}
-
-    {$REGION 'modules/svg/include/sk4d_svgnode.h'}
-    {$IFDEF SK_DYNAMIC_LOADING}
-    sk4d_svgnode_set_attribute := GetProcAddress(FLibHandle, 'sk4d_svgnode_set_attribute');
-    {$ELSE}
-    class function TSkiaAPI.sk4d_svgnode_set_attribute; external TSkiaAPI.LibName name 'sk4d_svgnode_set_attribute';
-    {$ENDIF}
-    {$ENDREGION}
-
-    {$REGION 'modules/svg/include/sk4d_svgsvg.h'}
-    {$IFDEF SK_DYNAMIC_LOADING}
-    sk4d_svgsvg_get_height                := GetProcAddress(FLibHandle, 'sk4d_svgsvg_get_height');
-    sk4d_svgsvg_get_intrinsic_size        := GetProcAddress(FLibHandle, 'sk4d_svgsvg_get_intrinsic_size');
-    sk4d_svgsvg_get_preserve_aspect_ratio := GetProcAddress(FLibHandle, 'sk4d_svgsvg_get_preserve_aspect_ratio');
-    sk4d_svgsvg_get_view_box              := GetProcAddress(FLibHandle, 'sk4d_svgsvg_get_view_box');
-    sk4d_svgsvg_get_width                 := GetProcAddress(FLibHandle, 'sk4d_svgsvg_get_width');
-    sk4d_svgsvg_get_x                     := GetProcAddress(FLibHandle, 'sk4d_svgsvg_get_x');
-    sk4d_svgsvg_get_y                     := GetProcAddress(FLibHandle, 'sk4d_svgsvg_get_y');
-    sk4d_svgsvg_set_height                := GetProcAddress(FLibHandle, 'sk4d_svgsvg_set_height');
-    sk4d_svgsvg_set_preserve_aspect_ratio := GetProcAddress(FLibHandle, 'sk4d_svgsvg_set_preserve_aspect_ratio');
-    sk4d_svgsvg_set_view_box              := GetProcAddress(FLibHandle, 'sk4d_svgsvg_set_view_box');
-    sk4d_svgsvg_set_width                 := GetProcAddress(FLibHandle, 'sk4d_svgsvg_set_width');
-    sk4d_svgsvg_set_x                     := GetProcAddress(FLibHandle, 'sk4d_svgsvg_set_x');
-    sk4d_svgsvg_set_y                     := GetProcAddress(FLibHandle, 'sk4d_svgsvg_set_y');
-    {$ELSE}
-    class procedure TSkiaAPI.sk4d_svgsvg_get_height;                external TSkiaAPI.LibName name 'sk4d_svgsvg_get_height';
-    class procedure TSkiaAPI.sk4d_svgsvg_get_intrinsic_size;        external TSkiaAPI.LibName name 'sk4d_svgsvg_get_intrinsic_size';
-    class procedure TSkiaAPI.sk4d_svgsvg_get_preserve_aspect_ratio; external TSkiaAPI.LibName name 'sk4d_svgsvg_get_preserve_aspect_ratio';
-    class function  TSkiaAPI.sk4d_svgsvg_get_view_box;              external TSkiaAPI.LibName name 'sk4d_svgsvg_get_view_box';
-    class procedure TSkiaAPI.sk4d_svgsvg_get_width;                 external TSkiaAPI.LibName name 'sk4d_svgsvg_get_width';
-    class procedure TSkiaAPI.sk4d_svgsvg_get_x;                     external TSkiaAPI.LibName name 'sk4d_svgsvg_get_x';
-    class procedure TSkiaAPI.sk4d_svgsvg_get_y;                     external TSkiaAPI.LibName name 'sk4d_svgsvg_get_y';
-    class procedure TSkiaAPI.sk4d_svgsvg_set_height;                external TSkiaAPI.LibName name 'sk4d_svgsvg_set_height';
-    class procedure TSkiaAPI.sk4d_svgsvg_set_preserve_aspect_ratio; external TSkiaAPI.LibName name 'sk4d_svgsvg_set_preserve_aspect_ratio';
-    class procedure TSkiaAPI.sk4d_svgsvg_set_view_box;              external TSkiaAPI.LibName name 'sk4d_svgsvg_set_view_box';
-    class procedure TSkiaAPI.sk4d_svgsvg_set_width;                 external TSkiaAPI.LibName name 'sk4d_svgsvg_set_width';
-    class procedure TSkiaAPI.sk4d_svgsvg_set_x;                     external TSkiaAPI.LibName name 'sk4d_svgsvg_set_x';
-    class procedure TSkiaAPI.sk4d_svgsvg_set_y;                     external TSkiaAPI.LibName name 'sk4d_svgsvg_set_y';
-    {$ENDIF}
-    {$ENDREGION}
-
-{$IFDEF SK_DYNAMIC_LOADING}
-  end;
-end;
-{$ENDIF}
-
-class procedure TSkiaAPI.Terminate;
-begin
-  {$IFDEF SK_DYNAMIC_LOADING}
-  if AtomicDecrement(FRefCount) = 0 then
-    FreeLibrary(FLibHandle);
+  {$IF DEFINED(MSWINDOWS)}
+  LibraryName = 'sk4d.dll';
+  {$ELSEIF DEFINED(MACOS)}
+  LibraryName = 'libsk4d.dylib';
+  {$ELSE}
+  LibraryName = 'libsk4d.so';
   {$ENDIF}
+{$ENDIF}
+
+{$IFNDEF SK_STATIC_LIBRARY}
+var
+  InitCount: Integer;
+  LibraryHandle: HMODULE;
+{$ENDIF}
+
+{$IF DEFINED(SK_DEBUG) and DEFINED(MSWINDOWS)}
+function GetProcAddress(AModule: HMODULE; AProcName: PChar): Pointer;
+begin
+  Result := Winapi.Windows.GetProcAddress(AModule, AProcName);
+  if Result = nil then
+    raise Exception.CreateFmt('Function "%s" not found in Skia library.', [AProcName]);
 end;
+{$ENDIF}
 
-{$ENDREGION}
+{$IFNDEF SK_STATIC_LIBRARY}
+procedure SkInitialize;
+begin
+  if AtomicIncrement(InitCount) <> 1 then
+    Exit;
+  {$IF DEFINED(ANDROID)}
+  // Some Android devices, normally old, need the full path of the library,
+  // and other devices, normally new, do not accept the full path.
+  LibraryHandle := SafeLoadLibrary(LibraryName);
+  if LibraryHandle = 0 then
+    LibraryHandle := SafeLoadLibrary(TPath.Combine(TPath.GetLibraryPath, LibraryName));
+  {$ELSE}
+  LibraryHandle := SafeLoadLibrary(LibraryName);
+  {$ENDIF}
+  if LibraryHandle = 0 then
+    Abort;
+  {$IFDEF MSWINDOWS}
+  SetExceptionMask(exAllArithmeticExceptions);
+  {$ENDIF}
+{$ENDIF}
 
-{$REGION 'Static linking loaders'}
+{ include/c/gr4d_backendsurface.h }
 
-{$IFDEF IOS}
+{$IFNDEF SK_STATIC_LIBRARY}
+  gr4d_backendrendertarget_create_gl          := GetProcAddress(LibraryHandle, PChar('gr4d_backendrendertarget_create_gl'));
+  gr4d_backendrendertarget_create_mtl         := GetProcAddress(LibraryHandle, PChar('gr4d_backendrendertarget_create_mtl'));
+  gr4d_backendrendertarget_create_vk          := GetProcAddress(LibraryHandle, PChar('gr4d_backendrendertarget_create_vk'));
+  gr4d_backendrendertarget_destroy            := GetProcAddress(LibraryHandle, PChar('gr4d_backendrendertarget_destroy'));
+  gr4d_backendrendertarget_get_backend_api    := GetProcAddress(LibraryHandle, PChar('gr4d_backendrendertarget_get_backend_api'));
+  gr4d_backendrendertarget_get_height         := GetProcAddress(LibraryHandle, PChar('gr4d_backendrendertarget_get_height'));
+  gr4d_backendrendertarget_get_sample_count   := GetProcAddress(LibraryHandle, PChar('gr4d_backendrendertarget_get_sample_count'));
+  gr4d_backendrendertarget_get_stencil_bits   := GetProcAddress(LibraryHandle, PChar('gr4d_backendrendertarget_get_stencil_bits'));
+  gr4d_backendrendertarget_get_width          := GetProcAddress(LibraryHandle, PChar('gr4d_backendrendertarget_get_width'));
+  gr4d_backendrendertarget_is_valid           := GetProcAddress(LibraryHandle, PChar('gr4d_backendrendertarget_is_valid'));
+  gr4d_backendtexture_create_gl               := GetProcAddress(LibraryHandle, PChar('gr4d_backendtexture_create_gl'));
+  gr4d_backendtexture_create_mtl              := GetProcAddress(LibraryHandle, PChar('gr4d_backendtexture_create_mtl'));
+  gr4d_backendtexture_create_vk               := GetProcAddress(LibraryHandle, PChar('gr4d_backendtexture_create_vk'));
+  gr4d_backendtexture_destroy                 := GetProcAddress(LibraryHandle, PChar('gr4d_backendtexture_destroy'));
+  gr4d_backendtexture_get_backend_api         := GetProcAddress(LibraryHandle, PChar('gr4d_backendtexture_get_backend_api'));
+  gr4d_backendtexture_get_gl_framebuffer_info := GetProcAddress(LibraryHandle, PChar('gr4d_backendtexture_get_gl_framebuffer_info'));
+  gr4d_backendtexture_get_height              := GetProcAddress(LibraryHandle, PChar('gr4d_backendtexture_get_height'));
+  gr4d_backendtexture_get_width               := GetProcAddress(LibraryHandle, PChar('gr4d_backendtexture_get_width'));
+  gr4d_backendtexture_has_mipmaps             := GetProcAddress(LibraryHandle, PChar('gr4d_backendtexture_has_mipmaps'));
+  gr4d_backendtexture_is_valid                := GetProcAddress(LibraryHandle, PChar('gr4d_backendtexture_is_valid'));
+{$ELSE}
+function  gr4d_backendrendertarget_create_gl;          external LibraryName name 'gr4d_backendrendertarget_create_gl';
+function  gr4d_backendrendertarget_create_mtl;         external LibraryName name 'gr4d_backendrendertarget_create_mtl';
+function  gr4d_backendrendertarget_create_vk;          external LibraryName name 'gr4d_backendrendertarget_create_vk';
+procedure gr4d_backendrendertarget_destroy;            external LibraryName name 'gr4d_backendrendertarget_destroy';
+function  gr4d_backendrendertarget_get_backend_api;    external LibraryName name 'gr4d_backendrendertarget_get_backend_api';
+function  gr4d_backendrendertarget_get_height;         external LibraryName name 'gr4d_backendrendertarget_get_height';
+function  gr4d_backendrendertarget_get_sample_count;   external LibraryName name 'gr4d_backendrendertarget_get_sample_count';
+function  gr4d_backendrendertarget_get_stencil_bits;   external LibraryName name 'gr4d_backendrendertarget_get_stencil_bits';
+function  gr4d_backendrendertarget_get_width;          external LibraryName name 'gr4d_backendrendertarget_get_width';
+function  gr4d_backendrendertarget_is_valid;           external LibraryName name 'gr4d_backendrendertarget_is_valid';
+function  gr4d_backendtexture_create_gl;               external LibraryName name 'gr4d_backendtexture_create_gl';
+function  gr4d_backendtexture_create_mtl;              external LibraryName name 'gr4d_backendtexture_create_mtl';
+function  gr4d_backendtexture_create_vk;               external LibraryName name 'gr4d_backendtexture_create_vk';
+procedure gr4d_backendtexture_destroy;                 external LibraryName name 'gr4d_backendtexture_destroy';
+function  gr4d_backendtexture_get_backend_api;         external LibraryName name 'gr4d_backendtexture_get_backend_api';
+function  gr4d_backendtexture_get_gl_framebuffer_info; external LibraryName name 'gr4d_backendtexture_get_gl_framebuffer_info';
+function  gr4d_backendtexture_get_height;              external LibraryName name 'gr4d_backendtexture_get_height';
+function  gr4d_backendtexture_get_width;               external LibraryName name 'gr4d_backendtexture_get_width';
+function  gr4d_backendtexture_has_mipmaps;             external LibraryName name 'gr4d_backendtexture_has_mipmaps';
+function  gr4d_backendtexture_is_valid;                external LibraryName name 'gr4d_backendtexture_is_valid';
+{$ENDIF}
+
+
+{ include/c/gr4d_contextoptions.h }
+
+{$IFNDEF SK_STATIC_LIBRARY}
+gr4d_persistentcachebaseclass_create    := GetProcAddress(LibraryHandle, PChar('gr4d_persistentcachebaseclass_create'));
+gr4d_persistentcachebaseclass_destroy   := GetProcAddress(LibraryHandle, PChar('gr4d_persistentcachebaseclass_destroy'));
+gr4d_persistentcachebaseclass_set_procs := GetProcAddress(LibraryHandle, PChar('gr4d_persistentcachebaseclass_set_procs'));
+{$ELSE}
+function  gr4d_persistentcachebaseclass_create;    external LibraryName name 'gr4d_persistentcachebaseclass_create';
+procedure gr4d_persistentcachebaseclass_destroy;   external LibraryName name 'gr4d_persistentcachebaseclass_destroy';
+procedure gr4d_persistentcachebaseclass_set_procs; external LibraryName name 'gr4d_persistentcachebaseclass_set_procs';
+{$ENDIF}
+
+
+{ include/c/gr4d_directcontext.h }
+
+{$IFNDEF SK_STATIC_LIBRARY}
+  gr4d_directcontext_abandon_context                             := GetProcAddress(LibraryHandle, PChar('gr4d_directcontext_abandon_context'));
+  gr4d_directcontext_dump_memory_statistics                      := GetProcAddress(LibraryHandle, PChar('gr4d_directcontext_dump_memory_statistics'));
+  gr4d_directcontext_flush                                       := GetProcAddress(LibraryHandle, PChar('gr4d_directcontext_flush'));
+  gr4d_directcontext_flush_and_submit                            := GetProcAddress(LibraryHandle, PChar('gr4d_directcontext_flush_and_submit'));
+  gr4d_directcontext_free_gpu_resources                          := GetProcAddress(LibraryHandle, PChar('gr4d_directcontext_free_gpu_resources'));
+  gr4d_directcontext_get_backend_api                             := GetProcAddress(LibraryHandle, PChar('gr4d_directcontext_get_backend_api'));
+  gr4d_directcontext_get_max_surface_sample_count_for_color_type := GetProcAddress(LibraryHandle, PChar('gr4d_directcontext_get_max_surface_sample_count_for_color_type'));
+  gr4d_directcontext_get_resource_cache_limit                    := GetProcAddress(LibraryHandle, PChar('gr4d_directcontext_get_resource_cache_limit'));
+  gr4d_directcontext_get_resource_cache_usage                    := GetProcAddress(LibraryHandle, PChar('gr4d_directcontext_get_resource_cache_usage'));
+  gr4d_directcontext_is_abandoned                                := GetProcAddress(LibraryHandle, PChar('gr4d_directcontext_is_abandoned'));
+  gr4d_directcontext_make_gl                                     := GetProcAddress(LibraryHandle, PChar('gr4d_directcontext_make_gl'));
+  gr4d_directcontext_make_metal                                  := GetProcAddress(LibraryHandle, PChar('gr4d_directcontext_make_metal'));
+  gr4d_directcontext_make_vulkan                                 := GetProcAddress(LibraryHandle, PChar('gr4d_directcontext_make_vulkan'));
+  gr4d_directcontext_perform_deferred_cleanup                    := GetProcAddress(LibraryHandle, PChar('gr4d_directcontext_perform_deferred_cleanup'));
+  gr4d_directcontext_purge_unlocked_resources                    := GetProcAddress(LibraryHandle, PChar('gr4d_directcontext_purge_unlocked_resources'));
+  gr4d_directcontext_purge_unlocked_resources2                   := GetProcAddress(LibraryHandle, PChar('gr4d_directcontext_purge_unlocked_resources2'));
+  gr4d_directcontext_release_resources_and_abandon_context       := GetProcAddress(LibraryHandle, PChar('gr4d_directcontext_release_resources_and_abandon_context'));
+  gr4d_directcontext_reset_context                               := GetProcAddress(LibraryHandle, PChar('gr4d_directcontext_reset_context'));
+  gr4d_directcontext_set_resource_cache_limit                    := GetProcAddress(LibraryHandle, PChar('gr4d_directcontext_set_resource_cache_limit'));
+  gr4d_directcontext_submit                                      := GetProcAddress(LibraryHandle, PChar('gr4d_directcontext_submit'));
+{$ELSE}
+procedure gr4d_directcontext_abandon_context;                             external LibraryName name 'gr4d_directcontext_abandon_context';
+procedure gr4d_directcontext_dump_memory_statistics;                      external LibraryName name 'gr4d_directcontext_dump_memory_statistics';
+procedure gr4d_directcontext_flush;                                       external LibraryName name 'gr4d_directcontext_flush';
+procedure gr4d_directcontext_flush_and_submit;                            external LibraryName name 'gr4d_directcontext_flush_and_submit';
+procedure gr4d_directcontext_free_gpu_resources;                          external LibraryName name 'gr4d_directcontext_free_gpu_resources';
+function  gr4d_directcontext_get_backend_api;                             external LibraryName name 'gr4d_directcontext_get_backend_api';
+function  gr4d_directcontext_get_max_surface_sample_count_for_color_type; external LibraryName name 'gr4d_directcontext_get_max_surface_sample_count_for_color_type';
+function  gr4d_directcontext_get_resource_cache_limit;                    external LibraryName name 'gr4d_directcontext_get_resource_cache_limit';
+procedure gr4d_directcontext_get_resource_cache_usage;                    external LibraryName name 'gr4d_directcontext_get_resource_cache_usage';
+function  gr4d_directcontext_is_abandoned;                                external LibraryName name 'gr4d_directcontext_is_abandoned';
+function  gr4d_directcontext_make_gl;                                     external LibraryName name 'gr4d_directcontext_make_gl';
+function  gr4d_directcontext_make_metal;                                  external LibraryName name 'gr4d_directcontext_make_metal';
+function  gr4d_directcontext_make_vulkan;                                 external LibraryName name 'gr4d_directcontext_make_vulkan';
+procedure gr4d_directcontext_perform_deferred_cleanup;                    external LibraryName name 'gr4d_directcontext_perform_deferred_cleanup';
+procedure gr4d_directcontext_purge_unlocked_resources;                    external LibraryName name 'gr4d_directcontext_purge_unlocked_resources';
+procedure gr4d_directcontext_purge_unlocked_resources2;                   external LibraryName name 'gr4d_directcontext_purge_unlocked_resources2';
+procedure gr4d_directcontext_release_resources_and_abandon_context;       external LibraryName name 'gr4d_directcontext_release_resources_and_abandon_context';
+procedure gr4d_directcontext_reset_context;                               external LibraryName name 'gr4d_directcontext_reset_context';
+procedure gr4d_directcontext_set_resource_cache_limit;                    external LibraryName name 'gr4d_directcontext_set_resource_cache_limit';
+function  gr4d_directcontext_submit;                                      external LibraryName name 'gr4d_directcontext_submit';
+{$ENDIF}
+
+
+{ include/c/gr4d_gl_interface.h }
+
+{$IFNDEF SK_STATIC_LIBRARY}
+  gr4d_gl_interface_has_extension        := GetProcAddress(LibraryHandle, PChar('gr4d_gl_interface_has_extension'));
+  gr4d_gl_interface_make_assembled       := GetProcAddress(LibraryHandle, PChar('gr4d_gl_interface_make_assembled'));
+  gr4d_gl_interface_make_assembled_gl    := GetProcAddress(LibraryHandle, PChar('gr4d_gl_interface_make_assembled_gl'));
+  gr4d_gl_interface_make_assembled_gles  := GetProcAddress(LibraryHandle, PChar('gr4d_gl_interface_make_assembled_gles'));
+  gr4d_gl_interface_make_assembled_webgl := GetProcAddress(LibraryHandle, PChar('gr4d_gl_interface_make_assembled_webgl'));
+  gr4d_gl_interface_make_native          := GetProcAddress(LibraryHandle, PChar('gr4d_gl_interface_make_native'));
+  gr4d_gl_interface_validate             := GetProcAddress(LibraryHandle, PChar('gr4d_gl_interface_validate'));
+{$ELSE}
+function gr4d_gl_interface_has_extension;        external LibraryName name 'gr4d_gl_interface_has_extension';
+function gr4d_gl_interface_make_assembled;       external LibraryName name 'gr4d_gl_interface_make_assembled';
+function gr4d_gl_interface_make_assembled_gl;    external LibraryName name 'gr4d_gl_interface_make_assembled_gl';
+function gr4d_gl_interface_make_assembled_gles;  external LibraryName name 'gr4d_gl_interface_make_assembled_gles';
+function gr4d_gl_interface_make_assembled_webgl; external LibraryName name 'gr4d_gl_interface_make_assembled_webgl';
+function gr4d_gl_interface_make_native;          external LibraryName name 'gr4d_gl_interface_make_native';
+function gr4d_gl_interface_validate;             external LibraryName name 'gr4d_gl_interface_validate';
+{$ENDIF}
+
+
+{ include/c/gr4d_shadererrorhandler.h }
+
+{$IFNDEF SK_STATIC_LIBRARY}
+gr4d_shadererrorhandlerbaseclass_create    := GetProcAddress(LibraryHandle, PChar('gr4d_shadererrorhandlerbaseclass_create'));
+gr4d_shadererrorhandlerbaseclass_destroy   := GetProcAddress(LibraryHandle, PChar('gr4d_shadererrorhandlerbaseclass_destroy'));
+gr4d_shadererrorhandlerbaseclass_set_procs := GetProcAddress(LibraryHandle, PChar('gr4d_shadererrorhandlerbaseclass_set_procs'));
+{$ELSE}
+function  gr4d_shadererrorhandlerbaseclass_create;    external LibraryName name 'gr4d_shadererrorhandlerbaseclass_create';
+procedure gr4d_shadererrorhandlerbaseclass_destroy;   external LibraryName name 'gr4d_shadererrorhandlerbaseclass_destroy';
+procedure gr4d_shadererrorhandlerbaseclass_set_procs; external LibraryName name 'gr4d_shadererrorhandlerbaseclass_set_procs';
+{$ENDIF}
+
+
+{ include/c/gr4d_vk_extensions.h }
+
+{$IFNDEF SK_STATIC_LIBRARY}
+gr4d_vk_extensions_create        := GetProcAddress(LibraryHandle, PChar('gr4d_vk_extensions_create'));
+gr4d_vk_extensions_destroy       := GetProcAddress(LibraryHandle, PChar('gr4d_vk_extensions_destroy'));
+gr4d_vk_extensions_has_extension := GetProcAddress(LibraryHandle, PChar('gr4d_vk_extensions_has_extension'));
+gr4d_vk_extensions_init          := GetProcAddress(LibraryHandle, PChar('gr4d_vk_extensions_init'));
+{$ELSE}
+function  gr4d_vk_extensions_create;        external LibraryName name 'gr4d_vk_extensions_create';
+procedure gr4d_vk_extensions_destroy;       external LibraryName name 'gr4d_vk_extensions_destroy';
+function  gr4d_vk_extensions_has_extension; external LibraryName name 'gr4d_vk_extensions_has_extension';
+procedure gr4d_vk_extensions_init;          external LibraryName name 'gr4d_vk_extensions_init';
+{$ENDIF}
+
+
+{ include/c/sk4d_blender.h }
+
+{$IFNDEF SK_STATIC_LIBRARY}
+  sk4d_blender_make_arithmetic := GetProcAddress(LibraryHandle, PChar('sk4d_blender_make_arithmetic'));
+  sk4d_blender_make_mode       := GetProcAddress(LibraryHandle, PChar('sk4d_blender_make_mode'));
+{$ELSE}
+function  sk4d_blender_make_arithmetic; external LibraryName name 'sk4d_blender_make_arithmetic';
+function  sk4d_blender_make_mode;       external LibraryName name 'sk4d_blender_make_mode';
+{$ENDIF}
+
+
+{ include/c/sk4d_canvas.h }
+
+{$IFNDEF SK_STATIC_LIBRARY}
+  sk4d_canvas_clear                      := GetProcAddress(LibraryHandle, PChar('sk4d_canvas_clear'));
+  sk4d_canvas_clear2                     := GetProcAddress(LibraryHandle, PChar('sk4d_canvas_clear2'));
+  sk4d_canvas_destroy                    := GetProcAddress(LibraryHandle, PChar('sk4d_canvas_destroy'));
+  sk4d_canvas_discard                    := GetProcAddress(LibraryHandle, PChar('sk4d_canvas_discard'));
+  sk4d_canvas_clip_path                  := GetProcAddress(LibraryHandle, PChar('sk4d_canvas_clip_path'));
+  sk4d_canvas_clip_rect                  := GetProcAddress(LibraryHandle, PChar('sk4d_canvas_clip_rect'));
+  sk4d_canvas_clip_region                := GetProcAddress(LibraryHandle, PChar('sk4d_canvas_clip_region'));
+  sk4d_canvas_clip_rrect                 := GetProcAddress(LibraryHandle, PChar('sk4d_canvas_clip_rrect'));
+  sk4d_canvas_clip_shader                := GetProcAddress(LibraryHandle, PChar('sk4d_canvas_clip_shader'));
+  sk4d_canvas_concat                     := GetProcAddress(LibraryHandle, PChar('sk4d_canvas_concat'));
+  sk4d_canvas_concat2                    := GetProcAddress(LibraryHandle, PChar('sk4d_canvas_concat2'));
+  sk4d_canvas_draw_annotation            := GetProcAddress(LibraryHandle, PChar('sk4d_canvas_draw_annotation'));
+  sk4d_canvas_draw_arc                   := GetProcAddress(LibraryHandle, PChar('sk4d_canvas_draw_arc'));
+  sk4d_canvas_draw_atlas                 := GetProcAddress(LibraryHandle, PChar('sk4d_canvas_draw_atlas'));
+  sk4d_canvas_draw_circle                := GetProcAddress(LibraryHandle, PChar('sk4d_canvas_draw_circle'));
+  sk4d_canvas_draw_color                 := GetProcAddress(LibraryHandle, PChar('sk4d_canvas_draw_color'));
+  sk4d_canvas_draw_color2                := GetProcAddress(LibraryHandle, PChar('sk4d_canvas_draw_color2'));
+  sk4d_canvas_draw_glyphs                := GetProcAddress(LibraryHandle, PChar('sk4d_canvas_draw_glyphs'));
+  sk4d_canvas_draw_glyphs2               := GetProcAddress(LibraryHandle, PChar('sk4d_canvas_draw_glyphs2'));
+  sk4d_canvas_draw_image                 := GetProcAddress(LibraryHandle, PChar('sk4d_canvas_draw_image'));
+  sk4d_canvas_draw_image_lattice         := GetProcAddress(LibraryHandle, PChar('sk4d_canvas_draw_image_lattice'));
+  sk4d_canvas_draw_image_nine            := GetProcAddress(LibraryHandle, PChar('sk4d_canvas_draw_image_nine'));
+  sk4d_canvas_draw_image_rect            := GetProcAddress(LibraryHandle, PChar('sk4d_canvas_draw_image_rect'));
+  sk4d_canvas_draw_line                  := GetProcAddress(LibraryHandle, PChar('sk4d_canvas_draw_line'));
+  sk4d_canvas_draw_oval                  := GetProcAddress(LibraryHandle, PChar('sk4d_canvas_draw_oval'));
+  sk4d_canvas_draw_paint                 := GetProcAddress(LibraryHandle, PChar('sk4d_canvas_draw_paint'));
+  sk4d_canvas_draw_patch                 := GetProcAddress(LibraryHandle, PChar('sk4d_canvas_draw_patch'));
+  sk4d_canvas_draw_path                  := GetProcAddress(LibraryHandle, PChar('sk4d_canvas_draw_path'));
+  sk4d_canvas_draw_picture               := GetProcAddress(LibraryHandle, PChar('sk4d_canvas_draw_picture'));
+  sk4d_canvas_draw_point                 := GetProcAddress(LibraryHandle, PChar('sk4d_canvas_draw_point'));
+  sk4d_canvas_draw_points                := GetProcAddress(LibraryHandle, PChar('sk4d_canvas_draw_points'));
+  sk4d_canvas_draw_rect                  := GetProcAddress(LibraryHandle, PChar('sk4d_canvas_draw_rect'));
+  sk4d_canvas_draw_region                := GetProcAddress(LibraryHandle, PChar('sk4d_canvas_draw_region'));
+  sk4d_canvas_draw_rrect                 := GetProcAddress(LibraryHandle, PChar('sk4d_canvas_draw_rrect'));
+  sk4d_canvas_draw_rrect2                := GetProcAddress(LibraryHandle, PChar('sk4d_canvas_draw_rrect2'));
+  sk4d_canvas_draw_rrect_difference      := GetProcAddress(LibraryHandle, PChar('sk4d_canvas_draw_rrect_difference'));
+  sk4d_canvas_draw_simple_text           := GetProcAddress(LibraryHandle, PChar('sk4d_canvas_draw_simple_text'));
+  sk4d_canvas_draw_text_blob             := GetProcAddress(LibraryHandle, PChar('sk4d_canvas_draw_text_blob'));
+  sk4d_canvas_draw_vertices              := GetProcAddress(LibraryHandle, PChar('sk4d_canvas_draw_vertices'));
+  sk4d_canvas_get_base_props             := GetProcAddress(LibraryHandle, PChar('sk4d_canvas_get_base_props'));
+  sk4d_canvas_get_device_clip_bounds     := GetProcAddress(LibraryHandle, PChar('sk4d_canvas_get_device_clip_bounds'));
+  sk4d_canvas_get_local_clip_bounds      := GetProcAddress(LibraryHandle, PChar('sk4d_canvas_get_local_clip_bounds'));
+  sk4d_canvas_get_local_to_device        := GetProcAddress(LibraryHandle, PChar('sk4d_canvas_get_local_to_device'));
+  sk4d_canvas_get_local_to_device_as_3x3 := GetProcAddress(LibraryHandle, PChar('sk4d_canvas_get_local_to_device_as_3x3'));
+  sk4d_canvas_get_top_props              := GetProcAddress(LibraryHandle, PChar('sk4d_canvas_get_top_props'));
+  sk4d_canvas_get_save_count             := GetProcAddress(LibraryHandle, PChar('sk4d_canvas_get_save_count'));
+  sk4d_canvas_make_surface               := GetProcAddress(LibraryHandle, PChar('sk4d_canvas_make_surface'));
+  sk4d_canvas_quick_reject               := GetProcAddress(LibraryHandle, PChar('sk4d_canvas_quick_reject'));
+  sk4d_canvas_quick_reject2              := GetProcAddress(LibraryHandle, PChar('sk4d_canvas_quick_reject2'));
+  sk4d_canvas_reset_matrix               := GetProcAddress(LibraryHandle, PChar('sk4d_canvas_reset_matrix'));
+  sk4d_canvas_restore                    := GetProcAddress(LibraryHandle, PChar('sk4d_canvas_restore'));
+  sk4d_canvas_restore_to_count           := GetProcAddress(LibraryHandle, PChar('sk4d_canvas_restore_to_count'));
+  sk4d_canvas_rotate                     := GetProcAddress(LibraryHandle, PChar('sk4d_canvas_rotate'));
+  sk4d_canvas_rotate2                    := GetProcAddress(LibraryHandle, PChar('sk4d_canvas_rotate2'));
+  sk4d_canvas_save                       := GetProcAddress(LibraryHandle, PChar('sk4d_canvas_save'));
+  sk4d_canvas_save_layer                 := GetProcAddress(LibraryHandle, PChar('sk4d_canvas_save_layer'));
+  sk4d_canvas_save_layer_alpha           := GetProcAddress(LibraryHandle, PChar('sk4d_canvas_save_layer_alpha'));
+  sk4d_canvas_scale                      := GetProcAddress(LibraryHandle, PChar('sk4d_canvas_scale'));
+  sk4d_canvas_set_matrix                 := GetProcAddress(LibraryHandle, PChar('sk4d_canvas_set_matrix'));
+  sk4d_canvas_set_matrix2                := GetProcAddress(LibraryHandle, PChar('sk4d_canvas_set_matrix2'));
+  sk4d_canvas_skew                       := GetProcAddress(LibraryHandle, PChar('sk4d_canvas_skew'));
+  sk4d_canvas_translate                  := GetProcAddress(LibraryHandle, PChar('sk4d_canvas_translate'));
+{$ELSE}
+procedure sk4d_canvas_clear;                      external LibraryName name 'sk4d_canvas_clear';
+procedure sk4d_canvas_clear2;                     external LibraryName name 'sk4d_canvas_clear2';
+procedure sk4d_canvas_destroy;                    external LibraryName name 'sk4d_canvas_destroy';
+procedure sk4d_canvas_discard;                    external LibraryName name 'sk4d_canvas_discard';
+procedure sk4d_canvas_clip_path;                  external LibraryName name 'sk4d_canvas_clip_path';
+procedure sk4d_canvas_clip_rect;                  external LibraryName name 'sk4d_canvas_clip_rect';
+procedure sk4d_canvas_clip_region;                external LibraryName name 'sk4d_canvas_clip_region';
+procedure sk4d_canvas_clip_rrect;                 external LibraryName name 'sk4d_canvas_clip_rrect';
+procedure sk4d_canvas_clip_shader;                external LibraryName name 'sk4d_canvas_clip_shader';
+procedure sk4d_canvas_concat;                     external LibraryName name 'sk4d_canvas_concat';
+procedure sk4d_canvas_concat2;                    external LibraryName name 'sk4d_canvas_concat2';
+procedure sk4d_canvas_draw_annotation;            external LibraryName name 'sk4d_canvas_draw_annotation';
+procedure sk4d_canvas_draw_arc;                   external LibraryName name 'sk4d_canvas_draw_arc';
+procedure sk4d_canvas_draw_atlas;                 external LibraryName name 'sk4d_canvas_draw_atlas';
+procedure sk4d_canvas_draw_circle;                external LibraryName name 'sk4d_canvas_draw_circle';
+procedure sk4d_canvas_draw_color;                 external LibraryName name 'sk4d_canvas_draw_color';
+procedure sk4d_canvas_draw_color2;                external LibraryName name 'sk4d_canvas_draw_color2';
+procedure sk4d_canvas_draw_glyphs;                external LibraryName name 'sk4d_canvas_draw_glyphs';
+procedure sk4d_canvas_draw_glyphs2;               external LibraryName name 'sk4d_canvas_draw_glyphs2';
+procedure sk4d_canvas_draw_image;                 external LibraryName name 'sk4d_canvas_draw_image';
+procedure sk4d_canvas_draw_image_lattice;         external LibraryName name 'sk4d_canvas_draw_image_lattice';
+procedure sk4d_canvas_draw_image_nine;            external LibraryName name 'sk4d_canvas_draw_image_nine';
+procedure sk4d_canvas_draw_image_rect;            external LibraryName name 'sk4d_canvas_draw_image_rect';
+procedure sk4d_canvas_draw_line;                  external LibraryName name 'sk4d_canvas_draw_line';
+procedure sk4d_canvas_draw_oval;                  external LibraryName name 'sk4d_canvas_draw_oval';
+procedure sk4d_canvas_draw_paint;                 external LibraryName name 'sk4d_canvas_draw_paint';
+procedure sk4d_canvas_draw_patch;                 external LibraryName name 'sk4d_canvas_draw_patch';
+procedure sk4d_canvas_draw_path;                  external LibraryName name 'sk4d_canvas_draw_path';
+procedure sk4d_canvas_draw_picture;               external LibraryName name 'sk4d_canvas_draw_picture';
+procedure sk4d_canvas_draw_point;                 external LibraryName name 'sk4d_canvas_draw_point';
+procedure sk4d_canvas_draw_points;                external LibraryName name 'sk4d_canvas_draw_points';
+procedure sk4d_canvas_draw_rect;                  external LibraryName name 'sk4d_canvas_draw_rect';
+procedure sk4d_canvas_draw_region;                external LibraryName name 'sk4d_canvas_draw_region';
+procedure sk4d_canvas_draw_rrect;                 external LibraryName name 'sk4d_canvas_draw_rrect';
+procedure sk4d_canvas_draw_rrect2;                external LibraryName name 'sk4d_canvas_draw_rrect2';
+procedure sk4d_canvas_draw_rrect_difference;      external LibraryName name 'sk4d_canvas_draw_rrect_difference';
+procedure sk4d_canvas_draw_simple_text;           external LibraryName name 'sk4d_canvas_draw_simple_text';
+procedure sk4d_canvas_draw_text_blob;             external LibraryName name 'sk4d_canvas_draw_text_blob';
+procedure sk4d_canvas_draw_vertices;              external LibraryName name 'sk4d_canvas_draw_vertices';
+procedure sk4d_canvas_get_base_props;             external LibraryName name 'sk4d_canvas_get_base_props';
+procedure sk4d_canvas_get_device_clip_bounds;     external LibraryName name 'sk4d_canvas_get_device_clip_bounds';
+procedure sk4d_canvas_get_local_clip_bounds;      external LibraryName name 'sk4d_canvas_get_local_clip_bounds';
+procedure sk4d_canvas_get_local_to_device;        external LibraryName name 'sk4d_canvas_get_local_to_device';
+procedure sk4d_canvas_get_local_to_device_as_3x3; external LibraryName name 'sk4d_canvas_get_local_to_device_as_3x3';
+procedure sk4d_canvas_get_top_props;              external LibraryName name 'sk4d_canvas_get_top_props';
+function  sk4d_canvas_get_save_count;             external LibraryName name 'sk4d_canvas_get_save_count';
+function  sk4d_canvas_make_surface;               external LibraryName name 'sk4d_canvas_make_surface';
+function  sk4d_canvas_quick_reject;               external LibraryName name 'sk4d_canvas_quick_reject';
+function  sk4d_canvas_quick_reject2;              external LibraryName name 'sk4d_canvas_quick_reject2';
+procedure sk4d_canvas_reset_matrix;               external LibraryName name 'sk4d_canvas_reset_matrix';
+procedure sk4d_canvas_restore;                    external LibraryName name 'sk4d_canvas_restore';
+procedure sk4d_canvas_restore_to_count;           external LibraryName name 'sk4d_canvas_restore_to_count';
+procedure sk4d_canvas_rotate;                     external LibraryName name 'sk4d_canvas_rotate';
+procedure sk4d_canvas_rotate2;                    external LibraryName name 'sk4d_canvas_rotate2';
+function  sk4d_canvas_save;                       external LibraryName name 'sk4d_canvas_save';
+function  sk4d_canvas_save_layer;                 external LibraryName name 'sk4d_canvas_save_layer';
+function  sk4d_canvas_save_layer_alpha;           external LibraryName name 'sk4d_canvas_save_layer_alpha';
+procedure sk4d_canvas_scale;                      external LibraryName name 'sk4d_canvas_scale';
+procedure sk4d_canvas_set_matrix;                 external LibraryName name 'sk4d_canvas_set_matrix';
+procedure sk4d_canvas_set_matrix2;                external LibraryName name 'sk4d_canvas_set_matrix2';
+procedure sk4d_canvas_skew;                       external LibraryName name 'sk4d_canvas_skew';
+procedure sk4d_canvas_translate;                  external LibraryName name 'sk4d_canvas_translate';
+{$ENDIF}
+
+
+{ include/c/sk4d_codec.h }
+
+{$IFNDEF SK_STATIC_LIBRARY}
+  sk4d_codec_destroy                    := GetProcAddress(LibraryHandle, PChar('sk4d_codec_destroy'));
+  sk4d_codec_get_dimensions             := GetProcAddress(LibraryHandle, PChar('sk4d_codec_get_dimensions'));
+  sk4d_codec_get_encoded_image_format   := GetProcAddress(LibraryHandle, PChar('sk4d_codec_get_encoded_image_format'));
+  sk4d_codec_get_image                  := GetProcAddress(LibraryHandle, PChar('sk4d_codec_get_image'));
+  sk4d_codec_get_pixels                 := GetProcAddress(LibraryHandle, PChar('sk4d_codec_get_pixels'));
+  sk4d_codec_make_from_file             := GetProcAddress(LibraryHandle, PChar('sk4d_codec_make_from_file'));
+  sk4d_codec_make_from_stream           := GetProcAddress(LibraryHandle, PChar('sk4d_codec_make_from_stream'));
+  sk4d_codec_make_with_copy             := GetProcAddress(LibraryHandle, PChar('sk4d_codec_make_with_copy'));
+  sk4d_codec_make_without_copy          := GetProcAddress(LibraryHandle, PChar('sk4d_codec_make_without_copy'));
+  sk4d_animcodecplayer_destroy          := GetProcAddress(LibraryHandle, PChar('sk4d_animcodecplayer_destroy'));
+  sk4d_animcodecplayer_get_dimensions   := GetProcAddress(LibraryHandle, PChar('sk4d_animcodecplayer_get_dimensions'));
+  sk4d_animcodecplayer_get_duration     := GetProcAddress(LibraryHandle, PChar('sk4d_animcodecplayer_get_duration'));
+  sk4d_animcodecplayer_get_frame        := GetProcAddress(LibraryHandle, PChar('sk4d_animcodecplayer_get_frame'));
+  sk4d_animcodecplayer_make_from_file   := GetProcAddress(LibraryHandle, PChar('sk4d_animcodecplayer_make_from_file'));
+  sk4d_animcodecplayer_make_from_stream := GetProcAddress(LibraryHandle, PChar('sk4d_animcodecplayer_make_from_stream'));
+  sk4d_animcodecplayer_seek             := GetProcAddress(LibraryHandle, PChar('sk4d_animcodecplayer_seek'));
+{$ELSE}
+procedure sk4d_codec_destroy;                    external LibraryName name 'sk4d_codec_destroy';
+procedure sk4d_codec_get_dimensions;             external LibraryName name 'sk4d_codec_get_dimensions';
+function  sk4d_codec_get_encoded_image_format;   external LibraryName name 'sk4d_codec_get_encoded_image_format';
+function  sk4d_codec_get_image;                  external LibraryName name 'sk4d_codec_get_image';
+function  sk4d_codec_get_pixels;                 external LibraryName name 'sk4d_codec_get_pixels';
+function  sk4d_codec_make_from_file;             external LibraryName name 'sk4d_codec_make_from_file';
+function  sk4d_codec_make_from_stream;           external LibraryName name 'sk4d_codec_make_from_stream';
+function  sk4d_codec_make_with_copy;             external LibraryName name 'sk4d_codec_make_with_copy';
+function  sk4d_codec_make_without_copy;          external LibraryName name 'sk4d_codec_make_without_copy';
+procedure sk4d_animcodecplayer_destroy;          external LibraryName name 'sk4d_animcodecplayer_destroy';
+procedure sk4d_animcodecplayer_get_dimensions;   external LibraryName name 'sk4d_animcodecplayer_get_dimensions';
+function  sk4d_animcodecplayer_get_duration;     external LibraryName name 'sk4d_animcodecplayer_get_duration';
+function  sk4d_animcodecplayer_get_frame;        external LibraryName name 'sk4d_animcodecplayer_get_frame';
+function  sk4d_animcodecplayer_make_from_file;   external LibraryName name 'sk4d_animcodecplayer_make_from_file';
+function  sk4d_animcodecplayer_make_from_stream; external LibraryName name 'sk4d_animcodecplayer_make_from_stream';
+function  sk4d_animcodecplayer_seek;             external LibraryName name 'sk4d_animcodecplayer_seek';
+{$ENDIF}
+
+
+{ include/c/sk4d_colorfilter.h }
+
+{$IFNDEF SK_STATIC_LIBRARY}
+  sk4d_colorfilter_make_blend                := GetProcAddress(LibraryHandle, PChar('sk4d_colorfilter_make_blend'));
+  sk4d_colorfilter_make_blend2               := GetProcAddress(LibraryHandle, PChar('sk4d_colorfilter_make_blend2'));
+  sk4d_colorfilter_make_compose              := GetProcAddress(LibraryHandle, PChar('sk4d_colorfilter_make_compose'));
+  sk4d_colorfilter_make_high_contrast        := GetProcAddress(LibraryHandle, PChar('sk4d_colorfilter_make_high_contrast'));
+  sk4d_colorfilter_make_hsla_matrix          := GetProcAddress(LibraryHandle, PChar('sk4d_colorfilter_make_hsla_matrix'));
+  sk4d_colorfilter_make_lighting             := GetProcAddress(LibraryHandle, PChar('sk4d_colorfilter_make_lighting'));
+  sk4d_colorfilter_make_linear_to_srgb_gamma := GetProcAddress(LibraryHandle, PChar('sk4d_colorfilter_make_linear_to_srgb_gamma'));
+  sk4d_colorfilter_make_luma_color           := GetProcAddress(LibraryHandle, PChar('sk4d_colorfilter_make_luma_color'));
+  sk4d_colorfilter_make_matrix               := GetProcAddress(LibraryHandle, PChar('sk4d_colorfilter_make_matrix'));
+  sk4d_colorfilter_make_overdraw             := GetProcAddress(LibraryHandle, PChar('sk4d_colorfilter_make_overdraw'));
+  sk4d_colorfilter_make_table                := GetProcAddress(LibraryHandle, PChar('sk4d_colorfilter_make_table'));
+{$ELSE}
+function sk4d_colorfilter_make_blend;                external LibraryName name 'sk4d_colorfilter_make_blend';
+function sk4d_colorfilter_make_blend2;               external LibraryName name 'sk4d_colorfilter_make_blend2';
+function sk4d_colorfilter_make_compose;              external LibraryName name 'sk4d_colorfilter_make_compose';
+function sk4d_colorfilter_make_high_contrast;        external LibraryName name 'sk4d_colorfilter_make_high_contrast';
+function sk4d_colorfilter_make_hsla_matrix;          external LibraryName name 'sk4d_colorfilter_make_hsla_matrix';
+function sk4d_colorfilter_make_lighting;             external LibraryName name 'sk4d_colorfilter_make_lighting';
+function sk4d_colorfilter_make_linear_to_srgb_gamma; external LibraryName name 'sk4d_colorfilter_make_linear_to_srgb_gamma';
+function sk4d_colorfilter_make_luma_color;           external LibraryName name 'sk4d_colorfilter_make_luma_color';
+function sk4d_colorfilter_make_matrix;               external LibraryName name 'sk4d_colorfilter_make_matrix';
+function sk4d_colorfilter_make_overdraw;             external LibraryName name 'sk4d_colorfilter_make_overdraw';
+function sk4d_colorfilter_make_table;                external LibraryName name 'sk4d_colorfilter_make_table';
+{$ENDIF}
+
+
+{ include/c/sk4d_colorspace.h }
+
+{$IFNDEF SK_STATIC_LIBRARY}
+  sk4d_colorspace_gamma_close_to_srgb       := GetProcAddress(LibraryHandle, PChar('sk4d_colorspace_gamma_close_to_srgb'));
+  sk4d_colorspace_gamma_is_linear           := GetProcAddress(LibraryHandle, PChar('sk4d_colorspace_gamma_is_linear'));
+  sk4d_colorspace_is_equal                  := GetProcAddress(LibraryHandle, PChar('sk4d_colorspace_is_equal'));
+  sk4d_colorspace_is_numerical_transfer_fn  := GetProcAddress(LibraryHandle, PChar('sk4d_colorspace_is_numerical_transfer_fn'));
+  sk4d_colorspace_is_srgb                   := GetProcAddress(LibraryHandle, PChar('sk4d_colorspace_is_srgb'));
+  sk4d_colorspace_make                      := GetProcAddress(LibraryHandle, PChar('sk4d_colorspace_make'));
+  sk4d_colorspace_make_linear_gamma         := GetProcAddress(LibraryHandle, PChar('sk4d_colorspace_make_linear_gamma'));
+  sk4d_colorspace_make_rgb                  := GetProcAddress(LibraryHandle, PChar('sk4d_colorspace_make_rgb'));
+  sk4d_colorspace_make_srgb                 := GetProcAddress(LibraryHandle, PChar('sk4d_colorspace_make_srgb'));
+  sk4d_colorspace_make_srgb_gamma           := GetProcAddress(LibraryHandle, PChar('sk4d_colorspace_make_srgb_gamma'));
+  sk4d_colorspace_make_srgb_linear          := GetProcAddress(LibraryHandle, PChar('sk4d_colorspace_make_srgb_linear'));
+  sk4d_colorspace_ref                       := GetProcAddress(LibraryHandle, PChar('sk4d_colorspace_ref'));
+  sk4d_colorspace_to_profile                := GetProcAddress(LibraryHandle, PChar('sk4d_colorspace_to_profile'));
+  sk4d_colorspace_to_xyz                    := GetProcAddress(LibraryHandle, PChar('sk4d_colorspace_to_xyz'));
+  sk4d_colorspace_unref                     := GetProcAddress(LibraryHandle, PChar('sk4d_colorspace_unref'));
+  sk4d_colorspaceiccprofile_destroy         := GetProcAddress(LibraryHandle, PChar('sk4d_colorspaceiccprofile_destroy'));
+  sk4d_colorspaceiccprofile_get_buffer      := GetProcAddress(LibraryHandle, PChar('sk4d_colorspaceiccprofile_get_buffer'));
+  sk4d_colorspaceiccprofile_make_with_parse := GetProcAddress(LibraryHandle, PChar('sk4d_colorspaceiccprofile_make_with_parse'));
+  sk4d_colorspaceiccprofile_to_xyz          := GetProcAddress(LibraryHandle, PChar('sk4d_colorspaceiccprofile_to_xyz'));
+  sk4d_colorspaceprimaries_to_xyz           := GetProcAddress(LibraryHandle, PChar('sk4d_colorspaceprimaries_to_xyz'));
+  sk4d_colorspacetransferfn_invert          := GetProcAddress(LibraryHandle, PChar('sk4d_colorspacetransferfn_invert'));
+  sk4d_colorspacetransferfn_transform       := GetProcAddress(LibraryHandle, PChar('sk4d_colorspacetransferfn_transform'));
+{$ELSE}
+function  sk4d_colorspace_gamma_close_to_srgb;       external LibraryName name 'sk4d_colorspace_gamma_close_to_srgb';
+function  sk4d_colorspace_gamma_is_linear;           external LibraryName name 'sk4d_colorspace_gamma_is_linear';
+function  sk4d_colorspace_is_equal;                  external LibraryName name 'sk4d_colorspace_is_equal';
+function  sk4d_colorspace_is_numerical_transfer_fn;  external LibraryName name 'sk4d_colorspace_is_numerical_transfer_fn';
+function  sk4d_colorspace_is_srgb;                   external LibraryName name 'sk4d_colorspace_is_srgb';
+function  sk4d_colorspace_make;                      external LibraryName name 'sk4d_colorspace_make';
+function  sk4d_colorspace_make_linear_gamma;         external LibraryName name 'sk4d_colorspace_make_linear_gamma';
+function  sk4d_colorspace_make_rgb;                  external LibraryName name 'sk4d_colorspace_make_rgb';
+function  sk4d_colorspace_make_srgb;                 external LibraryName name 'sk4d_colorspace_make_srgb';
+function  sk4d_colorspace_make_srgb_gamma;           external LibraryName name 'sk4d_colorspace_make_srgb_gamma';
+function  sk4d_colorspace_make_srgb_linear;          external LibraryName name 'sk4d_colorspace_make_srgb_linear';
+procedure sk4d_colorspace_ref;                       external LibraryName name 'sk4d_colorspace_ref';
+function  sk4d_colorspace_to_profile;                external LibraryName name 'sk4d_colorspace_to_profile';
+function  sk4d_colorspace_to_xyz;                    external LibraryName name 'sk4d_colorspace_to_xyz';
+procedure sk4d_colorspace_unref;                     external LibraryName name 'sk4d_colorspace_unref';
+procedure sk4d_colorspaceiccprofile_destroy;         external LibraryName name 'sk4d_colorspaceiccprofile_destroy';
+function  sk4d_colorspaceiccprofile_get_buffer;      external LibraryName name 'sk4d_colorspaceiccprofile_get_buffer';
+function  sk4d_colorspaceiccprofile_make_with_parse; external LibraryName name 'sk4d_colorspaceiccprofile_make_with_parse';
+function  sk4d_colorspaceiccprofile_to_xyz;          external LibraryName name 'sk4d_colorspaceiccprofile_to_xyz';
+function  sk4d_colorspaceprimaries_to_xyz;           external LibraryName name 'sk4d_colorspaceprimaries_to_xyz';
+function  sk4d_colorspacetransferfn_invert;          external LibraryName name 'sk4d_colorspacetransferfn_invert';
+function  sk4d_colorspacetransferfn_transform;       external LibraryName name 'sk4d_colorspacetransferfn_transform';
+{$ENDIF}
+
+
+{ include/c/sk4d_data.h }
+
+{$IFNDEF SK_STATIC_LIBRARY}
+  sk4d_data_make_empty     := GetProcAddress(LibraryHandle, PChar('sk4d_data_make_empty'));
+  sk4d_data_make_with_copy := GetProcAddress(LibraryHandle, PChar('sk4d_data_make_with_copy'));
+  sk4d_data_ref            := GetProcAddress(LibraryHandle, PChar('sk4d_data_ref'));
+  sk4d_data_unref          := GetProcAddress(LibraryHandle, PChar('sk4d_data_unref'));
+{$ELSE}
+function  sk4d_data_make_empty;     external LibraryName name 'sk4d_data_make_empty';
+function  sk4d_data_make_with_copy; external LibraryName name 'sk4d_data_make_with_copy';
+procedure sk4d_data_ref;            external LibraryName name 'sk4d_data_ref';
+procedure sk4d_data_unref;          external LibraryName name 'sk4d_data_unref';
+{$ENDIF}
+
+
+{ include/c/sk4d_document.h }
+
+{$IFNDEF SK_STATIC_LIBRARY}
+  sk4d_document_begin_page := GetProcAddress(LibraryHandle, PChar('sk4d_document_begin_page'));
+  sk4d_document_close      := GetProcAddress(LibraryHandle, PChar('sk4d_document_close'));
+  sk4d_document_end_page   := GetProcAddress(LibraryHandle, PChar('sk4d_document_end_page'));
+  sk4d_document_make_pdf   := GetProcAddress(LibraryHandle, PChar('sk4d_document_make_pdf'));
+  sk4d_document_make_pdf2  := GetProcAddress(LibraryHandle, PChar('sk4d_document_make_pdf2'));
+  sk4d_document_make_xps   := GetProcAddress(LibraryHandle, PChar('sk4d_document_make_xps'));
+  sk4d_document_terminate  := GetProcAddress(LibraryHandle, PChar('sk4d_document_terminate'));
+{$ELSE}
+function  sk4d_document_begin_page; external LibraryName name 'sk4d_document_begin_page';
+procedure sk4d_document_close;      external LibraryName name 'sk4d_document_close';
+procedure sk4d_document_end_page;   external LibraryName name 'sk4d_document_end_page';
+function  sk4d_document_make_pdf;   external LibraryName name 'sk4d_document_make_pdf';
+function  sk4d_document_make_pdf2;  external LibraryName name 'sk4d_document_make_pdf2';
+function  sk4d_document_make_xps;   external LibraryName name 'sk4d_document_make_xps';
+procedure sk4d_document_terminate;  external LibraryName name 'sk4d_document_terminate';
+{$ENDIF}
+
+
+{ include/c/sk4d_font.h }
+
+{$IFNDEF SK_STATIC_LIBRARY}
+  sk4d_font_create                   := GetProcAddress(LibraryHandle, PChar('sk4d_font_create'));
+  sk4d_font_create2                  := GetProcAddress(LibraryHandle, PChar('sk4d_font_create2'));
+  sk4d_font_destroy                  := GetProcAddress(LibraryHandle, PChar('sk4d_font_destroy'));
+  sk4d_font_get_baseline_snap        := GetProcAddress(LibraryHandle, PChar('sk4d_font_get_baseline_snap'));
+  sk4d_font_get_edging               := GetProcAddress(LibraryHandle, PChar('sk4d_font_get_edging'));
+  sk4d_font_get_embedded_bitmaps     := GetProcAddress(LibraryHandle, PChar('sk4d_font_get_embedded_bitmaps'));
+  sk4d_font_get_embolden             := GetProcAddress(LibraryHandle, PChar('sk4d_font_get_embolden'));
+  sk4d_font_get_force_auto_hinting   := GetProcAddress(LibraryHandle, PChar('sk4d_font_get_force_auto_hinting'));
+  sk4d_font_get_glyphs               := GetProcAddress(LibraryHandle, PChar('sk4d_font_get_glyphs'));
+  sk4d_font_get_glyphs_count         := GetProcAddress(LibraryHandle, PChar('sk4d_font_get_glyphs_count'));
+  sk4d_font_get_hinting              := GetProcAddress(LibraryHandle, PChar('sk4d_font_get_hinting'));
+  sk4d_font_get_horizontal_positions := GetProcAddress(LibraryHandle, PChar('sk4d_font_get_horizontal_positions'));
+  sk4d_font_get_intercepts           := GetProcAddress(LibraryHandle, PChar('sk4d_font_get_intercepts'));
+  sk4d_font_get_linear_metrics       := GetProcAddress(LibraryHandle, PChar('sk4d_font_get_linear_metrics'));
+  sk4d_font_get_metrics              := GetProcAddress(LibraryHandle, PChar('sk4d_font_get_metrics'));
+  sk4d_font_get_path                 := GetProcAddress(LibraryHandle, PChar('sk4d_font_get_path'));
+  sk4d_font_get_paths                := GetProcAddress(LibraryHandle, PChar('sk4d_font_get_paths'));
+  sk4d_font_get_positions            := GetProcAddress(LibraryHandle, PChar('sk4d_font_get_positions'));
+  sk4d_font_get_scale_x              := GetProcAddress(LibraryHandle, PChar('sk4d_font_get_scale_x'));
+  sk4d_font_get_size                 := GetProcAddress(LibraryHandle, PChar('sk4d_font_get_size'));
+  sk4d_font_get_skew_x               := GetProcAddress(LibraryHandle, PChar('sk4d_font_get_skew_x'));
+  sk4d_font_get_subpixel             := GetProcAddress(LibraryHandle, PChar('sk4d_font_get_subpixel'));
+  sk4d_font_get_typeface             := GetProcAddress(LibraryHandle, PChar('sk4d_font_get_typeface'));
+  sk4d_font_get_typeface_or_default  := GetProcAddress(LibraryHandle, PChar('sk4d_font_get_typeface_or_default'));
+  sk4d_font_get_widths_bounds        := GetProcAddress(LibraryHandle, PChar('sk4d_font_get_widths_bounds'));
+  sk4d_font_is_equal                 := GetProcAddress(LibraryHandle, PChar('sk4d_font_is_equal'));
+  sk4d_font_measure_text             := GetProcAddress(LibraryHandle, PChar('sk4d_font_measure_text'));
+  sk4d_font_set_baseline_snap        := GetProcAddress(LibraryHandle, PChar('sk4d_font_set_baseline_snap'));
+  sk4d_font_set_edging               := GetProcAddress(LibraryHandle, PChar('sk4d_font_set_edging'));
+  sk4d_font_set_embedded_bitmaps     := GetProcAddress(LibraryHandle, PChar('sk4d_font_set_embedded_bitmaps'));
+  sk4d_font_set_embolden             := GetProcAddress(LibraryHandle, PChar('sk4d_font_set_embolden'));
+  sk4d_font_set_force_auto_hinting   := GetProcAddress(LibraryHandle, PChar('sk4d_font_set_force_auto_hinting'));
+  sk4d_font_set_hinting              := GetProcAddress(LibraryHandle, PChar('sk4d_font_set_hinting'));
+  sk4d_font_set_linear_metrics       := GetProcAddress(LibraryHandle, PChar('sk4d_font_set_linear_metrics'));
+  sk4d_font_set_scale_x              := GetProcAddress(LibraryHandle, PChar('sk4d_font_set_scale_x'));
+  sk4d_font_set_size                 := GetProcAddress(LibraryHandle, PChar('sk4d_font_set_size'));
+  sk4d_font_set_skew_x               := GetProcAddress(LibraryHandle, PChar('sk4d_font_set_skew_x'));
+  sk4d_font_set_subpixel             := GetProcAddress(LibraryHandle, PChar('sk4d_font_set_subpixel'));
+  sk4d_font_set_typeface             := GetProcAddress(LibraryHandle, PChar('sk4d_font_set_typeface'));
+  sk4d_font_unichar_to_glyph         := GetProcAddress(LibraryHandle, PChar('sk4d_font_unichar_to_glyph'));
+  sk4d_font_unichars_to_glyphs       := GetProcAddress(LibraryHandle, PChar('sk4d_font_unichars_to_glyphs'));
+{$ELSE}
+function  sk4d_font_create;                   external LibraryName name 'sk4d_font_create';
+function  sk4d_font_create2;                  external LibraryName name 'sk4d_font_create2';
+procedure sk4d_font_destroy;                  external LibraryName name 'sk4d_font_destroy';
+function  sk4d_font_get_baseline_snap;        external LibraryName name 'sk4d_font_get_baseline_snap';
+function  sk4d_font_get_edging;               external LibraryName name 'sk4d_font_get_edging';
+function  sk4d_font_get_embedded_bitmaps;     external LibraryName name 'sk4d_font_get_embedded_bitmaps';
+function  sk4d_font_get_embolden;             external LibraryName name 'sk4d_font_get_embolden';
+function  sk4d_font_get_force_auto_hinting;   external LibraryName name 'sk4d_font_get_force_auto_hinting';
+function  sk4d_font_get_glyphs;               external LibraryName name 'sk4d_font_get_glyphs';
+function  sk4d_font_get_glyphs_count;         external LibraryName name 'sk4d_font_get_glyphs_count';
+function  sk4d_font_get_hinting;              external LibraryName name 'sk4d_font_get_hinting';
+procedure sk4d_font_get_horizontal_positions; external LibraryName name 'sk4d_font_get_horizontal_positions';
+function  sk4d_font_get_intercepts;           external LibraryName name 'sk4d_font_get_intercepts';
+function  sk4d_font_get_linear_metrics;       external LibraryName name 'sk4d_font_get_linear_metrics';
+function  sk4d_font_get_metrics;              external LibraryName name 'sk4d_font_get_metrics';
+function  sk4d_font_get_path;                 external LibraryName name 'sk4d_font_get_path';
+procedure sk4d_font_get_paths;                external LibraryName name 'sk4d_font_get_paths';
+procedure sk4d_font_get_positions;            external LibraryName name 'sk4d_font_get_positions';
+function  sk4d_font_get_scale_x;              external LibraryName name 'sk4d_font_get_scale_x';
+function  sk4d_font_get_size;                 external LibraryName name 'sk4d_font_get_size';
+function  sk4d_font_get_skew_x;               external LibraryName name 'sk4d_font_get_skew_x';
+function  sk4d_font_get_subpixel;             external LibraryName name 'sk4d_font_get_subpixel';
+function  sk4d_font_get_typeface;             external LibraryName name 'sk4d_font_get_typeface';
+function  sk4d_font_get_typeface_or_default;  external LibraryName name 'sk4d_font_get_typeface_or_default';
+procedure sk4d_font_get_widths_bounds;        external LibraryName name 'sk4d_font_get_widths_bounds';
+function  sk4d_font_is_equal;                 external LibraryName name 'sk4d_font_is_equal';
+function  sk4d_font_measure_text;             external LibraryName name 'sk4d_font_measure_text';
+procedure sk4d_font_set_baseline_snap;        external LibraryName name 'sk4d_font_set_baseline_snap';
+procedure sk4d_font_set_edging;               external LibraryName name 'sk4d_font_set_edging';
+procedure sk4d_font_set_embedded_bitmaps;     external LibraryName name 'sk4d_font_set_embedded_bitmaps';
+procedure sk4d_font_set_embolden;             external LibraryName name 'sk4d_font_set_embolden';
+procedure sk4d_font_set_force_auto_hinting;   external LibraryName name 'sk4d_font_set_force_auto_hinting';
+procedure sk4d_font_set_hinting;              external LibraryName name 'sk4d_font_set_hinting';
+procedure sk4d_font_set_linear_metrics;       external LibraryName name 'sk4d_font_set_linear_metrics';
+procedure sk4d_font_set_scale_x;              external LibraryName name 'sk4d_font_set_scale_x';
+procedure sk4d_font_set_size;                 external LibraryName name 'sk4d_font_set_size';
+procedure sk4d_font_set_skew_x;               external LibraryName name 'sk4d_font_set_skew_x';
+procedure sk4d_font_set_subpixel;             external LibraryName name 'sk4d_font_set_subpixel';
+procedure sk4d_font_set_typeface;             external LibraryName name 'sk4d_font_set_typeface';
+function  sk4d_font_unichar_to_glyph;         external LibraryName name 'sk4d_font_unichar_to_glyph';
+procedure sk4d_font_unichars_to_glyphs;       external LibraryName name 'sk4d_font_unichars_to_glyphs';
+{$ENDIF}
+
+
+{ include/c/sk4d_graphics.h }
+
+{$IFNDEF SK_STATIC_LIBRARY}
+  sk4d_graphics_allow_jit                                       := GetProcAddress(LibraryHandle, PChar('sk4d_graphics_allow_jit'));
+  sk4d_graphics_dump_memory_statistics                          := GetProcAddress(LibraryHandle, PChar('sk4d_graphics_dump_memory_statistics'));
+  sk4d_graphics_get_font_cache_count_limit                      := GetProcAddress(LibraryHandle, PChar('sk4d_graphics_get_font_cache_count_limit'));
+  sk4d_graphics_get_font_cache_count_used                       := GetProcAddress(LibraryHandle, PChar('sk4d_graphics_get_font_cache_count_used'));
+  sk4d_graphics_get_font_cache_limit                            := GetProcAddress(LibraryHandle, PChar('sk4d_graphics_get_font_cache_limit'));
+  sk4d_graphics_get_font_cache_used                             := GetProcAddress(LibraryHandle, PChar('sk4d_graphics_get_font_cache_used'));
+  sk4d_graphics_get_resource_cache_single_allocation_byte_limit := GetProcAddress(LibraryHandle, PChar('sk4d_graphics_get_resource_cache_single_allocation_byte_limit'));
+  sk4d_graphics_get_resource_cache_total_byte_limit             := GetProcAddress(LibraryHandle, PChar('sk4d_graphics_get_resource_cache_total_byte_limit'));
+  sk4d_graphics_get_resource_cache_total_bytes_used             := GetProcAddress(LibraryHandle, PChar('sk4d_graphics_get_resource_cache_total_bytes_used'));
+  sk4d_graphics_init                                            := GetProcAddress(LibraryHandle, PChar('sk4d_graphics_init'));
+  sk4d_graphics_purge_all_caches                                := GetProcAddress(LibraryHandle, PChar('sk4d_graphics_purge_all_caches'));
+  sk4d_graphics_purge_font_cache                                := GetProcAddress(LibraryHandle, PChar('sk4d_graphics_purge_font_cache'));
+  sk4d_graphics_purge_resource_cache                            := GetProcAddress(LibraryHandle, PChar('sk4d_graphics_purge_resource_cache'));
+  sk4d_graphics_set_font_cache_count_limit                      := GetProcAddress(LibraryHandle, PChar('sk4d_graphics_set_font_cache_count_limit'));
+  sk4d_graphics_set_font_cache_limit                            := GetProcAddress(LibraryHandle, PChar('sk4d_graphics_set_font_cache_limit'));
+  sk4d_graphics_set_resource_cache_single_allocation_byte_limit := GetProcAddress(LibraryHandle, PChar('sk4d_graphics_set_resource_cache_single_allocation_byte_limit'));
+  sk4d_graphics_set_resource_cache_total_byte_limit             := GetProcAddress(LibraryHandle, PChar('sk4d_graphics_set_resource_cache_total_byte_limit'));
+{$ELSE}
+procedure sk4d_graphics_allow_jit;                                       external LibraryName name 'sk4d_graphics_allow_jit';
+procedure sk4d_graphics_dump_memory_statistics;                          external LibraryName name 'sk4d_graphics_dump_memory_statistics';
+function  sk4d_graphics_get_font_cache_count_limit;                      external LibraryName name 'sk4d_graphics_get_font_cache_count_limit';
+function  sk4d_graphics_get_font_cache_count_used;                       external LibraryName name 'sk4d_graphics_get_font_cache_count_used';
+function  sk4d_graphics_get_font_cache_limit;                            external LibraryName name 'sk4d_graphics_get_font_cache_limit';
+function  sk4d_graphics_get_font_cache_used;                             external LibraryName name 'sk4d_graphics_get_font_cache_used';
+function  sk4d_graphics_get_resource_cache_single_allocation_byte_limit; external LibraryName name 'sk4d_graphics_get_resource_cache_single_allocation_byte_limit';
+function  sk4d_graphics_get_resource_cache_total_byte_limit;             external LibraryName name 'sk4d_graphics_get_resource_cache_total_byte_limit';
+function  sk4d_graphics_get_resource_cache_total_bytes_used;             external LibraryName name 'sk4d_graphics_get_resource_cache_total_bytes_used';
+procedure sk4d_graphics_init;                                            external LibraryName name 'sk4d_graphics_init';
+procedure sk4d_graphics_purge_all_caches;                                external LibraryName name 'sk4d_graphics_purge_all_caches';
+procedure sk4d_graphics_purge_font_cache;                                external LibraryName name 'sk4d_graphics_purge_font_cache';
+procedure sk4d_graphics_purge_resource_cache;                            external LibraryName name 'sk4d_graphics_purge_resource_cache';
+function  sk4d_graphics_set_font_cache_count_limit;                      external LibraryName name 'sk4d_graphics_set_font_cache_count_limit';
+function  sk4d_graphics_set_font_cache_limit;                            external LibraryName name 'sk4d_graphics_set_font_cache_limit';
+function  sk4d_graphics_set_resource_cache_single_allocation_byte_limit; external LibraryName name 'sk4d_graphics_set_resource_cache_single_allocation_byte_limit';
+function  sk4d_graphics_set_resource_cache_total_byte_limit;             external LibraryName name 'sk4d_graphics_set_resource_cache_total_byte_limit';
+{$ENDIF}
+
+
+{ include/c/sk4d_image.h }
+
+{$IFNDEF SK_STATIC_LIBRARY}
+  sk4d_image_encode_to_file            := GetProcAddress(LibraryHandle, PChar('sk4d_image_encode_to_file'));
+  sk4d_image_encode_to_stream          := GetProcAddress(LibraryHandle, PChar('sk4d_image_encode_to_stream'));
+  sk4d_image_get_alpha_type            := GetProcAddress(LibraryHandle, PChar('sk4d_image_get_alpha_type'));
+  sk4d_image_get_color_space           := GetProcAddress(LibraryHandle, PChar('sk4d_image_get_color_space'));
+  sk4d_image_get_color_type            := GetProcAddress(LibraryHandle, PChar('sk4d_image_get_color_type'));
+  sk4d_image_get_height                := GetProcAddress(LibraryHandle, PChar('sk4d_image_get_height'));
+  sk4d_image_get_image_info            := GetProcAddress(LibraryHandle, PChar('sk4d_image_get_image_info'));
+  sk4d_image_get_unique_id             := GetProcAddress(LibraryHandle, PChar('sk4d_image_get_unique_id'));
+  sk4d_image_get_width                 := GetProcAddress(LibraryHandle, PChar('sk4d_image_get_width'));
+  sk4d_image_is_lazy_generated         := GetProcAddress(LibraryHandle, PChar('sk4d_image_is_lazy_generated'));
+  sk4d_image_is_texture_backed         := GetProcAddress(LibraryHandle, PChar('sk4d_image_is_texture_backed'));
+  sk4d_image_is_valid                  := GetProcAddress(LibraryHandle, PChar('sk4d_image_is_valid'));
+  sk4d_image_make_cross_context        := GetProcAddress(LibraryHandle, PChar('sk4d_image_make_cross_context'));
+  sk4d_image_make_from_adopted_texture := GetProcAddress(LibraryHandle, PChar('sk4d_image_make_from_adopted_texture'));
+  sk4d_image_make_from_encoded_file    := GetProcAddress(LibraryHandle, PChar('sk4d_image_make_from_encoded_file'));
+  sk4d_image_make_from_encoded_stream  := GetProcAddress(LibraryHandle, PChar('sk4d_image_make_from_encoded_stream'));
+  sk4d_image_make_from_picture         := GetProcAddress(LibraryHandle, PChar('sk4d_image_make_from_picture'));
+  sk4d_image_make_from_raster          := GetProcAddress(LibraryHandle, PChar('sk4d_image_make_from_raster'));
+  sk4d_image_make_from_texture         := GetProcAddress(LibraryHandle, PChar('sk4d_image_make_from_texture'));
+  sk4d_image_make_non_texture_image    := GetProcAddress(LibraryHandle, PChar('sk4d_image_make_non_texture_image'));
+  sk4d_image_make_raster_copy          := GetProcAddress(LibraryHandle, PChar('sk4d_image_make_raster_copy'));
+  sk4d_image_make_raster_image         := GetProcAddress(LibraryHandle, PChar('sk4d_image_make_raster_image'));
+  sk4d_image_make_raw_shader           := GetProcAddress(LibraryHandle, PChar('sk4d_image_make_raw_shader'));
+  sk4d_image_make_shader               := GetProcAddress(LibraryHandle, PChar('sk4d_image_make_shader'));
+  sk4d_image_make_subset               := GetProcAddress(LibraryHandle, PChar('sk4d_image_make_subset'));
+  sk4d_image_make_texture_image        := GetProcAddress(LibraryHandle, PChar('sk4d_image_make_texture_image'));
+  sk4d_image_make_with_filter          := GetProcAddress(LibraryHandle, PChar('sk4d_image_make_with_filter'));
+  sk4d_image_peek_pixels               := GetProcAddress(LibraryHandle, PChar('sk4d_image_peek_pixels'));
+  sk4d_image_read_pixels               := GetProcAddress(LibraryHandle, PChar('sk4d_image_read_pixels'));
+  sk4d_image_scale_pixels              := GetProcAddress(LibraryHandle, PChar('sk4d_image_scale_pixels'));
+{$ELSE}
+function  sk4d_image_encode_to_file;            external LibraryName name 'sk4d_image_encode_to_file';
+function  sk4d_image_encode_to_stream;          external LibraryName name 'sk4d_image_encode_to_stream';
+function  sk4d_image_get_alpha_type;            external LibraryName name 'sk4d_image_get_alpha_type';
+function  sk4d_image_get_color_space;           external LibraryName name 'sk4d_image_get_color_space';
+function  sk4d_image_get_color_type;            external LibraryName name 'sk4d_image_get_color_type';
+function  sk4d_image_get_height;                external LibraryName name 'sk4d_image_get_height';
+procedure sk4d_image_get_image_info;            external LibraryName name 'sk4d_image_get_image_info';
+function  sk4d_image_get_unique_id;             external LibraryName name 'sk4d_image_get_unique_id';
+function  sk4d_image_get_width;                 external LibraryName name 'sk4d_image_get_width';
+function  sk4d_image_is_lazy_generated;         external LibraryName name 'sk4d_image_is_lazy_generated';
+function  sk4d_image_is_texture_backed;         external LibraryName name 'sk4d_image_is_texture_backed';
+function  sk4d_image_is_valid;                  external LibraryName name 'sk4d_image_is_valid';
+function  sk4d_image_make_cross_context;        external LibraryName name 'sk4d_image_make_cross_context';
+function  sk4d_image_make_from_adopted_texture; external LibraryName name 'sk4d_image_make_from_adopted_texture';
+function  sk4d_image_make_from_encoded_file;    external LibraryName name 'sk4d_image_make_from_encoded_file';
+function  sk4d_image_make_from_encoded_stream;  external LibraryName name 'sk4d_image_make_from_encoded_stream';
+function  sk4d_image_make_from_picture;         external LibraryName name 'sk4d_image_make_from_picture';
+function  sk4d_image_make_from_raster;          external LibraryName name 'sk4d_image_make_from_raster';
+function  sk4d_image_make_from_texture;         external LibraryName name 'sk4d_image_make_from_texture';
+function  sk4d_image_make_non_texture_image;    external LibraryName name 'sk4d_image_make_non_texture_image';
+function  sk4d_image_make_raster_copy;          external LibraryName name 'sk4d_image_make_raster_copy';
+function  sk4d_image_make_raster_image;         external LibraryName name 'sk4d_image_make_raster_image';
+function  sk4d_image_make_raw_shader;           external LibraryName name 'sk4d_image_make_raw_shader';
+function  sk4d_image_make_shader;               external LibraryName name 'sk4d_image_make_shader';
+function  sk4d_image_make_subset;               external LibraryName name 'sk4d_image_make_subset';
+function  sk4d_image_make_texture_image;        external LibraryName name 'sk4d_image_make_texture_image';
+function  sk4d_image_make_with_filter;          external LibraryName name 'sk4d_image_make_with_filter';
+function  sk4d_image_peek_pixels;               external LibraryName name 'sk4d_image_peek_pixels';
+function  sk4d_image_read_pixels;               external LibraryName name 'sk4d_image_read_pixels';
+function  sk4d_image_scale_pixels;              external LibraryName name 'sk4d_image_scale_pixels';
+{$ENDIF}
+
+
+{ include/c/sk4d_imageencoder.h }
+
+{$IFNDEF SK_STATIC_LIBRARY}
+  sk4d_imageencoder_encode_to_file   := GetProcAddress(LibraryHandle, PChar('sk4d_imageencoder_encode_to_file'));
+  sk4d_imageencoder_encode_to_stream := GetProcAddress(LibraryHandle, PChar('sk4d_imageencoder_encode_to_stream'));
+{$ELSE}
+function sk4d_imageencoder_encode_to_file;   external LibraryName name 'sk4d_imageencoder_encode_to_file';
+function sk4d_imageencoder_encode_to_stream; external LibraryName name 'sk4d_imageencoder_encode_to_stream';
+{$ENDIF}
+
+
+{ include/c/sk4d_imagefilter.h }
+
+{$IFNDEF SK_STATIC_LIBRARY}
+  sk4d_imagefilter_make_alpha_threshold      := GetProcAddress(LibraryHandle, PChar('sk4d_imagefilter_make_alpha_threshold'));
+  sk4d_imagefilter_make_arithmetic           := GetProcAddress(LibraryHandle, PChar('sk4d_imagefilter_make_arithmetic'));
+  sk4d_imagefilter_make_blend                := GetProcAddress(LibraryHandle, PChar('sk4d_imagefilter_make_blend'));
+  sk4d_imagefilter_make_blur                 := GetProcAddress(LibraryHandle, PChar('sk4d_imagefilter_make_blur'));
+  sk4d_imagefilter_make_colorfilter          := GetProcAddress(LibraryHandle, PChar('sk4d_imagefilter_make_colorfilter'));
+  sk4d_imagefilter_make_compose              := GetProcAddress(LibraryHandle, PChar('sk4d_imagefilter_make_compose'));
+  sk4d_imagefilter_make_dilate               := GetProcAddress(LibraryHandle, PChar('sk4d_imagefilter_make_dilate'));
+  sk4d_imagefilter_make_displacement_map     := GetProcAddress(LibraryHandle, PChar('sk4d_imagefilter_make_displacement_map'));
+  sk4d_imagefilter_make_distant_lit_diffuse  := GetProcAddress(LibraryHandle, PChar('sk4d_imagefilter_make_distant_lit_diffuse'));
+  sk4d_imagefilter_make_distant_lit_specular := GetProcAddress(LibraryHandle, PChar('sk4d_imagefilter_make_distant_lit_specular'));
+  sk4d_imagefilter_make_drop_shadow          := GetProcAddress(LibraryHandle, PChar('sk4d_imagefilter_make_drop_shadow'));
+  sk4d_imagefilter_make_drop_shadow_only     := GetProcAddress(LibraryHandle, PChar('sk4d_imagefilter_make_drop_shadow_only'));
+  sk4d_imagefilter_make_erode                := GetProcAddress(LibraryHandle, PChar('sk4d_imagefilter_make_erode'));
+  sk4d_imagefilter_make_image                := GetProcAddress(LibraryHandle, PChar('sk4d_imagefilter_make_image'));
+  sk4d_imagefilter_make_magnifier            := GetProcAddress(LibraryHandle, PChar('sk4d_imagefilter_make_magnifier'));
+  sk4d_imagefilter_make_matrix_convolution   := GetProcAddress(LibraryHandle, PChar('sk4d_imagefilter_make_matrix_convolution'));
+  sk4d_imagefilter_make_matrix_transform     := GetProcAddress(LibraryHandle, PChar('sk4d_imagefilter_make_matrix_transform'));
+  sk4d_imagefilter_make_merge                := GetProcAddress(LibraryHandle, PChar('sk4d_imagefilter_make_merge'));
+  sk4d_imagefilter_make_offset               := GetProcAddress(LibraryHandle, PChar('sk4d_imagefilter_make_offset'));
+  sk4d_imagefilter_make_picture              := GetProcAddress(LibraryHandle, PChar('sk4d_imagefilter_make_picture'));
+  sk4d_imagefilter_make_point_lit_diffuse    := GetProcAddress(LibraryHandle, PChar('sk4d_imagefilter_make_point_lit_diffuse'));
+  sk4d_imagefilter_make_point_lit_specular   := GetProcAddress(LibraryHandle, PChar('sk4d_imagefilter_make_point_lit_specular'));
+  sk4d_imagefilter_make_shader               := GetProcAddress(LibraryHandle, PChar('sk4d_imagefilter_make_shader'));
+  sk4d_imagefilter_make_spot_lit_diffuse     := GetProcAddress(LibraryHandle, PChar('sk4d_imagefilter_make_spot_lit_diffuse'));
+  sk4d_imagefilter_make_spot_lit_specular    := GetProcAddress(LibraryHandle, PChar('sk4d_imagefilter_make_spot_lit_specular'));
+  sk4d_imagefilter_make_tile                 := GetProcAddress(LibraryHandle, PChar('sk4d_imagefilter_make_tile'));
+  sk4d_imagefilter_make_with_local_matrix    := GetProcAddress(LibraryHandle, PChar('sk4d_imagefilter_make_with_local_matrix'));
+{$ELSE}
+function sk4d_imagefilter_make_alpha_threshold;      external LibraryName name 'sk4d_imagefilter_make_alpha_threshold';
+function sk4d_imagefilter_make_arithmetic;           external LibraryName name 'sk4d_imagefilter_make_arithmetic';
+function sk4d_imagefilter_make_blend;                external LibraryName name 'sk4d_imagefilter_make_blend';
+function sk4d_imagefilter_make_blur;                 external LibraryName name 'sk4d_imagefilter_make_blur';
+function sk4d_imagefilter_make_colorfilter;          external LibraryName name 'sk4d_imagefilter_make_colorfilter';
+function sk4d_imagefilter_make_compose;              external LibraryName name 'sk4d_imagefilter_make_compose';
+function sk4d_imagefilter_make_dilate;               external LibraryName name 'sk4d_imagefilter_make_dilate';
+function sk4d_imagefilter_make_displacement_map;     external LibraryName name 'sk4d_imagefilter_make_displacement_map';
+function sk4d_imagefilter_make_distant_lit_diffuse;  external LibraryName name 'sk4d_imagefilter_make_distant_lit_diffuse';
+function sk4d_imagefilter_make_distant_lit_specular; external LibraryName name 'sk4d_imagefilter_make_distant_lit_specular';
+function sk4d_imagefilter_make_drop_shadow;          external LibraryName name 'sk4d_imagefilter_make_drop_shadow';
+function sk4d_imagefilter_make_drop_shadow_only;     external LibraryName name 'sk4d_imagefilter_make_drop_shadow_only';
+function sk4d_imagefilter_make_erode;                external LibraryName name 'sk4d_imagefilter_make_erode';
+function sk4d_imagefilter_make_image;                external LibraryName name 'sk4d_imagefilter_make_image';
+function sk4d_imagefilter_make_magnifier;            external LibraryName name 'sk4d_imagefilter_make_magnifier';
+function sk4d_imagefilter_make_matrix_convolution;   external LibraryName name 'sk4d_imagefilter_make_matrix_convolution';
+function sk4d_imagefilter_make_matrix_transform;     external LibraryName name 'sk4d_imagefilter_make_matrix_transform';
+function sk4d_imagefilter_make_merge;                external LibraryName name 'sk4d_imagefilter_make_merge';
+function sk4d_imagefilter_make_offset;               external LibraryName name 'sk4d_imagefilter_make_offset';
+function sk4d_imagefilter_make_picture;              external LibraryName name 'sk4d_imagefilter_make_picture';
+function sk4d_imagefilter_make_point_lit_diffuse;    external LibraryName name 'sk4d_imagefilter_make_point_lit_diffuse';
+function sk4d_imagefilter_make_point_lit_specular;   external LibraryName name 'sk4d_imagefilter_make_point_lit_specular';
+function sk4d_imagefilter_make_shader;               external LibraryName name 'sk4d_imagefilter_make_shader';
+function sk4d_imagefilter_make_spot_lit_diffuse;     external LibraryName name 'sk4d_imagefilter_make_spot_lit_diffuse';
+function sk4d_imagefilter_make_spot_lit_specular;    external LibraryName name 'sk4d_imagefilter_make_spot_lit_specular';
+function sk4d_imagefilter_make_tile;                 external LibraryName name 'sk4d_imagefilter_make_tile';
+function sk4d_imagefilter_make_with_local_matrix;    external LibraryName name 'sk4d_imagefilter_make_with_local_matrix';
+{$ENDIF}
+
+
+{ include/c/sk4d_maskfilter.h }
+
+{$IFNDEF SK_STATIC_LIBRARY}
+  sk4d_maskfilter_make_blur        := GetProcAddress(LibraryHandle, PChar('sk4d_maskfilter_make_blur'));
+  sk4d_maskfilter_make_shader      := GetProcAddress(LibraryHandle, PChar('sk4d_maskfilter_make_shader'));
+  sk4d_maskfilter_make_table       := GetProcAddress(LibraryHandle, PChar('sk4d_maskfilter_make_table'));
+  sk4d_maskfilter_make_table_clip  := GetProcAddress(LibraryHandle, PChar('sk4d_maskfilter_make_table_clip'));
+  sk4d_maskfilter_make_table_gamma := GetProcAddress(LibraryHandle, PChar('sk4d_maskfilter_make_table_gamma'));
+{$ELSE}
+function sk4d_maskfilter_make_blur;        external LibraryName name 'sk4d_maskfilter_make_blur';
+function sk4d_maskfilter_make_shader;      external LibraryName name 'sk4d_maskfilter_make_shader';
+function sk4d_maskfilter_make_table;       external LibraryName name 'sk4d_maskfilter_make_table';
+function sk4d_maskfilter_make_table_clip;  external LibraryName name 'sk4d_maskfilter_make_table_clip';
+function sk4d_maskfilter_make_table_gamma; external LibraryName name 'sk4d_maskfilter_make_table_gamma';
+{$ENDIF}
+
+
+{ include/c/sk4d_paint.h }
+
+{$IFNDEF SK_STATIC_LIBRARY}
+  sk4d_paint_create             := GetProcAddress(LibraryHandle, PChar('sk4d_paint_create'));
+  sk4d_paint_create2            := GetProcAddress(LibraryHandle, PChar('sk4d_paint_create2'));
+  sk4d_paint_destroy            := GetProcAddress(LibraryHandle, PChar('sk4d_paint_destroy'));
+  sk4d_paint_get_alpha          := GetProcAddress(LibraryHandle, PChar('sk4d_paint_get_alpha'));
+  sk4d_paint_get_alphaf         := GetProcAddress(LibraryHandle, PChar('sk4d_paint_get_alphaf'));
+  sk4d_paint_get_anti_alias     := GetProcAddress(LibraryHandle, PChar('sk4d_paint_get_anti_alias'));
+  sk4d_paint_get_blender        := GetProcAddress(LibraryHandle, PChar('sk4d_paint_get_blender'));
+  sk4d_paint_get_color          := GetProcAddress(LibraryHandle, PChar('sk4d_paint_get_color'));
+  sk4d_paint_get_colorf         := GetProcAddress(LibraryHandle, PChar('sk4d_paint_get_colorf'));
+  sk4d_paint_get_color_filter   := GetProcAddress(LibraryHandle, PChar('sk4d_paint_get_color_filter'));
+  sk4d_paint_get_dither         := GetProcAddress(LibraryHandle, PChar('sk4d_paint_get_dither'));
+  sk4d_paint_get_fill_path      := GetProcAddress(LibraryHandle, PChar('sk4d_paint_get_fill_path'));
+  sk4d_paint_get_image_filter   := GetProcAddress(LibraryHandle, PChar('sk4d_paint_get_image_filter'));
+  sk4d_paint_get_mask_filter    := GetProcAddress(LibraryHandle, PChar('sk4d_paint_get_mask_filter'));
+  sk4d_paint_get_path_effect    := GetProcAddress(LibraryHandle, PChar('sk4d_paint_get_path_effect'));
+  sk4d_paint_get_shader         := GetProcAddress(LibraryHandle, PChar('sk4d_paint_get_shader'));
+  sk4d_paint_get_stroke_cap     := GetProcAddress(LibraryHandle, PChar('sk4d_paint_get_stroke_cap'));
+  sk4d_paint_get_stroke_join    := GetProcAddress(LibraryHandle, PChar('sk4d_paint_get_stroke_join'));
+  sk4d_paint_get_stroke_miter   := GetProcAddress(LibraryHandle, PChar('sk4d_paint_get_stroke_miter'));
+  sk4d_paint_get_stroke_width   := GetProcAddress(LibraryHandle, PChar('sk4d_paint_get_stroke_width'));
+  sk4d_paint_get_style          := GetProcAddress(LibraryHandle, PChar('sk4d_paint_get_style'));
+  sk4d_paint_reset              := GetProcAddress(LibraryHandle, PChar('sk4d_paint_reset'));
+  sk4d_paint_set_alpha          := GetProcAddress(LibraryHandle, PChar('sk4d_paint_set_alpha'));
+  sk4d_paint_set_alphaf         := GetProcAddress(LibraryHandle, PChar('sk4d_paint_set_alphaf'));
+  sk4d_paint_set_antialias      := GetProcAddress(LibraryHandle, PChar('sk4d_paint_set_antialias'));
+  sk4d_paint_set_argb           := GetProcAddress(LibraryHandle, PChar('sk4d_paint_set_argb'));
+  sk4d_paint_set_blender        := GetProcAddress(LibraryHandle, PChar('sk4d_paint_set_blender'));
+  sk4d_paint_set_color          := GetProcAddress(LibraryHandle, PChar('sk4d_paint_set_color'));
+  sk4d_paint_set_colorf         := GetProcAddress(LibraryHandle, PChar('sk4d_paint_set_colorf'));
+  sk4d_paint_set_color_filter   := GetProcAddress(LibraryHandle, PChar('sk4d_paint_set_color_filter'));
+  sk4d_paint_set_dither         := GetProcAddress(LibraryHandle, PChar('sk4d_paint_set_dither'));
+  sk4d_paint_set_image_filter   := GetProcAddress(LibraryHandle, PChar('sk4d_paint_set_image_filter'));
+  sk4d_paint_set_mask_filter    := GetProcAddress(LibraryHandle, PChar('sk4d_paint_set_mask_filter'));
+  sk4d_paint_set_path_effect    := GetProcAddress(LibraryHandle, PChar('sk4d_paint_set_path_effect'));
+  sk4d_paint_set_shader         := GetProcAddress(LibraryHandle, PChar('sk4d_paint_set_shader'));
+  sk4d_paint_set_stroke_cap     := GetProcAddress(LibraryHandle, PChar('sk4d_paint_set_stroke_cap'));
+  sk4d_paint_set_stroke_join    := GetProcAddress(LibraryHandle, PChar('sk4d_paint_set_stroke_join'));
+  sk4d_paint_set_stroke_miter   := GetProcAddress(LibraryHandle, PChar('sk4d_paint_set_stroke_miter'));
+  sk4d_paint_set_stroke_width   := GetProcAddress(LibraryHandle, PChar('sk4d_paint_set_stroke_width'));
+  sk4d_paint_set_style          := GetProcAddress(LibraryHandle, PChar('sk4d_paint_set_style'));
+{$ELSE}
+function  sk4d_paint_create;             external LibraryName name 'sk4d_paint_create';
+function  sk4d_paint_create2;            external LibraryName name 'sk4d_paint_create2';
+procedure sk4d_paint_destroy;            external LibraryName name 'sk4d_paint_destroy';
+function  sk4d_paint_get_alpha;          external LibraryName name 'sk4d_paint_get_alpha';
+function  sk4d_paint_get_alphaf;         external LibraryName name 'sk4d_paint_get_alphaf';
+function  sk4d_paint_get_anti_alias;     external LibraryName name 'sk4d_paint_get_anti_alias';
+function  sk4d_paint_get_blender;        external LibraryName name 'sk4d_paint_get_blender';
+function  sk4d_paint_get_color;          external LibraryName name 'sk4d_paint_get_color';
+procedure sk4d_paint_get_colorf;         external LibraryName name 'sk4d_paint_get_colorf';
+function  sk4d_paint_get_color_filter;   external LibraryName name 'sk4d_paint_get_color_filter';
+function  sk4d_paint_get_dither;         external LibraryName name 'sk4d_paint_get_dither';
+function  sk4d_paint_get_fill_path;      external LibraryName name 'sk4d_paint_get_fill_path';
+function  sk4d_paint_get_image_filter;   external LibraryName name 'sk4d_paint_get_image_filter';
+function  sk4d_paint_get_mask_filter;    external LibraryName name 'sk4d_paint_get_mask_filter';
+function  sk4d_paint_get_path_effect;    external LibraryName name 'sk4d_paint_get_path_effect';
+function  sk4d_paint_get_shader;         external LibraryName name 'sk4d_paint_get_shader';
+function  sk4d_paint_get_stroke_cap;     external LibraryName name 'sk4d_paint_get_stroke_cap';
+function  sk4d_paint_get_stroke_join;    external LibraryName name 'sk4d_paint_get_stroke_join';
+function  sk4d_paint_get_stroke_miter;   external LibraryName name 'sk4d_paint_get_stroke_miter';
+function  sk4d_paint_get_stroke_width;   external LibraryName name 'sk4d_paint_get_stroke_width';
+function  sk4d_paint_get_style;          external LibraryName name 'sk4d_paint_get_style';
+procedure sk4d_paint_reset;              external LibraryName name 'sk4d_paint_reset';
+procedure sk4d_paint_set_alpha;          external LibraryName name 'sk4d_paint_set_alpha';
+procedure sk4d_paint_set_alphaf;         external LibraryName name 'sk4d_paint_set_alphaf';
+procedure sk4d_paint_set_antialias;      external LibraryName name 'sk4d_paint_set_antialias';
+procedure sk4d_paint_set_argb;           external LibraryName name 'sk4d_paint_set_argb';
+procedure sk4d_paint_set_blender;        external LibraryName name 'sk4d_paint_set_blender';
+procedure sk4d_paint_set_color;          external LibraryName name 'sk4d_paint_set_color';
+procedure sk4d_paint_set_colorf;         external LibraryName name 'sk4d_paint_set_colorf';
+procedure sk4d_paint_set_color_filter;   external LibraryName name 'sk4d_paint_set_color_filter';
+procedure sk4d_paint_set_dither;         external LibraryName name 'sk4d_paint_set_dither';
+procedure sk4d_paint_set_image_filter;   external LibraryName name 'sk4d_paint_set_image_filter';
+procedure sk4d_paint_set_mask_filter;    external LibraryName name 'sk4d_paint_set_mask_filter';
+procedure sk4d_paint_set_path_effect;    external LibraryName name 'sk4d_paint_set_path_effect';
+procedure sk4d_paint_set_shader;         external LibraryName name 'sk4d_paint_set_shader';
+procedure sk4d_paint_set_stroke_cap;     external LibraryName name 'sk4d_paint_set_stroke_cap';
+procedure sk4d_paint_set_stroke_join;    external LibraryName name 'sk4d_paint_set_stroke_join';
+procedure sk4d_paint_set_stroke_miter;   external LibraryName name 'sk4d_paint_set_stroke_miter';
+procedure sk4d_paint_set_stroke_width;   external LibraryName name 'sk4d_paint_set_stroke_width';
+procedure sk4d_paint_set_style;          external LibraryName name 'sk4d_paint_set_style';
+{$ENDIF}
+
+
+{ include/c/sk4d_path.h }
+
+{$IFNDEF SK_STATIC_LIBRARY}
+  sk4d_opbuilder_add               := GetProcAddress(LibraryHandle, PChar('sk4d_opbuilder_add'));
+  sk4d_opbuilder_create            := GetProcAddress(LibraryHandle, PChar('sk4d_opbuilder_create'));
+  sk4d_opbuilder_destroy           := GetProcAddress(LibraryHandle, PChar('sk4d_opbuilder_destroy'));
+  sk4d_opbuilder_detach            := GetProcAddress(LibraryHandle, PChar('sk4d_opbuilder_detach'));
+  sk4d_path_contains               := GetProcAddress(LibraryHandle, PChar('sk4d_path_contains'));
+  sk4d_path_convert_conic_to_quads := GetProcAddress(LibraryHandle, PChar('sk4d_path_convert_conic_to_quads'));
+  sk4d_path_create                 := GetProcAddress(LibraryHandle, PChar('sk4d_path_create'));
+  sk4d_path_create2                := GetProcAddress(LibraryHandle, PChar('sk4d_path_create2'));
+  sk4d_path_destroy                := GetProcAddress(LibraryHandle, PChar('sk4d_path_destroy'));
+  sk4d_path_get_bounds             := GetProcAddress(LibraryHandle, PChar('sk4d_path_get_bounds'));
+  sk4d_path_get_fill_type          := GetProcAddress(LibraryHandle, PChar('sk4d_path_get_fill_type'));
+  sk4d_path_get_last_point         := GetProcAddress(LibraryHandle, PChar('sk4d_path_get_last_point'));
+  sk4d_path_get_segment_masks      := GetProcAddress(LibraryHandle, PChar('sk4d_path_get_segment_masks'));
+  sk4d_path_get_tight_bounds       := GetProcAddress(LibraryHandle, PChar('sk4d_path_get_tight_bounds'));
+  sk4d_path_interpolate            := GetProcAddress(LibraryHandle, PChar('sk4d_path_interpolate'));
+  sk4d_path_is_convex              := GetProcAddress(LibraryHandle, PChar('sk4d_path_is_convex'));
+  sk4d_path_is_empty               := GetProcAddress(LibraryHandle, PChar('sk4d_path_is_empty'));
+  sk4d_path_is_finite              := GetProcAddress(LibraryHandle, PChar('sk4d_path_is_finite'));
+  sk4d_path_is_interpolatable      := GetProcAddress(LibraryHandle, PChar('sk4d_path_is_interpolatable'));
+  sk4d_path_is_last_contour_closed := GetProcAddress(LibraryHandle, PChar('sk4d_path_is_last_contour_closed'));
+  sk4d_path_is_line                := GetProcAddress(LibraryHandle, PChar('sk4d_path_is_line'));
+  sk4d_path_is_oval                := GetProcAddress(LibraryHandle, PChar('sk4d_path_is_oval'));
+  sk4d_path_is_rect                := GetProcAddress(LibraryHandle, PChar('sk4d_path_is_rect'));
+  sk4d_path_is_rrect               := GetProcAddress(LibraryHandle, PChar('sk4d_path_is_rrect'));
+  sk4d_path_op                     := GetProcAddress(LibraryHandle, PChar('sk4d_path_op'));
+  sk4d_path_serialize_to_stream    := GetProcAddress(LibraryHandle, PChar('sk4d_path_serialize_to_stream'));
+  sk4d_path_to_svg                 := GetProcAddress(LibraryHandle, PChar('sk4d_path_to_svg'));
+  sk4d_path_transform              := GetProcAddress(LibraryHandle, PChar('sk4d_path_transform'));
+  sk4d_pathiterator_create         := GetProcAddress(LibraryHandle, PChar('sk4d_pathiterator_create'));
+  sk4d_pathiterator_destroy        := GetProcAddress(LibraryHandle, PChar('sk4d_pathiterator_destroy'));
+  sk4d_pathiterator_next           := GetProcAddress(LibraryHandle, PChar('sk4d_pathiterator_next'));
+{$ELSE}
+procedure sk4d_opbuilder_add;               external LibraryName name 'sk4d_opbuilder_add';
+function  sk4d_opbuilder_create;            external LibraryName name 'sk4d_opbuilder_create';
+procedure sk4d_opbuilder_destroy;           external LibraryName name 'sk4d_opbuilder_destroy';
+function  sk4d_opbuilder_detach;            external LibraryName name 'sk4d_opbuilder_detach';
+function  sk4d_path_contains;               external LibraryName name 'sk4d_path_contains';
+function  sk4d_path_convert_conic_to_quads; external LibraryName name 'sk4d_path_convert_conic_to_quads';
+function  sk4d_path_create;                 external LibraryName name 'sk4d_path_create';
+function  sk4d_path_create2;                external LibraryName name 'sk4d_path_create2';
+procedure sk4d_path_destroy;                external LibraryName name 'sk4d_path_destroy';
+procedure sk4d_path_get_bounds;             external LibraryName name 'sk4d_path_get_bounds';
+function  sk4d_path_get_fill_type;          external LibraryName name 'sk4d_path_get_fill_type';
+function  sk4d_path_get_last_point;         external LibraryName name 'sk4d_path_get_last_point';
+function  sk4d_path_get_segment_masks;      external LibraryName name 'sk4d_path_get_segment_masks';
+procedure sk4d_path_get_tight_bounds;       external LibraryName name 'sk4d_path_get_tight_bounds';
+function  sk4d_path_interpolate;            external LibraryName name 'sk4d_path_interpolate';
+function  sk4d_path_is_convex;              external LibraryName name 'sk4d_path_is_convex';
+function  sk4d_path_is_empty;               external LibraryName name 'sk4d_path_is_empty';
+function  sk4d_path_is_finite;              external LibraryName name 'sk4d_path_is_finite';
+function  sk4d_path_is_interpolatable;      external LibraryName name 'sk4d_path_is_interpolatable';
+function  sk4d_path_is_last_contour_closed; external LibraryName name 'sk4d_path_is_last_contour_closed';
+function  sk4d_path_is_line;                external LibraryName name 'sk4d_path_is_line';
+function  sk4d_path_is_oval;                external LibraryName name 'sk4d_path_is_oval';
+function  sk4d_path_is_rect;                external LibraryName name 'sk4d_path_is_rect';
+function  sk4d_path_is_rrect;               external LibraryName name 'sk4d_path_is_rrect';
+function  sk4d_path_op;                     external LibraryName name 'sk4d_path_op';
+procedure sk4d_path_serialize_to_stream;    external LibraryName name 'sk4d_path_serialize_to_stream';
+function  sk4d_path_to_svg;                 external LibraryName name 'sk4d_path_to_svg';
+function  sk4d_path_transform;              external LibraryName name 'sk4d_path_transform';
+function  sk4d_pathiterator_create;         external LibraryName name 'sk4d_pathiterator_create';
+procedure sk4d_pathiterator_destroy;        external LibraryName name 'sk4d_pathiterator_destroy';
+function  sk4d_pathiterator_next;           external LibraryName name 'sk4d_pathiterator_next';
+{$ENDIF}
+
+
+{ include/c/sk4d_pathbuilder.h }
+
+{$IFNDEF SK_STATIC_LIBRARY}
+  sk4d_pathbuilder_add_arc                 := GetProcAddress(LibraryHandle, PChar('sk4d_pathbuilder_add_arc'));
+  sk4d_pathbuilder_add_circle              := GetProcAddress(LibraryHandle, PChar('sk4d_pathbuilder_add_circle'));
+  sk4d_pathbuilder_add_oval                := GetProcAddress(LibraryHandle, PChar('sk4d_pathbuilder_add_oval'));
+  sk4d_pathbuilder_add_path                := GetProcAddress(LibraryHandle, PChar('sk4d_pathbuilder_add_path'));
+  sk4d_pathbuilder_add_polygon             := GetProcAddress(LibraryHandle, PChar('sk4d_pathbuilder_add_polygon'));
+  sk4d_pathbuilder_add_rect                := GetProcAddress(LibraryHandle, PChar('sk4d_pathbuilder_add_rect'));
+  sk4d_pathbuilder_add_rrect               := GetProcAddress(LibraryHandle, PChar('sk4d_pathbuilder_add_rrect'));
+  sk4d_pathbuilder_arc_to                  := GetProcAddress(LibraryHandle, PChar('sk4d_pathbuilder_arc_to'));
+  sk4d_pathbuilder_arc_to2                 := GetProcAddress(LibraryHandle, PChar('sk4d_pathbuilder_arc_to2'));
+  sk4d_pathbuilder_arc_to3                 := GetProcAddress(LibraryHandle, PChar('sk4d_pathbuilder_arc_to3'));
+  sk4d_pathbuilder_close                   := GetProcAddress(LibraryHandle, PChar('sk4d_pathbuilder_close'));
+  sk4d_pathbuilder_conic_to                := GetProcAddress(LibraryHandle, PChar('sk4d_pathbuilder_conic_to'));
+  sk4d_pathbuilder_create                  := GetProcAddress(LibraryHandle, PChar('sk4d_pathbuilder_create'));
+  sk4d_pathbuilder_create2                 := GetProcAddress(LibraryHandle, PChar('sk4d_pathbuilder_create2'));
+  sk4d_pathbuilder_cubic_to                := GetProcAddress(LibraryHandle, PChar('sk4d_pathbuilder_cubic_to'));
+  sk4d_pathbuilder_destroy                 := GetProcAddress(LibraryHandle, PChar('sk4d_pathbuilder_destroy'));
+  sk4d_pathbuilder_detach                  := GetProcAddress(LibraryHandle, PChar('sk4d_pathbuilder_detach'));
+  sk4d_pathbuilder_get_bounds              := GetProcAddress(LibraryHandle, PChar('sk4d_pathbuilder_get_bounds'));
+  sk4d_pathbuilder_get_fill_type           := GetProcAddress(LibraryHandle, PChar('sk4d_pathbuilder_get_fill_type'));
+  sk4d_pathbuilder_inc_reserve             := GetProcAddress(LibraryHandle, PChar('sk4d_pathbuilder_inc_reserve'));
+  sk4d_pathbuilder_line_to                 := GetProcAddress(LibraryHandle, PChar('sk4d_pathbuilder_line_to'));
+  sk4d_pathbuilder_move_to                 := GetProcAddress(LibraryHandle, PChar('sk4d_pathbuilder_move_to'));
+  sk4d_pathbuilder_offset                  := GetProcAddress(LibraryHandle, PChar('sk4d_pathbuilder_offset'));
+  sk4d_pathbuilder_polyline_to             := GetProcAddress(LibraryHandle, PChar('sk4d_pathbuilder_polyline_to'));
+  sk4d_pathbuilder_quad_to                 := GetProcAddress(LibraryHandle, PChar('sk4d_pathbuilder_quad_to'));
+  sk4d_pathbuilder_r_conic_to              := GetProcAddress(LibraryHandle, PChar('sk4d_pathbuilder_r_conic_to'));
+  sk4d_pathbuilder_r_cubic_to              := GetProcAddress(LibraryHandle, PChar('sk4d_pathbuilder_r_cubic_to'));
+  sk4d_pathbuilder_r_line_to               := GetProcAddress(LibraryHandle, PChar('sk4d_pathbuilder_r_line_to'));
+  sk4d_pathbuilder_r_quad_to               := GetProcAddress(LibraryHandle, PChar('sk4d_pathbuilder_r_quad_to'));
+  sk4d_pathbuilder_reset                   := GetProcAddress(LibraryHandle, PChar('sk4d_pathbuilder_reset'));
+  sk4d_pathbuilder_set_filltype            := GetProcAddress(LibraryHandle, PChar('sk4d_pathbuilder_set_filltype'));
+  sk4d_pathbuilder_snapshot                := GetProcAddress(LibraryHandle, PChar('sk4d_pathbuilder_snapshot'));
+  sk4d_pathbuilder_toggle_inverse_filltype := GetProcAddress(LibraryHandle, PChar('sk4d_pathbuilder_toggle_inverse_filltype'));
+{$ELSE}
+procedure sk4d_pathbuilder_add_arc;                 external LibraryName name 'sk4d_pathbuilder_add_arc';
+procedure sk4d_pathbuilder_add_circle;              external LibraryName name 'sk4d_pathbuilder_add_circle';
+procedure sk4d_pathbuilder_add_oval;                external LibraryName name 'sk4d_pathbuilder_add_oval';
+procedure sk4d_pathbuilder_add_path;                external LibraryName name 'sk4d_pathbuilder_add_path';
+procedure sk4d_pathbuilder_add_polygon;             external LibraryName name 'sk4d_pathbuilder_add_polygon';
+procedure sk4d_pathbuilder_add_rect;                external LibraryName name 'sk4d_pathbuilder_add_rect';
+procedure sk4d_pathbuilder_add_rrect;               external LibraryName name 'sk4d_pathbuilder_add_rrect';
+procedure sk4d_pathbuilder_arc_to;                  external LibraryName name 'sk4d_pathbuilder_arc_to';
+procedure sk4d_pathbuilder_arc_to2;                 external LibraryName name 'sk4d_pathbuilder_arc_to2';
+procedure sk4d_pathbuilder_arc_to3;                 external LibraryName name 'sk4d_pathbuilder_arc_to3';
+procedure sk4d_pathbuilder_close;                   external LibraryName name 'sk4d_pathbuilder_close';
+procedure sk4d_pathbuilder_conic_to;                external LibraryName name 'sk4d_pathbuilder_conic_to';
+function  sk4d_pathbuilder_create;                  external LibraryName name 'sk4d_pathbuilder_create';
+function  sk4d_pathbuilder_create2;                 external LibraryName name 'sk4d_pathbuilder_create2';
+procedure sk4d_pathbuilder_cubic_to;                external LibraryName name 'sk4d_pathbuilder_cubic_to';
+procedure sk4d_pathbuilder_destroy;                 external LibraryName name 'sk4d_pathbuilder_destroy';
+function  sk4d_pathbuilder_detach;                  external LibraryName name 'sk4d_pathbuilder_detach';
+procedure sk4d_pathbuilder_get_bounds;              external LibraryName name 'sk4d_pathbuilder_get_bounds';
+function  sk4d_pathbuilder_get_fill_type;           external LibraryName name 'sk4d_pathbuilder_get_fill_type';
+procedure sk4d_pathbuilder_inc_reserve;             external LibraryName name 'sk4d_pathbuilder_inc_reserve';
+procedure sk4d_pathbuilder_line_to;                 external LibraryName name 'sk4d_pathbuilder_line_to';
+procedure sk4d_pathbuilder_move_to;                 external LibraryName name 'sk4d_pathbuilder_move_to';
+procedure sk4d_pathbuilder_offset;                  external LibraryName name 'sk4d_pathbuilder_offset';
+procedure sk4d_pathbuilder_polyline_to;             external LibraryName name 'sk4d_pathbuilder_polyline_to';
+procedure sk4d_pathbuilder_quad_to;                 external LibraryName name 'sk4d_pathbuilder_quad_to';
+procedure sk4d_pathbuilder_r_conic_to;              external LibraryName name 'sk4d_pathbuilder_r_conic_to';
+procedure sk4d_pathbuilder_r_cubic_to;              external LibraryName name 'sk4d_pathbuilder_r_cubic_to';
+procedure sk4d_pathbuilder_r_line_to;               external LibraryName name 'sk4d_pathbuilder_r_line_to';
+procedure sk4d_pathbuilder_r_quad_to;               external LibraryName name 'sk4d_pathbuilder_r_quad_to';
+procedure sk4d_pathbuilder_reset;                   external LibraryName name 'sk4d_pathbuilder_reset';
+procedure sk4d_pathbuilder_set_filltype;            external LibraryName name 'sk4d_pathbuilder_set_filltype';
+function  sk4d_pathbuilder_snapshot;                external LibraryName name 'sk4d_pathbuilder_snapshot';
+procedure sk4d_pathbuilder_toggle_inverse_filltype; external LibraryName name 'sk4d_pathbuilder_toggle_inverse_filltype';
+{$ENDIF}
+
+
+{ include/c/sk4d_patheffect.h }
+
+{$IFNDEF SK_STATIC_LIBRARY}
+  sk4d_patheffect_make_1dpath          := GetProcAddress(LibraryHandle, PChar('sk4d_patheffect_make_1dpath'));
+  sk4d_patheffect_make_2dline          := GetProcAddress(LibraryHandle, PChar('sk4d_patheffect_make_2dline'));
+  sk4d_patheffect_make_2dpath          := GetProcAddress(LibraryHandle, PChar('sk4d_patheffect_make_2dpath'));
+  sk4d_patheffect_make_compose         := GetProcAddress(LibraryHandle, PChar('sk4d_patheffect_make_compose'));
+  sk4d_patheffect_make_corner          := GetProcAddress(LibraryHandle, PChar('sk4d_patheffect_make_corner'));
+  sk4d_patheffect_make_dash            := GetProcAddress(LibraryHandle, PChar('sk4d_patheffect_make_dash'));
+  sk4d_patheffect_make_discrete        := GetProcAddress(LibraryHandle, PChar('sk4d_patheffect_make_discrete'));
+  sk4d_patheffect_make_matrix          := GetProcAddress(LibraryHandle, PChar('sk4d_patheffect_make_matrix'));
+  sk4d_patheffect_make_merge           := GetProcAddress(LibraryHandle, PChar('sk4d_patheffect_make_merge'));
+  sk4d_patheffect_make_stroke          := GetProcAddress(LibraryHandle, PChar('sk4d_patheffect_make_stroke'));
+  sk4d_patheffect_make_stroke_and_fill := GetProcAddress(LibraryHandle, PChar('sk4d_patheffect_make_stroke_and_fill'));
+  sk4d_patheffect_make_sum             := GetProcAddress(LibraryHandle, PChar('sk4d_patheffect_make_sum'));
+  sk4d_patheffect_make_translate       := GetProcAddress(LibraryHandle, PChar('sk4d_patheffect_make_translate'));
+  sk4d_patheffect_make_trim            := GetProcAddress(LibraryHandle, PChar('sk4d_patheffect_make_trim'));
+{$ELSE}
+function sk4d_patheffect_make_1dpath;          external LibraryName name 'sk4d_patheffect_make_1dpath';
+function sk4d_patheffect_make_2dline;          external LibraryName name 'sk4d_patheffect_make_2dline';
+function sk4d_patheffect_make_2dpath;          external LibraryName name 'sk4d_patheffect_make_2dpath';
+function sk4d_patheffect_make_compose;         external LibraryName name 'sk4d_patheffect_make_compose';
+function sk4d_patheffect_make_corner;          external LibraryName name 'sk4d_patheffect_make_corner';
+function sk4d_patheffect_make_dash;            external LibraryName name 'sk4d_patheffect_make_dash';
+function sk4d_patheffect_make_discrete;        external LibraryName name 'sk4d_patheffect_make_discrete';
+function sk4d_patheffect_make_matrix;          external LibraryName name 'sk4d_patheffect_make_matrix';
+function sk4d_patheffect_make_merge;           external LibraryName name 'sk4d_patheffect_make_merge';
+function sk4d_patheffect_make_stroke;          external LibraryName name 'sk4d_patheffect_make_stroke';
+function sk4d_patheffect_make_stroke_and_fill; external LibraryName name 'sk4d_patheffect_make_stroke_and_fill';
+function sk4d_patheffect_make_sum;             external LibraryName name 'sk4d_patheffect_make_sum';
+function sk4d_patheffect_make_translate;       external LibraryName name 'sk4d_patheffect_make_translate';
+function sk4d_patheffect_make_trim;            external LibraryName name 'sk4d_patheffect_make_trim';
+{$ENDIF}
+
+
+{ include/c/sk4d_pathmeasure.h }
+
+{$IFNDEF SK_STATIC_LIBRARY}
+  sk4d_pathmeasure_create                   := GetProcAddress(LibraryHandle, PChar('sk4d_pathmeasure_create'));
+  sk4d_pathmeasure_destroy                  := GetProcAddress(LibraryHandle, PChar('sk4d_pathmeasure_destroy'));
+  sk4d_pathmeasure_get_length               := GetProcAddress(LibraryHandle, PChar('sk4d_pathmeasure_get_length'));
+  sk4d_pathmeasure_get_matrix               := GetProcAddress(LibraryHandle, PChar('sk4d_pathmeasure_get_matrix'));
+  sk4d_pathmeasure_get_position_and_tangent := GetProcAddress(LibraryHandle, PChar('sk4d_pathmeasure_get_position_and_tangent'));
+  sk4d_pathmeasure_get_segment              := GetProcAddress(LibraryHandle, PChar('sk4d_pathmeasure_get_segment'));
+  sk4d_pathmeasure_is_closed                := GetProcAddress(LibraryHandle, PChar('sk4d_pathmeasure_is_closed'));
+  sk4d_pathmeasure_next_contour             := GetProcAddress(LibraryHandle, PChar('sk4d_pathmeasure_next_contour'));
+{$ELSE}
+function  sk4d_pathmeasure_create;                   external LibraryName name 'sk4d_pathmeasure_create';
+procedure sk4d_pathmeasure_destroy;                  external LibraryName name 'sk4d_pathmeasure_destroy';
+function  sk4d_pathmeasure_get_length;               external LibraryName name 'sk4d_pathmeasure_get_length';
+function  sk4d_pathmeasure_get_matrix;               external LibraryName name 'sk4d_pathmeasure_get_matrix';
+function  sk4d_pathmeasure_get_position_and_tangent; external LibraryName name 'sk4d_pathmeasure_get_position_and_tangent';
+function  sk4d_pathmeasure_get_segment;              external LibraryName name 'sk4d_pathmeasure_get_segment';
+function  sk4d_pathmeasure_is_closed;                external LibraryName name 'sk4d_pathmeasure_is_closed';
+function  sk4d_pathmeasure_next_contour;             external LibraryName name 'sk4d_pathmeasure_next_contour';
+{$ENDIF}
+
+
+{ include/c/sk4d_picture.h }
+
+{$IFNDEF SK_STATIC_LIBRARY}
+  sk4d_picture_get_cull_rect       := GetProcAddress(LibraryHandle, PChar('sk4d_picture_get_cull_rect'));
+  sk4d_picture_make_from_stream    := GetProcAddress(LibraryHandle, PChar('sk4d_picture_make_from_stream'));
+  sk4d_picture_make_shader         := GetProcAddress(LibraryHandle, PChar('sk4d_picture_make_shader'));
+  sk4d_picture_playback            := GetProcAddress(LibraryHandle, PChar('sk4d_picture_playback'));
+  sk4d_picture_serialize_to_stream := GetProcAddress(LibraryHandle, PChar('sk4d_picture_serialize_to_stream'));
+{$ELSE}
+procedure sk4d_picture_get_cull_rect;       external LibraryName name 'sk4d_picture_get_cull_rect';
+function  sk4d_picture_make_from_stream;    external LibraryName name 'sk4d_picture_make_from_stream';
+function  sk4d_picture_make_shader;         external LibraryName name 'sk4d_picture_make_shader';
+procedure sk4d_picture_playback;            external LibraryName name 'sk4d_picture_playback';
+procedure sk4d_picture_serialize_to_stream; external LibraryName name 'sk4d_picture_serialize_to_stream';
+{$ENDIF}
+
+
+{ include/c/sk4d_picturerecorder.h }
+
+{$IFNDEF SK_STATIC_LIBRARY}
+  sk4d_picturerecorder_begin_recording   := GetProcAddress(LibraryHandle, PChar('sk4d_picturerecorder_begin_recording'));
+  sk4d_picturerecorder_create            := GetProcAddress(LibraryHandle, PChar('sk4d_picturerecorder_create'));
+  sk4d_picturerecorder_destroy           := GetProcAddress(LibraryHandle, PChar('sk4d_picturerecorder_destroy'));
+  sk4d_picturerecorder_finish_recording  := GetProcAddress(LibraryHandle, PChar('sk4d_picturerecorder_finish_recording'));
+  sk4d_picturerecorder_finish_recording2 := GetProcAddress(LibraryHandle, PChar('sk4d_picturerecorder_finish_recording2'));
+{$ELSE}
+function  sk4d_picturerecorder_begin_recording;   external LibraryName name 'sk4d_picturerecorder_begin_recording';
+function  sk4d_picturerecorder_create;            external LibraryName name 'sk4d_picturerecorder_create';
+procedure sk4d_picturerecorder_destroy;           external LibraryName name 'sk4d_picturerecorder_destroy';
+function  sk4d_picturerecorder_finish_recording;  external LibraryName name 'sk4d_picturerecorder_finish_recording';
+function  sk4d_picturerecorder_finish_recording2; external LibraryName name 'sk4d_picturerecorder_finish_recording2';
+{$ENDIF}
+
+
+{ include/c/sk4d_pixmap.h }
+
+{$IFNDEF SK_STATIC_LIBRARY}
+  sk4d_pixmap_create          := GetProcAddress(LibraryHandle, PChar('sk4d_pixmap_create'));
+  sk4d_pixmap_destroy         := GetProcAddress(LibraryHandle, PChar('sk4d_pixmap_destroy'));
+  sk4d_pixmap_erase           := GetProcAddress(LibraryHandle, PChar('sk4d_pixmap_erase'));
+  sk4d_pixmap_erase2          := GetProcAddress(LibraryHandle, PChar('sk4d_pixmap_erase2'));
+  sk4d_pixmap_extract_subset  := GetProcAddress(LibraryHandle, PChar('sk4d_pixmap_extract_subset'));
+  sk4d_pixmap_get_alpha       := GetProcAddress(LibraryHandle, PChar('sk4d_pixmap_get_alpha'));
+  sk4d_pixmap_get_alpha_type  := GetProcAddress(LibraryHandle, PChar('sk4d_pixmap_get_alpha_type'));
+  sk4d_pixmap_get_color       := GetProcAddress(LibraryHandle, PChar('sk4d_pixmap_get_color'));
+  sk4d_pixmap_get_color_space := GetProcAddress(LibraryHandle, PChar('sk4d_pixmap_get_color_space'));
+  sk4d_pixmap_get_color_type  := GetProcAddress(LibraryHandle, PChar('sk4d_pixmap_get_color_type'));
+  sk4d_pixmap_get_colorf      := GetProcAddress(LibraryHandle, PChar('sk4d_pixmap_get_colorf'));
+  sk4d_pixmap_get_height      := GetProcAddress(LibraryHandle, PChar('sk4d_pixmap_get_height'));
+  sk4d_pixmap_get_image_info  := GetProcAddress(LibraryHandle, PChar('sk4d_pixmap_get_image_info'));
+  sk4d_pixmap_get_pixel_addr  := GetProcAddress(LibraryHandle, PChar('sk4d_pixmap_get_pixel_addr'));
+  sk4d_pixmap_get_pixels      := GetProcAddress(LibraryHandle, PChar('sk4d_pixmap_get_pixels'));
+  sk4d_pixmap_get_row_bytes   := GetProcAddress(LibraryHandle, PChar('sk4d_pixmap_get_row_bytes'));
+  sk4d_pixmap_get_width       := GetProcAddress(LibraryHandle, PChar('sk4d_pixmap_get_width'));
+  sk4d_pixmap_read_pixels     := GetProcAddress(LibraryHandle, PChar('sk4d_pixmap_read_pixels'));
+  sk4d_pixmap_scale_pixels    := GetProcAddress(LibraryHandle, PChar('sk4d_pixmap_scale_pixels'));
+  sk4d_pixmap_set_colorspace  := GetProcAddress(LibraryHandle, PChar('sk4d_pixmap_set_colorspace'));
+{$ELSE}
+function  sk4d_pixmap_create;          external LibraryName name 'sk4d_pixmap_create';
+procedure sk4d_pixmap_destroy;         external LibraryName name 'sk4d_pixmap_destroy';
+function  sk4d_pixmap_erase;           external LibraryName name 'sk4d_pixmap_erase';
+function  sk4d_pixmap_erase2;          external LibraryName name 'sk4d_pixmap_erase2';
+function  sk4d_pixmap_extract_subset;  external LibraryName name 'sk4d_pixmap_extract_subset';
+function  sk4d_pixmap_get_alpha;       external LibraryName name 'sk4d_pixmap_get_alpha';
+function  sk4d_pixmap_get_alpha_type;  external LibraryName name 'sk4d_pixmap_get_alpha_type';
+function  sk4d_pixmap_get_color;       external LibraryName name 'sk4d_pixmap_get_color';
+function  sk4d_pixmap_get_color_space; external LibraryName name 'sk4d_pixmap_get_color_space';
+function  sk4d_pixmap_get_color_type;  external LibraryName name 'sk4d_pixmap_get_color_type';
+procedure sk4d_pixmap_get_colorf;      external LibraryName name 'sk4d_pixmap_get_colorf';
+function  sk4d_pixmap_get_height;      external LibraryName name 'sk4d_pixmap_get_height';
+procedure sk4d_pixmap_get_image_info;  external LibraryName name 'sk4d_pixmap_get_image_info';
+function  sk4d_pixmap_get_pixel_addr;  external LibraryName name 'sk4d_pixmap_get_pixel_addr';
+function  sk4d_pixmap_get_pixels;      external LibraryName name 'sk4d_pixmap_get_pixels';
+function  sk4d_pixmap_get_row_bytes;   external LibraryName name 'sk4d_pixmap_get_row_bytes';
+function  sk4d_pixmap_get_width;       external LibraryName name 'sk4d_pixmap_get_width';
+function  sk4d_pixmap_read_pixels;     external LibraryName name 'sk4d_pixmap_read_pixels';
+function  sk4d_pixmap_scale_pixels;    external LibraryName name 'sk4d_pixmap_scale_pixels';
+procedure sk4d_pixmap_set_colorspace;  external LibraryName name 'sk4d_pixmap_set_colorspace';
+{$ENDIF}
+
+
+{ include/c/sk4d_refcnt.h }
+
+{$IFNDEF SK_STATIC_LIBRARY}
+  sk4d_refcnt_ref   := GetProcAddress(LibraryHandle, PChar('sk4d_refcnt_ref'));
+  sk4d_refcnt_unref := GetProcAddress(LibraryHandle, PChar('sk4d_refcnt_unref'));
+{$ELSE}
+procedure sk4d_refcnt_ref;   external LibraryName name 'sk4d_refcnt_ref';
+procedure sk4d_refcnt_unref; external LibraryName name 'sk4d_refcnt_unref';
+{$ENDIF}
+
+
+{ include/c/sk4d_region.h }
+
+{$IFNDEF SK_STATIC_LIBRARY}
+  sk4d_region_contains              := GetProcAddress(LibraryHandle, PChar('sk4d_region_contains'));
+  sk4d_region_contains2             := GetProcAddress(LibraryHandle, PChar('sk4d_region_contains2'));
+  sk4d_region_contains3             := GetProcAddress(LibraryHandle, PChar('sk4d_region_contains3'));
+  sk4d_region_create                := GetProcAddress(LibraryHandle, PChar('sk4d_region_create'));
+  sk4d_region_create2               := GetProcAddress(LibraryHandle, PChar('sk4d_region_create2'));
+  sk4d_region_destroy               := GetProcAddress(LibraryHandle, PChar('sk4d_region_destroy'));
+  sk4d_region_get_boundary_path     := GetProcAddress(LibraryHandle, PChar('sk4d_region_get_boundary_path'));
+  sk4d_region_get_bounds            := GetProcAddress(LibraryHandle, PChar('sk4d_region_get_bounds'));
+  sk4d_region_intersects            := GetProcAddress(LibraryHandle, PChar('sk4d_region_intersects'));
+  sk4d_region_intersects2           := GetProcAddress(LibraryHandle, PChar('sk4d_region_intersects2'));
+  sk4d_region_is_complex            := GetProcAddress(LibraryHandle, PChar('sk4d_region_is_complex'));
+  sk4d_region_is_empty              := GetProcAddress(LibraryHandle, PChar('sk4d_region_is_empty'));
+  sk4d_region_is_equal              := GetProcAddress(LibraryHandle, PChar('sk4d_region_is_equal'));
+  sk4d_region_is_rect               := GetProcAddress(LibraryHandle, PChar('sk4d_region_is_rect'));
+  sk4d_region_op                    := GetProcAddress(LibraryHandle, PChar('sk4d_region_op'));
+  sk4d_region_op2                   := GetProcAddress(LibraryHandle, PChar('sk4d_region_op2'));
+  sk4d_region_quick_contains        := GetProcAddress(LibraryHandle, PChar('sk4d_region_quick_contains'));
+  sk4d_region_quick_reject          := GetProcAddress(LibraryHandle, PChar('sk4d_region_quick_reject'));
+  sk4d_region_quick_reject2         := GetProcAddress(LibraryHandle, PChar('sk4d_region_quick_reject2'));
+  sk4d_region_set_empty             := GetProcAddress(LibraryHandle, PChar('sk4d_region_set_empty'));
+  sk4d_region_set_path              := GetProcAddress(LibraryHandle, PChar('sk4d_region_set_path'));
+  sk4d_region_set_rect              := GetProcAddress(LibraryHandle, PChar('sk4d_region_set_rect'));
+  sk4d_region_set_rects             := GetProcAddress(LibraryHandle, PChar('sk4d_region_set_rects'));
+  sk4d_region_translate             := GetProcAddress(LibraryHandle, PChar('sk4d_region_translate'));
+  sk4d_regioncliperator_create      := GetProcAddress(LibraryHandle, PChar('sk4d_regioncliperator_create'));
+  sk4d_regioncliperator_destroy     := GetProcAddress(LibraryHandle, PChar('sk4d_regioncliperator_destroy'));
+  sk4d_regioncliperator_get_current := GetProcAddress(LibraryHandle, PChar('sk4d_regioncliperator_get_current'));
+  sk4d_regioncliperator_move_next   := GetProcAddress(LibraryHandle, PChar('sk4d_regioncliperator_move_next'));
+  sk4d_regioniterator_create        := GetProcAddress(LibraryHandle, PChar('sk4d_regioniterator_create'));
+  sk4d_regioniterator_destroy       := GetProcAddress(LibraryHandle, PChar('sk4d_regioniterator_destroy'));
+  sk4d_regioniterator_get_current   := GetProcAddress(LibraryHandle, PChar('sk4d_regioniterator_get_current'));
+  sk4d_regioniterator_move_next     := GetProcAddress(LibraryHandle, PChar('sk4d_regioniterator_move_next'));
+  sk4d_regionspanerator_create      := GetProcAddress(LibraryHandle, PChar('sk4d_regionspanerator_create'));
+  sk4d_regionspanerator_destroy     := GetProcAddress(LibraryHandle, PChar('sk4d_regionspanerator_destroy'));
+  sk4d_regionspanerator_next        := GetProcAddress(LibraryHandle, PChar('sk4d_regionspanerator_next'));
+{$ELSE}
+function  sk4d_region_contains;              external LibraryName name 'sk4d_region_contains';
+function  sk4d_region_contains2;             external LibraryName name 'sk4d_region_contains2';
+function  sk4d_region_contains3;             external LibraryName name 'sk4d_region_contains3';
+function  sk4d_region_create;                external LibraryName name 'sk4d_region_create';
+function  sk4d_region_create2;               external LibraryName name 'sk4d_region_create2';
+procedure sk4d_region_destroy;               external LibraryName name 'sk4d_region_destroy';
+function  sk4d_region_get_boundary_path;     external LibraryName name 'sk4d_region_get_boundary_path';
+procedure sk4d_region_get_bounds;            external LibraryName name 'sk4d_region_get_bounds';
+function  sk4d_region_intersects;            external LibraryName name 'sk4d_region_intersects';
+function  sk4d_region_intersects2;           external LibraryName name 'sk4d_region_intersects2';
+function  sk4d_region_is_complex;            external LibraryName name 'sk4d_region_is_complex';
+function  sk4d_region_is_empty;              external LibraryName name 'sk4d_region_is_empty';
+function  sk4d_region_is_equal;              external LibraryName name 'sk4d_region_is_equal';
+function  sk4d_region_is_rect;               external LibraryName name 'sk4d_region_is_rect';
+function  sk4d_region_op;                    external LibraryName name 'sk4d_region_op';
+function  sk4d_region_op2;                   external LibraryName name 'sk4d_region_op2';
+function  sk4d_region_quick_contains;        external LibraryName name 'sk4d_region_quick_contains';
+function  sk4d_region_quick_reject;          external LibraryName name 'sk4d_region_quick_reject';
+function  sk4d_region_quick_reject2;         external LibraryName name 'sk4d_region_quick_reject2';
+procedure sk4d_region_set_empty;             external LibraryName name 'sk4d_region_set_empty';
+function  sk4d_region_set_path;              external LibraryName name 'sk4d_region_set_path';
+function  sk4d_region_set_rect;              external LibraryName name 'sk4d_region_set_rect';
+function  sk4d_region_set_rects;             external LibraryName name 'sk4d_region_set_rects';
+procedure sk4d_region_translate;             external LibraryName name 'sk4d_region_translate';
+function  sk4d_regioncliperator_create;      external LibraryName name 'sk4d_regioncliperator_create';
+procedure sk4d_regioncliperator_destroy;     external LibraryName name 'sk4d_regioncliperator_destroy';
+procedure sk4d_regioncliperator_get_current; external LibraryName name 'sk4d_regioncliperator_get_current';
+function  sk4d_regioncliperator_move_next;   external LibraryName name 'sk4d_regioncliperator_move_next';
+function  sk4d_regioniterator_create;        external LibraryName name 'sk4d_regioniterator_create';
+procedure sk4d_regioniterator_destroy;       external LibraryName name 'sk4d_regioniterator_destroy';
+procedure sk4d_regioniterator_get_current;   external LibraryName name 'sk4d_regioniterator_get_current';
+function  sk4d_regioniterator_move_next;     external LibraryName name 'sk4d_regioniterator_move_next';
+function  sk4d_regionspanerator_create;      external LibraryName name 'sk4d_regionspanerator_create';
+procedure sk4d_regionspanerator_destroy;     external LibraryName name 'sk4d_regionspanerator_destroy';
+function  sk4d_regionspanerator_next;        external LibraryName name 'sk4d_regionspanerator_next';
+{$ENDIF}
+
+
+{ include/c/sk4d_rrect.h }
+
+{$IFNDEF SK_STATIC_LIBRARY}
+  sk4d_rrect_contains         := GetProcAddress(LibraryHandle, PChar('sk4d_rrect_contains'));
+  sk4d_rrect_create           := GetProcAddress(LibraryHandle, PChar('sk4d_rrect_create'));
+  sk4d_rrect_create2          := GetProcAddress(LibraryHandle, PChar('sk4d_rrect_create2'));
+  sk4d_rrect_deflate          := GetProcAddress(LibraryHandle, PChar('sk4d_rrect_deflate'));
+  sk4d_rrect_destroy          := GetProcAddress(LibraryHandle, PChar('sk4d_rrect_destroy'));
+  sk4d_rrect_get_height       := GetProcAddress(LibraryHandle, PChar('sk4d_rrect_get_height'));
+  sk4d_rrect_get_radii        := GetProcAddress(LibraryHandle, PChar('sk4d_rrect_get_radii'));
+  sk4d_rrect_get_rect         := GetProcAddress(LibraryHandle, PChar('sk4d_rrect_get_rect'));
+  sk4d_rrect_get_simple_radii := GetProcAddress(LibraryHandle, PChar('sk4d_rrect_get_simple_radii'));
+  sk4d_rrect_get_width        := GetProcAddress(LibraryHandle, PChar('sk4d_rrect_get_width'));
+  sk4d_rrect_inflate          := GetProcAddress(LibraryHandle, PChar('sk4d_rrect_inflate'));
+  sk4d_rrect_is_complex       := GetProcAddress(LibraryHandle, PChar('sk4d_rrect_is_complex'));
+  sk4d_rrect_is_empty         := GetProcAddress(LibraryHandle, PChar('sk4d_rrect_is_empty'));
+  sk4d_rrect_is_equal         := GetProcAddress(LibraryHandle, PChar('sk4d_rrect_is_equal'));
+  sk4d_rrect_is_nine_patch    := GetProcAddress(LibraryHandle, PChar('sk4d_rrect_is_nine_patch'));
+  sk4d_rrect_is_oval          := GetProcAddress(LibraryHandle, PChar('sk4d_rrect_is_oval'));
+  sk4d_rrect_is_rect          := GetProcAddress(LibraryHandle, PChar('sk4d_rrect_is_rect'));
+  sk4d_rrect_is_simple        := GetProcAddress(LibraryHandle, PChar('sk4d_rrect_is_simple'));
+  sk4d_rrect_is_valid         := GetProcAddress(LibraryHandle, PChar('sk4d_rrect_is_valid'));
+  sk4d_rrect_offset           := GetProcAddress(LibraryHandle, PChar('sk4d_rrect_offset'));
+  sk4d_rrect_set_empty        := GetProcAddress(LibraryHandle, PChar('sk4d_rrect_set_empty'));
+  sk4d_rrect_set_nine_patch   := GetProcAddress(LibraryHandle, PChar('sk4d_rrect_set_nine_patch'));
+  sk4d_rrect_set_oval         := GetProcAddress(LibraryHandle, PChar('sk4d_rrect_set_oval'));
+  sk4d_rrect_set_rect         := GetProcAddress(LibraryHandle, PChar('sk4d_rrect_set_rect'));
+  sk4d_rrect_set_rect2        := GetProcAddress(LibraryHandle, PChar('sk4d_rrect_set_rect2'));
+  sk4d_rrect_set_rect3        := GetProcAddress(LibraryHandle, PChar('sk4d_rrect_set_rect3'));
+  sk4d_rrect_transform        := GetProcAddress(LibraryHandle, PChar('sk4d_rrect_transform'));
+{$ELSE}
+function  sk4d_rrect_contains;         external LibraryName name 'sk4d_rrect_contains';
+function  sk4d_rrect_create;           external LibraryName name 'sk4d_rrect_create';
+function  sk4d_rrect_create2;          external LibraryName name 'sk4d_rrect_create2';
+procedure sk4d_rrect_deflate;          external LibraryName name 'sk4d_rrect_deflate';
+procedure sk4d_rrect_destroy;          external LibraryName name 'sk4d_rrect_destroy';
+function  sk4d_rrect_get_height;       external LibraryName name 'sk4d_rrect_get_height';
+procedure sk4d_rrect_get_radii;        external LibraryName name 'sk4d_rrect_get_radii';
+procedure sk4d_rrect_get_rect;         external LibraryName name 'sk4d_rrect_get_rect';
+procedure sk4d_rrect_get_simple_radii; external LibraryName name 'sk4d_rrect_get_simple_radii';
+function  sk4d_rrect_get_width;        external LibraryName name 'sk4d_rrect_get_width';
+procedure sk4d_rrect_inflate;          external LibraryName name 'sk4d_rrect_inflate';
+function  sk4d_rrect_is_complex;       external LibraryName name 'sk4d_rrect_is_complex';
+function  sk4d_rrect_is_empty;         external LibraryName name 'sk4d_rrect_is_empty';
+function  sk4d_rrect_is_equal;         external LibraryName name 'sk4d_rrect_is_equal';
+function  sk4d_rrect_is_nine_patch;    external LibraryName name 'sk4d_rrect_is_nine_patch';
+function  sk4d_rrect_is_oval;          external LibraryName name 'sk4d_rrect_is_oval';
+function  sk4d_rrect_is_rect;          external LibraryName name 'sk4d_rrect_is_rect';
+function  sk4d_rrect_is_simple;        external LibraryName name 'sk4d_rrect_is_simple';
+function  sk4d_rrect_is_valid;         external LibraryName name 'sk4d_rrect_is_valid';
+procedure sk4d_rrect_offset;           external LibraryName name 'sk4d_rrect_offset';
+procedure sk4d_rrect_set_empty;        external LibraryName name 'sk4d_rrect_set_empty';
+procedure sk4d_rrect_set_nine_patch;   external LibraryName name 'sk4d_rrect_set_nine_patch';
+procedure sk4d_rrect_set_oval;         external LibraryName name 'sk4d_rrect_set_oval';
+procedure sk4d_rrect_set_rect;         external LibraryName name 'sk4d_rrect_set_rect';
+procedure sk4d_rrect_set_rect2;        external LibraryName name 'sk4d_rrect_set_rect2';
+procedure sk4d_rrect_set_rect3;        external LibraryName name 'sk4d_rrect_set_rect3';
+function  sk4d_rrect_transform;        external LibraryName name 'sk4d_rrect_transform';
+{$ENDIF}
+
+
+{ include/c/sk4d_runtimeeffect.h }
+
+{$IFNDEF SK_STATIC_LIBRARY}
+  sk4d_runtimeeffect_get_child_count        := GetProcAddress(LibraryHandle, PChar('sk4d_runtimeeffect_get_child_count'));
+  sk4d_runtimeeffect_get_child_name         := GetProcAddress(LibraryHandle, PChar('sk4d_runtimeeffect_get_child_name'));
+  sk4d_runtimeeffect_get_child_type         := GetProcAddress(LibraryHandle, PChar('sk4d_runtimeeffect_get_child_type'));
+  sk4d_runtimeeffect_get_uniform_count      := GetProcAddress(LibraryHandle, PChar('sk4d_runtimeeffect_get_uniform_count'));
+  sk4d_runtimeeffect_get_uniform_data_size  := GetProcAddress(LibraryHandle, PChar('sk4d_runtimeeffect_get_uniform_data_size'));
+  sk4d_runtimeeffect_get_uniform_name       := GetProcAddress(LibraryHandle, PChar('sk4d_runtimeeffect_get_uniform_name'));
+  sk4d_runtimeeffect_get_uniform_offset     := GetProcAddress(LibraryHandle, PChar('sk4d_runtimeeffect_get_uniform_offset'));
+  sk4d_runtimeeffect_get_uniform_type       := GetProcAddress(LibraryHandle, PChar('sk4d_runtimeeffect_get_uniform_type'));
+  sk4d_runtimeeffect_get_uniform_type_count := GetProcAddress(LibraryHandle, PChar('sk4d_runtimeeffect_get_uniform_type_count'));
+  sk4d_runtimeeffect_index_of_child         := GetProcAddress(LibraryHandle, PChar('sk4d_runtimeeffect_index_of_child'));
+  sk4d_runtimeeffect_index_of_uniform       := GetProcAddress(LibraryHandle, PChar('sk4d_runtimeeffect_index_of_uniform'));
+  sk4d_runtimeeffect_make_blender           := GetProcAddress(LibraryHandle, PChar('sk4d_runtimeeffect_make_blender'));
+  sk4d_runtimeeffect_make_color_filter      := GetProcAddress(LibraryHandle, PChar('sk4d_runtimeeffect_make_color_filter'));
+  sk4d_runtimeeffect_make_for_blender       := GetProcAddress(LibraryHandle, PChar('sk4d_runtimeeffect_make_for_blender'));
+  sk4d_runtimeeffect_make_for_color_filter  := GetProcAddress(LibraryHandle, PChar('sk4d_runtimeeffect_make_for_color_filter'));
+  sk4d_runtimeeffect_make_for_shader        := GetProcAddress(LibraryHandle, PChar('sk4d_runtimeeffect_make_for_shader'));
+  sk4d_runtimeeffect_make_image             := GetProcAddress(LibraryHandle, PChar('sk4d_runtimeeffect_make_image'));
+  sk4d_runtimeeffect_make_shader            := GetProcAddress(LibraryHandle, PChar('sk4d_runtimeeffect_make_shader'));
+{$ELSE}
+function sk4d_runtimeeffect_get_child_count;        external LibraryName name 'sk4d_runtimeeffect_get_child_count';
+function sk4d_runtimeeffect_get_child_name;         external LibraryName name 'sk4d_runtimeeffect_get_child_name';
+function sk4d_runtimeeffect_get_child_type;         external LibraryName name 'sk4d_runtimeeffect_get_child_type';
+function sk4d_runtimeeffect_get_uniform_count;      external LibraryName name 'sk4d_runtimeeffect_get_uniform_count';
+function sk4d_runtimeeffect_get_uniform_data_size;  external LibraryName name 'sk4d_runtimeeffect_get_uniform_data_size';
+function sk4d_runtimeeffect_get_uniform_name;       external LibraryName name 'sk4d_runtimeeffect_get_uniform_name';
+function sk4d_runtimeeffect_get_uniform_offset;     external LibraryName name 'sk4d_runtimeeffect_get_uniform_offset';
+function sk4d_runtimeeffect_get_uniform_type;       external LibraryName name 'sk4d_runtimeeffect_get_uniform_type';
+function sk4d_runtimeeffect_get_uniform_type_count; external LibraryName name 'sk4d_runtimeeffect_get_uniform_type_count';
+function sk4d_runtimeeffect_index_of_child;         external LibraryName name 'sk4d_runtimeeffect_index_of_child';
+function sk4d_runtimeeffect_index_of_uniform;       external LibraryName name 'sk4d_runtimeeffect_index_of_uniform';
+function sk4d_runtimeeffect_make_blender;           external LibraryName name 'sk4d_runtimeeffect_make_blender';
+function sk4d_runtimeeffect_make_color_filter;      external LibraryName name 'sk4d_runtimeeffect_make_color_filter';
+function sk4d_runtimeeffect_make_for_blender;       external LibraryName name 'sk4d_runtimeeffect_make_for_blender';
+function sk4d_runtimeeffect_make_for_color_filter;  external LibraryName name 'sk4d_runtimeeffect_make_for_color_filter';
+function sk4d_runtimeeffect_make_for_shader;        external LibraryName name 'sk4d_runtimeeffect_make_for_shader';
+function sk4d_runtimeeffect_make_image;             external LibraryName name 'sk4d_runtimeeffect_make_image';
+function sk4d_runtimeeffect_make_shader;            external LibraryName name 'sk4d_runtimeeffect_make_shader';
+{$ENDIF}
+
+
+{ include/c/sk4d_shader.h }
+
+{$IFNDEF SK_STATIC_LIBRARY}
+  sk4d_shader_make_blend                       := GetProcAddress(LibraryHandle, PChar('sk4d_shader_make_blend'));
+  sk4d_shader_make_color                       := GetProcAddress(LibraryHandle, PChar('sk4d_shader_make_color'));
+  sk4d_shader_make_color2                      := GetProcAddress(LibraryHandle, PChar('sk4d_shader_make_color2'));
+  sk4d_shader_make_gradient_linear             := GetProcAddress(LibraryHandle, PChar('sk4d_shader_make_gradient_linear'));
+  sk4d_shader_make_gradient_linear2            := GetProcAddress(LibraryHandle, PChar('sk4d_shader_make_gradient_linear2'));
+  sk4d_shader_make_gradient_radial             := GetProcAddress(LibraryHandle, PChar('sk4d_shader_make_gradient_radial'));
+  sk4d_shader_make_gradient_radial2            := GetProcAddress(LibraryHandle, PChar('sk4d_shader_make_gradient_radial2'));
+  sk4d_shader_make_gradient_sweep              := GetProcAddress(LibraryHandle, PChar('sk4d_shader_make_gradient_sweep'));
+  sk4d_shader_make_gradient_sweep2             := GetProcAddress(LibraryHandle, PChar('sk4d_shader_make_gradient_sweep2'));
+  sk4d_shader_make_gradient_two_point_conical  := GetProcAddress(LibraryHandle, PChar('sk4d_shader_make_gradient_two_point_conical'));
+  sk4d_shader_make_gradient_two_point_conical2 := GetProcAddress(LibraryHandle, PChar('sk4d_shader_make_gradient_two_point_conical2'));
+  sk4d_shader_make_perlin_noise_fractal_noise  := GetProcAddress(LibraryHandle, PChar('sk4d_shader_make_perlin_noise_fractal_noise'));
+  sk4d_shader_make_perlin_noise_turbulence     := GetProcAddress(LibraryHandle, PChar('sk4d_shader_make_perlin_noise_turbulence'));
+  sk4d_shader_make_with_color_filter           := GetProcAddress(LibraryHandle, PChar('sk4d_shader_make_with_color_filter'));
+  sk4d_shader_make_with_local_matrix           := GetProcAddress(LibraryHandle, PChar('sk4d_shader_make_with_local_matrix'));
+{$ELSE}
+function sk4d_shader_make_blend;                       external LibraryName name 'sk4d_shader_make_blend';
+function sk4d_shader_make_color;                       external LibraryName name 'sk4d_shader_make_color';
+function sk4d_shader_make_color2;                      external LibraryName name 'sk4d_shader_make_color2';
+function sk4d_shader_make_gradient_linear;             external LibraryName name 'sk4d_shader_make_gradient_linear';
+function sk4d_shader_make_gradient_linear2;            external LibraryName name 'sk4d_shader_make_gradient_linear2';
+function sk4d_shader_make_gradient_radial;             external LibraryName name 'sk4d_shader_make_gradient_radial';
+function sk4d_shader_make_gradient_radial2;            external LibraryName name 'sk4d_shader_make_gradient_radial2';
+function sk4d_shader_make_gradient_sweep;              external LibraryName name 'sk4d_shader_make_gradient_sweep';
+function sk4d_shader_make_gradient_sweep2;             external LibraryName name 'sk4d_shader_make_gradient_sweep2';
+function sk4d_shader_make_gradient_two_point_conical;  external LibraryName name 'sk4d_shader_make_gradient_two_point_conical';
+function sk4d_shader_make_gradient_two_point_conical2; external LibraryName name 'sk4d_shader_make_gradient_two_point_conical2';
+function sk4d_shader_make_perlin_noise_fractal_noise;  external LibraryName name 'sk4d_shader_make_perlin_noise_fractal_noise';
+function sk4d_shader_make_perlin_noise_turbulence;     external LibraryName name 'sk4d_shader_make_perlin_noise_turbulence';
+function sk4d_shader_make_with_color_filter;           external LibraryName name 'sk4d_shader_make_with_color_filter';
+function sk4d_shader_make_with_local_matrix;           external LibraryName name 'sk4d_shader_make_with_local_matrix';
+{$ENDIF}
+
+
+{ include/c/sk4d_stream.h }
+
+{$IFNDEF SK_STATIC_LIBRARY}
+  sk4d_streamadapter_create     := GetProcAddress(LibraryHandle, PChar('sk4d_streamadapter_create'));
+  sk4d_streamadapter_destroy    := GetProcAddress(LibraryHandle, PChar('sk4d_streamadapter_destroy'));
+  sk4d_streamadapter_set_procs  := GetProcAddress(LibraryHandle, PChar('sk4d_streamadapter_set_procs'));
+  sk4d_wstreamadapter_create    := GetProcAddress(LibraryHandle, PChar('sk4d_wstreamadapter_create'));
+  sk4d_wstreamadapter_destroy   := GetProcAddress(LibraryHandle, PChar('sk4d_wstreamadapter_destroy'));
+  sk4d_wstreamadapter_set_procs := GetProcAddress(LibraryHandle, PChar('sk4d_wstreamadapter_set_procs'));
+{$ELSE}
+function  sk4d_streamadapter_create;     external LibraryName name 'sk4d_streamadapter_create';
+procedure sk4d_streamadapter_destroy;    external LibraryName name 'sk4d_streamadapter_destroy';
+procedure sk4d_streamadapter_set_procs;  external LibraryName name 'sk4d_streamadapter_set_procs';
+function  sk4d_wstreamadapter_create;    external LibraryName name 'sk4d_wstreamadapter_create';
+procedure sk4d_wstreamadapter_destroy;   external LibraryName name 'sk4d_wstreamadapter_destroy';
+procedure sk4d_wstreamadapter_set_procs; external LibraryName name 'sk4d_wstreamadapter_set_procs';
+{$ENDIF}
+
+
+{ include/c/sk4d_string.h }
+
+{$IFNDEF SK_STATIC_LIBRARY}
+  sk4d_string_create   := GetProcAddress(LibraryHandle, PChar('sk4d_string_create'));
+  sk4d_string_destroy  := GetProcAddress(LibraryHandle, PChar('sk4d_string_destroy'));
+  sk4d_string_get_text := GetProcAddress(LibraryHandle, PChar('sk4d_string_get_text'));
+{$ELSE}
+function  sk4d_string_create;   external LibraryName name 'sk4d_string_create';
+procedure sk4d_string_destroy;  external LibraryName name 'sk4d_string_destroy';
+function  sk4d_string_get_text; external LibraryName name 'sk4d_string_get_text';
+{$ENDIF}
+
+
+{ include/c/sk4d_surface.h }
+
+{$IFNDEF SK_STATIC_LIBRARY}
+  sk4d_surface_draw                     := GetProcAddress(LibraryHandle, PChar('sk4d_surface_draw'));
+  sk4d_surface_flush                    := GetProcAddress(LibraryHandle, PChar('sk4d_surface_flush'));
+  sk4d_surface_flush_and_submit         := GetProcAddress(LibraryHandle, PChar('sk4d_surface_flush_and_submit'));
+  sk4d_surface_get_canvas               := GetProcAddress(LibraryHandle, PChar('sk4d_surface_get_canvas'));
+  sk4d_surface_get_props                := GetProcAddress(LibraryHandle, PChar('sk4d_surface_get_props'));
+  sk4d_surface_make_from_mtk_view       := GetProcAddress(LibraryHandle, PChar('sk4d_surface_make_from_mtk_view'));
+  sk4d_surface_make_from_render_target  := GetProcAddress(LibraryHandle, PChar('sk4d_surface_make_from_render_target'));
+  sk4d_surface_make_from_texture        := GetProcAddress(LibraryHandle, PChar('sk4d_surface_make_from_texture'));
+  sk4d_surface_make_image_snapshot      := GetProcAddress(LibraryHandle, PChar('sk4d_surface_make_image_snapshot'));
+  sk4d_surface_make_image_snapshot2     := GetProcAddress(LibraryHandle, PChar('sk4d_surface_make_image_snapshot2'));
+  sk4d_surface_make_raster              := GetProcAddress(LibraryHandle, PChar('sk4d_surface_make_raster'));
+  sk4d_surface_make_raster_direct       := GetProcAddress(LibraryHandle, PChar('sk4d_surface_make_raster_direct'));
+  sk4d_surface_make_render_target       := GetProcAddress(LibraryHandle, PChar('sk4d_surface_make_render_target'));
+  sk4d_surface_peek_pixels              := GetProcAddress(LibraryHandle, PChar('sk4d_surface_peek_pixels'));
+  sk4d_surface_read_pixels              := GetProcAddress(LibraryHandle, PChar('sk4d_surface_read_pixels'));
+{$ELSE}
+procedure sk4d_surface_draw;                     external LibraryName name 'sk4d_surface_draw';
+procedure sk4d_surface_flush;                    external LibraryName name 'sk4d_surface_flush';
+procedure sk4d_surface_flush_and_submit;         external LibraryName name 'sk4d_surface_flush_and_submit';
+function  sk4d_surface_get_canvas;               external LibraryName name 'sk4d_surface_get_canvas';
+procedure sk4d_surface_get_props;                external LibraryName name 'sk4d_surface_get_props';
+function  sk4d_surface_make_from_mtk_view;       external LibraryName name 'sk4d_surface_make_from_mtk_view';
+function  sk4d_surface_make_from_render_target;  external LibraryName name 'sk4d_surface_make_from_render_target';
+function  sk4d_surface_make_from_texture;        external LibraryName name 'sk4d_surface_make_from_texture';
+function  sk4d_surface_make_image_snapshot;      external LibraryName name 'sk4d_surface_make_image_snapshot';
+function  sk4d_surface_make_image_snapshot2;     external LibraryName name 'sk4d_surface_make_image_snapshot2';
+function  sk4d_surface_make_raster;              external LibraryName name 'sk4d_surface_make_raster';
+function  sk4d_surface_make_raster_direct;       external LibraryName name 'sk4d_surface_make_raster_direct';
+function  sk4d_surface_make_render_target;       external LibraryName name 'sk4d_surface_make_render_target';
+function  sk4d_surface_peek_pixels;              external LibraryName name 'sk4d_surface_peek_pixels';
+function  sk4d_surface_read_pixels;              external LibraryName name 'sk4d_surface_read_pixels';
+{$ENDIF}
+
+
+{ include/c/sk4d_svgcanvas.h }
+
+{$IFNDEF SK_STATIC_LIBRARY}
+  sk4d_svgcanvas_make := GetProcAddress(LibraryHandle, PChar('sk4d_svgcanvas_make'));
+{$ELSE}
+function sk4d_svgcanvas_make; external LibraryName name 'sk4d_svgcanvas_make';
+{$ENDIF}
+
+
+{ include/c/sk4d_textblob.h }
+
+{$IFNDEF SK_STATIC_LIBRARY}
+  sk4d_textblob_get_intercepts                         := GetProcAddress(LibraryHandle, PChar('sk4d_textblob_get_intercepts'));
+  sk4d_textblob_make_from_text                         := GetProcAddress(LibraryHandle, PChar('sk4d_textblob_make_from_text'));
+  sk4d_textblob_make_from_text_horizontally_positioned := GetProcAddress(LibraryHandle, PChar('sk4d_textblob_make_from_text_horizontally_positioned'));
+  sk4d_textblob_make_from_text_positioned              := GetProcAddress(LibraryHandle, PChar('sk4d_textblob_make_from_text_positioned'));
+  sk4d_textblob_make_from_text_transform               := GetProcAddress(LibraryHandle, PChar('sk4d_textblob_make_from_text_transform'));
+  sk4d_textblob_ref                                    := GetProcAddress(LibraryHandle, PChar('sk4d_textblob_ref'));
+  sk4d_textblob_unref                                  := GetProcAddress(LibraryHandle, PChar('sk4d_textblob_unref'));
+{$ELSE}
+function  sk4d_textblob_get_intercepts;                         external LibraryName name 'sk4d_textblob_get_intercepts';
+function  sk4d_textblob_make_from_text;                         external LibraryName name 'sk4d_textblob_make_from_text';
+function  sk4d_textblob_make_from_text_horizontally_positioned; external LibraryName name 'sk4d_textblob_make_from_text_horizontally_positioned';
+function  sk4d_textblob_make_from_text_positioned;              external LibraryName name 'sk4d_textblob_make_from_text_positioned';
+function  sk4d_textblob_make_from_text_transform;               external LibraryName name 'sk4d_textblob_make_from_text_transform';
+procedure sk4d_textblob_ref;                                    external LibraryName name 'sk4d_textblob_ref';
+procedure sk4d_textblob_unref;                                  external LibraryName name 'sk4d_textblob_unref';
+
+{$ENDIF}
+
+
+{ include/c/sk4d_tracememorydump.h }
+
+{$IFNDEF SK_STATIC_LIBRARY}
+  sk4d_tracememorydumpbaseclass_create    := GetProcAddress(LibraryHandle, PChar('sk4d_tracememorydumpbaseclass_create'));
+  sk4d_tracememorydumpbaseclass_destroy   := GetProcAddress(LibraryHandle, PChar('sk4d_tracememorydumpbaseclass_destroy'));
+  sk4d_tracememorydumpbaseclass_set_procs := GetProcAddress(LibraryHandle, PChar('sk4d_tracememorydumpbaseclass_set_procs'));
+{$ELSE}
+function  sk4d_tracememorydumpbaseclass_create;    external LibraryName name 'sk4d_tracememorydumpbaseclass_create';
+procedure sk4d_tracememorydumpbaseclass_destroy;   external LibraryName name 'sk4d_tracememorydumpbaseclass_destroy';
+procedure sk4d_tracememorydumpbaseclass_set_procs; external LibraryName name 'sk4d_tracememorydumpbaseclass_set_procs';
+{$ENDIF}
+
+
+{ include/c/sk4d_typeface.h }
+
+{$IFNDEF SK_STATIC_LIBRARY}
+  sk4d_typeface_get_family_name  := GetProcAddress(LibraryHandle, PChar('sk4d_typeface_get_family_name'));
+  sk4d_typeface_get_slant        := GetProcAddress(LibraryHandle, PChar('sk4d_typeface_get_slant'));
+  sk4d_typeface_get_style        := GetProcAddress(LibraryHandle, PChar('sk4d_typeface_get_style'));
+  sk4d_typeface_get_weight       := GetProcAddress(LibraryHandle, PChar('sk4d_typeface_get_weight'));
+  sk4d_typeface_get_width        := GetProcAddress(LibraryHandle, PChar('sk4d_typeface_get_width'));
+  sk4d_typeface_make_default     := GetProcAddress(LibraryHandle, PChar('sk4d_typeface_make_default'));
+  sk4d_typeface_make_from_file   := GetProcAddress(LibraryHandle, PChar('sk4d_typeface_make_from_file'));
+  sk4d_typeface_make_from_stream := GetProcAddress(LibraryHandle, PChar('sk4d_typeface_make_from_stream'));
+  sk4d_typeface_make_from_name   := GetProcAddress(LibraryHandle, PChar('sk4d_typeface_make_from_name'));
+{$ELSE}
+function  sk4d_typeface_get_family_name;  external LibraryName name 'sk4d_typeface_get_family_name';
+function  sk4d_typeface_get_slant;        external LibraryName name 'sk4d_typeface_get_slant';
+procedure sk4d_typeface_get_style;        external LibraryName name 'sk4d_typeface_get_style';
+function  sk4d_typeface_get_weight;       external LibraryName name 'sk4d_typeface_get_weight';
+function  sk4d_typeface_get_width;        external LibraryName name 'sk4d_typeface_get_width';
+function  sk4d_typeface_make_default;     external LibraryName name 'sk4d_typeface_make_default';
+function  sk4d_typeface_make_from_file;   external LibraryName name 'sk4d_typeface_make_from_file';
+function  sk4d_typeface_make_from_stream; external LibraryName name 'sk4d_typeface_make_from_stream';
+function  sk4d_typeface_make_from_name;   external LibraryName name 'sk4d_typeface_make_from_name';
+{$ENDIF}
+
+
+{ include/c/sk4d_vertices.h }
+
+{$IFNDEF SK_STATIC_LIBRARY}
+  sk4d_vertices_make_copy := GetProcAddress(LibraryHandle, PChar('sk4d_vertices_make_copy'));
+  sk4d_vertices_ref       := GetProcAddress(LibraryHandle, PChar('sk4d_vertices_ref'));
+  sk4d_vertices_unref     := GetProcAddress(LibraryHandle, PChar('sk4d_vertices_unref'));
+{$ELSE}
+function  sk4d_vertices_make_copy; external LibraryName name 'sk4d_vertices_make_copy';
+procedure sk4d_vertices_ref;       external LibraryName name 'sk4d_vertices_ref';
+procedure sk4d_vertices_unref;     external LibraryName name 'sk4d_vertices_unref';
+{$ENDIF}
+
+
+{ modules/particles/include/sk4d_particleeffect.h }
+
+{$IFNDEF SK_STATIC_LIBRARY}
+  sk4d_particleeffect_get_position           := GetProcAddress(LibraryHandle, PChar('sk4d_particleeffect_get_position'));
+  sk4d_particleeffect_get_rate               := GetProcAddress(LibraryHandle, PChar('sk4d_particleeffect_get_rate'));
+  sk4d_particleeffect_get_uniform            := GetProcAddress(LibraryHandle, PChar('sk4d_particleeffect_get_uniform'));
+  sk4d_particleeffect_get_uniform_count      := GetProcAddress(LibraryHandle, PChar('sk4d_particleeffect_get_uniform_count'));
+  sk4d_particleeffect_get_uniform_data       := GetProcAddress(LibraryHandle, PChar('sk4d_particleeffect_get_uniform_data'));
+  sk4d_particleeffect_get_uniform_data_count := GetProcAddress(LibraryHandle, PChar('sk4d_particleeffect_get_uniform_data_count'));
+  sk4d_particleeffect_get_uniform_name       := GetProcAddress(LibraryHandle, PChar('sk4d_particleeffect_get_uniform_name'));
+  sk4d_particleeffect_init                   := GetProcAddress(LibraryHandle, PChar('sk4d_particleeffect_init'));
+  sk4d_particleeffect_make_from_file         := GetProcAddress(LibraryHandle, PChar('sk4d_particleeffect_make_from_file'));
+  sk4d_particleeffect_make_from_stream       := GetProcAddress(LibraryHandle, PChar('sk4d_particleeffect_make_from_stream'));
+  sk4d_particleeffect_render                 := GetProcAddress(LibraryHandle, PChar('sk4d_particleeffect_render'));
+  sk4d_particleeffect_set_position           := GetProcAddress(LibraryHandle, PChar('sk4d_particleeffect_set_position'));
+  sk4d_particleeffect_set_rate               := GetProcAddress(LibraryHandle, PChar('sk4d_particleeffect_set_rate'));
+  sk4d_particleeffect_set_uniform            := GetProcAddress(LibraryHandle, PChar('sk4d_particleeffect_set_uniform'));
+  sk4d_particleeffect_start                  := GetProcAddress(LibraryHandle, PChar('sk4d_particleeffect_start'));
+  sk4d_particleeffect_update                 := GetProcAddress(LibraryHandle, PChar('sk4d_particleeffect_update'));
+{$ELSE}
+procedure sk4d_particleeffect_get_position;           external LibraryName name 'sk4d_particleeffect_get_position';
+function  sk4d_particleeffect_get_rate;               external LibraryName name 'sk4d_particleeffect_get_rate';
+procedure sk4d_particleeffect_get_uniform;            external LibraryName name 'sk4d_particleeffect_get_uniform';
+function  sk4d_particleeffect_get_uniform_count;      external LibraryName name 'sk4d_particleeffect_get_uniform_count';
+function  sk4d_particleeffect_get_uniform_data;       external LibraryName name 'sk4d_particleeffect_get_uniform_data';
+function  sk4d_particleeffect_get_uniform_data_count; external LibraryName name 'sk4d_particleeffect_get_uniform_data_count';
+function  sk4d_particleeffect_get_uniform_name;       external LibraryName name 'sk4d_particleeffect_get_uniform_name';
+procedure sk4d_particleeffect_init;                   external LibraryName name 'sk4d_particleeffect_init';
+function  sk4d_particleeffect_make_from_file;         external LibraryName name 'sk4d_particleeffect_make_from_file';
+function  sk4d_particleeffect_make_from_stream;       external LibraryName name 'sk4d_particleeffect_make_from_stream';
+procedure sk4d_particleeffect_render;                 external LibraryName name 'sk4d_particleeffect_render';
+procedure sk4d_particleeffect_set_position;           external LibraryName name 'sk4d_particleeffect_set_position';
+procedure sk4d_particleeffect_set_rate;               external LibraryName name 'sk4d_particleeffect_set_rate';
+function  sk4d_particleeffect_set_uniform;            external LibraryName name 'sk4d_particleeffect_set_uniform';
+procedure sk4d_particleeffect_start;                  external LibraryName name 'sk4d_particleeffect_start';
+procedure sk4d_particleeffect_update;                 external LibraryName name 'sk4d_particleeffect_update';
+{$ENDIF}
+
+
+{ modules/skottie/include/sk4d_skottie.h }
+
+{$IFNDEF SK_STATIC_LIBRARY}
+  sk4d_skottieanimation_get_duration     := GetProcAddress(LibraryHandle, PChar('sk4d_skottieanimation_get_duration'));
+  sk4d_skottieanimation_get_fps          := GetProcAddress(LibraryHandle, PChar('sk4d_skottieanimation_get_fps'));
+  sk4d_skottieanimation_get_in_point     := GetProcAddress(LibraryHandle, PChar('sk4d_skottieanimation_get_in_point'));
+  sk4d_skottieanimation_get_out_point    := GetProcAddress(LibraryHandle, PChar('sk4d_skottieanimation_get_out_point'));
+  sk4d_skottieanimation_get_size         := GetProcAddress(LibraryHandle, PChar('sk4d_skottieanimation_get_size'));
+  sk4d_skottieanimation_get_version      := GetProcAddress(LibraryHandle, PChar('sk4d_skottieanimation_get_version'));
+  sk4d_skottieanimation_make_from_file   := GetProcAddress(LibraryHandle, PChar('sk4d_skottieanimation_make_from_file'));
+  sk4d_skottieanimation_make_from_stream := GetProcAddress(LibraryHandle, PChar('sk4d_skottieanimation_make_from_stream'));
+  sk4d_skottieanimation_ref              := GetProcAddress(LibraryHandle, PChar('sk4d_skottieanimation_ref'));
+  sk4d_skottieanimation_render           := GetProcAddress(LibraryHandle, PChar('sk4d_skottieanimation_render'));
+  sk4d_skottieanimation_seek_frame       := GetProcAddress(LibraryHandle, PChar('sk4d_skottieanimation_seek_frame'));
+  sk4d_skottieanimation_seek_frame_time  := GetProcAddress(LibraryHandle, PChar('sk4d_skottieanimation_seek_frame_time'));
+  sk4d_skottieanimation_unref            := GetProcAddress(LibraryHandle, PChar('sk4d_skottieanimation_unref'));
+{$ELSE}
+function  sk4d_skottieanimation_get_duration;     external LibraryName name 'sk4d_skottieanimation_get_duration';
+function  sk4d_skottieanimation_get_fps;          external LibraryName name 'sk4d_skottieanimation_get_fps';
+function  sk4d_skottieanimation_get_in_point;     external LibraryName name 'sk4d_skottieanimation_get_in_point';
+function  sk4d_skottieanimation_get_out_point;    external LibraryName name 'sk4d_skottieanimation_get_out_point';
+procedure sk4d_skottieanimation_get_size;         external LibraryName name 'sk4d_skottieanimation_get_size';
+function  sk4d_skottieanimation_get_version;      external LibraryName name 'sk4d_skottieanimation_get_version';
+function  sk4d_skottieanimation_make_from_file;   external LibraryName name 'sk4d_skottieanimation_make_from_file';
+function  sk4d_skottieanimation_make_from_stream; external LibraryName name 'sk4d_skottieanimation_make_from_stream';
+procedure sk4d_skottieanimation_ref;              external LibraryName name 'sk4d_skottieanimation_ref';
+procedure sk4d_skottieanimation_render;           external LibraryName name 'sk4d_skottieanimation_render';
+procedure sk4d_skottieanimation_seek_frame;       external LibraryName name 'sk4d_skottieanimation_seek_frame';
+procedure sk4d_skottieanimation_seek_frame_time;  external LibraryName name 'sk4d_skottieanimation_seek_frame_time';
+procedure sk4d_skottieanimation_unref;            external LibraryName name 'sk4d_skottieanimation_unref';
+{$ENDIF}
+
+
+{ modules/skparagraph/include/sk4d_paragraph.h }
+
+{$IFNDEF SK_STATIC_LIBRARY}
+  sk4d_paragraph_destroy                          := GetProcAddress(LibraryHandle, PChar('sk4d_paragraph_destroy'));
+  sk4d_paragraph_did_exceed_max_lines             := GetProcAddress(LibraryHandle, PChar('sk4d_paragraph_did_exceed_max_lines'));
+  sk4d_paragraph_get_alphabetic_baseline          := GetProcAddress(LibraryHandle, PChar('sk4d_paragraph_get_alphabetic_baseline'));
+  sk4d_paragraph_get_glyph_position_at_coordinate := GetProcAddress(LibraryHandle, PChar('sk4d_paragraph_get_glyph_position_at_coordinate'));
+  sk4d_paragraph_get_height                       := GetProcAddress(LibraryHandle, PChar('sk4d_paragraph_get_height'));
+  sk4d_paragraph_get_ideographic_baseline         := GetProcAddress(LibraryHandle, PChar('sk4d_paragraph_get_ideographic_baseline'));
+  sk4d_paragraph_get_line_metrics                 := GetProcAddress(LibraryHandle, PChar('sk4d_paragraph_get_line_metrics'));
+  sk4d_paragraph_get_longest_line                 := GetProcAddress(LibraryHandle, PChar('sk4d_paragraph_get_longest_line'));
+  sk4d_paragraph_get_max_intrinsic_width          := GetProcAddress(LibraryHandle, PChar('sk4d_paragraph_get_max_intrinsic_width'));
+  sk4d_paragraph_get_max_width                    := GetProcAddress(LibraryHandle, PChar('sk4d_paragraph_get_max_width'));
+  sk4d_paragraph_get_min_intrinsic_width          := GetProcAddress(LibraryHandle, PChar('sk4d_paragraph_get_min_intrinsic_width'));
+  sk4d_paragraph_get_rects_for_placeholders       := GetProcAddress(LibraryHandle, PChar('sk4d_paragraph_get_rects_for_placeholders'));
+  sk4d_paragraph_get_rects_for_range              := GetProcAddress(LibraryHandle, PChar('sk4d_paragraph_get_rects_for_range'));
+  sk4d_paragraph_get_word_boundary                := GetProcAddress(LibraryHandle, PChar('sk4d_paragraph_get_word_boundary'));
+  sk4d_paragraph_layout                           := GetProcAddress(LibraryHandle, PChar('sk4d_paragraph_layout'));
+  sk4d_paragraph_paint                            := GetProcAddress(LibraryHandle, PChar('sk4d_paragraph_paint'));
+  sk4d_paragraph_to_path                          := GetProcAddress(LibraryHandle, PChar('sk4d_paragraph_to_path'));
+  sk4d_paragraph_visit                            := GetProcAddress(LibraryHandle, PChar('sk4d_paragraph_visit'));
+{$ELSE}
+procedure sk4d_paragraph_destroy;                          external LibraryName name 'sk4d_paragraph_destroy';
+function  sk4d_paragraph_did_exceed_max_lines;             external LibraryName name 'sk4d_paragraph_did_exceed_max_lines';
+function  sk4d_paragraph_get_alphabetic_baseline;          external LibraryName name 'sk4d_paragraph_get_alphabetic_baseline';
+procedure sk4d_paragraph_get_glyph_position_at_coordinate; external LibraryName name 'sk4d_paragraph_get_glyph_position_at_coordinate';
+function  sk4d_paragraph_get_height;                       external LibraryName name 'sk4d_paragraph_get_height';
+function  sk4d_paragraph_get_ideographic_baseline;         external LibraryName name 'sk4d_paragraph_get_ideographic_baseline';
+function  sk4d_paragraph_get_line_metrics;                 external LibraryName name 'sk4d_paragraph_get_line_metrics';
+function  sk4d_paragraph_get_longest_line;                 external LibraryName name 'sk4d_paragraph_get_longest_line';
+function  sk4d_paragraph_get_max_intrinsic_width;          external LibraryName name 'sk4d_paragraph_get_max_intrinsic_width';
+function  sk4d_paragraph_get_max_width;                    external LibraryName name 'sk4d_paragraph_get_max_width';
+function  sk4d_paragraph_get_min_intrinsic_width;          external LibraryName name 'sk4d_paragraph_get_min_intrinsic_width';
+function  sk4d_paragraph_get_rects_for_placeholders;       external LibraryName name 'sk4d_paragraph_get_rects_for_placeholders';
+function  sk4d_paragraph_get_rects_for_range;              external LibraryName name 'sk4d_paragraph_get_rects_for_range';
+procedure sk4d_paragraph_get_word_boundary;                external LibraryName name 'sk4d_paragraph_get_word_boundary';
+procedure sk4d_paragraph_layout;                           external LibraryName name 'sk4d_paragraph_layout';
+procedure sk4d_paragraph_paint;                            external LibraryName name 'sk4d_paragraph_paint';
+function  sk4d_paragraph_to_path;                          external LibraryName name 'sk4d_paragraph_to_path';
+procedure sk4d_paragraph_visit;                            external LibraryName name 'sk4d_paragraph_visit';
+{$ENDIF}
+
+
+{ modules/skparagraph/include/sk4d_paragraphbuilder.h }
+
+{$IFNDEF SK_STATIC_LIBRARY}
+  sk4d_paragraphbuilder_add_placeholder := GetProcAddress(LibraryHandle, PChar('sk4d_paragraphbuilder_add_placeholder'));
+  sk4d_paragraphbuilder_add_text        := GetProcAddress(LibraryHandle, PChar('sk4d_paragraphbuilder_add_text'));
+  sk4d_paragraphbuilder_build           := GetProcAddress(LibraryHandle, PChar('sk4d_paragraphbuilder_build'));
+  sk4d_paragraphbuilder_create          := GetProcAddress(LibraryHandle, PChar('sk4d_paragraphbuilder_create'));
+  sk4d_paragraphbuilder_create2         := GetProcAddress(LibraryHandle, PChar('sk4d_paragraphbuilder_create2'));
+  sk4d_paragraphbuilder_destroy         := GetProcAddress(LibraryHandle, PChar('sk4d_paragraphbuilder_destroy'));
+  sk4d_paragraphbuilder_pop             := GetProcAddress(LibraryHandle, PChar('sk4d_paragraphbuilder_pop'));
+  sk4d_paragraphbuilder_push_style      := GetProcAddress(LibraryHandle, PChar('sk4d_paragraphbuilder_push_style'));
+{$ELSE}
+procedure sk4d_paragraphbuilder_add_placeholder; external LibraryName name 'sk4d_paragraphbuilder_add_placeholder';
+procedure sk4d_paragraphbuilder_add_text;        external LibraryName name 'sk4d_paragraphbuilder_add_text';
+function  sk4d_paragraphbuilder_build;           external LibraryName name 'sk4d_paragraphbuilder_build';
+function  sk4d_paragraphbuilder_create;          external LibraryName name 'sk4d_paragraphbuilder_create';
+function  sk4d_paragraphbuilder_create2;         external LibraryName name 'sk4d_paragraphbuilder_create2';
+procedure sk4d_paragraphbuilder_destroy;         external LibraryName name 'sk4d_paragraphbuilder_destroy';
+procedure sk4d_paragraphbuilder_pop;             external LibraryName name 'sk4d_paragraphbuilder_pop';
+procedure sk4d_paragraphbuilder_push_style;      external LibraryName name 'sk4d_paragraphbuilder_push_style';
+{$ENDIF}
+
+
+{ modules/skparagraph/include/sk4d_paragraphstyle.h }
+
+{$IFNDEF SK_STATIC_LIBRARY}
+  sk4d_paragraphstyle_create                    := GetProcAddress(LibraryHandle, PChar('sk4d_paragraphstyle_create'));
+  sk4d_paragraphstyle_destroy                   := GetProcAddress(LibraryHandle, PChar('sk4d_paragraphstyle_destroy'));
+  sk4d_paragraphstyle_disable_hinting           := GetProcAddress(LibraryHandle, PChar('sk4d_paragraphstyle_disable_hinting'));
+  sk4d_paragraphstyle_get_ellipsis              := GetProcAddress(LibraryHandle, PChar('sk4d_paragraphstyle_get_ellipsis'));
+  sk4d_paragraphstyle_get_height                := GetProcAddress(LibraryHandle, PChar('sk4d_paragraphstyle_get_height'));
+  sk4d_paragraphstyle_get_max_lines             := GetProcAddress(LibraryHandle, PChar('sk4d_paragraphstyle_get_max_lines'));
+  sk4d_paragraphstyle_get_strut_style           := GetProcAddress(LibraryHandle, PChar('sk4d_paragraphstyle_get_strut_style'));
+  sk4d_paragraphstyle_get_text_align            := GetProcAddress(LibraryHandle, PChar('sk4d_paragraphstyle_get_text_align'));
+  sk4d_paragraphstyle_get_text_direction        := GetProcAddress(LibraryHandle, PChar('sk4d_paragraphstyle_get_text_direction'));
+  sk4d_paragraphstyle_get_text_height_behaviors := GetProcAddress(LibraryHandle, PChar('sk4d_paragraphstyle_get_text_height_behaviors'));
+  sk4d_paragraphstyle_get_text_style            := GetProcAddress(LibraryHandle, PChar('sk4d_paragraphstyle_get_text_style'));
+  sk4d_paragraphstyle_set_ellipsis              := GetProcAddress(LibraryHandle, PChar('sk4d_paragraphstyle_set_ellipsis'));
+  sk4d_paragraphstyle_set_height                := GetProcAddress(LibraryHandle, PChar('sk4d_paragraphstyle_set_height'));
+  sk4d_paragraphstyle_set_max_lines             := GetProcAddress(LibraryHandle, PChar('sk4d_paragraphstyle_set_max_lines'));
+  sk4d_paragraphstyle_set_strut_style           := GetProcAddress(LibraryHandle, PChar('sk4d_paragraphstyle_set_strut_style'));
+  sk4d_paragraphstyle_set_text_align            := GetProcAddress(LibraryHandle, PChar('sk4d_paragraphstyle_set_text_align'));
+  sk4d_paragraphstyle_set_text_direction        := GetProcAddress(LibraryHandle, PChar('sk4d_paragraphstyle_set_text_direction'));
+  sk4d_paragraphstyle_set_text_height_behaviors := GetProcAddress(LibraryHandle, PChar('sk4d_paragraphstyle_set_text_height_behaviors'));
+  sk4d_paragraphstyle_set_text_style            := GetProcAddress(LibraryHandle, PChar('sk4d_paragraphstyle_set_text_style'));
+  sk4d_strutstyle_create                        := GetProcAddress(LibraryHandle, PChar('sk4d_strutstyle_create'));
+  sk4d_strutstyle_destroy                       := GetProcAddress(LibraryHandle, PChar('sk4d_strutstyle_destroy'));
+  sk4d_strutstyle_get_enabled                   := GetProcAddress(LibraryHandle, PChar('sk4d_strutstyle_get_enabled'));
+  sk4d_strutstyle_get_font_families             := GetProcAddress(LibraryHandle, PChar('sk4d_strutstyle_get_font_families'));
+  sk4d_strutstyle_get_font_size                 := GetProcAddress(LibraryHandle, PChar('sk4d_strutstyle_get_font_size'));
+  sk4d_strutstyle_get_font_style                := GetProcAddress(LibraryHandle, PChar('sk4d_strutstyle_get_font_style'));
+  sk4d_strutstyle_get_force_height              := GetProcAddress(LibraryHandle, PChar('sk4d_strutstyle_get_force_height'));
+  sk4d_strutstyle_get_half_leading              := GetProcAddress(LibraryHandle, PChar('sk4d_strutstyle_get_half_leading'));
+  sk4d_strutstyle_get_height_multiplier         := GetProcAddress(LibraryHandle, PChar('sk4d_strutstyle_get_height_multiplier'));
+  sk4d_strutstyle_get_leading                   := GetProcAddress(LibraryHandle, PChar('sk4d_strutstyle_get_leading'));
+  sk4d_strutstyle_is_equal                      := GetProcAddress(LibraryHandle, PChar('sk4d_strutstyle_is_equal'));
+  sk4d_strutstyle_set_enabled                   := GetProcAddress(LibraryHandle, PChar('sk4d_strutstyle_set_enabled'));
+  sk4d_strutstyle_set_font_families             := GetProcAddress(LibraryHandle, PChar('sk4d_strutstyle_set_font_families'));
+  sk4d_strutstyle_set_font_size                 := GetProcAddress(LibraryHandle, PChar('sk4d_strutstyle_set_font_size'));
+  sk4d_strutstyle_set_font_style                := GetProcAddress(LibraryHandle, PChar('sk4d_strutstyle_set_font_style'));
+  sk4d_strutstyle_set_force_height              := GetProcAddress(LibraryHandle, PChar('sk4d_strutstyle_set_force_height'));
+  sk4d_strutstyle_set_half_leading              := GetProcAddress(LibraryHandle, PChar('sk4d_strutstyle_set_half_leading'));
+  sk4d_strutstyle_set_height_multiplier         := GetProcAddress(LibraryHandle, PChar('sk4d_strutstyle_set_height_multiplier'));
+  sk4d_strutstyle_set_leading                   := GetProcAddress(LibraryHandle, PChar('sk4d_strutstyle_set_leading'));
+{$ELSE}
+function  sk4d_paragraphstyle_create;                    external LibraryName name 'sk4d_paragraphstyle_create';
+procedure sk4d_paragraphstyle_destroy;                   external LibraryName name 'sk4d_paragraphstyle_destroy';
+procedure sk4d_paragraphstyle_disable_hinting;           external LibraryName name 'sk4d_paragraphstyle_disable_hinting';
+function  sk4d_paragraphstyle_get_ellipsis;              external LibraryName name 'sk4d_paragraphstyle_get_ellipsis';
+function  sk4d_paragraphstyle_get_height;                external LibraryName name 'sk4d_paragraphstyle_get_height';
+function  sk4d_paragraphstyle_get_max_lines;             external LibraryName name 'sk4d_paragraphstyle_get_max_lines';
+function  sk4d_paragraphstyle_get_strut_style;           external LibraryName name 'sk4d_paragraphstyle_get_strut_style';
+function  sk4d_paragraphstyle_get_text_align;            external LibraryName name 'sk4d_paragraphstyle_get_text_align';
+function  sk4d_paragraphstyle_get_text_direction;        external LibraryName name 'sk4d_paragraphstyle_get_text_direction';
+function  sk4d_paragraphstyle_get_text_height_behaviors; external LibraryName name 'sk4d_paragraphstyle_get_text_height_behaviors';
+function  sk4d_paragraphstyle_get_text_style;            external LibraryName name 'sk4d_paragraphstyle_get_text_style';
+procedure sk4d_paragraphstyle_set_ellipsis;              external LibraryName name 'sk4d_paragraphstyle_set_ellipsis';
+procedure sk4d_paragraphstyle_set_height;                external LibraryName name 'sk4d_paragraphstyle_set_height';
+procedure sk4d_paragraphstyle_set_max_lines;             external LibraryName name 'sk4d_paragraphstyle_set_max_lines';
+procedure sk4d_paragraphstyle_set_strut_style;           external LibraryName name 'sk4d_paragraphstyle_set_strut_style';
+procedure sk4d_paragraphstyle_set_text_align;            external LibraryName name 'sk4d_paragraphstyle_set_text_align';
+procedure sk4d_paragraphstyle_set_text_direction;        external LibraryName name 'sk4d_paragraphstyle_set_text_direction';
+procedure sk4d_paragraphstyle_set_text_height_behaviors; external LibraryName name 'sk4d_paragraphstyle_set_text_height_behaviors';
+procedure sk4d_paragraphstyle_set_text_style;            external LibraryName name 'sk4d_paragraphstyle_set_text_style';
+function  sk4d_strutstyle_create;                        external LibraryName name 'sk4d_strutstyle_create';
+procedure sk4d_strutstyle_destroy;                       external LibraryName name 'sk4d_strutstyle_destroy';
+function  sk4d_strutstyle_get_enabled;                   external LibraryName name 'sk4d_strutstyle_get_enabled';
+function  sk4d_strutstyle_get_font_families;             external LibraryName name 'sk4d_strutstyle_get_font_families';
+function  sk4d_strutstyle_get_font_size;                 external LibraryName name 'sk4d_strutstyle_get_font_size';
+procedure sk4d_strutstyle_get_font_style;                external LibraryName name 'sk4d_strutstyle_get_font_style';
+function  sk4d_strutstyle_get_force_height;              external LibraryName name 'sk4d_strutstyle_get_force_height';
+function  sk4d_strutstyle_get_half_leading;              external LibraryName name 'sk4d_strutstyle_get_half_leading';
+function  sk4d_strutstyle_get_height_multiplier;         external LibraryName name 'sk4d_strutstyle_get_height_multiplier';
+function  sk4d_strutstyle_get_leading;                   external LibraryName name 'sk4d_strutstyle_get_leading';
+function  sk4d_strutstyle_is_equal;                      external LibraryName name 'sk4d_strutstyle_is_equal';
+procedure sk4d_strutstyle_set_enabled;                   external LibraryName name 'sk4d_strutstyle_set_enabled';
+procedure sk4d_strutstyle_set_font_families;             external LibraryName name 'sk4d_strutstyle_set_font_families';
+procedure sk4d_strutstyle_set_font_size;                 external LibraryName name 'sk4d_strutstyle_set_font_size';
+procedure sk4d_strutstyle_set_font_style;                external LibraryName name 'sk4d_strutstyle_set_font_style';
+procedure sk4d_strutstyle_set_force_height;              external LibraryName name 'sk4d_strutstyle_set_force_height';
+procedure sk4d_strutstyle_set_half_leading;              external LibraryName name 'sk4d_strutstyle_set_half_leading';
+procedure sk4d_strutstyle_set_height_multiplier;         external LibraryName name 'sk4d_strutstyle_set_height_multiplier';
+procedure sk4d_strutstyle_set_leading;                   external LibraryName name 'sk4d_strutstyle_set_leading';
+{$ENDIF}
+
+
+{ modules/skparagraph/include/sk4d_textstyle.h }
+
+{$IFNDEF SK_STATIC_LIBRARY}
+  sk4d_textstyle_add_font_feature         := GetProcAddress(LibraryHandle, PChar('sk4d_textstyle_add_font_feature'));
+  sk4d_textstyle_add_shadow               := GetProcAddress(LibraryHandle, PChar('sk4d_textstyle_add_shadow'));
+  sk4d_textstyle_clear_background_color   := GetProcAddress(LibraryHandle, PChar('sk4d_textstyle_clear_background_color'));
+  sk4d_textstyle_clear_foreground_color   := GetProcAddress(LibraryHandle, PChar('sk4d_textstyle_clear_foreground_color'));
+  sk4d_textstyle_create                   := GetProcAddress(LibraryHandle, PChar('sk4d_textstyle_create'));
+  sk4d_textstyle_destroy                  := GetProcAddress(LibraryHandle, PChar('sk4d_textstyle_destroy'));
+  sk4d_textstyle_get_background           := GetProcAddress(LibraryHandle, PChar('sk4d_textstyle_get_background'));
+  sk4d_textstyle_get_color                := GetProcAddress(LibraryHandle, PChar('sk4d_textstyle_get_color'));
+  sk4d_textstyle_get_decoration_color     := GetProcAddress(LibraryHandle, PChar('sk4d_textstyle_get_decoration_color'));
+  sk4d_textstyle_get_decoration_style     := GetProcAddress(LibraryHandle, PChar('sk4d_textstyle_get_decoration_style'));
+  sk4d_textstyle_get_decoration_thickness := GetProcAddress(LibraryHandle, PChar('sk4d_textstyle_get_decoration_thickness'));
+  sk4d_textstyle_get_decorations          := GetProcAddress(LibraryHandle, PChar('sk4d_textstyle_get_decorations'));
+  sk4d_textstyle_get_font_families        := GetProcAddress(LibraryHandle, PChar('sk4d_textstyle_get_font_families'));
+  sk4d_textstyle_get_font_metrics         := GetProcAddress(LibraryHandle, PChar('sk4d_textstyle_get_font_metrics'));
+  sk4d_textstyle_get_font_size            := GetProcAddress(LibraryHandle, PChar('sk4d_textstyle_get_font_size'));
+  sk4d_textstyle_get_font_style           := GetProcAddress(LibraryHandle, PChar('sk4d_textstyle_get_font_style'));
+  sk4d_textstyle_get_foreground           := GetProcAddress(LibraryHandle, PChar('sk4d_textstyle_get_foreground'));
+  sk4d_textstyle_get_half_leading         := GetProcAddress(LibraryHandle, PChar('sk4d_textstyle_get_half_leading'));
+  sk4d_textstyle_get_height_multiplier    := GetProcAddress(LibraryHandle, PChar('sk4d_textstyle_get_height_multiplier'));
+  sk4d_textstyle_get_letter_spacing       := GetProcAddress(LibraryHandle, PChar('sk4d_textstyle_get_letter_spacing'));
+  sk4d_textstyle_get_locale               := GetProcAddress(LibraryHandle, PChar('sk4d_textstyle_get_locale'));
+  sk4d_textstyle_get_word_spacing         := GetProcAddress(LibraryHandle, PChar('sk4d_textstyle_get_word_spacing'));
+  sk4d_textstyle_is_equal                 := GetProcAddress(LibraryHandle, PChar('sk4d_textstyle_is_equal'));
+  sk4d_textstyle_reset_font_features      := GetProcAddress(LibraryHandle, PChar('sk4d_textstyle_reset_font_features'));
+  sk4d_textstyle_reset_shadows            := GetProcAddress(LibraryHandle, PChar('sk4d_textstyle_reset_shadows'));
+  sk4d_textstyle_set_background_color     := GetProcAddress(LibraryHandle, PChar('sk4d_textstyle_set_background_color'));
+  sk4d_textstyle_set_color                := GetProcAddress(LibraryHandle, PChar('sk4d_textstyle_set_color'));
+  sk4d_textstyle_set_decoration_color     := GetProcAddress(LibraryHandle, PChar('sk4d_textstyle_set_decoration_color'));
+  sk4d_textstyle_set_decoration_style     := GetProcAddress(LibraryHandle, PChar('sk4d_textstyle_set_decoration_style'));
+  sk4d_textstyle_set_decoration_thickness := GetProcAddress(LibraryHandle, PChar('sk4d_textstyle_set_decoration_thickness'));
+  sk4d_textstyle_set_decorations          := GetProcAddress(LibraryHandle, PChar('sk4d_textstyle_set_decorations'));
+  sk4d_textstyle_set_font_families        := GetProcAddress(LibraryHandle, PChar('sk4d_textstyle_set_font_families'));
+  sk4d_textstyle_set_font_size            := GetProcAddress(LibraryHandle, PChar('sk4d_textstyle_set_font_size'));
+  sk4d_textstyle_set_font_style           := GetProcAddress(LibraryHandle, PChar('sk4d_textstyle_set_font_style'));
+  sk4d_textstyle_set_foreground_color     := GetProcAddress(LibraryHandle, PChar('sk4d_textstyle_set_foreground_color'));
+  sk4d_textstyle_set_half_leading         := GetProcAddress(LibraryHandle, PChar('sk4d_textstyle_set_half_leading'));
+  sk4d_textstyle_set_height_multiplier    := GetProcAddress(LibraryHandle, PChar('sk4d_textstyle_set_height_multiplier'));
+  sk4d_textstyle_set_letter_spacing       := GetProcAddress(LibraryHandle, PChar('sk4d_textstyle_set_letter_spacing'));
+  sk4d_textstyle_set_locale               := GetProcAddress(LibraryHandle, PChar('sk4d_textstyle_set_locale'));
+  sk4d_textstyle_set_word_spacing         := GetProcAddress(LibraryHandle, PChar('sk4d_textstyle_set_word_spacing'));
+{$ELSE}
+procedure sk4d_textstyle_add_font_feature;         external LibraryName name 'sk4d_textstyle_add_font_feature';
+procedure sk4d_textstyle_add_shadow;               external LibraryName name 'sk4d_textstyle_add_shadow';
+procedure sk4d_textstyle_clear_background_color;   external LibraryName name 'sk4d_textstyle_clear_background_color';
+procedure sk4d_textstyle_clear_foreground_color;   external LibraryName name 'sk4d_textstyle_clear_foreground_color';
+function  sk4d_textstyle_create;                   external LibraryName name 'sk4d_textstyle_create';
+procedure sk4d_textstyle_destroy;                  external LibraryName name 'sk4d_textstyle_destroy';
+function  sk4d_textstyle_get_background;           external LibraryName name 'sk4d_textstyle_get_background';
+function  sk4d_textstyle_get_color;                external LibraryName name 'sk4d_textstyle_get_color';
+function  sk4d_textstyle_get_decoration_color;     external LibraryName name 'sk4d_textstyle_get_decoration_color';
+function  sk4d_textstyle_get_decoration_style;     external LibraryName name 'sk4d_textstyle_get_decoration_style';
+function  sk4d_textstyle_get_decoration_thickness; external LibraryName name 'sk4d_textstyle_get_decoration_thickness';
+function  sk4d_textstyle_get_decorations;          external LibraryName name 'sk4d_textstyle_get_decorations';
+function  sk4d_textstyle_get_font_families;        external LibraryName name 'sk4d_textstyle_get_font_families';
+procedure sk4d_textstyle_get_font_metrics;         external LibraryName name 'sk4d_textstyle_get_font_metrics';
+function  sk4d_textstyle_get_font_size;            external LibraryName name 'sk4d_textstyle_get_font_size';
+procedure sk4d_textstyle_get_font_style;           external LibraryName name 'sk4d_textstyle_get_font_style';
+function  sk4d_textstyle_get_foreground;           external LibraryName name 'sk4d_textstyle_get_foreground';
+function  sk4d_textstyle_get_half_leading;         external LibraryName name 'sk4d_textstyle_get_half_leading';
+function  sk4d_textstyle_get_height_multiplier;    external LibraryName name 'sk4d_textstyle_get_height_multiplier';
+function  sk4d_textstyle_get_letter_spacing;       external LibraryName name 'sk4d_textstyle_get_letter_spacing';
+function  sk4d_textstyle_get_locale;               external LibraryName name 'sk4d_textstyle_get_locale';
+function  sk4d_textstyle_get_word_spacing;         external LibraryName name 'sk4d_textstyle_get_word_spacing';
+function  sk4d_textstyle_is_equal;                 external LibraryName name 'sk4d_textstyle_is_equal';
+procedure sk4d_textstyle_reset_font_features;      external LibraryName name 'sk4d_textstyle_reset_font_features';
+procedure sk4d_textstyle_reset_shadows;            external LibraryName name 'sk4d_textstyle_reset_shadows';
+procedure sk4d_textstyle_set_background_color;     external LibraryName name 'sk4d_textstyle_set_background_color';
+procedure sk4d_textstyle_set_color;                external LibraryName name 'sk4d_textstyle_set_color';
+procedure sk4d_textstyle_set_decoration_color;     external LibraryName name 'sk4d_textstyle_set_decoration_color';
+procedure sk4d_textstyle_set_decoration_style;     external LibraryName name 'sk4d_textstyle_set_decoration_style';
+procedure sk4d_textstyle_set_decoration_thickness; external LibraryName name 'sk4d_textstyle_set_decoration_thickness';
+procedure sk4d_textstyle_set_decorations;          external LibraryName name 'sk4d_textstyle_set_decorations';
+procedure sk4d_textstyle_set_font_families;        external LibraryName name 'sk4d_textstyle_set_font_families';
+procedure sk4d_textstyle_set_font_size;            external LibraryName name 'sk4d_textstyle_set_font_size';
+procedure sk4d_textstyle_set_font_style;           external LibraryName name 'sk4d_textstyle_set_font_style';
+procedure sk4d_textstyle_set_foreground_color;     external LibraryName name 'sk4d_textstyle_set_foreground_color';
+procedure sk4d_textstyle_set_half_leading;         external LibraryName name 'sk4d_textstyle_set_half_leading';
+procedure sk4d_textstyle_set_height_multiplier;    external LibraryName name 'sk4d_textstyle_set_height_multiplier';
+procedure sk4d_textstyle_set_letter_spacing;       external LibraryName name 'sk4d_textstyle_set_letter_spacing';
+procedure sk4d_textstyle_set_locale;               external LibraryName name 'sk4d_textstyle_set_locale';
+procedure sk4d_textstyle_set_word_spacing;         external LibraryName name 'sk4d_textstyle_set_word_spacing';
+{$ENDIF}
+
+
+{ modules/skparagraph/include/sk4d_typefacefontprovider.h }
+
+{$IFNDEF SK_STATIC_LIBRARY}
+  sk4d_typefacefontprovider_create             := GetProcAddress(LibraryHandle, PChar('sk4d_typefacefontprovider_create'));
+  sk4d_typefacefontprovider_register_typeface  := GetProcAddress(LibraryHandle, PChar('sk4d_typefacefontprovider_register_typeface'));
+  sk4d_typefacefontprovider_register_typeface2 := GetProcAddress(LibraryHandle, PChar('sk4d_typefacefontprovider_register_typeface2'));
+{$ELSE}
+function  sk4d_typefacefontprovider_create;             external LibraryName name 'sk4d_typefacefontprovider_create';
+procedure sk4d_typefacefontprovider_register_typeface;  external LibraryName name 'sk4d_typefacefontprovider_register_typeface';
+procedure sk4d_typefacefontprovider_register_typeface2; external LibraryName name 'sk4d_typefacefontprovider_register_typeface2';
+{$ENDIF}
+
+
+{ modules/skresources/include/sk4d_resources.h }
+
+{$IFNDEF SK_STATIC_LIBRARY}
+  sk4d_resourceproviderbaseclass_create    := GetProcAddress(LibraryHandle, PChar('sk4d_resourceproviderbaseclass_create'));
+  sk4d_resourceproviderbaseclass_set_procs := GetProcAddress(LibraryHandle, PChar('sk4d_resourceproviderbaseclass_set_procs'));
+{$ELSE}
+function  sk4d_resourceproviderbaseclass_create;    external LibraryName name 'sk4d_resourceproviderbaseclass_create';
+procedure sk4d_resourceproviderbaseclass_set_procs; external LibraryName name 'sk4d_resourceproviderbaseclass_set_procs';
+{$ENDIF}
+
+
+{ modules/skshaper/include/sk4d_shaper.h }
+
+{$IFNDEF SK_STATIC_LIBRARY}
+  sk4d_shaper_create  := GetProcAddress(LibraryHandle, PChar('sk4d_shaper_create'));
+  sk4d_shaper_destroy := GetProcAddress(LibraryHandle, PChar('sk4d_shaper_destroy'));
+  sk4d_shaper_shape   := GetProcAddress(LibraryHandle, PChar('sk4d_shaper_shape'));
+{$ELSE}
+function  sk4d_shaper_create;  external LibraryName name 'sk4d_shaper_create';
+procedure sk4d_shaper_destroy; external LibraryName name 'sk4d_shaper_destroy';
+function  sk4d_shaper_shape;   external LibraryName name 'sk4d_shaper_shape';
+{$ENDIF}
+
+
+{ modules/skunicode/include/sk4d_unicode.h }
+
+{$IFNDEF SK_STATIC_LIBRARY}
+  sk4d_unicode_create               := GetProcAddress(LibraryHandle, PChar('sk4d_unicode_create'));
+  sk4d_unicode_destroy              := GetProcAddress(LibraryHandle, PChar('sk4d_unicode_destroy'));
+  sk4d_unicode_for_each_bidi_region := GetProcAddress(LibraryHandle, PChar('sk4d_unicode_for_each_bidi_region'));
+  sk4d_unicode_for_each_break       := GetProcAddress(LibraryHandle, PChar('sk4d_unicode_for_each_break'));
+  sk4d_unicode_for_each_codepoint   := GetProcAddress(LibraryHandle, PChar('sk4d_unicode_for_each_codepoint'));
+  sk4d_unicodebreakiterator_create  := GetProcAddress(LibraryHandle, PChar('sk4d_unicodebreakiterator_create'));
+  sk4d_unicodebreakiterator_create2 := GetProcAddress(LibraryHandle, PChar('sk4d_unicodebreakiterator_create2'));
+  sk4d_unicodebreakiterator_destroy := GetProcAddress(LibraryHandle, PChar('sk4d_unicodebreakiterator_destroy'));
+  sk4d_unicodebreakiterator_next    := GetProcAddress(LibraryHandle, PChar('sk4d_unicodebreakiterator_next'));
+{$ELSE}
+function  sk4d_unicode_create;               external LibraryName name 'sk4d_unicode_create';
+procedure sk4d_unicode_destroy;              external LibraryName name 'sk4d_unicode_destroy';
+procedure sk4d_unicode_for_each_bidi_region; external LibraryName name 'sk4d_unicode_for_each_bidi_region';
+procedure sk4d_unicode_for_each_break;       external LibraryName name 'sk4d_unicode_for_each_break';
+procedure sk4d_unicode_for_each_codepoint;   external LibraryName name 'sk4d_unicode_for_each_codepoint';
+function  sk4d_unicodebreakiterator_create;  external LibraryName name 'sk4d_unicodebreakiterator_create';
+function  sk4d_unicodebreakiterator_create2; external LibraryName name 'sk4d_unicodebreakiterator_create2';
+procedure sk4d_unicodebreakiterator_destroy; external LibraryName name 'sk4d_unicodebreakiterator_destroy';
+function  sk4d_unicodebreakiterator_next;    external LibraryName name 'sk4d_unicodebreakiterator_next';
+{$ENDIF}
+
+
+{ modules/svg/include/sk4d_svgdom.h }
+
+{$IFNDEF SK_STATIC_LIBRARY}
+  sk4d_svgdom_find_node_by_id    := GetProcAddress(LibraryHandle, PChar('sk4d_svgdom_find_node_by_id'));
+  sk4d_svgdom_get_root           := GetProcAddress(LibraryHandle, PChar('sk4d_svgdom_get_root'));
+  sk4d_svgdom_make_from_file     := GetProcAddress(LibraryHandle, PChar('sk4d_svgdom_make_from_file'));
+  sk4d_svgdom_make_from_stream   := GetProcAddress(LibraryHandle, PChar('sk4d_svgdom_make_from_stream'));
+  sk4d_svgdom_render             := GetProcAddress(LibraryHandle, PChar('sk4d_svgdom_render'));
+  sk4d_svgdom_set_container_size := GetProcAddress(LibraryHandle, PChar('sk4d_svgdom_set_container_size'));
+{$ELSE}
+function  sk4d_svgdom_find_node_by_id;    external LibraryName name 'sk4d_svgdom_find_node_by_id';
+function  sk4d_svgdom_get_root;           external LibraryName name 'sk4d_svgdom_get_root';
+function  sk4d_svgdom_make_from_file;     external LibraryName name 'sk4d_svgdom_make_from_file';
+function  sk4d_svgdom_make_from_stream;   external LibraryName name 'sk4d_svgdom_make_from_stream';
+procedure sk4d_svgdom_render;             external LibraryName name 'sk4d_svgdom_render';
+procedure sk4d_svgdom_set_container_size; external LibraryName name 'sk4d_svgdom_set_container_size';
+{$ENDIF}
+
+
+{ modules/svg/include/sk4d_svgnode.h }
+
+{$IFNDEF SK_STATIC_LIBRARY}
+  sk4d_svgnode_set_attribute := GetProcAddress(LibraryHandle, PChar('sk4d_svgnode_set_attribute'));
+{$ELSE}
+function sk4d_svgnode_set_attribute; external LibraryName name 'sk4d_svgnode_set_attribute';
+{$ENDIF}
+
+
+{ modules/svg/include/sk4d_svgsvg.h }
+
+{$IFNDEF SK_STATIC_LIBRARY}
+  sk4d_svgsvg_get_height                := GetProcAddress(LibraryHandle, PChar('sk4d_svgsvg_get_height'));
+  sk4d_svgsvg_get_intrinsic_size        := GetProcAddress(LibraryHandle, PChar('sk4d_svgsvg_get_intrinsic_size'));
+  sk4d_svgsvg_get_preserve_aspect_ratio := GetProcAddress(LibraryHandle, PChar('sk4d_svgsvg_get_preserve_aspect_ratio'));
+  sk4d_svgsvg_get_view_box              := GetProcAddress(LibraryHandle, PChar('sk4d_svgsvg_get_view_box'));
+  sk4d_svgsvg_get_width                 := GetProcAddress(LibraryHandle, PChar('sk4d_svgsvg_get_width'));
+  sk4d_svgsvg_get_x                     := GetProcAddress(LibraryHandle, PChar('sk4d_svgsvg_get_x'));
+  sk4d_svgsvg_get_y                     := GetProcAddress(LibraryHandle, PChar('sk4d_svgsvg_get_y'));
+  sk4d_svgsvg_set_height                := GetProcAddress(LibraryHandle, PChar('sk4d_svgsvg_set_height'));
+  sk4d_svgsvg_set_preserve_aspect_ratio := GetProcAddress(LibraryHandle, PChar('sk4d_svgsvg_set_preserve_aspect_ratio'));
+  sk4d_svgsvg_set_view_box              := GetProcAddress(LibraryHandle, PChar('sk4d_svgsvg_set_view_box'));
+  sk4d_svgsvg_set_width                 := GetProcAddress(LibraryHandle, PChar('sk4d_svgsvg_set_width'));
+  sk4d_svgsvg_set_x                     := GetProcAddress(LibraryHandle, PChar('sk4d_svgsvg_set_x'));
+  sk4d_svgsvg_set_y                     := GetProcAddress(LibraryHandle, PChar('sk4d_svgsvg_set_y'));
+{$ELSE}
+procedure sk4d_svgsvg_get_height;                external LibraryName name 'sk4d_svgsvg_get_height';
+procedure sk4d_svgsvg_get_intrinsic_size;        external LibraryName name 'sk4d_svgsvg_get_intrinsic_size';
+procedure sk4d_svgsvg_get_preserve_aspect_ratio; external LibraryName name 'sk4d_svgsvg_get_preserve_aspect_ratio';
+function  sk4d_svgsvg_get_view_box;              external LibraryName name 'sk4d_svgsvg_get_view_box';
+procedure sk4d_svgsvg_get_width;                 external LibraryName name 'sk4d_svgsvg_get_width';
+procedure sk4d_svgsvg_get_x;                     external LibraryName name 'sk4d_svgsvg_get_x';
+procedure sk4d_svgsvg_get_y;                     external LibraryName name 'sk4d_svgsvg_get_y';
+procedure sk4d_svgsvg_set_height;                external LibraryName name 'sk4d_svgsvg_set_height';
+procedure sk4d_svgsvg_set_preserve_aspect_ratio; external LibraryName name 'sk4d_svgsvg_set_preserve_aspect_ratio';
+procedure sk4d_svgsvg_set_view_box;              external LibraryName name 'sk4d_svgsvg_set_view_box';
+procedure sk4d_svgsvg_set_width;                 external LibraryName name 'sk4d_svgsvg_set_width';
+procedure sk4d_svgsvg_set_x;                     external LibraryName name 'sk4d_svgsvg_set_x';
+procedure sk4d_svgsvg_set_y;                     external LibraryName name 'sk4d_svgsvg_set_y';
+{$ENDIF}
+
+
+{$IFNDEF SK_STATIC_LIBRARY}
+end;
+{$ELSE}
+procedure SkInitialize;
+begin
+end;
+{$ENDIF}
+
+{$IFNDEF SK_STATIC_LIBRARY}
+procedure SkFinalize;
+begin
+  if AtomicDecrement(InitCount) <> 0 then
+    Exit;
+  FreeLibrary(LibraryHandle);
+end;
+{$ELSE}
+procedure SkFinalize;
+begin
+end;
+{$ENDIF}
+
+{$IFDEF SK_STATIC_LIBRARY}
+  {$IF DEFINED(IOS) and NOT DEFINED(IOSSIMULATOR)}
   procedure libcpp; external '/usr/lib/libc++.dylib';
   procedure libcompiler_rt; external '/usr/lib/clang/lib/darwin/libclang_rt.ios.a';
+  {$ENDIF}
 {$ENDIF}
-
-{$ENDREGION}
 
 end.

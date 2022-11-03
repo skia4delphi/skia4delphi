@@ -50,7 +50,7 @@ inherited frmTransforms: TfrmTransforms
           Align = alTop
           OnClick = pnlTaperTransformClick
           TextSettings.Font.Size = 11.000000000000000000
-          TextSettings.FontColor = xFF9FA5A8
+          TextSettings.FontColor = xFFA0A0A1
           TextSettings.MaxLines = 1
           Words = <
             item
@@ -72,6 +72,7 @@ inherited frmTransforms: TfrmTransforms
           Align = alTop
           OnClick = pnlTaperTransformClick
           TextSettings.Font.Weight = Medium
+          TextSettings.FontColor = xFF1B1B1B
           TextSettings.MaxLines = 2
           Words = <
             item
@@ -156,7 +157,7 @@ inherited frmTransforms: TfrmTransforms
           Align = alTop
           OnClick = pnlStrechedCornersClick
           TextSettings.Font.Size = 11.000000000000000000
-          TextSettings.FontColor = xFF9FA5A8
+          TextSettings.FontColor = xFFA0A0A1
           TextSettings.MaxLines = 1
           Words = <
             item
@@ -178,6 +179,7 @@ inherited frmTransforms: TfrmTransforms
           Align = alTop
           OnClick = pnlStrechedCornersClick
           TextSettings.Font.Weight = Medium
+          TextSettings.FontColor = xFF1B1B1B
           TextSettings.MaxLines = 2
           Words = <
             item
@@ -262,7 +264,7 @@ inherited frmTransforms: TfrmTransforms
           Align = alTop
           OnClick = pnl3DRotationClick
           TextSettings.Font.Size = 11.000000000000000000
-          TextSettings.FontColor = xFF9FA5A8
+          TextSettings.FontColor = xFFA0A0A1
           TextSettings.MaxLines = 1
           Words = <
             item
@@ -284,6 +286,7 @@ inherited frmTransforms: TfrmTransforms
           Align = alTop
           OnClick = pnl3DRotationClick
           TextSettings.Font.Weight = Medium
+          TextSettings.FontColor = xFF1B1B1B
           TextSettings.MaxLines = 2
           Words = <
             item

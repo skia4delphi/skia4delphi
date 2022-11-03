@@ -19,6 +19,7 @@ uses
   { Delphi }
   System.SysUtils, System.Types, System.UITypes, System.Classes, FMX.Types,
   FMX.Controls, FMX.Forms, FMX.StdCtrls, FMX.Layouts, FMX.Objects,
+  FMX.Controls.Presentation,
 
   { Skia }
   Skia, Skia.FMX,
@@ -152,8 +153,8 @@ procedure TFreehandRender.OnMouseDown(ASender: TObject; AButton: TMouseButton;
 begin
   FPressed := True;
   FPathBuilder := TSkPathBuilder.Create;
-  FPathBuilder.MoveTo(X, Y);
   FLastPoint := PointF(X, Y);
+  FPathBuilder.MoveTo(FLastPoint.X, FLastPoint.Y);
   FCurrentPath := nil;
 end;
 
@@ -173,12 +174,15 @@ procedure TFreehandRender.OnMouseMove(ASender: TObject; AShift: TShiftState; X,
   Y: Single);
 const
   MinPointsDistance = 5;
+var
+  LPoint: TPointF;
 begin
-  if FPressed and Assigned(FPathBuilder) and (FLastPoint.Distance(PointF(X, Y)) >= MinPointsDistance) then
+  LPoint := PointF(X, Y);
+  if FPressed and Assigned(FPathBuilder) and (FLastPoint.Distance(LPoint) >= MinPointsDistance) then
   begin
     FCurrentPath := nil;
-    FPathBuilder.LineTo(X, Y);
-    FLastPoint := PointF(X, Y);
+    FPathBuilder.LineTo(LPoint.X, LPoint.Y);
+    FLastPoint := LPoint;
     (ASender as TSkPaintBox).Redraw;
   end;
 end;

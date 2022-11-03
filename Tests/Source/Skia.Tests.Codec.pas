@@ -39,10 +39,13 @@ type
   TSkCodecTests = class(TSkCodecTestBase)
   public
     [TestCase('SkCodec BMP (girl.bmp)',               'girl.bmp,1736216929')]
+    {$IFDEF SUPPORT_DNG}
     [TestCase('SkCodec DNG (park.dng)',               'park.dng,1955671176')]
+    {$ENDIF}
     [TestCase('SkCodec GIF Animated (animated.gif)',  'animated.gif,2005275412')]
     [TestCase('SkCodec GIF Animated (developer.gif)', 'developer.gif,2166160918')]
     [TestCase('SkCodec ICO (delphi.ico)',             'delphi.ico,2952345114')]
+    [TestCase('SkCodec JPEG (abnt.jpg)',              'abnt.jpg,4109686946')]
     [TestCase('SkCodec JPEG (shrek.jpg)',             'shrek.jpg,1173490088')]
     [TestCase('SkCodec PNG (elephant.png)',           'elephant.png,529596050')]
     [TestCase('SkCodec PNG (kung-fu-panda)',          'kung-fu-panda.png,3960679947')]
@@ -55,10 +58,13 @@ type
     [TestCase('SkCodec WebP Animated (rocket.webp)',  'rocket.webp,2031700395')]
     procedure TestDecodeFile(const AImageFileName: string; const AExpectedPixmapCRC32: Cardinal);
     [TestCase('SkCodec BMP (girl.bmp)',               'girl.bmp,1736216929')]
+    {$IFDEF SUPPORT_DNG}
     [TestCase('SkCodec DNG (park.dng)',               'park.dng,1955671176')]
+    {$ENDIF}
     [TestCase('SkCodec GIF Animated (animated.gif)',  'animated.gif,2005275412')]
     [TestCase('SkCodec GIF Animated (developer.gif)', 'developer.gif,2166160918')]
     [TestCase('SkCodec ICO (delphi.ico)',             'delphi.ico,2952345114')]
+    [TestCase('SkCodec JPEG (abnt.jpg)',              'abnt.jpg,4109686946')]
     [TestCase('SkCodec JPEG (shrek.jpg)',             'shrek.jpg,1173490088')]
     [TestCase('SkCodec PNG (elephant.png)',           'elephant.png,529596050')]
     [TestCase('SkCodec PNG (kung-fu-panda)',          'kung-fu-panda.png,3960679947')]
@@ -71,10 +77,13 @@ type
     [TestCase('SkCodec WebP Animated (rocket.webp)',  'rocket.webp,2031700395')]
     procedure TestDecodeStream(const AImageFileName: string; const AExpectedPixmapCRC32: Cardinal);
     [TestCase('SkCodec BMP (girl.bmp)',               'girl.bmp,1736216929')]
+    {$IFDEF SUPPORT_DNG}
     [TestCase('SkCodec DNG (park.dng)',               'park.dng,1955671176')]
+    {$ENDIF}
     [TestCase('SkCodec GIF Animated (animated.gif)',  'animated.gif,2005275412')]
     [TestCase('SkCodec GIF Animated (developer.gif)', 'developer.gif,2166160918')]
     [TestCase('SkCodec ICO (delphi.ico)',             'delphi.ico,2952345114')]
+    [TestCase('SkCodec JPEG (abnt.jpg)',              'abnt.jpg,4109686946')]
     [TestCase('SkCodec JPEG (shrek.jpg)',             'shrek.jpg,1173490088')]
     [TestCase('SkCodec PNG (elephant.png)',           'elephant.png,529596050')]
     [TestCase('SkCodec PNG (kung-fu-panda)',          'kung-fu-panda.png,3960679947')]
@@ -87,10 +96,13 @@ type
     [TestCase('SkCodec WebP Animated (rocket.webp)',  'rocket.webp,2031700395')]
     procedure TestDecodeWithCopy(const AImageFileName: string; const AExpectedPixmapCRC32: Cardinal);
     [TestCase('SkCodec BMP (girl.bmp)',               'girl.bmp,1736216929')]
+    {$IFDEF SUPPORT_DNG}
     [TestCase('SkCodec DNG (park.dng)',               'park.dng,1955671176')]
+    {$ENDIF}
     [TestCase('SkCodec GIF Animated (animated.gif)',  'animated.gif,2005275412')]
     [TestCase('SkCodec GIF Animated (developer.gif)', 'developer.gif,2166160918')]
     [TestCase('SkCodec ICO (delphi.ico)',             'delphi.ico,2952345114')]
+    [TestCase('SkCodec JPEG (abnt.jpg)',              'abnt.jpg,4109686946')]
     [TestCase('SkCodec JPEG (shrek.jpg)',             'shrek.jpg,1173490088')]
     [TestCase('SkCodec PNG (elephant.png)',           'elephant.png,529596050')]
     [TestCase('SkCodec PNG (kung-fu-panda)',          'kung-fu-panda.png,3960679947')]
@@ -112,10 +124,13 @@ type
     procedure TestDecodeAndEncode(const AImageFileName: string; const AExpectedPixmapCRC32: Cardinal; const AFormat: TSkEncodedImageFormat; const AQuality: Byte);
   public
     [TestCase('SkImage BMP (girl.bmp)',               'girl.bmp,1736216929')]
+    {$IFDEF SUPPORT_DNG}
     [TestCase('SkCodec DNG (park.dng)',               'park.dng,1955671176')]
+    {$ENDIF}
     [TestCase('SkImage GIF Animated (animated.gif)',  'animated.gif,2005275412')]
     [TestCase('SkImage GIF Animated (developer.gif)', 'developer.gif,2166160918')]
     [TestCase('SkImage ICO (delphi.ico)',             'delphi.ico,2952345114')]
+    [TestCase('SkImage JPEG (abnt.jpg)',              'abnt.jpg,1659968685')]
     [TestCase('SkImage JPEG (shrek.jpg)',             'shrek.jpg,1173490088')]
     [TestCase('SkImage PNG (elephant.png)',           'elephant.png,529596050')]
     [TestCase('SkImage PNG (kung-fu-panda)',          'kung-fu-panda.png,3960679947')]
@@ -168,7 +183,7 @@ uses
 
 function TSkCodecTestBase.AssetsPath: string;
 begin
-  Result := CombinePaths(inherited AssetsPath, 'Codec');
+  Result := CombinePaths(RootAssetsPath, 'Codec');
 end;
 
 { TSkCodecTests }

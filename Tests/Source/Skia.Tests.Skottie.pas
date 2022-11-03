@@ -33,14 +33,13 @@ type
   [TestFixture]
   TSkSkottieTests = class(TTestBase)
   protected
-    function AssetsPath: string; override;
     procedure Render(const ASkottie: ISkottieAnimation; const ACanvas: ISkCanvas; const ADest: TRectF);
   public
     [TestCase('check.json', 'check.json,5.1.1,1.67999994754791,25,150,150')]
     [TestCase('rocket.json', 'rocket.json,5.7.6,5,30,600,600')]
     procedure TestLoadLottie(const ALottieFileName, AVersion: string; const ADuration, AFPS, AWidth, AHeight: Double);
-    [TestCase('check.json', 'check.json,300,250,0.6,w8GBva2t2////fH97+/f////+/3v79/////////////n5+/zz/Pb+9373nvv9+fn88/8P/////8')]
-    [TestCase('rocket.json', 'rocket.json,300,250,0.6,///BgYOH//////Hhw8f/////9/vf3/////////////////8H8A/wD+A/4P/A/93///////////8')]
+    [TestCase('check.json', 'check.json,300,250,0.6,58GZva29w////fn97//P////+/3v/9/////////////n5+/zz/Pb+9373nvv9+fn88/8P/////8')]
+    [TestCase('rocket.json', 'rocket.json,300,250,0.6,///Bw4OH//////Hjw8f/////9/vf3/////////////////8H8A/wD+A/4P/A/93///////////8')]
     procedure TestRenderLottie(const ALottieFileName: string; const AWidth, AHeight: Integer; const AFrameTime: Double; const AExpectedImageHash: string);
   end;
 
@@ -55,11 +54,6 @@ uses
   System.Math.Vectors;
 
 { TSkSkottieTests }
-
-function TSkSkottieTests.AssetsPath: string;
-begin
-  Result := CombinePaths(inherited AssetsPath, 'Skottie');
-end;
 
 procedure TSkSkottieTests.Render(const ASkottie: ISkottieAnimation;
   const ACanvas: ISkCanvas; const ADest: TRectF);
@@ -92,6 +86,7 @@ var
   LSkottie: ISkottieAnimation;
 begin
   LSkottie := TSkottieAnimation.MakeFromFile(AssetsPath + ALottieFileName);
+  Assert.IsNotNull(LSkottie, 'Invalid ISkottieAnimation (nil)');
   Assert.AreEqual(AVersion, LSkottie.Version);
   Assert.AreSameValue(ADuration, LSkottie.Duration, TEpsilon.Matrix, 'in duration');
   Assert.AreSameValue(AFPS, LSkottie.FPS, TEpsilon.Matrix, 'in fps');
@@ -107,8 +102,10 @@ var
   LSurface: ISkSurface;
 begin
   LSurface := TSkSurface.MakeRaster(AWidth, AHeight);
+  Assert.IsNotNull(LSurface, 'Invalid ISkSurface (nil)');
   LSurface.Canvas.Clear(TAlphaColors.Null);
   LSkottie := TSkottieAnimation.MakeFromFile(AssetsPath + ALottieFileName);
+  Assert.IsNotNull(LSkottie, 'Invalid ISkottieAnimation (nil)');
   LSkottie.SeekFrameTime(AFrameTime);
   Render(LSkottie, LSurface.Canvas, RectF(0, 0, AWidth, AHeight));
   Assert.AreSimilar(AExpectedImageHash, LSurface.MakeImageSnapshot);

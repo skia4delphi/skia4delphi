@@ -19,6 +19,7 @@ uses
   { Delphi }
   System.SysUtils, System.UITypes, System.Classes, System.IOUtils, FMX.Types,
   FMX.Controls, FMX.Forms, FMX.StdCtrls, FMX.Layouts, FMX.Objects,
+  FMX.Controls.Presentation,
 
   { Skia }
   Skia, Skia.FMX,

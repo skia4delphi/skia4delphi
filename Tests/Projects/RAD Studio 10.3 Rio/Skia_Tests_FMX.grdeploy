@@ -1,5 +1,5 @@
 {
-  "Configurations" : ["Release", "Debug"],
+  "Configurations" : ["Debug", "Release"],
   "iOS" : [],
   "Android" : [{
       "LocalName" : "..\\..\\Assets",

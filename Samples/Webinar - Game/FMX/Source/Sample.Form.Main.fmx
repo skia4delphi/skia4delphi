@@ -22,7 +22,7 @@ object frmMain: TfrmMain
     Size.Height = 347.000000000000000000
     Size.PlatformDefault = False
     OnMouseDown = SkAnimatedPaintBox1MouseDown
-    Duration = 10000.000000000000000000
+    Animation.Duration = 10000.000000000000000000
     OnAnimationDraw = SkAnimatedPaintBox1AnimationDraw
   end
 end

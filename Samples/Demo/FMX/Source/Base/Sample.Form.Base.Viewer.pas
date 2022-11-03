@@ -18,8 +18,9 @@ interface
 uses
   { Delphi }
   System.SysUtils, System.Types, System.UITypes, System.Classes, System.TypInfo,
-  System.Math, System.Math.Vectors, FMX.Types, FMX.Graphics, FMX.Controls,
-  FMX.Forms, FMX.StdCtrls, FMX.Layouts, FMX.Objects, FMX.ListBox, System.Rtti,
+  System.Math, System.Math.Vectors, System.Rtti, FMX.Types, FMX.Graphics,
+  FMX.Controls, FMX.Forms, FMX.StdCtrls, FMX.Layouts, FMX.Objects, FMX.ListBox,
+  FMX.Controls.Presentation,
 
   { Skia }
   Skia, Skia.FMX,
@@ -105,9 +106,10 @@ type
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormDestroy(Sender: TObject);
     procedure pbxBackgroundChessDraw(ASender: TObject; const ACanvas: ISkCanvas; const ADest: TRectF; const AOpacity: Single);
-  private class
-    var FChessImage: ISkImage;
-    var FChessPaint: ISkPaint;
+  private
+    class var
+      FChessImage: ISkImage;
+      FChessPaint: ISkPaint;
   private
     FBackgroundKind: TBackgroundKind;
     FOnOptionsChange: TProc;
@@ -266,7 +268,7 @@ var
   LTrackBar: TTrackBar;
   LValue: Double;
 begin
-  LValue := Min(Max(ACurrentValue, AMinValue), AMaxValue);
+  LValue := EnsureRange(ACurrentValue, AMinValue, AMaxValue);
   LTrackBar := TTrackBar.Create(FControl);
   LTrackBar.Align := TAlignLayout.Client;
   LTrackBar.Cursor := crHandPoint;
@@ -282,7 +284,7 @@ begin
     begin
       LTrackBar.OnChange := nil;
       try
-        LTrackBar.Value := Min(Max(AValue.AsOrdinal, AMinValue), AMaxValue);
+        LTrackBar.Value := EnsureRange(AValue.AsExtended, AMinValue, AMaxValue);
       finally
         LTrackBar.OnChange := OnTrackBarChange;
       end;
@@ -423,7 +425,7 @@ begin
   if Assigned(AOptions) then
   begin
     AOptions.Control.Align := TAlignLayout.Bottom;
-    AOptions.Control.Parent := lytContent;
+    AOptions.Control.Parent := rctContent;
   end;
 end;
 

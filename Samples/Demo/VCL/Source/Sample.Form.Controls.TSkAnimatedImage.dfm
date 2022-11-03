@@ -54,7 +54,7 @@ inherited frmTSkAnimatedImage: TfrmTSkAnimatedImage
           Align = alTop
           OnClick = pnlLottieLoadingsClick
           TextSettings.Font.Size = 11.000000000000000000
-          TextSettings.FontColor = xFF9FA5A8
+          TextSettings.FontColor = xFFA0A0A1
           TextSettings.MaxLines = 1
           Words = <
             item
@@ -76,6 +76,7 @@ inherited frmTSkAnimatedImage: TfrmTSkAnimatedImage
           Align = alTop
           OnClick = pnlLottieLoadingsClick
           TextSettings.Font.Weight = Medium
+          TextSettings.FontColor = xFF1B1B1B
           TextSettings.MaxLines = 2
           Words = <
             item
@@ -159,7 +160,7 @@ inherited frmTSkAnimatedImage: TfrmTSkAnimatedImage
           Align = alTop
           OnClick = pnlAnimatedGIFClick
           TextSettings.Font.Size = 11.000000000000000000
-          TextSettings.FontColor = xFF9FA5A8
+          TextSettings.FontColor = xFFA0A0A1
           TextSettings.MaxLines = 1
           Words = <
             item
@@ -181,6 +182,7 @@ inherited frmTSkAnimatedImage: TfrmTSkAnimatedImage
           Align = alTop
           OnClick = pnlAnimatedGIFClick
           TextSettings.Font.Weight = Medium
+          TextSettings.FontColor = xFF1B1B1B
           TextSettings.MaxLines = 2
           Words = <
             item
@@ -264,7 +266,7 @@ inherited frmTSkAnimatedImage: TfrmTSkAnimatedImage
           Align = alTop
           OnClick = pnlTelegramStickersClick
           TextSettings.Font.Size = 11.000000000000000000
-          TextSettings.FontColor = xFF9FA5A8
+          TextSettings.FontColor = xFFA0A0A1
           TextSettings.MaxLines = 1
           Words = <
             item
@@ -286,6 +288,7 @@ inherited frmTSkAnimatedImage: TfrmTSkAnimatedImage
           Align = alTop
           OnClick = pnlTelegramStickersClick
           TextSettings.Font.Weight = Medium
+          TextSettings.FontColor = xFF1B1B1B
           TextSettings.MaxLines = 2
           Words = <
             item
@@ -369,7 +372,7 @@ inherited frmTSkAnimatedImage: TfrmTSkAnimatedImage
           Align = alTop
           OnClick = pnlAnimatedWebPClick
           TextSettings.Font.Size = 11.000000000000000000
-          TextSettings.FontColor = xFF9FA5A8
+          TextSettings.FontColor = xFFA0A0A1
           TextSettings.MaxLines = 1
           Words = <
             item
@@ -391,6 +394,7 @@ inherited frmTSkAnimatedImage: TfrmTSkAnimatedImage
           Align = alTop
           OnClick = pnlAnimatedWebPClick
           TextSettings.Font.Weight = Medium
+          TextSettings.FontColor = xFF1B1B1B
           TextSettings.MaxLines = 2
           Words = <
             item
@@ -474,7 +478,7 @@ inherited frmTSkAnimatedImage: TfrmTSkAnimatedImage
           Align = alTop
           OnClick = pnlLottieRocketClick
           TextSettings.Font.Size = 11.000000000000000000
-          TextSettings.FontColor = xFF9FA5A8
+          TextSettings.FontColor = xFFA0A0A1
           TextSettings.MaxLines = 1
           Words = <
             item
@@ -496,6 +500,7 @@ inherited frmTSkAnimatedImage: TfrmTSkAnimatedImage
           Align = alTop
           OnClick = pnlLottieRocketClick
           TextSettings.Font.Weight = Medium
+          TextSettings.FontColor = xFF1B1B1B
           TextSettings.MaxLines = 2
           Words = <
             item
@@ -579,7 +584,7 @@ inherited frmTSkAnimatedImage: TfrmTSkAnimatedImage
           Align = alTop
           OnClick = pnlLottieCheckClick
           TextSettings.Font.Size = 11.000000000000000000
-          TextSettings.FontColor = xFF9FA5A8
+          TextSettings.FontColor = xFFA0A0A1
           TextSettings.MaxLines = 1
           Words = <
             item
@@ -601,6 +606,7 @@ inherited frmTSkAnimatedImage: TfrmTSkAnimatedImage
           Align = alTop
           OnClick = pnlLottieCheckClick
           TextSettings.Font.Weight = Medium
+          TextSettings.FontColor = xFF1B1B1B
           TextSettings.MaxLines = 2
           Words = <
             item

@@ -25,6 +25,7 @@ type
     Name: string;
     RegVersion: string;
     SupportedPlatforms: TProjectPlatforms;
+    SupportedPlatformsDelphi: TProjectPlatforms;
     MaxDprojVersion: string;
     MinDprojVersion: string;
     PackageVersion: string;
@@ -39,6 +40,8 @@ type
 
   TRADStudioInfo = record
     AppFileName: string;
+    BdsCommonDir: string;
+    BdsInclude: string;
     RootDir: string;
     Status: TRADStudioInstallationStatus;
     Version: TRADStudioVersion;
@@ -50,6 +53,8 @@ type
 function CheckIfRADStudioSupportsPlatform(const ARADStudioInfo: TRADStudioInfo; const APlatform: TProjectPlatform): Boolean; forward;
 /// <summary> Compare two versions of RAD Studio </summary>
 function CompareRADStudioVersions(const AVersion1, AVersion2: TRADStudioVersion): Integer; forward;
+/// <summary> Get common directory of RAD Studio BPLs </summary>
+function GetRADStudioCommonBplDir(const ARADStudioInfo: TRADStudioInfo; const APlatform: TProjectPlatform): string; forward;
 /// <summary> Get the RAD Studio info </summary>
 function GetRADStudioInfo(const ARADStudioVersion: TRADStudioVersion): TRADStudioInfo; forward;
 /// <summary> Get RAD Studio infos from the RAD Studio versions of the packages of each group project </summary>
@@ -114,6 +119,8 @@ procedure _InitializationUnitRADStudio; forward;
 function _SortRADStudioInfos(AInfos: TRADStudioInfos): TRADStudioInfos; forward;
 /// <summary> Try to add a path to the Library registry (in a specific registry name) of the RAD Studio </summary>
 function _TryAddRADStudioLibraryPath(const ARADStudioVersion: TRADStudioVersion; const APlatform: TProjectPlatform; const ARegName, APath: string): Boolean; forward;
+/// <summary> Try to get the RADStudio environment variable </summary>
+function _TryGetRADStudioEnvVar(const ARADStudioVersion: TRADStudioVersion; const AName: string; out AValue: string): Boolean; forward;
 /// <summary> Try to get the RADStudio installations info </summary>
 function _TryGetRADStudioInstallation(const ARADStudioVersion: TRADStudioVersion; const ARootKey: Integer; out AAppFileName, ARootDir: string): Boolean; forward;
 /// <summary> Try to remove a bpl from the "disabled packages" registry of the RAD Studio </summary>
@@ -182,17 +189,38 @@ begin
   end;
 end;
 
+function GetRADStudioCommonBplDir(const ARADStudioInfo: TRADStudioInfo; const APlatform: TProjectPlatform): string;
+begin
+  Result := ARADStudioInfo.BdsCommonDir;
+  if Result <> '' then
+  begin
+    Result := CombinePath(Result, 'Bpl');
+    if APlatform <> pfWin32 then
+      Result := CombinePath(Result, GetProjectPlatformName(APlatform));
+  end;
+end;
+
 function GetRADStudioInfo(const ARADStudioVersion: TRADStudioVersion): TRADStudioInfo;
 var
   LResultCode: Integer;
 begin
   Result.Version := ARADStudioVersion;
+  Result.BdsCommonDir := '';
+  Result.BdsInclude := '';
   if _TryGetRADStudioInstallation(ARADStudioVersion, HKEY_CURRENT_USER, Result.AppFileName, Result.RootDir) then
   begin
     if (not Exec(ExpandConstant('{cmd}'), Format('/C "%s" --test > nul 2>&1', [ExtractFilePath(Result.AppFileName) + 'DCC32.EXE']), '', SW_HIDE, ewWaitUntilTerminated, LResultCode)) or (LResultCode = 0) then
       Result.Status := riToolchainNotSupported
     else
+    begin
       Result.Status := riNormal;
+      _TryGetRADStudioEnvVar(ARADStudioVersion, 'BDSCOMMONDIR', Result.BdsCommonDir);
+      if not DirExists(Result.BdsCommonDir) then
+        Result.BdsCommonDir := '';
+      _TryGetRADStudioEnvVar(ARADStudioVersion, 'BDSINCLUDE', Result.BdsInclude);
+      if not DirExists(Result.BdsInclude) then
+        Result.BdsInclude := '';
+    end;
   end
   else if _TryGetRADStudioInstallation(ARADStudioVersion, HKEY_LOCAL_MACHINE, Result.AppFileName, Result.RootDir) then
     Result.Status := riNeedOpenFirst
@@ -285,7 +313,8 @@ begin
   // RAD Studio XE7
   LRADStudioVersion.Name := 'RAD Studio XE7';
   LRADStudioVersion.RegVersion := '15.0';
-  LRADStudioVersion.SupportedPlatforms := [pfWin32, pfWin64, pfAndroid, pfiOSDevice32, pfiOSSimulator, pfOSX32];
+  LRADStudioVersion.SupportedPlatformsDelphi := [pfWin32, pfWin64, pfAndroid, pfiOSDevice32, pfiOSSimulator, pfOSX32];
+  LRADStudioVersion.SupportedPlatforms := LRADStudioVersion.SupportedPlatformsDelphi;
   LRADStudioVersion.MaxDprojVersion := '16.1';
   LRADStudioVersion.MinDprojVersion := '16.0';
   LRADStudioVersion.PackageVersion := '210';
@@ -300,7 +329,8 @@ begin
   // RAD Studio XE8
   LRADStudioVersion.Name := 'RAD Studio XE8';
   LRADStudioVersion.RegVersion := '16.0';
-  LRADStudioVersion.SupportedPlatforms := [pfWin32, pfWin64, pfAndroid, pfiOSDevice32, pfiOSDevice64, pfiOSSimulator, pfOSX32];
+  LRADStudioVersion.SupportedPlatformsDelphi := [pfWin32, pfWin64, pfAndroid, pfiOSDevice32, pfiOSDevice64, pfiOSSimulator, pfOSX32];
+  LRADStudioVersion.SupportedPlatforms := LRADStudioVersion.SupportedPlatformsDelphi;
   LRADStudioVersion.MaxDprojVersion := '17.2';
   LRADStudioVersion.MinDprojVersion := '17.1';
   LRADStudioVersion.PackageVersion := '220';
@@ -315,7 +345,8 @@ begin
   // RAD Studio 10.0 Seattle
   LRADStudioVersion.Name := 'RAD Studio 10.0 Seattle';
   LRADStudioVersion.RegVersion := '17.0';
-  LRADStudioVersion.SupportedPlatforms := [pfWin32, pfWin64, pfAndroid, pfiOSDevice32, pfiOSDevice64, pfiOSSimulator, pfOSX32];
+  LRADStudioVersion.SupportedPlatformsDelphi := [pfWin32, pfWin64, pfAndroid, pfiOSDevice32, pfiOSDevice64, pfiOSSimulator, pfOSX32];
+  LRADStudioVersion.SupportedPlatforms := LRADStudioVersion.SupportedPlatformsDelphi;
   LRADStudioVersion.MaxDprojVersion := '18.1'; // Conflicted
   LRADStudioVersion.MinDprojVersion := '18.0';
   LRADStudioVersion.PackageVersion := '230';
@@ -330,7 +361,8 @@ begin
   // RAD Studio 10.1 Berlin
   LRADStudioVersion.Name := 'RAD Studio 10.1 Berlin';
   LRADStudioVersion.RegVersion := '18.0';
-  LRADStudioVersion.SupportedPlatforms := [pfWin32, pfWin64, pfAndroid, pfiOSDevice32, pfiOSDevice64, pfiOSSimulator, pfOSX32];
+  LRADStudioVersion.SupportedPlatformsDelphi := [pfWin32, pfWin64, pfAndroid, pfiOSDevice32, pfiOSDevice64, pfiOSSimulator, pfOSX32];
+  LRADStudioVersion.SupportedPlatforms := LRADStudioVersion.SupportedPlatformsDelphi;
   LRADStudioVersion.MaxDprojVersion := '18.2'; // Conflicted
   LRADStudioVersion.MinDprojVersion := '18.1'; // Conflicted
   LRADStudioVersion.PackageVersion := '240';
@@ -345,7 +377,8 @@ begin
   // RAD Studio 10.2 Tokyo
   LRADStudioVersion.Name := 'RAD Studio 10.2 Tokyo';
   LRADStudioVersion.RegVersion := '19.0';
-  LRADStudioVersion.SupportedPlatforms := [pfWin32, pfWin64, pfAndroid, pfiOSDevice32, pfiOSDevice64, pfiOSSimulator, pfOSX32, pfLinux64];
+  LRADStudioVersion.SupportedPlatformsDelphi := [pfWin32, pfWin64, pfAndroid, pfiOSDevice32, pfiOSDevice64, pfiOSSimulator, pfOSX32, pfLinux64];
+  LRADStudioVersion.SupportedPlatforms := LRADStudioVersion.SupportedPlatformsDelphi;
   LRADStudioVersion.MaxDprojVersion := '18.4';
   LRADStudioVersion.MinDprojVersion := '18.2'; // Conflicted
   LRADStudioVersion.PackageVersion := '250';
@@ -360,7 +393,8 @@ begin
   // RAD Studio 10.3 Rio
   LRADStudioVersion.Name := 'RAD Studio 10.3 Rio';
   LRADStudioVersion.RegVersion := '20.0';
-  LRADStudioVersion.SupportedPlatforms := [pfWin32, pfWin64, pfAndroid, pfAndroid64, pfiOSDevice32, pfiOSDevice64, pfiOSSimulator, pfOSX32, pfOSX64, pfLinux64];
+  LRADStudioVersion.SupportedPlatformsDelphi := [pfWin32, pfWin64, pfAndroid, pfAndroid64, pfiOSDevice32, pfiOSDevice64, pfiOSSimulator, pfOSX32, pfOSX64, pfLinux64];
+  LRADStudioVersion.SupportedPlatforms := LRADStudioVersion.SupportedPlatformsDelphi;
   LRADStudioVersion.MaxDprojVersion := '18.8';
   LRADStudioVersion.MinDprojVersion := '18.5';
   LRADStudioVersion.PackageVersion := '260';
@@ -375,7 +409,8 @@ begin
   // RAD Studio 10.4 Sydney
   LRADStudioVersion.Name := 'RAD Studio 10.4 Sydney';
   LRADStudioVersion.RegVersion := '21.0';
-  LRADStudioVersion.SupportedPlatforms := [pfWin32, pfWin64, pfAndroid, pfAndroid64, pfiOSDevice64, pfiOSSimulator, pfOSX64, pfLinux64];
+  LRADStudioVersion.SupportedPlatformsDelphi := [pfWin32, pfWin64, pfAndroid, pfAndroid64, pfiOSDevice64, pfiOSSimulator, pfOSX64, pfLinux64];
+  LRADStudioVersion.SupportedPlatforms := LRADStudioVersion.SupportedPlatformsDelphi;
   LRADStudioVersion.MaxDprojVersion := '19.2';
   LRADStudioVersion.MinDprojVersion := '19.0';
   LRADStudioVersion.PackageVersion := '270';
@@ -390,8 +425,9 @@ begin
   // RAD Studio 11 Alexandria
   LRADStudioVersion.Name := 'RAD Studio 11 Alexandria';
   LRADStudioVersion.RegVersion := '22.0';
-  LRADStudioVersion.SupportedPlatforms := [pfWin32, pfWin64, pfAndroid, pfAndroid64, pfiOSDevice64, pfiOSSimulator, pfOSX64, pfOSXARM64, pfLinux64];
-  LRADStudioVersion.MaxDprojVersion := '19.4';
+  LRADStudioVersion.SupportedPlatformsDelphi := [pfWin32, pfWin64, pfAndroid, pfAndroid64, pfiOSDevice64, pfiOSSimARM64, pfiOSSimulator, pfOSX64, pfOSXARM64, pfLinux64];
+  LRADStudioVersion.SupportedPlatforms := LRADStudioVersion.SupportedPlatformsDelphi;
+  LRADStudioVersion.MaxDprojVersion := '19.5';
   LRADStudioVersion.MinDprojVersion := '19.3';
   LRADStudioVersion.PackageVersion := '280';
   LRADStudioVersion.HasGetItCmd := True;
@@ -504,6 +540,39 @@ begin
   end;
   if not Result then
     Log(Format('RADStudio.TryAddRADStudioPathEnvVariable: Failed to add a path environment variable to the RAD Studio registry (Path: "%s")', [APath]));
+end;
+
+function _TryGetRADStudioEnvVar(const ARADStudioVersion: TRADStudioVersion; const AName: string; out AValue: string): Boolean;
+var
+  LXMLDocument: Variant;
+  LFileName: string;
+begin
+  LFileName := ExpandConstant(Format('{userappdata}\Embarcadero\BDS\%s\environment.proj', [ARADStudioVersion.RegVersion]));
+  Result := FileExists(LFileName);
+  AValue := '';
+  if Result then
+  begin
+    LXMLDocument := CreateOleObject('Msxml2.DOMDocument');
+    try
+      LXMLDocument.Async := False;
+      LXMLDocument.ResolveExternals := False;
+      LXMLDocument.Load(LFileName);
+      if LXMLDocument.ParseError.ErrorCode <> 0 then
+      begin
+        Log(Format('RADStudio._TryGetRADStudioEnvVar: Error parsing the file "%s" (code %d, line %d, position %d, message "%s")', [LFileName, LXMLDocument.ParseError.ErrorCode, LXMLDocument.ParseError.Line, LXMLDocument.ParseError.LinePos, LXMLDocument.ParseError.Reason]));
+        Result := False;
+        Exit;
+      end;
+
+      AValue := ReadXMLNodeText(LXMLDocument, '/Project/PropertyGroup/' + AName, '<{+error+}>');
+      Result := AValue <> '<{+error+}>';
+      if not Result then
+        AValue := '';
+    except
+      Log(Format('RADStudio._TryGetRADStudioEnvVar: Unexpected error parsing the file "%s" (message "%s")', [LFileName, GetExceptionMessage]));
+      Result := False;
+    end;
+  end;
 end;
 
 function TryGetRADStudioProjectBplOutputFileName(const AProject: TRADStudioProject; out AFileName: string): Boolean;
@@ -699,8 +768,8 @@ var
   LBplName: string;
   I: Integer;
 begin
-  Result := RegGetValueNames(HKEY_CURRENT_USER, GetRADStudioRegKey(ARADStudioVersion) + '\Disabled Packages', LRegisteredBpls);
-  if Result then
+  Result := True;
+  if RegGetValueNames(HKEY_CURRENT_USER, GetRADStudioRegKey(ARADStudioVersion) + '\Disabled Packages', LRegisteredBpls) then
   begin
     LBplName := ExtractFileName(ABplFileName);
     for I := 0 to GetArrayLength(LRegisteredBpls) - 1 do
@@ -711,9 +780,7 @@ begin
         Log(Format('RADStudio._TryRemoveRADStudioBplFromDisabledPackages: Failed to delete the value "%s" from registry "%s".', [LRegisteredBpls[I], 'HKEY_CURRENT_USER\' + GetRADStudioRegKey(ARADStudioVersion) + '\Disabled Packages']));
       end;
     end;
-  end
-  else
-    Log(Format('RADStudio._TryRemoveRADStudioBplFromDisabledPackages: Failed to get the disabled bpl list, from registry "%s".', ['HKEY_CURRENT_USER\' + GetRADStudioRegKey(ARADStudioVersion) + '\Disabled Packages']));
+  end;
 end;
 
 function TryRemoveRADStudioEnvVariable(const ARADStudioVersion: TRADStudioVersion; const AName: string): Boolean;

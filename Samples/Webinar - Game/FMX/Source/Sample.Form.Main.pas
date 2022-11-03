@@ -148,7 +148,7 @@ procedure TfrmMain.SkAnimatedPaintBox1AnimationDraw(ASender: TObject;
     FBufferAEffect.SetUniform('ivkSpacePressing', Integer(FIsVKSpacePressing));
     // Set the BufferA result of last frame (the result of this shader in last
     // draw). This process is called Multipass system.
-    FBufferAEffect.ChildrenShaders['iChannel0'] := FBufferAShader;
+    FBufferAEffect.ChildrenShadersByName['iChannel0'] := FBufferAShader;
 
     LBufferAImage  := FBufferAEffect.MakeImage(TSkImageInfo.Create(BufferASize.Width, BufferASize.Height, TSkColorType.RGBAF16Clamped));
     FBufferAShader := LBufferAImage.MakeRawShader(TSkSamplingOptions.Create(TSkFilterMode.Nearest, TSkMipmapMode.None));
@@ -158,8 +158,8 @@ procedure TfrmMain.SkAnimatedPaintBox1AnimationDraw(ASender: TObject;
   begin
     FImageEffect.SetUniform('iResolution', PointF(ADest.Width, ADest.Height));
     FImageEffect.SetUniform('iTime', ATime);
-    FImageEffect.ChildrenShaders['iChannel0'] := FBufferAShader;
-    FImagePaint.Shader := FImageEffect.MakeShader(True);
+    FImageEffect.ChildrenShadersByName['iChannel0'] := FBufferAShader;
+    FImagePaint.Shader := FImageEffect.MakeShader;
     ACanvas.DrawRect(ADest, FImagePaint);
   end;
 

@@ -9,7 +9,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2015/06/nuspec.xsd">
   <metadata>
     <id>skia4delphi</id>
-    <version>3.4.1</version>
+    <version>4.0.0</version>
     <packageSourceUrl>https://github.com/skia4delphi/skia4delphi/tree/main/Tools/Chocolatey%20Package</packageSourceUrl>
     <owners>Paulo César Botelho Barbosa,Vinícius Felipe Botelho Barbosa</owners>
     <title>Skia4Delphi</title>
@@ -24,7 +24,7 @@
     <bugTrackerUrl>https://github.com/skia4delphi/skia4delphi/issues</bugTrackerUrl>
     <tags>skia delphi firemokey</tags>
     <releaseNotes>https://github.com/skia4delphi/skia4delphi/releases</releaseNotes>
-    <summary>Cross-platform 2D graphics lbrary for Delphi based on Google's Skia</summary>
+    <summary>Cross-platform 2D graphics library for Delphi based on Google's Skia</summary>
     <description><![CDATA[Skia4Delphi is a cross-platform 2D graphics API for Delphi based on Google's Skia Graphics Library (skia.org).
 
 Google's Skia Graphics Library serves as the graphics engine for Google Chrome and Chrome OS, Android, Flutter, Xamarin, Mozilla Firefox and Firefox OS, and many other products.

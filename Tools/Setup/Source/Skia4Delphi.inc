@@ -24,27 +24,34 @@
   #include "Source\RADStudio.inc"
   #include "Source\RADStudio.Project.inc"
   #include "Source\Setup.Main.inc"
+  #include "Source\String.Utils.inc"
 
 const
   LibraryDirVariable = 'SKIADIR';
   LibraryDirDefine = '$(' + LibraryDirVariable + ')';
-  LibraryWin32BinaryDir = 'Binary\Win32\Release';
-  LibraryiOSDevice64BinaryDir = 'Binary\iOSDevice64\Release';
+  LibraryWin32BinaryDir = 'Binary\Shared\Win32';
+  LibraryiOSDevice64BinaryDir = 'Binary\Static\iOSDevice64';
 
 /// <summary> Get the custom param on build </summary>
 function _OnGetBuildCustonParam(): string; forward;
 /// <summary> Try to extract pre-build objects binaries when the command line compilation has failed </summary>
 function _OnTryExtractPreBuildObjects(const AInfo: TRADStudioInfo): Boolean; forward;
 /// <summary> Make custom changes before the installation </summary>
-function _OnTryPrepareProjectInstallation(var AProjectItem: TRADStudioGroupProjectItem; const AInfo: TRADStudioInfo): Boolean; forward;  
+function _OnTryPrepareProjectInstallation(var AProjectItem: TRADStudioGroupProjectItem; const AInfo: TRADStudioInfo): Boolean; forward;
 /// <summary> Make custom changes before the uninstallation </summary>
 function _OnTryPrepareProjectUninstallation(var AProjectItem: TRADStudioGroupProjectItem; const AInfo: TRADStudioInfo): Boolean; forward;
+/// <summary> Remove the generated hpp files of old setups </summary>
+procedure _RemoveGeneratedHppFiles(const AInfo: TRADStudioInfo); forward;
 /// <summary> Remove old library search path </summary>
 procedure _RemoveOldLibrarySearchPath(const AProjectItem: TRADStudioGroupProjectItem; const AInfo: TRADStudioInfo); forward;
 /// <summary> Try get old RAD Studio name used in our old setup </summary>
 function _TryGetOldRADStudioName(const ARADStudioVersion: TRADStudioVersion; out AName: string): Boolean; forward;
 /// <summary> Try to unregister old bpl </summary>
 procedure _UnregisterOldBpl(const AProjectItem: TRADStudioGroupProjectItem; const AInfo: TRADStudioInfo); forward;
+
+var
+  _FRADStudioInstalledList: TArrayOfString;
+  _FRADStudioUninstalledList: TArrayOfString;
 
 function _OnGetBuildCustonParam(): string;
 begin
@@ -72,13 +79,13 @@ begin
       Exit;
     end;
   end;
-  Result := (ExtractTemporaryFiles(CombinePath('{app}', AddBackslash('{#LibraryDCUFolder}')) + '*') > 0);  
+  Result := (ExtractTemporaryFiles(CombinePath('{app}', AddBackslash('{#LibraryDCUFolder}')) + '*') > 0);
   if not Result then
   begin
     Log(Format('Skia4Delphi._OnTryExtractPreBuildObjects: Failed to extract the temporary files of "%s"', [CombinePath('{app}', AddBackslash('{#LibraryDCUFolder}'))]));
     Exit;
   end;
-  Result := (GetArrayLength(GetFiles(LExtractedPath, '*', soAllDirectories)) > 0);  
+  Result := (GetArrayLength(GetFiles(LExtractedPath, '*', soAllDirectories)) > 0);
   if not Result then
   begin
     Log(Format('Skia4Delphi._OnTryExtractPreBuildObjects: No pre-build objects found for %s', [AInfo.Version.Name]));
@@ -89,7 +96,7 @@ begin
   begin
     Result := DelTree(LDCUPath, True, True, True);
     if not Result then
-    begin 
+    begin
       Log(Format('Skia4Delphi._OnTryExtractPreBuildObjects: Failed to delete the directory "%s"', [LDCUPath]));
       Exit;
     end;
@@ -114,6 +121,13 @@ var
   LAppPath: string;
 begin
   Log(Format('Skia4Delphi._OnTryPrepareProjectInstallation: Preparing package "%s" before install...', [AProjectItem.Project.FileName]));
+  if not ContainsString(_FRADStudioInstalledList, AInfo.Version.RegVersion, False) then
+  begin
+    _FRADStudioInstalledList := AppendString(_FRADStudioInstalledList, AInfo.Version.RegVersion, False);
+    _RemoveGeneratedHppFiles(AInfo);
+    // Removing old path
+    TryRemoveRADStudioLibrarySearchPath(AInfo.Version, pfiOSDevice64, CombinePath(LibraryDirDefine, 'Binary\iOSDevice64'));
+  end;
   LAppPath := ExpandConstant('{app}');
   for I := 0 to GetArrayLength(AProjectItem.Project.SourcePaths) - 1 do
     StringChangeEx(AProjectItem.Project.SourcePaths[I], LAppPath, LibraryDirDefine, True);
@@ -132,6 +146,11 @@ var
   LAppPath: string;
 begin
   Log(Format('Skia4Delphi._OnTryPrepareProjectUninstallation: Preparing package "%s" to uninstall...', [AProjectItem.Project.FileName]));
+  if not ContainsString(_FRADStudioUninstalledList, AInfo.Version.RegVersion, False) then
+  begin
+    _FRADStudioUninstalledList := AppendString(_FRADStudioUninstalledList, AInfo.Version.RegVersion, False);
+    _RemoveGeneratedHppFiles(AInfo);
+  end;
   LAppPath := ExpandConstant('{app}');
   for I := 0 to GetArrayLength(AProjectItem.Project.SourcePaths) - 1 do
     StringChangeEx(AProjectItem.Project.SourcePaths[I], LAppPath, LibraryDirDefine, True);
@@ -145,11 +164,58 @@ begin
     Log(Format('Skia4Delphi._OnTryPrepareProjectUninstallation: Failed to prepare the project "%s"', [AProjectItem.Project.FileName]));
 end;
 
+procedure _RemoveGeneratedHppFiles(const AInfo: TRADStudioInfo);
+var
+  LGeneratedHppDir: string;
+  LGeneratedHppPlatformDir: string;
+  LPlatform: TProjectPlatform;
+begin
+  if (AInfo.BdsCommonDir <> '') and (AInfo.BdsInclude <> '') then
+  begin
+    LGeneratedHppDir := CombinePath(AInfo.BdsCommonDir, 'hpp');
+    if DirExists(LGeneratedHppDir) and (LGeneratedHppDir <> AInfo.BdsInclude) then
+    begin
+      Log(Format('Skia4Delphi._RemoveGeneratedHppFiles: Removing old generated hpp of "%s"...', [AInfo.Version.Name]));
+      for LPlatform := LowProjectPlatform to HighProjectPlatform do
+      begin
+        LGeneratedHppPlatformDir := CombinePath(LGeneratedHppDir, GetProjectPlatformName(LPlatform));
+        if not DirExists(LGeneratedHppPlatformDir) then
+          Continue;
+        // Removes the generated hpp from old versions
+        DeleteFile(CombinePath(LGeneratedHppPlatformDir, 'Skia.hpp'));
+        DeleteFile(CombinePath(LGeneratedHppPlatformDir, 'Skia.API.hpp'));
+        DeleteFile(CombinePath(LGeneratedHppPlatformDir, 'Skia.Bindings.hpp'));
+        DeleteFile(CombinePath(LGeneratedHppPlatformDir, 'Skia.FMX.hpp'));
+        DeleteFile(CombinePath(LGeneratedHppPlatformDir, 'Skia.FMX.Canvas.GL.hpp'));
+        DeleteFile(CombinePath(LGeneratedHppPlatformDir, 'Skia.FMX.Canvas.Metal.hpp'));
+        DeleteFile(CombinePath(LGeneratedHppPlatformDir, 'Skia.FMX.Designtime.Editor.AnimatedImage.hpp'));
+        DeleteFile(CombinePath(LGeneratedHppPlatformDir, 'Skia.FMX.Designtime.Editor.SVG.hpp'));
+        DeleteFile(CombinePath(LGeneratedHppPlatformDir, 'Skia.FMX.Designtime.hpp'));
+        DeleteFile(CombinePath(LGeneratedHppPlatformDir, 'Skia.FMX.Graphics.hpp'));
+        DeleteFile(CombinePath(LGeneratedHppPlatformDir, 'Skia.Vcl.hpp'));
+        DeleteFile(CombinePath(LGeneratedHppPlatformDir, 'Skia.Vcl.Designtime.Editor.AnimatedImage.hpp'));
+        DeleteFile(CombinePath(LGeneratedHppPlatformDir, 'Skia.Vcl.Designtime.Editor.SVG.hpp'));
+        DeleteFile(CombinePath(LGeneratedHppPlatformDir, 'Skia.Vcl.Designtime.hpp'));
+        DeleteFile(CombinePath(LGeneratedHppPlatformDir, 'Skia.Vcl.Designtime.ProjectMenu.hpp'));
+        DeleteFile(CombinePath(LGeneratedHppPlatformDir, 'Skia.Package.FMX.hpp'));
+        DeleteFile(CombinePath(LGeneratedHppPlatformDir, 'Skia.Package.FMX.Designtime.hpp'));
+        DeleteFile(CombinePath(LGeneratedHppPlatformDir, 'Skia.Package.RTL.hpp'));
+        DeleteFile(CombinePath(LGeneratedHppPlatformDir, 'Skia.Package.VCL.hpp'));
+        DeleteFile(CombinePath(LGeneratedHppPlatformDir, 'Skia.Package.VCL.Designtime.hpp'));
+      end;
+    end
+    else
+      Log(Format('Skia4Delphi._RemoveGeneratedHppFiles: Invalid paths in "%s" (LGeneratedHppDir: "%s", BdsInclude: "%s")', [AInfo.Version.Name, LGeneratedHppDir, AInfo.BdsInclude]));
+  end
+  else
+    Log(Format('Skia4Delphi._RemoveGeneratedHppFiles: Invalid paths in "%s" (BdsCommonDir: "%s", BdsInclude: "%s")', [AInfo.Version.Name, AInfo.BdsCommonDir, AInfo.BdsInclude]));
+end;
+
 procedure _RemoveOldLibrarySearchPath(const AProjectItem: TRADStudioGroupProjectItem; const AInfo: TRADStudioInfo);
 var
   LOldRADStudioName: string;
   LPlatform: TProjectPlatform;
-begin   
+begin
   Log(Format('Skia4Delphi._RemoveOldLibrarySearchPath: Removing old search path of "%s" project...', [AProjectItem.Project.FileName]));
   if SameText(ExtractFileName(AProjectItem.Project.FileName), 'Skia.Package.RTL.dproj') then
   begin
@@ -164,7 +230,7 @@ begin
       end;
     end;
     if AInfo.Version.RegVersion = '22.0' then
-    begin 
+    begin
       for LPlatform := LowProjectPlatform to HighProjectPlatform do
       begin
         if not (LPlatform in GetPlatformsAllowedToBuild(AInfo)) then
@@ -172,6 +238,7 @@ begin
         TryRemoveRADStudioLibrarySearchPath(AInfo.Version, LPlatform, CombinePath(LibraryDirDefine, 'Library\RAD Studio 11.0 Alexandria\' + GetProjectPlatformName(LPlatform) + '\Release'));
         TryRemoveRADStudioLibrarySearchPath(AInfo.Version, LPlatform, CombinePath(LibraryDirDefine, 'Library\RAD Studio 11.0 Alexandria\' + GetProjectPlatformName(LPlatform) + '\Debug'));
       end;
+      TryRemoveRADStudioLibrarySearchPath(AInfo.Version, pfiOSDevice64, CombinePath(LibraryDirDefine, 'Binary\iOSDevice64\Release'));
     end;
   end;
 end;
@@ -184,7 +251,7 @@ begin
   FOnTryPrepareProjectInstallation := @_OnTryPrepareProjectInstallation;
   FOnTryPrepareProjectUninstallation := @_OnTryPrepareProjectUninstallation;
   Result := True;
-end; 
+end;
 
 <event('InitializeUninstall')>
 function _Skia4DelphiInitializeUninstall: Boolean;

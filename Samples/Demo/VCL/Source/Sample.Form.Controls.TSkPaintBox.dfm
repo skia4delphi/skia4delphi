@@ -54,7 +54,7 @@ inherited frmTSkPaintBox: TfrmTSkPaintBox
           Align = alTop
           OnClick = pnlFreehandClick
           TextSettings.Font.Size = 11.000000000000000000
-          TextSettings.FontColor = xFF9FA5A8
+          TextSettings.FontColor = xFFA0A0A1
           TextSettings.MaxLines = 1
           Words = <
             item
@@ -76,6 +76,7 @@ inherited frmTSkPaintBox: TfrmTSkPaintBox
           Align = alTop
           OnClick = pnlFreehandClick
           TextSettings.Font.Weight = Medium
+          TextSettings.FontColor = xFF1B1B1B
           TextSettings.MaxLines = 2
           Words = <
             item
@@ -159,7 +160,7 @@ inherited frmTSkPaintBox: TfrmTSkPaintBox
           Align = alTop
           OnClick = pnlSweepGradientClick
           TextSettings.Font.Size = 11.000000000000000000
-          TextSettings.FontColor = xFF9FA5A8
+          TextSettings.FontColor = xFFA0A0A1
           TextSettings.MaxLines = 1
           Words = <
             item
@@ -181,6 +182,7 @@ inherited frmTSkPaintBox: TfrmTSkPaintBox
           Align = alTop
           OnClick = pnlSweepGradientClick
           TextSettings.Font.Weight = Medium
+          TextSettings.FontColor = xFF1B1B1B
           TextSettings.MaxLines = 2
           Words = <
             item

@@ -2,7 +2,7 @@ inherited frmBaseViewer: TfrmBaseViewer
   OnClose = FormClose
   OnDestroy = FormDestroy
   DesignerMasterStyle = 0
-  inherited lytContent: TLayout
+  inherited rctContent: TRectangle
     object rctBackgroundChess: TRectangle
       Align = Client
       Fill.Bitmap.Bitmap.PNG = {

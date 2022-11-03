@@ -50,7 +50,7 @@ inherited frmText: TfrmText
           Align = alTop
           OnClick = pnlBasicTextsClick
           TextSettings.Font.Size = 11.000000000000000000
-          TextSettings.FontColor = xFF9FA5A8
+          TextSettings.FontColor = xFFA0A0A1
           TextSettings.MaxLines = 1
           Words = <
             item
@@ -72,6 +72,7 @@ inherited frmText: TfrmText
           Align = alTop
           OnClick = pnlBasicTextsClick
           TextSettings.Font.Weight = Medium
+          TextSettings.FontColor = xFF1B1B1B
           TextSettings.MaxLines = 2
           Words = <
             item
@@ -155,7 +156,7 @@ inherited frmText: TfrmText
           Align = alTop
           OnClick = pnlRTLClick
           TextSettings.Font.Size = 11.000000000000000000
-          TextSettings.FontColor = xFF9FA5A8
+          TextSettings.FontColor = xFFA0A0A1
           TextSettings.MaxLines = 1
           Words = <
             item
@@ -177,6 +178,7 @@ inherited frmText: TfrmText
           Align = alTop
           OnClick = pnlRTLClick
           TextSettings.Font.Weight = Medium
+          TextSettings.FontColor = xFF1B1B1B
           TextSettings.MaxLines = 2
           Words = <
             item
@@ -260,7 +262,7 @@ inherited frmText: TfrmText
           Align = alTop
           OnClick = pnlParagraphClick
           TextSettings.Font.Size = 11.000000000000000000
-          TextSettings.FontColor = xFF9FA5A8
+          TextSettings.FontColor = xFFA0A0A1
           TextSettings.MaxLines = 1
           Words = <
             item
@@ -282,6 +284,7 @@ inherited frmText: TfrmText
           Align = alTop
           OnClick = pnlParagraphClick
           TextSettings.Font.Weight = Medium
+          TextSettings.FontColor = xFF1B1B1B
           TextSettings.MaxLines = 2
           Words = <
             item
@@ -365,7 +368,7 @@ inherited frmText: TfrmText
           Align = alTop
           OnClick = pnlCustomFontClick
           TextSettings.Font.Size = 11.000000000000000000
-          TextSettings.FontColor = xFF9FA5A8
+          TextSettings.FontColor = xFFA0A0A1
           TextSettings.MaxLines = 1
           Words = <
             item
@@ -387,6 +390,7 @@ inherited frmText: TfrmText
           Align = alTop
           OnClick = pnlCustomFontClick
           TextSettings.Font.Weight = Medium
+          TextSettings.FontColor = xFF1B1B1B
           TextSettings.MaxLines = 2
           Words = <
             item
@@ -470,7 +474,7 @@ inherited frmText: TfrmText
           Align = alTop
           OnClick = pnlParagraphToPathClick
           TextSettings.Font.Size = 11.000000000000000000
-          TextSettings.FontColor = xFF9FA5A8
+          TextSettings.FontColor = xFFA0A0A1
           TextSettings.MaxLines = 1
           Words = <
             item
@@ -492,6 +496,7 @@ inherited frmText: TfrmText
           Align = alTop
           OnClick = pnlParagraphToPathClick
           TextSettings.Font.Weight = Medium
+          TextSettings.FontColor = xFF1B1B1B
           TextSettings.MaxLines = 2
           Words = <
             item
@@ -575,7 +580,7 @@ inherited frmText: TfrmText
           Align = alTop
           OnClick = pnlTSkLabelClick
           TextSettings.Font.Size = 11.000000000000000000
-          TextSettings.FontColor = xFF9FA5A8
+          TextSettings.FontColor = xFFA0A0A1
           TextSettings.MaxLines = 1
           Words = <
             item
@@ -597,6 +602,7 @@ inherited frmText: TfrmText
           Align = alTop
           OnClick = pnlTSkLabelClick
           TextSettings.Font.Weight = Medium
+          TextSettings.FontColor = xFF1B1B1B
           TextSettings.MaxLines = 2
           Words = <
             item

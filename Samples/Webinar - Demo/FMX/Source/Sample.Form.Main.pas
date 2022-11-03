@@ -20,7 +20,7 @@ uses
   FMX.Layouts, FMX.Controls.Presentation, FMX.StdCtrls, FMX.Effects,
 
   { Skia }
-  Skia.FMX, Skia;
+  Skia, Skia.FMX;
 
 type
   { TfrmMain }

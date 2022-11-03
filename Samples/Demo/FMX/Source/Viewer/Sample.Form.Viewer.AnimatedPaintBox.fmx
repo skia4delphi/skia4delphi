@@ -1,6 +1,6 @@
 inherited frmAnimatedPaintBoxViewer: TfrmAnimatedPaintBoxViewer
   DesignerMasterStyle = 0
-  inherited lytContent: TLayout
+  inherited rctContent: TRectangle
     inherited rctHeader: TRectangle
       inherited lblTitle: TSkLabel
         Words = <
@@ -16,8 +16,8 @@ inherited frmAnimatedPaintBoxViewer: TfrmAnimatedPaintBoxViewer
         Size.Height = 50.000000000000000000
         Size.PlatformDefault = False
         OnMouseMove = apbDrawMouseMove
-        Animate = False
-        Duration = 100000.000000000000000000
+        Animation.Duration = 100000.000000000000000000
+        Animation.Enabled = False
         OnAnimationDraw = apbDrawAnimationDraw
       end
     end

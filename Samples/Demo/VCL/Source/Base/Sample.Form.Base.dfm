@@ -3,7 +3,7 @@ object frmBase: TfrmBase
   Top = 0
   ClientHeight = 604
   ClientWidth = 360
-  Color = 16249586
+  Color = 16184306
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -12
@@ -25,10 +25,11 @@ object frmBase: TfrmBase
     Height = 604
     Align = alClient
     BevelOuter = bvNone
-    Color = 16249586
+    Color = 16184306
     ParentBackground = False
     ShowCaption = False
     TabOrder = 0
+    StyleElements = [seFont, seBorder]
     OnResize = pnlContentResize
     object pnlTitle: TPanel
       AlignWithMargins = True
@@ -54,6 +55,7 @@ object frmBase: TfrmBase
         Align = alClient
         TextSettings.Font.Size = 16.000000000000000000
         TextSettings.Font.Weight = Semibold
+        TextSettings.FontColor = xFF1B1B1B
         TextSettings.HorzAlign = Center
         Words = <
           item
@@ -92,7 +94,7 @@ object frmBase: TfrmBase
           Width = 16
           Height = 16
           OnClick = pnlBackClick
-          Svg.Source = 
+          Svg.Source =
             '<?xml version="1.0" encoding="iso-8859-1"?>'#13#10'<!-- Generator: Ado' +
             'be Illustrator 19.0.0, SVG Export Plug-In . SVG Version: 6.00 Bu' +
             'ild 0)  -->'#13#10'<svg version="1.1" id="Capa_1" xmlns="http://www.w3' +
@@ -154,7 +156,7 @@ object frmBase: TfrmBase
         Margins.Bottom = 0
         Align = alLeft
         Svg.OverrideColor = xFFC6C6C6
-        Svg.Source = 
+        Svg.Source =
           '<svg xmlns="http://www.w3.org/2000/svg" enable-background="new 0' +
           ' 0 24 24" viewBox="0 0 24 24"><path fill="#3b65f5" d="M12,2C6.5,' +
           '2,2,6.5,2,12c0,5.5,4.5,10,10,10s10-4.5,10-10C22,6.5,17.5,2,12,2z' +
@@ -204,7 +206,7 @@ object frmBase: TfrmBase
           Align = alTop
           OnResize = pnlContentResize
           TextSettings.Font.Size = 11.000000000000000000
-          TextSettings.FontColor = xFFA4A4A4
+          TextSettings.FontColor = xFFA0A0A1
           Words = <
             item
             end>

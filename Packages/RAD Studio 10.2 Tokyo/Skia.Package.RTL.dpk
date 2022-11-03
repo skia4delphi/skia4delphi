@@ -39,14 +39,14 @@ package Skia.Package.RTL;
 {$DESCRIPTION 'Skia4Delphi RTL package'}
 {$LIBSUFFIX '250'}
 {$RUNONLY}
-{$IMPLICITBUILD ON}
+{$IMPLICITBUILD OFF}
+{$HPPEMIT NOUSINGNAMESPACE}
 
 requires
   rtl;
 
 contains
   Skia.API in '..\..\Source\Skia.API.pas',
-  Skia.Bindings in '..\..\Source\Skia.Bindings.pas',
   Skia in '..\..\Source\Skia.pas';
 
 end.

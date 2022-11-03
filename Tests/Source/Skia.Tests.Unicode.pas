@@ -31,8 +31,6 @@ type
 
   [TestFixture]
   TSkUnicodeTests = class(TTestBase)
-  protected
-    function AssetsPath: string; override;
   public
     [Test]
     procedure TestBiDiRegion;
@@ -63,11 +61,6 @@ begin
       Result := Result + ', ';
     Result := Result + '$' + InttoHex(Ord(LChar), 4);
   end;
-end;
-
-function TSkUnicodeTests.AssetsPath: string;
-begin
-  Result := CombinePaths(inherited AssetsPath, 'Unicode');
 end;
 
 procedure TSkUnicodeTests.TestBiDiRegion;

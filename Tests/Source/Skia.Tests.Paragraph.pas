@@ -33,11 +33,11 @@ type
   TSkParagraphTests = class(TTestBase)
   public
     {$IFDEF MACOS}
-    [TestCase('Simple Paragraph To Path', '0.99,AQEBAX3///9/+fFhf////3/5+3H/////////8/////+3////ABMAA//z//9+7wABCID///////8')]
+    [TestCase('Simple Paragraph To Path', '0.99,GQEBAW39////+fHh7//////58eH/////////4/////+3////ABMAA/9z//9+5wABAAD///////8')]
     {$ELSEIF DEFINED(ANDROID)}
-    [TestCase('Simple Paragraph To Path', '0.99,AAEBAX3///9/+XFhf////3/5cWH///////9/8//////3////ABMAA/9z//9+5wABAAD///////8')]
+    [TestCase('Simple Paragraph To Path', '0.99,GQEBAW39////+fHh7//////58eH/////////4/////+3////ABMAA/9z//9+5wABAAD///////8')]
     {$ELSE}
-    [TestCase('Simple Paragraph To Path', '0.99,AAEBAX3///9/+XFhf//////5ceF///////9/43////+3////ABMAA/9z//9+5wABAAD///////8')]
+    [TestCase('Simple Paragraph To Path', '0.99,GQEBAW39////+fHh7//////58eH/////////4/////+3////ABMAA/9z//9+5wABAAD///////8')]
     {$ENDIF}
     procedure TestParagraphToPath(const AMinSimilarity: Double; const AExpectedHash: string);
     [Test]

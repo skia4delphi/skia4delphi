@@ -11,6 +11,8 @@
 {************************************************************************}
 unit Sample.Form.Main;
 
+// Style created by https://www.delphistyles.com/
+
 interface
 
 {$SCOPEDENUMS ON}
@@ -79,6 +81,7 @@ type
     procedure btnTextClick(Sender: TObject);
     procedure btnTransformsClick(Sender: TObject);
     procedure btnUnicodeClick(Sender: TObject);
+    procedure FormShow(Sender: TObject);
   public
     { Public declarations }
   end;
@@ -98,6 +101,7 @@ uses
   Sample.Form.PathsAndEffects,
   Sample.Form.Particles,
   Sample.Form.RuntimeEffects,
+  Sample.Form.SplashScreen,
   Sample.Form.Text,
   Sample.Form.Transforms,
   Sample.Form.Unicode;
@@ -157,6 +161,12 @@ end;
 procedure TfrmMain.btnUnicodeClick(Sender: TObject);
 begin
   ChildForm<TfrmUnicode>.Show;
+end;
+
+procedure TfrmMain.FormShow(Sender: TObject);
+begin
+  inherited;
+  ChildForm<TfrmSplashScreen>.Show;
 end;
 
 end.

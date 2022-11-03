@@ -15,8 +15,6 @@ interface
 
 {$SCOPEDENUMS ON}
 
-// The implementation of Metal is experimental.
-
 {$IFDEF MACOS}
 
 uses
@@ -38,112 +36,159 @@ uses
   Skia.FMX.Graphics;
 
 type
-  { TGrCanvasMetal }
+  { TMtlSharedResources }
 
-  TGrCanvasMetal = class(TGrCanvasCustom)
-  strict private class var
-    FSharedDevice: MTLDevice;
+  TMtlSharedResources = class(TGrCanvasSharedResources)
+  strict protected
+    procedure InitializeContext(out ASharedGrDirectContext: IGrDirectContext); override;
+  end;
+
+  { TMtlCanvas }
+
+  TMtlCanvas = class(TGrCanvas)
   strict private
     FCommandQueue: MTLCommandQueue;
-    FView: MTKView;
+    FSampleCount: Integer;
   strict protected
-    function CreateDirectContext: IGrDirectContext; override;
-    function CreateSurfaceFromWindow: ISkSurface; override;
-    procedure FinalizeContext; override;
-    procedure Flush; override;
-    function InitializeContext: Boolean; override;
-    class procedure DoFinalize; override;
-    class function DoInitialize: Boolean; override;
+    function CreateSurfaceFromWindow(var AGrDirectContext: IGrDirectContext): ISkSurface; override;
+    procedure DoEndScene; override;
+    class procedure InitializeSharedResources(out ASharedResources: IGrCanvasSharedResources); override;
   end;
+
+{$ENDIF}
 
 implementation
 
-{ TGrCanvasMetal }
+{$IFDEF MACOS}
 
-function TGrCanvasMetal.CreateDirectContext: IGrDirectContext;
-begin
-  FSharedDevice.retain;
-  FCommandQueue.retain;
-  Result := TGrDirectContext.MakeMetal(TGrMtlBackendContext.Create((FSharedDevice as ILocalObject).GetObjectID, (FCommandQueue as ILocalObject).GetObjectID, nil));
-end;
+uses
+  { Delphi }
+  FMX.Graphics;
 
-function TGrCanvasMetal.CreateSurfaceFromWindow: ISkSurface;
+{ TMtlSharedResources }
+
+procedure TMtlSharedResources.InitializeContext(
+  out ASharedGrDirectContext: IGrDirectContext);
 var
-  LDrawable: CAMetalDrawable;
-  LRenderTarget: IGrBackendRenderTarget;
+  LCommandQueue: MTLCommandQueue;
+  LDevice: MTLDevice;
+  LGrMtlBackendContext: TGrMtlBackendContext;
 begin
-  LDrawable := FView.currentDrawable;
-  if LDrawable = nil then
-    Exit(nil);
-  LRenderTarget := TGrBackendRenderTarget.CreateMetal(DrawableWidth, DrawableHeight, TGrMtlTextureInfo.Create((LDrawable.texture as ILocalObject).GetObjectID));
-  Result        := TSkSurface.MakeFromRenderTarget(Context, LRenderTarget, TGrSurfaceOrigin.TopLeft, TSkColorType.BGRA8888);
+  LDevice := TMTLDevice.Wrap(MTLCreateSystemDefaultDevice);
+  if LDevice = nil then
+    raise EGrCanvas.Create('Could not get the default device instance Metal.');
+  try
+    LCommandQueue := LDevice.newCommandQueue;
+    if LCommandQueue = nil then
+      raise EGrCanvas.Create('Could not create the shared command queue.');
+    try
+      LGrMtlBackendContext.Device        := (LDevice as ILocalObject).GetObjectID;
+      LGrMtlBackendContext.Queue         := (LCommandQueue as ILocalObject).GetObjectID;
+      LGrMtlBackendContext.BinaryArchive := nil;
+      // The direct context will take ownership of the device and the queue.
+      ASharedGrDirectContext := TGrDirectContext.MakeMetal(LGrMtlBackendContext);
+    except
+      LCommandQueue.release;
+      raise;
+    end;
+  except
+    LDevice.release;
+    raise;
+  end;
 end;
 
-class procedure TGrCanvasMetal.DoFinalize;
+{ TMtlCanvas }
+
+function TMtlCanvas.CreateSurfaceFromWindow(
+  var AGrDirectContext: IGrDirectContext): ISkSurface;
+var
+  LDevice: MTLDevice;
+  LGrMtlBackendContext: TGrMtlBackendContext;
 begin
-  FSharedDevice.release;
+  if not Assigned(AGrDirectContext) then
+  begin
+    if WindowHandleToPlatform(Parent).View = nil then
+      Exit(nil);
+    LDevice := TMTLDevice.Wrap(MTLCreateSystemDefaultDevice);
+    try
+      MTKView(WindowHandleToPlatform(Parent).View).setDevice(LDevice);
+      {$REGION ' - Workaround RSP-37935'}
+      // - ---------------------------------------------------------------------
+      // - WORKAROUND
+      // - ---------------------------------------------------------------------
+      // -
+      // - Description:
+      // -   This code is a workaround to a problem when Zoomed setting is
+      // -   enabled on the OS then the form does not fit the screen.
+      // -
+      // - Bug report:
+      // -   https://quality.embarcadero.com/browse/RSP-37935
+      // -
+      // - ---------------------------------------------------------------------
+      {$IF (CompilerVersion < 35) or ((CompilerVersion = 35) and not DECLARED(RTLVersion112))}
+      var LSize: CGSize;
+      LSize.width  := Width  * Scale;
+      LSize.height := Height * Scale;
+      MTKView(WindowHandleToPlatform(Parent).View).setDrawableSize(LSize);
+      {$ENDIF}
+      // - ---------------------------------------------------------------------
+      {$ENDREGION}
+      FCommandQueue := LDevice.newCommandQueue;
+      if FCommandQueue = nil then
+        raise EGrCanvas.Create('Could not create a command queue.');
+      try
+        LGrMtlBackendContext.Device        := (LDevice as ILocalObject).GetObjectID;
+        LGrMtlBackendContext.Queue         := (FCommandQueue as ILocalObject).GetObjectID;
+        LGrMtlBackendContext.BinaryArchive := nil;
+        // The direct context will take ownership of the device and the queue.
+        AGrDirectContext := TGrDirectContext.MakeMetal(LGrMtlBackendContext);
+      except
+        FCommandQueue.release;
+        raise;
+      end;
+    except
+      LDevice.release;
+      raise;
+    end;
+    if Quality = TCanvasQuality.HighQuality then
+      FSampleCount := GrDirectContext.GetMaxSurfaceSampleCountForColorType(TSkColorType.BGRA8888)
+    else
+      FSampleCount := 1;
+  end;
+  Result := TSkSurface.MakeFromMTKView(AGrDirectContext, (MTKView(WindowHandleToPlatform(Parent).View) as ILocalObject).GetObjectID, TGrSurfaceOrigin.TopLeft, FSampleCount, TSkColorType.BGRA8888);
 end;
 
-class function TGrCanvasMetal.DoInitialize: Boolean;
-begin
-  FSharedDevice := TMTLDevice.Wrap(MTLCreateSystemDefaultDevice);
-  Result        := FSharedDevice <> nil;
-end;
-
-procedure TGrCanvasMetal.FinalizeContext;
-begin
-  FView.release;
-  FCommandQueue.release;
-end;
-
-procedure TGrCanvasMetal.Flush;
+procedure TMtlCanvas.DoEndScene;
 var
   LCommandBuffer: MTLCommandBuffer;
 begin
-  LCommandBuffer := FCommandQueue.commandBuffer;
-  LCommandBuffer.presentDrawable(MTKView(WindowHandleToPlatform(Parent).View).currentDrawable);
-  LCommandBuffer.commit;
+  inherited;
+  if Parent <> nil then
+  begin
+    LCommandBuffer := FCommandQueue.commandBuffer;
+    LCommandBuffer.presentDrawable(MTKView(WindowHandleToPlatform(Parent).View).currentDrawable);
+    LCommandBuffer.commit;
+  end;
 end;
 
-function TGrCanvasMetal.InitializeContext: Boolean;
+class procedure TMtlCanvas.InitializeSharedResources(
+  out ASharedResources: IGrCanvasSharedResources);
 begin
-  {$IFDEF IOS}
-  if (not (Parent is TiOSWindowHandle)) or (TiOSWindowHandle(Parent).View = nil) or (not Supports(TiOSWindowHandle(Parent).View, MTKView, FView)) then
-    Exit(False);
-  {$ELSE}
-  if (not (Parent is TMacWindowHandle)) or (TMacWindowHandle(Parent).View = nil) or (not Supports(TMacWindowHandle(Parent).View, MTKView, FView)) then
-    Exit(False);
-  {$ENDIF}
-  FCommandQueue := FSharedDevice.newCommandQueue;
-  FView.retain;
-  FView.setDevice(FSharedDevice);
-  {$REGION ' - Workaround RSP-37935'}
-  // - -------------------------------------------------------------------------
-  // - WORKAROUND
-  // - -------------------------------------------------------------------------
-  // -
-  // - Description:
-  // -   This code is a workaround to a problem when Zoomed setting is enabled
-  // -   on the OS then the form does not fit the screen
-  // -
-  // - Bug report:
-  // -   https://quality.embarcadero.com/browse/RSP-37935
-  // -
-  // - -------------------------------------------------------------------------
-  {$IF CompilerVersion > 35}
-    {$MESSAGE WARN 'Check if the issue has been fixed'}
-  {$ENDIF}
-  // - -------------------------------------------------------------------------
-  var LSize: CGSize;
-  LSize.width  := Width  * Scale;
-  LSize.height := Height * Scale;
-  FView.setDrawableSize(LSize);
-  // - -------------------------------------------------------------------------
-  {$ENDREGION}
-  Result := True;
+  ASharedResources := TMtlSharedResources.Create;
 end;
 
-{$ELSE}
-implementation
 {$ENDIF}
+
+{$HPPEMIT NOUSINGNAMESPACE}
+(*$HPPEMIT 'namespace Skia {'*)
+(*$HPPEMIT '	namespace Fmx {'*)
+(*$HPPEMIT '	  namespace Platform {'*)
+{$IFDEF IOS}
+  (*$HPPEMIT '		  namespace Ios { using namespace ::Fmx::Platform::Ios; }'*)
+{$ELSE}
+  (*$HPPEMIT '		  namespace Mac { using namespace ::Fmx::Platform::Mac; }'*)
+{$ENDIF}
+(*$HPPEMIT '	  }'*)
+(*$HPPEMIT '	}'*)
+(*$HPPEMIT '}'*)
 end.

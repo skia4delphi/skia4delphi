@@ -18,8 +18,8 @@ inherited frmAnimatedPaintBoxViewer: TfrmAnimatedPaintBoxViewer
         Width = 50
         Height = 50
         OnMouseMove = apbDrawMouseMove
-        Animate = False
-        Duration = 100000.000000000000000000
+        Animation.Duration = 100000.000000000000000000
+        Animation.Enabled = False
         OnAnimationDraw = apbDrawAnimationDraw
       end
     end

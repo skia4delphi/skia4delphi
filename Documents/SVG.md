@@ -22,7 +22,7 @@ begin
       begin
         LSvgBrush := TSkSvgBrush.Create;
         try
-          LSvgBrush.Source := TFile.ReadAllText('Assets\Samples\gorilla.svg');
+          LSvgBrush.Source := TFile.ReadAllText('Samples\Demo\Assets\gorilla.svg');
           LSvgBrush.Render(ACanvas, RectF(0, 0, LBitmap.Width, LBitmap.Height), 1);
         finally
           LSvgBrush.Free;
@@ -64,7 +64,7 @@ CreateSVG('output.svg', 256, 256,
     LFont: ISkFont;
     LPaint: ISkPaint;
   begin
-    LFont := TSkFont.Create(TSkTypeface.MakeFromFile('Assets\Samples\nunito-extrabold.ttf'), 23);
+    LFont := TSkFont.Create(TSkTypeface.MakeFromFile('Samples\Demo\Assets\nunito-extrabold.ttf'), 23);
     LPaint := TSkPaint.Create;
     LPaint.Shader := TSkShader.MakeGradientLinear(PointF(0, 0), PointF(256, 145), $FFFF5F5F, $FF5B8DFE, TSkTileMode.Clamp);
  
@@ -73,7 +73,7 @@ CreateSVG('output.svg', 256, 256,
     ACanvas.DrawSimpleText('of your future that will', 2, 85, LFont, LPaint);
     ACanvas.DrawSimpleText('no longer exist."', 2, 115, LFont, LPaint);
  
-    LFont := TSkFont.Create(TSkTypeface.MakeFromFile('Assets\Samples\bonheur-royale-regular.ttf'), 28);
+    LFont := TSkFont.Create(TSkTypeface.MakeFromFile('Samples\Demo\Assets\bonheur-royale-regular.ttf'), 28);
     LPaint.Shader := nil;
     LPaint.Color  := $FF5B8DFE;
     ACanvas.DrawSimpleText('(Steve Jobs)', 2, 150, LFont, LPaint);
@@ -94,26 +94,26 @@ var
   LSvg: TSkSvg;
 begin
   LSvg := TSkSvg.Create(Self);
-  LSvg.Svg.Source := TFile.ReadAllText('Assets\Samples\gorilla.svg');
+  LSvg.Svg.Source := TFile.ReadAllText('Samples\Demo\Assets\gorilla.svg');
   LSvg.Parent := Self;
 end;
 ```
 
 The example above results in the output below:
 
-<p><img src="../Assets/Samples/gorilla.svg" width="200" height="200" alt="Gorilla" /></p>
+<p><img src="../Samples/Demo/Assets/gorilla.svg" width="200" height="200" alt="Gorilla" /></p>
 
   
 
-### SkSvg.Source property
+### Svg.Source property
 
 Text property of SVG file content.
 
-### SkSvg.OverrideColor property
+### Svg.OverrideColor property
 
 When this property is Null (default value), the control will render the SVG in default color. But when this property have another value, the control will replace the SVG color to the `OverrideColor`. This is usefull in icons SVGs, for example.
 
-### SkSvg.WrapMode property
+### Svg.WrapMode property
 
 Specifies whether and how to resize, replicate, and position the SVG draw inside the **TSkSvg** control. See the available options:
 

@@ -39,7 +39,7 @@ package Skia.Package.VCL.Designtime;
 {$DESCRIPTION 'Skia4Delphi VCL Designtime package'}
 {$LIBSUFFIX '210'}
 {$DESIGNONLY}
-{$IMPLICITBUILD ON}
+{$IMPLICITBUILD OFF}
 
 requires
   rtl,

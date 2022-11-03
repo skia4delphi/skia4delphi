@@ -39,7 +39,7 @@ package Skia.Package.FMX.Designtime;
 {$DESCRIPTION 'Skia4Delphi FMX Designtime package'}
 {$LIBSUFFIX '220'}
 {$DESIGNONLY}
-{$IMPLICITBUILD ON}
+{$IMPLICITBUILD OFF}
 
 requires
   rtl,

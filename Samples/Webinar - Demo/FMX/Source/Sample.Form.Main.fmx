@@ -18,7 +18,7 @@ object frmMain: TfrmMain
     Size.Height = 564.000000000000000000
     Size.PlatformDefault = False
     Visible = False
-    Loop = False
+    Animation.Loop = False
     WrapMode = FitCrop
     OnAnimationFinished = saiAnimatedLogoAnimationFinished
     Data = {
@@ -4170,7 +4170,7 @@ object frmMain: TfrmMain
       Size.Height = 211.000000000000000000
       Size.PlatformDefault = False
       Svg.GrayScale = True
-      Svg.Source = 
+      Svg.Source =
         '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 460.7 790.1' +
         '2"><path d="M388.43,8.32A278.35,278.35,0,0,1,389,50c-1.51,8.73-2' +
         '.9,17.48-4.56,26.17C371.28,145,335.12,202.53,295.28,258.36c-31,4' +

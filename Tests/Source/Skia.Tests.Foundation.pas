@@ -31,6 +31,8 @@ type
   { TTestBase }
 
   TTestBase = class
+  strict private
+    FAssetsPathCreated: Boolean;
   strict protected
     const
       DefaultFontFamily = 'Segoe UI';
@@ -59,7 +61,8 @@ type
     SBytesHashNotEqual = 'Bytes hashes are not equal. Expected %u but got %u. %s';
     SBytesValuesEqual = 'Bytes values are equal. ';
     SBytesValuesNotEqual = 'Bytes values are not equal. ';
-    SImagesPixelsNotEqual = 'Are equal pixels. ';
+    SImagesPixelsNotEqual = 'Are not equal pixels. ';
+    SPixelsNotEqual = 'Are not equal pixels. ';
     SStreamHashNotEqual = 'Stream hashes are not equal. Expected %u but got %u. %s';
     SStringHashNotEqual = 'String hashes are not equal. Expected %u but got %u. %s';
     SImagesNotSimilar = 'Images are not similar. Expected at least %g but got %g (hash: %s). %s';
@@ -76,7 +79,9 @@ type
     class procedure AreEqualCRC32(const AExpected: Cardinal; const AActual: string; const AMessage: string = ''); overload;
     class procedure AreEqualCRC32(const AExpected: Cardinal; const AActual: ISkImage; const AMessage: string = ''); overload;
     class procedure AreEqualCRC32(const AExpected: Cardinal; const AActual: ISkCodec; const AMessage: string = ''); overload;
-    class procedure AreEqualPixels(const AExpectedEncodedImage, AActualEncodedImage: TBytes; const AMessage: string = '');
+    class procedure AreEqualCRC32(const AExpected: Cardinal; const AActual: ISkPixmap; const AMessage: string = ''); overload;
+    class procedure AreEqualPixels(const AExpectedEncodedImage, AActualEncodedImage: TBytes; const AMessage: string = ''); overload;
+    class procedure AreEqualPixels(const AExpected, AActual: ISkPixmap; const AMessage: string = ''); overload;
     class procedure AreNotEqualArray<T>(const AExpected, AActual: TArray<T>; const AMessage: string = '');
     class procedure AreNotEqualBytes(const AExpected, AActual: TBytes; const AMessage: string = '');
     class procedure AreSameValue(const AExpected, AActual: Double; const AEpsilon: Double = 0; const AMessage: string = ''); overload;
@@ -228,8 +233,17 @@ begin
 end;
 
 function TTestBase.AssetsPath: string;
+var
+  LClassSubPath: string;
 begin
   Result := RootAssetsPath;
+  LClassSubPath := ClassName;
+  if LClassSubPath.StartsWith('TSk', False) then
+    LClassSubPath := LClassSubPath.Substring(Length('TSk'));
+  if LClassSubPath.EndsWith('Tests', False) then
+    LClassSubPath := LClassSubPath.Substring(0, LClassSubPath.Length - Length('Tests'));
+  if LClassSubPath <> '' then
+    Result := CombinePaths(Result, LClassSubPath);
 end;
 
 function TTestBase.CombinePaths(const APath, ASubPath: string): string;
@@ -295,10 +309,17 @@ begin
   {$IFDEF SET_EXCEPTION_MASK}
   SetExceptionMask(exAllArithmeticExceptions);
   {$ENDIF}
+  if not TDirectory.Exists(AssetsPath) then
+  begin
+    TDirectory.CreateDirectory(AssetsPath);
+    FAssetsPathCreated := True;
+  end;
 end;
 
 procedure TTestBase.TearDown;
 begin
+  if FAssetsPathCreated and TDirectory.Exists(AssetsPath) and (TDirectory.GetFiles(AssetsPath, '*', TSearchOption.soAllDirectories) = nil) then
+    TDirectory.Delete(AssetsPath, True);
 end;
 
 { TAssertHelper }
@@ -360,6 +381,7 @@ var
   LPixmap: ISkPixmap;
   LData: TBytes;
 begin
+  Assert.IsNotNull(AActual, 'Invalid SkImage (nil)');
   LActualPixmapBytes := nil;
   SetLength(LData, 4 * AActual.Width * AActual.Height);
   if Length(LData) > 0 then
@@ -378,6 +400,7 @@ var
   LPixmap: ISkPixmap;
   LData: TBytes;
 begin
+  Assert.IsNotNull(AActual, 'Invalid SkCodec (nil)');
   LActualPixmapBytes := nil;
   SetLength(LData, 4 * AActual.Width * AActual.Height);
   if Length(LData) > 0 then
@@ -387,6 +410,21 @@ begin
     LActualPixmapBytes := GetPixmapBytes(LPixmap);
   end;
   AreEqualCRC32(AExpected, LActualPixmapBytes, AMessage);
+end;
+
+class procedure TAssertHelper.AreEqualCRC32(const AExpected: Cardinal;
+  const AActual: ISkPixmap; const AMessage: string);
+begin
+  Assert.IsNotNull(AActual, 'Invalid SkPixmap (nil)');
+  AreEqualCRC32(AExpected, GetPixmapBytes(AActual), AMessage);
+end;
+
+class procedure TAssertHelper.AreEqualPixels(const AExpected,
+  AActual: ISkPixmap; const AMessage: string);
+begin
+  DoAssert;
+  if not AreSameArray<Byte>(GetPixmapBytes(AExpected), GetPixmapBytes(AActual)) then
+    Fail(SPixelsNotEqual + AMessage, ReturnAddress);
 end;
 
 class procedure TAssertHelper.AreEqualPixels(const AExpectedEncodedImage,
@@ -473,6 +511,7 @@ var
   LActualHash: string;
   LSimilarity: Double;
 begin
+  Assert.IsNotNull(AActual, 'Invalid SkImage (nil)');
   DoAssert;
   LActualHash := TImageHashing.Hash(AActual);
   LSimilarity := TImageHashing.Similarity(AExpectedHash, LActualHash);
@@ -487,24 +526,43 @@ var
   LSimilarity: Double;
 begin
   DoAssert;
-  LActualHash := TImageHashing.Hash(AActual);
-  LSimilarity := TImageHashing.Similarity(LActualHash, AExpected);
-  if CompareValue(LSimilarity, AMinSimilarity, TEpsilon.Vector) = LessThanValue then
-    FailFmt(SImagesNotSimilar, [AMinSimilarity, LSimilarity, LActualHash, AMessage], ReturnAddress);
+  if AExpected <> AActual then
+  begin
+    Assert.IsNotNull(AExpected, 'Invalid SkImage (nil)');
+    Assert.IsNotNull(AActual, 'Invalid SkImage (nil)');
+    LActualHash := TImageHashing.Hash(AActual);
+    LSimilarity := TImageHashing.Similarity(LActualHash, AExpected);
+    if CompareValue(LSimilarity, AMinSimilarity, TEpsilon.Vector) = LessThanValue then
+      FailFmt(SImagesNotSimilar, [AMinSimilarity, LSimilarity, LActualHash, AMessage], ReturnAddress);
+  end;
 end;
 
 class function TAssertHelper.GetPixmapBytes(const APixmap: ISkPixmap): TBytes;
 var
   LStream: TBytesStream;
+  LIndex: NativeUInt;
+  LRow: Integer;
 begin
   LStream := TBytesStream.Create;
   try
-    LStream.WriteData(APixmap.Width, SizeOf(APixmap.Width));
-    LStream.WriteData(APixmap.Height, SizeOf(APixmap.Height));
-    LStream.WriteData(APixmap.ColorType, SizeOf(APixmap.ColorType));
-    LStream.WriteData(APixmap.AlphaType, SizeOf(APixmap.AlphaType));
+    LStream.WriteData(Cardinal(APixmap.Width));
+    LStream.WriteData(Cardinal(APixmap.Height));
+    LStream.WriteData(Cardinal(APixmap.ColorType));
+    LStream.WriteData(Cardinal(APixmap.AlphaType));
     if (APixmap.Width > 0) and (APixmap.Height > 0) then
-      LStream.WriteData(APixmap.Pixels, 4 * APixmap.Width * APixmap.Height);
+    begin
+      if SkBytesPerPixel[APixmap.ColorType] * APixmap.Width * APixmap.Height = NativeInt(APixmap.RowBytes) * APixmap.Height then
+        LStream.WriteData(APixmap.Pixels, SkBytesPerPixel[APixmap.ColorType] * APixmap.Width * APixmap.Height)
+      else
+      begin
+        LIndex := 0;
+        for LRow := 0 to APixmap.Height - 1 do
+        begin
+          LStream.WriteData(NativeUInt(APixmap.Pixels) + LIndex, SkBytesPerPixel[APixmap.ColorType] * APixmap.Width);
+          Inc(LIndex, APixmap.RowBytes);
+        end;
+      end;
+    end;
     Result := Copy(LStream.Bytes, 0, LStream.Size);
   finally
     LStream.Free;

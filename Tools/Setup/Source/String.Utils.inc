@@ -17,13 +17,15 @@
 
 // interface
 
-/// <summary> Add an string to the array </summary>
+/// <summary> Add a string to the array </summary>
 function AppendString(const AStrings: TArrayOfString; const ANewString: string; const AAllowDuplicates: Boolean): TArrayOfString; forward;
 /// <summary> Convert booleans to string in word format (True or False) </summary>
 function BoolToStr(const AValue: Boolean): string; forward;
+/// <summary> Check if a string contains in an array of strings </summary>
+function ContainsString(const AStrings: TArrayOfString; const AValue: string; const ACaseSensitive: Boolean): Boolean; forward;
 /// <summary> Check if one text ends with another text with case insentive comparison </summary>
 function EndsWithText(const AText, ASubText: string): Boolean; forward;
-/// <summary> Insert an string to the array at index 0 </summary>
+/// <summary> Insert a string to the array at index 0 </summary>
 function InsertStringAtBeginning(const AStrings: TArrayOfString; const ANewString: string): TArrayOfString; forward;
 /// <summary> Concatenates strings into one, separating each string by a delimiter </summary>
 function JoinStrings(const AStrings: TArrayOfString; const ADelimiter: string; const AJoinEmptyStrings: Boolean): string; forward;
@@ -39,26 +41,40 @@ function StrToBoolDef(const AValue: string; const ADefault: Boolean): Boolean; f
 // implementation
 
 function AppendString(const AStrings: TArrayOfString; const ANewString: string; const AAllowDuplicates: Boolean): TArrayOfString;
-var
-  I: Integer;
 begin
   Result := AStrings;
-  if not AAllowDuplicates then
-  begin
-    for I := 0  to GetArrayLength(AStrings) - 1 do
-      if SameText(AStrings[I], ANewString) then
-        Exit;
-  end;
+  if (not AAllowDuplicates) and ContainsString(AStrings, ANewString, False) then
+    Exit;
   SetArrayLength(Result, GetArrayLength(Result) + 1);
   Result[GetArrayLength(Result) - 1] := ANewString;
 end;
 
 function BoolToStr(const AValue: Boolean): string;
 begin
-if AValue then
-  Result := 'True'
-else
-  Result := 'False';
+  if AValue then
+    Result := 'True'
+  else
+    Result := 'False';
+end;
+
+function ContainsString(const AStrings: TArrayOfString; const AValue: string; const ACaseSensitive: Boolean): Boolean;
+var
+  I: Integer;
+begin
+  Result := True;
+  if ACaseSensitive then
+  begin
+    for I := 0  to GetArrayLength(AStrings) - 1 do
+      if AStrings[I] = AValue then
+        Exit;
+  end
+  else
+  begin
+    for I := 0  to GetArrayLength(AStrings) - 1 do
+      if SameText(AStrings[I], AValue) then
+        Exit;
+  end;
+  Result := False;
 end;
 
 function EndsWithText(const AText, ASubText: string): Boolean;

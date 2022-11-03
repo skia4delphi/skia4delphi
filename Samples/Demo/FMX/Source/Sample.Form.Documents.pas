@@ -19,6 +19,7 @@ uses
   { Delphi }
   System.SysUtils, System.Types, System.UITypes, System.Classes, FMX.Types,
   FMX.Controls, FMX.Forms, FMX.StdCtrls, FMX.Layouts, FMX.Objects,
+  FMX.Controls.Presentation,
 
   { Skia }
   Skia, Skia.FMX,
@@ -101,7 +102,7 @@ begin
     LDocument := TSkDocument.MakeXPS(LDocumentStream);
     if LDocument = nil then
     begin
-      Showmessage('This OS doesn''t support XPS!');
+      ShowMessage('This OS doesn''t support XPS!');
       Exit;
     end;
     try
@@ -117,7 +118,7 @@ begin
   finally
     LDocumentStream.Free;
   end;
-  Showmessage('Created XPS file!');
+  ShowMessage('Created XPS file!');
 end;
 
 end.

@@ -17,12 +17,13 @@ interface
 
 uses
   { Delphi }
-  System.SysUtils, System.Types, System.UITypes, System.Classes, System.Variants,
-  System.Actions, System.Generics.Collections, System.Math, FMX.Types, FMX.Graphics,
-  FMX.Controls, FMX.Forms, FMX.StdCtrls, FMX.ActnList, FMX.Layouts, FMX.TreeView,
-  FMX.Edit, FMX.ListView.Types, FMX.ListView, FMX.ListBox,FMX.Memo, FMX.TabControl,
-  FMX.Objects, FMX.Controls.Presentation, DUnitX.TestFramework, DUnitX.Extensibility,
-  DUnitX.InternalInterfaces,
+  System.SysUtils, System.Types, System.UITypes, System.Classes, System.Actions,
+  System.Generics.Collections, System.Math, FMX.ActnList, FMX.Controls,
+  FMX.Controls.Presentation, FMX.Edit, FMX.Forms, FMX.Graphics, FMX.Layouts,
+  FMX.ListBox, FMX.ListView.Adapters.Base, FMX.ListView.Appearances,
+  FMX.ListView, FMX.ListView.Types, FMX.Memo, FMX.Memo.Types, FMX.Objects,
+  FMX.ScrollBox, FMX.StdCtrls, FMX.TabControl, FMX.TreeView, FMX.Types,
+  DUnitX.Extensibility, DUnitX.InternalInterfaces, DUnitX.TestFramework,
 
   { Tests }
   Skia.Tests.Foundation.Runner;
@@ -394,16 +395,16 @@ end;
 
 procedure TTestNode.SetResultType(AResultType: TTestResultType);
 begin
- FResultType := AResultType;
- case AResultType of
-   TTestResultType.Pass: FPanel.StyleLookup := 'Panel3Style_success';
-   TTestResultType.Failure: FPanel.StyleLookup := 'Panel3Style_failure';
-   TTestResultType.Error: FPanel.StyleLookup := 'Panel3Style_error';
-   TTestResultType.Ignored: FPanel.StyleLookup := 'Panel3Style_ignored';
-   TTestResultType.MemoryLeak: FPanel.StyleLookup := 'Panel3Style_leak';
-   TTestResultType.Warning: FPanel.StyleLookup := 'Panel3Style_warning';
- end;
- FPanel.Visible := True;
+  FResultType := AResultType;
+  case AResultType of
+    TTestResultType.Pass: FPanel.StyleLookup := 'Panel3Style_success';
+    TTestResultType.Failure: FPanel.StyleLookup := 'Panel3Style_failure';
+    TTestResultType.Error: FPanel.StyleLookup := 'Panel3Style_error';
+    TTestResultType.Ignored: FPanel.StyleLookup := 'Panel3Style_ignored';
+    TTestResultType.MemoryLeak: FPanel.StyleLookup := 'Panel3Style_leak';
+    TTestResultType.Warning: FPanel.StyleLookup := 'Panel3Style_warning';
+  end;
+  FPanel.Visible := True;
 end;
 
 end.

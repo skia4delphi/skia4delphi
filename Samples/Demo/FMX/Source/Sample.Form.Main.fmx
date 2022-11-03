@@ -1,7 +1,8 @@
 inherited frmMain: TfrmMain
   ClientHeight = 620
+  OnShow = FormShow
   DesignerMasterStyle = 0
-  inherited lytContent: TLayout
+  inherited rctContent: TRectangle
     Size.Height = 620.000000000000000000
     inherited rctHeader: TRectangle
       inherited lblTitle: TSkLabel

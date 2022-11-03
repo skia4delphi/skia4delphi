@@ -14,9 +14,7 @@ uses
 {$R *.res}
 
 begin
-  {$IFDEF MACOS}
   GlobalUseMetal := True;
-  {$ENDIF}
   GlobalUseSkia := True;
   GlobalUseSkiaRasterWhenAvailable := False;
   Application.Initialize;
@@ -27,4 +25,3 @@ begin
   Application.CreateForm(TfrmQRCodeRender, frmQRCodeRender);
   Application.Run;
 end.
-

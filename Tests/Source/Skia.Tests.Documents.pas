@@ -32,17 +32,23 @@ type
   [TestFixture]
   TSkDocumentsTests = class(TTestBase)
   protected
-    function AssetsPath: string; override;
     procedure DocumentDraw(const ADocument: ISkDocument);
   public
     [Test]
     procedure TestPDF;
+    {$IFDEF MSWINDOWS}
+    [Test]
+    procedure TestXPS;
+    {$ENDIF}
   end;
 
 implementation
 
 uses
   { Delphi }
+  {$IFDEF MSWINDOWS}
+  Winapi.ActiveX,
+  {$ENDIF}
   System.Classes,
   System.Types,
   System.UITypes,
@@ -51,11 +57,6 @@ uses
   System.Math.Vectors;
 
 { TSkDocumentsTests }
-
-function TSkDocumentsTests.AssetsPath: string;
-begin
-  Result := CombinePaths(inherited AssetsPath, 'Documents');
-end;
 
 procedure TSkDocumentsTests.DocumentDraw(const ADocument: ISkDocument);
 var
@@ -107,13 +108,42 @@ begin
   LDocumentStream := TMemoryStream.Create;
   try
     LDocument := TSkDocument.MakePDF(LDocumentStream);
-    Assert.IsNotNull(LDocument, 'Cannot possible to create the pdf document');
+    Assert.IsNotNull(LDocument, 'Cannot possible to create the PDF document');
     DocumentDraw(LDocument);
-    Assert.IsTrue(LDocumentStream.Size > MinDocumentFileSize, Format('The generated pdf file size does not seem to be correct (%d bytes)', [LDocumentStream.Size]));
+    Assert.IsTrue(LDocumentStream.Size > MinDocumentFileSize, Format('The generated PDF file size does not seem to be correct (%d bytes)', [LDocumentStream.Size]));
   finally
     LDocumentStream.Free;
   end;
 end;
+
+{$IFDEF MSWINDOWS}
+procedure TSkDocumentsTests.TestXPS;
+const
+  MinDocumentFileSize = 1000;
+var
+  LDocument: ISkDocument;
+  LDocumentStream: TStream;
+begin
+  // For some reason we couldn't use COM objects in DUnitX console tests
+  if not IsConsole then
+  begin
+    CoInitialize(nil);
+    try
+      LDocumentStream := TMemoryStream.Create;
+      try
+        LDocument := TSkDocument.MakeXPS(LDocumentStream);
+        Assert.IsNotNull(LDocument, 'Cannot possible to create the XPS document');
+        DocumentDraw(LDocument);
+        Assert.IsTrue(LDocumentStream.Size > MinDocumentFileSize, Format('The generated XPS file size does not seem to be correct (%d bytes)', [LDocumentStream.Size]));
+      finally
+        LDocumentStream.Free;
+      end;
+    finally
+      CoUnInitialize();
+    end;
+  end;
+end;
+{$ENDIF}
 
 initialization
   TDUnitX.RegisterTestFixture(TSkDocumentsTests);

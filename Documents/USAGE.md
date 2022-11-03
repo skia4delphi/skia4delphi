@@ -326,7 +326,7 @@ DrawExample(256, 256,
     LFont: ISkFont;
     LPaint: ISkPaint;
   begin
-    LFont := TSkFont.Create(TSkTypeface.MakeFromFile('Assets\Samples\nunito-extrabold.ttf'), 23);
+    LFont := TSkFont.Create(TSkTypeface.MakeFromFile('Samples\Demo\Assets\nunito-extrabold.ttf'), 23);
     LPaint := TSkPaint.Create;
     LPaint.Shader := TSkShader.MakeGradientLinear(PointF(0, 0), PointF(256, 145), $FFFF5F5F, $FF5B8DFE, TSkTileMode.Clamp);
 
@@ -335,7 +335,7 @@ DrawExample(256, 256,
     ACanvas.DrawSimpleText('of your future that will', 2, 85, LFont, LPaint);
     ACanvas.DrawSimpleText('no longer exist."', 2, 115, LFont, LPaint);
 
-    LFont := TSkFont.Create(TSkTypeface.MakeFromFile('Assets\Samples\bonheur-royale-regular.ttf'), 28);
+    LFont := TSkFont.Create(TSkTypeface.MakeFromFile('Samples\Demo\Assets\bonheur-royale-regular.ttf'), 28);
     LPaint.Shader := nil;
     LPaint.Color  := $FF5B8DFE;
     ACanvas.DrawSimpleText('(Steve Jobs)', 2, 150, LFont, LPaint);
@@ -410,7 +410,7 @@ var
   LSVGDOM: ISkSVGDOM;
   LSize: TSizeF;
 begin
-  LSVGDOM := TSkSVGDOM.MakeFromFile('Assets\Samples\lion.svg');
+  LSVGDOM := TSkSVGDOM.MakeFromFile('Samples\Demo\Assets\lion.svg');
   LSize := TSizeF.Create(600, 600);
   LSVGDOM.SetContainerSize(LSize);
 
@@ -484,7 +484,7 @@ The example below demonstrates how to encoder to WebP format:
 var
   LImage: ISkImage;
 begin
-  LImage := TSkImage.MakeFromEncodedFile('Assets\Samples\kung-fu-panda.png');
+  LImage := TSkImage.MakeFromEncodedFile('Samples\Demo\Assets\kung-fu-panda.png');
   LImage.EncodeToFile('output.webp', TSkEncodedImageFormat.WEBP, 80);
   LImage.EncodeToFile('output.jpg', TSkEncodedImageFormat.JPEG, 80);
 end;

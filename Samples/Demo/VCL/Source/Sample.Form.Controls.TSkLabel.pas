@@ -95,7 +95,7 @@ procedure TfrmTSkLabel.OnWordClick(Sender: TObject);
 var
   LItem: TSkLabel.TWordsItem absolute Sender;
 begin
-  MessageDlg(Format('Clicked text: "%s"', [LItem.Caption]), TMsgDlgType.mtInformation, [TMsgDlgBtn.mbOK], 0);
+  ShowMessage(Format('Clicked text: "%s"', [LItem.Caption]));
 end;
 
 procedure TfrmTSkLabel.pnlCustomFontFamilyClick(Sender: TObject);
@@ -106,8 +106,8 @@ begin
       LLabel: TSkLabel absolute Result;
     begin
       // It is preferable to register only once at startup.
-      TSkTypefaceManager.RegisterTypeface(AssetsPath + 'bonheur-royale-regular.ttf');
-      TSkTypefaceManager.RegisterTypeface(AssetsPath + 'nunito-extrabold.ttf');
+      TSkDefaultProviders.RegisterTypeface(AssetsPath + 'bonheur-royale-regular.ttf');
+      TSkDefaultProviders.RegisterTypeface(AssetsPath + 'nunito-extrabold.ttf');
 
       LLabel := TSkLabel.Create(nil);
       LLabel.Align := alTop;
@@ -208,8 +208,8 @@ begin
     begin
       LLabel := TSkLabel.Create(nil);
       LLabel.Margins.SetBounds(10, 10, 10, 10);
-      LLabel.Align := alTop;
       LLabel.AlignWithMargins := True;
+      LLabel.Align := alTop;
       LLabel.TextSettings.Font.Size := 18;
       LLabel.Caption := TFile.ReadAllText(AssetsPath + 'persian-lorem-ipsum.txt');
       ChildForm<TfrmControlViewer>.BiDiMode := bdRightToLeft;

@@ -1,7 +1,7 @@
 inherited frmFilter: TfrmFilter
   Caption = 'frmBase1'
   DesignerMasterStyle = 0
-  inherited lytContent: TLayout
+  inherited rctContent: TRectangle
     inherited rctHeader: TRectangle
       inherited lblTitle: TSkLabel
         Words = <

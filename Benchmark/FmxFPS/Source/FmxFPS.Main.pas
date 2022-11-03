@@ -87,7 +87,7 @@ const
   function GetAssetsPath: string;
   begin
     {$IFDEF MSWINDOWS}
-    Result := TPath.GetFullPath('..\..\..\..\..\Assets\Samples\');
+    Result := TPath.GetFullPath('..\..\..\Assets\');
     {$ELSEIF defined(iOS) or defined(ANDROID)}
     Result := TPath.GetDocumentsPath;
     {$ELSEIF defined(MACOS)}

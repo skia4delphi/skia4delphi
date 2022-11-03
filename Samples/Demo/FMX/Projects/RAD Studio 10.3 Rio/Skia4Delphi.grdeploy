@@ -2,7 +2,7 @@
   "Configurations" : ["Release", "Debug"],
   "iOS" : [],
   "Android" : [{
-      "LocalName" : "..\\..\\..\\..\\..\\Assets\\Samples",
+      "LocalName" : "..\\..\\..\\Assets",
       "RemoteDir" : "assets\\internal\\",
       "Configurations" : [],
       "IsDirectory" : true,

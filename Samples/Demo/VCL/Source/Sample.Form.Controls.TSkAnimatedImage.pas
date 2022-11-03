@@ -123,7 +123,7 @@ begin
       LAnimatedImage: TSkAnimatedImage;
     begin
       LGrid := TGridPanel.Create(nil);
-      LGrid.Align := alCLient;
+      LGrid.Align := alClient;
       LGrid.RowCollection.BeginUpdate;
       try
         LGrid.RowCollection.Items[0].Value := 33.333333333333333333;

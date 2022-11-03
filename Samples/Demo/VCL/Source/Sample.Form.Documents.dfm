@@ -50,7 +50,7 @@ inherited frmDocuments: TfrmDocuments
           Align = alTop
           OnClick = pnlCreatePDFDrawingSVGClick
           TextSettings.Font.Size = 11.000000000000000000
-          TextSettings.FontColor = xFF9FA5A8
+          TextSettings.FontColor = xFFA0A0A1
           TextSettings.MaxLines = 1
           Words = <
             item
@@ -72,6 +72,7 @@ inherited frmDocuments: TfrmDocuments
           Align = alTop
           OnClick = pnlCreatePDFDrawingSVGClick
           TextSettings.Font.Weight = Medium
+          TextSettings.FontColor = xFF1B1B1B
           TextSettings.MaxLines = 2
           Words = <
             item
@@ -155,7 +156,7 @@ inherited frmDocuments: TfrmDocuments
           Align = alTop
           OnClick = pnlCreateXPSDrawingSVGClick
           TextSettings.Font.Size = 11.000000000000000000
-          TextSettings.FontColor = xFF9FA5A8
+          TextSettings.FontColor = xFFA0A0A1
           TextSettings.MaxLines = 1
           Words = <
             item
@@ -177,6 +178,7 @@ inherited frmDocuments: TfrmDocuments
           Align = alTop
           OnClick = pnlCreateXPSDrawingSVGClick
           TextSettings.Font.Weight = Medium
+          TextSettings.FontColor = xFF1B1B1B
           TextSettings.MaxLines = 2
           Words = <
             item

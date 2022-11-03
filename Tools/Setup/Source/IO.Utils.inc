@@ -24,6 +24,8 @@ type
 function CombinePath(const APath, ASubPath: string): string; forward;
 /// <summary> Copy directory folder </summary>
 function CopyDirectory(const AOriginPath, ADestPath: string; const AOverwriteExisting: Boolean): Boolean; forward;
+/// <summary> Copy file to a directory in a "force" mode (creating the path if not exists and overwrite existing) </summary>
+function CopyFileToDir(const AFileName, ADestPath: string): Boolean; forward;
 /// <summary> Get files of a path with an optional filename. The filename accepts the wildcard *, like "*.json" </summary>
 function GetFiles(APath, AFileName: string; const ASearchOption: TSearchOption): TArrayOfString; forward;
 
@@ -76,6 +78,12 @@ begin
   end
   else
     Log(Format('IO.Utils.CopyDirectory: Failed to create the directory "%s".', [ADestPath]));
+end;
+
+function CopyFileToDir(const AFileName, ADestPath: string): Boolean;
+begin
+  Result := FileExists(AFileName) and (DirExists(ADestPath) or ForceDirectories(ADestPath)) and
+    FileCopy(AFileName, CombinePath(ADestPath, ExtractFileName(AFileName)), False);
 end;
 
 function GetFiles(APath, AFileName: string; const ASearchOption: TSearchOption): TArrayOfString;

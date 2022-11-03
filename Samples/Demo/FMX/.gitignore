@@ -1,0 +1,2 @@
+# This demo need a custom manifest to customize the splashscreen
+!AndroidManifest.template.xml

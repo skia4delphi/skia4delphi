@@ -1,6 +1,6 @@
 inherited frmTSkAnimatedImage: TfrmTSkAnimatedImage
   DesignerMasterStyle = 0
-  inherited lytContent: TLayout
+  inherited rctContent: TRectangle
     inherited rctHeader: TRectangle
       inherited lblTitle: TSkLabel
         Words = <

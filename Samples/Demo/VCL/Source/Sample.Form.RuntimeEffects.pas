@@ -65,7 +65,7 @@ var
 begin
   LEffect := TSkRuntimeEffect.MakeForShader(TFile.ReadAllText(AssetsPath + TPath.Combine('RuntimeEffects Shaders', 'rainbow-twister.sksl')));
   LPaint := TSkPaint.Create;
-  LPaint.Shader := LEffect.MakeShader(True);
+  LPaint.Shader := LEffect.MakeShader;
   ChildForm<TfrmAnimatedPaintBoxViewer>.Show('Shader Animation', 'Shader that varies with time (iTime uniform)',
     procedure (const ACanvas: ISkCanvas; const ADest: TRectF; const ASeconds: Double)
     begin
@@ -82,7 +82,7 @@ var
 begin
   LEffect := TSkRuntimeEffect.MakeForShader(TFile.ReadAllText(AssetsPath + TPath.Combine('RuntimeEffects Shaders', 'mouse.sksl')));
   LPaint := TSkPaint.Create;
-  LPaint.Shader := LEffect.MakeShader(True);
+  LPaint.Shader := LEffect.MakeShader;
 
   ChildForm<TfrmAnimatedPaintBoxViewer>.OnMouseMove :=
     procedure (const AX, AY: Single)
@@ -105,8 +105,8 @@ var
 begin
   LEffect := TSkRuntimeEffect.MakeForShader(TFile.ReadAllText(AssetsPath + TPath.Combine('RuntimeEffects Shaders', 'waves.sksl')));
   LPaint := TSkPaint.Create;
-  LPaint.Shader := LEffect.MakeShader(True);
-  ChildForm<TfrmAnimatedPaintBoxViewer>.Show('Waves Shade Animation', 'Shader that varies with time (iTime uniform)',
+  LPaint.Shader := LEffect.MakeShader;
+  ChildForm<TfrmAnimatedPaintBoxViewer>.Show('Waves Shader Animation', 'Shader that varies with time (iTime uniform)',
     procedure (const ACanvas: ISkCanvas; const ADest: TRectF; const ASeconds: Double)
     begin
       LEffect.SetUniform('iResolution', PointF(ADest.Width, ADest.Height));
