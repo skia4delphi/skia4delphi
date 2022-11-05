@@ -155,7 +155,7 @@ type
     ['{3681405A-B7C1-4244-98B6-E6D2B8E45BC2}']
     procedure BeginContext;
     procedure EndContext;
-    [Result: unsafe] function GetGrDirectContext: IGrDirectContext;
+    function GetGrDirectContext: IGrDirectContext;
     /// <summary> Direct access to the ganesh backend. This property can only be used between the BeginContext and EndContext call. </summary>
     property GrDirectContext: IGrDirectContext read GetGrDirectContext;
   end;
@@ -167,7 +167,7 @@ type
     FGrDirectContext: IGrDirectContext;
     procedure BeginContext;
     procedure EndContext;
-    [Result: unsafe] function GetGrDirectContext: IGrDirectContext;
+    function GetGrDirectContext: IGrDirectContext;
   strict protected
     procedure AfterBeginContext; virtual;
     procedure BeforeEndContext; virtual;
@@ -199,13 +199,12 @@ type
   strict private
     FGrDirectContext: IGrDirectContext;
   strict protected
-    procedure BeforeRestore; override;
     function CreateSurfaceFromBitmap: ISkSurface; override;
     function CreateSurfaceFromWindow(const AContextHandle: THandle): ISkSurface; overload; override; final;
     function CreateSurfaceFromWindow(var AGrDirectContext: IGrDirectContext): ISkSurface; reintroduce; overload; virtual; abstract;
+    procedure DestroyContext; virtual;
     procedure DoEndScene; override;
     function GetCache(const ABitmapHandle: THandle): ISkImage; override;
-    procedure SetCurrentContext; virtual;
     class function DoInitializeBitmap(const AWidth, AHeight: Integer; const AScale: Single; var APixelFormat: TPixelFormat): THandle; override;
     class function DoMapBitmap(const ABitmapHandle: THandle; const AAccess: TMapAccess; var ABitmapData: TBitmapData): Boolean; override;
     class procedure Initialize; override;
@@ -1059,6 +1058,7 @@ end;
 
 procedure TGrCanvasSharedResources.EndContext;
 begin
+  FGrDirectContext.FlushAndSubmit(True);
   BeforeEndContext;
   TMonitor.Exit(Self);
 end;
@@ -1082,16 +1082,7 @@ procedure TGrCanvas.BeforeDestruction;
 begin
   inherited;
   if Assigned(FGrDirectContext) then
-  begin
-    SetCurrentContext;
-    FGrDirectContext := nil;
-  end;
-end;
-
-procedure TGrCanvas.BeforeRestore;
-begin
-  if Parent <> nil then
-    SetCurrentContext;
+    DestroyContext;
 end;
 
 function TGrCanvas.CreateSurfaceFromBitmap: ISkSurface;
@@ -1106,11 +1097,16 @@ begin
   Result := CreateSurfaceFromWindow(FGrDirectContext);
 end;
 
+procedure TGrCanvas.DestroyContext;
+begin
+  FGrDirectContext := nil;
+end;
+
 procedure TGrCanvas.DoEndScene;
 begin
   if Parent <> nil then
   begin
-    Surface.FlushAndSubmit;
+    Surface.Flush;
     GrDirectContext.FlushAndSubmit;
   end;
   inherited;
@@ -1139,7 +1135,12 @@ begin
     if not Assigned(TGrBitmapHandle(ABitmapHandle).FTexture) then
     begin
       TGrBitmapHandle(ABitmapHandle).FSharedResources := FSharedResources;
-      TGrBitmapHandle(ABitmapHandle).FTexture         := TSkImage.MakeCrossContext(FSharedResources.GrDirectContext, TSkImageInfo.Create(TGrBitmapHandle(ABitmapHandle).Width, TGrBitmapHandle(ABitmapHandle).Height, SkFmxColorType[TGrBitmapHandle(ABitmapHandle).PixelFormat]), TGrBitmapHandle(ABitmapHandle).Pixels, TGrBitmapHandle(ABitmapHandle).Width * PixelFormatBytes[TGrBitmapHandle(ABitmapHandle).PixelFormat], False, True);
+      FSharedResources.BeginContext;
+      try
+        TGrBitmapHandle(ABitmapHandle).FTexture := TSkImage.MakeCrossContext(FSharedResources.GrDirectContext, TSkImageInfo.Create(TGrBitmapHandle(ABitmapHandle).Width, TGrBitmapHandle(ABitmapHandle).Height, SkFmxColorType[TGrBitmapHandle(ABitmapHandle).PixelFormat]), TGrBitmapHandle(ABitmapHandle).Pixels, TGrBitmapHandle(ABitmapHandle).Width * PixelFormatBytes[TGrBitmapHandle(ABitmapHandle).PixelFormat], False, True);
+      finally
+        FSharedResources.EndContext;
+      end;
     end;
     Result := TGrBitmapHandle(ABitmapHandle).FTexture;
   end;
@@ -1154,10 +1155,6 @@ begin
     inherited Finalize;
     raise;
   end;
-end;
-
-procedure TGrCanvas.SetCurrentContext;
-begin
 end;
 
 { TSkTextLayout.TGraphemesMap }
@@ -1794,63 +1791,46 @@ const
     end;
   end;
 
+  procedure InitializeTextStyle(const ATextStyle: ISkTextStyle; const AFont: TFont; const AColor: TAlphaColor);
+  begin
+    ATextStyle.Color        := MakeColor(AColor, FOpacity);
+    ATextStyle.FontFamilies := GetFontFamilies(AFont.Family);
+    ATextStyle.FontSize     := AFont.Size;
+    {$IF CompilerVersion < 31}
+    if (TFontStyle.fsBold in AFont.Style) and (TFontStyle.fsItalic in AFont.Style) then
+      ATextStyle.FontStyle := TSkFontStyle.BoldItalic
+    else if TFontStyle.fsBold in AFont.Style then
+      ATextStyle.FontStyle := TSkFontStyle.Bold
+    else if TFontStyle.fsItalic in AFont.Style then
+      ATextStyle.FontStyle := TSkFontStyle.Italic
+    else
+      ATextStyle.FontStyle := TSkFontStyle.Normal;
+    {$ELSE}
+    ATextStyle.FontStyle := TSkFontStyle.Create(SkFontWeight[AFont.StyleExt.Weight], SkFontWidth[AFont.StyleExt.Stretch], SkFontSlant[AFont.StyleExt.Slant]);
+    {$ENDIF}
+    if (TFontStyle.fsUnderline in AFont.Style) or (TFontStyle.fsStrikeOut in AFont.Style) then
+    begin
+      ATextStyle.DecorationColor := MakeColor(Color, FOpacity);
+      if TFontStyle.fsUnderline in AFont.Style then
+        ATextStyle.Decorations := ATextStyle.Decorations + [TSkTextDecoration.Underline];
+      if TFontStyle.fsStrikeOut in AFont.Style then
+        ATextStyle.Decorations := ATextStyle.Decorations + [TSkTextDecoration.LineThrough];
+    end;
+  end;
+
   function CreateTextStyle(const AAttribute: TTextAttribute): ISkTextStyle;
   begin
     Result := TSkTextStyle.Create;
-    Result.Color := MakeColor(AAttribute.Color, FOpacity);
     if AAttribute.Font <> nil then
-    begin
-      Result.FontFamilies := GetFontFamilies(AAttribute.Font.Family);
-      Result.FontSize     := AAttribute.Font.Size;
-      {$IF CompilerVersion < 31}
-      if (TFontStyle.fsBold in AAttribute.Font.Style) and (TFontStyle.fsItalic in AAttribute.Font.Style) then
-        Result.FontStyle := TSkFontStyle.BoldItalic
-      else if TFontStyle.fsBold in AAttribute.Font.Style then
-        Result.FontStyle := TSkFontStyle.Bold
-      else if TFontStyle.fsItalic in AAttribute.Font.Style then
-        Result.FontStyle := TSkFontStyle.Italic
-      else
-        Result.FontStyle := TSkFontStyle.Normal;
-      {$ELSE}
-      Result.FontStyle := TSkFontStyle.Create(SkFontWeight[AAttribute.Font.StyleExt.Weight], SkFontWidth[AAttribute.Font.StyleExt.Stretch], SkFontSlant[AAttribute.Font.StyleExt.Slant]);
-      {$ENDIF}
-      if (TFontStyle.fsUnderline in AAttribute.Font.Style) or (TFontStyle.fsStrikeOut in AAttribute.Font.Style) then
-      begin
-        Result.DecorationColor := MakeColor(AAttribute.Color, FOpacity);
-        if TFontStyle.fsUnderline in AAttribute.Font.Style then
-          Result.Decorations := Result.Decorations + [TSkTextDecoration.Underline];
-        if TFontStyle.fsStrikeOut in AAttribute.Font.Style then
-          Result.Decorations := Result.Decorations + [TSkTextDecoration.LineThrough];
-      end;
-    end;
+      InitializeTextStyle(Result, AAttribute.Font, AAttribute.Color)
+    else
+      InitializeTextStyle(Result, Font, AAttribute.Color);
   end;
 
   function CreateDefaultTextStyle: ISkTextStyle;
   begin
     Result := TSkTextStyle.Create;
-    Result.Color        := MakeColor(Color, FOpacity);
-    Result.FontFamilies := GetFontFamilies(Font.Family);
-    Result.FontSize     := Font.Size;
-    {$IF CompilerVersion < 31}
-    if (TFontStyle.fsBold in Font.Style) and (TFontStyle.fsItalic in Font.Style) then
-      Result.FontStyle := TSkFontStyle.BoldItalic
-    else if TFontStyle.fsBold in Font.Style then
-      Result.FontStyle := TSkFontStyle.Bold
-    else if TFontStyle.fsItalic in Font.Style then
-      Result.FontStyle := TSkFontStyle.Italic
-    else
-      Result.FontStyle := TSkFontStyle.Normal;
-    {$ELSE}
-    Result.FontStyle := TSkFontStyle.Create(SkFontWeight[Font.StyleExt.Weight], SkFontWidth[Font.StyleExt.Stretch], SkFontSlant[Font.StyleExt.Slant]);
-    {$ENDIF}
-    if (TFontStyle.fsUnderline in Font.Style) or (TFontStyle.fsStrikeOut in Font.Style) then
-    begin
-      Result.DecorationColor := MakeColor(Color, FOpacity);
-      if TFontStyle.fsUnderline in Font.Style then
-        Result.Decorations := Result.Decorations + [TSkTextDecoration.Underline];
-      if TFontStyle.fsStrikeOut in Font.Style then
-        Result.Decorations := Result.Decorations + [TSkTextDecoration.LineThrough];
-    end;
+    InitializeTextStyle(Result, Font, Color);
   end;
 
   function CreateParagraphStyle(const AAttributes: TArray<TTextAttributedRange>;

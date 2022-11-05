@@ -724,7 +724,7 @@ procedure TSkProjectManagerMenuEnableSkia.SetSkiaEnabled(
     LSourceText: string;
     I: Integer;
   begin
-    if AProject.FrameworkType = sFrameworkTypeFMX then
+    if (AProject.ApplicationType = sApplication) and (AProject.FrameworkType = sFrameworkTypeFMX) then
     begin
       for I := 0 to AProject.GetModuleFileCount - 1 do
       begin
@@ -863,6 +863,8 @@ class procedure TSkDeployFilesHelper.AddDeployFiles(
   var
     LDeployFile: TSkDeployFile;
   begin
+    if (AProject.ApplicationType = sLibrary) and not (APlatform in [TSkProjectPlatform.Win32, TSkProjectPlatform.Win64]) then
+      Exit;
     for LDeployFile in GetSkiaDeployFiles(APlatform) do
       DoAddFile(AProjectDeployment, LDeployFile.Platform.ToString, AConfig.ToString, LDeployFile);
   end;
@@ -894,7 +896,7 @@ var
   LDeployFile: TSkDeployFile;
 begin
   for LDeployFile in GetSkiaDeployFiles(APlatform) do
-    if LDeployFile.CopyToOutput then
+    if LDeployFile.CopyToOutput or (AProject.ApplicationType = sLibrary) then
       TSkOTAHelper.TryCopyFileToOutputPath(AProject, APlatform, AConfig, TSkOTAHelper.ExpandVars(LDeployFile.LocalFileName, APlatform, AConfig));
 end;
 
@@ -917,7 +919,7 @@ var
   LDeployFile: TSkDeployFile;
 begin
   for LDeployFile in GetSkiaDeployFiles(APlatform) do
-    if LDeployFile.CopyToOutput then
+    if LDeployFile.CopyToOutput or (AProject.ApplicationType = sLibrary) then
       TSkOTAHelper.TryRemoveOutputFile(AProject, APlatform, AConfig, TPath.GetFileName(LDeployFile.LocalFileName));
 end;
 
@@ -935,7 +937,10 @@ class procedure TSkDeployFilesHelper.EnsureDeployFiles(
     LSkiaFile: TSkDeployFile;
   begin
     LPlatformName := APlatform.ToString;
-    LSkiaDeployFiles := GetSkiaDeployFiles(APlatform);
+    if (AProject.ApplicationType = sLibrary) and not (APlatform in [TSkProjectPlatform.Win32, TSkProjectPlatform.Win64]) then
+      LSkiaDeployFiles := []
+    else
+      LSkiaDeployFiles := GetSkiaDeployFiles(APlatform);
     for LFile in AProjectDeployment.FindFiles('', AConfig.ToString, LPlatformName, '') do
       if not IsValidDeployFile(LFile, LPlatformName, LSkiaDeployFiles) then
         Exit(False);
@@ -1096,7 +1101,8 @@ class function TSkProjectHelper.IsSupported(
   const AProject: IOTAProject): Boolean;
 begin
   Result := Assigned(AProject) and TSkiaLibrary.IsPersonalitySupported(AProject.Personality) and
-    ((AProject.ApplicationType = sApplication) or (AProject.ApplicationType = sConsole)) and TSkiaLibrary.IsSupported;
+    ((AProject.ApplicationType = sApplication) or (AProject.ApplicationType = sConsole) or (AProject.ApplicationType = sLibrary)) and
+    TSkiaLibrary.IsSupported;
 end;
 
 class function TSkProjectHelper.IsSupported(const AProject: IOTAProject;

@@ -19,7 +19,9 @@ interface
 
 uses
   { Delphi }
+  FMX.Graphics,
   FMX.Types,
+  System.Types,
   {$IF DEFINED(MSWINDOWS)}
   Winapi.Windows,
   {$ELSEIF DEFINED(ANDROID)}
@@ -67,11 +69,14 @@ type
   TGlContext = record
   strict private
     FContext: TGlBackendContext;
+    FOldContext: TGlBackendContext;
   public
-    procedure Finalize(const AWindow: TWindowHandle);
+    procedure Finalize(const ASharedSharedResources: IGrCanvasSharedResources; const AWindow: TWindowHandle);
     function Initialize(const ASharedSharedResources: IGrCanvasSharedResources; const AWindow: TWindowHandle): Boolean;
-    procedure MakeContextCurrent;
-    procedure SwapBuffers;
+    function MakeContextCurrent(const ASharedSharedResources: IGrCanvasSharedResources): Boolean;
+    procedure RestoreContext(const ASharedSharedResources: IGrCanvasSharedResources);
+    procedure SaveContext(const ASharedSharedResources: IGrCanvasSharedResources);
+    procedure SwapBuffers(const ASharedSharedResources: IGrCanvasSharedResources);
     property Context: TGlBackendContext read FContext;
   end;
 
@@ -80,7 +85,6 @@ type
   { TGlBackendContext }
 
   TGlBackendContext = record
-    Display: EGLDisplay;
     Draw: EGLSurface;
     Read: EGLSurface;
     Context: EGLContext;
@@ -91,6 +95,7 @@ type
   TGlSharedResources = class(TGrCanvasSharedResources)
   strict private
     FContext: TGlBackendContext;
+    FDisplay: EGLDisplay;
     FGrGlInterface: IGrGlInterface;
     FOldContext: TGlBackendContext;
   strict protected
@@ -101,6 +106,7 @@ type
     procedure InitializeSharedResources; override;
   public
     property Context: TGlBackendContext read FContext;
+    property Display: EGLDisplay read FDisplay;
     property GrGlInterface: IGrGlInterface read FGrGlInterface;
   end;
 
@@ -110,11 +116,14 @@ type
   strict private
     FANativeWindow: PANativeWindow;
     FContext: TGlBackendContext;
+    FOldContext: TGlBackendContext;
   public
-    procedure Finalize(const AWindow: TWindowHandle);
+    procedure Finalize(const ASharedSharedResources: IGrCanvasSharedResources; const AWindow: TWindowHandle);
     function Initialize(const ASharedSharedResources: IGrCanvasSharedResources; const AWindow: TWindowHandle): Boolean;
-    procedure MakeContextCurrent;
-    procedure SwapBuffers;
+    function MakeContextCurrent(const ASharedSharedResources: IGrCanvasSharedResources): Boolean;
+    procedure RestoreContext(const ASharedSharedResources: IGrCanvasSharedResources);
+    procedure SaveContext(const ASharedSharedResources: IGrCanvasSharedResources);
+    procedure SwapBuffers(const ASharedSharedResources: IGrCanvasSharedResources);
     property Context: TGlBackendContext read FContext;
   end;
 
@@ -146,11 +155,14 @@ type
   TGlContext = record
   strict private
     FContext: TGlBackendContext;
+    FOldContext: TGlBackendContext;
   public
-    procedure Finalize(const AWindow: TWindowHandle);
+    procedure Finalize(const ASharedSharedResources: IGrCanvasSharedResources; const AWindow: TWindowHandle);
     function Initialize(const ASharedSharedResources: IGrCanvasSharedResources; const AWindow: TWindowHandle): Boolean;
-    procedure MakeContextCurrent;
-    procedure SwapBuffers;
+    function MakeContextCurrent(const ASharedSharedResources: IGrCanvasSharedResources): Boolean;
+    procedure RestoreContext(const ASharedSharedResources: IGrCanvasSharedResources);
+    procedure SaveContext(const ASharedSharedResources: IGrCanvasSharedResources);
+    procedure SwapBuffers(const ASharedSharedResources: IGrCanvasSharedResources);
     property Context: TGlBackendContext read FContext;
   end;
 
@@ -163,9 +175,11 @@ type
     FContext: TGlContext;
     FSampleCount: Integer;
   strict protected
+    procedure BeforeRestore; override;
     function CreateSurfaceFromWindow(var AGrDirectContext: IGrDirectContext): ISkSurface; override;
+    procedure DestroyContext; override;
+    procedure DoDrawBitmap(const ABitmap: FMX.Graphics.TBitmap; const ASrcRect, ADestRect: TRectF; const AOpacity: Single; const AHighSpeed: Boolean); override;
     procedure DoEndScene; override;
-    procedure SetCurrentContext; override;
     class procedure InitializeSharedResources(out ASharedResources: IGrCanvasSharedResources); override;
   public
     destructor Destroy; override;
@@ -179,7 +193,6 @@ implementation
 
 uses
   { Delphi }
-  FMX.Graphics,
   System.SysUtils,
   {$IF DEFINED(MSWINDOWS)}
   FMX.Platform.Win,
@@ -352,14 +365,15 @@ end;
 
 { TGlContext }
 
-procedure TGlContext.Finalize(const AWindow: TWindowHandle);
+procedure TGlContext.Finalize(
+  const ASharedSharedResources: IGrCanvasSharedResources;
+  const AWindow: TWindowHandle);
 begin
   if FContext.GLRC <> 0 then
   begin
     wglDeleteContext(FContext.GLRC);
     ReleaseDC(WindowHandleToPlatform(AWindow).Wnd, FContext.DC);
   end;
-  wglMakeCurrent(0, 0);
 end;
 
 function TGlContext.Initialize(
@@ -394,16 +408,30 @@ begin
       wglShareLists(TGlSharedResources(ASharedSharedResources).Context.GLRC, FContext.GLRC);
     end;
   end;
+  Result := True;
+end;
+
+function TGlContext.MakeContextCurrent(
+  const ASharedSharedResources: IGrCanvasSharedResources): Boolean;
+begin
   Result := wglMakeCurrent(FContext.DC, FContext.GLRC);
 end;
 
-procedure TGlContext.MakeContextCurrent;
+procedure TGlContext.RestoreContext(
+  const ASharedSharedResources: IGrCanvasSharedResources);
 begin
-  if not wglMakeCurrent(FContext.DC, FContext.GLRC) then
-    raise EGrCanvas.Create('Could not make a context as current.');
+  wglMakeCurrent(FOldContext.DC, FOldContext.GLRC);
 end;
 
-procedure TGlContext.SwapBuffers;
+procedure TGlContext.SaveContext(
+  const ASharedSharedResources: IGrCanvasSharedResources);
+begin
+  FOldContext.DC   := wglGetCurrentDC;
+  FOldContext.GLRC := wglGetCurrentContext;
+end;
+
+procedure TGlContext.SwapBuffers(
+  const ASharedSharedResources: IGrCanvasSharedResources);
 begin
   if not Winapi.Windows.SwapBuffers(FContext.DC) then
     raise EGrCanvas.Create('Could not swap buffers.');
@@ -421,24 +449,32 @@ var
 
 procedure TGlSharedResources.AfterBeginContext;
 begin
-  FOldContext.Display := eglGetCurrentDisplay;
-  FOldContext.Draw    := eglGetCurrentSurface(EGL_DRAW);
-  FOldContext.Read    := eglGetCurrentSurface(EGL_READ);
-  FOldContext.Context := eglGetCurrentContext;
-  if eglMakeCurrent(FContext.Display, FContext.Draw, FContext.Read, FContext.Context) = EGL_FALSE then
+  if eglGetCurrentDisplay = FDisplay then
+  begin
+    FOldContext.Draw    := eglGetCurrentSurface(EGL_DRAW);
+    FOldContext.Read    := eglGetCurrentSurface(EGL_READ);
+    FOldContext.Context := eglGetCurrentContext;
+  end
+  else
+  begin
+    FOldContext.Draw    := EGL_NO_SURFACE;
+    FOldContext.Read    := EGL_NO_SURFACE;
+    FOldContext.Context := EGL_NO_CONTEXT;
+  end;
+  if eglMakeCurrent(FDisplay, FContext.Draw, FContext.Read, FContext.Context) = EGL_FALSE then
     raise EGrCanvas.Create('Could not make the shared context as current.');
 end;
 
 procedure TGlSharedResources.BeforeEndContext;
 begin
-  eglMakeCurrent(FOldContext.Display, FOldContext.Draw, FOldContext.Read, FOldContext.Context);
+  eglMakeCurrent(FDisplay, FOldContext.Draw, FOldContext.Read, FOldContext.Context);
 end;
 
 procedure TGlSharedResources.FinalizeSharedResources;
 begin
-  eglDestroyContext(FContext.Display, FContext.Context);
-  eglDestroySurface(FContext.Display, FContext.Draw);
-  eglTerminate(FContext.Display);
+  eglDestroyContext(FDisplay, FContext.Context);
+  eglDestroySurface(FDisplay, FContext.Draw);
+  eglTerminate(FDisplay);
 end;
 
 procedure TGlSharedResources.InitializeContext(
@@ -451,56 +487,56 @@ end;
 procedure TGlSharedResources.InitializeSharedResources;
 const
   ConfigAttributes: array[0..16] of EGLint = (
-    EGL_SURFACE_TYPE    , EGL_WINDOW_BIT     ,
-    EGL_RENDERABLE_TYPE , EGL_OPENGL_ES2_BIT ,
-    EGL_RED_SIZE        , 8                  ,
-    EGL_GREEN_SIZE      , 8                  ,
-    EGL_BLUE_SIZE       , 8                  ,
-    EGL_ALPHA_SIZE      , 8                  ,
-    EGL_DEPTH_SIZE      , 24                 ,
-    EGL_STENCIL_SIZE    , 8                  ,
+    EGL_RENDERABLE_TYPE , EGL_OPENGL_ES2_BIT                ,
+    EGL_SURFACE_TYPE    , EGL_WINDOW_BIT or EGL_PBUFFER_BIT ,
+    EGL_RED_SIZE        , 8                                 ,
+    EGL_GREEN_SIZE      , 8                                 ,
+    EGL_BLUE_SIZE       , 8                                 ,
+    EGL_ALPHA_SIZE      , 8                                 ,
+    EGL_DEPTH_SIZE      , 24                                ,
+    EGL_STENCIL_SIZE    , 8                                 ,
     EGL_NONE);
 
   SurfaceAttributes: array[0..4] of EGLint = (EGL_WIDTH, 1, EGL_HEIGHT, 1, EGL_NONE);
 var
   LNumConfig: EGLint;
 begin
-  FContext.Display := eglGetDisplay(EGL_DEFAULT_DISPLAY);
-  if (FContext.Display = EGL_NO_DISPLAY) or (eglInitialize(FContext.Display, nil, nil) = EGL_FALSE) then
+  FDisplay := eglGetDisplay(EGL_DEFAULT_DISPLAY);
+  if (FDisplay = EGL_NO_DISPLAY) or (eglInitialize(FDisplay, nil, nil) = EGL_FALSE) then
     raise EGrCanvas.Create('Could not initialize the default display.');
   try
-    if eglChooseConfig(FContext.Display, @ConfigAttributes[0], @Config, 1, @LNumConfig) = EGL_FALSE then
+    if eglChooseConfig(FDisplay, @ConfigAttributes[0], @Config, 1, @LNumConfig) = EGL_FALSE then
       raise EGrCanvas.Create('Could not get frame buffer configurations list.');
-    FContext.Draw := eglCreatePbufferSurface(FContext.Display, Config, @SurfaceAttributes[0]);
+    FContext.Draw := eglCreatePbufferSurface(FDisplay, Config, @SurfaceAttributes[0]);
     if FContext.Draw = EGL_NO_SURFACE then
       raise EGrCanvas.Create('Could not create a new pixel buffer surface.');
     try
       FContext.Read    := FContext.Draw;
-      FContext.Context := eglCreateContext(FContext.Display, Config, EGL_NO_CONTEXT, @ContextAttributes[0]);
+      FContext.Context := eglCreateContext(FDisplay, Config, EGL_NO_CONTEXT, @ContextAttributes[0]);
       if FContext.Context = EGL_NO_CONTEXT then
         raise EGrCanvas.Create('Could not create the shared context.');
     except
-      eglDestroySurface(FContext.Display, FContext.Draw);
+      eglDestroySurface(FDisplay, FContext.Draw);
       raise;
     end;
   except
-    eglTerminate(FContext.Display);
+    eglTerminate(FDisplay);
     raise;
   end;
 end;
 
 { TGlContext }
 
-procedure TGlContext.Finalize(const AWindow: TWindowHandle);
+procedure TGlContext.Finalize(
+  const ASharedSharedResources: IGrCanvasSharedResources;
+  const AWindow: TWindowHandle);
 begin
-  if FContext.Context <> EGL_NO_CONTEXT then
-    eglDestroyContext(FContext.Display, FContext.Context);
   if FContext.Draw <> EGL_NO_SURFACE then
   begin
-    eglDestroySurface(FContext.Display, FContext.Draw);
+    eglDestroyContext(TGlSharedResources(ASharedSharedResources).Display, FContext.Context);
+    eglDestroySurface(TGlSharedResources(ASharedSharedResources).Display, FContext.Draw);
     ANativeWindow_release(FANativeWindow);
   end;
-  eglMakeCurrent(FContext.Display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
 end;
 
 function TGlContext.Initialize(
@@ -535,33 +571,58 @@ begin
       ANativeWindow_release(FANativeWindow);
       Exit(False);
     end;
-    FContext.Draw := eglCreateWindowSurface(TGlSharedResources(ASharedSharedResources).Context.Display, Config, FANativeWindow, nil);
+    FContext.Draw := eglCreateWindowSurface(TGlSharedResources(ASharedSharedResources).Display, Config, FANativeWindow, nil);
     if FContext.Draw = EGL_NO_SURFACE then
     begin
       ANativeWindow_release(FANativeWindow);
       Exit(False);
     end;
-    FContext.Display := TGlSharedResources(ASharedSharedResources).Context.Display;
-    FContext.Read    := FContext.Draw;
-  end;
-  if FContext.Context = EGL_NO_CONTEXT then
-  begin
-    FContext.Context := eglCreateContext(FContext.Display, Config, TGlSharedResources(ASharedSharedResources).Context.Context, @ContextAttributes[0]);
+    FContext.Context := eglCreateContext(TGlSharedResources(ASharedSharedResources).Display, Config, TGlSharedResources(ASharedSharedResources).Context.Context, @ContextAttributes[0]);
     if FContext.Context = EGL_NO_CONTEXT then
+    begin
+      eglDestroySurface(TGlSharedResources(ASharedSharedResources).Display, FContext.Draw);
+      FContext.Draw := EGL_NO_SURFACE;
+      ANativeWindow_release(FANativeWindow);
       Exit(False);
+    end;
+    FContext.Read := FContext.Draw;
   end;
-  Result := eglMakeCurrent(FContext.Display, FContext.Draw, FContext.Read, FContext.Context) <> EGL_FALSE;
+  Result := True;
 end;
 
-procedure TGlContext.MakeContextCurrent;
+function TGlContext.MakeContextCurrent(
+  const ASharedSharedResources: IGrCanvasSharedResources): Boolean;
 begin
-  if eglMakeCurrent(FContext.Display, FContext.Draw, FContext.Read, FContext.Context) = EGL_FALSE then
-    raise EGrCanvas.Create('Could not make a context as current.');
+  Result := eglMakeCurrent(TGlSharedResources(ASharedSharedResources).Display, FContext.Draw, FContext.Read, FContext.Context) <> EGL_FALSE;
 end;
 
-procedure TGlContext.SwapBuffers;
+procedure TGlContext.RestoreContext(
+  const ASharedSharedResources: IGrCanvasSharedResources);
 begin
-  if eglSwapBuffers(FContext.Display, FContext.Draw) = EGL_FALSE then
+  eglMakeCurrent(TGlSharedResources(ASharedSharedResources).Display, FOldContext.Draw, FOldContext.Read, FOldContext.Context);
+end;
+
+procedure TGlContext.SaveContext(
+  const ASharedSharedResources: IGrCanvasSharedResources);
+begin
+  if eglGetCurrentDisplay = TGlSharedResources(ASharedSharedResources).Display then
+  begin
+    FOldContext.Draw    := eglGetCurrentSurface(EGL_DRAW);
+    FOldContext.Read    := eglGetCurrentSurface(EGL_READ);
+    FOldContext.Context := eglGetCurrentContext;
+  end
+  else
+  begin
+    FOldContext.Draw    := EGL_NO_SURFACE;
+    FOldContext.Read    := EGL_NO_SURFACE;
+    FOldContext.Context := EGL_NO_CONTEXT;
+  end;
+end;
+
+procedure TGlContext.SwapBuffers(
+  const ASharedSharedResources: IGrCanvasSharedResources);
+begin
+  if eglSwapBuffers(TGlSharedResources(ASharedSharedResources).Display, FContext.Draw) = EGL_FALSE then
     raise EGrCanvas.Create('Could not swap buffers.');
 end;
 
@@ -611,13 +672,12 @@ end;
 
 { TGlContext }
 
-procedure TGlContext.Finalize(const AWindow: TWindowHandle);
+procedure TGlContext.Finalize(
+  const ASharedSharedResources: IGrCanvasSharedResources;
+  const AWindow: TWindowHandle);
 begin
   if FContext <> nil then
-  begin
     FContext.release;
-    TEAGLContext.OCClass.setCurrentContext(nil);
-  end;
 end;
 
 function TGlContext.Initialize(
@@ -634,22 +694,41 @@ begin
     GLKView(WindowHandleToPlatform(AWindow).View).setContext(FContext);
     GLKView(WindowHandleToPlatform(AWindow).View).bindDrawable;
   end;
+  Result := True;
+end;
+
+function TGlContext.MakeContextCurrent(
+  const ASharedSharedResources: IGrCanvasSharedResources): Boolean;
+begin
   Result := TEAGLContext.OCClass.setCurrentContext(FContext);
 end;
 
-procedure TGlContext.MakeContextCurrent;
+procedure TGlContext.RestoreContext(
+  const ASharedSharedResources: IGrCanvasSharedResources);
 begin
-  if not TEAGLContext.OCClass.setCurrentContext(FContext) then
-    raise EGrCanvas.Create('Could not make a context as current.');
+  TEAGLContext.OCClass.setCurrentContext(FOldContext);
 end;
 
-procedure TGlContext.SwapBuffers;
+procedure TGlContext.SaveContext(
+  const ASharedSharedResources: IGrCanvasSharedResources);
+begin
+  FOldContext := TEAGLContext.Wrap(TEAGLContext.OCClass.currentContext);
+end;
+
+procedure TGlContext.SwapBuffers(
+  const ASharedSharedResources: IGrCanvasSharedResources);
 begin
 end;
 
 {$ENDIF}
 
 { TGlCanvas }
+
+procedure TGlCanvas.BeforeRestore;
+begin
+  if Parent <> nil then
+    FContext.MakeContextCurrent(SharedResources);
+end;
 
 function TGlCanvas.CreateSurfaceFromWindow(
   var AGrDirectContext: IGrDirectContext): ISkSurface;
@@ -658,6 +737,9 @@ var
   LGrRenderTarget: IGrBackendRenderTarget;
 begin
   if not FContext.Initialize(SharedResources, Parent) then
+    Exit(nil);
+  FContext.SaveContext(SharedResources);
+  if not FContext.MakeContextCurrent(SharedResources) then
     Exit(nil);
   if not Assigned(AGrDirectContext) then
   begin
@@ -676,26 +758,46 @@ end;
 destructor TGlCanvas.Destroy;
 begin
   if Parent <> nil then
-    FContext.Finalize(Parent);
+    FContext.Finalize(SharedResources, Parent);
+  inherited;
+end;
+
+procedure TGlCanvas.DestroyContext;
+begin
+  FContext.SaveContext(SharedResources);
+  try
+    FContext.MakeContextCurrent(SharedResources);
+    inherited;
+  finally
+    FContext.RestoreContext(SharedResources);
+  end;
+end;
+
+procedure TGlCanvas.DoDrawBitmap(const ABitmap: FMX.Graphics.TBitmap;
+  const ASrcRect, ADestRect: TRectF; const AOpacity: Single;
+  const AHighSpeed: Boolean);
+begin
+  FContext.MakeContextCurrent(SharedResources);
   inherited;
 end;
 
 procedure TGlCanvas.DoEndScene;
 begin
-  inherited;
   if Parent <> nil then
-    FContext.SwapBuffers;
+  begin
+    FContext.MakeContextCurrent(SharedResources);
+    inherited;
+    FContext.SwapBuffers(SharedResources);
+    FContext.RestoreContext(SharedResources);
+  end
+  else
+    inherited;
 end;
 
 class procedure TGlCanvas.InitializeSharedResources(
   out ASharedResources: IGrCanvasSharedResources);
 begin
   ASharedResources := TGlSharedResources.Create;
-end;
-
-procedure TGlCanvas.SetCurrentContext;
-begin
-  FContext.MakeContextCurrent;
 end;
 
 {$ENDIF}
