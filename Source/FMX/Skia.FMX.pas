@@ -2599,11 +2599,8 @@ end;
 procedure TSkCustomAnimation.TProcess.MainFormChangeHandler(
   const ASender: TObject; const AMessage: TMessage);
 begin
-  if FAniRoot = nil then
-  begin
-    FAnimation.SetRoot(nil);
-    TryFindRoot;
-  end;
+  FAnimation.SetRoot(nil);
+  TryFindRoot;
 end;
 
 procedure TSkCustomAnimation.TProcess.OnProcess(ASender: TObject);
@@ -3222,7 +3219,7 @@ end;
 
 destructor TSkCustomAnimatedControl.Destroy;
 begin
-  FAnimation.Free;
+  FreeAndNil(FAnimation);
   inherited;
 end;
 
