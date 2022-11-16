@@ -109,8 +109,6 @@ You can install **Skia4Delphi** in 3 ways:
 
 1. Manual installation is possible, although it is not recommended; [Learn more...](Documents/INSTALLATION.md)
 2. The pre-built Skia binaries were included in the source, but you can easily recompile them; [Learn more...](Documents/BUILD.md)
-3. The pre-built Skia binary for **Linux64** targets was compiled for Debian (eg Ubuntu) and Red Hat (eg CentOS) based systems. If you want another distro you will need to [rebuild;](Documents/BUILD.md)
-4. For Red Hat based systems you must replace the `Binary/Linux64/Release/libsk4d.so` file with the `Binary/Linux64/Release/Other Distributions/Red Hat/libsk4d.so` file.
 
 ### Enable Skia
 
@@ -656,18 +654,13 @@ The example above results in the output below:
 
 For the platforms supported by **Skia4Delphi** (listed above), the OS versions supported by the library are the same [OS versions that RAD Studio supports.](https://docwiki.embarcadero.com/PlatformStatus/en/Main_Page)
 
-## Remarks
-
-1. The pre-built Skia binary for **Linux64** targets was compiled for Debian (eg Ubuntu) and Red Hat (eg CentOS) based systems. If you want another distro you will need to [rebuild;](Documents/BUILD.md)
-2. For Red Hat based systems you must replace the `Binary/Linux64/Release/libsk4d.so` file with the `Binary/Linux64/Release/Other Distributions/Red Hat/libsk4d.so` file.
-
 # Documentation
 
 The APIs are very similar to Skia's, few methods and functions have been renamed for readability, so the [Skia documentation](https://skia.org/docs) can be used.
 
 # Version
 
-**[Skia4Delphi 4.0.1](/../../releases/latest)**
+**[Skia4Delphi 4.0.2](/../../releases/latest)**
 
 Skia Version used: [chrome/m107](https://github.com/google/skia/tree/chrome/m107)
 

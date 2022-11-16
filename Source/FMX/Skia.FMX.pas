@@ -305,11 +305,13 @@ type
       FAniProcessingList: TList<Pointer>;
       [unsafe] FAniRoot: TSkCustomAnimation;
       FAnimation: TFmxObject;
+      FMainFormChangedMessageId: Integer;
       FTime: Double;
       FTimerService: IFMXTimerService;
       procedure DoAdd(const AAnimation: TSkCustomAnimation);
       procedure DoRemove(const AAnimation: TSkCustomAnimation);
       procedure DoRootChanged(const AAnimation: TSkCustomAnimation);
+      procedure MainFormChangeHandler(const ASender: TObject; const AMessage: TMessage);
       procedure OnProcess(ASender: TObject);
       procedure TryFindRoot;
     strict private
@@ -2523,10 +2525,12 @@ begin
   TBasicAnimation(FAnimation).Loop := True;
   TBasicAnimation(FAnimation).Duration := 30;
   TBasicAnimation(FAnimation).OnProcess := OnProcess;
+  FMainFormChangedMessageId := TMessageManager.DefaultManager.SubscribeToMessage(TMainFormChangedMessage, MainFormChangeHandler);
 end;
 
 destructor TSkCustomAnimation.TProcess.Destroy;
 begin
+  TMessageManager.DefaultManager.Unsubscribe(TMainFormChangedMessage, FMainFormChangedMessageId);
   FreeAndNil(FAniList);
   FAniProcessingList.Free;
   FAnimation.Free;
@@ -2590,6 +2594,16 @@ begin
     FAniRoot := AAnimation;
   end;
   TBasicAnimation(FAnimation).Enabled := Assigned(FAnimation.Root) and (FAniList.Count > 0);
+end;
+
+procedure TSkCustomAnimation.TProcess.MainFormChangeHandler(
+  const ASender: TObject; const AMessage: TMessage);
+begin
+  if FAniRoot = nil then
+  begin
+    FAnimation.SetRoot(nil);
+    TryFindRoot;
+  end;
 end;
 
 procedure TSkCustomAnimation.TProcess.OnProcess(ASender: TObject);

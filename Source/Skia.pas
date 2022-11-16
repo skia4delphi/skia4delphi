@@ -31,7 +31,7 @@ uses
   Skia.API;
 
 const
-  SkVersion = '4.0.1';
+  SkVersion = '4.0.2';
 
 type
   TGrBackendAPI                   = (OpenGl, Vulkan, Metal);

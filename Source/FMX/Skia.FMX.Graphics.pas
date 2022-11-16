@@ -94,6 +94,7 @@ type
     procedure ClearRect(const ARect: TRectF; const AColor: TAlphaColor = 0); override;
     procedure ExcludeClipRect(const ARect: TRectF); override;
     procedure IntersectClipRect(const ARect: TRectF); override;
+    function LoadFontFromStream(const AStream: TStream): Boolean; override;
     function PtInPath(const APoint: TPointF; const APath: TPathData): Boolean; override;
     {$IF CompilerVersion < 30}
     procedure SetMatrix(const AMatrix: TMatrix); override;
@@ -776,6 +777,12 @@ procedure TSkCanvasCustom.IntersectClipRect(const ARect: TRectF);
 begin
   Inc(FClippingChangeCount);
   Canvas.ClipRect(ARect);
+end;
+
+function TSkCanvasCustom.LoadFontFromStream(const AStream: TStream): Boolean;
+begin
+  TSkDefaultProviders.RegisterTypeface(AStream);
+  Result := True;
 end;
 
 class function TSkCanvasCustom.PixelFormat: TPixelFormat;

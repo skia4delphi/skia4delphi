@@ -15,9 +15,9 @@ interface
 
 uses
   { Delphi }
-  System.SysUtils, System.Types, System.UITypes, System.Classes, System.IOUtils,
-  FMX.Types, FMX.Controls, FMX.Forms, FMX.Graphics, FMX.Dialogs, FMX.Effects,
-  FMX.StdCtrls, FMX.Controls.Presentation, FMX.Objects, FMX.Layouts,
+  System.SysUtils, System.Types, System.UITypes, System.Classes, FMX.Types,
+  FMX.Controls, FMX.Forms, FMX.Graphics, FMX.Dialogs, FMX.Effects, FMX.StdCtrls,
+  FMX.Controls.Presentation, FMX.Objects, FMX.Layouts,
 
   { Skia }
   Skia, Skia.FMX;
@@ -62,6 +62,8 @@ implementation
 {$R *.fmx}
 
 uses
+  { Delphi }
+  System.IOUtils,
   { Sample }
   Sample.Form.Main,
   Sample.Form.PDF.Viewer;
