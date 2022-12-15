@@ -1,0 +1,21 @@
+object frmMain: TfrmMain
+  Left = 0
+  Top = 0
+  Caption = 'Form1'
+  ClientHeight = 380
+  ClientWidth = 600
+  Fill.Color = xFF201E21
+  Fill.Kind = Solid
+  FormFactor.Width = 320
+  FormFactor.Height = 480
+  FormFactor.Devices = [Desktop]
+  DesignerMasterStyle = 0
+  inline frmShaderButton1: TfrmShaderButton
+    Cursor = crHandPoint
+    Position.X = 32.000000000000000000
+    Position.Y = 168.000000000000000000
+    Size.Width = 537.000000000000000000
+    Size.Height = 75.000000000000000000
+    Size.PlatformDefault = False
+  end
+end

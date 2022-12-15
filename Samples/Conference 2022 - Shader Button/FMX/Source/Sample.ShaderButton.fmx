@@ -1,0 +1,30 @@
+object frmShaderButton: TfrmShaderButton
+  Size.Width = 537.000000000000000000
+  Size.Height = 75.000000000000000000
+  Size.PlatformDefault = False
+  object apbBackground: TSkAnimatedPaintBox
+    Align = Client
+    Locked = True
+    Size.Width = 537.000000000000000000
+    Size.Height = 75.000000000000000000
+    Size.PlatformDefault = False
+    Animation.Duration = 6.000000000000000000
+    OnAnimationDraw = apbBackgroundAnimationDraw
+    object lblText: TSkLabel
+      Align = Client
+      Locked = True
+      Size.Width = 537.000000000000000000
+      Size.Height = 75.000000000000000000
+      Size.PlatformDefault = False
+      StyledSettings = [Family]
+      TextSettings.Font.Size = 20.000000000000000000
+      TextSettings.Font.Weight = Semibold
+      TextSettings.FontColor = xFFFEFFFF
+      TextSettings.HorzAlign = Center
+      Words = <
+        item
+          Text = 'Assine por R$ 12,90 / m'#234's'
+        end>
+    end
+  end
+end
