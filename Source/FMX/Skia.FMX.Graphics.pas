@@ -279,6 +279,15 @@ type
     property MaxLines: Integer read FMaxLines write SetMaxLines;
   end;
 
+  TSkCanvasServiceRegistrator = class(TObject)
+  private
+    class function GetIsRegistered: Boolean; static;
+    class procedure ScheduleNewRegistrationAttempt;
+  public
+    class function TryRegister: Boolean;
+    class property IsRegistered: Boolean read GetIsRegistered;
+  end;
+
 const
   SVWEBPImages  = 'WebP Images';
   SWBMPImages   = 'WBMP Images';
@@ -3460,11 +3469,56 @@ begin
   end;
 end;
 
+{ TSkCanvasServiceRegistrator }
+
 var
-  CanvasService: TSkCanvasService;
+  GlobalSkCanvasService: IFMXCanvasService;
+
+class function TSkCanvasServiceRegistrator.GetIsRegistered: Boolean;
+begin
+  Result := GlobalSkCanvasService <> nil;
+end;
+
+class procedure TSkCanvasServiceRegistrator.ScheduleNewRegistrationAttempt;
+begin
+  TThread.ForceQueue(nil,
+    procedure
+    begin
+      Self.TryRegister();
+    end);
+end;
+
+class function TSkCanvasServiceRegistrator.TryRegister: Boolean;
+var
+  OriginalCanvasService: IFMXCanvasService;
+  InCorrectInitializationOrder: Boolean;
+begin
+  if Self.IsRegistered then
+    Exit(True)
+  else
+    if TThread.Current.ThreadID <> MainThreadID then
+      Exit(False);
+
+  InCorrectInitializationOrder := TPlatformServices.Current.SupportsPlatformService(IFMXCanvasService);
+
+  if InCorrectInitializationOrder then
+  begin
+    OriginalCanvasService := TPlatformServices.Current.GetPlatformService(IFMXCanvasService) as IFMXCanvasService;
+    GlobalSkCanvasService := TSkCanvasService.Create(OriginalCanvasService);
+
+    TPlatformServices.Current.RemovePlatformService(IFMXCanvasService);
+    TPlatformServices.Current.AddPlatformService(IFMXCanvasService, GlobalSkCanvasService);
+
+    Result := True;
+  end else
+    Result := False;
+end;
+
 initialization
-  CanvasService := TSkCanvasService.Create(IFMXCanvasService(TPlatformServices.Current.GetPlatformService(IFMXCanvasService)));
-  TPlatformServices.Current.RemovePlatformService(IFMXCanvasService);
-  TPlatformServices.Current.AddPlatformService(IFMXCanvasService, CanvasService);
+  if not TSkCanvasServiceRegistrator.TryRegister() then
+    TSkCanvasServiceRegistrator.ScheduleNewRegistrationAttempt();
+
+finalization
+  GlobalSkCanvasService := nil;
 {$ENDREGION}
 end.
