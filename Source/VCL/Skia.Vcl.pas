@@ -2,8 +2,8 @@
 {                                                                        }
 {                              Skia4Delphi                               }
 {                                                                        }
-{ Copyright (c) 2011-2022 Google LLC.                                    }
-{ Copyright (c) 2021-2022 Skia4Delphi Project.                           }
+{ Copyright (c) 2011-2023 Google LLC.                                    }
+{ Copyright (c) 2021-2023 Skia4Delphi Project.                           }
 {                                                                        }
 { Use of this source code is governed by a BSD-style license that can be }
 { found in the LICENSE file.                                             }
@@ -1047,17 +1047,20 @@ type
     FClickedPosition: TPoint;
     FHasCustomBackground: Boolean;
     FHasCustomCursor: Boolean;
+    FIgnoreCursorChange: Boolean;
     FIsMouseOver: Boolean;
     FParagraph: ISkParagraph;
     FParagraphBounds: TRectF;
     FParagraphLayoutWidth: Single;
     FParagraphStroked: ISkParagraph;
     FPressedPosition: TPoint;
+    FRealCursor: TCursor;
     FTextSettingsInfo: TSkTextSettingsInfo;
     FWords: TWordsCollection;
     FWordsMouseOver: TCustomWordsItem;
     procedure CMBiDiModeChanged(var AMessage: TMessage); message CM_BIDIMODECHANGED;
     procedure CMControlChange(var AMessage: TMessage); message CM_CONTROLCHANGE;
+    procedure CMCursorChanged(var AMessage: TMessage); message CM_CURSORCHANGED;
     procedure CMMouseEnter(var AMessage: TMessage); message CM_MOUSEENTER;
     procedure CMMouseLeave(var AMessage: TMessage); message CM_MOUSELEAVE;
     procedure CMParentBiDiModeChanged(var AMessage: TMessage); message CM_PARENTBIDIMODECHANGED;
@@ -1072,10 +1075,9 @@ type
     procedure SetCaption(const AValue: string);
     procedure SetWords(const AValue: TWordsCollection);
     procedure SetWordsMouseOver(const AValue: TCustomWordsItem);
-    procedure TextSettingsChanged(AValue: TObject);
+    procedure UpdateCursor; inline;
     procedure WMLButtonUp(var AMessage: TWMLButtonUp); message WM_LBUTTONUP;
     procedure WMMouseMove(var AMessage: TWMMouseMove); message WM_MOUSEMOVE;
-    procedure WordsChange(ASender: TObject);
   strict private
     { ISkTextSettings }
     function GetDefaultTextSettings: TSkTextSettings;
@@ -1090,7 +1092,10 @@ type
     function GetWordsItemAtPosition(const AX, AY: Integer): TCustomWordsItem;
     procedure Loaded; override;
     procedure MouseDown(AButton: TMouseButton; AShift: TShiftState; AX, AY: Integer); override;
+    function NormalizeParagraphText(const AText: string): string; virtual;
     procedure SetName(const AValue: TComponentName); override;
+    procedure TextSettingsChanged(AValue: TObject); virtual;
+    procedure WordsChange(ASender: TObject); virtual;
     property IsMouseOver: Boolean read FIsMouseOver;
     property Paragraph: ISkParagraph read GetParagraph;
     property ParagraphBounds: TRectF read GetParagraphBounds;
@@ -3221,7 +3226,7 @@ end;
 procedure TSkCustomAnimatedControl.DoAnimationFinish;
 begin
   if WindowHandle <> 0 then
-    Paint;
+    Repaint;
   if Assigned(FOnAnimationFinish) then
     FOnAnimationFinish(Self);
 end;
@@ -3230,7 +3235,10 @@ procedure TSkCustomAnimatedControl.DoAnimationProcess;
 begin
   CheckAnimation;
   if WindowHandle <> 0 then
+  begin
     Paint;
+    PaintControls(Canvas.Handle, nil);
+  end;
   if Assigned(FOnAnimationProcess) then
     FOnAnimationProcess(Self);
 end;
@@ -5067,6 +5075,20 @@ begin
     FTextSettingsInfo.Design := csDesigning in ComponentState;
 end;
 
+procedure TSkLabel.CMCursorChanged(var AMessage: TMessage);
+begin
+  if FIgnoreCursorChange or (csDesigning in ComponentState) then
+    inherited
+  else
+  begin
+    FRealCursor := Cursor;
+    if Assigned(FWordsMouseOver) then
+      UpdateCursor
+    else
+      inherited;
+  end;
+end;
+
 procedure TSkLabel.CMMouseEnter(var AMessage: TMessage);
 begin
   FIsMouseOver := True;
@@ -5393,13 +5415,6 @@ var
     Result.TextStyle := ADefaultTextStyle;
   end;
 
-  // Temporary solution to fix an issue with Skia: https://bugs.chromium.org/p/skia/issues/detail?id=13117
-  // SkParagraph has several issues with the #13 line break, so the best thing to do is replace it with #10 or a zero-widh character (#8203)
-  function NormalizeParagraphText(const AText: string): string;
-  begin
-    Result := AText.Replace(#13#10, #8203#10).Replace(#13, #10);
-  end;
-
   function CreateParagraph(const ADrawKind: TDrawKind): ISkParagraph;
   var
     LBuilder: ISkParagraphBuilder;
@@ -5568,6 +5583,15 @@ begin
   inherited;
 end;
 
+function TSkLabel.NormalizeParagraphText(const AText: string): string;
+begin
+  // Temporary solution to fix an issue with Skia:
+  // https://bugs.chromium.org/p/skia/issues/detail?id=13117
+  // SkParagraph has several issues with the #13 line break, so the best thing
+  // to do is replace it with #10 or a zero-widh character (#8203)
+  Result := AText.Replace(#13#10, #8203#10).Replace(#13, #10);
+end;
+
 procedure TSkLabel.ParagraphLayout(const AWidth: Single);
 var
   LParagraph: ISkParagraph;
@@ -5633,17 +5657,10 @@ begin
   begin
     FWordsMouseOver := AValue;
     if not (csDesigning in ComponentState) and IsMouseOver then
-    begin
-      if Assigned(FWordsMouseOver) and (FWordsMouseOver.Cursor <> crDefault) then
-        Cursor := FWordsMouseOver.Cursor
-      else
-        Cursor := crDefault;
-    end;
+      UpdateCursor;
   end
-  else if Assigned(FWordsMouseOver) and (FWordsMouseOver.Cursor <> crDefault) then
-    Cursor := FWordsMouseOver.Cursor
   else
-    Cursor := crDefault;
+    UpdateCursor;
 end;
 
 procedure TSkLabel.TextSettingsChanged(AValue: TObject);
@@ -5655,6 +5672,21 @@ begin
       SetBounds(Left, Top, Width, Height)
     else
       Redraw;
+  end;
+end;
+
+procedure TSkLabel.UpdateCursor;
+begin
+  if csDesigning in ComponentState then
+    Exit;
+  FIgnoreCursorChange := True;
+  try
+    if Assigned(FWordsMouseOver) and (FWordsMouseOver.Cursor <> crDefault) then
+      Cursor := FWordsMouseOver.Cursor
+    else
+      Cursor := FRealCursor;
+  finally
+    FIgnoreCursorChange := False;
   end;
 end;
 

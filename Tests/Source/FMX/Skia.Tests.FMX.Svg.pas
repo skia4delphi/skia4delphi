@@ -2,8 +2,8 @@
 {                                                                        }
 {                              Skia4Delphi                               }
 {                                                                        }
-{ Copyright (c) 2011-2022 Google LLC.                                    }
-{ Copyright (c) 2021-2022 Skia4Delphi Project.                           }
+{ Copyright (c) 2011-2023 Google LLC.                                    }
+{ Copyright (c) 2021-2023 Skia4Delphi Project.                           }
 {                                                                        }
 { Use of this source code is governed by a BSD-style license that can be }
 { found in the LICENSE file.                                             }
@@ -41,7 +41,7 @@ type
     [TestCase('android.svg', 'android.svg,80,80,/8PDgYHD5/////Phw8fv/////+XHz//////////f///wD9f/wAPAA8ADwAPwD/AP/b/9v/2///8')]
     [TestCase('delphi.svg',  'delphi.svg,80,80,w508PHgwmcP//fz8+PDZw////v7+/N33/////////ff/2f/R9gHsAP2I+gD8Qfqh+gPoQ/EP/D8')]
     [TestCase('gorilla.svg', 'gorilla.svg,80,80,7+fDw4GBmf////Pjw8ff////++Pz19/////////////4P/g/8B/wH+APwgPCAccD7/Pn8/////8')]
-    [TestCase('lion.svg',    'lion.svg,80,80,/4+HBweHz/////fnx8fP////9/ff18//////////3/+Af8B/wL+Af4Cfgv/Ev+C/8f////////8')]
+    [TestCase('lion.svg',    'lion.svg,80,80,/4+Hh4eHz/////fnx8fP////9/ff18//////////3/+Af8B/wL+Af4Cfgv/Ev+C/8f////////8')]
     [TestCase('tesla.svg',   'tesla.svg,40,40,/4GB5+fn/////fHn5+f////98ff39/////////f////gB/w//n/+f/5//n/+f/5///////////8')]
     procedure TestFitRender(const ASvgFileName: string; const AWidth, AHeight: Integer; const AExpectedImageHash: string);
     [TestCase('android.svg', 'android.svg,450,450,VtZA3kD/AN///mDfQ//O3//+6v/r/+7///76//v///+7bhIks2b//5NkEiS/fv//kiSSJP//u24')]

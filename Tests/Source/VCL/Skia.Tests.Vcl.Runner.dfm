@@ -2,26 +2,29 @@ object frmVclRunner: TfrmVclRunner
   Left = 0
   Top = 0
   Caption = 'Skia4Delphi Tests - Vcl runner for DUnitX'
-  ClientHeight = 841
-  ClientWidth = 760
+  ClientHeight = 702
+  ClientWidth = 498
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -12
   Font.Name = 'Segoe UI'
   Font.Style = []
+  KeyPreview = True
   OldCreateOrder = True
   Position = poScreenCenter
   OnClose = FormClose
   OnCreate = FormCreate
   OnDestroy = FormDestroy
+  OnKeyDown = FormKeyDown
+  OnKeyUp = FormKeyDown
   OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 15
   object gagTestRunnerProgress: TGauge
     Left = 0
-    Top = 833
-    Width = 760
+    Top = 694
+    Width = 498
     Height = 8
     Align = alBottom
     BackColor = 13421772
@@ -30,12 +33,13 @@ object frmVclRunner: TfrmVclRunner
     Progress = 0
     ShowText = False
     ExplicitTop = 832
+    ExplicitWidth = 760
   end
   object tbcContents: TTabControl
     Left = 0
     Top = 0
-    Width = 760
-    Height = 833
+    Width = 498
+    Height = 694
     Cursor = crHandPoint
     Align = alClient
     Font.Charset = DEFAULT_CHARSET
@@ -50,13 +54,14 @@ object frmVclRunner: TfrmVclRunner
       'TESTS'
       'DETAILS')
     TabIndex = 0
-    TabWidth = 300
+    TabWidth = 247
     OnChange = tbcContentsChange
+    OnResize = tbcContentsResize
     object pnlDetails: TPanel
       Left = 4
       Top = 55
-      Width = 752
-      Height = 774
+      Width = 490
+      Height = 635
       Align = alClient
       BevelOuter = bvNone
       Caption = 'Panel2'
@@ -68,8 +73,8 @@ object frmVclRunner: TfrmVclRunner
       object gplDetails: TGridPanel
         Left = 0
         Top = 0
-        Width = 752
-        Height = 774
+        Width = 490
+        Height = 635
         Align = alClient
         BevelOuter = bvNone
         Caption = 'gplDetails'
@@ -83,7 +88,6 @@ object frmVclRunner: TfrmVclRunner
         ControlCollection = <
           item
             Column = 0
-            ColumnSpan = 2
             Control = pnlDetailsSummary
             Row = 0
           end
@@ -96,11 +100,16 @@ object frmVclRunner: TfrmVclRunner
             Column = 0
             Control = lbxFailList
             Row = 1
+          end
+          item
+            Column = 1
+            Control = pbxImagePreview
+            Row = 0
           end>
         RowCollection = <
           item
             SizeStyle = ssAbsolute
-            Value = 140.000000000000000000
+            Value = 170.000000000000000000
           end
           item
             Value = 100.000000000000000000
@@ -110,8 +119,8 @@ object frmVclRunner: TfrmVclRunner
         object pnlDetailsSummary: TPanel
           Left = 0
           Top = 0
-          Width = 752
-          Height = 140
+          Width = 245
+          Height = 170
           Align = alClient
           BevelOuter = bvNone
           Caption = 'pnlDetailsSummary'
@@ -124,11 +133,12 @@ object frmVclRunner: TfrmVclRunner
             Height = 15
             Caption = 'Runs'
             Font.Charset = DEFAULT_CHARSET
-            Font.Color = 6513507
+            Font.Color = clBlack
             Font.Height = -12
             Font.Name = 'Segoe UI'
             Font.Style = [fsBold]
             ParentFont = False
+            StyleElements = [seClient, seBorder]
           end
           object Label2: TLabel
             Left = 16
@@ -137,11 +147,12 @@ object frmVclRunner: TfrmVclRunner
             Height = 15
             Caption = 'Success'
             Font.Charset = DEFAULT_CHARSET
-            Font.Color = 6513507
+            Font.Color = clBlack
             Font.Height = -12
             Font.Name = 'Segoe UI'
             Font.Style = [fsBold]
             ParentFont = False
+            StyleElements = [seClient, seBorder]
           end
           object Label3: TLabel
             Left = 16
@@ -150,11 +161,12 @@ object frmVclRunner: TfrmVclRunner
             Height = 15
             Caption = 'Errors'
             Font.Charset = DEFAULT_CHARSET
-            Font.Color = 6513507
+            Font.Color = clBlack
             Font.Height = -12
             Font.Name = 'Segoe UI'
             Font.Style = [fsBold]
             ParentFont = False
+            StyleElements = [seClient, seBorder]
           end
           object Label4: TLabel
             Left = 16
@@ -163,11 +175,12 @@ object frmVclRunner: TfrmVclRunner
             Height = 15
             Caption = 'Fail'
             Font.Charset = DEFAULT_CHARSET
-            Font.Color = 6513507
+            Font.Color = clBlack
             Font.Height = -12
             Font.Name = 'Segoe UI'
             Font.Style = [fsBold]
             ParentFont = False
+            StyleElements = [seClient, seBorder]
           end
           object Label5: TLabel
             Left = 16
@@ -176,24 +189,26 @@ object frmVclRunner: TfrmVclRunner
             Height = 15
             Caption = 'Leaked'
             Font.Charset = DEFAULT_CHARSET
-            Font.Color = 6513507
+            Font.Color = clBlack
             Font.Height = -12
             Font.Name = 'Segoe UI'
             Font.Style = [fsBold]
             ParentFont = False
+            StyleElements = [seClient, seBorder]
           end
           object Label6: TLabel
             Left = 8
-            Top = 122
+            Top = 152
             Width = 45
             Height = 15
             Caption = 'Fails List'
             Font.Charset = DEFAULT_CHARSET
-            Font.Color = 6513507
+            Font.Color = clBlack
             Font.Height = -12
             Font.Name = 'Segoe UI'
             Font.Style = [fsBold]
             ParentFont = False
+            StyleElements = [seClient, seBorder]
           end
           object lblTotalRuns: TLabel
             Left = 104
@@ -202,11 +217,12 @@ object frmVclRunner: TfrmVclRunner
             Height = 15
             Caption = 'lblTotalRuns'
             Font.Charset = DEFAULT_CHARSET
-            Font.Color = 6513507
+            Font.Color = clBlack
             Font.Height = -12
             Font.Name = 'Segoe UI'
             Font.Style = []
             ParentFont = False
+            StyleElements = [seClient, seBorder]
           end
           object lblSuccessTests: TLabel
             Left = 104
@@ -215,11 +231,12 @@ object frmVclRunner: TfrmVclRunner
             Height = 15
             Caption = 'lblSuccessTests'
             Font.Charset = DEFAULT_CHARSET
-            Font.Color = 6513507
+            Font.Color = clBlack
             Font.Height = -12
             Font.Name = 'Segoe UI'
             Font.Style = []
             ParentFont = False
+            StyleElements = [seClient, seBorder]
           end
           object lblErrorsTests: TLabel
             Left = 104
@@ -228,11 +245,12 @@ object frmVclRunner: TfrmVclRunner
             Height = 15
             Caption = 'lblErrorsTests'
             Font.Charset = DEFAULT_CHARSET
-            Font.Color = 6513507
+            Font.Color = clBlack
             Font.Height = -12
             Font.Name = 'Segoe UI'
             Font.Style = []
             ParentFont = False
+            StyleElements = [seClient, seBorder]
           end
           object lblFailTests: TLabel
             Left = 104
@@ -241,11 +259,12 @@ object frmVclRunner: TfrmVclRunner
             Height = 15
             Caption = 'lblFailTests'
             Font.Charset = DEFAULT_CHARSET
-            Font.Color = 6513507
+            Font.Color = clBlack
             Font.Height = -12
             Font.Name = 'Segoe UI'
             Font.Style = []
             ParentFont = False
+            StyleElements = [seClient, seBorder]
           end
           object lblMemoryLeaked: TLabel
             Left = 104
@@ -254,26 +273,27 @@ object frmVclRunner: TfrmVclRunner
             Height = 15
             Caption = 'lblMemoryLeaked'
             Font.Charset = DEFAULT_CHARSET
-            Font.Color = 6513507
+            Font.Color = clBlack
             Font.Height = -12
             Font.Name = 'Segoe UI'
             Font.Style = []
             ParentFont = False
+            StyleElements = [seClient, seBorder]
           end
         end
         object pnlFailTestDetailPanel: TPanel
-          Left = 376
-          Top = 140
-          Width = 376
-          Height = 634
+          Left = 245
+          Top = 170
+          Width = 245
+          Height = 465
           Align = alClient
           BevelOuter = bvNone
           Caption = 'pnlFailTestDetailPanel'
           ShowCaption = False
           TabOrder = 1
           DesignSize = (
-            376
-            634)
+            245
+            465)
           object Label7: TLabel
             Left = 8
             Top = 8
@@ -281,11 +301,12 @@ object frmVclRunner: TfrmVclRunner
             Height = 15
             Caption = 'Test'
             Font.Charset = DEFAULT_CHARSET
-            Font.Color = 6513507
+            Font.Color = clBlack
             Font.Height = -12
             Font.Name = 'Segoe UI'
             Font.Style = [fsBold]
             ParentFont = False
+            StyleElements = [seClient, seBorder]
           end
           object lblFailTestName: TLabel
             Left = 64
@@ -294,11 +315,12 @@ object frmVclRunner: TfrmVclRunner
             Height = 15
             Caption = 'lblFailTestName'
             Font.Charset = DEFAULT_CHARSET
-            Font.Color = 6513507
+            Font.Color = clBlack
             Font.Height = -12
             Font.Name = 'Segoe UI'
             Font.Style = []
             ParentFont = False
+            StyleElements = [seClient, seBorder]
           end
           object Label9: TLabel
             Left = 8
@@ -307,11 +329,12 @@ object frmVclRunner: TfrmVclRunner
             Height = 15
             Caption = 'Start'
             Font.Charset = DEFAULT_CHARSET
-            Font.Color = 6513507
+            Font.Color = clBlack
             Font.Height = -12
             Font.Name = 'Segoe UI'
             Font.Style = [fsBold]
             ParentFont = False
+            StyleElements = [seClient, seBorder]
           end
           object lblFailTestStartTime: TLabel
             Left = 64
@@ -320,11 +343,12 @@ object frmVclRunner: TfrmVclRunner
             Height = 15
             Caption = 'lblFailTestStartTime'
             Font.Charset = DEFAULT_CHARSET
-            Font.Color = 6513507
+            Font.Color = clBlack
             Font.Height = -12
             Font.Name = 'Segoe UI'
             Font.Style = []
             ParentFont = False
+            StyleElements = [seClient, seBorder]
           end
           object Label11: TLabel
             Left = 8
@@ -333,11 +357,12 @@ object frmVclRunner: TfrmVclRunner
             Height = 15
             Caption = 'Finish'
             Font.Charset = DEFAULT_CHARSET
-            Font.Color = 6513507
+            Font.Color = clBlack
             Font.Height = -12
             Font.Name = 'Segoe UI'
             Font.Style = [fsBold]
             ParentFont = False
+            StyleElements = [seClient, seBorder]
           end
           object lblFailTestFinishTime: TLabel
             Left = 64
@@ -346,28 +371,16 @@ object frmVclRunner: TfrmVclRunner
             Height = 15
             Caption = 'lblFailTestFinishTime'
             Font.Charset = DEFAULT_CHARSET
-            Font.Color = 6513507
+            Font.Color = clBlack
             Font.Height = -12
             Font.Name = 'Segoe UI'
             Font.Style = []
             ParentFont = False
-          end
-          object Label8: TLabel
-            Left = 8
-            Top = 63
-            Width = 48
-            Height = 15
-            Caption = 'Message'
-            Font.Charset = DEFAULT_CHARSET
-            Font.Color = 6513507
-            Font.Height = -12
-            Font.Name = 'Segoe UI'
-            Font.Style = [fsBold]
-            ParentFont = False
+            StyleElements = [seClient, seBorder]
           end
           object Label10: TLabel
             Left = 8
-            Top = 491
+            Top = 322
             Width = 64
             Height = 15
             Anchors = [akLeft, akBottom]
@@ -378,31 +391,125 @@ object frmVclRunner: TfrmVclRunner
             Font.Name = 'Segoe UI'
             Font.Style = [fsBold]
             ParentFont = False
+            ExplicitTop = 491
           end
-          object memFailTestMessage: TMemo
+          object tbcExtraDetails: TTabControl
+            AlignWithMargins = True
             Left = 0
-            Top = 80
-            Width = 376
+            Top = 68
+            Width = 245
             Height = 397
-            Anchors = [akLeft, akTop, akRight, akBottom]
-            ReadOnly = True
+            Cursor = crHandPoint
+            Margins.Left = 0
+            Margins.Top = 68
+            Margins.Right = 0
+            Margins.Bottom = 0
+            Align = alClient
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = 4934475
+            Font.Height = -11
+            Font.Name = 'Segoe UI'
+            Font.Style = [fsBold]
+            ParentFont = False
+            TabHeight = 32
             TabOrder = 0
-          end
-          object memStackTrace: TMemo
-            Left = 0
-            Top = 508
-            Width = 376
-            Height = 126
-            Align = alBottom
-            ReadOnly = True
-            TabOrder = 1
+            TabPosition = tpBottom
+            Tabs.Strings = (
+              'MESSAGES'
+              'STACK TRACE'
+              'OPTIONS')
+            TabIndex = 0
+            TabWidth = 79
+            StyleElements = [seClient, seBorder]
+            OnChange = tbcExtraDetailsChange
+            OnResize = tbcContentsResize
+            object pnlOptions: TPanel
+              Left = 4
+              Top = 4
+              Width = 237
+              Height = 357
+              Align = alClient
+              BevelOuter = bvNone
+              ParentBackground = False
+              ShowCaption = False
+              TabOrder = 2
+              Visible = False
+              object GroupBox1: TGroupBox
+                AlignWithMargins = True
+                Left = 20
+                Top = 20
+                Width = 197
+                Height = 85
+                Margins.Left = 20
+                Margins.Top = 20
+                Margins.Right = 20
+                Margins.Bottom = 0
+                Align = alTop
+                Caption = 'Global Tests Options'
+                Font.Charset = DEFAULT_CHARSET
+                Font.Color = 4934475
+                Font.Height = -11
+                Font.Name = 'Segoe UI'
+                Font.Style = []
+                ParentFont = False
+                TabOrder = 0
+                object cbxGenerateExpectedImages: TCheckBox
+                  AlignWithMargins = True
+                  Left = 22
+                  Top = 35
+                  Width = 153
+                  Height = 40
+                  Hint = 'It will generate the expected images for successful tests.'
+                  Margins.Left = 20
+                  Margins.Top = 20
+                  Margins.Right = 20
+                  Margins.Bottom = 0
+                  Align = alTop
+                  Caption = 'Generate expected images'
+                  Font.Charset = DEFAULT_CHARSET
+                  Font.Color = 4934475
+                  Font.Height = -11
+                  Font.Name = 'Segoe UI'
+                  Font.Style = [fsBold]
+                  ParentFont = False
+                  TabOrder = 0
+                  OnClick = cbxGenerateExpectedImagesClick
+                end
+              end
+            end
+            object memStackTrace: TMemo
+              Left = 4
+              Top = 4
+              Width = 237
+              Height = 357
+              Align = alClient
+              ReadOnly = True
+              TabOrder = 0
+              Visible = False
+            end
+            object memFailTestMessage: TMemo
+              Left = 4
+              Top = 4
+              Width = 237
+              Height = 357
+              Align = alClient
+              Font.Charset = DEFAULT_CHARSET
+              Font.Color = 4934475
+              Font.Height = -11
+              Font.Name = 'Segoe UI'
+              Font.Style = []
+              ParentFont = False
+              ReadOnly = True
+              ScrollBars = ssVertical
+              TabOrder = 1
+            end
           end
         end
         object lbxFailList: TListBox
           Left = 0
-          Top = 140
-          Width = 376
-          Height = 634
+          Top = 170
+          Width = 245
+          Height = 465
           Style = lbOwnerDrawFixed
           Align = alClient
           Anchors = []
@@ -410,13 +517,29 @@ object frmVclRunner: TfrmVclRunner
           TabOrder = 2
           OnClick = lbxFailListClick
         end
+        object pbxImagePreview: TSkPaintBox
+          Left = 245
+          Top = 0
+          Width = 245
+          Height = 170
+          Cursor = crHandPoint
+          Align = alClient
+          PopupMenu = pmnPreview
+          OnMouseDown = pbxImagePreviewMouseDown
+          OnMouseUp = pbxImagePreviewMouseUp
+          OnDraw = pbxImagePreviewDraw
+          ExplicitLeft = 352
+          ExplicitTop = 360
+          ExplicitWidth = 50
+          ExplicitHeight = 50
+        end
       end
     end
     object pnlTests: TPanel
       Left = 4
       Top = 55
-      Width = 752
-      Height = 774
+      Width = 490
+      Height = 635
       Align = alClient
       BevelOuter = bvNone
       Caption = 'pnlTests'
@@ -425,8 +548,8 @@ object frmVclRunner: TfrmVclRunner
       object trvTestTree: TTreeView
         Left = 0
         Top = 0
-        Width = 752
-        Height = 706
+        Width = 490
+        Height = 567
         Align = alClient
         AutoExpand = True
         BorderStyle = bsNone
@@ -447,8 +570,8 @@ object frmVclRunner: TfrmVclRunner
       end
       object pnlTestsFooter: TPanel
         Left = 0
-        Top = 706
-        Width = 752
+        Top = 567
+        Width = 490
         Height = 68
         Align = alBottom
         BevelOuter = bvNone
@@ -459,7 +582,7 @@ object frmVclRunner: TfrmVclRunner
           AlignWithMargins = True
           Left = 30
           Top = 5
-          Width = 692
+          Width = 430
           Height = 47
           Cursor = crHandPoint
           Margins.Left = 30
@@ -475,7 +598,7 @@ object frmVclRunner: TfrmVclRunner
           AlignWithMargins = True
           Left = 30
           Top = 5
-          Width = 692
+          Width = 430
           Height = 47
           Cursor = crHandPoint
           Margins.Left = 30
@@ -494,6 +617,7 @@ object frmVclRunner: TfrmVclRunner
           ParentBackground = False
           ParentFont = False
           TabOrder = 1
+          StyleElements = [seBorder]
           OnClick = pnlRunAllClick
           object imgRunAllLeftCorners: TImage
             Left = 0
@@ -532,7 +656,7 @@ object frmVclRunner: TfrmVclRunner
             ExplicitHeight = 48
           end
           object imgRunAllRightCorners: TImage
-            Left = 683
+            Left = 421
             Top = 0
             Width = 9
             Height = 47
@@ -569,7 +693,7 @@ object frmVclRunner: TfrmVclRunner
         object pnlTestsFooterLine: TPanel
           Left = 0
           Top = 0
-          Width = 752
+          Width = 490
           Height = 1
           Align = alTop
           BevelOuter = bvNone
@@ -588,7 +712,7 @@ object frmVclRunner: TfrmVclRunner
     Left = 368
     Top = 416
     Bitmap = {
-      494C01010E0018000C0016001600F2F2F200FF10FFFFFFFFFFFFFFFF424D3600
+      494C01010E001800100016001600F2F2F200FF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000580000005800000001002000000000000079
       000000000000000000000000000000000000F2F2F2FFF2F2F2FFF2F2F2FFF2F2
       F2FFF2F2F2FFF2F2F2FFF2F2F2FFF2F2F2FFF2F2F2FFF2F2F2FFF2F2F2FFF2F2
@@ -1595,5 +1719,14 @@ object frmVclRunner: TfrmVclRunner
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       000000000000}
+  end
+  object pmnPreview: TPopupMenu
+    OnPopup = pmnPreviewPopup
+    Left = 368
+    Top = 472
+    object mniCopyPreviewImage: TMenuItem
+      Caption = 'Copy image'
+      OnClick = mniCopyPreviewImageClick
+    end
   end
 end

@@ -2,7 +2,7 @@
 {                                                                        }
 {                               MobileBars                               }
 {                                                                        }
-{ Copyright (c) 2021-2022 MobileBars                                     }
+{ Copyright (c) 2021-2023 MobileBars                                     }
 { https://github.com/viniciusfbb/mobilebars                              }
 {                                                                        }
 { Use of this source code is governed by a MIT license that can be found }
@@ -1398,9 +1398,16 @@ end;
 
 function TMobileBarsServiceAndroid.HasGestureNavigationBar(
   const AForm: TCommonCustomForm): Boolean;
+
+  function SameRectIgnoringTop(const ALeft, ARight: TRect): Boolean;
+  begin
+    Result := (ALeft.Left = ARight.Left) and (ALeft.Right = ARight.Right) and
+      (ALeft.Bottom = ARight.Bottom);
+  end;
+
 begin
   if TOSVersion.Check(10) then // Android 10 (api level 29) or later
-    Result := HasMobileBars(AForm) and AForm.Active and (DoGetAbsoluteInsets(AForm) <> DoGetAbsoluteTappableInsets(AForm))
+    Result := HasMobileBars(AForm) and AForm.Active and not SameRectIgnoringTop(DoGetAbsoluteInsets(AForm), DoGetAbsoluteTappableInsets(AForm))
   else
     Result := False;
 end;

@@ -2,8 +2,8 @@
 {                                                                        }
 {                              Skia4Delphi                               }
 {                                                                        }
-{ Copyright (c) 2011-2022 Google LLC.                                    }
-{ Copyright (c) 2021-2022 Skia4Delphi Project.                           }
+{ Copyright (c) 2011-2023 Google LLC.                                    }
+{ Copyright (c) 2021-2023 Skia4Delphi Project.                           }
 {                                                                        }
 { Use of this source code is governed by a BSD-style license that can be }
 { found in the LICENSE file.                                             }
@@ -44,6 +44,10 @@ type
     [TestCase('Telegram Icon Path',  'telegram.svg-path.txt,' +  'telegram.elements.txt')]
     [TestCase('Tesla Icon Path',     'tesla.svg-path.txt,' +     'tesla.elements.txt')]
     procedure TestIteratorFromSVGPath(const ASVGPathInputFileName, AExpectedIteratorOutputFileName: string);
+    [Test]
+    procedure TestIsEmpty;
+    [Test]
+    procedure TestIsRect;
     [TestCase('Simple Path Serialize', 'simple-path.serialized.bin')]
     procedure TestPathSerialize(const AExpectedSerializedOutputFileName: string);
   end;
@@ -103,6 +107,61 @@ begin
   LPathBuilder.Close;
   LPath := TSkPath.Create(LPathBuilder.Detach.ToSVG);
   Assert.AreEqual(TFile.ReadAllText(AssetsPath + AExpectedIteratorOutputFileName).Trim, PathToText(LPath));
+end;
+
+procedure TSkPathTests.TestIsEmpty;
+
+  procedure Check(APath: ISkPath; const AExpected: Boolean; const AMessage: string);
+  begin
+    Assert.AreEqual(AExpected, APath.IsEmpty, AMessage);
+  end;
+
+var
+  LPathBuilder: ISkPathBuilder;
+begin
+  LPathBuilder := TSkPathBuilder.Create;
+  Check(LPathBuilder.Snapshot, True, '(Empty path)');
+
+  LPathBuilder.AddRect(RectF(10, 10, 50, 70));
+  Check(LPathBuilder.Snapshot, False, '(Path with single rect)');
+
+  LPathBuilder.Reset;
+  LPathBuilder.MoveTo(10, 20);
+  Check(LPathBuilder.Snapshot, False, '(Path with moveTo)');
+
+  LPathBuilder.Reset;
+  Check(LPathBuilder.Snapshot, True, '(Path after reset)');
+
+  LPathBuilder.Reset;
+  LPathBuilder.AddPolygon([PointF(0, 0), PointF(0, 80), PointF(80, 80), PointF(80, 0), PointF(40, 0), PointF(20, 0)], False);
+  Check(LPathBuilder.Snapshot, False, '(Path with rect polygon)');
+end;
+
+procedure TSkPathTests.TestIsRect;
+
+  procedure Check(APath: ISkPath; const AExpected: Boolean; const AMessage: string);
+  begin
+    Assert.AreEqual(AExpected, APath.IsRect, AMessage);
+  end;
+
+var
+  LPathBuilder: ISkPathBuilder;
+begin
+  LPathBuilder := TSkPathBuilder.Create;
+  Check(LPathBuilder.Snapshot, False, '(Empty path)');
+
+  LPathBuilder.AddRect(RectF(10, 10, 50, 70));
+  Check(LPathBuilder.Snapshot, True, '(Path with single rect)');
+
+  LPathBuilder.MoveTo(10, 20);
+  Check(LPathBuilder.Snapshot, True, '(Path with rect and moveTo)');
+
+  LPathBuilder.LineTo(10, 20);
+  Check(LPathBuilder.Snapshot, False, '(Path with rect and lineTo)');
+
+  LPathBuilder.Reset;
+  LPathBuilder.AddPolygon([PointF(0, 0), PointF(0, 80), PointF(80, 80), PointF(80, 0), PointF(40, 0), PointF(20, 0)], False);
+  Check(LPathBuilder.Snapshot, True, '(Path with rect polygon)');
 end;
 
 procedure TSkPathTests.TestIteratorFromSVGPath(const ASVGPathInputFileName,

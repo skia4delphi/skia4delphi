@@ -1,6 +1,6 @@
 ﻿<!--
- Copyright (c) 2011-2022 Google LLC.
- Copyright (c) 2021-2022 Skia4Delphi Project.
+ Copyright (c) 2011-2023 Google LLC.
+ Copyright (c) 2021-2023 Skia4Delphi Project.
 
  Use of this source code is governed by a BSD-style license that can be
  found in the LICENSE file.
@@ -137,6 +137,7 @@
                 <Platform value="Win32">True</Platform>
                 <Platform value="Win64">False</Platform>
                 <Platform value="iOSDevice64">False</Platform>
+                <Platform value="iOSSimARM64">False</Platform>
             </Platforms>
         </BorlandProject>
         <ProjectFileVersion>12</ProjectFileVersion>

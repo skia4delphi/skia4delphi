@@ -2,8 +2,8 @@
 {                                                                        }
 {                              Skia4Delphi                               }
 {                                                                        }
-{ Copyright (c) 2011-2022 Google LLC.                                    }
-{ Copyright (c) 2021-2022 Skia4Delphi Project.                           }
+{ Copyright (c) 2011-2023 Google LLC.                                    }
+{ Copyright (c) 2021-2023 Skia4Delphi Project.                           }
 {                                                                        }
 { Use of this source code is governed by a BSD-style license that can be }
 { found in the LICENSE file.                                             }
@@ -17,11 +17,17 @@ interface
 
 uses
   { Delphi }
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes,
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Types, System.Classes,
   System.Generics.Collections, System.Math, Vcl.Graphics, Vcl.Controls, Vcl.Forms,
   Vcl.Dialogs, Vcl.StdCtrls, Vcl.ComCtrls, Vcl.ExtCtrls, Vcl.Samples.Gauges,
-  Vcl.ImgList, Vcl.Imaging.pngimage, DUnitX.TestFramework, DUnitX.Extensibility,
-  DUnitX.InternalInterfaces,
+  Vcl.ImgList, Vcl.Imaging.pngimage, Vcl.Menus, DUnitX.TestFramework,
+  DUnitX.Extensibility, DUnitX.InternalInterfaces,
+  {$IFDEF DELPHI_XE8_UP}
+  System.ImageList,
+  {$ENDIF}
+
+  { Skia }
+  Skia, Skia.Vcl,
 
   { Tests }
   Skia.Tests.Foundation.Runner;
@@ -56,7 +62,6 @@ type
     lblFailTestStartTime: TLabel;
     Label11: TLabel;
     lblFailTestFinishTime: TLabel;
-    Label8: TLabel;
     memFailTestMessage: TMemo;
     memStackTrace: TMemo;
     Label10: TLabel;
@@ -67,25 +72,49 @@ type
     imgRunAllRightCorners: TImage;
     pnlTestsFooterLine: TPanel;
     lbxFailList: TListBox;
+    pbxImagePreview: TSkPaintBox;
+    tbcExtraDetails: TTabControl;
+    pnlOptions: TPanel;
+    GroupBox1: TGroupBox;
+    cbxGenerateExpectedImages: TCheckBox;
+    pmnPreview: TPopupMenu;
+    mniCopyPreviewImage: TMenuItem;
+    procedure cbxGenerateExpectedImagesClick(Sender: TObject);
     procedure FormClose(ASender: TObject; var AAction: TCloseAction);
     procedure FormCreate(ASender: TObject);
     procedure FormDestroy(ASender: TObject);
+    procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure FormShow(ASender: TObject);
-    procedure pnlRunAllClick(ASender: TObject);
-    procedure tbcContentsChange(ASender: TObject);
-    procedure trvTestTreeCreateNodeClass(ASender: TCustomTreeView; var ANodeClass: TTreeNodeClass);
     procedure lbxFailListClick(Sender: TObject);
+    procedure pbxImagePreviewDraw(ASender: TObject; const ACanvas: ISkCanvas;
+      const ADest: TRectF; const AOpacity: Single);
+    procedure pbxImagePreviewMouseDown(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);
+    procedure pbxImagePreviewMouseUp(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);
+    procedure pmnPreviewPopup(Sender: TObject);
+    procedure pnlRunAllClick(ASender: TObject);
+    procedure mniCopyPreviewImageClick(Sender: TObject);
+    procedure tbcContentsChange(ASender: TObject);
+    procedure tbcContentsResize(Sender: TObject);
+    procedure tbcExtraDetailsChange(Sender: TObject);
+    procedure trvTestTreeCreateNodeClass(ASender: TCustomTreeView; var ANodeClass: TTreeNodeClass);
   private
     { Private declarations }
     FFailedTests: TList<ITestResult>;
     FFixtureList: ITestFixtureList;
+    FImagePreview: ISkImage;
+    FImagePreviewExpected: ISkImage;
+    FImagePreviewShowExpected: Boolean;
     FLastResult: IRunResults;
     FNodes: TList<TTreeNode>;
+    FVkCtrlPressed: Boolean;
+    procedure BuildEnabledTestList;
+    procedure BuildTree(AParentNode: TTreeNode; const AFixtureList: ITestFixtureList; var ATotalTests: Integer);
     function CreateNode(AOwner: TTreeNode; ATest: ITest): TTreeNode; overload;
     function CreateNode(AOwner: TTreeNode; AText: string; ATestFullName: string): TTreeNode; overload;
     function GetNode(AFullName: string): TTreeNode;
-    procedure BuildTree(AParentNode: TTreeNode; const AFixtureList: ITestFixtureList; var ATotalTests: Integer);
-    procedure BuildEnabledTestList;
+    procedure SetVkCtrlPressed(const AValue: Boolean);
   protected
     { IAsyncTestRunnerLogger }
     procedure OnEndTest(const AThreadId: TThreadID; const ATest: ITestResult);
@@ -105,7 +134,9 @@ implementation
 uses
   { Delphi }
   Winapi.CommCtrl,
-  System.UITypes;
+  System.UITypes,
+  System.IOUtils,
+  Vcl.Clipbrd;
 
 {$R *.dfm}
 
@@ -115,16 +146,56 @@ type
   TTestNode = class(TTreeNode)
   strict private
     FFullName: string;
-    FTest: ITest;
     FResultType: TTestResultType;
+    FTest: ITest;
     procedure SetResultType(const AResultType: TTestResultType);
   public
     constructor Create(AOwner: TTreeNodes); override;
     procedure Reload;
     property FullName: string read FFullName write FFullName;
-    property Test: ITest read FTest write FTest;
     property ResultType: TTestResultTYpe read FResultType write SetResultType;
+    property Test: ITest read FTest write FTest;
   end;
+
+{$IF CompilerVersion <= 30}
+  { TRectFHelper }
+
+  TRectFHelper = record helper for TRectF
+    function PlaceInto(const ADesignatedArea: TRectF): TRectF;
+    function SnapToPixel(const AScale: Single; const APlaceBetweenPixels: Boolean = True): TRectF;
+  end;
+
+function TRectFHelper.PlaceInto(const ADesignatedArea: TRectF): TRectF;
+var
+  LLocation: TPointF;
+begin
+  Result := Self;
+  if (Self.Width > ADesignatedArea.Width) or (Self.Height > ADesignatedArea.Height) then
+    Result := Result.FitInto(ADesignatedArea);
+  LLocation.X := (ADesignatedArea.Left + ADesignatedArea.Right - Result.Width) / 2;
+  LLocation.Y := (ADesignatedArea.Top + ADesignatedArea.Bottom - Result.Height) / 2;
+  Result.SetLocation(LLocation);
+end;
+
+function TRectFHelper.SnapToPixel(const AScale: Single; const APlaceBetweenPixels: Boolean): TRectF;
+var
+  LScale, HalfPixel: Single;
+begin
+  if AScale <= 0 then
+    LScale := 1
+  else
+    LScale := AScale;
+  Result.Left := System.Trunc(Self.Left * LScale) / LScale;
+  Result.Top := System.Trunc(Self.Top * LScale) / LScale;
+  Result.Width := System.Round(Self.Width * LScale) / LScale;
+  Result.Height := System.Round(Self.Height * LScale) / LScale;
+  if APlaceBetweenPixels then
+  begin
+    HalfPixel := 1 / (2 * LScale);
+    Result.Offset(HalfPixel, HalfPixel);
+  end;
+end;
+{$ENDIF}
 
 { TfrmVclRunner }
 
@@ -168,6 +239,11 @@ begin
   end;
 end;
 
+procedure TfrmVclRunner.cbxGenerateExpectedImagesClick(Sender: TObject);
+begin
+  FAsyncTestRunner.GenerateExpectedImages := cbxGenerateExpectedImages.Checked;
+end;
+
 function TfrmVclRunner.CreateNode(AOwner: TTreeNode; ATest: ITest): TTreeNode;
 begin
   Result := trvTestTree.Items.AddChild(AOwner, ATest.Name);
@@ -206,6 +282,8 @@ begin
   lblMemoryLeaked.Caption := ' ';
   trvTestTree.HandleNeeded;
   trvTestTree.Perform(TVM_SETITEMHEIGHT, 38, 0);
+  tbcContentsResize(tbcContents);
+  tbcContentsResize(tbcExtraDetails);
 end;
 
 procedure TfrmVclRunner.FormDestroy(ASender: TObject);
@@ -213,6 +291,12 @@ begin
   FAsyncTestRunner.Wait;
   FFailedTests.Free;
   FNodes.Free;
+end;
+
+procedure TfrmVclRunner.FormKeyDown(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+  SetVkCtrlPressed(ssCtrl in Shift);
 end;
 
 procedure TfrmVclRunner.FormShow(ASender: TObject);
@@ -252,6 +336,7 @@ procedure TfrmVclRunner.lbxFailListClick(Sender: TObject);
 var
   LTestResult: ITestResult;
 begin
+  FImagePreviewShowExpected := False;
   if lbxFailList.ItemIndex = -1 then
   begin
     lblFailTestName.Caption := '';
@@ -259,6 +344,8 @@ begin
     lblFailTestFinishTime.Caption := '';
     memFailTestMessage.Text := '';
     memStackTrace.Text := '';
+    FImagePreview := nil;
+    FImagePreviewExpected := nil;
   end
   else
   begin
@@ -268,6 +355,31 @@ begin
     lblFailTestFinishTime.Caption := TimeToStr(LTestResult.FinishTime);
     memFailTestMessage.Text := LTestResult.Message;
     memStackTrace.Text := LTestResult.StackTrace;
+    FImagePreview := TSkImage.MakeFromEncodedFile(FAsyncTestRunner.GetWrongImageFileName(LTestResult));
+    FImagePreviewExpected := TSkImage.MakeFromEncodedFile(FAsyncTestRunner.GetExpectedImageFileName(LTestResult));
+    FVkCtrlPressed := False;
+
+    if memFailTestMessage.Lines.Text.Contains(' (hash: ') then
+      Clipboard.AsText := memFailTestMessage.Lines.Text.Split([' (hash: '], TStringSplitOptions.None)[1].Split(['). '], TStringSplitOptions.None)[0]
+    else
+      Clipboard.AsText := memFailTestMessage.Lines.Text;
+  end;
+  pbxImagePreview.Redraw;
+end;
+
+procedure TfrmVclRunner.mniCopyPreviewImageClick(Sender: TObject);
+var
+  LPicture: TPicture;
+begin
+  if (FImagePreview <> nil) and (lbxFailList.ItemIndex <> -1) then
+  begin
+    LPicture := TPicture.Create;
+    try
+      LPicture.LoadFromFile(FAsyncTestRunner.GetWrongImageFileName(FFailedTests[lbxFailList.ItemIndex]));
+      Clipboard.Assign(LPicture.Graphic);
+    finally
+      LPicture.Free;
+    end;
   end;
 end;
 
@@ -352,15 +464,204 @@ begin
   BuildEnabledTestList;
 end;
 
+procedure TfrmVclRunner.pbxImagePreviewDraw(ASender: TObject;
+  const ACanvas: ISkCanvas; const ADest: TRectF; const AOpacity: Single);
+const
+  DefaultStrokeThickness = 1;
+var
+  LStrokeThickness: Single;
+
+  procedure DrawChessBackground;
+  var
+    LChessPaint: ISkPaint;
+    LChessSurface: ISkSurface;
+  begin
+    LChessPaint := TSkPaint.Create;
+    LChessPaint.Color := $FFF0F0F0;
+    LChessSurface := TSkSurface.MakeRaster(16, 16);
+    LChessSurface.Canvas.Clear(TAlphaColors.White);
+    LChessSurface.Canvas.DrawRect(RectF(0, 8, 8, 16), LChessPaint);
+    LChessSurface.Canvas.DrawRect(RectF(8, 0, 16, 8), LChessPaint);
+    LChessPaint := TSkPaint.Create;
+    LChessPaint.Shader := LChessSurface.MakeImageSnapshot.MakeShader(TSkTileMode.Repeat, TSkTileMode.Repeat);
+    ACanvas.Save;
+    try
+      ACanvas.ClipRect(ADest);
+      ACanvas.DrawPaint(LChessPaint);
+    finally
+      ACanvas.Restore;
+    end;
+  end;
+
+  procedure DrawBorder(ABorderRect, AImageRect: TRectF);
+  var
+    LBorderPaint: ISkPaint;
+    LBorderPathBuilder: ISkPathBuilder;
+  begin
+    ACanvas.Save;
+    try
+      ACanvas.ClipRect(ABorderRect);
+      ACanvas.ClipRect(AImageRect, TSkClipOp.Difference);
+      ACanvas.Clear(TAlphaColors.Black);
+    finally
+      ACanvas.Restore;
+    end;
+
+    ABorderRect.Inflate(-LStrokeThickness/2, -LStrokeThickness/2);
+    LBorderPathBuilder := TSkPathBuilder.Create;
+    LBorderPathBuilder.AddRect(ABorderRect);
+    LBorderPaint := TSkPaint.Create(TSkPaintStyle.Stroke);
+    LBorderPaint.StrokeWidth := LStrokeThickness;
+    LBorderPaint.Color := TAlphaColors.Yellow;
+    LBorderPaint.PathEffect := TSkPathEffect.MakeDash([LStrokeThickness * 3, LStrokeThickness * 3], 0);
+    ACanvas.DrawPath(LBorderPathBuilder.Detach, LBorderPaint);
+  end;
+
+  procedure DrawImage(const AImage: ISkImage; const AImageRect: TRectF);
+  begin
+    ACanvas.Save;
+    try
+      ACanvas.Translate(AImageRect.Left, AImageRect.Top);
+      ACanvas.Scale(AImageRect.Width / AImage.Width, AImageRect.Height / AImage.Height);
+      ACanvas.DrawImage(AImage, 0, 0, TSkSamplingOptions.Low);
+    finally
+      ACanvas.Restore;
+    end;
+  end;
+
+  procedure DrawCenterText(const AText: string; const ADest: TRectF;
+    const AColor: TAlphaColor; const AFontSize: Single;
+    const AFontWeight: TSkFontWeight);
+  var
+    LFont: ISkFont;
+    LPaint: ISkPaint;
+    LTextBounds: TRectF;
+  begin
+    LPaint := TSkPaint.Create;
+    LPaint.Color := AColor;
+    LFont := TSkFont.Create(TSkTypeFace.MakeFromName('', TSkFontStyle.Create(AFontWeight, TSkFontWidth.Normal, TSkFontSlant.Upright)), AFontSize);
+    LFont.MeasureText(AText, LTextBounds, LPaint);
+    ACanvas.DrawSimpleText(AText, ADest.Left + ((ADest.Width - LTextBounds.Width) / 2),
+      ADest.Top - LTextBounds.Top + ((ADest.Height - LTextBounds.Height) / 2), LFont, LPaint);
+  end;
+
+  procedure DrawExpectedText;
+  const
+    TextRectWidth = 58;
+    TextRectHeight = 22;
+    TextRectMargin = 8;
+    Text = 'Expected';
+  var
+    LPaint: ISkPaint;
+    LTextRect: TRectF;
+  begin
+    LPaint := TSkPaint.Create;
+    LPaint.AntiAlias := True;
+    LPaint.AlphaF := 0.5;
+    LTextRect := RectF(ADest.Right - TextRectMargin - TextRectWidth, ADest.Top + TextRectMargin,
+      ADest.Right - TextRectMargin, ADest.Top + TextRectMargin + TextRectHeight);
+    ACanvas.DrawRoundRect(LTextRect, 6, 6, LPaint);
+    DrawCenterText(Text, LTextRect, TAlphaColors.White, 11, TSkFontWeight.SemiBold);
+  end;
+
+var
+  LBorderRect: TRectF;
+  LImage: ISkImage;
+  LImageRect: TRectF;
+  LOffset: TPointF;
+  LScale: TPointF;
+begin
+  DrawChessBackground;
+  if lbxFailList.ItemIndex = -1 then
+    Exit;
+
+  if FImagePreviewShowExpected or FVkCtrlPressed then
+    LImage := FImagePreviewExpected
+  else
+    LImage := FImagePreview;
+  if LImage = nil then
+    DrawCenterText('(Not found)', ADest, $FF3B3B3B, 11, TSkFontWeight.Medium)
+  else
+  begin
+    LScale := ACanvas.GetLocalToDeviceAs3x3.ExtractScale;
+    LStrokeThickness := Round(Max(Min(LScale.X, LScale.Y) * DefaultStrokeThickness, 1)) / Min(LScale.X, LScale.Y);
+
+    LBorderRect := ADest;
+    LBorderRect.Inflate(-LStrokeThickness, -LStrokeThickness);
+    LImageRect := RectF(0, 0, LImage.Width / LScale.X, LImage.Height / LScale.Y);
+    LImageRect := LImageRect.PlaceInto(LBorderRect).SnapToPixel(LScale.X, False);
+    LBorderRect := LImageRect;
+    LBorderRect.Inflate(LStrokeThickness, LStrokeThickness);
+
+    LOffset := PointF(Abs(Min(LBorderRect.Left, 0)), Abs(Min(LBorderRect.Top, 0)));
+    LBorderRect.Offset(LOffset);
+    LImageRect.Offset(LOffset);
+
+    DrawBorder(LBorderRect, LImageRect);
+    DrawImage(LImage, LImageRect);
+  end;
+  if FImagePreviewShowExpected or FVkCtrlPressed then
+    DrawExpectedText;
+end;
+
+procedure TfrmVclRunner.pbxImagePreviewMouseDown(Sender: TObject;
+  Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+begin
+  if Button = TMouseButton.mbLeft then
+  begin
+    FImagePreviewShowExpected := True;
+    pbxImagePreview.Redraw;
+  end;
+end;
+
+procedure TfrmVclRunner.pbxImagePreviewMouseUp(Sender: TObject;
+  Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+begin
+  if Button = TMouseButton.mbLeft then
+  begin
+    FImagePreviewShowExpected := False;
+    pbxImagePreview.Redraw;
+  end;
+end;
+
+procedure TfrmVclRunner.pmnPreviewPopup(Sender: TObject);
+begin
+  mniCopyPreviewImage.Visible := (FImagePreview <> nil) and (lbxFailList.ItemIndex <> -1);
+end;
+
 procedure TfrmVclRunner.pnlRunAllClick(ASender: TObject);
 begin
   FAsyncTestRunner.Execute;
+end;
+
+procedure TfrmVclRunner.SetVkCtrlPressed(const AValue: Boolean);
+begin
+  if FVkCtrlPressed <> AValue then
+  begin
+    FVkCtrlPressed := AValue;
+    pbxImagePreview.Redraw;
+  end;
 end;
 
 procedure TfrmVclRunner.tbcContentsChange(ASender: TObject);
 begin
   pnlTests.Visible := tbcContents.TabIndex = 0;
   pnlDetails.Visible := tbcContents.TabIndex = 1;
+end;
+
+procedure TfrmVclRunner.tbcContentsResize(Sender: TObject);
+var
+  LTabControl: TTabControl absolute Sender;
+begin
+  if Sender is TTabControl then
+    LTabControl.TabWidth := (LTabControl.Width div LTabControl.Tabs.Count) - 2;
+end;
+
+procedure TfrmVclRunner.tbcExtraDetailsChange(Sender: TObject);
+begin
+  memFailTestMessage.Visible := tbcExtraDetails.TabIndex = 0;
+  memStackTrace.Visible := tbcExtraDetails.TabIndex = 1;
+  pnlOptions.Visible := tbcExtraDetails.TabIndex = 2;
 end;
 
 procedure TfrmVclRunner.trvTestTreeCreateNodeClass(ASender: TCustomTreeView;

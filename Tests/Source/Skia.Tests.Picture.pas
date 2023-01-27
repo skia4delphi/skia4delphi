@@ -2,8 +2,8 @@
 {                                                                        }
 {                              Skia4Delphi                               }
 {                                                                        }
-{ Copyright (c) 2011-2022 Google LLC.                                    }
-{ Copyright (c) 2021-2022 Skia4Delphi Project.                           }
+{ Copyright (c) 2011-2023 Google LLC.                                    }
+{ Copyright (c) 2021-2023 Skia4Delphi Project.                           }
 {                                                                        }
 { Use of this source code is governed by a BSD-style license that can be }
 { found in the LICENSE file.                                             }
@@ -130,7 +130,7 @@ begin
   LPictureCanvas := LRecorder.BeginRecording(50, 50);
   LPaint := TSkPaint.Create;
 
-  for LColor in [TAlphaColors.Red, TAlphaColors.Blue, $ff007f00] do
+  for LColor in TArray<TAlphaColor>.Create(TAlphaColors.Red, TAlphaColors.Blue, $ff007f00) do
   begin
     LPaint.Color := LColor;
     LPictureCanvas.DrawRect(RectF(10, 10, 30, 40), LPaint);

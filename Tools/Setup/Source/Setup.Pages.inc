@@ -6,8 +6,8 @@
 {                                                                        }
 {                              Skia4Delphi                               }
 {                                                                        }
-{ Copyright (c) 2011-2022 Google LLC.                                    }
-{ Copyright (c) 2021-2022 Skia4Delphi Project.                           }
+{ Copyright (c) 2011-2023 Google LLC.                                    }
+{ Copyright (c) 2021-2023 Skia4Delphi Project.                           }
 {                                                                        }
 { Use of this source code is governed by a BSD-style license that can be }
 { found in the LICENSE file.                                             }
@@ -21,7 +21,7 @@
   #include "Source\RADStudio.inc"
 
 /// <summary> Create the RAD Studio versions choise page </summary>
-procedure CreateRADStudioVersionsChoicePage(const AAfterID: Integer; const ARADStudioInfos: TRADStudioInfos); forward;
+procedure CreateRADStudioVersionsChoicePage(const AAfterID: Integer; const ARADStudioInfos: TRADStudioInfos; const AMaxVersionOfficiallySupported: TRADStudioVersion); forward;
 /// <summary> Get selected RAD Studio versions </summary>
 function GetSelectedRADStudioVersions: TRADStudioInfos; forward;
 
@@ -40,11 +40,12 @@ var
   _FRADStudioVersionsChoicePageOptions: TRADStudioInfos;
   _FSelectedRADStudioVersions: TRADStudioInfos;
 
-procedure CreateRADStudioVersionsChoicePage(const AAfterID: Integer; const ARADStudioInfos: TRADStudioInfos);
+procedure CreateRADStudioVersionsChoicePage(const AAfterID: Integer; const ARADStudioInfos: TRADStudioInfos; const AMaxVersionOfficiallySupported: TRADStudioVersion);
 var
   I: Integer;
-  LDefaultIndex: Integer;
+  LMinIndexSelected: Integer;
   LHasRADStudioVersionsParam: Boolean;
+  LSubItem: string;
 begin
   if WizardSilent then
     _FSelectedRADStudioVersions := ARADStudioInfos
@@ -55,13 +56,14 @@ begin
     _FRADStudioVersionsChoicePage := CreateInputOptionPage(AAfterID, CustomMessage('SetupPagesRADStudioVersionsChoiceTitle'), '',
       FmtMessage(CustomMessage('SetupPagesRADStudioVersionsChoiceMessage'), ['{#LibraryName}']), False, False);
 
-    LDefaultIndex := -1;
+    LMinIndexSelected := GetArrayLength(ARADStudioInfos);
     for I := GetArrayLength(ARADStudioInfos) - 1 downto 0 do
     begin
       if ARADStudioInfos[I].Status in [riToolchainNotSupported, riNormal] then
       begin
-        LDefaultIndex := I;
-        Break;
+        LMinIndexSelected := I;
+        if CompareRADStudioVersions(ARADStudioInfos[I].Version, AMaxVersionOfficiallySupported) <= 0 then
+          Break;
       end;
     end;
 
@@ -70,8 +72,15 @@ begin
       case ARADStudioInfos[I].Status of
         riNotFound: _FRADStudioVersionsChoicePage.CheckListBox.AddCheckBox(ARADStudioInfos[I].Version.Name, '', 0, False, False, False, False, nil);
         riNeedOpenFirst: _FRADStudioVersionsChoicePage.CheckListBox.AddCheckBox(ARADStudioInfos[I].Version.Name, CustomMessage('SetupPagesRADStudioVersionsChoiceAlertNeedOpenFirst'), 0, False, False, False, False, nil);
-        riToolchainNotSupported: _FRADStudioVersionsChoicePage.CheckListBox.AddCheckBox(ARADStudioInfos[I].Version.Name, '', 0, LHasRADStudioVersionsParam or (I = LDefaultIndex), True, False, False, nil);
-        riNormal: _FRADStudioVersionsChoicePage.CheckListBox.AddCheckBox(ARADStudioInfos[I].Version.Name, '', 0, LHasRADStudioVersionsParam or (I = LDefaultIndex), True, False, False, nil);
+        riToolchainNotSupported,
+        riNormal:
+          begin
+            if CompareRADStudioVersions(ARADStudioInfos[I].Version, AMaxVersionOfficiallySupported) > 0 then
+              LSubItem := CustomMessage('SetupPagesRADStudioVersionsChoiceUnofficialSupport')
+            else
+              LSubItem := '';
+            _FRADStudioVersionsChoicePage.CheckListBox.AddCheckBox(ARADStudioInfos[I].Version.Name, LSubItem, 0, LHasRADStudioVersionsParam or (I >= LMinIndexSelected), True, False, False, nil);
+          end;
       else
       end;
     end;

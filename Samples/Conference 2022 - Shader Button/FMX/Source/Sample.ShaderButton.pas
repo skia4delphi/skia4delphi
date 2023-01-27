@@ -1,3 +1,14 @@
+{************************************************************************}
+{                                                                        }
+{                              Skia4Delphi                               }
+{                                                                        }
+{ Copyright (c) 2011-2023 Google LLC.                                    }
+{ Copyright (c) 2021-2023 Skia4Delphi Project.                           }
+{                                                                        }
+{ Use of this source code is governed by a BSD-style license that can be }
+{ found in the LICENSE file.                                             }
+{                                                                        }
+{************************************************************************}
 unit Sample.ShaderButton;
 
 interface
@@ -5,7 +16,7 @@ interface
 uses
   { Delphi }
   System.SysUtils, System.Types, System.UITypes, System.Classes, FMX.Types,
-  FMX.Graphics, FMX.Controls, FMX.Forms, FMX.Dialogs, FMX.StdCtrls,
+  FMX.Graphics, FMX.Controls, FMX.Forms, FMX.Dialogs, FMX.StdCtrls, FMX.Ani,
 
   { Skia }
   Skia, Skia.FMX;
@@ -16,12 +27,14 @@ type
   TfrmShaderButton = class(TFrame)
     apbBackground: TSkAnimatedPaintBox;
     lblText: TSkLabel;
+    fanClickAnimation: TFloatAnimation;
     procedure apbBackgroundAnimationDraw(ASender: TObject;
       const ACanvas: ISkCanvas; const ADest: TRectF; const AProgress: Double;
       const AOpacity: Single);
+    procedure fanClickAnimationProcess(Sender: TObject);
   private const
-    DefaultBorderThickness = 2;
-    DefaultCornerRadius = 18;
+    DefaultBorderThickness = 1.33333;
+    DefaultCornerRadius = 11;
     DefaultLeftColor = $FF4488FE;
     DefaultRightColor = $FFDC6BD2;
   private
@@ -41,6 +54,7 @@ type
     procedure SetText(const AValue: string);
   public
     constructor Create(AOwner: TComponent); override;
+    procedure StartTriggerAnimation(const AInstance: TFmxObject; const ATrigger: string); override;
   published
     property BorderThickness: Single read FBorderThickness write SetBorderThickness;
     property CornerRadius: Single read FCornerRadius write SetCornerRadius;
@@ -66,10 +80,10 @@ procedure TfrmShaderButton.apbBackgroundAnimationDraw(ASender: TObject;
 begin
   if Assigned(FEffect) and Assigned(FPaint) then
   begin
-    FEffect.SetUniform('iResolution', [ADest.Width, ADest.Height, 0]);
+    FEffect.SetUniform('iResolution', [ADest.Width, ADest.Height, ACanvas.GetLocalToDeviceAs3x3.ExtractScale.X]);
     FEffect.SetUniform('iTime', apbBackground.Animation.CurrentTime);
+    FPaint.AlphaF := AOpacity;
     ACanvas.DrawRect(ADest, FPaint);
-    lblText.Repaint;
   end;
 end;
 
@@ -94,6 +108,7 @@ var
   LErrorText: string;
 begin
   inherited;
+  AutoCapture := True;
   FBorderThickness := DefaultBorderThickness;
   FCornerRadius := DefaultCornerRadius;
   FLeftColor := DefaultLeftColor;
@@ -110,6 +125,11 @@ begin
   FEffect.SetUniform('iRightColor', TAlphaColorF.Create(FRightColor));
   FPaint := TSkPaint.Create;
   FPaint.Shader := FEffect.MakeShader;
+end;
+
+procedure TfrmShaderButton.fanClickAnimationProcess(Sender: TObject);
+begin
+  lblText.Opacity := 0.70 + ((apbBackground.Opacity - 0.9) / 0.1) * 0.30;
 end;
 
 function TfrmShaderButton.GetFontColor: TAlphaColor;
@@ -166,6 +186,29 @@ end;
 procedure TfrmShaderButton.SetText(const AValue: string);
 begin
   lblText.Text := AValue;
+end;
+
+procedure TfrmShaderButton.StartTriggerAnimation(const AInstance: TFmxObject;
+  const ATrigger: string);
+begin
+  if (AInstance = Self) and (ATrigger = 'Pressed') then
+  begin
+    fanClickAnimation.StopAtCurrent;
+    if Pressed then
+    begin
+      fanClickAnimation.StartValue := apbBackground.Opacity;
+      fanClickAnimation.StopValue := 0.9;
+      fanClickAnimation.Duration := 0.05;
+    end
+    else
+    begin
+      fanClickAnimation.StartValue := apbBackground.Opacity;
+      fanClickAnimation.StopValue := 1;
+      fanClickAnimation.Duration := 0.1;
+    end;
+    fanClickAnimation.Start;
+  end;
+  inherited;
 end;
 
 end.

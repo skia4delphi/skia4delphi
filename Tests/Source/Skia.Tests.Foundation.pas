@@ -2,8 +2,8 @@
 {                                                                        }
 {                              Skia4Delphi                               }
 {                                                                        }
-{ Copyright (c) 2011-2022 Google LLC.                                    }
-{ Copyright (c) 2021-2022 Skia4Delphi Project.                           }
+{ Copyright (c) 2011-2023 Google LLC.                                    }
+{ Copyright (c) 2021-2023 Skia4Delphi Project.                           }
 {                                                                        }
 { Use of this source code is governed by a BSD-style license that can be }
 { found in the LICENSE file.                                             }
@@ -21,6 +21,7 @@ uses
   System.Classes,
   System.Math,
   System.Math.Vectors,
+  System.IOUtils,
   DUnitX.TestFramework,
   DUnitX.Assert,
 
@@ -28,6 +29,8 @@ uses
   Skia;
 
 type
+  TOnImageCheckingProc = reference to procedure(const AImage: ISkImage);
+
   { TTestBase }
 
   TTestBase = class
@@ -43,12 +46,12 @@ type
     function FontProvider: ISkTypefaceFontProvider;
     function ImageAssetsPath: string;
     procedure RegisterFontFiles(const AFontProvider: ISkTypefaceFontProvider);
-    function RootAssetsPath: string;
   public
     [Setup]
     procedure Setup; virtual;
     [TearDown]
     procedure TearDown; virtual;
+    class function RootAssetsPath: string; static;
   end;
 
   { TAssertHelper }
@@ -66,10 +69,15 @@ type
     SStreamHashNotEqual = 'Stream hashes are not equal. Expected %u but got %u. %s';
     SStringHashNotEqual = 'String hashes are not equal. Expected %u but got %u. %s';
     SImagesNotSimilar = 'Images are not similar. Expected at least %g but got %g (hash: %s). %s';
-  strict private
+  strict private class var
+    FOnImageChecking: TOnImageCheckingProc;
+  private
     class function AreSameArray<T>(const ALeft, ARight: TArray<T>): Boolean; static; inline;
     class function AreSamePixels(const AExpectedEncodedImage, AActualEncodedImage: TBytes): Boolean; static;
-  strict protected
+    class procedure DoImageChecking(const AImage: ISkImage); overload; static;
+    class procedure DoImageChecking(const AImageCodec: ISkCodec); overload; static;
+    class procedure DoImageChecking(const AImagePixmap: ISkPixmap); overload; static;
+  protected
     class function GetPixmapBytes(const APixmap: ISkPixmap): TBytes; static;
   public
     class procedure AreEqualArray<T>(const AExpected, AActual: TArray<T>; const AMessage: string = '');
@@ -87,7 +95,18 @@ type
     class procedure AreSameValue(const AExpected, AActual: Double; const AEpsilon: Double = 0; const AMessage: string = ''); overload;
     class procedure AreSameValue(const AExpected, AActual: Single; const AEpsilon: Single = 0; const AMessage: string = ''); overload;
     class procedure AreSimilar(const AExpectedHash: string; const AActual: ISkImage; AMinSimilarity: Double = DefaultMinImageSimilarity; const AMessage: string = ''); overload;
+    class procedure AreSimilar(const AExpectedHash: string; const AActual: ISkPixmap; AMinSimilarity: Double = DefaultMinImageSimilarity; const AMessage: string = ''); overload;
+    class procedure AreSimilar(const AExpectedHash: string; const AActual: ISkCodec; AMinSimilarity: Double = DefaultMinImageSimilarity; const AMessage: string = ''); overload;
     class procedure AreSimilar(const AExpected, AActual: ISkImage; AMinSimilarity: Double = DefaultMinImageSimilarity; const AMessage: string = ''); overload;
+    class property OnImageChecking: TOnImageCheckingProc read FOnImageChecking write FOnImageChecking;
+  end;
+
+  { TSkPathHelper }
+
+  TSkPathHelper = record helper for TPath
+  public
+    class function GetNewTempPath: string; static;
+    class function GetNewTempFileName(AExtension: string = ''): string; static;
   end;
 
   {$IF CompilerVersion < 29}
@@ -100,6 +119,14 @@ type
     class constructor Create;
   public
     class property Invariant: TFormatSettings read FInvariant;
+  end;
+  {$ENDIF}
+
+  {$IF CompilerVersion < 29}
+  { TSkMatrixHelper }
+
+  TSkMatrixHelper = record helper for TMatrix
+    function EqualsTo(const AMatrix: TMatrix; const Epsilon: Single = TEpsilon.Matrix): Boolean;
   end;
   {$ENDIF}
 
@@ -131,7 +158,6 @@ implementation
 
 uses
   { Delphi }
-  System.IOUtils,
   System.ZLib,
   System.Types,
   System.UITypes,
@@ -289,7 +315,7 @@ begin
   DoRegisterFiles(AFontProvider, TDirectory.GetFiles(FontAssetsPath, '*.pfb'));
 end;
 
-function TTestBase.RootAssetsPath: string;
+class function TTestBase.RootAssetsPath: string;
 begin
   {$IFDEF MSWINDOWS}
   Result := TPath.GetFullPath('..\..\..\Assets\');
@@ -305,13 +331,16 @@ begin
 end;
 
 procedure TTestBase.Setup;
+var
+  LAssetsPath: string;
 begin
   {$IFDEF SET_EXCEPTION_MASK}
   SetExceptionMask(exAllArithmeticExceptions);
   {$ENDIF}
-  if not TDirectory.Exists(AssetsPath) then
+  LAssetsPath := AssetsPath;
+  if (not LAssetsPath.IsEmpty) and not TDirectory.Exists(LAssetsPath) then
   begin
-    TDirectory.CreateDirectory(AssetsPath);
+    TDirectory.CreateDirectory(LAssetsPath);
     FAssetsPathCreated := True;
   end;
 end;
@@ -382,6 +411,7 @@ var
   LData: TBytes;
 begin
   Assert.IsNotNull(AActual, 'Invalid SkImage (nil)');
+  DoImageChecking(AActual);
   LActualPixmapBytes := nil;
   SetLength(LData, 4 * AActual.Width * AActual.Height);
   if Length(LData) > 0 then
@@ -401,6 +431,7 @@ var
   LData: TBytes;
 begin
   Assert.IsNotNull(AActual, 'Invalid SkCodec (nil)');
+  DoImageChecking(AActual);
   LActualPixmapBytes := nil;
   SetLength(LData, 4 * AActual.Width * AActual.Height);
   if Length(LData) > 0 then
@@ -416,6 +447,7 @@ class procedure TAssertHelper.AreEqualCRC32(const AExpected: Cardinal;
   const AActual: ISkPixmap; const AMessage: string);
 begin
   Assert.IsNotNull(AActual, 'Invalid SkPixmap (nil)');
+  DoImageChecking(AActual);
   AreEqualCRC32(AExpected, GetPixmapBytes(AActual), AMessage);
 end;
 
@@ -506,6 +538,40 @@ begin
 end;
 
 class procedure TAssertHelper.AreSimilar(const AExpectedHash: string;
+  const AActual: ISkPixmap; AMinSimilarity: Double; const AMessage: string);
+var
+  LActualHash: string;
+  LActualImage: ISkImage;
+  LSimilarity: Double;
+begin
+  Assert.IsNotNull(AActual, 'Invalid SkPixmap (nil)');
+  DoAssert;
+  LActualImage := TSkImage.MakeRasterCopy(AActual);
+  DoImageChecking(LActualImage);
+  LActualHash := TImageHashing.Hash(LActualImage);
+  LSimilarity := TImageHashing.Similarity(AExpectedHash, LActualHash);
+  if CompareValue(LSimilarity, AMinSimilarity, TEpsilon.Vector) = LessThanValue then
+    FailFmt(SImagesNotSimilar, [AMinSimilarity, LSimilarity, LActualHash, AMessage], ReturnAddress);
+end;
+
+class procedure TAssertHelper.AreSimilar(const AExpectedHash: string;
+  const AActual: ISkCodec; AMinSimilarity: Double; const AMessage: string);
+var
+  LActualHash: string;
+  LActualImage: ISkImage;
+  LSimilarity: Double;
+begin
+  Assert.IsNotNull(AActual, 'Invalid SkCodec (nil)');
+  DoAssert;
+  LActualImage := AActual.GetImage(TSkColorType.BGRA8888, TSkAlphaType.Premul, TSkColorSpace.MakeSRGB);
+  DoImageChecking(LActualImage);
+  LActualHash := TImageHashing.Hash(LActualImage);
+  LSimilarity := TImageHashing.Similarity(AExpectedHash, LActualHash);
+  if CompareValue(LSimilarity, AMinSimilarity, TEpsilon.Vector) = LessThanValue then
+    FailFmt(SImagesNotSimilar, [AMinSimilarity, LSimilarity, LActualHash, AMessage], ReturnAddress);
+end;
+
+class procedure TAssertHelper.AreSimilar(const AExpectedHash: string;
   const AActual: ISkImage; AMinSimilarity: Double; const AMessage: string);
 var
   LActualHash: string;
@@ -513,6 +579,7 @@ var
 begin
   Assert.IsNotNull(AActual, 'Invalid SkImage (nil)');
   DoAssert;
+  DoImageChecking(AActual);
   LActualHash := TImageHashing.Hash(AActual);
   LSimilarity := TImageHashing.Similarity(AExpectedHash, LActualHash);
   if CompareValue(LSimilarity, AMinSimilarity, TEpsilon.Vector) = LessThanValue then
@@ -526,6 +593,7 @@ var
   LSimilarity: Double;
 begin
   DoAssert;
+  DoImageChecking(AActual);
   if AExpected <> AActual then
   begin
     Assert.IsNotNull(AExpected, 'Invalid SkImage (nil)');
@@ -535,6 +603,24 @@ begin
     if CompareValue(LSimilarity, AMinSimilarity, TEpsilon.Vector) = LessThanValue then
       FailFmt(SImagesNotSimilar, [AMinSimilarity, LSimilarity, LActualHash, AMessage], ReturnAddress);
   end;
+end;
+
+class procedure TAssertHelper.DoImageChecking(const AImage: ISkImage);
+begin
+  if Assigned(AImage) and Assigned(FOnImageChecking) then
+    FOnImageChecking(AImage);
+end;
+
+class procedure TAssertHelper.DoImageChecking(const AImageCodec: ISkCodec);
+begin
+  if Assigned(AImageCodec) and Assigned(FOnImageChecking) then
+    DoImageChecking(AImageCodec.GetImage(TSkColorType.BGRA8888));
+end;
+
+class procedure TAssertHelper.DoImageChecking(const AImagePixmap: ISkPixmap);
+begin
+  if Assigned(AImagePixmap) and Assigned(FOnImageChecking) then
+    DoImageChecking(TSkImage.MakeFromRaster(AImagePixmap));
 end;
 
 class function TAssertHelper.GetPixmapBytes(const APixmap: ISkPixmap): TBytes;
@@ -569,12 +655,44 @@ begin
   end;
 end;
 
+{ TSkPathHelper }
+
+class function TSkPathHelper.GetNewTempFileName(AExtension: string): string;
+begin
+  if (AExtension = '') or (AExtension = '.') then
+    AExtension := '.tmp'
+  else if not AExtension.StartsWith('.') then
+    AExtension := '.' + AExtension;
+  repeat
+    Result := TPath.Combine(TPath.GetTempPath, TPath.GetGUIDFileName(False) + AExtension);
+  until not TFile.Exists(Result);
+end;
+
+class function TSkPathHelper.GetNewTempPath: string;
+begin
+  Result := TPath.Combine(TPath.GetTempPath, TPath.GetGUIDFileName(False) + TPath.DirectorySeparatorChar);
+  TDirectory.CreateDirectory(Result);
+end;
+
 {$IF CompilerVersion < 29}
 { TSkFormatSettingsHelper }
 
 class constructor TSkFormatSettingsHelper.Create;
 begin
   FInvariant := TFormatSettings.Create('en-US');
+end;
+{$ENDIF}
+
+{$IF CompilerVersion < 29}
+{ TSkMatrixHelper }
+
+function TSkMatrixHelper.EqualsTo(const AMatrix: TMatrix; const Epsilon: Single = TEpsilon.Matrix): Boolean;
+begin
+  Result := SameValue(Self.m11, AMatrix.m11, Epsilon) and SameValue(Self.m12, AMatrix.m12, Epsilon) and
+    SameValue(Self.m13, AMatrix.m13, Epsilon) and SameValue(Self.m21, AMatrix.m21, Epsilon) and
+    SameValue(Self.m22, AMatrix.m22, Epsilon) and SameValue(Self.m23, AMatrix.m23, Epsilon) and
+    SameValue(Self.m31, AMatrix.m31, Epsilon) and SameValue(Self.m32, AMatrix.m32, Epsilon) and
+    SameValue(Self.m33, AMatrix.m33, Epsilon);
 end;
 {$ENDIF}
 

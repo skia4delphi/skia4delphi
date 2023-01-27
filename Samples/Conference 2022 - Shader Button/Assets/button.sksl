@@ -1,12 +1,12 @@
-// Animated one-button shader, with gradient animation and light effect. This
-// shader was made from scratch based on one of the Telegram buttons, for
+// Animated button shader, with gradient animation and light effect. This shader
+// was made from zero based on "premium button" of the Telegram app, for
 // Embarcadero Brazil Conference 2022.
 // Author: Skia4Delphi team
 
 uniform float iBorderThickness;  // Border thickness (in pixels)
 uniform float iCornerRadius;     // Corner radius (in pixels)
 uniform vec4 iLeftColor;         //
-uniform vec3 iResolution;        // Viewport resolution (in pixels)
+uniform vec3 iResolution;        // Viewport resolution (x and y in pixels, and z the screen scale)
 uniform vec4 iRightColor;        //
 uniform float iTime;             // Animation time in seconds
 
@@ -23,14 +23,15 @@ float getRoundRectAlpha(vec2 fragCoord, vec3 iResolution)
       return 0;
     vec2 uv = fragCoord.xy / iResolution.xy;
     vec2 uv_base_center = uv*2.0-1.0;
+    float cornerRadius = iCornerRadius / iResolution.z;
     
     vec2 half_resolution=iResolution.xy*0.5;
-    vec2 abs_rounded_center=half_resolution.xy-iCornerRadius;
+    vec2 abs_rounded_center=half_resolution.xy-cornerRadius;
     vec2 abs_pixel_coord=vec2(abs(uv_base_center.x*half_resolution.x),abs(uv_base_center.y*half_resolution.y));
 
     if (abs_pixel_coord.x > abs_rounded_center.x && abs_pixel_coord.y > abs_rounded_center.y) {
          float r = length(abs_pixel_coord - abs_rounded_center);
-         return smoothstep(iCornerRadius + AntiAliasingIntensity * 0.4, iCornerRadius - AntiAliasingIntensity * 0.6, r);
+         return smoothstep(cornerRadius + AntiAliasingIntensity * 0.4, cornerRadius - AntiAliasingIntensity * 0.6, r);
     }
     return 1.0;
 }
@@ -40,11 +41,12 @@ vec4 main(in vec2 fragCoord)
     // Calculate the color of the gradient effect (it changes the position during the animation)
     vec4 fragColor = mix(iLeftColor, iRightColor, (fragCoord.x + ((1 - abs(3 - iTime) / 3) * iResolution.x)) / (2 * iResolution.x));
     float alpha = getRoundRectAlpha(fragCoord, iResolution);
+    float borderThickness = iBorderThickness / iResolution.z;
 
     // Calculate the light center x to make the light effect
     float lightX = (iResolution.x/2) + ((mod(iTime, 3) - 1.5) / 1.5) * 4 * iResolution.x;
     // Increase the light in border
-    float lightIntensity = 0.75 - 0.35 * getRoundRectAlpha(fragCoord - vec2(iBorderThickness), vec3(iResolution.xy - vec2(2 * iBorderThickness), iResolution.z));
+    float lightIntensity = 0.75 - 0.35 * getRoundRectAlpha(fragCoord - vec2(borderThickness), vec3(iResolution.xy - vec2(2 * borderThickness), iResolution.z));
     // Apply the white of the light
     fragColor = mix(fragColor, vec4(1, 1, 1, 1), smoothstep(0., 1., (1 - min(abs(fragCoord.x - lightX) / lightRadius, 1))) * lightIntensity);
 

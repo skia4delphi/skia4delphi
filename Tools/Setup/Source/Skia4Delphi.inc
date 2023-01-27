@@ -6,8 +6,8 @@
 {                                                                        }
 {                              Skia4Delphi                               }
 {                                                                        }
-{ Copyright (c) 2011-2022 Google LLC.                                    }
-{ Copyright (c) 2021-2022 Skia4Delphi Project.                           }
+{ Copyright (c) 2011-2023 Google LLC.                                    }
+{ Copyright (c) 2021-2023 Skia4Delphi Project.                           }
 {                                                                        }
 { Use of this source code is governed by a BSD-style license that can be }
 { found in the LICENSE file.                                             }
@@ -30,8 +30,10 @@ const
   LibraryDirVariable = 'SKIADIR';
   LibraryDirDefine = '$(' + LibraryDirVariable + ')';
   LibraryWin32BinaryDir = 'Binary\Shared\Win32';
-  LibraryiOSDevice64BinaryDir = 'Binary\Static\iOSDevice64';
+  LibraryStaticBinaryDir = 'Binary\Static';
 
+/// <summary> Get platforms where the library is static </summary>
+function _GetLibraryStaticPlatforms: TProjectPlatforms; forward;
 /// <summary> Get the custom param on build </summary>
 function _OnGetBuildCustonParam(): string; forward;
 /// <summary> Try to extract pre-build objects binaries when the command line compilation has failed </summary>
@@ -52,6 +54,11 @@ procedure _UnregisterOldBpl(const AProjectItem: TRADStudioGroupProjectItem; cons
 var
   _FRADStudioInstalledList: TArrayOfString;
   _FRADStudioUninstalledList: TArrayOfString;
+
+function _GetLibraryStaticPlatforms: TProjectPlatforms;
+begin
+  Result := [pfiOSDevice64, pfiOSSimARM64];
+end;
 
 function _OnGetBuildCustonParam(): string;
 begin
@@ -119,6 +126,7 @@ function _OnTryPrepareProjectInstallation(var AProjectItem: TRADStudioGroupProje
 var
   I: Integer;
   LAppPath: string;
+  LPlatform: TProjectPlatform;
 begin
   Log(Format('Skia4Delphi._OnTryPrepareProjectInstallation: Preparing package "%s" before install...', [AProjectItem.Project.FileName]));
   if not ContainsString(_FRADStudioInstalledList, AInfo.Version.RegVersion, False) then
@@ -135,7 +143,11 @@ begin
   Result := TryAddRADStudioEnvVariable(AInfo.Version, LibraryDirVariable, ExpandConstant('{app}')) and
     TryAddRADStudioPathEnvVariable(AInfo.Version, CombinePath(LAppPath, LibraryWin32BinaryDir));
   if Result then
-    TryAddRADStudioLibrarySearchPath(AInfo.Version, pfiOSDevice64, CombinePath(LibraryDirDefine, LibraryiOSDevice64BinaryDir))
+  begin
+    for LPlatform := LowProjectPlatform to HighProjectPlatform do
+      if (LPlatform in _GetLibraryStaticPlatforms) and (LPlatform in AInfo.Version.SupportedPlatforms) then
+        TryAddRADStudioLibrarySearchPath(AInfo.Version, LPlatform, CombinePath(CombinePath(LibraryDirDefine, LibraryStaticBinaryDir), GetProjectPlatformName(LPlatform)));
+  end
   else
     Log(Format('Skia4Delphi._OnTryPrepareProjectInstallation: Failed to prepare the project "%s"', [AProjectItem.Project.FileName]));
 end;
@@ -144,6 +156,7 @@ function _OnTryPrepareProjectUninstallation(var AProjectItem: TRADStudioGroupPro
 var
   I: Integer;
   LAppPath: string;
+  LPlatform: TProjectPlatform;
 begin
   Log(Format('Skia4Delphi._OnTryPrepareProjectUninstallation: Preparing package "%s" to uninstall...', [AProjectItem.Project.FileName]));
   if not ContainsString(_FRADStudioUninstalledList, AInfo.Version.RegVersion, False) then
@@ -157,7 +170,9 @@ begin
   StringChangeEx(AProjectItem.Project.DCUOutputPath, LAppPath, LibraryDirDefine, True);
   Result := TryRemoveRADStudioEnvVariable(AInfo.Version, LibraryDirVariable);
   Result := TryRemoveRADStudioPathEnvVariable(AInfo.Version, CombinePath(LAppPath, LibraryWin32BinaryDir)) and Result;
-  Result := TryRemoveRADStudioLibrarySearchPath(AInfo.Version, pfiOSDevice64, CombinePath(LibraryDirDefine, LibraryiOSDevice64BinaryDir)) and Result;
+  for LPlatform := LowProjectPlatform to HighProjectPlatform do
+    if (LPlatform in _GetLibraryStaticPlatforms) and (LPlatform in AInfo.Version.SupportedPlatforms) then
+      TryRemoveRADStudioLibrarySearchPath(AInfo.Version, LPlatform, CombinePath(CombinePath(LibraryDirDefine, LibraryStaticBinaryDir), GetProjectPlatformName(LPlatform)));
   _RemoveOldLibrarySearchPath(AProjectItem, AInfo);
   _UnregisterOldBpl(AProjectItem, AInfo);
   if not Result then

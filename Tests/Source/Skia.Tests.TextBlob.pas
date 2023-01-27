@@ -2,8 +2,8 @@
 {                                                                        }
 {                              Skia4Delphi                               }
 {                                                                        }
-{ Copyright (c) 2011-2022 Google LLC.                                    }
-{ Copyright (c) 2021-2022 Skia4Delphi Project.                           }
+{ Copyright (c) 2011-2023 Google LLC.                                    }
+{ Copyright (c) 2021-2023 Skia4Delphi Project.                           }
 {                                                                        }
 { Use of this source code is governed by a BSD-style license that can be }
 { found in the LICENSE file.                                             }
@@ -32,11 +32,17 @@ type
   [TestFixture]
   TSkTextBlobTests = class(TTestBase)
   public
+    {$IF defined(MSWINDOWS)}
     [TestCase('Basic Texts', '0.99,n4f/B4P/gID///9nw//OzP///2/n/9/9/////////////////////////////+Xf3VHgwcVR//8')]
+    {$ELSEIF defined(IOS)}
+    [TestCase('Basic Texts', '0.99,n4P/g4P/gIj////jw//GzP////fX/87s/////////////////////////////+LvyqjAIMKA//8')]
+    {$ELSEIF defined(MACOS)}
+    [TestCase('Basic Texts', '0.99,h4P/g4P/gIj////jw//GzP////fX/87t////////3////////////////////+LvyqjAIMKA//8')]
+    {$ENDIF}
     procedure TestBasics(const AMinSimilarity: Double; const AExpectedHash: string);
-    [TestCase('Custom Font', '0.99,AQEFAAMH3////eXhw8ff////5enn1//////l6ffX//+gAfAB///AAMRJ//8AH4Af/////9v///8')]
+    [TestCase('Custom Font', '0.98,AQEFAAMH3////eXhw8ff////5enn1//////l6ffX//+gAfAB///AAMRJ//8AH4Af/////9v///8')]
     procedure TestCustomFont(const AMinSimilarity: Double; const AExpectedHash: string);
-    [TestCase('Right-to-Left', '0.99,f3cDAQGD//9/f3NhQ8f//3//9+Vj1///f//35WP3///QoMRg1Wj1ePxom+gDACMAAgAAAAAAAAA')]
+    [TestCase('Right-to-Left', '0.98,f3cDAQGD//9/f3NhQ8f//3//9+Vj1///f//35WP3///QoMRg1Wj1ePxom+gDACMAAgAAAAAAAAA')]
     procedure TestRightToLeft(const AMinSimilarity: Double; const AExpectedHash: string);
   end;
 

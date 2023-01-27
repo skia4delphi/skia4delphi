@@ -2,8 +2,8 @@
 {                                                                        }
 {                              Skia4Delphi                               }
 {                                                                        }
-{ Copyright (c) 2011-2022 Google LLC.                                    }
-{ Copyright (c) 2021-2022 Skia4Delphi Project.                           }
+{ Copyright (c) 2011-2023 Google LLC.                                    }
+{ Copyright (c) 2021-2023 Skia4Delphi Project.                           }
 {                                                                        }
 { Use of this source code is governed by a BSD-style license that can be }
 { found in the LICENSE file.                                             }
@@ -360,6 +360,9 @@ type
   strict private
     function FitSize(const AWidth, AHeight: Integer; const AFitWidth, AFitHeight: Single): TSize; inline;
     class constructor Create;
+    // Firemonkey's Canvas needs the Codec to use a specific pixel format for
+    // each platform and backend.
+    class function ColorType: TSkColorType; inline;
     class procedure RegisterIfNotExists(const AFileExtension, ADescription: string; const ACanSave: Boolean); inline;
   public
     function LoadFromFile(const AFileName: string; const ABitmapSurface: TBitmapSurface; const AMaxSizeLimit: Cardinal = 0): Boolean; override;
@@ -797,8 +800,7 @@ begin
   {$ELSEIF DEFINED(MACOS)}
   Result := TPixelFormat.BGRA;
   {$ELSEIF (CompilerVersion < 34) and DEFINED(ANDROID)}
-  // This is an old problem already fixed in recent versions, where the pixel
-  // format is not converted in the Surface to Bitmap assignment.
+  // This is an old issue already fixed in recent versions.
   Result := TPixelFormat.BGRA;
   {$ELSE}
   Result := TPixelFormat.RGBA;
@@ -860,12 +862,12 @@ end;
 
 procedure TSkCanvasCustom.TSaveState.AssignTo(ADest: TPersistent);
 begin
-  inherited;
   if ADest is TSkCanvasCustom then
   begin
     TSkCanvasCustom(ADest).BeforeRestore;
     TSkCanvasCustom(ADest).Canvas.Restore;
   end;
+  inherited;
 end;
 
 { TSkBitmapHandle }
@@ -1164,6 +1166,25 @@ begin
   end;
 end;
 
+type
+  { TSkTextAttributedRange }
+{$IF CompilerVersion >= 32}
+  TSkTextAttributedRange = TTextAttributedRange;
+{$ELSE}
+  TSkTextAttributedRange = class(TTextAttributedRange)
+  public
+    destructor Destroy; override;
+  end;
+
+{ TSkTextAttributedRange }
+
+destructor TSkTextAttributedRange.Destroy;
+begin
+  Attribute.Font := nil;
+  inherited;
+end;
+{$ENDIF}
+
 { TSkTextLayout.TGraphemesMap }
 
 function TSkTextLayout.TGraphemesMap.CreateGraphemesMapping(
@@ -1365,9 +1386,8 @@ begin
           LTextLayout.RightToLeft     := RightToLeft;
           LTextLayout.MaxSize         := MaxSize;
           LTextLayout.TopLeft         := TopLeft;
-          LTextLayout.ClearAttributes;
           for I := 0 to AttributesCount - 1 do
-            LTextLayout.AddAttribute(Attributes[I]);
+            LTextLayout.AddAttribute(TTextAttributedRange.Create(Attributes[I].Range, Attributes[I].Attribute));
         finally
           LTextLayout.EndUpdate;
         end;
@@ -1741,7 +1761,7 @@ const
     try
       for I := 0 to AttributesCount - 1 do
       begin
-        LAttribute := TTextAttributedRange.Create(TTextRange.Create(Attributes[I].Range.Pos - ASubTextPosition, Attributes[I].Range.Length), Attributes[I].Attribute);
+        LAttribute := TSkTextAttributedRange.Create(TTextRange.Create(Attributes[I].Range.Pos - ASubTextPosition, Attributes[I].Range.Length), Attributes[I].Attribute);
         if LAttribute.Range.Pos < 0 then
           LAttribute.Range := TTextRange.Create(0, LAttribute.Range.Pos + LAttribute.Range.Length);
         if (LAttribute.Range.Pos + LAttribute.Range.Length) > ASubText.Length then
@@ -1755,12 +1775,18 @@ const
         begin
           if (LAttributes[LIndex].Range.Pos < LAttribute.Range.Pos) and ((LAttributes[LIndex].Range.Pos + LAttributes[LIndex].Range.Length) > (LAttribute.Range.Pos + LAttribute.Range.Length)) then
           begin
-            LNeighborAttribute := TTextAttributedRange.Create(TTextRange.Create(LAttribute.Range.Pos + LAttribute.Range.Length, LAttributes[LIndex].Range.Pos + LAttributes[LIndex].Range.Length - (LAttribute.Range.Pos + LAttribute.Range.Length)), LAttributes[LIndex].Attribute);
+            LNeighborAttribute := TSkTextAttributedRange.Create(TTextRange.Create(LAttribute.Range.Pos + LAttribute.Range.Length, LAttributes[LIndex].Range.Pos + LAttributes[LIndex].Range.Length - (LAttribute.Range.Pos + LAttribute.Range.Length)), LAttributes[LIndex].Attribute);
             LAttributes.Insert(LIndex + 1, LNeighborAttribute);
             LAttributes.Insert(LIndex + 1, LAttribute);
             LNeighborAttribute := LAttributes[LIndex];
             LNeighborAttribute.Range.Length := LAttribute.Range.Pos - LNeighborAttribute.Range.Pos;
             Continue;
+          end;
+          while (LIndex < LAttributes.Count) and
+            ((LAttributes[LIndex].Range.Pos < LAttribute.Range.Pos) or
+            ((LAttributes[LIndex].Range.Pos = LAttribute.Range.Pos) and (LAttributes[LIndex].Range.Length < LAttribute.Range.Length))) do
+          begin
+            Inc(LIndex);
           end;
         end;
         LAttributes.Insert(LIndex, LAttribute);
@@ -1879,7 +1905,11 @@ const
         LMinFontSize := Min(LMinFontSize, LAttribute.Attribute.Font.Size);
       if LMinFontSize > 0.1 then
       begin
-        AMaxLines := Ceil(MaxSize.Y / LMinFontSize);
+        // Avoid invalid float point operation
+        if MaxSize.Y > High(Integer) then
+          AMaxLines := High(Integer)
+        else
+          AMaxLines := Ceil(MaxSize.Y / LMinFontSize);
         if AMaxLines > 0 then
           Result.MaxLines := AMaxLines;
       end;
@@ -1933,6 +1963,22 @@ const
     Result := LBuilder.Build;
   end;
 
+  procedure ParagraphLayout(const AParagraph: ISkParagraph; AMaxWidth: Single);
+  var
+    LMetrics: TSkMetrics;
+  begin
+    AMaxWidth := Max(AMaxWidth, 0);
+    if not SameValue(AMaxWidth, 0, TEpsilon.Position) then
+    begin
+      // Try to add extra value to avoid trimming when put the same value (or near) to the MaxIntrinsicWidth
+      AParagraph.Layout(AMaxWidth + 1);
+      for LMetrics in AParagraph.LineMetrics do
+        if InRange(AMaxWidth, LMetrics.Width - TEpsilon.Position, LMetrics.Width + 1) then
+          Exit;
+    end;
+    AParagraph.Layout(AMaxWidth);
+  end;
+
   procedure DoUpdateParagraph(var AParagraph: TParagraph;
     const ASubText: string; const AMaxLines: Integer);
   {$IF CompilerVersion < 29}
@@ -1944,9 +1990,9 @@ const
   begin
     AParagraph.Paragraph := CreateParagraph(AMaxLines, ASubText, AParagraph.Range.Pos);
     if NeedHorizontalAlignment then
-      AParagraph.Paragraph.Layout(MaxLayoutSize.X)
+      ParagraphLayout(AParagraph.Paragraph, MaxLayoutSize.X)
     else
-      AParagraph.Paragraph.Layout(MaxSize.X - Padding.Left - Padding.Right);
+      ParagraphLayout(AParagraph.Paragraph, MaxSize.X - Padding.Left - Padding.Right);
     if WordWrap and (AParagraph.Paragraph.Height > MaxSize.Y - Padding.Top - Padding.Bottom) then
     begin
       for LMetrics in AParagraph.Paragraph.LineMetrics do
@@ -1954,7 +2000,7 @@ const
         if (LMetrics.LineNumber <> 0) and (LMetrics.Baseline + LMetrics.Descent > MaxSize.Y - Padding.Top - Padding.Bottom) then
         begin
           AParagraph.Paragraph := CreateParagraph(LMetrics.LineNumber, ASubText, AParagraph.Range.Pos);
-          AParagraph.Paragraph.Layout(MaxSize.X - Padding.Left - Padding.Right);
+          ParagraphLayout(AParagraph.Paragraph, MaxSize.X - Padding.Left - Padding.Right);
           Break;
         end;
       end;
@@ -2027,6 +2073,22 @@ begin
 end;
 
 { TSkBitmapHandleCodec }
+
+class function TSkBitmapHandleCodec.ColorType: TSkColorType;
+begin
+  {$IF DEFINED(MSWINDOWS)}
+  Result := TSkColorType.BGRA8888;
+  {$ELSEIF DEFINED(IOS)}
+  if GlobalUseMetal then
+    Result := TSkColorType.BGRA8888
+  else
+    Result := TSkColorType.RGBA8888;
+  {$ELSEIF DEFINED(MACOS)}
+  Result := TSkColorType.BGRA8888;
+  {$ELSEIF DEFINED(ANDROID)}
+  Result := TSkColorType.RGBA8888;
+  {$ENDIF}
+end;
 
 class constructor TSkBitmapHandleCodec.Create;
 begin
@@ -2109,17 +2171,17 @@ begin
   LCodec := TSkCodec.MakeFromFile(AFileName);
   if not Assigned(LCodec) then
     Exit(False);
-  if AMaxSizeLimit > 0 then
+  if (AMaxSizeLimit > 0) and ((Cardinal(LCodec.Width) > AMaxSizeLimit) or (Cardinal(LCodec.Height) > AMaxSizeLimit)) then
   begin
     LSize := FitSize(LCodec.Width, LCodec.Height, AMaxSizeLimit, AMaxSizeLimit);
-    ABitmapSurface.SetSize(LSize.Width, LSize.Height, SkFmxPixelFormat[SkNative32ColorType]);
-    LImage := LCodec.GetImage(SkNative32ColorType);
-    Result := (Assigned(LImage)) and (LImage.ScalePixels(TSkImageInfo.Create(ABitmapSurface.Width, ABitmapSurface.Height), ABitmapSurface.Bits, ABitmapSurface.Pitch, TSkImageCachingHint.Disallow));
+    ABitmapSurface.SetSize(LSize.Width, LSize.Height, SkFmxPixelFormat[ColorType]);
+    LImage := LCodec.GetImage(ColorType);
+    Result := (Assigned(LImage)) and (LImage.ScalePixels(TSkImageInfo.Create(ABitmapSurface.Width, ABitmapSurface.Height, ColorType), ABitmapSurface.Bits, ABitmapSurface.Pitch, TSkImageCachingHint.Disallow));
   end
   else
   begin
-    ABitmapSurface.SetSize(LCodec.Width, LCodec.Height, SkFmxPixelFormat[SkNative32ColorType]);
-    Result := LCodec.GetPixels(ABitmapSurface.Bits, ABitmapSurface.Pitch, SkNative32ColorType);
+    ABitmapSurface.SetSize(LCodec.Width, LCodec.Height, SkFmxPixelFormat[ColorType]);
+    Result := LCodec.GetPixels(ABitmapSurface.Bits, ABitmapSurface.Pitch, ColorType);
   end;
 end;
 
@@ -2135,17 +2197,17 @@ function TSkBitmapHandleCodec.LoadFromStream(const AStream: TStream;
     LCodec := TSkCodec.MakeWithoutCopy(AMemoryStream.Memory, AMemoryStream.Size);
     if not Assigned(LCodec) then
       Exit(False);
-    if AMaxSizeLimit > 0 then
+    if (AMaxSizeLimit > 0) and ((Cardinal(LCodec.Width) > AMaxSizeLimit) or (Cardinal(LCodec.Height) > AMaxSizeLimit)) then
     begin
       LSize := FitSize(LCodec.Width, LCodec.Height, AMaxSizeLimit, AMaxSizeLimit);
-      ABitmapSurface.SetSize(LSize.Width, LSize.Height, SkFmxPixelFormat[SkNative32ColorType]);
-      LImage := LCodec.GetImage(SkNative32ColorType);
-      Result := (Assigned(LImage)) and (LImage.ScalePixels(TSkImageInfo.Create(ABitmapSurface.Width, ABitmapSurface.Height), ABitmapSurface.Bits, ABitmapSurface.Pitch, TSkImageCachingHint.Disallow));
+      ABitmapSurface.SetSize(LSize.Width, LSize.Height, SkFmxPixelFormat[ColorType]);
+      LImage := LCodec.GetImage(ColorType);
+      Result := (Assigned(LImage)) and (LImage.ScalePixels(TSkImageInfo.Create(ABitmapSurface.Width, ABitmapSurface.Height, ColorType), ABitmapSurface.Bits, ABitmapSurface.Pitch, TSkImageCachingHint.Disallow));
     end
     else
     begin
-      ABitmapSurface.SetSize(LCodec.Width, LCodec.Height, SkFmxPixelFormat[SkNative32ColorType]);
-      Result := LCodec.GetPixels(ABitmapSurface.Bits, ABitmapSurface.Pitch, SkNative32ColorType);
+      ABitmapSurface.SetSize(LCodec.Width, LCodec.Height, SkFmxPixelFormat[ColorType]);
+      Result := LCodec.GetPixels(ABitmapSurface.Bits, ABitmapSurface.Pitch, ColorType);
     end;
   end;
 
@@ -2178,9 +2240,9 @@ begin
   if not Assigned(LCodec) then
     Exit(False);
   LSize := FitSize(LCodec.Width, LCodec.Height, AFitWidth, AFitHeight);
-  ABitmapSurface.SetSize(LSize.Width, LSize.Height, SkFmxPixelFormat[SkNative32ColorType]);
-  LImage := LCodec.GetImage(SkNative32ColorType);
-  Result := (Assigned(LImage)) and (LImage.ScalePixels(TSkImageInfo.Create(ABitmapSurface.Width, ABitmapSurface.Height), ABitmapSurface.Bits, ABitmapSurface.Pitch, TSkImageCachingHint.Disallow));
+  ABitmapSurface.SetSize(LSize.Width, LSize.Height, SkFmxPixelFormat[ColorType]);
+  LImage := LCodec.GetImage(ColorType);
+  Result := (Assigned(LImage)) and (LImage.ScalePixels(TSkImageInfo.Create(ABitmapSurface.Width, ABitmapSurface.Height, ColorType), ABitmapSurface.Bits, ABitmapSurface.Pitch, TSkImageCachingHint.Disallow));
 end;
 
 class procedure TSkBitmapHandleCodec.RegisterIfNotExists(const AFileExtension,

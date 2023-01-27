@@ -3,8 +3,8 @@
 {                                                                        }
 {                              Skia4Delphi                               }
 {                                                                        }
-{ Copyright (c) 2011-2022 Google LLC.                                    }
-{ Copyright (c) 2021-2022 Skia4Delphi Project.                           }
+{ Copyright (c) 2011-2023 Google LLC.                                    }
+{ Copyright (c) 2021-2023 Skia4Delphi Project.                           }
 {                                                                        }
 { Use of this source code is governed by a BSD-style license that can be }
 { found in the LICENSE file.                                             }
@@ -39,13 +39,13 @@
 {************************************************************************}
 {                                                                        }
 { Example of command line to install in silent mode:                     }
-{   cmd /C ""Skia4Delphi_4.0.2_Setup.exe" /DIR="C:\Skia4Delphi" /SILENT  }
+{   cmd /C ""Skia4Delphi_4.1.0_Setup.exe" /DIR="C:\Skia4Delphi" /SILENT  }
 {     /RADStudioVersions=all"                                            }
 {                                                                        }
 { In GetIt implementation, the installation command could be:            }
-{   cmd /C ""$(BDSCatalogRepository)\Skia4Delphi-4.0.2\                  }
-{     Skia4Delphi_4.0.2_Setup.exe"                                       }
-{     /DIR="$(BDSCatalogRepository)\Skia4Delphi-4.0.2" /VERYSILENT       }
+{   cmd /C ""$(BDSCatalogRepository)\Skia4Delphi-4.1.0\                  }
+{     Skia4Delphi_4.1.0_Setup.exe"                                       }
+{     /DIR="$(BDSCatalogRepository)\Skia4Delphi-4.1.0" /VERYSILENT       }
 {     /RADStudioVersions=$(ProductVersion) /CreateUninstallRegKey=no"    }
 {                                                                        }
 { Example of command line to uninstall in silent mode:                   }
@@ -53,15 +53,15 @@
 {     /RADStudioVersions=all"                                            }
 {                                                                        }
 { In GetIt implementation, the uninstall command could be:               }
-{   cmd /C ""$(BDSCatalogRepository)\Skia4Delphi-4.0.2\unins000.exe"     }
+{   cmd /C ""$(BDSCatalogRepository)\Skia4Delphi-4.1.0\unins000.exe"     }
 {     /VERYSILENT /RADStudioVersions=$(ProductVersion)"                  }
 {                                                                        }
 {************************************************************************}
 
 #define LibraryName "Skia4Delphi"
-#define LibraryVersion "4.0.2"
+#define LibraryVersion "4.1.0"
 #define LibraryPublisher "Skia4Delphi Team"
-#define LibraryCopyright "Copyright (c) 2021-2022 Skia4Delphi Project"
+#define LibraryCopyright "Copyright (c) 2021-2023 Skia4Delphi Project"
 #define LibraryURL "https://skia4delphi.org"
 #define LibrarySamplesFolder "Samples"
 #define LibraryPackagesFolder "Packages"

@@ -2,8 +2,8 @@
 {                                                                        }
 {                              Skia4Delphi                               }
 {                                                                        }
-{ Copyright (c) 2011-2022 Google LLC.                                    }
-{ Copyright (c) 2021-2022 Skia4Delphi Project.                           }
+{ Copyright (c) 2011-2023 Google LLC.                                    }
+{ Copyright (c) 2021-2023 Skia4Delphi Project.                           }
 {                                                                        }
 { Use of this source code is governed by a BSD-style license that can be }
 { found in the LICENSE file.                                             }
@@ -91,7 +91,7 @@ begin
 
     LSVGDOM.Render(LSurface.Canvas);
   end;
-  Assert.AreSimilar(AExpectedImageHash, LSurface.MakeImageSnapshot, 0.996);
+  Assert.AreSimilar(AExpectedImageHash, LSurface.MakeImageSnapshot, 0.9961);
 end;
 
 procedure TSkSvgDOMTests.TestGetIntrinsicSize(const ASvgFileName: string;

@@ -2,8 +2,8 @@
 {                                                                        }
 {                              Skia4Delphi                               }
 {                                                                        }
-{ Copyright (c) 2011-2022 Google LLC.                                    }
-{ Copyright (c) 2021-2022 Skia4Delphi Project.                           }
+{ Copyright (c) 2011-2023 Google LLC.                                    }
+{ Copyright (c) 2021-2023 Skia4Delphi Project.                           }
 {                                                                        }
 { Use of this source code is governed by a BSD-style license that can be }
 { found in the LICENSE file.                                             }
@@ -31,7 +31,7 @@ uses
   Skia.API;
 
 const
-  SkVersion = '4.0.2';
+  SkVersion = '4.1.0';
 
 type
   TGrBackendAPI                   = (OpenGl, Vulkan, Metal);
@@ -79,6 +79,7 @@ type
   TSkRoundRectCorner              = (UpperLeft, UpperRight, LowerRight, LowerLeft);
   TSkRuntimeEffectChildType       = (Shader, ColorFilter, Blender);
   TSkRuntimeEffectUniformType     = (Float, Float2, Float3, Float4, Float2x2, Float3x3, Float4x4, Int, Int2, Int3, Int4);
+  TSkSaveLayerFlag                = (InitWithPrevious = 2, F16ColorType = 4);
   TSkSegmentMask                  = (Line, Quad, Conic, Cubic);
   TSkSrcRectConstraint            = (Close, Fast);
   TSkStrokeCap                    = (Butt, Round, Square);
@@ -102,6 +103,7 @@ type
   TSkottieAnimationRenderFlags    = set of TSkottieAnimationRenderFlag;
   TSkParagraphVisitorFlags        = set of TSkParagraphVisitorFlag;
   TSkPathMeasureMatrixFlags       = set of TSkPathMeasureMatrixFlag;
+  TSkSaveLayerFlags               = set of TSkSaveLayerFlag;
   TSkSegmentMasks                 = set of TSkSegmentMask;
   TSkSurfacePropertiesFlags       = set of TSkSurfacePropertiesFlag;
   TSkSVGCanvasFlags               = set of TSkSVGCanvasFlag;
@@ -1212,10 +1214,10 @@ type
     procedure Rotate(const ADegrees, APX, APY: Single); overload;
     procedure RotateRadians(const ARadians: Single);
     function Save: Integer;
-    procedure SaveLayer(const APaint: ISkPaint = nil); overload;
-    procedure SaveLayer(const ABounds: TRectF; const APaint: ISkPaint = nil); overload;
-    procedure SaveLayerAlpha(const AAlpha: Byte); overload;
-    procedure SaveLayerAlpha(const ABounds: TRectF; const AAlpha: Byte); overload;
+    function SaveLayer(const APaint: ISkPaint = nil; const ABackdrop: ISkImageFilter = nil; const AFlags: TSkSaveLayerFlags = []): Integer; overload;
+    function SaveLayer(const ABounds: TRectF; const APaint: ISkPaint = nil; const ABackdrop: ISkImageFilter = nil; const AFlags: TSkSaveLayerFlags = []): Integer; overload;
+    function SaveLayerAlpha(const AAlpha: Byte): Integer; overload;
+    function SaveLayerAlpha(const ABounds: TRectF; const AAlpha: Byte): Integer; overload;
     procedure Scale(const AScaleX, AScaleY: Single);
     procedure SetMatrix(const AMatrix: TMatrix); overload;
     procedure SetMatrix(const AMatrix: TMatrix3D); overload;
@@ -1298,10 +1300,10 @@ type
     procedure Rotate(const ADegrees, APX, APY: Single); overload;
     procedure RotateRadians(const ARadians: Single);
     function Save: Integer;
-    procedure SaveLayer(const APaint: ISkPaint = nil); overload;
-    procedure SaveLayer(const ABounds: TRectF; const APaint: ISkPaint = nil); overload;
-    procedure SaveLayerAlpha(const AAlpha: Byte); overload;
-    procedure SaveLayerAlpha(const ABounds: TRectF; const AAlpha: Byte); overload;
+    function SaveLayer(const APaint: ISkPaint = nil; const ABackdrop: ISkImageFilter = nil; const AFlags: TSkSaveLayerFlags = []): Integer; overload;
+    function SaveLayer(const ABounds: TRectF; const APaint: ISkPaint = nil; const ABackdrop: ISkImageFilter = nil; const AFlags: TSkSaveLayerFlags = []): Integer; overload;
+    function SaveLayerAlpha(const AAlpha: Byte): Integer; overload;
+    function SaveLayerAlpha(const ABounds: TRectF; const AAlpha: Byte): Integer; overload;
     procedure Scale(const AScaleX, AScaleY: Single);
     procedure SetMatrix(const AMatrix: TMatrix); overload;
     procedure SetMatrix(const AMatrix: TMatrix3D); overload;
@@ -1720,6 +1722,8 @@ type
 
   ISkImageFilter = interface(ISkReferenceCounted)
     ['{C3156B37-98A5-489F-BFB7-C0EB5DDDEDB6}']
+    function CanComputeFastBounds: Boolean;
+    function ComputeFastBounds(const ABounds: TRectF): TRectF;
     function MakeWithLocalMatrix(const AMatrix: TMatrix): ISkImageFilter;
   end;
 
@@ -1727,6 +1731,8 @@ type
 
   TSkImageFilter = class(TSkReferenceCounted, ISkImageFilter)
   strict private
+    function CanComputeFastBounds: Boolean;
+    function ComputeFastBounds(const ABounds: TRectF): TRectF;
     function MakeWithLocalMatrix(const AMatrix: TMatrix): ISkImageFilter;
   public
     class function MakeAlphaThreshold(const ARegion: TRect; const AInnerMin, AOuterMax: Single; AInput: ISkImageFilter = nil): ISkImageFilter; overload; static; inline;
@@ -2199,6 +2205,8 @@ type
 
   ISkPicture = interface(ISkReferenceCounted)
     ['{5FBF6D75-3A44-4012-AAC9-AD22E1C955D2}']
+    function ApproximateBytesUsed: NativeUInt;
+    function ApproximateOpCount(const ANested: Boolean = False): Integer;
     function GetCullRect: TRectF;
     function MakeShader(const ATileModeX: TSkTileMode = TSkTileMode.Clamp; const ATileModeY: TSkTileMode = TSkTileMode.Clamp; const AFilterMode: TSkFilterMode = TSkFilterMode.Linear): ISkShader; overload;
     function MakeShader(const ALocalMatrix: TMatrix; const ATileModeX: TSkTileMode = TSkTileMode.Clamp; const ATileModeY: TSkTileMode = TSkTileMode.Clamp; const AFilterMode: TSkFilterMode = TSkFilterMode.Linear): ISkShader; overload;
@@ -2214,6 +2222,8 @@ type
 
   TSkPicture = class(TSkReferenceCounted, ISkPicture)
   strict private
+    function ApproximateBytesUsed: NativeUInt;
+    function ApproximateOpCount(const ANested: Boolean = False): Integer;
     function GetCullRect: TRectF;
     function MakeShader(const ATileModeX: TSkTileMode = TSkTileMode.Clamp; const ATileModeY: TSkTileMode = TSkTileMode.Clamp; const AFilterMode: TSkFilterMode = TSkFilterMode.Linear): ISkShader; overload;
     function MakeShader(const ALocalMatrix: TMatrix; const ATileModeX: TSkTileMode = TSkTileMode.Clamp; const ATileModeY: TSkTileMode = TSkTileMode.Clamp; const AFilterMode: TSkFilterMode = TSkFilterMode.Linear): ISkShader; overload;
@@ -6368,24 +6378,27 @@ begin
   Result := sk4d_canvas_save(Handle);
 end;
 
-procedure TSkCanvas.SaveLayer(const APaint: ISkPaint);
+function TSkCanvas.SaveLayer(const APaint: ISkPaint;
+  const ABackdrop: ISkImageFilter; const AFlags: TSkSaveLayerFlags): Integer;
 begin
-  sk4d_canvas_save_layer(Handle, nil, TSkBindings.SafeHandle(APaint));
+  Result := sk4d_canvas_save_layer(Handle, nil, TSkBindings.SafeHandle(APaint), TSkBindings.SafeHandle(ABackdrop), Byte(AFlags));
 end;
 
-procedure TSkCanvas.SaveLayer(const ABounds: TRectF; const APaint: ISkPaint);
+function TSkCanvas.SaveLayer(const ABounds: TRectF; const APaint: ISkPaint;
+  const ABackdrop: ISkImageFilter; const AFlags: TSkSaveLayerFlags): Integer;
 begin
-  sk4d_canvas_save_layer(Handle, @sk_rect_t(ABounds), TSkBindings.SafeHandle(APaint));
+  Result := sk4d_canvas_save_layer(Handle, @sk_rect_t(ABounds), TSkBindings.SafeHandle(APaint), TSkBindings.SafeHandle(ABackdrop), Byte(AFlags));
 end;
 
-procedure TSkCanvas.SaveLayerAlpha(const AAlpha: Byte);
+function TSkCanvas.SaveLayerAlpha(const AAlpha: Byte): Integer;
 begin
-  sk4d_canvas_save_layer_alpha(Handle, nil, AAlpha);
+  Result := sk4d_canvas_save_layer_alpha(Handle, nil, AAlpha);
 end;
 
-procedure TSkCanvas.SaveLayerAlpha(const ABounds: TRectF; const AAlpha: Byte);
+function TSkCanvas.SaveLayerAlpha(const ABounds: TRectF;
+  const AAlpha: Byte): Integer;
 begin
-  sk4d_canvas_save_layer_alpha(Handle, @sk_rect_t(ABounds), AAlpha);
+  Result := sk4d_canvas_save_layer_alpha(Handle, @sk_rect_t(ABounds), AAlpha);
 end;
 
 procedure TSkCanvas.Scale(const AScaleX, AScaleY: Single);
@@ -7596,6 +7609,16 @@ begin
 end;
 
 { TSkImageFilter }
+
+function TSkImageFilter.CanComputeFastBounds: Boolean;
+begin
+  Result := sk4d_imagefilter_can_compute_fast_bounds(Handle);
+end;
+
+function TSkImageFilter.ComputeFastBounds(const ABounds: TRectF): TRectF;
+begin
+  sk4d_imagefilter_compute_fast_bounds(Handle, @sk_rect_t(ABounds), sk_rect_t(Result));
+end;
 
 class function TSkImageFilter.MakeAlphaThreshold(const ARegion: TRect;
   const AInnerMin, AOuterMax: Single; AInput: ISkImageFilter): ISkImageFilter;
@@ -8958,6 +8981,16 @@ begin
 end;
 
 { TSkPicture }
+
+function TSkPicture.ApproximateBytesUsed: NativeUInt;
+begin
+  Result := sk4d_picture_approximate_bytes_used(Handle);
+end;
+
+function TSkPicture.ApproximateOpCount(const ANested: Boolean): Integer;
+begin
+  Result := sk4d_picture_approximate_op_count(Handle, ANested);
+end;
 
 function TSkPicture.GetCullRect: TRectF;
 begin

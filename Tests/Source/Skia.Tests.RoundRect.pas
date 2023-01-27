@@ -2,8 +2,8 @@
 {                                                                        }
 {                              Skia4Delphi                               }
 {                                                                        }
-{ Copyright (c) 2011-2022 Google LLC.                                    }
-{ Copyright (c) 2021-2022 Skia4Delphi Project.                           }
+{ Copyright (c) 2011-2023 Google LLC.                                    }
+{ Copyright (c) 2021-2023 Skia4Delphi Project.                           }
 {                                                                        }
 { Use of this source code is governed by a BSD-style license that can be }
 { found in the LICENSE file.                                             }
@@ -103,10 +103,10 @@ begin
   Assert.AreEqual(0.0, LRoundRect.Width, TEpsilon.Vector);
   Assert.AreEqual(0.0, LRoundRect.Height, TEpsilon.Vector);
   Assert.IsTrue(TRectF.Empty.EqualsTo(LRoundRect.Rect, TEpsilon.Vector));
-  Assert.IsTrue(TPointF.Zero.EqualsTo(LRoundRect.Radii[TSkRoundRectCorner.UpperLeft], TEpsilon.Vector));
-  Assert.IsTrue(TPointF.Zero.EqualsTo(LRoundRect.Radii[TSkRoundRectCorner.UpperRight], TEpsilon.Vector));
-  Assert.IsTrue(TPointF.Zero.EqualsTo(LRoundRect.Radii[TSkRoundRectCorner.LowerRight], TEpsilon.Vector));
-  Assert.IsTrue(TPointF.Zero.EqualsTo(LRoundRect.Radii[TSkRoundRectCorner.LowerLeft], TEpsilon.Vector));
+  Assert.IsTrue(PointF(0, 0).EqualsTo(LRoundRect.Radii[TSkRoundRectCorner.UpperLeft], TEpsilon.Vector));
+  Assert.IsTrue(PointF(0, 0).EqualsTo(LRoundRect.Radii[TSkRoundRectCorner.UpperRight], TEpsilon.Vector));
+  Assert.IsTrue(PointF(0, 0).EqualsTo(LRoundRect.Radii[TSkRoundRectCorner.LowerRight], TEpsilon.Vector));
+  Assert.IsTrue(PointF(0, 0).EqualsTo(LRoundRect.Radii[TSkRoundRectCorner.LowerLeft], TEpsilon.Vector));
 end;
 
 procedure TSkRoundRectTests.TestDraw(const AMinSimilarity: Double;
@@ -127,7 +127,7 @@ begin
   LPaint.StrokeWidth := 15;
   LPaint.StrokeJoin := TSkStrokeJoin.Round;
   LPaint.AntiAlias := True;
-  for LStyle in [TSkPaintStyle.Stroke, TSkPaintStyle.Fill] do
+  for LStyle in TArray<TSkPaintStyle>.Create(TSkPaintStyle.Stroke, TSkPaintStyle.Fill) do
   begin
     LPaint.Style := LStyle;
     for I := 0 to Length(Radii) - 1 do

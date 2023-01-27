@@ -6,8 +6,8 @@
 {                                                                        }
 {                              Skia4Delphi                               }
 {                                                                        }
-{ Copyright (c) 2011-2022 Google LLC.                                    }
-{ Copyright (c) 2021-2022 Skia4Delphi Project.                           }
+{ Copyright (c) 2011-2023 Google LLC.                                    }
+{ Copyright (c) 2021-2023 Skia4Delphi Project.                           }
 {                                                                        }
 { Use of this source code is governed by a BSD-style license that can be }
 { found in the LICENSE file.                                             }
@@ -31,6 +31,8 @@ function InsertStringAtBeginning(const AStrings: TArrayOfString; const ANewStrin
 function JoinStrings(const AStrings: TArrayOfString; const ADelimiter: string; const AJoinEmptyStrings: Boolean): string; forward;
 /// <summary> Remove all matches of a string in an array </summary>
 function RemoveString(const AStrings: TArrayOfString; const AValue: string; const ACaseSensitive: Boolean): TArrayOfString; forward;
+/// <summary> Replace all matches of a string in an array </summary>
+function ReplaceString(const AStrings: TArrayOfString; const AOldValue, ANewValue: string; const ACaseSensitive, AWholeLine: Boolean): TArrayOfString; forward;
 /// <summary> Break a string into an array of substrings </summary>
 function SplitString(AText: string; const ADelimiter: string): TArrayOfString; forward;
 /// <summary> Check if one text starts with another text with case insentive comparison </summary>
@@ -144,6 +146,65 @@ begin
       LString := AStrings[I];
       if not SameText(LString, AValue) then
         Result := AppendString(Result, LString, True);
+    end;
+end;
+
+function ReplaceString(const AStrings: TArrayOfString; const AOldValue, ANewValue: string; const ACaseSensitive, AWholeLine: Boolean): TArrayOfString;
+var
+  LIndex: Integer;
+  LString: string;
+  I: Integer;
+begin
+  Result := [];
+  if ACaseSensitive then
+  begin
+    if AWholeLine then
+    begin
+      for I := 0 to GetArrayLength(AStrings) - 1 do
+      begin
+        LString := AStrings[I];
+        if LString = AOldValue then
+          Result := AppendString(Result, ANewValue, True)
+        else
+          Result := AppendString(Result, LString, True);
+      end;
+    end
+    else
+    begin
+      for I := 0 to GetArrayLength(AStrings) - 1 do
+      begin
+        LString := AStrings[I];
+        LIndex := Pos(AOldValue, LString);
+        if LIndex > 0 then   
+          Result := AppendString(Result, Copy(LString, 1, LIndex - 1) + ANewValue + Copy(LString, LIndex + Length(AOldValue), Length(LString)), True)
+        else
+          Result := AppendString(Result, LString, True);
+      end;
+    end;
+  end
+  else
+    if AWholeLine then
+    begin
+      for I := 0 to GetArrayLength(AStrings) - 1 do
+      begin
+        LString := AStrings[I];
+        if SameText(LString, AOldValue) then
+          Result := AppendString(Result, ANewValue, True)
+        else
+          Result := AppendString(Result, LString, True);
+      end;
+    end
+    else
+    begin   
+      for I := 0 to GetArrayLength(AStrings) - 1 do
+      begin
+        LString := AStrings[I];
+        LIndex := Pos(AnsiLowercase(AOldValue), AnsiLowercase(LString));
+        if LIndex > 0 then
+          Result := AppendString(Result, Copy(LString, 1, LIndex - 1) + ANewValue + Copy(LString, LIndex + Length(AOldValue), Length(LString)), True)
+        else
+          Result := AppendString(Result, LString, True);
+      end;
     end;
 end;
 

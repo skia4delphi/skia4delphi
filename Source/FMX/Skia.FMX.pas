@@ -2,8 +2,8 @@
 {                                                                        }
 {                              Skia4Delphi                               }
 {                                                                        }
-{ Copyright (c) 2011-2022 Google LLC.                                    }
-{ Copyright (c) 2021-2022 Skia4Delphi Project.                           }
+{ Copyright (c) 2011-2023 Google LLC.                                    }
+{ Copyright (c) 2021-2023 Skia4Delphi Project.                           }
 {                                                                        }
 { Use of this source code is governed by a BSD-style license that can be }
 { found in the LICENSE file.                                             }
@@ -1089,12 +1089,10 @@ type
     procedure SetText(const AValue: string);
     procedure SetWords(const AValue: TWordsCollection);
     procedure SetWordsMouseOver(const AValue: TCustomWordsItem);
-    procedure TextSettingsChanged(AValue: TObject);
     {$IF CompilerVersion >= 29}
     { ICaption }
     function TextStored: Boolean;
     {$ENDIF}
-    procedure WordsChange(ASender: TObject);
   strict private
     { ISkTextSettings }
     function GetDefaultTextSettings: TSkTextSettings;
@@ -1112,6 +1110,7 @@ type
       var ALastWidth, ALastHeight: Single): Boolean; override;
     procedure DoStyleChanged; override;
     procedure Draw(const ACanvas: ISkCanvas; const ADest: TRectF; const AOpacity: Single); override;
+    function FillTextFlags: TFillTextFlags; override;
     procedure FreeStyle; override;
     function GetDefaultSize: TSizeF; override;
     function GetTextSettingsClass: TSkTextSettingsInfo.TCustomTextSettingsClass; virtual;
@@ -1123,9 +1122,12 @@ type
     procedure MouseDown(AButton: TMouseButton; AShift: TShiftState; AX, AY: Single); override;
     {$ENDIF}
     procedure MouseMove(AShift: TShiftState; AX, AY: Single); override;
+    function NormalizeParagraphText(const AText: string): string; virtual;
     function NeedsRedraw: Boolean; override;
     procedure SetAlign(const AValue: TAlignLayout); override;
     procedure SetName(const AValue: TComponentName); override;
+    procedure TextSettingsChanged(AValue: TObject); virtual;
+    procedure WordsChange(ASender: TObject); virtual;
     property Paragraph: ISkParagraph read GetParagraph;
     property ParagraphBounds: TRectF read GetParagraphBounds;
     property StyleText: ISkStyleTextObject read FStyleText;
@@ -1524,7 +1526,9 @@ procedure TSkBitmapHelper.SkiaDraw(const AProc: TSkDrawProc; const AStartClean: 
 
 var
   LAccess: TMapAccess;
+  {$IF (CompilerVersion < 35) or ((CompilerVersion = 35) and not DECLARED(RTLVersion113))}
   LBeginSceneCount: Integer;
+  {$ENDIF}
   LColorType: TSkColorType;
   LData: TBitmapData;
   LSurface: ISkSurface;
@@ -5375,14 +5379,9 @@ procedure TSkLabel.Draw(const ACanvas: ISkCanvas; const ADest: TRectF;
 var
   LParagraph: ISkParagraph;
   LPositionY: Single;
-  LCurrentFillTextFlags: TFillTextFlags;
 begin
-  LCurrentFillTextFlags := FillTextFlags;
-  if FLastFillTextFlags <> LCurrentFillTextFlags then
-  begin
+  if FLastFillTextFlags <> FillTextFlags then
     DeleteParagraph;
-    FLastFillTextFlags := LCurrentFillTextFlags;
-  end;
   LParagraph := Paragraph;
   if Assigned(LParagraph) then
   begin
@@ -5414,6 +5413,13 @@ begin
       ACanvas.Restore;
     end;
   end;
+end;
+
+function TSkLabel.FillTextFlags: TFillTextFlags;
+begin
+  Result := inherited;
+  if (Root = nil) and (Application.BiDiMode = TBiDiMode.bdRightToLeft) then
+    Result := Result + [TFillTextFlag.RightToLeft];
 end;
 
 procedure TSkLabel.FreeStyle;
@@ -5666,7 +5672,8 @@ var
     SkTextAlign: array[TSkTextHorzAlign] of TSkTextAlign = (TSkTextAlign.Center, TSkTextAlign.Start, TSkTextAlign.Terminate, TSkTextAlign.Justify);
   begin
     Result := TSkParagraphStyle.Create;
-    if ((Root = nil) and (Application.BiDiMode = TBiDiMode.bdRightToLeft)) or (TFillTextFlag.RightToLeft in FillTextFlags) then
+    FLastFillTextFlags := FillTextFlags;
+    if TFillTextFlag.RightToLeft in FLastFillTextFlags then
       Result.TextDirection := TSkTextDirection.RightToLeft;
     if ResultingTextSettings.Trimming in [TTextTrimming.Character, TTextTrimming.Word] then
       Result.Ellipsis := '...';
@@ -5676,13 +5683,6 @@ var
       Result.MaxLines := ResultingTextSettings.MaxLines;
     Result.TextAlign := SkTextAlign[ResultingTextSettings.HorzAlign];
     Result.TextStyle := ADefaultTextStyle;
-  end;
-
-  // Temporary solution to fix an issue with Skia: https://bugs.chromium.org/p/skia/issues/detail?id=13117
-  // SkParagraph has several issues with the #13 line break, so the best thing to do is replace it with #10 or a zero-widh character (#8203)
-  function NormalizeParagraphText(const AText: string): string;
-  begin
-    Result := AText.Replace(#13#10, #8203#10).Replace(#13, #10);
   end;
 
   function CreateParagraph(const ADrawKind: TDrawKind): ISkParagraph;
@@ -5890,6 +5890,15 @@ end;
 function TSkLabel.NeedsRedraw: Boolean;
 begin
   Result := inherited or (FLastFillTextFlags <> FillTextFlags);
+end;
+
+function TSkLabel.NormalizeParagraphText(const AText: string): string;
+begin
+  // Temporary solution to fix an issue with Skia:
+  // https://bugs.chromium.org/p/skia/issues/detail?id=13117
+  // SkParagraph has several issues with the #13 line break, so the best thing
+  // to do is replace it with #10 or a zero-widh character (#8203)
+  Result := AText.Replace(#13#10, #8203#10).Replace(#13, #10);
 end;
 
 procedure TSkLabel.ParagraphLayout(const AWidth: Single);
@@ -6145,8 +6154,8 @@ end;
 {$HPPEMIT END '    static bool& GlobalDisableSkiaCodecsReplacement = ::Skia::Fmx::GlobalDisableSkiaCodecsReplacement;'}
 {$HPPEMIT END '    static bool& GlobalUseSkia = ::Skia::Fmx::GlobalUseSkia;'}
 {$HPPEMIT END '    static bool& GlobalUseSkiaRasterWhenAvailable = ::Skia::Fmx::GlobalUseSkiaRasterWhenAvailable;'}
-{$HPPEMIT END '    static ::System::StaticArray<::Skia::TSkColorType, 24>& SkFmxColorType = ::Skia::Fmx::SkFmxColorType;'}
-{$HPPEMIT END '    static ::System::StaticArray<::Fmx::Types::TPixelFormat, 23>& SkFmxPixelFormat = ::Skia::Fmx::SkFmxPixelFormat;'}
+{$HPPEMIT END '    static ::System::StaticArray<Skia::TSkColorType, 24>& SkFmxColorType = ::Skia::Fmx::SkFmxColorType;'}
+{$HPPEMIT END '    static ::System::StaticArray<Fmx::Types::TPixelFormat, 23>& SkFmxPixelFormat = ::Skia::Fmx::SkFmxPixelFormat;'}
 {$HPPEMIT END '    static const TAddSkPathToPathDataProc AddSkPathToPathData = ::Skia::Fmx::AddSkPathToPathData;'}
 {$HPPEMIT END '    static const TBitmapToSkImageFunc BitmapToSkImage = ::Skia::Fmx::BitmapToSkImage;'}
 {$HPPEMIT END '    static const TPathDataToSkPathFunc PathDataToSkPath = ::Skia::Fmx::PathDataToSkPath;'}

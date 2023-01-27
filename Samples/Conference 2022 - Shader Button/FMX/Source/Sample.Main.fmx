@@ -3,19 +3,24 @@ object frmMain: TfrmMain
   Top = 0
   Caption = 'Form1'
   ClientHeight = 380
-  ClientWidth = 600
+  ClientWidth = 390
   Fill.Color = xFF201E21
   Fill.Kind = Solid
+  Position = ScreenCenter
+  SystemStatusBar.Visibility = VisibleAndOverlap
   FormFactor.Width = 320
   FormFactor.Height = 480
-  FormFactor.Devices = [Desktop]
+  FormFactor.Devices = [Desktop, iPhone, iPad]
   DesignerMasterStyle = 0
   inline frmShaderButton1: TfrmShaderButton
+    Align = VertCenter
     Cursor = crHandPoint
-    Position.X = 32.000000000000000000
-    Position.Y = 168.000000000000000000
-    Size.Width = 537.000000000000000000
-    Size.Height = 75.000000000000000000
+    Margins.Left = 16.000000000000000000
+    Margins.Right = 16.000000000000000000
+    Position.X = 16.000000000000000000
+    Position.Y = 165.000000000000000000
+    Size.Width = 358.000000000000000000
+    Size.Height = 50.000000000000000000
     Size.PlatformDefault = False
   end
 end

@@ -1,6 +1,6 @@
 ﻿<!--
- Copyright (c) 2011-2022 Google LLC.
- Copyright (c) 2021-2022 Skia4Delphi Project.
+ Copyright (c) 2011-2023 Google LLC.
+ Copyright (c) 2021-2023 Skia4Delphi Project.
 
  Use of this source code is governed by a BSD-style license that can be
  found in the LICENSE file.
@@ -126,12 +126,14 @@
         <DCCReference Include="..\..\Source\Skia.Tests.Path.pas"/>
         <DCCReference Include="..\..\Source\Skia.Tests.Picture.pas"/>
         <DCCReference Include="..\..\Source\Skia.Tests.Region.pas"/>
+        <DCCReference Include="..\..\Source\Skia.Tests.RotationScaleMatrix.pas"/>
         <DCCReference Include="..\..\Source\Skia.Tests.RoundRect.pas"/>
         <DCCReference Include="..\..\Source\Skia.Tests.RuntimeEffect.pas"/>
         <DCCReference Include="..\..\Source\Skia.Tests.Skottie.pas"/>
         <DCCReference Include="..\..\Source\Skia.Tests.Surface.pas"/>
         <DCCReference Include="..\..\Source\Skia.Tests.Svg.pas"/>
         <DCCReference Include="..\..\Source\Skia.Tests.Unicode.pas"/>
+        <DCCReference Include="..\..\Source\FMX\Skia.Tests.FMX.Codec.pas"/>
         <DCCReference Include="..\..\Source\FMX\Skia.Tests.FMX.Runner.pas">
             <Form>frmFMXRunner</Form>
             <FormType>fmx</FormType>

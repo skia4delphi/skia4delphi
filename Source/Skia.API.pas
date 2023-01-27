@@ -2,8 +2,8 @@
 {                                                                        }
 {                              Skia4Delphi                               }
 {                                                                        }
-{ Copyright (c) 2011-2022 Google LLC.                                    }
-{ Copyright (c) 2021-2022 Skia4Delphi Project.                           }
+{ Copyright (c) 2011-2023 Google LLC.                                    }
+{ Copyright (c) 2021-2023 Skia4Delphi Project.                           }
 {                                                                        }
 { Use of this source code is governed by a BSD-style license that can be }
 { found in the LICENSE file.                                             }
@@ -29,7 +29,7 @@ interface
 {$ALIGN ON}
 {$MINENUMSIZE 4}
 
-{$IF DEFINED(IOS) and NOT DEFINED(IOSSIMULATOR)}
+{$IFDEF IOS}
   {$DEFINE SK_STATIC_LIBRARY}
 {$ENDIF}
 
@@ -1414,8 +1414,8 @@ var
   {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_canvas_rotate                    {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_canvas_t; degrees: float); cdecl;
   {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_canvas_rotate2                   {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_canvas_t; degrees, px, py: float); cdecl;
   {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_canvas_save                      {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(self: sk_canvas_t): int32_t; cdecl;
-  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_canvas_save_layer                {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(self: sk_canvas_t; const rect: psk_rect_t; const paint: sk_paint_t): int32_t; cdecl;
-  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_canvas_save_layer_alpha          {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(self: sk_canvas_t; const rect: psk_rect_t; alpha: uint8_t): int32_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_canvas_save_layer                {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(self: sk_canvas_t; const bounds: psk_rect_t; const paint: sk_paint_t; const backdrop: sk_imagefilter_t; flags: uint32_t): int32_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_canvas_save_layer_alpha          {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(self: sk_canvas_t; const bounds: psk_rect_t; alpha: uint8_t): int32_t; cdecl;
   {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_canvas_scale                     {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_canvas_t; sx, sy: float); cdecl;
   {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_canvas_set_matrix                {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_canvas_t; const matrix: psk_matrix44_t); cdecl;
   {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_canvas_set_matrix2               {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_canvas_t; const matrix: psk_matrix_t); cdecl;
@@ -1611,33 +1611,35 @@ var
 
   { include/c/sk4d_imagefilter.h }
 
-  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_imagefilter_make_alpha_threshold     {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(const region: sk_region_t; inner_min, outer_max: float; input: sk_imagefilter_t): sk_imagefilter_t; cdecl;
-  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_imagefilter_make_arithmetic          {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(k1, k2, k3, k4: float; enforce_premultiplied_color: _bool; background, foreground: sk_imagefilter_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl;
-  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_imagefilter_make_blend               {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(mode: sk_blendmode_t; background, foreground: sk_imagefilter_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl;
-  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_imagefilter_make_blur                {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(sigma_x, sigma_y: float; tile_mode: sk_tilemode_t; input: sk_imagefilter_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl;
-  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_imagefilter_make_colorfilter         {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(color_filter: sk_colorfilter_t; input: sk_imagefilter_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl;
-  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_imagefilter_make_compose             {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(inner, outer: sk_imagefilter_t): sk_imagefilter_t; cdecl;
-  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_imagefilter_make_dilate              {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(radius_x, radius_y: float; input: sk_imagefilter_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl;
-  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_imagefilter_make_displacement_map    {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(x_channel_selector, y_channel_selector: sk_colorchannel_t; scale: float; displacement, input: sk_imagefilter_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl;
-  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_imagefilter_make_distant_lit_diffuse {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(const direction: psk_point3_t; light_color: sk_color_t; surface_scale, kd: float; input: sk_imagefilter_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl;
-  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_imagefilter_make_distant_lit_specular{$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(const direction: psk_point3_t; light_color: sk_color_t; surface_scale, ks, shininess: float; input: sk_imagefilter_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl;
-  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_imagefilter_make_drop_shadow         {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(dx, dy, sigma_x, sigma_y: float; color: sk_color_t; input: sk_imagefilter_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl;
-  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_imagefilter_make_drop_shadow_only    {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(dx, dy, sigma_x, sigma_y: float; color: sk_color_t; input: sk_imagefilter_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl;
-  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_imagefilter_make_erode               {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(radius_x, radius_y: float; input: sk_imagefilter_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl;
-  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_imagefilter_make_image               {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(image: sk_image_t; const src, dest: psk_rect_t; const sampling: psk_samplingoptions_t): sk_imagefilter_t; cdecl;
-  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_imagefilter_make_magnifier           {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(const src: psk_rect_t; inset: float; input: sk_imagefilter_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl;
-  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_imagefilter_make_matrix_convolution  {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(const kernel_size: psk_isize_t; const kernel: pfloat; gain, bias: float; const kernel_offset: psk_ipoint_t; tile_mode: sk_tilemode_t; convolve_alpha: _bool; input: sk_imagefilter_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl;
-  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_imagefilter_make_matrix_transform    {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(const matrix: psk_matrix_t; const sampling: psk_samplingoptions_t; input: sk_imagefilter_t): sk_imagefilter_t; cdecl;
-  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_imagefilter_make_merge               {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(const filters: psk_imagefilter_t; count: int32_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl;
-  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_imagefilter_make_offset              {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(dx, dy: float; input: sk_imagefilter_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl;
-  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_imagefilter_make_picture             {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(picture: sk_picture_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl;
-  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_imagefilter_make_point_lit_diffuse   {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(const location: psk_point3_t; light_color: sk_color_t; surface_scale, kd: float; input: sk_imagefilter_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl;
-  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_imagefilter_make_point_lit_specular  {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(const location: psk_point3_t; light_color: sk_color_t; surface_scale, ks, shininess: float; input: sk_imagefilter_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl;
-  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_imagefilter_make_shader              {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(shader: sk_shader_t; dither: _bool; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl;
-  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_imagefilter_make_spot_lit_diffuse    {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(const location, target: psk_point3_t; falloff_exponent, cutoff_angle: float; light_color: sk_color_t; surface_scale, kd: float; input: sk_imagefilter_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl;
-  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_imagefilter_make_spot_lit_specular   {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(const location, target: psk_point3_t; falloff_exponent, cutoff_angle: float; light_color: sk_color_t; surface_scale, ks, shininess: float; input: sk_imagefilter_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl;
-  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_imagefilter_make_tile                {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(const src, dest: psk_rect_t; input: sk_imagefilter_t): sk_imagefilter_t; cdecl;
-  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_imagefilter_make_with_local_matrix   {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(const self: sk_imagefilter_t; const local_matrix: psk_matrix_t): sk_imagefilter_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_imagefilter_can_compute_fast_bounds  {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_imagefilter_t): _bool; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_imagefilter_compute_fast_bounds      {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(const self: sk_imagefilter_t; const bounds: psk_rect_t; out result: sk_rect_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_imagefilter_make_alpha_threshold     {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const region: sk_region_t; inner_min, outer_max: float; input: sk_imagefilter_t): sk_imagefilter_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_imagefilter_make_arithmetic          {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(k1, k2, k3, k4: float; enforce_premultiplied_color: _bool; background, foreground: sk_imagefilter_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_imagefilter_make_blend               {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(mode: sk_blendmode_t; background, foreground: sk_imagefilter_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_imagefilter_make_blur                {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(sigma_x, sigma_y: float; tile_mode: sk_tilemode_t; input: sk_imagefilter_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_imagefilter_make_colorfilter         {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(color_filter: sk_colorfilter_t; input: sk_imagefilter_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_imagefilter_make_compose             {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(inner, outer: sk_imagefilter_t): sk_imagefilter_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_imagefilter_make_dilate              {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(radius_x, radius_y: float; input: sk_imagefilter_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_imagefilter_make_displacement_map    {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(x_channel_selector, y_channel_selector: sk_colorchannel_t; scale: float; displacement, input: sk_imagefilter_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_imagefilter_make_distant_lit_diffuse {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const direction: psk_point3_t; light_color: sk_color_t; surface_scale, kd: float; input: sk_imagefilter_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_imagefilter_make_distant_lit_specular{$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const direction: psk_point3_t; light_color: sk_color_t; surface_scale, ks, shininess: float; input: sk_imagefilter_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_imagefilter_make_drop_shadow         {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(dx, dy, sigma_x, sigma_y: float; color: sk_color_t; input: sk_imagefilter_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_imagefilter_make_drop_shadow_only    {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(dx, dy, sigma_x, sigma_y: float; color: sk_color_t; input: sk_imagefilter_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_imagefilter_make_erode               {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(radius_x, radius_y: float; input: sk_imagefilter_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_imagefilter_make_image               {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(image: sk_image_t; const src, dest: psk_rect_t; const sampling: psk_samplingoptions_t): sk_imagefilter_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_imagefilter_make_magnifier           {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const src: psk_rect_t; inset: float; input: sk_imagefilter_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_imagefilter_make_matrix_convolution  {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const kernel_size: psk_isize_t; const kernel: pfloat; gain, bias: float; const kernel_offset: psk_ipoint_t; tile_mode: sk_tilemode_t; convolve_alpha: _bool; input: sk_imagefilter_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_imagefilter_make_matrix_transform    {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const matrix: psk_matrix_t; const sampling: psk_samplingoptions_t; input: sk_imagefilter_t): sk_imagefilter_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_imagefilter_make_merge               {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const filters: psk_imagefilter_t; count: int32_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_imagefilter_make_offset              {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(dx, dy: float; input: sk_imagefilter_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_imagefilter_make_picture             {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(picture: sk_picture_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_imagefilter_make_point_lit_diffuse   {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const location: psk_point3_t; light_color: sk_color_t; surface_scale, kd: float; input: sk_imagefilter_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_imagefilter_make_point_lit_specular  {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const location: psk_point3_t; light_color: sk_color_t; surface_scale, ks, shininess: float; input: sk_imagefilter_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_imagefilter_make_shader              {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(shader: sk_shader_t; dither: _bool; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_imagefilter_make_spot_lit_diffuse    {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const location, target: psk_point3_t; falloff_exponent, cutoff_angle: float; light_color: sk_color_t; surface_scale, kd: float; input: sk_imagefilter_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_imagefilter_make_spot_lit_specular   {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const location, target: psk_point3_t; falloff_exponent, cutoff_angle: float; light_color: sk_color_t; surface_scale, ks, shininess: float; input: sk_imagefilter_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_imagefilter_make_tile                {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const src, dest: psk_rect_t; input: sk_imagefilter_t): sk_imagefilter_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_imagefilter_make_with_local_matrix   {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_imagefilter_t; const local_matrix: psk_matrix_t): sk_imagefilter_t; cdecl;
 
 
 
@@ -1798,11 +1800,13 @@ var
 
   { include/c/sk4d_picture.h }
 
-  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_picture_get_cull_rect      {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(const self: sk_picture_t; out result: sk_rect_t); cdecl;
-  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_picture_make_from_stream   {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(stream: sk_stream_t): sk_picture_t; cdecl;
-  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_picture_make_shader        {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_picture_t; tile_mode_x, tile_mode_y: sk_tilemode_t; filter_mode: sk_filtermode_t; const local_matrix: psk_matrix_t; const tile_rect: psk_rect_t): sk_shader_t; cdecl;
-  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_picture_playback           {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(const self: sk_picture_t; canvas: sk_canvas_t); cdecl;
-  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_picture_serialize_to_stream{$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(const self: sk_picture_t; w_stream: sk_wstream_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_picture_approximate_bytes_used{$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_picture_t): size_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_picture_approximate_op_count  {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_picture_t; nested: _bool): int32_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_picture_get_cull_rect         {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(const self: sk_picture_t; out result: sk_rect_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_picture_make_from_stream      {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(stream: sk_stream_t): sk_picture_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_picture_make_shader           {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_picture_t; tile_mode_x, tile_mode_y: sk_tilemode_t; filter_mode: sk_filtermode_t; const local_matrix: psk_matrix_t; const tile_rect: psk_rect_t): sk_shader_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_picture_playback              {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(const self: sk_picture_t; canvas: sk_canvas_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_picture_serialize_to_stream   {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(const self: sk_picture_t; w_stream: sk_wstream_t); cdecl;
 
 
   { include/c/sk4d_picturerecorder.h }
@@ -2984,6 +2988,8 @@ function sk4d_imageencoder_encode_to_stream; external LibraryName name 'sk4d_ima
 { include/c/sk4d_imagefilter.h }
 
 {$IFNDEF SK_STATIC_LIBRARY}
+  sk4d_imagefilter_can_compute_fast_bounds   := GetProcAddress(LibraryHandle, PChar('sk4d_imagefilter_can_compute_fast_bounds'));
+  sk4d_imagefilter_compute_fast_bounds       := GetProcAddress(LibraryHandle, PChar('sk4d_imagefilter_compute_fast_bounds'));
   sk4d_imagefilter_make_alpha_threshold      := GetProcAddress(LibraryHandle, PChar('sk4d_imagefilter_make_alpha_threshold'));
   sk4d_imagefilter_make_arithmetic           := GetProcAddress(LibraryHandle, PChar('sk4d_imagefilter_make_arithmetic'));
   sk4d_imagefilter_make_blend                := GetProcAddress(LibraryHandle, PChar('sk4d_imagefilter_make_blend'));
@@ -3012,33 +3018,35 @@ function sk4d_imageencoder_encode_to_stream; external LibraryName name 'sk4d_ima
   sk4d_imagefilter_make_tile                 := GetProcAddress(LibraryHandle, PChar('sk4d_imagefilter_make_tile'));
   sk4d_imagefilter_make_with_local_matrix    := GetProcAddress(LibraryHandle, PChar('sk4d_imagefilter_make_with_local_matrix'));
 {$ELSE}
-function sk4d_imagefilter_make_alpha_threshold;      external LibraryName name 'sk4d_imagefilter_make_alpha_threshold';
-function sk4d_imagefilter_make_arithmetic;           external LibraryName name 'sk4d_imagefilter_make_arithmetic';
-function sk4d_imagefilter_make_blend;                external LibraryName name 'sk4d_imagefilter_make_blend';
-function sk4d_imagefilter_make_blur;                 external LibraryName name 'sk4d_imagefilter_make_blur';
-function sk4d_imagefilter_make_colorfilter;          external LibraryName name 'sk4d_imagefilter_make_colorfilter';
-function sk4d_imagefilter_make_compose;              external LibraryName name 'sk4d_imagefilter_make_compose';
-function sk4d_imagefilter_make_dilate;               external LibraryName name 'sk4d_imagefilter_make_dilate';
-function sk4d_imagefilter_make_displacement_map;     external LibraryName name 'sk4d_imagefilter_make_displacement_map';
-function sk4d_imagefilter_make_distant_lit_diffuse;  external LibraryName name 'sk4d_imagefilter_make_distant_lit_diffuse';
-function sk4d_imagefilter_make_distant_lit_specular; external LibraryName name 'sk4d_imagefilter_make_distant_lit_specular';
-function sk4d_imagefilter_make_drop_shadow;          external LibraryName name 'sk4d_imagefilter_make_drop_shadow';
-function sk4d_imagefilter_make_drop_shadow_only;     external LibraryName name 'sk4d_imagefilter_make_drop_shadow_only';
-function sk4d_imagefilter_make_erode;                external LibraryName name 'sk4d_imagefilter_make_erode';
-function sk4d_imagefilter_make_image;                external LibraryName name 'sk4d_imagefilter_make_image';
-function sk4d_imagefilter_make_magnifier;            external LibraryName name 'sk4d_imagefilter_make_magnifier';
-function sk4d_imagefilter_make_matrix_convolution;   external LibraryName name 'sk4d_imagefilter_make_matrix_convolution';
-function sk4d_imagefilter_make_matrix_transform;     external LibraryName name 'sk4d_imagefilter_make_matrix_transform';
-function sk4d_imagefilter_make_merge;                external LibraryName name 'sk4d_imagefilter_make_merge';
-function sk4d_imagefilter_make_offset;               external LibraryName name 'sk4d_imagefilter_make_offset';
-function sk4d_imagefilter_make_picture;              external LibraryName name 'sk4d_imagefilter_make_picture';
-function sk4d_imagefilter_make_point_lit_diffuse;    external LibraryName name 'sk4d_imagefilter_make_point_lit_diffuse';
-function sk4d_imagefilter_make_point_lit_specular;   external LibraryName name 'sk4d_imagefilter_make_point_lit_specular';
-function sk4d_imagefilter_make_shader;               external LibraryName name 'sk4d_imagefilter_make_shader';
-function sk4d_imagefilter_make_spot_lit_diffuse;     external LibraryName name 'sk4d_imagefilter_make_spot_lit_diffuse';
-function sk4d_imagefilter_make_spot_lit_specular;    external LibraryName name 'sk4d_imagefilter_make_spot_lit_specular';
-function sk4d_imagefilter_make_tile;                 external LibraryName name 'sk4d_imagefilter_make_tile';
-function sk4d_imagefilter_make_with_local_matrix;    external LibraryName name 'sk4d_imagefilter_make_with_local_matrix';
+function  sk4d_imagefilter_can_compute_fast_bounds;   external LibraryName name 'sk4d_imagefilter_can_compute_fast_bounds';
+procedure sk4d_imagefilter_compute_fast_bounds;       external LibraryName name 'sk4d_imagefilter_compute_fast_bounds';
+function  sk4d_imagefilter_make_alpha_threshold;      external LibraryName name 'sk4d_imagefilter_make_alpha_threshold';
+function  sk4d_imagefilter_make_arithmetic;           external LibraryName name 'sk4d_imagefilter_make_arithmetic';
+function  sk4d_imagefilter_make_blend;                external LibraryName name 'sk4d_imagefilter_make_blend';
+function  sk4d_imagefilter_make_blur;                 external LibraryName name 'sk4d_imagefilter_make_blur';
+function  sk4d_imagefilter_make_colorfilter;          external LibraryName name 'sk4d_imagefilter_make_colorfilter';
+function  sk4d_imagefilter_make_compose;              external LibraryName name 'sk4d_imagefilter_make_compose';
+function  sk4d_imagefilter_make_dilate;               external LibraryName name 'sk4d_imagefilter_make_dilate';
+function  sk4d_imagefilter_make_displacement_map;     external LibraryName name 'sk4d_imagefilter_make_displacement_map';
+function  sk4d_imagefilter_make_distant_lit_diffuse;  external LibraryName name 'sk4d_imagefilter_make_distant_lit_diffuse';
+function  sk4d_imagefilter_make_distant_lit_specular; external LibraryName name 'sk4d_imagefilter_make_distant_lit_specular';
+function  sk4d_imagefilter_make_drop_shadow;          external LibraryName name 'sk4d_imagefilter_make_drop_shadow';
+function  sk4d_imagefilter_make_drop_shadow_only;     external LibraryName name 'sk4d_imagefilter_make_drop_shadow_only';
+function  sk4d_imagefilter_make_erode;                external LibraryName name 'sk4d_imagefilter_make_erode';
+function  sk4d_imagefilter_make_image;                external LibraryName name 'sk4d_imagefilter_make_image';
+function  sk4d_imagefilter_make_magnifier;            external LibraryName name 'sk4d_imagefilter_make_magnifier';
+function  sk4d_imagefilter_make_matrix_convolution;   external LibraryName name 'sk4d_imagefilter_make_matrix_convolution';
+function  sk4d_imagefilter_make_matrix_transform;     external LibraryName name 'sk4d_imagefilter_make_matrix_transform';
+function  sk4d_imagefilter_make_merge;                external LibraryName name 'sk4d_imagefilter_make_merge';
+function  sk4d_imagefilter_make_offset;               external LibraryName name 'sk4d_imagefilter_make_offset';
+function  sk4d_imagefilter_make_picture;              external LibraryName name 'sk4d_imagefilter_make_picture';
+function  sk4d_imagefilter_make_point_lit_diffuse;    external LibraryName name 'sk4d_imagefilter_make_point_lit_diffuse';
+function  sk4d_imagefilter_make_point_lit_specular;   external LibraryName name 'sk4d_imagefilter_make_point_lit_specular';
+function  sk4d_imagefilter_make_shader;               external LibraryName name 'sk4d_imagefilter_make_shader';
+function  sk4d_imagefilter_make_spot_lit_diffuse;     external LibraryName name 'sk4d_imagefilter_make_spot_lit_diffuse';
+function  sk4d_imagefilter_make_spot_lit_specular;    external LibraryName name 'sk4d_imagefilter_make_spot_lit_specular';
+function  sk4d_imagefilter_make_tile;                 external LibraryName name 'sk4d_imagefilter_make_tile';
+function  sk4d_imagefilter_make_with_local_matrix;    external LibraryName name 'sk4d_imagefilter_make_with_local_matrix';
 {$ENDIF}
 
 
@@ -3349,17 +3357,21 @@ function  sk4d_pathmeasure_next_contour;             external LibraryName name '
 { include/c/sk4d_picture.h }
 
 {$IFNDEF SK_STATIC_LIBRARY}
-  sk4d_picture_get_cull_rect       := GetProcAddress(LibraryHandle, PChar('sk4d_picture_get_cull_rect'));
-  sk4d_picture_make_from_stream    := GetProcAddress(LibraryHandle, PChar('sk4d_picture_make_from_stream'));
-  sk4d_picture_make_shader         := GetProcAddress(LibraryHandle, PChar('sk4d_picture_make_shader'));
-  sk4d_picture_playback            := GetProcAddress(LibraryHandle, PChar('sk4d_picture_playback'));
-  sk4d_picture_serialize_to_stream := GetProcAddress(LibraryHandle, PChar('sk4d_picture_serialize_to_stream'));
+  sk4d_picture_approximate_bytes_used := GetProcAddress(LibraryHandle, PChar('sk4d_picture_approximate_bytes_used'));
+  sk4d_picture_approximate_op_count   := GetProcAddress(LibraryHandle, PChar('sk4d_picture_approximate_op_count'));
+  sk4d_picture_get_cull_rect          := GetProcAddress(LibraryHandle, PChar('sk4d_picture_get_cull_rect'));
+  sk4d_picture_make_from_stream       := GetProcAddress(LibraryHandle, PChar('sk4d_picture_make_from_stream'));
+  sk4d_picture_make_shader            := GetProcAddress(LibraryHandle, PChar('sk4d_picture_make_shader'));
+  sk4d_picture_playback               := GetProcAddress(LibraryHandle, PChar('sk4d_picture_playback'));
+  sk4d_picture_serialize_to_stream    := GetProcAddress(LibraryHandle, PChar('sk4d_picture_serialize_to_stream'));
 {$ELSE}
-procedure sk4d_picture_get_cull_rect;       external LibraryName name 'sk4d_picture_get_cull_rect';
-function  sk4d_picture_make_from_stream;    external LibraryName name 'sk4d_picture_make_from_stream';
-function  sk4d_picture_make_shader;         external LibraryName name 'sk4d_picture_make_shader';
-procedure sk4d_picture_playback;            external LibraryName name 'sk4d_picture_playback';
-procedure sk4d_picture_serialize_to_stream; external LibraryName name 'sk4d_picture_serialize_to_stream';
+function  sk4d_picture_approximate_bytes_used; external LibraryName name 'sk4d_picture_approximate_bytes_used';
+function  sk4d_picture_approximate_op_count;   external LibraryName name 'sk4d_picture_approximate_op_count';
+procedure sk4d_picture_get_cull_rect;          external LibraryName name 'sk4d_picture_get_cull_rect';
+function  sk4d_picture_make_from_stream;       external LibraryName name 'sk4d_picture_make_from_stream';
+function  sk4d_picture_make_shader;            external LibraryName name 'sk4d_picture_make_shader';
+procedure sk4d_picture_playback;               external LibraryName name 'sk4d_picture_playback';
+procedure sk4d_picture_serialize_to_stream;    external LibraryName name 'sk4d_picture_serialize_to_stream';
 {$ENDIF}
 
 
@@ -4237,7 +4249,6 @@ procedure sk4d_svgsvg_set_x;                     external LibraryName name 'sk4d
 procedure sk4d_svgsvg_set_y;                     external LibraryName name 'sk4d_svgsvg_set_y';
 {$ENDIF}
 
-
 {$IFNDEF SK_STATIC_LIBRARY}
 end;
 {$ELSE}
@@ -4260,9 +4271,13 @@ end;
 {$ENDIF}
 
 {$IFDEF SK_STATIC_LIBRARY}
-  {$IF DEFINED(IOS) and NOT DEFINED(IOSSIMULATOR)}
+  {$IFDEF IOS}
   procedure libcpp; external '/usr/lib/libc++.dylib';
+  {$IFDEF IOSSIMULATOR}
+  procedure libcompiler_rt; external '/usr/lib/clang/lib/darwin/libclang_rt.iossim.a';
+  {$ELSE}
   procedure libcompiler_rt; external '/usr/lib/clang/lib/darwin/libclang_rt.ios.a';
+  {$ENDIF}
   {$ENDIF}
 {$ENDIF}
 

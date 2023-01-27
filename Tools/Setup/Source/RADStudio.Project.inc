@@ -6,8 +6,8 @@
 {                                                                        }
 {                              Skia4Delphi                               }
 {                                                                        }
-{ Copyright (c) 2011-2022 Google LLC.                                    }
-{ Copyright (c) 2021-2022 Skia4Delphi Project.                           }
+{ Copyright (c) 2011-2023 Google LLC.                                    }
+{ Copyright (c) 2021-2023 Skia4Delphi Project.                           }
 {                                                                        }
 { Use of this source code is governed by a BSD-style license that can be }
 { found in the LICENSE file.                                             }
@@ -56,6 +56,8 @@ type
 
   TRADStudioGroupProjects = array of TRADStudioGroupProject;
 
+/// <summary> Copy group project record </summary>
+function CopyRADStudioGroupProject(const AGroupProject: TRADStudioGroupProject): TRADStudioGroupProject; forward;
 /// <summary> Expand project path (directory or filename), expanding relative path, config and platform names </summary>
 function ExpandProjectPath(const APath: string; const AConfig: TProjectConfig; const APlatform: TProjectPlatform): string; forward;
 /// <summary> Get config name </summary>
@@ -104,6 +106,35 @@ const
 procedure _ExpandProjectRootPath(var APath: string; const ADefaultRootPath: string); forward;
 /// <summary> Ascendent sort of items of group project by RequiresDCPCount </summary>
 function _SortGroupProjectItems(AItems: TRADStudioGroupProjectItems): TRADStudioGroupProjectItems; forward;
+
+function CopyRADStudioGroupProject(const AGroupProject: TRADStudioGroupProject): TRADStudioGroupProject;
+var
+  I, J: Integer;
+begin
+  Result.FileName := AGroupProject.FileName;
+  SetArrayLength(Result.Items, GetArrayLength(AGroupProject.Items));
+  for I := 0 to GetArrayLength(Result.Items) - 1 do
+  begin
+    Result.Items[I].Project.FileName := AGroupProject.Items[I].Project.FileName;
+    Result.Items[I].Project.Description := AGroupProject.Items[I].Project.Description;
+    Result.Items[I].Project.BplOutputPath := AGroupProject.Items[I].Project.BplOutputPath;
+    Result.Items[I].Project.DcpOutputPath := AGroupProject.Items[I].Project.DcpOutputPath;
+    Result.Items[I].Project.DCUOutputPath := AGroupProject.Items[I].Project.DCUOutputPath;
+    Result.Items[I].Project.DllSuffix := AGroupProject.Items[I].Project.DllSuffix;
+    Result.Items[I].Project.Platforms := AGroupProject.Items[I].Project.Platforms;
+    Result.Items[I].Project.ProjectVersion := AGroupProject.Items[I].Project.ProjectVersion;
+    Result.Items[I].Project.Personality := AGroupProject.Items[I].Project.Personality;
+    Result.Items[I].Project.IsDesignOnly := AGroupProject.Items[I].Project.IsDesignOnly;
+    Result.Items[I].Project.IsPackage := AGroupProject.Items[I].Project.IsPackage;
+    Result.Items[I].Project.IsInstallable := AGroupProject.Items[I].Project.IsInstallable;
+    Result.Items[I].Project.RequiresDCPCount := AGroupProject.Items[I].Project.RequiresDCPCount;
+    SetArrayLength(Result.Items[I].Project.SourcePaths, GetArrayLength(AGroupProject.Items[I].Project.SourcePaths));
+    for J := 0 to GetArrayLength(AGroupProject.Items[I].Project.SourcePaths) - 1 do
+      Result.Items[I].Project.SourcePaths[J] := AGroupProject.Items[I].Project.SourcePaths[J];
+    Result.Items[I].Configs := AGroupProject.Items[I].Configs;
+    Result.Items[I].Platforms := AGroupProject.Items[I].Platforms;
+  end;
+end;
 
 function ExpandProjectPath(const APath: string; const AConfig: TProjectConfig; const APlatform: TProjectPlatform): string;
 begin

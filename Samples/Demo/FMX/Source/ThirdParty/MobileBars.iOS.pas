@@ -2,7 +2,7 @@
 {                                                                        }
 {                               MobileBars                               }
 {                                                                        }
-{ Copyright (c) 2021-2022 MobileBars                                     }
+{ Copyright (c) 2021-2023 MobileBars                                     }
 { https://github.com/viniciusfbb/mobilebars                              }
 {                                                                        }
 { Use of this source code is governed by a MIT license that can be found }

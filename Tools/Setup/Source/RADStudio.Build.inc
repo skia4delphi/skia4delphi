@@ -6,8 +6,8 @@
 {                                                                        }
 {                              Skia4Delphi                               }
 {                                                                        }
-{ Copyright (c) 2011-2022 Google LLC.                                    }
-{ Copyright (c) 2021-2022 Skia4Delphi Project.                           }
+{ Copyright (c) 2011-2023 Google LLC.                                    }
+{ Copyright (c) 2021-2023 Skia4Delphi Project.                           }
 {                                                                        }
 { Use of this source code is governed by a BSD-style license that can be }
 { found in the LICENSE file.                                             }
@@ -28,7 +28,7 @@ type
 function GetPlatformsAllowedToBuild(const ARADStudioInfo: TRADStudioInfo): TProjectPlatforms; forward;
 /// <summary> Get steps of TryBuildRADStudioPackages used in WizardForm.ProgressGauge.Position. Use this to set WizardForm.ProgressGauge.Max before call the TryBuildRADStudioPackages. </summary>
 function GetTryBuildRADStudioPackagesSteps(const ARADStudioInfos: TRADStudioInfos; const AGroupProjects: TRADStudioGroupProjects): Integer; forward;
-/// <summary> Try to build RAD Studio packages, but only in allowed platforms and Release config. </summary>
+/// <summary> Try to build RAD Studio packages, but only in allowed platforms. </summary>
 function TryBuildRADStudioPackages(const ARADStudioInfos: TRADStudioInfos; const AGroupProjects: TRADStudioGroupProjects; const ACustomParameter: string; const ATryExtractPreBuildObjects: TTryExtractPreBuildObjectsProc): Boolean; forward;
 
 // implementation
@@ -119,7 +119,7 @@ begin
             Log(Format('RADStudio.Build.TryBuildRADStudioPackages: Trying to build the package "%s" to %s platform for %s', [ExtractFileName(LProject.FileName), GetProjectPlatformName(LPlatform), LInfo.Version.Name]));
             WizardForm.StatusLabel.Caption := FmtMessage(CustomMessage('RADStudioBuildBuildingFor'), [LInfo.Version.Name, GetProjectPlatformName(LPlatform)]);
             WizardForm.FilenameLabel.Caption := ExtractFileName(LProject.FileName);
-            if (LInfo.Status = riToolchainNotSupported) or (not _TryBuildRADStudioProject(LInfo, pcRelease, LPlatform, LProject.FileName, ACustomParameter, ExpandConstant(_BuilLogsFileName), LResultCode)) then
+            if (LInfo.Status = riToolchainNotSupported) or (not _TryBuildRADStudioProject(LInfo, LInfo.Version.BuildConfig, LPlatform, LProject.FileName, ACustomParameter, ExpandConstant(_BuilLogsFileName), LResultCode)) then
             begin
               Log(Format('RADStudio.Build.TryBuildRADStudioPackages: Failed to build the package "%s" to %s platform for %s', [ExtractFileName(LProject.FileName), GetProjectPlatformName(LPlatform), LInfo.Version.Name]));
               if (ATryExtractPreBuildObjects <> nil) and ATryExtractPreBuildObjects(LInfo) then
@@ -164,7 +164,9 @@ begin
     Result := Exec(ExpandConstant('{cmd}'), '/C ' + LCommand, LProjectDir, SW_HIDE, ewWaitUntilTerminated, AResultCode) and (AResultCode = 0);
   end;
   if Result then
-    DeleteFile(ALogFileName);
+    DeleteFile(ALogFileName)
+  else
+    Log(Format('RADStudio.Build._TryBuildRADStudioProject: Failed executing command "%s"', [LCommand]));
 end;
 
 function _TryGetBuildCommand(const ARADStudioInfo: TRADStudioInfo; const AConfig: TProjectConfig; const APlatform: TProjectPlatform; const AProjectFileName, ACustomParameter, ALogFileName: string; out ACommand: string): Boolean;

@@ -18,6 +18,7 @@ uses
   Skia.Tests.Path in '..\..\Source\Skia.Tests.Path.pas',
   Skia.Tests.Picture in '..\..\Source\Skia.Tests.Picture.pas',
   Skia.Tests.Region in '..\..\Source\Skia.Tests.Region.pas',
+  Skia.Tests.RotationScaleMatrix in '..\..\Source\Skia.Tests.RotationScaleMatrix.pas',
   Skia.Tests.RoundRect in '..\..\Source\Skia.Tests.RoundRect.pas',
   Skia.Tests.RuntimeEffect in '..\..\Source\Skia.Tests.RuntimeEffect.pas',
   Skia.Tests.Skottie in '..\..\Source\Skia.Tests.Skottie.pas',

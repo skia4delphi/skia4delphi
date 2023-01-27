@@ -3,6 +3,7 @@ program ShaderButton;
 uses
   System.StartUpCopy,
   FMX.Forms,
+  FMX.Types,
   Skia.FMX,
   Sample.Main in '..\..\Source\Sample.Main.pas' {frmMain},
   Sample.ShaderButton in '..\..\Source\Sample.ShaderButton.pas' {frmShaderButton: TFrame};
@@ -10,6 +11,7 @@ uses
 {$R *.res}
 
 begin
+  GlobalUseMetal := True;
   GlobalUseSkia := True;
   GlobalUseSkiaRasterWhenAvailable := False;
   Application.Initialize;

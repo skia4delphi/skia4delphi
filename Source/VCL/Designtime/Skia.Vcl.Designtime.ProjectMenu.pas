@@ -2,8 +2,8 @@
 {                                                                        }
 {                              Skia4Delphi                               }
 {                                                                        }
-{ Copyright (c) 2011-2022 Google LLC.                                    }
-{ Copyright (c) 2021-2022 Skia4Delphi Project.                           }
+{ Copyright (c) 2011-2023 Google LLC.                                    }
+{ Copyright (c) 2021-2023 Skia4Delphi Project.                           }
 {                                                                        }
 { Use of this source code is governed by a BSD-style license that can be }
 { found in the LICENSE file.                                             }
@@ -279,25 +279,23 @@ const
   {$ENDIF}
 
   {$IF CompilerVersion >= 35}
-  SkiaDeployFiles: array[0..17] of TSkDeployFile = (
+  SkiaDeployFiles: array[0..15] of TSkDeployFile = (
     (&Platform: TSkProjectPlatform.Win32;       LocalFileName: '$(BDS)\bin\sk4d.dll';                                            RemotePath: '.\';                       CopyToOutput: True;  Required: True; Operation: TDeployOperation.doCopyOnly;   Condition: '''$('+SkiaDirVariable+')''=='''''), // Win32
     (&Platform: TSkProjectPlatform.Win64;       LocalFileName: '$(BDS)\bin64\sk4d.dll';                                          RemotePath: '.\';                       CopyToOutput: True;  Required: True; Operation: TDeployOperation.doCopyOnly;   Condition: '''$('+SkiaDirVariable+')''=='''''), // Win64
     (&Platform: TSkProjectPlatform.Android;     LocalFileName: '$(BDS)\binandroid32\libsk4d.so';                                 RemotePath: 'library\lib\armeabi-v7a\'; CopyToOutput: False; Required: True; Operation: TDeployOperation.doSetExecBit; Condition: '''$('+SkiaDirVariable+')''=='''''), // Android
     (&Platform: TSkProjectPlatform.Android64;   LocalFileName: '$(BDS)\binandroid64\libsk4d.so';                                 RemotePath: 'library\lib\arm64-v8a\';   CopyToOutput: False; Required: True; Operation: TDeployOperation.doSetExecBit; Condition: '''$('+SkiaDirVariable+')''=='''''), // Android64
     (&Platform: TSkProjectPlatform.Android64;   LocalFileName: '$(BDS)\binandroid32\libsk4d.so';                                 RemotePath: 'library\lib\armeabi-v7a\'; CopyToOutput: False; Required: True; Operation: TDeployOperation.doSetExecBit; Condition: '''$('+SkiaDirVariable+')''=='''' and ''$(AndroidAppBundle)''==''true'''), // Android64
-    (&Platform: TSkProjectPlatform.iOSSimARM64; LocalFileName: '$(BDS)\biniossimarm64\libsk4d.dylib';                            RemotePath: '.\';                       CopyToOutput: False; Required: True; Operation: TDeployOperation.doSetExecBit; Condition: '''$('+SkiaDirVariable+')''=='''''), // iOSSimARM64
     (&Platform: TSkProjectPlatform.OSX64;       LocalFileName: '$(BDS)\binosx64\libsk4d.dylib';                                  RemotePath: 'Contents\MacOS\';          CopyToOutput: False; Required: True; Operation: TDeployOperation.doSetExecBit; Condition: '''$('+SkiaDirVariable+')''=='''''), // OSX64
     (&Platform: TSkProjectPlatform.OSXARM64;    LocalFileName: '$(BDS)\binosxarm64\libsk4d.dylib';                               RemotePath: 'Contents\MacOS\';          CopyToOutput: False; Required: True; Operation: TDeployOperation.doSetExecBit; Condition: '''$('+SkiaDirVariable+')''=='''''), // OSXARM64
     (&Platform: TSkProjectPlatform.Linux64;     LocalFileName: '$(BDS)\binlinux64\libsk4d.so';                                   RemotePath: '.\';                       CopyToOutput: False; Required: True; Operation: TDeployOperation.doSetExecBit; Condition: '''$('+SkiaDirVariable+')''=='''''), // Linux64
   {$ELSE}
-  SkiaDeployFiles: array[0..8] of TSkDeployFile = (
+  SkiaDeployFiles: array[0..7] of TSkDeployFile = (
   {$ENDIF}
     (&Platform: TSkProjectPlatform.Win32;       LocalFileName: '$('+SkiaDirVariable+')\Binary\Shared\Win32\sk4d.dll';            RemotePath: '.\';                       CopyToOutput: True;  Required: True; Operation: TDeployOperation.doCopyOnly;   Condition: '''$('+SkiaDirVariable+')''!='''''), // Win32
     (&Platform: TSkProjectPlatform.Win64;       LocalFileName: '$('+SkiaDirVariable+')\Binary\Shared\Win64\sk4d.dll';            RemotePath: '.\';                       CopyToOutput: True;  Required: True; Operation: TDeployOperation.doCopyOnly;   Condition: '''$('+SkiaDirVariable+')''!='''''), // Win64
     (&Platform: TSkProjectPlatform.Android;     LocalFileName: '$('+SkiaDirVariable+')\Binary\Shared\Android\libsk4d.so';        RemotePath: 'library\lib\armeabi-v7a\'; CopyToOutput: False; Required: True; Operation: TDeployOperation.doSetExecBit; Condition: '''$('+SkiaDirVariable+')''!='''''), // Android
     (&Platform: TSkProjectPlatform.Android64;   LocalFileName: '$('+SkiaDirVariable+')\Binary\Shared\Android64\libsk4d.so';      RemotePath: 'library\lib\arm64-v8a\';   CopyToOutput: False; Required: True; Operation: TDeployOperation.doSetExecBit; Condition: '''$('+SkiaDirVariable+')''!='''''), // Android64
     (&Platform: TSkProjectPlatform.Android64;   LocalFileName: '$('+SkiaDirVariable+')\Binary\Shared\Android\libsk4d.so';        RemotePath: 'library\lib\armeabi-v7a\'; CopyToOutput: False; Required: True; Operation: TDeployOperation.doSetExecBit; Condition: '''$('+SkiaDirVariable+')''!='''' and ''$(AndroidAppBundle)''==''true'''), // Android64
-    (&Platform: TSkProjectPlatform.iOSSimARM64; LocalFileName: '$('+SkiaDirVariable+')\Binary\Shared\iOSSimARM64\libsk4d.dylib'; RemotePath: '.\';                       CopyToOutput: False; Required: True; Operation: TDeployOperation.doSetExecBit; Condition: '''$('+SkiaDirVariable+')''!='''''), // iOSSimARM64
     (&Platform: TSkProjectPlatform.OSX64;       LocalFileName: '$('+SkiaDirVariable+')\Binary\Shared\OSX64\libsk4d.dylib';       RemotePath: 'Contents\MacOS\';          CopyToOutput: False; Required: True; Operation: TDeployOperation.doSetExecBit; Condition: '''$('+SkiaDirVariable+')''!='''''), // OSX64
     (&Platform: TSkProjectPlatform.OSXARM64;    LocalFileName: '$('+SkiaDirVariable+')\Binary\Shared\OSXARM64\libsk4d.dylib';    RemotePath: 'Contents\MacOS\';          CopyToOutput: False; Required: True; Operation: TDeployOperation.doSetExecBit; Condition: '''$('+SkiaDirVariable+')''!='''''), // OSXARM64
     (&Platform: TSkProjectPlatform.Linux64;     LocalFileName: '$('+SkiaDirVariable+')\Binary\Shared\Linux64\libsk4d.so';        RemotePath: '.\';                       CopyToOutput: False; Required: True; Operation: TDeployOperation.doSetExecBit; Condition: '''$('+SkiaDirVariable+')''!=''''')  // Linux64

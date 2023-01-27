@@ -1,30 +1,38 @@
 object frmShaderButton: TfrmShaderButton
-  Size.Width = 537.000000000000000000
-  Size.Height = 75.000000000000000000
+  Size.Width = 358.000000000000000000
+  Size.Height = 50.000000000000000000
   Size.PlatformDefault = False
   object apbBackground: TSkAnimatedPaintBox
     Align = Client
     Locked = True
-    Size.Width = 537.000000000000000000
-    Size.Height = 75.000000000000000000
+    Size.Width = 358.000000000000000000
+    Size.Height = 50.000000000000000000
     Size.PlatformDefault = False
     Animation.Duration = 6.000000000000000000
     OnAnimationDraw = apbBackgroundAnimationDraw
     object lblText: TSkLabel
       Align = Client
       Locked = True
-      Size.Width = 537.000000000000000000
-      Size.Height = 75.000000000000000000
+      Size.Width = 358.000000000000000000
+      Size.Height = 50.000000000000000000
       Size.PlatformDefault = False
       StyledSettings = [Family]
-      TextSettings.Font.Size = 20.000000000000000000
+      TextSettings.Font.Size = 17.000000000000000000
       TextSettings.Font.Weight = Semibold
       TextSettings.FontColor = xFFFEFFFF
       TextSettings.HorzAlign = Center
       Words = <
         item
-          Text = 'Assine por R$ 12,90 / m'#234's'
+          Text = 'Subscribe for $4.99 per month'
         end>
+    end
+    object fanClickAnimation: TFloatAnimation
+      Duration = 0.200000002980232200
+      OnProcess = fanClickAnimationProcess
+      PropertyName = 'Opacity'
+      StartValue = 1.000000000000000000
+      StartFromCurrent = True
+      StopValue = 0.900000000000000000
     end
   end
 end

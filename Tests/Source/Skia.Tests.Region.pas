@@ -2,8 +2,8 @@
 {                                                                        }
 {                              Skia4Delphi                               }
 {                                                                        }
-{ Copyright (c) 2011-2022 Google LLC.                                    }
-{ Copyright (c) 2021-2022 Skia4Delphi Project.                           }
+{ Copyright (c) 2011-2023 Google LLC.                                    }
+{ Copyright (c) 2021-2023 Skia4Delphi Project.                           }
 {                                                                        }
 { Use of this source code is governed by a BSD-style license that can be }
 { found in the LICENSE file.                                             }
@@ -229,7 +229,7 @@ begin
   LRegion := TSkRegion.Create;
   LRegion.SetRects([Rect(40, 20, 50, 30), Rect(70, 40, 80, 50), Rect(60, 10, 70, 20)]);
 
-  for LColor in [TAlphaColors.Red, TAlphaColors.Blue, TAlphaColors.Green, TAlphaColors.Magenta] do
+  for LColor in TArray<TAlphaColor>.Create(TAlphaColors.Red, TAlphaColors.Blue, TAlphaColors.Green, TAlphaColors.Magenta) do
   begin
     LPaint.Color := LColor;
     LSurface.Canvas.DrawRegion(LRegion, LPaint);

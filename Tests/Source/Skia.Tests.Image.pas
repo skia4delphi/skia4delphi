@@ -2,8 +2,8 @@
 {                                                                        }
 {                              Skia4Delphi                               }
 {                                                                        }
-{ Copyright (c) 2011-2022 Google LLC.                                    }
-{ Copyright (c) 2021-2022 Skia4Delphi Project.                           }
+{ Copyright (c) 2011-2023 Google LLC.                                    }
+{ Copyright (c) 2021-2023 Skia4Delphi Project.                           }
 {                                                                        }
 { Use of this source code is governed by a BSD-style license that can be }
 { found in the LICENSE file.                                             }
@@ -51,8 +51,8 @@ type
     procedure TestMakeRasterImage(const AImageFileName: string; const AMinSimilarity: Double; const AExpectedImageHash: string);
     [TestCase('1', 'horse.webp,0.99,8vD48PA4Ph///Pjx839+X//9//37/39f//3//f///9/LAM9A/0C/Av4AvwANgEfgD/AP8AfgAqA')]
     procedure TestMakeShader(const AImageFileName: string; const AMinSimilarity: Double; const AExpectedImageHash: string);
-    [TestCase('1', 'horse.webp,1332534160')]
-    procedure TestPeekPixels(const AImageFileName: string; const AExpectedCRC32: Cardinal);
+    [TestCase('1', 'horse.webp,0.99,/85AAMDS8vL//nBgw9f+/v//d3P73/////////////8fgAeAB4AHwD/AAOAzQC/IC4APgABAAAA')]
+    procedure TestPeekPixels(const AImageFileName: string; const AMinSimilarity: Double; const AExpectedImageHash: string);
     [Test]
     procedure TestSize;
     [TestCase('1', 'horse.webp,500,333')]
@@ -250,7 +250,7 @@ begin
 end;
 
 procedure TSkImageTests.TestPeekPixels(const AImageFileName: string;
-  const AExpectedCRC32: Cardinal);
+  const AMinSimilarity: Double; const AExpectedImageHash: string);
 var
   LImage: ISkImage;
   LPixmap: ISkPixmap;
@@ -258,10 +258,13 @@ var
 begin
   LImage := TSkImage.MakeFromEncodedFile(ImageAssetsPath + AImageFileName);
   Assert.IsNull(LImage.PeekPixels);
+
   SetLength(LPixels, SkBytesPerPixel[LImage.ColorType] * LImage.Width * LImage.Height);
-  LPixmap := TSkPixmap.Create(TSkImageInfo.Create(LImage.Width, LImage.Height, LImage.ColorType), LPixels, SkBytesPerPixel[LImage.ColorType] * LImage.Width);
+  LPixmap := TSkPixmap.Create(TSkImageInfo.Create(LImage.Width, LImage.Height, LImage.ColorType, LImage.AlphaType), LPixels, SkBytesPerPixel[LImage.ColorType] * LImage.Width);
+  LImage.ReadPixels(LPixmap);
+
   LImage := TSkImage.MakeFromRaster(LPixmap);
-  Assert.AreEqualCRC32(AExpectedCRC32, LImage.PeekPixels);
+  Assert.AreSimilar(AExpectedImageHash, LImage.PeekPixels, AMinSimilarity);
 end;
 
 procedure TSkImageTests.TestSize;

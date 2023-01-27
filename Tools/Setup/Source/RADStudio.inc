@@ -6,8 +6,8 @@
 {                                                                        }
 {                              Skia4Delphi                               }
 {                                                                        }
-{ Copyright (c) 2011-2022 Google LLC.                                    }
-{ Copyright (c) 2021-2022 Skia4Delphi Project.                           }
+{ Copyright (c) 2011-2023 Google LLC.                                    }
+{ Copyright (c) 2021-2023 Skia4Delphi Project.                           }
 {                                                                        }
 { Use of this source code is governed by a BSD-style license that can be }
 { found in the LICENSE file.                                             }
@@ -34,6 +34,7 @@ type
     GetItCmdUninstallParams: string;
     DotNetVersion: TDotNetVersion;
     DotNetServicePack: Cardinal;
+    BuildConfig: TProjectConfig;
   end;
 
   TRADStudioInstallationStatus = (riNotFound, riNeedOpenFirst, riToolchainNotSupported, riNormal);
@@ -57,8 +58,8 @@ function CompareRADStudioVersions(const AVersion1, AVersion2: TRADStudioVersion)
 function GetRADStudioCommonBplDir(const ARADStudioInfo: TRADStudioInfo; const APlatform: TProjectPlatform): string; forward;
 /// <summary> Get the RAD Studio info </summary>
 function GetRADStudioInfo(const ARADStudioVersion: TRADStudioVersion): TRADStudioInfo; forward;
-/// <summary> Get RAD Studio infos from the RAD Studio versions of the packages of each group project </summary>
-function GetRADStudioInfosOfGroupProjects(const AGroupProjects: TRADStudioGroupProjects): TRADStudioInfos; forward;
+/// <summary> Get RAD Studio infos from the RAD Studio versions supported by each packages of each group project </summary>
+function GetRADStudioInfosSupportedByGroupProjects(const AGroupProjects: TRADStudioGroupProjects): TRADStudioInfos; forward;
 /// <summary> Get the RAD Studio path from the registry </summary>
 function GetRADStudioRegKey(const ARADStudioVersion: TRADStudioVersion): string; forward;
 /// <summary> Check if there is any RAD Studio instance running in machine </summary>
@@ -73,6 +74,8 @@ function TryAddRADStudioLibraryDebugDCUPath(const ARADStudioVersion: TRADStudioV
 function TryAddRADStudioLibrarySearchPath(const ARADStudioVersion: TRADStudioVersion; const APlatform: TProjectPlatform; const APath: string): Boolean; forward;
 /// <summary> Try to add a path to the PATH environment variable exclusive of RAD Studio application </summary>
 function TryAddRADStudioPathEnvVariable(const ARADStudioVersion: TRADStudioVersion; const APath: string): Boolean; forward;
+/// <summary> Try to get the newest version of RAD Studio detected in projects of a group projects array </summary>
+function TryGetMaxRADStudioVersionInGroupProjects(const AGroupProjects: TRADStudioGroupProjects; out ARADStudioVersion: TRADStudioVersion): Boolean; forward;
 /// <summary> Try get default BPL output filename of a RAD Studio project </summary>
 function TryGetRADStudioProjectBplOutputFileName(const AProject: TRADStudioProject; out AFileName: string): Boolean; forward;
 /// <summary> Try to get the "rsvars.bat" filename, used to compile projects with MSBuild </summary>
@@ -109,6 +112,8 @@ type
 
 /// <summary> Filter allowed version defined by the parameter /RADStudioVersions=all for example </summary>
 function _FilterAllowedRADStudioVersions(const ARADStudioVersions: _TRADStudioVersions): _TRADStudioVersions; forward;
+/// <summary> Try to find and add new versions (such as beta versions) </summary>
+procedure _FindAndAddNewRADStudioVersions(var ARADStudioVersions: _TRADStudioVersions); forward;
 /// <summary> Get RAD Studio installation status name </summary>
 function _GetRADStudioInstallationStatusName(const AStatus: TRADStudioInstallationStatus): string; forward;
 /// <summary> Get the RAD Studio versions that the installer is able to recognize </summary>
@@ -117,16 +122,23 @@ function _GetRADStudioVersions: _TRADStudioVersions; forward;
 procedure _InitializationUnitRADStudio; forward;
 /// <summary> Sort RAD Studio infos by version </summary>
 function _SortRADStudioInfos(AInfos: TRADStudioInfos): TRADStudioInfos; forward;
+/// <summary> Sort RAD Studio versions </summary>
+function _SortRADStudioVersions(AVersions: _TRADStudioVersions): _TRADStudioVersions; forward;
 /// <summary> Try to add a path to the Library registry (in a specific registry name) of the RAD Studio </summary>
 function _TryAddRADStudioLibraryPath(const ARADStudioVersion: TRADStudioVersion; const APlatform: TProjectPlatform; const ARegName, APath: string): Boolean; forward;
 /// <summary> Try to get the RADStudio environment variable </summary>
 function _TryGetRADStudioEnvVar(const ARADStudioVersion: TRADStudioVersion; const AName: string; out AValue: string): Boolean; forward;
 /// <summary> Try to get the RADStudio installations info </summary>
 function _TryGetRADStudioInstallation(const ARADStudioVersion: TRADStudioVersion; const ARootKey: Integer; out AAppFileName, ARootDir: string): Boolean; forward;
+/// <summary> Try to get the RADStudio package version by it's product version </summary>
+function _TryGetRADStudioPackageVersionByProductVersion(AProductVersion: string; out APackageVersion: string): Boolean; forward;
 /// <summary> Try to remove a bpl from the "disabled packages" registry of the RAD Studio </summary>
 function _TryRemoveRADStudioBplFromDisabledPackages(const ARADStudioVersion: TRADStudioVersion; const ABplFileName: string): Boolean; forward;
 /// <summary> Try to remove a path from the Library registry (in a specific registry name) of the RAD Studio </summary>
 function _TryRemoveRADStudioLibraryPath(const ARADStudioVersion: TRADStudioVersion; const APlatform: TProjectPlatform; const ARegName, APath: string): Boolean; forward;
+
+const
+  _RADStudioCommonSubKeyReg = 'Software\Embarcadero\BDS';
 
 var
   _FRADStudioVersions: _TRADStudioVersions;
@@ -189,6 +201,59 @@ begin
   end;
 end;
 
+procedure _FindAndAddNewRADStudioVersions(var ARADStudioVersions: _TRADStudioVersions);
+var
+  LChanged: Boolean;
+  LMaxKnownRADStudioVersion: TRADStudioVersion;
+  LMaxKnownVersion: Int64;
+  LNames: TArrayOfString;
+  LProductVersion: string;
+  LRADStudioInfo: TRADStudioInfo;
+  LRADStudioVersion: TRADStudioVersion;
+  LVersion: Int64;
+  I: Integer;
+begin
+  if GetArrayLength(ARADStudioVersions) = 0 then
+    Exit;
+  LMaxKnownRADStudioVersion := ARADStudioVersions[GetArrayLength(ARADStudioVersions) - 1];
+  if not StrToVersion(LMaxKnownRADStudioVersion.RegVersion, LMaxKnownVersion) then
+    Exit;
+
+  if RegGetSubkeyNames(HKEY_CURRENT_USER, _RADStudioCommonSubKeyReg, LNames) then
+  begin
+    LChanged := False;
+    for I := 0 to GetArrayLength(LNames) - 1 do
+    begin
+      if StrToVersion(LNames[I], LVersion) and (LVersion > LMaxKnownVersion) then
+      begin
+        LRADStudioVersion := LMaxKnownRADStudioVersion;
+        LRADStudioVersion.BuildConfig := pcDebug;
+        LRADStudioVersion.RegVersion := LNames[I];
+        if (not RegQueryStringValue(HKEY_CURRENT_USER, GetRADStudioRegKey(LRADStudioVersion), 'ProductVersion', LProductVersion)) or
+          not _TryGetRADStudioPackageVersionByProductVersion(LProductVersion, LRADStudioVersion.PackageVersion) then
+        begin
+          Continue;
+        end;
+        LRADStudioVersion.MaxDprojVersion := Format('%d.0', [10000 + StrToIntDef(LRADStudioVersion.PackageVersion, 0)]);
+        LRADStudioVersion.MinDprojVersion := LRADStudioVersion.MaxDprojVersion;
+        if not RegQueryStringValue(HKEY_CURRENT_USER, GetRADStudioRegKey(LRADStudioVersion) + '\Personalities\', '', LRADStudioVersion.Name) then
+          LRADStudioVersion.Name := CustomMessage('RADStudioUnknownVersionName');
+        LRADStudioVersion.Name := LRADStudioVersion.Name + ' (BDS ' + LRADStudioVersion.RegVersion + ')';
+
+        LRADStudioInfo := GetRADStudioInfo(LRADStudioVersion);
+        if LRADStudioInfo.Status in [riToolchainNotSupported, riNormal] then
+        begin
+          SetArrayLength(ARADStudioVersions, GetArrayLength(ARADStudioVersions) + 1);
+          ARADStudioVersions[GetArrayLength(ARADStudioVersions) - 1] := LRADStudioVersion;
+          LChanged := True;
+        end;
+      end;
+    end;
+    if LChanged then
+      ARADStudioVersions := _SortRADStudioVersions(ARADStudioVersions);
+  end;
+end;
+
 function GetRADStudioCommonBplDir(const ARADStudioInfo: TRADStudioInfo; const APlatform: TProjectPlatform): string;
 begin
   Result := ARADStudioInfo.BdsCommonDir;
@@ -228,13 +293,14 @@ begin
     Result.Status := riNotFound;
 end;
 
-function GetRADStudioInfosOfGroupProjects(const AGroupProjects: TRADStudioGroupProjects): TRADStudioInfos;
+function GetRADStudioInfosSupportedByGroupProjects(const AGroupProjects: TRADStudioGroupProjects): TRADStudioInfos;
 var
   LVersion: TRADStudioVersion;
+  LMaxVersionInGroupProjects: TRADStudioVersion;
   LFound: Boolean;
   I, J, K: Integer;
 begin
-  Log('RADStudio.GetRADStudioInfosOfGroupProjects: Searching all RAD Studio versions that is installed in machine and is compatible with library...');
+  Log('RADStudio.GetRADStudioInfosSupportedByGroupProjects: Searching all RAD Studio versions that is installed in machine and is compatible with library...');
   Result := [];
   // Search RAD Studio versions in packages
   for I := 0 to GetArrayLength(AGroupProjects) - 1 do
@@ -257,20 +323,35 @@ begin
         begin
           SetArrayLength(Result, GetArrayLength(Result) + 1);
           Result[GetArrayLength(Result) - 1] := GetRADStudioInfo(LVersion);
+
+          if (GetArrayLength(Result) = 1) or (CompareRADStudioVersions(LMaxVersionInGroupProjects, LVersion) < 0) then
+            LMaxVersionInGroupProjects := LVersion;
         end;
       end;
     end;
   end;
+
+  // Adding newer versions (which theoretically are not officially supported by the packages) to be able to try to install them
+  if GetArrayLength(Result) > 0 then
+  begin
+    for I := 0 to GetArrayLength(_FRADStudioVersions) - 1 do
+      if CompareRADStudioVersions(LMaxVersionInGroupProjects, _FRADStudioVersions[I]) < 0 then
+      begin
+        SetArrayLength(Result, GetArrayLength(Result) + 1);
+        Result[GetArrayLength(Result) - 1] := GetRADStudioInfo(_FRADStudioVersions[I]);
+      end;
+  end;
+
   // Sort results
   Result := _SortRADStudioInfos(Result);
 
   for I := 0 to GetArrayLength(Result) - 1 do
   begin
-    Log(Format('RADStudio.GetRADStudioInfosOfGroupProjects: Found %s:', [Result[I].Version.Name]));
-    Log(Format('RADStudio.GetRADStudioInfosOfGroupProjects:   > AppFileName: "%s"', [Result[I].AppFileName]));
-    Log(Format('RADStudio.GetRADStudioInfosOfGroupProjects:   > RootDir: "%s"', [Result[I].RootDir]));
-    Log(Format('RADStudio.GetRADStudioInfosOfGroupProjects:   > Status: "%s"', [_GetRADStudioInstallationStatusName(Result[I].Status)]));
-    Log(Format('RADStudio.GetRADStudioInfosOfGroupProjects:   > RegKey: "%s"', [GetRADStudioRegKey(Result[I].Version)]));
+    Log(Format('RADStudio.GetRADStudioInfosSupportedByGroupProjects: Found %s:', [Result[I].Version.Name]));
+    Log(Format('RADStudio.GetRADStudioInfosSupportedByGroupProjects:   > AppFileName: "%s"', [Result[I].AppFileName]));
+    Log(Format('RADStudio.GetRADStudioInfosSupportedByGroupProjects:   > RootDir: "%s"', [Result[I].RootDir]));
+    Log(Format('RADStudio.GetRADStudioInfosSupportedByGroupProjects:   > Status: "%s"', [_GetRADStudioInstallationStatusName(Result[I].Status)]));
+    Log(Format('RADStudio.GetRADStudioInfosSupportedByGroupProjects:   > RegKey: "%s"', [GetRADStudioRegKey(Result[I].Version)]));
   end;
 end;
 
@@ -288,7 +369,7 @@ end;
 
 function GetRADStudioRegKey(const ARADStudioVersion: TRADStudioVersion): string;
 begin
-  Result := 'Software\Embarcadero\BDS\' + ARADStudioVersion.RegVersion;
+  Result := AddBackslash(_RADStudioCommonSubKeyReg) + ARADStudioVersion.RegVersion;
 end;
 
 function _GetRADStudioVersions: _TRADStudioVersions;
@@ -323,6 +404,7 @@ begin
   LRADStudioVersion.GetItCmdUninstallParams := '';
   LRADStudioVersion.DotNetVersion := net35;
   LRADStudioVersion.DotNetServicePack := 1;
+  LRADStudioVersion.BuildConfig := pcRelease;
   SetArrayLength(_FRADStudioVersions, GetArrayLength(_FRADStudioVersions) + 1);
   _FRADStudioVersions[GetArrayLength(_FRADStudioVersions) - 1] := LRADStudioVersion;
 
@@ -339,6 +421,7 @@ begin
   LRADStudioVersion.GetItCmdUninstallParams := '';
   LRADStudioVersion.DotNetVersion := net35;
   LRADStudioVersion.DotNetServicePack := 1;
+  LRADStudioVersion.BuildConfig := pcRelease;
   SetArrayLength(_FRADStudioVersions, GetArrayLength(_FRADStudioVersions) + 1);
   _FRADStudioVersions[GetArrayLength(_FRADStudioVersions) - 1] := LRADStudioVersion;
 
@@ -355,6 +438,7 @@ begin
   LRADStudioVersion.GetItCmdUninstallParams := '';
   LRADStudioVersion.DotNetVersion := net35;
   LRADStudioVersion.DotNetServicePack := 1;
+  LRADStudioVersion.BuildConfig := pcRelease;
   SetArrayLength(_FRADStudioVersions, GetArrayLength(_FRADStudioVersions) + 1);
   _FRADStudioVersions[GetArrayLength(_FRADStudioVersions) - 1] := LRADStudioVersion;
 
@@ -371,6 +455,7 @@ begin
   LRADStudioVersion.GetItCmdUninstallParams := '';
   LRADStudioVersion.DotNetVersion := net35;
   LRADStudioVersion.DotNetServicePack := 1;
+  LRADStudioVersion.BuildConfig := pcRelease;
   SetArrayLength(_FRADStudioVersions, GetArrayLength(_FRADStudioVersions) + 1);
   _FRADStudioVersions[GetArrayLength(_FRADStudioVersions) - 1] := LRADStudioVersion;
 
@@ -387,6 +472,7 @@ begin
   LRADStudioVersion.GetItCmdUninstallParams := '-u"%s"';
   LRADStudioVersion.DotNetVersion := net35;
   LRADStudioVersion.DotNetServicePack := 1;
+  LRADStudioVersion.BuildConfig := pcRelease;
   SetArrayLength(_FRADStudioVersions, GetArrayLength(_FRADStudioVersions) + 1);
   _FRADStudioVersions[GetArrayLength(_FRADStudioVersions) - 1] := LRADStudioVersion;
 
@@ -403,6 +489,7 @@ begin
   LRADStudioVersion.GetItCmdUninstallParams := '-u="%s" -dnsef';
   LRADStudioVersion.DotNetVersion := net45;
   LRADStudioVersion.DotNetServicePack := 0;
+  LRADStudioVersion.BuildConfig := pcRelease;
   SetArrayLength(_FRADStudioVersions, GetArrayLength(_FRADStudioVersions) + 1);
   _FRADStudioVersions[GetArrayLength(_FRADStudioVersions) - 1] := LRADStudioVersion;
 
@@ -419,6 +506,7 @@ begin
   LRADStudioVersion.GetItCmdUninstallParams := '-u="%s" -dnsef';
   LRADStudioVersion.DotNetVersion := net45;
   LRADStudioVersion.DotNetServicePack := 0;
+  LRADStudioVersion.BuildConfig := pcRelease;
   SetArrayLength(_FRADStudioVersions, GetArrayLength(_FRADStudioVersions) + 1);
   _FRADStudioVersions[GetArrayLength(_FRADStudioVersions) - 1] := LRADStudioVersion;
 
@@ -435,16 +523,17 @@ begin
   LRADStudioVersion.GetItCmdUninstallParams := '-u="%s" -dnsef';
   LRADStudioVersion.DotNetVersion := net45;
   LRADStudioVersion.DotNetServicePack := 0;
+  LRADStudioVersion.BuildConfig := pcRelease;
   SetArrayLength(_FRADStudioVersions, GetArrayLength(_FRADStudioVersions) + 1);
   _FRADStudioVersions[GetArrayLength(_FRADStudioVersions) - 1] := LRADStudioVersion;
 
+  _FindAndAddNewRADStudioVersions(_FRADStudioVersions);
   _FRADStudioVersions := _FilterAllowedRADStudioVersions(_FRADStudioVersions);
 end;
 
 function _SortRADStudioInfos(AInfos: TRADStudioInfos): TRADStudioInfos;
 var
-  I: Integer;
-  J: Integer;
+  I, J: Integer;
   LMinIndex: Integer;
   LVersion: TRADStudioVersion;
   LResult: TRADStudioInfos;
@@ -465,6 +554,33 @@ begin
     LVersion := AInfos[LMinIndex].Version;
     LVersion.RegVersion := '';
     AInfos[LMinIndex].Version := LVersion;
+  end;
+  Result := LResult;
+end;
+
+function _SortRADStudioVersions(AVersions: _TRADStudioVersions): _TRADStudioVersions;
+var
+  I, J: Integer;
+  LMinIndex: Integer;
+  LVersion: TRADStudioVersion;
+  LResult: _TRADStudioVersions;
+begin
+  SetArrayLength(LResult, GetArrayLength(AVersions));
+  for I := 0 to GetArrayLength(AVersions) - 1 do
+  begin
+    LMinIndex := I;
+    for J := 0 to GetArrayLength(AVersions) - 1 do
+    begin
+      if (AVersions[J].RegVersion <> '') and ((AVersions[LMinIndex].RegVersion = '') or
+        (CompareRADStudioVersions(AVersions[J], AVersions[LMinIndex]) < 0)) then
+      begin
+        LMinIndex := J;
+      end;
+    end;
+    LResult[I] := AVersions[LMinIndex];
+    LVersion := AVersions[LMinIndex];
+    LVersion.RegVersion := '';
+    AVersions[LMinIndex] := LVersion;
   end;
   Result := LResult;
 end;
@@ -542,6 +658,29 @@ begin
     Log(Format('RADStudio.TryAddRADStudioPathEnvVariable: Failed to add a path environment variable to the RAD Studio registry (Path: "%s")', [APath]));
 end;
 
+function TryGetMaxRADStudioVersionInGroupProjects(const AGroupProjects: TRADStudioGroupProjects; out ARADStudioVersion: TRADStudioVersion): Boolean;
+var
+  I: Integer;
+  J: Integer;
+  LVersion: TRADStudioVersion;
+begin
+  Result := False;
+  for I := 0 to GetArrayLength(AGroupProjects) - 1 do
+  begin
+    for J := 0 to GetArrayLength(AGroupProjects[I].Items) - 1 do
+    begin
+      if TryGetRADStudioVersionOfProject(AGroupProjects[I].Items[J].Project, LVersion) and
+        (not Result) or (CompareRADStudioVersions(LVersion, ARADStudioVersion) > 0) then
+      begin
+        ARADStudioVersion := LVersion;
+        Result := True;
+      end;
+    end;
+  end;
+  if not Result then
+    Log('RADStudio.TryGetMaxRADStudioVersionInGroupProjects: Failed to get the max RAD Studio version in group projects');
+end;
+
 function _TryGetRADStudioEnvVar(const ARADStudioVersion: TRADStudioVersion; const AName: string; out AValue: string): Boolean;
 var
   LXMLDocument: Variant;
@@ -572,6 +711,45 @@ begin
       Log(Format('RADStudio._TryGetRADStudioEnvVar: Unexpected error parsing the file "%s" (message "%s")', [LFileName, GetExceptionMessage]));
       Result := False;
     end;
+  end;
+end;
+
+function _TryGetRADStudioInstallation(const ARADStudioVersion: TRADStudioVersion; const ARootKey: Integer; out AAppFileName, ARootDir: string): Boolean;
+begin
+  try
+    if not RegQueryStringValue(ARootKey, GetRADStudioRegKey(ARADStudioVersion), 'RootDir', ARootDir) then
+    begin
+      Result := False;
+      Exit;
+    end;
+    if not RegQueryStringValue(ARootKey, GetRADStudioRegKey(ARADStudioVersion), 'App', AAppFileName) then
+      AAppFileName := AddBackslash(AddBackslash(ARootDir) + 'bin') + 'bds.exe';
+    if not FileExists(AAppFileName) then
+    begin
+      Result := False;
+      Exit;
+    end;
+    ARootDir := RemoveBackslashUnlessRoot(ARootDir);
+    Result := True;
+  finally
+    if not Result then
+    begin
+      AAppFileName := '';
+      ARootDir := '';
+    end;
+  end;
+end;
+
+function _TryGetRADStudioPackageVersionByProductVersion(AProductVersion: string; out APackageVersion: string): Boolean;
+var
+  LProductVersion: Int64;
+  LMajor, LMinor, LRevision, LBuild: Word;
+begin
+  Result := StrToVersion(AProductVersion, LProductVersion) and (LProductVersion > 0);
+  if Result then
+  begin
+    UnpackVersionComponents(LProductVersion, LMajor, LMinor, LRevision, LBuild);
+    APackageVersion := Format('%d%d', [LMajor, LMinor]);
   end;
 end;
 
@@ -635,32 +813,6 @@ begin
   end;
   if not Result then
     Log(Format('RADStudio.TryGetRADStudioVersionByRegVersion: Failed to get the RAD Studio version by the reg version "%s".', [ARegVersion]));
-end;
-
-function _TryGetRADStudioInstallation(const ARADStudioVersion: TRADStudioVersion; const ARootKey: Integer; out AAppFileName, ARootDir: string): Boolean;
-begin
-  try
-    if not RegQueryStringValue(ARootKey, GetRADStudioRegKey(ARADStudioVersion), 'RootDir', ARootDir) then
-    begin
-      Result := False;
-      Exit;
-    end;
-    if not RegQueryStringValue(ARootKey, GetRADStudioRegKey(ARADStudioVersion), 'App', AAppFileName) then
-      AAppFileName := AddBackslash(AddBackslash(ARootDir) + 'bin') + 'bds.exe';
-    if not FileExists(AAppFileName) then
-    begin
-      Result := False;
-      Exit;
-    end;
-    ARootDir := RemoveBackslashUnlessRoot(ARootDir);
-    Result := True;
-  finally
-    if not Result then
-    begin
-      AAppFileName := '';
-      ARootDir := '';
-    end;
-  end;
 end;
 
 function TryGetRADStudioVersionOfProject(const AProject: TRADStudioProject; out ARADStudioVersion: TRADStudioVersion): Boolean;

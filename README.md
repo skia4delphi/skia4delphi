@@ -96,8 +96,8 @@ You can install **Skia4Delphi** in 3 ways:
 
 - Embarcadero's GetIt _(RAD Studio > Tools > GetIt Package Manager...)_
 
-  <p><img src="https://user-images.githubusercontent.com/11139086/161624030-1b815300-31d8-4606-931b-765f4cb03e79.png#gh-light-mode-only" width="511" alt="GetIt" /></p>
-  <p><img src="https://user-images.githubusercontent.com/11139086/161623994-bd431eb0-f60d-40cd-aa87-84c49456555f.png#gh-dark-mode-only" width="511" alt="GetIt" /></p>
+  <p><img src="https://user-images.githubusercontent.com/11139086/214978288-11c87e9e-7a8b-4686-82c0-5922676d26df.png#gh-light-mode-only" width="511" alt="GetIt" /></p>
+  <p><img src="https://user-images.githubusercontent.com/11139086/214978346-c67bb0f6-ec96-4833-a1e4-7ee39d620e82.png#gh-dark-mode-only" width="511" alt="GetIt" /></p>
 
 - Chocolatey package manager
 
@@ -660,7 +660,7 @@ The APIs are very similar to Skia's, few methods and functions have been renamed
 
 # Version
 
-**[Skia4Delphi 4.0.2](/../../releases/latest)**
+**[Skia4Delphi 4.1.0](/../../releases/latest)**
 
 Skia Version used: [chrome/m107](https://github.com/google/skia/tree/chrome/m107)
 

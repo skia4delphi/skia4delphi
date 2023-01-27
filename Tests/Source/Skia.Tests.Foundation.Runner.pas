@@ -2,8 +2,8 @@
 {                                                                        }
 {                              Skia4Delphi                               }
 {                                                                        }
-{ Copyright (c) 2011-2022 Google LLC.                                    }
-{ Copyright (c) 2021-2022 Skia4Delphi Project.                           }
+{ Copyright (c) 2011-2023 Google LLC.                                    }
+{ Copyright (c) 2021-2023 Skia4Delphi Project.                           }
 {                                                                        }
 { Use of this source code is governed by a BSD-style license that can be }
 { found in the LICENSE file.                                             }
@@ -36,11 +36,16 @@ type
   IAsyncTestRunner = interface
     ['{0399B7E2-A927-4312-9440-BCEB4AC6BECD}']
     procedure AddLogger(const ALogger: IAsyncTestRunnerLogger);
+    function GetExpectedImageFileName(const ATestResult: ITestResult): string;
     function GetFixtureList: ITestFixtureList;
+    function GetGenerateExpectedImages: Boolean;
+    function GetWrongImageFileName(const ATestResult: ITestResult): string;
     procedure Execute;
     procedure RemoveLogger(const ALogger: IAsyncTestRunnerLogger);
+    procedure SetGenerateExpectedImages(const AValue: Boolean);
     procedure Wait;
     property FixtureList: ITestFixtureList read GetFixtureList;
+    property GenerateExpectedImages: Boolean read GetGenerateExpectedImages write SetGenerateExpectedImages;
   end;
 
 var
@@ -54,24 +59,50 @@ uses
   System.Classes,
   System.Threading,
   System.Generics.Collections,
-  System.SyncObjs;
+  System.SyncObjs,
+  System.IOUtils,
+  {$IF CompilerVersion >= 29}
+  System.Hash,
+  {$ELSE}
+  IdHashMessageDigest,
+  {$ENDIF}
+
+  { Skia }
+  Skia,
+
+  { Tests }
+  Skia.Tests.Foundation;
 
 type
   { TAsyncTestRunner }
 
   TAsyncTestRunner = class(TInterfacedObject, ITestLogger, IAsyncTestRunner)
+  private const
+    ImagesExtension = '.png';
+  private class var
+    FWrongImagesPath: string;
+    FWrongImagesPathWasCreated: Boolean;
+    class destructor Destroy;
+    class function ExpectedImagesPath: string; static;
+    class function WrongImagesPath: string; static;
   private
     FCanceled: Boolean;
     FEvent: TEvent;
     FExecuting: Boolean;
     FExecuteFinishedEvent: TEvent;
+    FGenerateExpectedImages: Boolean;
+    FLastImageChecking: ISkImage;
     FLock: TCriticalSection;
     FLoggers: TList<IAsyncTestRunnerLogger>;
     FTask: ITask;
     FTestRunner: ITestRunner;
+    function GetExpectedImageFileName(const ATestResult: ITestResult): string;
     function GetFixtureList: ITestFixtureList;
+    function GetGenerateExpectedImages: Boolean;
     function GetLoggers: TArray<IAsyncTestRunnerLogger>;
+    function GetWrongImageFileName(const ATestResult: ITestResult): string;
     property Loggers: TArray<IAsyncTestRunnerLogger> read GetLoggers;
+    procedure SetGenerateExpectedImages(const AValue: Boolean);
   protected
     { ITestLogger }
     procedure OnBeginTest(const AThreadId: TThreadID; const ATest: ITestInfo);
@@ -82,6 +113,7 @@ type
     procedure OnEndTest(const AThreadId: TThreadID; const ATest: ITestResult);
     procedure OnEndTestFixture(const AThreadId: TThreadID; const AResults: IFixtureResult);
     procedure OnExecuteTest(const AThreadId: TThreadID; const ATest: ITestInfo);
+    procedure OnImageChecking(const AImage: ISkImage);
     procedure OnLog(const ALogType: TLogLevel; const AMessage: string);
     procedure OnSetupFixture(const AThreadId: TThreadID; const AFixture: ITestFixtureInfo);
     procedure OnSetupTest(const AThreadId: TThreadID; const ATest: ITestInfo);
@@ -103,6 +135,7 @@ type
     procedure RemoveLogger(const ALogger: IAsyncTestRunnerLogger);
     procedure Wait;
     property FixtureList: ITestFixtureList read GetFixtureList;
+    property GenerateExpectedImages: Boolean read GetGenerateExpectedImages write SetGenerateExpectedImages;
   end;
 
   {$IF CompilerVersion < 32}
@@ -113,6 +146,23 @@ type
     class procedure ForceQueue(AThread: TThread; AThreadProc: TThreadProcedure); static;
   end;
   {$ENDIF}
+
+function TestHash(const ATest: ITestInfo): string;
+{$IF CompilerVersion >= 29}
+begin
+  Result := THashMD5.GetHashString(ATest.FullName);
+{$ELSE}
+var
+  LMD5: TIdHashMessageDigest5;
+begin
+  LMD5 := TIdHashMessageDigest5.Create;
+  try
+    Result := LMD5.HashStringAsHex(ATest.FullName);
+  finally
+    LMD5.Free;
+  end;
+{$ENDIF}
+end;
 
 { TAsyncTestRunner }
 
@@ -166,7 +216,15 @@ begin
     end);
 end;
 
+class destructor TAsyncTestRunner.Destroy;
+begin
+  if FWrongImagesPathWasCreated and TDirectory.Exists(FWrongImagesPath) then
+    TDirectory.Delete(FWrongImagesPath);
+end;
+
 destructor TAsyncTestRunner.Destroy;
+var
+  LFileName: string;
 begin
   Wait;
   FCanceled := True;
@@ -176,20 +234,58 @@ begin
   FEvent.Free;
   FExecuteFinishedEvent.Free;
   FLock.Free;
+  if TDirectory.Exists(WrongImagesPath) then
+    for LFileName in TDirectory.GetFiles(WrongImagesPath, '*' + ImagesExtension, TSearchOption.soTopDirectoryOnly) do
+      TFile.Delete(LFileName);
   inherited Destroy;
 end;
 
 procedure TAsyncTestRunner.Execute;
+var
+  LSelfWeak: Pointer;
 begin
   if FExecuting then
     Exit;
+
+  if FWrongImagesPathWasCreated and TDirectory.Exists(FWrongImagesPath) then
+  begin
+    TDirectory.Delete(FWrongImagesPath, True);
+    FWrongImagesPathWasCreated := False;
+  end;
+
+  LSelfWeak := Self;
+  Assert.OnImageChecking :=
+    procedure(const AImage: ISkImage)
+    var
+      LSelf: TAsyncTestRunner;
+    begin
+      LSelf := TAsyncTestRunner(LSelfWeak);
+      LSelf.OnImageChecking(AImage);
+    end;
+
   FExecuting := True;
   FEvent.SetEvent;
+end;
+
+class function TAsyncTestRunner.ExpectedImagesPath: string;
+begin
+  Result := TPath.Combine(TTestBase.RootAssetsPath, 'Expected') + PathDelim;
+end;
+
+function TAsyncTestRunner.GetExpectedImageFileName(
+  const ATestResult: ITestResult): string;
+begin
+  Result := ExpectedImagesPath + TestHash(ATestResult.Test).ToLower + ImagesExtension;
 end;
 
 function TAsyncTestRunner.GetFixtureList: ITestFixtureList;
 begin
   Supports(FTestRunner.BuildFixtures, ITestFixtureList, Result);
+end;
+
+function TAsyncTestRunner.GetGenerateExpectedImages: Boolean;
+begin
+  Result := FGenerateExpectedImages;
 end;
 
 function TAsyncTestRunner.GetLoggers: TArray<IAsyncTestRunnerLogger>;
@@ -200,6 +296,12 @@ begin
   finally
     FLock.Leave;
   end;
+end;
+
+function TAsyncTestRunner.GetWrongImageFileName(
+  const ATestResult: ITestResult): string;
+begin
+  Result := WrongImagesPath + TestHash(ATestResult.Test).ToLower + ImagesExtension;
 end;
 
 procedure TAsyncTestRunner.OnBeginTest(const AThreadId: TThreadID;
@@ -230,6 +332,36 @@ end;
 procedure TAsyncTestRunner.OnEndTest(const AThreadId: TThreadID;
   const ATest: ITestResult);
 begin
+  if FGenerateExpectedImages and TFile.Exists(GetExpectedImageFileName(ATest)) then
+    TFile.Delete(GetExpectedImageFileName(ATest));
+  if FLastImageChecking <> nil then
+  begin
+    try
+      case ATest.ResultType of
+        TTestResultType.Pass:
+          if FGenerateExpectedImages then
+          begin
+            if not TDirectory.Exists(ExpectedImagesPath) then
+              TDirectory.CreateDirectory(ExpectedImagesPath);
+            FLastImageChecking.EncodeToFile(GetExpectedImageFileName(ATest));
+          end;
+        TTestResultType.Failure,
+        TTestResultType.Error,
+        TTestResultType.Warning:
+          begin
+            if not TDirectory.Exists(WrongImagesPath) then
+            begin
+              TDirectory.CreateDirectory(WrongImagesPath);
+              FWrongImagesPathWasCreated := True;
+            end;
+            FLastImageChecking.EncodeToFile(GetWrongImageFileName(ATest));
+          end;
+      else
+      end;
+    except
+    end;
+    FLastImageChecking := nil;
+  end;
   TThread.ForceQueue(nil,
     procedure
     var
@@ -258,6 +390,11 @@ end;
 procedure TAsyncTestRunner.OnExecuteTest(const AThreadId: TThreadID;
   const ATest: ITestInfo);
 begin
+end;
+
+procedure TAsyncTestRunner.OnImageChecking(const AImage: ISkImage);
+begin
+  FLastImageChecking := AImage;
 end;
 
 procedure TAsyncTestRunner.OnLog(const ALogType: TLogLevel;
@@ -358,6 +495,11 @@ begin
   end;
 end;
 
+procedure TAsyncTestRunner.SetGenerateExpectedImages(const AValue: Boolean);
+begin
+  FGenerateExpectedImages := AValue;
+end;
+
 procedure TAsyncTestRunner.Wait;
 begin
   if not FExecuting then
@@ -365,6 +507,21 @@ begin
   FExecuteFinishedEvent.WaitFor;
   if not FExecuting then
     FExecuteFinishedEvent.SetEvent;
+end;
+
+class function TAsyncTestRunner.WrongImagesPath: string;
+begin
+  if FWrongImagesPath = '' then
+  begin
+    {$IF defined(IOS) or defined(ANDROID)}
+    FWrongImagesPath := TPath.GetTempPath;
+    if not FWrongImagesPath.EndsWith(TPath.DirectorySeparatorChar) then
+      FWrongImagesPath := FWrongImagesPath + TPath.DirectorySeparatorChar;
+    {$ELSE}
+    FWrongImagesPath := TPath.Combine(TPath.GetTempPath, TPath.GetGUIDFileName(False) + TPath.DirectorySeparatorChar);
+    {$ENDIF}
+  end;
+  Result := FWrongImagesPath;
 end;
 
 {$IF CompilerVersion < 32}
