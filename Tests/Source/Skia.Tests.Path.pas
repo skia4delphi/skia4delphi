@@ -156,7 +156,7 @@ begin
   LPathBuilder.MoveTo(10, 20);
   Check(LPathBuilder.Snapshot, True, '(Path with rect and moveTo)');
 
-  LPathBuilder.LineTo(10, 20);
+  LPathBuilder.LineTo(10, 30);
   Check(LPathBuilder.Snapshot, False, '(Path with rect and lineTo)');
 
   LPathBuilder.Reset;
