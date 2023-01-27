@@ -381,15 +381,17 @@ class procedure TCodecAssertHelper.HasValidCodecResult(const AImageFileName: str
   const AActual: ISkImage; const AMessage: string);
 var
   LImageInfo: TImageAssetInfo;
+  {$IFDEF ANDROID}
   LMaxActualSide: Integer;
   LMaxOriginalSide: Integer;
+  {$ENDIF}
   LSimilarityReduction: Double;
 begin
   Assert.IsNotNull(AActual, AMessage);
   LImageInfo := GetImageAssetInfo(AImageFileName);
+  {$IFDEF ANDROID}
   LMaxActualSide := Max(AActual.Width, AActual.Height);
   LMaxOriginalSide := Max(LImageInfo.Width, LImageInfo.Height);
-  {$IFDEF ANDROID}
   if LMaxOriginalSide > LMaxActualSide then
     LSimilarityReduction := Min(((LMaxOriginalSide - LMaxActualSide) / LMaxOriginalSide) / 5, 0.05)
   else
@@ -405,15 +407,17 @@ class procedure TCodecAssertHelper.HasValidCodecResult(const AImageFileName: str
   const AActual: ISkCodec; const AMessage: string);
 var
   LImageInfo: TImageAssetInfo;
+  {$IFDEF ANDROID}
   LMaxActualSide: Integer;
   LMaxOriginalSide: Integer;
+  {$ENDIF}
   LSimilarityReduction: Double;
 begin
   Assert.IsNotNull(AActual, AMessage);
   LImageInfo := GetImageAssetInfo(AImageFileName);
+  {$IFDEF ANDROID}
   LMaxActualSide := Max(AActual.Width, AActual.Height);
   LMaxOriginalSide := Max(LImageInfo.Width, LImageInfo.Height);
-  {$IFDEF ANDROID}
   if LMaxOriginalSide > LMaxActualSide then
     LSimilarityReduction := Min(((LMaxOriginalSide - LMaxActualSide) / LMaxOriginalSide) / 5, 0.05)
   else
