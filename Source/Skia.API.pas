@@ -2275,7 +2275,7 @@ uses
 
 const
 {$IFDEF SK_STATIC_LIBRARY}
-  {$IF DEFINED(IOS) and NOT DEFINED(IOSSIMULATOR)}
+  {$IF DEFINED(IOS)}
   LibraryName = 'libsk4d.a';
   {$ENDIF}
 {$ELSE}
