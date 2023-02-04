@@ -119,7 +119,6 @@ type
   {$ENDIF}
   strict protected
     procedure Draw(const ACanvas: ISkCanvas; const ADest: TRectF; const AOpacity: Single); virtual;
-    procedure DrawDesignBorder(const ACanvas: ISkCanvas; const ADest: TRectF; const AOpacity: Single);
     function NeedsRedraw: Boolean; virtual;
     procedure Paint; override; final;
     procedure Resize; override;
@@ -266,7 +265,6 @@ type
   {$ENDIF}
   strict protected
     procedure Draw(const ACanvas: ISkCanvas; const ADest: TRectF; const AOpacity: Single); virtual;
-    procedure DrawDesignBorder(const ACanvas: ISkCanvas; const ADest: TRectF; const AOpacity: Single);
     function NeedsRedraw: Boolean; virtual;
     procedure Paint; override; final;
     procedure Resize; override;
@@ -1140,6 +1138,7 @@ type
   end;
 
 function BitmapToSkImage(const ABitmap: TBitmap): ISkImage;
+procedure DrawDesignBorder(const ACanvas: ISkCanvas; ADest: TRectF; const AOpacity: Single);
 procedure SkiaDraw(const ABitmap: TBitmap; const AProc: TSkDrawProc; const AStartClean: Boolean = True);
 function SkImageToBitmap(const AImage: ISkImage): TBitmap;
 
@@ -1299,6 +1298,22 @@ type
 function BitmapToSkImage(const ABitmap: TBitmap): ISkImage;
 begin
   Result := ABitmap.ToSkImage;
+end;
+
+procedure DrawDesignBorder(const ACanvas: ISkCanvas; ADest: TRectF; const AOpacity: Single);
+const
+  DesignBorderColor = $A0909090;
+var
+  LPaint: ISkPaint;
+begin
+  LPaint := TSkPaint.Create(TSkPaintStyle.Stroke);
+  LPaint.AlphaF := AOpacity;
+  LPaint.Color := DesignBorderColor;
+  LPaint.StrokeWidth := 1;
+  LPaint.PathEffect := TSkPathEffect.MakeDash([3, 1], 0);
+
+  InflateRect(ADest, -0.5, -0.5);
+  ACanvas.DrawRect(ADest, LPaint);
 end;
 
 function IsSameBytes(const ALeft, ARight: TBytes): Boolean;
@@ -1785,29 +1800,6 @@ procedure TSkCustomControl.Draw(const ACanvas: ISkCanvas; const ADest: TRectF;
 begin
   if csDesigning in ComponentState then
     DrawDesignBorder(ACanvas, ADest, AOpacity);
-end;
-
-procedure TSkCustomControl.DrawDesignBorder(const ACanvas: ISkCanvas;
-  const ADest: TRectF; const AOpacity: Single);
-const
-  DesignBorderColor = $A0909090;
-var
-  R: TRectF;
-  LPaint: ISkPaint;
-begin
-  R := ADest;
-  InflateRect(R, -0.5, -0.5);
-  ACanvas.Save;
-  try
-    LPaint := TSkPaint.Create(TSkPaintStyle.Stroke);
-    LPaint.AlphaF := AOpacity;
-    LPaint.Color := DesignBorderColor;
-    LPaint.StrokeWidth := 1;
-    LPaint.PathEffect := TSKPathEffect.MakeDash([3, 1], 0);
-    ACanvas.DrawRect(R, LPaint);
-  finally
-    ACanvas.Restore;
-  end;
 end;
 
 function TSkCustomControl.NeedsRedraw: Boolean;
@@ -2303,29 +2295,6 @@ procedure TSkCustomWinControl.Draw(const ACanvas: ISkCanvas; const ADest: TRectF
 begin
   if csDesigning in ComponentState then
     DrawDesignBorder(ACanvas, ADest, AOpacity);
-end;
-
-procedure TSkCustomWinControl.DrawDesignBorder(const ACanvas: ISkCanvas;
-  const ADest: TRectF; const AOpacity: Single);
-const
-  DesignBorderColor = $A0909090;
-var
-  R: TRectF;
-  LPaint: ISkPaint;
-begin
-  R := ADest;
-  InflateRect(R, -0.5, -0.5);
-  ACanvas.Save;
-  try
-    LPaint := TSkPaint.Create(TSkPaintStyle.Stroke);
-    LPaint.AlphaF := AOpacity;
-    LPaint.Color := DesignBorderColor;
-    LPaint.StrokeWidth := 1;
-    LPaint.PathEffect := TSKPathEffect.MakeDash([3, 1], 0);
-    ACanvas.DrawRect(R, LPaint);
-  finally
-    ACanvas.Restore;
-  end;
 end;
 
 procedure TSkCustomWinControl.DrawParentImage(ADC: HDC;

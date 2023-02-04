@@ -124,7 +124,6 @@ type
     procedure SetOnDraw(const AValue: TSkDrawEvent);
   strict protected
     procedure Draw(const ACanvas: ISkCanvas; const ADest: TRectF; const AOpacity: Single); virtual;
-    procedure DrawDesignBorder(const ACanvas: ISkCanvas; const ADest: TRectF; const AOpacity: Single);
     function NeedsRedraw: Boolean; virtual;
     procedure Paint; override; final;
     property DrawCacheKind: TSkDrawCacheKind read FDrawCacheKind write SetDrawCacheKind default TSkDrawCacheKind.Raster;
@@ -193,7 +192,6 @@ type
     procedure SetOnDraw(const AValue: TSkDrawEvent);
   strict protected
     procedure Draw(const ACanvas: ISkCanvas; const ADest: TRectF; const AOpacity: Single); virtual;
-    procedure DrawDesignBorder(const ACanvas: ISkCanvas; const ADest: TRectF; const AOpacity: Single);
     function NeedsRedraw: Boolean; virtual;
     procedure Paint; override; final;
     property DrawCacheKind: TSkDrawCacheKind read FDrawCacheKind write SetDrawCacheKind default TSkDrawCacheKind.Raster;
@@ -1224,6 +1222,7 @@ type
 
 procedure AddSkPathToPathData(const APathData: TPathData; const ASkPath: ISkPath);
 function BitmapToSkImage(const ABitmap: TBitmap): ISkImage;
+procedure DrawDesignBorder(const ACanvas: ISkCanvas; ADest: TRectF; const AOpacity: Single);
 function PathDataToSkPath(const APathData: TPathData): ISkPath;
 procedure SkiaDraw(const ABitmap: TBitmap; const AProc: TSkDrawProc; const AStartClean: Boolean = True);
 function SkImageToBitmap(const AImage: ISkImage): TBitmap;
@@ -1407,6 +1406,22 @@ end;
 function BitmapToSkImage(const ABitmap: TBitmap): ISkImage;
 begin
   Result := ABitmap.ToSkImage;
+end;
+
+procedure DrawDesignBorder(const ACanvas: ISkCanvas; ADest: TRectF; const AOpacity: Single);
+const
+  DesignBorderColor = $A0909090;
+var
+  LPaint: ISkPaint;
+begin
+  LPaint := TSkPaint.Create(TSkPaintStyle.Stroke);
+  LPaint.AlphaF := AOpacity;
+  LPaint.Color := DesignBorderColor;
+  LPaint.StrokeWidth := 1;
+  LPaint.PathEffect := TSkPathEffect.MakeDash([3, 1], 0);
+
+  InflateRect(ADest, -0.5, -0.5);
+  ACanvas.DrawRect(ADest, LPaint);
 end;
 
 function IsSameBytes(const ALeft, ARight: TBytes): Boolean;
@@ -1912,30 +1927,8 @@ end;
 procedure TSkCustomControl.Draw(const ACanvas: ISkCanvas; const ADest: TRectF;
   const AOpacity: Single);
 begin
-  if csDesigning in ComponentState then
-    DrawDesignBorder(ACanvas, ADest, AOpacity);
-end;
-
-procedure TSkCustomControl.DrawDesignBorder(const ACanvas: ISkCanvas; const ADest: TRectF; const AOpacity: Single);
-const
-  DesignBorderColor = $A0909090;
-var
-  R: TRectF;
-  LPaint: ISkPaint;
-begin
-  R := ADest;
-  InflateRect(R, -0.5, -0.5);
-  ACanvas.Save;
-  try
-    LPaint := TSkPaint.Create(TSkPaintStyle.Stroke);
-    LPaint.AlphaF := AOpacity;
-    LPaint.Color := DesignBorderColor;
-    LPaint.StrokeWidth := 1;
-    LPaint.PathEffect := TSKPathEffect.MakeDash([3, 1], 0);
-    ACanvas.DrawRect(R, LPaint);
-  finally
-    ACanvas.Restore;
-  end;
+  if (csDesigning in ComponentState) and not Locked then
+    Skia.FMX.DrawDesignBorder(ACanvas, ADest, AOpacity);
 end;
 
 function TSkCustomControl.NeedsRedraw: Boolean;
@@ -2053,30 +2046,8 @@ end;
 procedure TSkStyledControl.Draw(const ACanvas: ISkCanvas; const ADest: TRectF;
   const AOpacity: Single);
 begin
-  if csDesigning in ComponentState then
-    DrawDesignBorder(ACanvas, ADest, AOpacity);
-end;
-
-procedure TSkStyledControl.DrawDesignBorder(const ACanvas: ISkCanvas; const ADest: TRectF; const AOpacity: Single);
-const
-  DesignBorderColor = $A0909090;
-var
-  R: TRectF;
-  LPaint: ISkPaint;
-begin
-  R := ADest;
-  InflateRect(R, -0.5, -0.5);
-  ACanvas.Save;
-  try
-    LPaint := TSkPaint.Create(TSkPaintStyle.Stroke);
-    LPaint.AlphaF := AOpacity;
-    LPaint.Color := DesignBorderColor;
-    LPaint.StrokeWidth := 1;
-    LPaint.PathEffect := TSkPathEffect.MakeDash([3, 1], 0);
-    ACanvas.DrawRect(R, LPaint);
-  finally
-    ACanvas.Restore;
-  end;
+  if (csDesigning in ComponentState) and not Locked then
+    Skia.FMX.DrawDesignBorder(ACanvas, ADest, AOpacity);
 end;
 
 function TSkStyledControl.NeedsRedraw: Boolean;
@@ -3515,8 +3486,8 @@ procedure TSkAnimatedImage.Draw(const ACanvas: ISkCanvas; const ADest: TRectF;
 begin
   if Assigned(FCodec) then
     inherited
-  else if csDesigning in ComponentState then
-    DrawDesignBorder(ACanvas, ADest, AOpacity);
+  else if (csDesigning in ComponentState) and not Locked then
+    Skia.FMX.DrawDesignBorder(ACanvas, ADest, AOpacity);
 end;
 
 function TSkAnimatedImage.GetAnimation: TSkAnimatedImage.TAnimation;
