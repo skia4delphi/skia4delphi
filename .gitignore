@@ -43,6 +43,9 @@ __recovery/
 # boss
 modules/
 
+# VS Code history
+.history/
+
 # Custom
 *.dex
 *.vrc

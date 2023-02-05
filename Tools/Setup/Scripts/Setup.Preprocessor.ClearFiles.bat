@@ -1,10 +1,9 @@
 @echo off
 
 rem #
-rem # Copyright (c) 2011-2023 Google LLC.
 rem # Copyright (c) 2021-2023 Skia4Delphi Project.
 rem #
-rem # Use of this source code is governed by a BSD-style license that can be
+rem # Use of this source code is governed by the MIT license that can be
 rem # found in the LICENSE file.
 rem #
 
