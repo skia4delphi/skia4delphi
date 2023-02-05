@@ -24,8 +24,6 @@ interface
   {$HPPEMIT '#endif'}
 {$ENDIF}
 
-{.$DEFINE SK_DEBUG}
-
 {$ALIGN ON}
 {$MINENUMSIZE 4}
 
@@ -2263,6 +2261,8 @@ procedure SkFinalize;
 
 implementation
 
+{.$DEFINE SK_DEBUG}
+
 uses
   { Delphi }
 {$IF DEFINED(MSWINDOWS)}
@@ -2275,9 +2275,16 @@ uses
 
 const
 {$IFDEF SK_STATIC_LIBRARY}
-  {$IF DEFINED(IOS)}
   LibraryName = 'libsk4d.a';
+  procedure _libcpp; external '/usr/lib/libc++.dylib';
+  {$IFDEF IOSSIMULATOR}
+  procedure _libcompiler_rt; external '/usr/lib/clang/lib/darwin/libclang_rt.iossim.a';
+  {$ELSE}
+  procedure _libcompiler_rt; external '/usr/lib/clang/lib/darwin/libclang_rt.ios.a';
   {$ENDIF}
+  procedure _frameworkCoreText; external '/System/Library/Frameworks/CoreText.framework/CoreText';
+  procedure _frameworkUIKit; external '/System/Library/Frameworks/UIKit.framework/UIKit';
+  procedure _frameworkMetal; external '/System/Library/Frameworks/Metal.framework/Metal';
 {$ELSE}
   {$IF DEFINED(MSWINDOWS)}
   LibraryName = 'sk4d.dll';
@@ -4268,17 +4275,6 @@ end;
 procedure SkFinalize;
 begin
 end;
-{$ENDIF}
-
-{$IFDEF SK_STATIC_LIBRARY}
-  {$IFDEF IOS}
-  procedure libcpp; external '/usr/lib/libc++.dylib';
-  {$IFDEF IOSSIMULATOR}
-  procedure libcompiler_rt; external '/usr/lib/clang/lib/darwin/libclang_rt.iossim.a';
-  {$ELSE}
-  procedure libcompiler_rt; external '/usr/lib/clang/lib/darwin/libclang_rt.ios.a';
-  {$ENDIF}
-  {$ENDIF}
 {$ENDIF}
 
 end.
