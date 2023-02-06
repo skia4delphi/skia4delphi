@@ -5155,6 +5155,7 @@ var
 var
   LInterface: IInterface;
   LNewText: string;
+  LTextResource: TFmxObject;
   I: Integer;
 begin
   LFontBehavior := nil;
@@ -5166,8 +5167,14 @@ begin
       { behavior }
       if (Scene <> nil) and TBehaviorServices.Current.SupportsBehaviorService(IFontBehavior, LInterface, Scene.GetObject) then
         Supports(LInterface, IFontBehavior, LFontBehavior);
+
+      if Supports(ResourceLink, ISkStyleTextObject) then
+        LTextResource := ResourceLink
+      else
+        LTextResource := FindStyleResource('text');
+
       { from text }
-      SetupDefaultTextSetting(FindStyleResource('text'), FTextSettingsInfo.DefaultTextSettings);
+      SetupDefaultTextSetting(LTextResource, FTextSettingsInfo.DefaultTextSettings);
       inherited;
       ResultingTextSettings.Change;
     finally
@@ -6050,7 +6057,7 @@ end;
 
 procedure Register;
 begin
-  RegisterComponents('Skia', [TSkAnimatedImage, TSkAnimatedPaintBox, TSkLabel, TSkPaintBox, TSkStyleTextObject, TSkSvg]);
+  RegisterComponents('Skia', [TSkAnimatedImage, TSkAnimatedPaintBox, TSkLabel, TSkPaintBox, TSkSvg]);
 end;
 
 {$IFDEF MSWINDOWS}

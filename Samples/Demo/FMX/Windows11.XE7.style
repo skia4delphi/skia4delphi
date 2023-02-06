@@ -36783,49 +36783,22 @@ object TImage
   Position.Y = 401.000000000000000000
   Visible = False
 end
-object TLayout
+object TSkStyleTextObject
   StyleName = 'sklabelstyle_menu_description'
-  Align = Center
-  Size.Width = 117.000000000000000000
-  Size.Height = 141.000000000000000000
-  Size.PlatformDefault = False
-  Visible = False
-  TabOrder = 163
-  object TSkStyleTextObject
-    StyleName = 'text'
-    TextSettings.Font.Size = 11.000000000000000000
-    TextSettings.FontColor = xFFA0A0A1
-  end
+  TextSettings.Font.Size = 11.000000000000000000
+  TextSettings.FontColor = xFFA0A0A1
 end
-object TLayout
+object TSkStyleTextObject
   StyleName = 'sklabelstyle_menu_title'
-  Align = Center
-  Size.Width = 117.000000000000000000
-  Size.Height = 141.000000000000000000
-  Size.PlatformDefault = False
-  Visible = False
-  TabOrder = 170
-  object TSkStyleTextObject
-    StyleName = 'text'
-    TextSettings.Font.Weight = Medium
-    TextSettings.FontColor = xFF1B1B1B
-    TextSettings.MaxLines = 2
-  end
+  TextSettings.Font.Weight = Medium
+  TextSettings.FontColor = xFF1B1B1B
+  TextSettings.MaxLines = 2
 end
-object TLayout
+object TSkStyleTextObject
   StyleName = 'sklabelstyle_options'
-  Align = Center
-  Size.Width = 117.000000000000000000
-  Size.Height = 141.000000000000000000
-  Size.PlatformDefault = False
-  Visible = False
-  TabOrder = 178
-  object TSkStyleTextObject
-    StyleName = 'text'
-    TextSettings.Font.Size = 11.000000000000000000
-    TextSettings.Font.Weight = Medium
-    TextSettings.FontColor = xFFA0A0A1
-  end
+  TextSettings.Font.Size = 11.000000000000000000
+  TextSettings.Font.Weight = Medium
+  TextSettings.FontColor = xFFA0A0A1
 end
 object TLayout
   StyleName = 'smallscrollbarstyle'
