@@ -585,8 +585,10 @@ var
   LBitmapData: TBitmapData;
   LImage: ISkImage;
   LPaint: ISkPaint;
+  LSrcBounds: TRectF;
 begin
-  if ABitmap.HandleAllocated then
+  LSrcBounds := ASrcRect * ABitmap.BoundsF;
+  if ABitmap.HandleAllocated and (not LSrcBounds.IsEmpty) and (not ADestRect.IsEmpty) then
   begin
     LPaint := TSkPaint.Create;
     LPaint.AlphaF := AOpacity;
@@ -596,7 +598,7 @@ begin
     {$ENDIF}
     LImage := GetCache(ABitmap.Image.Handle);
     if Assigned(LImage) then
-      Canvas.DrawImageRect(LImage, ASrcRect, ADestRect, GetSamplingOptions(AHighSpeed), LPaint)
+      Canvas.DrawImageRect(LImage, LSrcBounds, ADestRect, GetSamplingOptions(AHighSpeed), LPaint)
     else
     begin
       if ABitmap.Map(TMapAccess.Read, LBitmapData) then
@@ -604,7 +606,7 @@ begin
         try
           LImage := TSkImage.MakeFromRaster(TSkImageInfo.Create(LBitmapData.Width, LBitmapData.Height, SkFmxColorType[LBitmapData.PixelFormat]), LBitmapData.Data, LBitmapData.Pitch);
           if Assigned(LImage) then
-            Canvas.DrawImageRect(LImage, ASrcRect, ADestRect, GetSamplingOptions(AHighSpeed), LPaint);
+            Canvas.DrawImageRect(LImage, LSrcBounds, ADestRect, GetSamplingOptions(AHighSpeed), LPaint);
         finally
           ABitmap.Unmap(LBitmapData);
         end;

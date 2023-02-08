@@ -390,6 +390,7 @@
         </DCCReference>
         <DCCReference Include="..\..\Source\FMX\Skia.Tests.FMX.Svg.pas"/>
         <DCCReference Include="..\..\Source\FMX\Skia.Tests.FMX.TextLayout.pas"/>
+        <DCCReference Include="..\..\Source\FMX\Skia.Tests.FMX.TImage.pas"/>
         <DCCReference Include="..\..\Source\FMX\Skia.Tests.FMX.TSkLabel.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
@@ -2075,6 +2076,70 @@
                     <Platform Name="OSXARM64">
                         <RemoteDir>Contents\Resources\Images</RemoteDir>
                         <RemoteName>horse.webp</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="..\..\Assets\Images\icons.png" Configuration="Debug" Class="File">
+                    <Platform Name="iOSDevice64">
+                        <RemoteDir>StartUp\Documents\Images</RemoteDir>
+                        <RemoteName>icons.png</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="iOSSimARM64">
+                        <RemoteDir>StartUp\Documents\Images</RemoteDir>
+                        <RemoteName>icons.png</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="Android">
+                        <RemoteDir>assets\internal\Images</RemoteDir>
+                        <RemoteName>icons.png</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="Android64">
+                        <RemoteDir>assets\internal\Images</RemoteDir>
+                        <RemoteName>icons.png</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="OSX64">
+                        <RemoteDir>Contents\Resources\Images</RemoteDir>
+                        <RemoteName>icons.png</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="OSXARM64">
+                        <RemoteDir>Contents\Resources\Images</RemoteDir>
+                        <RemoteName>icons.png</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="..\..\Assets\Images\icons.png" Configuration="Release" Class="File">
+                    <Platform Name="iOSDevice64">
+                        <RemoteDir>StartUp\Documents\Images</RemoteDir>
+                        <RemoteName>icons.png</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="iOSSimARM64">
+                        <RemoteDir>StartUp\Documents\Images</RemoteDir>
+                        <RemoteName>icons.png</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="Android">
+                        <RemoteDir>assets\internal\Images</RemoteDir>
+                        <RemoteName>icons.png</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="Android64">
+                        <RemoteDir>assets\internal\Images</RemoteDir>
+                        <RemoteName>icons.png</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="OSX64">
+                        <RemoteDir>Contents\Resources\Images</RemoteDir>
+                        <RemoteName>icons.png</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="OSXARM64">
+                        <RemoteDir>Contents\Resources\Images</RemoteDir>
+                        <RemoteName>icons.png</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>

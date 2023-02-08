@@ -29,6 +29,7 @@ uses
   Skia.Tests.FMX.Runner in '..\..\Source\FMX\Skia.Tests.FMX.Runner.pas' {frmFMXRunner},
   Skia.Tests.FMX.Svg in '..\..\Source\FMX\Skia.Tests.FMX.Svg.pas',
   Skia.Tests.FMX.TextLayout in '..\..\Source\FMX\Skia.Tests.FMX.TextLayout.pas',
+  Skia.Tests.FMX.TImage in '..\..\Source\FMX\Skia.Tests.FMX.TImage.pas',
   Skia.Tests.FMX.TSkLabel in '..\..\Source\FMX\Skia.Tests.FMX.TSkLabel.pas';
 
 {$R *.res}
