@@ -93,7 +93,7 @@ begin
             end;
             if not TryUninstallCurrentVersion then
             begin
-              TryShowErrorFmt(CustomMessage('SetupMainCannotPossibleToUninstallDetectedVersion'), ['{#LibraryName}']);
+              TryShowErrorFmt(CustomMessage('SetupMainCouldNotUninstallDetectedVersion'), ['{#LibraryName}']);
               Abort;
             end;
           end;
@@ -103,7 +103,7 @@ begin
         WizardForm.StatusLabel.Caption := CustomMessage('SetupMainUninstallingPackages');
         if not UninstallPackages(LSelectedRADStudioVersions, FGroupProjects) then
         begin
-          TryShowError(CustomMessage('SetupMainCannotPossibleToUninstallPackages'));
+          TryShowError(CustomMessage('SetupMainCouldNotUninstallPackages'));
           Abort;
         end;
       end;
@@ -135,7 +135,7 @@ begin
         SetAbsolutePathsInRADStudioGroupProjects(ExpandConstant('{app}'), FGroupProjects);
         if not UninstallPackages(FRADStudioInfos, FGroupProjects) then
         begin
-          TryShowError(CustomMessage('SetupMainCannotPossibleToUninstallPackages'));
+          TryShowError(CustomMessage('SetupMainCouldNotUninstallPackages'));
           Abort;
         end;
       end;
@@ -262,7 +262,7 @@ begin
               // Getting Bpl filename
               if not TryGetRADStudioProjectBplOutputFileName(LProject, LBplFileName) then
               begin
-                TryShowErrorFmt(CustomMessage('SetupMainCannotPossibleDetectProjectBplOutputFileName'), [ExtractFileName(LProject.FileName), LVersion.Name]);
+                TryShowErrorFmt(CustomMessage('SetupMainCouldNotDetectProjectBplOutputFileName'), [ExtractFileName(LProject.FileName), LVersion.Name]);
                 Result := False;
                 Exit;
               end;
@@ -464,7 +464,7 @@ begin
           end
           else
           begin
-            Log(FmtMessage(CustomMessage('SetupMainCannotPossibleDetectProjectBplOutputFileName'), [ExtractFileName(LProject.FileName), LVersion.Name]));
+            Log(FmtMessage(CustomMessage('SetupMainCouldNotDetectProjectBplOutputFileName'), [ExtractFileName(LProject.FileName), LVersion.Name]));
             Result := False;
           end;
 
