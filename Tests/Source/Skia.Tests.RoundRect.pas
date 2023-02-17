@@ -36,6 +36,8 @@ type
     procedure TestDefaultValue;
     [TestCase('1', '0.99,Jy8nPyc/B///Lzc/Jz8H//+/N783vzf///9//z////8M/2x/j////wx/bH///4//bH8Mf/////8')]
     procedure TestDraw(const AMinSimilarity: Double; const AExpectedImageHash: string);
+    [TestCase('1', '0.99,/4GBgYGBw/////Hh4cHD////8eHhwfP//////+HD8//AA8ADwAPAA8AD4AfgB/gP+B/+f/////8')]
+    procedure TestDrawCreatedWithRadii(const AMinSimilarity: Double; const AExpectedImageHash: string);
     [Test]
     procedure TestInflate;
     [Test]
@@ -85,10 +87,10 @@ begin
   Assert.IsNotNull(LRoundRect);
   LRoundRect := TSkRoundRect.Create(RectF(100, 20, 130, 220), 6, 9);
   Assert.IsNotNull(LRoundRect);
-  LRadii[TSkRoundRectCorner.UpperLeft]  := 2;
-  LRadii[TSkRoundRectCorner.UpperRight] := 3;
-  LRadii[TSkRoundRectCorner.LowerRight] := 4;
-  LRadii[TSkRoundRectCorner.LowerLeft]  := 5;
+  LRadii[TSkRoundRectCorner.UpperLeft]  := PointF(2, 2);
+  LRadii[TSkRoundRectCorner.UpperRight] := PointF(3, 3);
+  LRadii[TSkRoundRectCorner.LowerRight] := PointF(4, 4);
+  LRadii[TSkRoundRectCorner.LowerLeft]  := PointF(5, 5);
   LRoundRect := TSkRoundRect.Create(RectF(100, 20, 130, 220), LRadii);
   Assert.IsNotNull(LRoundRect);
 end;
@@ -137,6 +139,27 @@ begin
     LSurface.Canvas.Translate(80, -240);
   end;
 
+  Assert.AreSimilar(AExpectedImageHash, LSurface.MakeImageSnapshot, AMinSimilarity);
+end;
+
+procedure TSkRoundRectTests.TestDrawCreatedWithRadii(
+  const AMinSimilarity: Double; const AExpectedImageHash: string);
+const
+  BitmapSize = 80;
+  RectSize = BitmapSize - 20;
+  Radii: TSkRoundRectRadii = ((X: 0; Y: 0), (X: 0; Y: 0), (X: RectSize/2; Y: RectSize/2), (X: RectSize/2; Y: RectSize/2));
+var
+  LPaint: ISkPaint;
+  LRoundRect: ISkRoundRect;
+  LSurface: ISkSurface;
+begin
+  LSurface := TSkSurface.MakeRaster(BitmapSize, BitmapSize);
+  Assert.IsNotNull(LSurface, 'Invalid ISkSurface (nil)');
+  LSurface.Canvas.Clear(TAlphaColors.Null);
+  LRoundRect := TSkRoundRect.Create(RectF(0, 0, RectSize, RectSize).CenterAt(RectF(0, 0, BitmapSize, BitmapSize)), Radii);
+  LPaint := TSkPaint.Create;
+  LPaint.AntiAlias := True;
+  LSurface.Canvas.DrawRoundRect(LRoundRect, LPaint);
   Assert.AreSimilar(AExpectedImageHash, LSurface.MakeImageSnapshot, AMinSimilarity);
 end;
 

@@ -168,7 +168,7 @@ type
   TSkPatchCubics                  = array[0..11] of TPointF;
   TSkPatchTexCoords               = array[0..3] of TPointF;
   TSkPathPoints                   = array[0..3] of TPointF;
-  TSkRoundRectRadii               = array[TSkRoundRectCorner] of Single;
+  TSkRoundRectRadii               = array[TSkRoundRectCorner] of TPointF;
   TSkTableFilter                  = array[0..255] of Byte;
 
   {$POINTERMATH ON}
