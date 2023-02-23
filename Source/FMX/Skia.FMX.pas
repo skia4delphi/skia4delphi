@@ -6070,6 +6070,14 @@ end;
   {$HPPEMIT '#endif'}
 {$ENDIF}
 
+{$IF DEFINED(IOS) or DEFINED(ANDROID)}
+  {$HPPEMIT LINKUNIT}
+{$ELSEIF DEFINED(WIN32)}
+  {$HPPEMIT '#pragma link "Skia.FMX.obj"'}
+{$ELSEIF DEFINED(WIN64)}
+  {$HPPEMIT '#pragma link "Skia.FMX.o"'}
+{$ENDIF}
+
 (*$HPPEMIT 'namespace Skia {'*)
 (*$HPPEMIT '	namespace Fmx {'*)
 (*$HPPEMIT '		namespace Types { using namespace ::Fmx::Types; }'*)

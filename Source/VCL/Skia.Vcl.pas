@@ -6124,6 +6124,12 @@ end;
   {$HPPEMIT '#endif'}
 {$ENDIF}
 
+{$IF DEFINED(WIN32)}
+  {$HPPEMIT '#pragma link "Skia.Vcl.obj"'}
+{$ELSEIF DEFINED(WIN64)}
+  {$HPPEMIT '#pragma link "Skia.Vcl.o"'}
+{$ENDIF}
+
 (*$HPPEMIT 'namespace Skia {'*)
 (*$HPPEMIT '	namespace Vcl {'*)
 (*$HPPEMIT '		namespace Graphics { using namespace ::Vcl::Graphics; }'*)
