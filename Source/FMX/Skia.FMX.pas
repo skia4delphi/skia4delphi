@@ -205,6 +205,8 @@ type
 
   [ComponentPlatforms(SkSupportedPlatformsMask)]
   TSkPaintBox = class(TSkCustomControl)
+  public
+    property DrawCacheKind;
   published
     property OnDraw;
   end;
