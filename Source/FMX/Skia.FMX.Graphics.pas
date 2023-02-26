@@ -70,8 +70,8 @@ type
     // current context the context it created, and does not revert to the old
     // one after it has finished its task.
     procedure BeforeRestore; virtual;
-    function BeginSkPaintFromBrush(const ABrush: TBrush; const ARect: TRectF; const AOpacity: Single): ISkPaint; inline;
-    function BeginSkPaintFromStrokeBrush(const ABrush: TStrokeBrush; const ARect: TRectF; const AOpacity: Single): ISkPaint;
+    function BeginSkPaintFromBrush(ABrush: TBrush; const ARect: TRectF; const AOpacity: Single): ISkPaint; inline;
+    function BeginSkPaintFromStrokeBrush(ABrush: TStrokeBrush; const ARect: TRectF; const AOpacity: Single): ISkPaint;
     function CreateSaveState: TCanvasSaveState; override;
     procedure DoDrawBitmap(const ABitmap: TBitmap; const ASrcRect, ADestRect: TRectF; const AOpacity: Single; const AHighSpeed: Boolean); override;
     procedure DoDrawEllipse(const ARect: TRectF; const AOpacity: Single; const ABrush: TStrokeBrush); override;
@@ -84,7 +84,7 @@ type
     {$IF CompilerVersion >= 30}
     procedure DoSetMatrix(const AMatrix: TMatrix); override;
     {$ENDIF}
-    procedure EndSkPaint(const ABrush: TBrush);
+    procedure EndSkPaint(ABrush: TBrush);
     function GetCache(const ABitmapHandle: THandle): ISkImage; virtual;
     function GetCanvas: ISkCanvas; virtual; abstract;
     procedure Resized; virtual;
@@ -433,11 +433,10 @@ var
   LRadiusX: Single;
   LRadiusY: Single;
 begin
-  if ABrush.Kind = TBrushKind.Resource then
+  if (ABrush = nil) or (ABrush.Kind = TBrushKind.None) then
   begin
-    if ABrush.Resource.Brush = nil then
-      Exit;
-    ABrush.Assign(ABrush.Resource.Brush);
+    APaint.Alpha := 0;
+    Exit;
   end;
   APaint.AntiAlias := Quality <> TCanvasQuality.HighPerformance;
   case ABrush.Kind of
@@ -511,14 +510,16 @@ begin
   end;
 end;
 
-function TSkCanvasCustom.BeginSkPaintFromBrush(const ABrush: TBrush;
+function TSkCanvasCustom.BeginSkPaintFromBrush(ABrush: TBrush;
   const ARect: TRectF; const AOpacity: Single): ISkPaint;
 begin
   Result := TSkPaint.Create(TSkPaintStyle.Fill);
+  while (ABrush <> nil) and (ABrush.Kind = TBrushKind.Resource) do
+    ABrush := ABrush.Resource.Brush;
   BeginSkPaint(ABrush, ARect, AOpacity, Result);
 end;
 
-function TSkCanvasCustom.BeginSkPaintFromStrokeBrush(const ABrush: TStrokeBrush;
+function TSkCanvasCustom.BeginSkPaintFromStrokeBrush(ABrush: TStrokeBrush;
   const ARect: TRectF; const AOpacity: Single): ISkPaint;
 const
   StrokeCap : array[TStrokeCap] of TSkStrokeCap = (TSkStrokeCap.Square, TSkStrokeCap.Round);
@@ -529,7 +530,16 @@ var
   LDash: TDashArray;
 begin
   Result := TSkPaint.Create(TSkPaintStyle.Stroke);
+  while (ABrush <> nil) and (ABrush.Kind = TBrushKind.Resource) do
+  begin
+    if not (ABrush.Resource.Brush is TStrokeBrush) then
+      ABrush := nil
+    else
+      ABrush := TStrokeBrush(ABrush.Resource.Brush);
+  end;
   BeginSkPaint(ABrush, ARect, AOpacity, Result);
+  if ABrush = nil then
+    Exit;
   Result.StrokeCap   := StrokeCap[ABrush.Cap];
   Result.StrokeJoin  := StrokeJoin[ABrush.Join];
   Result.StrokeWidth := ABrush.Thickness;
@@ -730,9 +740,16 @@ end;
 
 {$ENDIF}
 
-procedure TSkCanvasCustom.EndSkPaint(const ABrush: TBrush);
+procedure TSkCanvasCustom.EndSkPaint(ABrush: TBrush);
 begin
-  if (ABrush.Kind = TBrushKind.Bitmap) and (FBrushBitmapMapped) then
+  while (ABrush <> nil) and (ABrush.Kind = TBrushKind.Resource) do
+  begin
+    if (ABrush is TStrokeBrush) and not (ABrush.Resource.Brush is TStrokeBrush) then
+      ABrush := nil
+    else
+      ABrush := ABrush.Resource.Brush;
+  end;
+  if (ABrush <> nil) and (ABrush.Kind = TBrushKind.Bitmap) and (FBrushBitmapMapped) then
     ABrush.Bitmap.Bitmap.Unmap(FBrushBitmapData);
 end;
 
