@@ -597,7 +597,7 @@ var
   LPaint: ISkPaint;
   LSrcBounds: TRectF;
 begin
-  LSrcBounds := ASrcRect * ABitmap.BoundsF;
+  LSrcBounds := ASrcRect * RectF(0, 0, ABitmap.Width, ABitmap.Height);
   if ABitmap.HandleAllocated and (not LSrcBounds.IsEmpty) and (not ADestRect.IsEmpty) then
   begin
     LPaint := TSkPaint.Create;
