@@ -36,6 +36,7 @@
 __history/
 __recovery/
 *.~*
+__astcache/
 
 # Castalia statistics file
 *.stat
