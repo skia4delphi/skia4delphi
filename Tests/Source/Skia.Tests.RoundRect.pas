@@ -30,6 +30,8 @@ type
   public
     [Test]
     procedure TestBasic;
+    [TestCase('1', '0.99,/8+BgYGR0f////Hhw9fd////9fX73/3///////vf/f/AAYABgAGAAYABgAGAAYADwAPgB/AP//8')]
+    procedure TestClipImage(const AMinSimilarity: Double; const AExpectedImageHash: string);
     [Test]
     procedure TestConstructors;
     [Test]
@@ -38,6 +40,8 @@ type
     procedure TestDraw(const AMinSimilarity: Double; const AExpectedImageHash: string);
     [TestCase('1', '0.99,/4GBgYGBw/////Hh4cHD////8eHhwfP//////+HD8//AA8ADwAPAA8AD4AfgB/gP+B/+f/////8')]
     procedure TestDrawCreatedWithRadii(const AMinSimilarity: Double; const AExpectedImageHash: string);
+    [TestCase('1', '0.99,/8OBgYGBw/////Hhw8fP////8eHDx+////////vf7//gB8ADwAPAA8ADwAPAA+AH4Af4H/////8')]
+    procedure TestDrawCreatedWithSameRadius(const AMinSimilarity: Double; const AExpectedImageHash: string);
     [Test]
     procedure TestInflate;
     [Test]
@@ -74,6 +78,34 @@ begin
   Assert.IsNotNull(LRoundRect);
   LRoundRect.SetRect(RectF(100, 20, 130, 220));
   Assert.IsTrue(RectF(100, 20, 130, 220).EqualsTo(LRoundRect.Rect, TEpsilon.Vector));
+end;
+
+procedure TSkRoundRectTests.TestClipImage(const AMinSimilarity: Double;
+  const AExpectedImageHash: string);
+const
+  BitmapSize = 160;
+  RectSize = BitmapSize - 20;
+  Radius: TPointF = (X: RectSize/3; Y: RectSize/3);
+var
+  LImage: ISkImage;
+  LRoundRect: ISkRoundRect;
+  LSurface: ISkSurface;
+begin
+  LImage := TSkImage.MakeFromEncodedFile(ImageAssetsPath + 'horse.webp');
+  Assert.IsNotNull(LImage, 'Invalid ISkImage (nil)');
+  LSurface := TSkSurface.MakeRaster(BitmapSize, BitmapSize);
+  Assert.IsNotNull(LSurface, 'Invalid ISkSurface (nil)');
+  LSurface.Canvas.Clear(TAlphaColors.Null);
+  LSurface.Canvas.Save;
+  try
+    LRoundRect := TSkRoundRect.Create(RectF(0, 0, RectSize, RectSize).CenterAt(RectF(0, 0, BitmapSize, BitmapSize)), Radius.X, Radius.Y);
+    Assert.IsNotNull(LRoundRect, 'Invalid ISkRoundRect (nil)');
+    LSurface.Canvas.ClipRoundRect(LRoundRect, TSkClipOp.Intersect, True);
+    DrawImageFitCrop(LSurface.Canvas, LRoundRect.Rect, LImage);
+  finally
+   LSurface.Canvas.Restore;
+  end;
+  Assert.AreSimilar(AExpectedImageHash, LSurface.MakeImageSnapshot, AMinSimilarity);
 end;
 
 procedure TSkRoundRectTests.TestConstructors;
@@ -157,6 +189,29 @@ begin
   Assert.IsNotNull(LSurface, 'Invalid ISkSurface (nil)');
   LSurface.Canvas.Clear(TAlphaColors.Null);
   LRoundRect := TSkRoundRect.Create(RectF(0, 0, RectSize, RectSize).CenterAt(RectF(0, 0, BitmapSize, BitmapSize)), Radii);
+  Assert.IsNotNull(LRoundRect, 'Invalid ISkRoundRect (nil)');
+  LPaint := TSkPaint.Create;
+  LPaint.AntiAlias := True;
+  LSurface.Canvas.DrawRoundRect(LRoundRect, LPaint);
+  Assert.AreSimilar(AExpectedImageHash, LSurface.MakeImageSnapshot, AMinSimilarity);
+end;
+
+procedure TSkRoundRectTests.TestDrawCreatedWithSameRadius(
+  const AMinSimilarity: Double; const AExpectedImageHash: string);
+const
+  BitmapSize = 80;
+  RectSize = BitmapSize - 20;
+  Radius: TPointF = (X: RectSize/3; Y: RectSize/3);
+var
+  LPaint: ISkPaint;
+  LRoundRect: ISkRoundRect;
+  LSurface: ISkSurface;
+begin
+  LSurface := TSkSurface.MakeRaster(BitmapSize, BitmapSize);
+  Assert.IsNotNull(LSurface, 'Invalid ISkSurface (nil)');
+  LSurface.Canvas.Clear(TAlphaColors.Null);
+  LRoundRect := TSkRoundRect.Create(RectF(0, 0, RectSize, RectSize).CenterAt(RectF(0, 0, BitmapSize, BitmapSize)), Radius.X, Radius.Y);
+  Assert.IsNotNull(LRoundRect, 'Invalid ISkRoundRect (nil)');
   LPaint := TSkPaint.Create;
   LPaint.AntiAlias := True;
   LSurface.Canvas.DrawRoundRect(LRoundRect, LPaint);

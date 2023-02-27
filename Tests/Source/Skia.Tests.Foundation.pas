@@ -21,6 +21,7 @@ uses
   System.Math,
   System.Math.Vectors,
   System.IOUtils,
+  System.Types,
   DUnitX.TestFramework,
   DUnitX.Assert,
 
@@ -150,6 +151,7 @@ type
   {$ENDIF}
 
 function BytesToHex(const ABytes: TBytes): string;
+procedure DrawImageFitCrop(const ACanvas: ISkCanvas; const ADest: TRectF; const AImage: ISkImage);
 function HexToBytes(AString: string): TBytes;
 function PathToText(const APath: ISkPath): string;
 
@@ -158,7 +160,6 @@ implementation
 uses
   { Delphi }
   System.ZLib,
-  System.Types,
   System.UITypes,
   DUnitX.ResStrs,
 
@@ -186,6 +187,36 @@ begin
     for I := 0 to Length(ABytes) - 1 do
       Result := Result + IntToHex(ABytes[I], 2);
     Result := Result.ToLower;
+  end;
+end;
+
+procedure DrawImageFitCrop(const ACanvas: ISkCanvas; const ADest: TRectF;
+  const AImage: ISkImage);
+var
+  LRect: TRectF;
+  LRatio: Double;
+begin
+  LRect := TRectF.Create(0, 0, AImage.Width, AImage.Height);
+  if (ADest.Width > 0) and (ADest.Height > 0) then
+  begin
+    if (LRect.Width / ADest.Width) < (LRect.Height / ADest.Height) then
+      LRatio := LRect.Width / ADest.Width
+    else
+      LRatio := LRect.Height / ADest.Height;
+
+    ACanvas.Save;
+    try
+      if not SameValue(LRatio, 0, TEpsilon.Position) then
+      begin
+        LRect := TRectF.Create(0, 0, Round(LRect.Width / LRatio), Round(LRect.Height / LRatio));
+        RectCenter(LRect, ADest);
+        ACanvas.Translate(LRect.Left, LRect.Top);
+        ACanvas.Scale(LRect.Width / AImage.Width, LRect.Height / AImage.Height);
+      end;
+      ACanvas.DrawImage(AImage, 0, 0, TSkSamplingOptions.High);
+    finally
+      ACanvas.Restore;
+    end;
   end;
 end;
 
