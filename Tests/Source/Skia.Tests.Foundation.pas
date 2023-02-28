@@ -151,7 +151,7 @@ type
   {$ENDIF}
 
 function BytesToHex(const ABytes: TBytes): string;
-procedure DrawImageFitCrop(const ACanvas: ISkCanvas; const ADest: TRectF; const AImage: ISkImage);
+procedure DrawImageFitCrop(const ACanvas: ISkCanvas; const ADest: TRectF; const AImage: ISkImage; const APaint: ISkPaint = nil);
 function HexToBytes(AString: string): TBytes;
 function PathToText(const APath: ISkPath): string;
 
@@ -191,7 +191,7 @@ begin
 end;
 
 procedure DrawImageFitCrop(const ACanvas: ISkCanvas; const ADest: TRectF;
-  const AImage: ISkImage);
+  const AImage: ISkImage; const APaint: ISkPaint);
 var
   LRect: TRectF;
   LRatio: Double;
@@ -208,12 +208,13 @@ begin
     try
       if not SameValue(LRatio, 0, TEpsilon.Position) then
       begin
+        ACanvas.ClipRect(ADest, TSkClipOp.Intersect, True);
         LRect := TRectF.Create(0, 0, Round(LRect.Width / LRatio), Round(LRect.Height / LRatio));
         RectCenter(LRect, ADest);
         ACanvas.Translate(LRect.Left, LRect.Top);
         ACanvas.Scale(LRect.Width / AImage.Width, LRect.Height / AImage.Height);
       end;
-      ACanvas.DrawImage(AImage, 0, 0, TSkSamplingOptions.High);
+      ACanvas.DrawImage(AImage, 0, 0, TSkSamplingOptions.High, APaint);
     finally
       ACanvas.Restore;
     end;

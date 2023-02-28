@@ -30,8 +30,8 @@ type
   public
     [Test]
     procedure TestBasic;
-    [TestCase('1', '0.99,/8+BgYGR0f////Hhw9fd////9fX73/3///////vf/f/AAYABgAGAAYABgAGAAYADwAPgB/AP//8')]
-    procedure TestClipImage(const AMinSimilarity: Double; const AExpectedImageHash: string);
+    [TestCase('1', 'horse.webp,0.99,/8+BgYGR0f////Hhw9fd////9fX73/3///////vf/f/AAYABgAGAAYABgAGAAYADwAPgB/AP//8')]
+    procedure TestClipImage(const AImageFileName: string; const AMinSimilarity: Double; const AExpectedImageHash: string);
     [Test]
     procedure TestConstructors;
     [Test]
@@ -80,8 +80,8 @@ begin
   Assert.IsTrue(RectF(100, 20, 130, 220).EqualsTo(LRoundRect.Rect, TEpsilon.Vector));
 end;
 
-procedure TSkRoundRectTests.TestClipImage(const AMinSimilarity: Double;
-  const AExpectedImageHash: string);
+procedure TSkRoundRectTests.TestClipImage(const AImageFileName: string;
+  const AMinSimilarity: Double; const AExpectedImageHash: string);
 const
   BitmapSize = 160;
   RectSize = BitmapSize - 20;
@@ -91,7 +91,7 @@ var
   LRoundRect: ISkRoundRect;
   LSurface: ISkSurface;
 begin
-  LImage := TSkImage.MakeFromEncodedFile(ImageAssetsPath + 'horse.webp');
+  LImage := TSkImage.MakeFromEncodedFile(ImageAssetsPath + AImageFileName);
   Assert.IsNotNull(LImage, 'Invalid ISkImage (nil)');
   LSurface := TSkSurface.MakeRaster(BitmapSize, BitmapSize);
   Assert.IsNotNull(LSurface, 'Invalid ISkSurface (nil)');
