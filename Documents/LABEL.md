@@ -41,3 +41,49 @@ In Firemonkey, the TSkLabel supports FMX styles too. It is very recommended, bec
 # Right-to-left
 
 The right-to-left is made automatically after change the BiDi property of the form to RightToLeft.
+
+# Custom fonts
+
+It is possible to use custom font in the TSkLabel in a very simple way. Just register them in the app initialization:
+
+## FMX
+
+```pascal
+program Project1;
+
+uses
+  System.StartUpCopy,
+  FMX.Forms,
+  Skia.FMX,
+  Unit1 in 'Unit1.pas' {Form1};
+
+{$R *.res}
+
+begin
+  TSkDefaultProviders.RegisterTypeface('Poppins.ttf');
+  Application.Initialize;
+  Application.CreateForm(TForm1, Form1);
+  Application.Run;
+end.
+```
+
+## VCL
+
+```pascal
+program Project1;
+
+uses
+  Vcl.Forms,
+  Skia.Vcl,
+  Unit1 in 'Unit1.pas' {Form1};
+
+{$R *.res}
+
+begin
+  TSkDefaultProviders.RegisterTypeface('Poppins.ttf');
+  Application.Initialize;
+  Application.MainFormOnTaskbar := True;
+  Application.CreateForm(TForm1, Form1);
+  Application.Run;
+end.
+```

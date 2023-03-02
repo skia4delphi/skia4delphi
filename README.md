@@ -36,9 +36,9 @@ Google's Skia Graphics Library serves as the graphics engine for Google Chrome a
 - Particles; (provides a way to quickly generate large numbers of drawing primitives with dynamic, animated behavior)
   **and much more...**
 
-## FMX graphics engine replacement
+## FMX render replacement
 
-Using the **Skia4Delphi** library it is possible to override Firemonkey's rendering engine so that it can use Skia as its default Canvas. With that, your Firemonkey application will automatically:
+Using the **Skia4Delphi** library it is possible to override Firemonkey's graphic engine so that it can use Skia as its default Canvas. With that, your Firemonkey application will automatically:
 
 - Draw with antialiasing on any platform (the drawing quality is based on the Form.Quality property);
 - Increase the overall graphics performance of your application by up to 50% (even drawing with higher quality);
@@ -47,7 +47,7 @@ Using the **Skia4Delphi** library it is possible to override Firemonkey's render
 - Fix dozens of inconsistencies in drawings (especially in corners and strokes, such as dashes, and in texts with special emojis);
 - Increase the performance of the library in general ([controls](#controls-vclfmx), drawings, among others...).
 
-[Learn more...](#fmx-canvas)
+[Learn more...](#fmx-render)
 
 # Summary
 
@@ -57,19 +57,17 @@ Using the **Skia4Delphi** library it is possible to override Firemonkey's render
     - [Enable Skia](#enable-skia)
   - [Examples](#examples)
     - [Basic usage](#basic-usage)
-    - [Text Right-to-Left](#text-right-to-left)
-    - [Custom fonts](#custom-fonts)
     - [PDF](#pdf)
     - [Codecs](#codecs)
 - [Integration with Delphi](#integration-with-delphi)
   - [Bitmap](#bitmap)
   - [Image formats](#image-formats)
-  - [FMX Canvas](#fmx-canvas)
-    - [Enable Canvas](#enable-canvas)
+  - **[FMX Render](#fmx-render)**
+    - [Enable Skia Render](#enable-skia-render)
     - [Benchmark](#benchmark)
-    - [Surface](#surface)
-    - [Controls](#controls)
+    - [Skia canvas](#skia-canvas)
     - [Right-to-Left](#right-to-left)
+    - [Custom fonts](#custom-fonts)
 - [Controls VCL/FMX](#controls-vclfmx)
   - [TSkAnimatedImage](#tskanimatedimage)
   - [TSkLabel](#tsklabel)
@@ -119,7 +117,7 @@ After install the **Skia4Delphi**, just right click in your application project 
 
 #### Tip
 
-To improve the quality and performance of FMX drawings, replace the FMX graphics engine with the **Skia4Delphi** graphic engine. [Learn more...](#fmx-canvas)
+To improve the quality and performance of FMX drawings, the replacement of the the FMX graphics engine with the **Skia4Delphi** render is automatically enabled. [Learn more...](#fmx-render)
 
 ## Examples
 
@@ -134,10 +132,8 @@ type
   TSkDrawExampleProc = reference to procedure(const ACanvas: ISkCanvas; const ADest: TRectF);
 
 procedure DrawExample(const AWidth, AHeight: Integer; const ADrawProc: TSkDrawExampleProc);
-var
-  LSurface: ISkSurface;
 begin
-  LSurface := TSkSurface.MakeRaster(AWidth, AHeight);
+  var LSurface := TSkSurface.MakeRaster(AWidth, AHeight);
   LSurface.Canvas.Clear(TAlphaColors.Null);
   ADrawProc(LSurface.Canvas, RectF(0, 0, AWidth, AHeight));
   LSurface.MakeImageSnapshot.EncodeToFile('output.png');
@@ -151,19 +147,15 @@ The code below demonstrate how to draw shapes:
 ```pascal
 DrawExample(256, 256,
   procedure (const ACanvas: ISkCanvas; const ADest: TRectF)
-  var
-    LOval: ISkRoundRect;
-    LPaint: ISkPaint;
-    LRect: TRectF;
   begin
-    LPaint := TSkPaint.Create;
+    var LPaint: ISkPaint := TSkPaint.Create;
     LPaint.AntiAlias := True;
 
     LPaint.Color := $FF4285F4;
-    LRect := TRectF.Create(PointF(10, 10), 100, 160);
+    var LRect := TRectF.Create(PointF(10, 10), 100, 160);
     ACanvas.DrawRect(LRect, LPaint);
 
-    LOval := TSkRoundRect.Create;
+    var LOval: ISkRoundRect := TSkRoundRect.Create;
     LOval.SetOval(LRect);
     LOval.Offset(40, 80);
     LPaint.Color := $FFDB4437;
@@ -186,88 +178,22 @@ This code results in the output below:
 
 [Learn more...](Documents/USAGE.md#basic-usage)
 
-### Text Right-to-Left
-
-There are a couple of languages that the direction of the text is from right to left such as Persian, Arabic, Hebrew, and more. With **Skia4Delphi** it is possible to render Right-to-Left. The example below demonstrates how to render a Persian sentence using a text-shaping engine:
-
-```pascal
-DrawExample(256, 256,
-  procedure (const ACanvas: ISkCanvas; const ADest: TRectF)
-  var
-    LBlob: ISkTextBlob;
-    LFont: ISkFont;
-    LPaint: ISkPaint;
-    LShaper: ISkShaper;
-  begin
-    LFont := TSkFont.Create(TSkTypeface.MakeDefault, 55, 1);
-    LShaper := TSkShaper.Create;
-    LBlob := LShaper.Shape('سلام دنیا!', LFont, False, High(Integer));
-
-    LPaint := TSkPaint.Create;
-    LPaint.AntiAlias := True;
-    LPaint.Color := TAlphaColors.Tomato;
-
-    ACanvas.DrawTextBlob(LBlob, 0, 0, LPaint);
-  end);
-```
-
-This code results in the output below:
-
-<p><img src="Assets/Documents/text-rtl.svg" width="192" height="60" alt="Text RTL" /></p>
-
-### Custom fonts
-
-With **Skia4Delphi** it is possible to use custom fonts easily, from the file, without the need to install it on the operating system, regardless of the platform. The example below will draw using two custom fonts:
-
-```pascal
-DrawExample(256, 256,
-  procedure (const ACanvas: ISkCanvas; const ADest: TRectF)
-  var
-    LFont: ISkFont;
-    LPaint: ISkPaint;
-  begin
-    LFont := TSkFont.Create(TSkTypeface.MakeFromFile('Samples\Demo\Assets\nunito-extrabold.ttf'), 23);
-    LPaint := TSkPaint.Create;
-    LPaint.Shader := TSkShader.MakeGradientLinear(PointF(0, 0), PointF(256, 145), $FFFF5F5F, $FF5B8DFE, TSkTileMode.Clamp);
-
-    ACanvas.DrawSimpleText('"Each dream that you', 2, 25, LFont, LPaint);
-    ACanvas.DrawSimpleText('leave behind is a part', 2, 55, LFont, LPaint);
-    ACanvas.DrawSimpleText('of your future that will', 2, 85, LFont, LPaint);
-    ACanvas.DrawSimpleText('no longer exist."', 2, 115, LFont, LPaint);
-
-    LFont := TSkFont.Create(TSkTypeface.MakeFromFile('Samples\Demo\Assets\bonheur-royale-regular.ttf'), 28);
-    LPaint.Shader := nil;
-    LPaint.Color  := $FF5B8DFE;
-    ACanvas.DrawSimpleText('(Steve Jobs)', 2, 150, LFont, LPaint);
-  end);
-```
-
-This code results in the output below:
-
-<p><img src="Assets/Documents/text-custom-font.svg" width="256" height="168" alt="Text Custom Font" /></p>
-
 ### PDF
 
 With **Skia4Delphi** it is possible to create PDF documents and draw anything on them, from text to images. The example below demonstrates how to create an PDF document and draw an SVG inside it:
 
 ```pascal
-var
-  LCanvas: ISkCanvas;
-  LDocument: ISkDocument;
-  LDocumentStream: TStream;
-  LSVGDOM: ISkSVGDOM;
-  LSize: TSizeF;
-begin
-  LSVGDOM := TSkSVGDOM.MakeFromFile('Samples\Demo\Assets\lion.svg');
-  LSize := TSizeF.Create(600, 600);
+  var LSVGDOM := TSkSVGDOM.MakeFromFile('Samples\Demo\Assets\lion.svg');
+  var LSize := TSizeF.Create(600, 600);
   LSVGDOM.SetContainerSize(LSize);
 
-  LDocumentStream := TFileStream.Create('output.pdf', fmCreate);
+  var LDocumentStream := TFileStream.Create('output.pdf', fmCreate);
   try
-    LDocument := TSkDocument.MakePDF(LDocumentStream);
+    var LDocument := TSkDocument.MakePDF(LDocumentStream);
     try
-      LCanvas := LDocument.BeginPage(LSize.Width, LSize.Height);
+      var LCanvas := LDocument.BeginPage(LSize.Width, LSize.Height);
       try
+        // Draw anything here with Skia canvas
         LSVGDOM.Render(LCanvas);
       finally
         LDocument.EndPage;
@@ -278,7 +204,6 @@ begin
   finally
     LDocumentStream.Free;
   end;
-end;
 ```
 
 This code results in the output below:
@@ -327,13 +252,9 @@ WebP is a modern image format that provides superior lossless and lossy compress
 The example below demonstrates how to encoder to WebP format:
 
 ```pascal
-var
-  LImage: ISkImage;
-begin
-  LImage := TSkImage.MakeFromEncodedFile('Samples\Demo\Assets\kung-fu-panda.png');
+  var LImage := TSkImage.MakeFromEncodedFile('Samples\Demo\Assets\kung-fu-panda.png');
   LImage.EncodeToFile('output.webp', TSkEncodedImageFormat.WEBP, 80);
   LImage.EncodeToFile('output.jpg', TSkEncodedImageFormat.JPEG, 80);
-end;
 ```
 
 This code results in the output below:
@@ -350,13 +271,15 @@ This code results in the output below:
 
 ## Bitmap
 
-It is possible to edit TBitmap (**VCL** or **FMX**) with Skia's Canvas using the code below:
+It is possible to edit TBitmap (**VCL** or **FMX**) with Skia's canvas using the code below:
 
 ```pascal
-var
-  LBitmap: TBitmap;
-begin
-  LBitmap := TBitmap.Create(100, 100);
+uses
+  Skia, Skia.FMX {or Skia.Vcl};
+
+...
+
+  var LBitmap := TBitmap.Create(100, 100);
   try
     LBitmap.SkiaDraw(
       procedure (const ACanvas: ISkCanvas)
@@ -373,15 +296,15 @@ The library registers the following codecs:
 
 - **FMX**: .bmp, .gif, .ico, .webp, .wbmp and raw images (.arw, .cr2, .dng, .nef, .nrw, .orf, .raf, .rw2, .pef and .srw).
 
-As a result, any Delphi control, such as a TImage, can normally load these new formats.
+As a result, any Delphi control, such as a TImage, can normally load these new formats automatically.
 
-## FMX Canvas
+## **FMX Render**
 
-It is possible to replace the default Canvas from FMX to Skia based Canvas. Once this feature is enabled, all FMX controls will be painted using Skia4Delphi automatically. With that it is possible to improve the quality and performance of the drawings for the FMX as well as for the whole library.
+It is possible to replace the default Canvas from FMX to Skia based Canvas. Once this feature is enabled, all FMX controls will be painted internally using Skia4Delphi automatically. With that it is possible to improve the quality and performance of the drawings throughout the FMX app, as well as generating better integration with other library features.
 
-### Enable Canvas
+### Enable Skia Render
 
-Open the source of your Delphi Application Project _(.dpr)_, include the `Skia.FMX` unit **after** the `FMX.Forms` unit, and set the `GlobalUseSkia` to **True**, as in the example below:
+Open the source of your Delphi Application Project _(.dpr)_, include the `Skia.FMX` unit right **after** the `FMX.Forms` unit, and set the `GlobalUseSkia` to **True**, as in the example below:
 
 ```pascal
 uses
@@ -400,9 +323,9 @@ begin
 
 #### Remarks
 
-1. `Skia.FMX` unit must be included after the `FMX.Forms`;
-2. The **Metal** implementation is experimental, but can be used by including the `FMX.Types` unit **after** the `FMX.Forms` unit, and setting `GlobalUseMetal` to **True** together with `GlobalUseSkia`;
-3. `GlobalUseSkia` has no effect on Linux. (although not supported, all [controls](#controls-vclfmx) work perfectly)
+1. `Skia.FMX` unit must be included right after the `FMX.Forms`;
+2. The **Skia Metal** render can be used by including the `FMX.Types` unit right **after** the `FMX.Forms` unit, and setting `GlobalUseMetal` to **True** together with `GlobalUseSkia` to improve the speed in iOS and macOS;
+3. `GlobalUseSkia` has no effect on Linux. (although not supported, all [controls](#controls-vclfmx) work perfectly, just like the rest of the library)
 4. This declaration of `GlobalUseSkia := True;`, as well as other variables of FMX itself, such as `GlobalUseMetal`, can also be made in the initialization of some unit instead of .dpr. Sometimes this is really necessary because if in the initialization or in the class constructor of some unit, bitmaps are used, the GlobalUseXXX declarations of the .dpr will have no effect. In this case, just create a unit in the project like "Project.Startup.pas", place the GlobalUseXXX declarations in the initialization of this new unit, and declare this new unit before any other unit of yours in the .dpr, that is, right after FMX.Forms.
 
 ### Benchmark
@@ -434,39 +357,35 @@ The performance test is a simulation of a real application, with hundreds of con
 
 #### Remarks
 
-1. Delphi's `TGPUCanvas` (default Canvas used on cell phones, as well as Apple computers when Metal is enabled) does not use anti-aliasing (anti-aliasing is a technique that improves the quality of diagonal lines) while Skia uses it. That is, Skia has better performance and quality in the drawings than default FMX Canvas.
+1. Default FMX renderer does not use anti-aliasing on some platforms (like on mobile) while Skia Render uses it. That is, Skia has better performance and quality in the drawings than default FMX Render.
 
-   | FMX circle                                     | Skia circle                                      |
-   | ---------------------------------------------- | ------------------------------------------------ |
+   | FMX default                                    | FMX with Skia render                             |
+   | :--------------------------------------------: | :----------------------------------------------: |
    | ![FMX Circle](Assets/Documents/fmx-circle.png) | ![Skia Circle](Assets/Documents/skia-circle.png) |
 
-2. Firemonkey uses Quartz on macOS, and for **Skia4Delphi** use OpenGL it would be necessary to edit the Delphi runtime library, so we choose to keep the rasterization method and not implement OpenGL on macOS. In the future it is likely that we will set Metal as default, as OpenGL is deprecated in Apple's operating systems. For those who want to use the Skia Canvas on macOS we recommend enabling Metal.
+2. On macOS `Skia4Delphi`'s default renderer does not have GPU acceleration. Therefore, it is highly recommended to use **Skia Metal** (combining the activation of `GlobalUseSkia` and `GlobalUseMetal`), to get the full performance of the machine.
 
 3. Tests made from virtual machines are inconsistent with reality.
 
-### Surface
+### Skia canvas
 
-Using Skia's Canvas, during the Scene of a Bitmap or Control (between the `BeginScene` and `EndScene` calls), it is possible to access the `Surface` property as follows:
+Using Skia's Render, during the Scene of a Bitmap, Control or Form, it is possible to access the Skia canvas property as follows:
+
+#### In Bitmaps
 
 ```pascal
 uses
-  Skia,
-  Skia.FMX.Graphics;
+  Skia, Skia.FMX.Graphics;
 
-var
-  LBitmap: TBitmap;
-  LCanvas: ISkCanvas;
 begin
-  LBitmap := TBitmap.Create(300, 300);
+  var LBitmap := TBitmap.Create(300, 300);
   try
-    if LBitmap.Canvas.BeginScene then
-    begin
-      try
-        LCanvas := TSkCanvasCustom(LBitmap.Canvas).Surface.Canvas;
-        // Draw with LCanvas...
-      finally
-        LBitmap.Canvas.EndScene;
-      end;
+    LBitmap.Canvas.BeginScene;
+    try
+      var LCanvas: ISkCanvas := TSkCanvasCustom(LBitmap.Canvas).Canvas;
+      // Draw using Skia canvas (LCanvas) directly to unlock new features...
+    finally
+      LBitmap.Canvas.EndScene;
     end;
   finally
     LBitmap.Free;
@@ -474,55 +393,37 @@ begin
 end;
 ```
 
-#### Remarks
-
-1. `Surface` property will only be available during Scene (between the `BeginScene` and `EndScene` calls);
-2. Canvas for UI (created from a window _eg rectangles, circles, objects inherited from TControl_) must draw exclusively from the **main thread**, while Canvas created from `TBitmap` are **thread safe**.
-
-#### Tip
-
-If your app has background threads that do a lot of bitmap drawings, be aware that it is safe to remove the global lock from the `TCanvas` base class when Skia based Canvas is enabled, to allow your app to do truly parallel drawings, gaining a lot of performance. For that, it is necessary to make a patch in the units `FMX.Graphics.pas` and `FMX.TextLayout.pas`. [Learn more](https://quality.embarcadero.com/browse/RSP-37232)
-
-### Controls
-
-Using Skia's Canvas, it is possible to access the Surface property from the `Paint` procedure of a control, to draw directly using Skia, as shown below:
+#### In Controls & Forms
 
 ```pascal
-unit Unit1;
-
-interface
-
-uses
-  FMX.Controls,
-  FMX.Graphics,
-  Skia,
-  Skia.FMX.Graphics;
-
-
 type
-  TControl1 = class(TControl)
+  TMyControl = class(TControl)
   protected
     procedure Paint; override;
   end;
 
 implementation
 
-{ TControl1 }
+uses
+  Skia, Skia.FMX.Graphics;
 
-procedure TControl1.Paint;
-var
-  LCanvas: ISkCanvas;
+procedure TMyControl.Paint;
 begin
-  LCanvas := TSkCanvasCustom(Canvas).Surface.Canvas;
-  // Draw with LCanvas...
+  var LCanvas: ISkCanvas := TSkCanvasCustom(Canvas).Canvas;
+  // Draw using Skia canvas (LCanvas) directly to unlock new features...
 end;
 ```
 
+#### Remarks
+
+1. `Canvas` property will only be available during Scene, that is, between the `BeginScene` and `EndScene` of the Bitmaps, and during paint events/methods for Controls and Forms (such as OnPaint, OnPainting, PaintChildren, among others);
+2. Canvas for UI (created from a window _eg TRectangles, TCircles, objects inherited from TControl_) must draw exclusively from the **main thread**, while Canvas created from `TBitmap` are **thread safe**.
+
 ### Right-to-Left
 
-Using Skia's Canvas, your application will now support Right-To-Left text rendering. But for that you will need to make 3 changes to your project:
+Using Skia's render, your application will now support Right-To-Left text rendering. But for that you will need to make 3 changes to your project:
 
-1. Open the source of your Delphi Application Project _(.dpr)_, include the line `Application.BiDiMode := TBiDiMode.bdRightToLeft;`, like below:
+1. For RAD Studio prior to 11.3, open the source of your Delphi Application Project _(.dpr)_, include the line `Application.BiDiMode := TBiDiMode.bdRightToLeft;`, like below:
 
 ```pascal
 program Project1;
@@ -548,6 +449,30 @@ end.
 2. Set the property `BiDiMode` of your forms to `bdRightToLeft`;
 3. Keyboard input controls like TEdit and TMemo, need to be fixed by Embarcadero, meanwhile, as a workaround, set the `ControlType` property of these controls to `Platform`.
 
+### Custom fonts
+
+Using Skia's renderer, it is possible to use custom font in any FMX control, on any platform in a very simple way. Just register them in the app initialization:
+
+```pascal
+program Project1;
+
+uses
+  System.StartUpCopy,
+  FMX.Forms,
+  Skia.FMX,
+  Unit1 in 'Unit1.pas' {Form1};
+
+{$R *.res}
+
+begin
+  GlobalUseSkia := True;
+  TSkDefaultProviders.RegisterTypeface('Poppins.ttf');
+  Application.Initialize;
+  Application.CreateForm(TForm1, Form1);
+  Application.Run;
+end.
+```
+
 # Controls VCL/FMX
 
 ## TSkAnimatedImage
@@ -564,13 +489,9 @@ end.
 The example below demonstrates how to play lottie files using **TSkAnimatedImage**:
 
 ```pascal
-var
-  LAnimatedImage: TSkAnimatedImage;
-begin
-  LAnimatedimage := TSkAnimatedImage.Create(Self);
+  var LAnimatedimage := TSkAnimatedImage.Create(Self);
   LAnimatedimage.LoadFromFile('Samples\Demo\Assets\rocket.json');
   LAnimatedimage.Parent := Self;
-end;
 ```
 
 The example above results in the output below:
@@ -603,15 +524,13 @@ The example above results in the output below:
 
 ## TSkPaintBox
 
-**TSkPaintBox** is the ideal control for painting with skia api directly on the canvas with the event `OnDraw`:
+**TSkPaintBox** is the ideal control for painting with Skia API directly on the canvas with the event `OnDraw`:
 
 ```pascal
 procedure TForm1.SkPaintBox1Draw(ASender: TObject; const ACanvas: ISkCanvas;
   const ADest: TRectF; const AOpacity: Single);
-var
-  LPaint: ISkPaint;
 begin
-  LPaint := TSkPaint.Create;
+  var LPaint: ISkPaint := TSkPaint.Create;
   LPaint.Shader := TSkShader.MakeGradientSweep(ADest.CenterPoint,
     [$FFFCE68D, $FFF7CAA5, $FF2EBBC1, $FFFCE68D]);
   ACanvas.DrawPaint(LPaint);
@@ -622,20 +541,16 @@ The example above results in the output below:
 
 ![Paint Box](Assets/Documents/paintbox.png)
 
-_Note: The TSkPaintBox has a drawing caching system. To force a drawing refresh, call TSkPaintBox.Redraw. However, this cache system does not exist in FMX apps that have enabled [Skia4Delphi graphic engine](#fmx-canvas) for optimization reasons._
+_Note: The TSkPaintBox has a drawing caching system. To force a drawing refresh, call TSkPaintBox.Redraw. However, this cache system does not exist in FMX apps that have enabled [Skia4Delphi render](#fmx-render) for optimization reasons._
 
 ## TSkSvg
 
 **TSkSvg** is the control to load and display SVG easily:
 
 ```pascal
-var
-  LSvg: TSkSvg;
-begin
-  LSvg := TSkSvg.Create(Self);
+  var LSvg := TSkSvg.Create(Self);
   LSvg.Svg.Source := TFile.ReadAllText('Samples\Demo\Assets\gorilla.svg');
   LSvg.Parent := Self;
-end;
 ```
 
 The example above results in the output below:
