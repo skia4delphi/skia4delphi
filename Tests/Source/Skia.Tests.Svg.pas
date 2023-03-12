@@ -30,8 +30,6 @@ type
 
   [TestFixture]
   TSkSvgDOMTests = class(TTestBase)
-  protected
-    function AssetsPath: string; override;
   public
     [TestCase('Editing android eyes color', 'android.svg,100,100,eyes,fill,red,/8PDgYHD5/////Phw8fv////9+XHz//////////f///wD9AbwAPAA8ADwAPwD/AP/b/9v/2///8')]
     procedure TestEditSvgElement(const ASvgFileName: string; const AWidth, AHeight: Integer; const AElementId, AAttributeName, AAttributeValue, AExpectedImageHash: string);
@@ -62,11 +60,6 @@ uses
 
 { TSkSvgDOMTests }
 
-function TSkSvgDOMTests.AssetsPath: string;
-begin
-  Result := CombinePaths(RootAssetsPath, 'Svg');
-end;
-
 procedure TSkSvgDOMTests.TestEditSvgElement(const ASvgFileName: string;
   const AWidth, AHeight: Integer; const AElementId, AAttributeName,
   AAttributeValue, AExpectedImageHash: string);
@@ -78,7 +71,7 @@ begin
   LSurface := TSkSurface.MakeRaster(AWidth, AHeight, TSkColorType.BGRA8888, TSkAlphaType.Premul, TSkColorSpace.MakeSRGB);
   Assert.IsNotNull(LSurface, 'Invalid ISkSurface (nil)');
   LSurface.Canvas.Clear(TAlphaColors.Null);
-  LSVGDOM := TSkSVGDOM.MakeFromFile(AssetsPath + ASvgFileName);
+  LSVGDOM := TSkSVGDOM.MakeFromFile(SvgAssetsPath + ASvgFileName);
   if Assigned(LSVGDOM) then
   begin
     LSVGDOM.Root.Width  := TSkSVGLength.Create(AWidth,  TSkSVGLengthUnit.Pixel);
@@ -99,7 +92,7 @@ var
   LSVGDOM: ISkSVGDOM;
   LSize: TSizeF;
 begin
-  LSVGDOM := TSkSVGDOM.MakeFromFile(AssetsPath + ASvgFileName);
+  LSVGDOM := TSkSVGDOM.MakeFromFile(SvgAssetsPath + ASvgFileName);
   Assert.IsNotNull(LSVGDOM, 'Invalid SkSVGDOM');
   LSize := LSVGDOM.Root.GetIntrinsicSize(TSizeF.Create(0, 0));
   Assert.AreEqual(LSize.Width, AWidth, TEpsilon.Vector, 'Different width');
@@ -112,7 +105,7 @@ var
   LSVGDOM: ISkSVGDOM;
   LViewBox: TRectF;
 begin
-  LSVGDOM := TSkSVGDOM.MakeFromFile(AssetsPath + ASvgFileName);
+  LSVGDOM := TSkSVGDOM.MakeFromFile(SvgAssetsPath + ASvgFileName);
   Assert.IsNotNull(LSVGDOM, 'Invalid SkSVGDOM');
   Assert.IsTrue(LSVGDOM.Root.TryGetViewBox(LViewBox) = AExpectedResult, 'Different result of TryGetViewBox');
   if AExpectedResult then

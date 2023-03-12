@@ -53,7 +53,6 @@ type
         'ut tellus elementum sagittis vitae et leo. In iaculis nunc sed augue lacus viverra vitae congue eu. Feugiat pretium ' +
         'nibh ipsum consequat nisl. Lobortis feugiat vivamus at augue eget arcu dictum.';
       {$ENDIF}
-    procedure CheckTextRect(const AExpectedTextRect, ATextRect: TRectF);
     procedure Test(const AText: string; const ABitmapSize: TSize; const AScale, AFontSize: Single; const ATextTopLeft, AMaxSize: TPointF; const AWordWrap, ARightToLeft: Boolean; const AHorizontalAlign, AVerticalAlign: TTextAlign; const ATrimming: TTextTrimming; const AColor: TAlphaColor; const AExpectedTextRect: TRectF; const ACheckTextRect: Boolean; const AAttributes: TArray<TTextAttributedRange>; const AMinSimilarity: Double; const AExpectedImageHash: string);
   public
     [Test]
@@ -266,15 +265,6 @@ begin
   end;
 end;
 
-procedure TSkTextLayoutTests.CheckTextRect(const AExpectedTextRect,
-  ATextRect: TRectF);
-begin
-  Assert.AreSameValue(AExpectedTextRect.Left, ATextRect.Left, TextRectEpsilon, Format('in TextRect. Rect obtained %s', [RectToString(ATextRect)]));
-  Assert.AreSameValue(AExpectedTextRect.Top, ATextRect.Top, TextRectEpsilon, Format('in TextRect. Rect obtained %s', [RectToString(ATextRect)]));
-  Assert.AreSameValue(AExpectedTextRect.Right, ATextRect.Right, TextRectEpsilon, Format('in TextRect. Rect obtained %s', [RectToString(ATextRect)]));
-  Assert.AreSameValue(AExpectedTextRect.Bottom, ATextRect.Bottom, TextRectEpsilon, Format('in TextRect. Rect obtained %s', [RectToString(ATextRect)]));
-end;
-
 procedure TSkTextLayoutTests.GenericTest(const AText: string; const ABitmapWidth,
   ABitmapHeight: Integer; const AScale, ATextLeft, ATextTop, AMaxWidth, AMaxHeight,
   AFontSize: Single; const AWordWrap, ARightToLeft: Boolean; const AHorizontalAlign,
@@ -336,7 +326,7 @@ begin
           LLayout.EndUpdate;
         end;
         if ACheckTextRect then
-          CheckTextRect(AExpectedTextRect, LLayout.TextRect);
+          Assert.AreSameRect(AExpectedTextRect, LLayout.TextRect, TextRectEpsilon);
         LLayout.RenderLayout(LBitmap.Canvas);
       finally
         LLayout.Free;
@@ -524,7 +514,7 @@ begin
         LLayout.EndUpdate;
       end;
 
-      CheckTextRect(RectF(AExpectedTextLeft, AExpectedTextTop, AExpectedTextRight, AExpectedTextBottom), LLayout.TextRect);
+      Assert.AreSameRect(RectF(AExpectedTextLeft, AExpectedTextTop, AExpectedTextRight, AExpectedTextBottom), LLayout.TextRect, TextRectEpsilon);
       LLayout.MaxSize := LLayout.TextRect.Size;
 
       LBitmap.SetSize(Ceil(LLayout.MaxSize.X), Ceil(LLayout.MaxSize.Y));

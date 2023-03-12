@@ -45,6 +45,7 @@ type
     function FontAssetsPath: string;
     function FontProvider: ISkTypefaceFontProvider;
     function ImageAssetsPath: string;
+    function SvgAssetsPath: string;
     procedure RegisterFontFiles(const AFontProvider: ISkTypefaceFontProvider);
   public
     [Setup]
@@ -92,6 +93,7 @@ type
     class procedure AreEqualPixels(const AExpected, AActual: ISkPixmap; const AMessage: string = ''); overload;
     class procedure AreNotEqualArray<T>(const AExpected, AActual: TArray<T>; const AMessage: string = '');
     class procedure AreNotEqualBytes(const AExpected, AActual: TBytes; const AMessage: string = '');
+    class procedure AreSameRect(const AExpected, AActual: TRectF; const AEpsilon: Single = 0; const AMessage: string = '');
     class procedure AreSameValue(const AExpected, AActual: Double; const AEpsilon: Double = 0; const AMessage: string = ''); overload;
     class procedure AreSameValue(const AExpected, AActual: Single; const AEpsilon: Single = 0; const AMessage: string = ''); overload;
     class procedure AreSimilar(const AExpectedHash: string; const AActual: ISkImage; AMinSimilarity: Double = DefaultMinImageSimilarity; const AMessage: string = ''); overload;
@@ -154,6 +156,8 @@ function BytesToHex(const ABytes: TBytes): string;
 procedure DrawImageFitCrop(const ACanvas: ISkCanvas; const ADest: TRectF; const AImage: ISkImage; const APaint: ISkPaint = nil);
 function HexToBytes(AString: string): TBytes;
 function PathToText(const APath: ISkPath): string;
+function RectToString(const R: TRectF): string;
+function StringToRect(const S: string): TRectF;
 
 implementation
 
@@ -282,6 +286,27 @@ begin
   end;
 end;
 
+function RectToString(const R: TRectF): string;
+begin
+  Result := '(' + FloatToStr(R.Left, TFormatSettings.Invariant) + ',' + FloatToStr(R.Top, TFormatSettings.Invariant) + ',' +
+    FloatToStr(R.Right, TFormatSettings.Invariant) + ',' + FloatToStr(R.Bottom, TFormatSettings.Invariant) + ')';
+end;
+
+function StringToRect(const S: string): TRectF;
+var
+  LValues: TArray<string>;
+begin
+  LValues := S.Split(['(', ')', ','], TStringSplitOptions.ExcludeEmpty);
+  if (Length(LValues) < 4) or
+    not TryStrToFloat(LValues[0], Result.Left, TFormatSettings.Invariant) or
+    not TryStrToFloat(LValues[1], Result.Top, TFormatSettings.Invariant) or
+    not TryStrToFloat(LValues[2], Result.Right, TFormatSettings.Invariant) or
+    not TryStrToFloat(LValues[3], Result.Bottom, TFormatSettings.Invariant) then
+  begin
+    Result := TRectF.Empty;
+  end;
+end;
+
 { TTestBase }
 
 function TTestBase.AssetsPath(const ASubPath: string): string;
@@ -374,6 +399,11 @@ begin
     TDirectory.CreateDirectory(LAssetsPath);
     FAssetsPathCreated := True;
   end;
+end;
+
+function TTestBase.SvgAssetsPath: string;
+begin
+  Result := CombinePaths(RootAssetsPath, 'Svg');
 end;
 
 procedure TTestBase.TearDown;
@@ -550,6 +580,19 @@ begin
     Exit(False);
   end;
   Result := AreSameArray<Byte>(LExpectedPixels, LActualPixels);
+end;
+
+class procedure TAssertHelper.AreSameRect(const AExpected, AActual: TRectF;
+  const AEpsilon: Single; const AMessage: string);
+begin
+  DoAssert;
+  if not System.Math.SameValue(AExpected.Left, AActual.Left, AEpsilon) or
+    not System.Math.SameValue(AExpected.Top, AActual.Top, AEpsilon) or
+    not System.Math.SameValue(AExpected.Right, AActual.Right, AEpsilon) or
+    not System.Math.SameValue(AExpected.Bottom, AActual.Bottom, AEpsilon) then
+  begin
+    FailFmt(SUnexpectedErrorStr, [RectToString(AExpected), RectToString(AActual), AMessage], ReturnAddress);
+  end;
 end;
 
 class procedure TAssertHelper.AreSameValue(const AExpected, AActual,

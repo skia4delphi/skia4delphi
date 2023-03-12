@@ -702,6 +702,11 @@
                         <RemoteName>abnt.jpg</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
+                    <Platform Name="Linux64">
+                        <RemoteDir>.\Codec</RemoteDir>
+                        <RemoteName>abnt.jpg</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
                 </DeployFile>
                 <DeployFile LocalName="..\..\Assets\Codec\abnt.jpg" Configuration="Release" Class="File">
                     <Platform Name="iOSDevice64">
@@ -731,6 +736,11 @@
                     </Platform>
                     <Platform Name="OSXARM64">
                         <RemoteDir>Contents\Resources\Codec</RemoteDir>
+                        <RemoteName>abnt.jpg</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="Linux64">
+                        <RemoteDir>.\Codec</RemoteDir>
                         <RemoteName>abnt.jpg</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
@@ -766,6 +776,11 @@
                         <RemoteName>animated.gif</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
+                    <Platform Name="Linux64">
+                        <RemoteDir>.\Codec</RemoteDir>
+                        <RemoteName>animated.gif</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
                 </DeployFile>
                 <DeployFile LocalName="..\..\Assets\Codec\animated.gif" Configuration="Release" Class="File">
                     <Platform Name="iOSDevice64">
@@ -795,6 +810,11 @@
                     </Platform>
                     <Platform Name="OSXARM64">
                         <RemoteDir>Contents\Resources\Codec</RemoteDir>
+                        <RemoteName>animated.gif</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="Linux64">
+                        <RemoteDir>.\Codec</RemoteDir>
                         <RemoteName>animated.gif</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
@@ -830,6 +850,11 @@
                         <RemoteName>animated.png</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
+                    <Platform Name="Linux64">
+                        <RemoteDir>.\Codec</RemoteDir>
+                        <RemoteName>animated.png</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
                 </DeployFile>
                 <DeployFile LocalName="..\..\Assets\Codec\animated.png" Configuration="Release" Class="File">
                     <Platform Name="iOSDevice64">
@@ -859,6 +884,11 @@
                     </Platform>
                     <Platform Name="OSXARM64">
                         <RemoteDir>Contents\Resources\Codec</RemoteDir>
+                        <RemoteName>animated.png</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="Linux64">
+                        <RemoteDir>.\Codec</RemoteDir>
                         <RemoteName>animated.png</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
@@ -894,6 +924,11 @@
                         <RemoteName>delphi.ico</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
+                    <Platform Name="Linux64">
+                        <RemoteDir>.\Codec</RemoteDir>
+                        <RemoteName>delphi.ico</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
                 </DeployFile>
                 <DeployFile LocalName="..\..\Assets\Codec\delphi.ico" Configuration="Release" Class="File">
                     <Platform Name="iOSDevice64">
@@ -923,6 +958,11 @@
                     </Platform>
                     <Platform Name="OSXARM64">
                         <RemoteDir>Contents\Resources\Codec</RemoteDir>
+                        <RemoteName>delphi.ico</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="Linux64">
+                        <RemoteDir>.\Codec</RemoteDir>
                         <RemoteName>delphi.ico</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
@@ -958,6 +998,11 @@
                         <RemoteName>developer.gif</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
+                    <Platform Name="Linux64">
+                        <RemoteDir>.\Codec</RemoteDir>
+                        <RemoteName>developer.gif</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
                 </DeployFile>
                 <DeployFile LocalName="..\..\Assets\Codec\developer.gif" Configuration="Release" Class="File">
                     <Platform Name="iOSDevice64">
@@ -987,6 +1032,11 @@
                     </Platform>
                     <Platform Name="OSXARM64">
                         <RemoteDir>Contents\Resources\Codec</RemoteDir>
+                        <RemoteName>developer.gif</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="Linux64">
+                        <RemoteDir>.\Codec</RemoteDir>
                         <RemoteName>developer.gif</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
@@ -1022,6 +1072,11 @@
                         <RemoteName>elephant.png</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
+                    <Platform Name="Linux64">
+                        <RemoteDir>.\Codec</RemoteDir>
+                        <RemoteName>elephant.png</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
                 </DeployFile>
                 <DeployFile LocalName="..\..\Assets\Codec\elephant.png" Configuration="Release" Class="File">
                     <Platform Name="iOSDevice64">
@@ -1051,6 +1106,11 @@
                     </Platform>
                     <Platform Name="OSXARM64">
                         <RemoteDir>Contents\Resources\Codec</RemoteDir>
+                        <RemoteName>elephant.png</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="Linux64">
+                        <RemoteDir>.\Codec</RemoteDir>
                         <RemoteName>elephant.png</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
@@ -1086,6 +1146,11 @@
                         <RemoteName>emoji1.png</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
+                    <Platform Name="Linux64">
+                        <RemoteDir>.\Codec</RemoteDir>
+                        <RemoteName>emoji1.png</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
                 </DeployFile>
                 <DeployFile LocalName="..\..\Assets\Codec\emoji1.png" Configuration="Release" Class="File">
                     <Platform Name="iOSDevice64">
@@ -1115,6 +1180,11 @@
                     </Platform>
                     <Platform Name="OSXARM64">
                         <RemoteDir>Contents\Resources\Codec</RemoteDir>
+                        <RemoteName>emoji1.png</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="Linux64">
+                        <RemoteDir>.\Codec</RemoteDir>
                         <RemoteName>emoji1.png</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
@@ -1150,6 +1220,11 @@
                         <RemoteName>emoji2.png</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
+                    <Platform Name="Linux64">
+                        <RemoteDir>.\Codec</RemoteDir>
+                        <RemoteName>emoji2.png</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
                 </DeployFile>
                 <DeployFile LocalName="..\..\Assets\Codec\emoji2.png" Configuration="Release" Class="File">
                     <Platform Name="iOSDevice64">
@@ -1179,6 +1254,11 @@
                     </Platform>
                     <Platform Name="OSXARM64">
                         <RemoteDir>Contents\Resources\Codec</RemoteDir>
+                        <RemoteName>emoji2.png</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="Linux64">
+                        <RemoteDir>.\Codec</RemoteDir>
                         <RemoteName>emoji2.png</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
@@ -1214,6 +1294,11 @@
                         <RemoteName>girl.bmp</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
+                    <Platform Name="Linux64">
+                        <RemoteDir>.\Codec</RemoteDir>
+                        <RemoteName>girl.bmp</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
                 </DeployFile>
                 <DeployFile LocalName="..\..\Assets\Codec\girl.bmp" Configuration="Release" Class="File">
                     <Platform Name="iOSDevice64">
@@ -1243,6 +1328,11 @@
                     </Platform>
                     <Platform Name="OSXARM64">
                         <RemoteDir>Contents\Resources\Codec</RemoteDir>
+                        <RemoteName>girl.bmp</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="Linux64">
+                        <RemoteDir>.\Codec</RemoteDir>
                         <RemoteName>girl.bmp</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
@@ -1278,6 +1368,11 @@
                         <RemoteName>kung-fu-panda.png</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
+                    <Platform Name="Linux64">
+                        <RemoteDir>.\Codec</RemoteDir>
+                        <RemoteName>kung-fu-panda.png</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
                 </DeployFile>
                 <DeployFile LocalName="..\..\Assets\Codec\kung-fu-panda.png" Configuration="Release" Class="File">
                     <Platform Name="iOSDevice64">
@@ -1307,6 +1402,11 @@
                     </Platform>
                     <Platform Name="OSXARM64">
                         <RemoteDir>Contents\Resources\Codec</RemoteDir>
+                        <RemoteName>kung-fu-panda.png</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="Linux64">
+                        <RemoteDir>.\Codec</RemoteDir>
                         <RemoteName>kung-fu-panda.png</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
@@ -1342,6 +1442,11 @@
                         <RemoteName>kung-fu-panda.webp</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
+                    <Platform Name="Linux64">
+                        <RemoteDir>.\Codec</RemoteDir>
+                        <RemoteName>kung-fu-panda.webp</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
                 </DeployFile>
                 <DeployFile LocalName="..\..\Assets\Codec\kung-fu-panda.webp" Configuration="Release" Class="File">
                     <Platform Name="iOSDevice64">
@@ -1371,6 +1476,11 @@
                     </Platform>
                     <Platform Name="OSXARM64">
                         <RemoteDir>Contents\Resources\Codec</RemoteDir>
+                        <RemoteName>kung-fu-panda.webp</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="Linux64">
+                        <RemoteDir>.\Codec</RemoteDir>
                         <RemoteName>kung-fu-panda.webp</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
@@ -1406,6 +1516,11 @@
                         <RemoteName>mandrill.wbmp</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
+                    <Platform Name="Linux64">
+                        <RemoteDir>.\Codec</RemoteDir>
+                        <RemoteName>mandrill.wbmp</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
                 </DeployFile>
                 <DeployFile LocalName="..\..\Assets\Codec\mandrill.wbmp" Configuration="Release" Class="File">
                     <Platform Name="iOSDevice64">
@@ -1435,6 +1550,11 @@
                     </Platform>
                     <Platform Name="OSXARM64">
                         <RemoteDir>Contents\Resources\Codec</RemoteDir>
+                        <RemoteName>mandrill.wbmp</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="Linux64">
+                        <RemoteDir>.\Codec</RemoteDir>
                         <RemoteName>mandrill.wbmp</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
@@ -1470,6 +1590,11 @@
                         <RemoteName>park.dng</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
+                    <Platform Name="Linux64">
+                        <RemoteDir>.\Codec</RemoteDir>
+                        <RemoteName>park.dng</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
                 </DeployFile>
                 <DeployFile LocalName="..\..\Assets\Codec\park.dng" Configuration="Release" Class="File">
                     <Platform Name="iOSDevice64">
@@ -1499,6 +1624,11 @@
                     </Platform>
                     <Platform Name="OSXARM64">
                         <RemoteDir>Contents\Resources\Codec</RemoteDir>
+                        <RemoteName>park.dng</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="Linux64">
+                        <RemoteDir>.\Codec</RemoteDir>
                         <RemoteName>park.dng</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
@@ -1534,6 +1664,11 @@
                         <RemoteName>rocket.webp</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
+                    <Platform Name="Linux64">
+                        <RemoteDir>.\Codec</RemoteDir>
+                        <RemoteName>rocket.webp</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
                 </DeployFile>
                 <DeployFile LocalName="..\..\Assets\Codec\rocket.webp" Configuration="Release" Class="File">
                     <Platform Name="iOSDevice64">
@@ -1563,6 +1698,11 @@
                     </Platform>
                     <Platform Name="OSXARM64">
                         <RemoteDir>Contents\Resources\Codec</RemoteDir>
+                        <RemoteName>rocket.webp</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="Linux64">
+                        <RemoteDir>.\Codec</RemoteDir>
                         <RemoteName>rocket.webp</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
@@ -1598,6 +1738,11 @@
                         <RemoteName>shrek.jpg</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
+                    <Platform Name="Linux64">
+                        <RemoteDir>.\Codec</RemoteDir>
+                        <RemoteName>shrek.jpg</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
                 </DeployFile>
                 <DeployFile LocalName="..\..\Assets\Codec\shrek.jpg" Configuration="Release" Class="File">
                     <Platform Name="iOSDevice64">
@@ -1627,6 +1772,11 @@
                     </Platform>
                     <Platform Name="OSXARM64">
                         <RemoteDir>Contents\Resources\Codec</RemoteDir>
+                        <RemoteName>shrek.jpg</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="Linux64">
+                        <RemoteDir>.\Codec</RemoteDir>
                         <RemoteName>shrek.jpg</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
@@ -1662,6 +1812,11 @@
                         <RemoteName>world-time-zone.png</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
+                    <Platform Name="Linux64">
+                        <RemoteDir>.\Codec</RemoteDir>
+                        <RemoteName>world-time-zone.png</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
                 </DeployFile>
                 <DeployFile LocalName="..\..\Assets\Codec\world-time-zone.png" Configuration="Release" Class="File">
                     <Platform Name="iOSDevice64">
@@ -1694,6 +1849,83 @@
                         <RemoteName>world-time-zone.png</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
+                    <Platform Name="Linux64">
+                        <RemoteDir>.\Codec</RemoteDir>
+                        <RemoteName>world-time-zone.png</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="..\..\Assets\Expected.zip" Configuration="Debug" Class="File">
+                    <Platform Name="iOSDevice64">
+                        <RemoteDir>StartUp\Documents\</RemoteDir>
+                        <RemoteName>Expected.zip</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="iOSSimARM64">
+                        <RemoteDir>StartUp\Documents\</RemoteDir>
+                        <RemoteName>Expected.zip</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="Android">
+                        <RemoteDir>assets\internal\</RemoteDir>
+                        <RemoteName>Expected.zip</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="Android64">
+                        <RemoteDir>assets\internal\</RemoteDir>
+                        <RemoteName>Expected.zip</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="OSX64">
+                        <RemoteDir>Contents\Resources\</RemoteDir>
+                        <RemoteName>Expected.zip</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="OSXARM64">
+                        <RemoteDir>Contents\Resources\</RemoteDir>
+                        <RemoteName>Expected.zip</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="Linux64">
+                        <RemoteName>Expected.zip</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="..\..\Assets\Expected.zip" Configuration="Release" Class="File">
+                    <Platform Name="iOSDevice64">
+                        <RemoteDir>StartUp\Documents\</RemoteDir>
+                        <RemoteName>Expected.zip</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="iOSSimARM64">
+                        <RemoteDir>StartUp\Documents\</RemoteDir>
+                        <RemoteName>Expected.zip</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="Android">
+                        <RemoteDir>assets\internal\</RemoteDir>
+                        <RemoteName>Expected.zip</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="Android64">
+                        <RemoteDir>assets\internal\</RemoteDir>
+                        <RemoteName>Expected.zip</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="OSX64">
+                        <RemoteDir>Contents\Resources\</RemoteDir>
+                        <RemoteName>Expected.zip</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="OSXARM64">
+                        <RemoteDir>Contents\Resources\</RemoteDir>
+                        <RemoteName>Expected.zip</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="Linux64">
+                        <RemoteName>Expected.zip</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
                 </DeployFile>
                 <DeployFile LocalName="..\..\Assets\Fonts\bonheur-royale-regular.ttf" Configuration="Debug" Class="File">
                     <Platform Name="iOSDevice64">
@@ -1723,6 +1955,11 @@
                     </Platform>
                     <Platform Name="OSXARM64">
                         <RemoteDir>Contents\Resources\Fonts</RemoteDir>
+                        <RemoteName>bonheur-royale-regular.ttf</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="Linux64">
+                        <RemoteDir>.\Fonts</RemoteDir>
                         <RemoteName>bonheur-royale-regular.ttf</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
@@ -1758,6 +1995,11 @@
                         <RemoteName>bonheur-royale-regular.ttf</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
+                    <Platform Name="Linux64">
+                        <RemoteDir>.\Fonts</RemoteDir>
+                        <RemoteName>bonheur-royale-regular.ttf</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
                 </DeployFile>
                 <DeployFile LocalName="..\..\Assets\Fonts\msuighur.ttf" Configuration="Debug" Class="File">
                     <Platform Name="iOSDevice64">
@@ -1787,6 +2029,11 @@
                     </Platform>
                     <Platform Name="OSXARM64">
                         <RemoteDir>Contents\Resources\Fonts</RemoteDir>
+                        <RemoteName>msuighur.ttf</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="Linux64">
+                        <RemoteDir>.\Fonts</RemoteDir>
                         <RemoteName>msuighur.ttf</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
@@ -1822,6 +2069,11 @@
                         <RemoteName>msuighur.ttf</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
+                    <Platform Name="Linux64">
+                        <RemoteDir>.\Fonts</RemoteDir>
+                        <RemoteName>msuighur.ttf</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
                 </DeployFile>
                 <DeployFile LocalName="..\..\Assets\Fonts\nunito-extrabold.ttf" Configuration="Debug" Class="File">
                     <Platform Name="iOSDevice64">
@@ -1851,6 +2103,11 @@
                     </Platform>
                     <Platform Name="OSXARM64">
                         <RemoteDir>Contents\Resources\Fonts</RemoteDir>
+                        <RemoteName>nunito-extrabold.ttf</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="Linux64">
+                        <RemoteDir>.\Fonts</RemoteDir>
                         <RemoteName>nunito-extrabold.ttf</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
@@ -1886,6 +2143,11 @@
                         <RemoteName>nunito-extrabold.ttf</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
+                    <Platform Name="Linux64">
+                        <RemoteDir>.\Fonts</RemoteDir>
+                        <RemoteName>nunito-extrabold.ttf</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
                 </DeployFile>
                 <DeployFile LocalName="..\..\Assets\Fonts\segoeui.ttf" Configuration="Debug" Class="File">
                     <Platform Name="iOSDevice64">
@@ -1915,6 +2177,11 @@
                     </Platform>
                     <Platform Name="OSXARM64">
                         <RemoteDir>Contents\Resources\Fonts</RemoteDir>
+                        <RemoteName>segoeui.ttf</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="Linux64">
+                        <RemoteDir>.\Fonts</RemoteDir>
                         <RemoteName>segoeui.ttf</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
@@ -1950,6 +2217,11 @@
                         <RemoteName>segoeui.ttf</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
+                    <Platform Name="Linux64">
+                        <RemoteDir>.\Fonts</RemoteDir>
+                        <RemoteName>segoeui.ttf</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
                 </DeployFile>
                 <DeployFile LocalName="..\..\Assets\Fonts\segoeuib.ttf" Configuration="Debug" Class="File">
                     <Platform Name="iOSDevice64">
@@ -1979,6 +2251,11 @@
                     </Platform>
                     <Platform Name="OSXARM64">
                         <RemoteDir>Contents\Resources\Fonts</RemoteDir>
+                        <RemoteName>segoeuib.ttf</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="Linux64">
+                        <RemoteDir>.\Fonts</RemoteDir>
                         <RemoteName>segoeuib.ttf</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
@@ -2014,6 +2291,11 @@
                         <RemoteName>segoeuib.ttf</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
+                    <Platform Name="Linux64">
+                        <RemoteDir>.\Fonts</RemoteDir>
+                        <RemoteName>segoeuib.ttf</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
                 </DeployFile>
                 <DeployFile LocalName="..\..\Assets\Images\horse.webp" Configuration="Debug" Class="File">
                     <Platform Name="iOSDevice64">
@@ -2043,6 +2325,11 @@
                     </Platform>
                     <Platform Name="OSXARM64">
                         <RemoteDir>Contents\Resources\Images</RemoteDir>
+                        <RemoteName>horse.webp</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="Linux64">
+                        <RemoteDir>.\Images</RemoteDir>
                         <RemoteName>horse.webp</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
@@ -2078,6 +2365,11 @@
                         <RemoteName>horse.webp</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
+                    <Platform Name="Linux64">
+                        <RemoteDir>.\Images</RemoteDir>
+                        <RemoteName>horse.webp</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
                 </DeployFile>
                 <DeployFile LocalName="..\..\Assets\Images\icons.png" Configuration="Debug" Class="File">
                     <Platform Name="iOSDevice64">
@@ -2107,6 +2399,11 @@
                     </Platform>
                     <Platform Name="OSXARM64">
                         <RemoteDir>Contents\Resources\Images</RemoteDir>
+                        <RemoteName>icons.png</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="Linux64">
+                        <RemoteDir>.\Images</RemoteDir>
                         <RemoteName>icons.png</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
@@ -2142,6 +2439,11 @@
                         <RemoteName>icons.png</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
+                    <Platform Name="Linux64">
+                        <RemoteDir>.\Images</RemoteDir>
+                        <RemoteName>icons.png</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
                 </DeployFile>
                 <DeployFile LocalName="..\..\Assets\Path\discord.elements.txt" Configuration="Debug" Class="File">
                     <Platform Name="iOSDevice64">
@@ -2171,6 +2473,11 @@
                     </Platform>
                     <Platform Name="OSXARM64">
                         <RemoteDir>Contents\Resources\Path</RemoteDir>
+                        <RemoteName>discord.elements.txt</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="Linux64">
+                        <RemoteDir>.\Path</RemoteDir>
                         <RemoteName>discord.elements.txt</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
@@ -2206,6 +2513,11 @@
                         <RemoteName>discord.elements.txt</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
+                    <Platform Name="Linux64">
+                        <RemoteDir>.\Path</RemoteDir>
+                        <RemoteName>discord.elements.txt</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
                 </DeployFile>
                 <DeployFile LocalName="..\..\Assets\Path\discord.svg-path.txt" Configuration="Debug" Class="File">
                     <Platform Name="iOSDevice64">
@@ -2235,6 +2547,11 @@
                     </Platform>
                     <Platform Name="OSXARM64">
                         <RemoteDir>Contents\Resources\Path</RemoteDir>
+                        <RemoteName>discord.svg-path.txt</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="Linux64">
+                        <RemoteDir>.\Path</RemoteDir>
                         <RemoteName>discord.svg-path.txt</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
@@ -2270,6 +2587,11 @@
                         <RemoteName>discord.svg-path.txt</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
+                    <Platform Name="Linux64">
+                        <RemoteDir>.\Path</RemoteDir>
+                        <RemoteName>discord.svg-path.txt</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
                 </DeployFile>
                 <DeployFile LocalName="..\..\Assets\Path\firefox.elements.txt" Configuration="Debug" Class="File">
                     <Platform Name="iOSDevice64">
@@ -2299,6 +2621,11 @@
                     </Platform>
                     <Platform Name="OSXARM64">
                         <RemoteDir>Contents\Resources\Path</RemoteDir>
+                        <RemoteName>firefox.elements.txt</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="Linux64">
+                        <RemoteDir>.\Path</RemoteDir>
                         <RemoteName>firefox.elements.txt</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
@@ -2334,6 +2661,11 @@
                         <RemoteName>firefox.elements.txt</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
+                    <Platform Name="Linux64">
+                        <RemoteDir>.\Path</RemoteDir>
+                        <RemoteName>firefox.elements.txt</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
                 </DeployFile>
                 <DeployFile LocalName="..\..\Assets\Path\firefox.svg-path.txt" Configuration="Debug" Class="File">
                     <Platform Name="iOSDevice64">
@@ -2363,6 +2695,11 @@
                     </Platform>
                     <Platform Name="OSXARM64">
                         <RemoteDir>Contents\Resources\Path</RemoteDir>
+                        <RemoteName>firefox.svg-path.txt</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="Linux64">
+                        <RemoteDir>.\Path</RemoteDir>
                         <RemoteName>firefox.svg-path.txt</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
@@ -2398,6 +2735,11 @@
                         <RemoteName>firefox.svg-path.txt</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
+                    <Platform Name="Linux64">
+                        <RemoteDir>.\Path</RemoteDir>
+                        <RemoteName>firefox.svg-path.txt</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
                 </DeployFile>
                 <DeployFile LocalName="..\..\Assets\Path\microsoft.elements.txt" Configuration="Debug" Class="File">
                     <Platform Name="iOSDevice64">
@@ -2427,6 +2769,11 @@
                     </Platform>
                     <Platform Name="OSXARM64">
                         <RemoteDir>Contents\Resources\Path</RemoteDir>
+                        <RemoteName>microsoft.elements.txt</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="Linux64">
+                        <RemoteDir>.\Path</RemoteDir>
                         <RemoteName>microsoft.elements.txt</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
@@ -2462,6 +2809,11 @@
                         <RemoteName>microsoft.elements.txt</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
+                    <Platform Name="Linux64">
+                        <RemoteDir>.\Path</RemoteDir>
+                        <RemoteName>microsoft.elements.txt</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
                 </DeployFile>
                 <DeployFile LocalName="..\..\Assets\Path\microsoft.svg-path.txt" Configuration="Debug" Class="File">
                     <Platform Name="iOSDevice64">
@@ -2491,6 +2843,11 @@
                     </Platform>
                     <Platform Name="OSXARM64">
                         <RemoteDir>Contents\Resources\Path</RemoteDir>
+                        <RemoteName>microsoft.svg-path.txt</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="Linux64">
+                        <RemoteDir>.\Path</RemoteDir>
                         <RemoteName>microsoft.svg-path.txt</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
@@ -2526,6 +2883,11 @@
                         <RemoteName>microsoft.svg-path.txt</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
+                    <Platform Name="Linux64">
+                        <RemoteDir>.\Path</RemoteDir>
+                        <RemoteName>microsoft.svg-path.txt</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
                 </DeployFile>
                 <DeployFile LocalName="..\..\Assets\Path\simple-path.elements.txt" Configuration="Debug" Class="File">
                     <Platform Name="iOSDevice64">
@@ -2555,6 +2917,11 @@
                     </Platform>
                     <Platform Name="OSXARM64">
                         <RemoteDir>Contents\Resources\Path</RemoteDir>
+                        <RemoteName>simple-path.elements.txt</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="Linux64">
+                        <RemoteDir>.\Path</RemoteDir>
                         <RemoteName>simple-path.elements.txt</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
@@ -2590,6 +2957,11 @@
                         <RemoteName>simple-path.elements.txt</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
+                    <Platform Name="Linux64">
+                        <RemoteDir>.\Path</RemoteDir>
+                        <RemoteName>simple-path.elements.txt</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
                 </DeployFile>
                 <DeployFile LocalName="..\..\Assets\Path\simple-path.serialized.bin" Configuration="Debug" Class="File">
                     <Platform Name="iOSDevice64">
@@ -2619,6 +2991,11 @@
                     </Platform>
                     <Platform Name="OSXARM64">
                         <RemoteDir>Contents\Resources\Path</RemoteDir>
+                        <RemoteName>simple-path.serialized.bin</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="Linux64">
+                        <RemoteDir>.\Path</RemoteDir>
                         <RemoteName>simple-path.serialized.bin</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
@@ -2654,6 +3031,11 @@
                         <RemoteName>simple-path.serialized.bin</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
+                    <Platform Name="Linux64">
+                        <RemoteDir>.\Path</RemoteDir>
+                        <RemoteName>simple-path.serialized.bin</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
                 </DeployFile>
                 <DeployFile LocalName="..\..\Assets\Path\simple-path2.elements.txt" Configuration="Debug" Class="File">
                     <Platform Name="iOSDevice64">
@@ -2683,6 +3065,11 @@
                     </Platform>
                     <Platform Name="OSXARM64">
                         <RemoteDir>Contents\Resources\Path</RemoteDir>
+                        <RemoteName>simple-path2.elements.txt</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="Linux64">
+                        <RemoteDir>.\Path</RemoteDir>
                         <RemoteName>simple-path2.elements.txt</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
@@ -2718,6 +3105,11 @@
                         <RemoteName>simple-path2.elements.txt</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
+                    <Platform Name="Linux64">
+                        <RemoteDir>.\Path</RemoteDir>
+                        <RemoteName>simple-path2.elements.txt</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
                 </DeployFile>
                 <DeployFile LocalName="..\..\Assets\Path\telegram.elements.txt" Configuration="Debug" Class="File">
                     <Platform Name="iOSDevice64">
@@ -2747,6 +3139,11 @@
                     </Platform>
                     <Platform Name="OSXARM64">
                         <RemoteDir>Contents\Resources\Path</RemoteDir>
+                        <RemoteName>telegram.elements.txt</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="Linux64">
+                        <RemoteDir>.\Path</RemoteDir>
                         <RemoteName>telegram.elements.txt</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
@@ -2782,6 +3179,11 @@
                         <RemoteName>telegram.elements.txt</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
+                    <Platform Name="Linux64">
+                        <RemoteDir>.\Path</RemoteDir>
+                        <RemoteName>telegram.elements.txt</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
                 </DeployFile>
                 <DeployFile LocalName="..\..\Assets\Path\telegram.svg-path.txt" Configuration="Debug" Class="File">
                     <Platform Name="iOSDevice64">
@@ -2811,6 +3213,11 @@
                     </Platform>
                     <Platform Name="OSXARM64">
                         <RemoteDir>Contents\Resources\Path</RemoteDir>
+                        <RemoteName>telegram.svg-path.txt</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="Linux64">
+                        <RemoteDir>.\Path</RemoteDir>
                         <RemoteName>telegram.svg-path.txt</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
@@ -2846,6 +3253,11 @@
                         <RemoteName>telegram.svg-path.txt</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
+                    <Platform Name="Linux64">
+                        <RemoteDir>.\Path</RemoteDir>
+                        <RemoteName>telegram.svg-path.txt</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
                 </DeployFile>
                 <DeployFile LocalName="..\..\Assets\Path\tesla.elements.txt" Configuration="Debug" Class="File">
                     <Platform Name="iOSDevice64">
@@ -2875,6 +3287,11 @@
                     </Platform>
                     <Platform Name="OSXARM64">
                         <RemoteDir>Contents\Resources\Path</RemoteDir>
+                        <RemoteName>tesla.elements.txt</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="Linux64">
+                        <RemoteDir>.\Path</RemoteDir>
                         <RemoteName>tesla.elements.txt</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
@@ -2910,6 +3327,11 @@
                         <RemoteName>tesla.elements.txt</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
+                    <Platform Name="Linux64">
+                        <RemoteDir>.\Path</RemoteDir>
+                        <RemoteName>tesla.elements.txt</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
                 </DeployFile>
                 <DeployFile LocalName="..\..\Assets\Path\tesla.svg-path.txt" Configuration="Debug" Class="File">
                     <Platform Name="iOSDevice64">
@@ -2939,6 +3361,11 @@
                     </Platform>
                     <Platform Name="OSXARM64">
                         <RemoteDir>Contents\Resources\Path</RemoteDir>
+                        <RemoteName>tesla.svg-path.txt</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="Linux64">
+                        <RemoteDir>.\Path</RemoteDir>
                         <RemoteName>tesla.svg-path.txt</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
@@ -2974,6 +3401,11 @@
                         <RemoteName>tesla.svg-path.txt</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
+                    <Platform Name="Linux64">
+                        <RemoteDir>.\Path</RemoteDir>
+                        <RemoteName>tesla.svg-path.txt</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
                 </DeployFile>
                 <DeployFile LocalName="..\..\Assets\Picture\simple-picture.skp" Configuration="Debug" Class="File">
                     <Platform Name="iOSDevice64">
@@ -3003,6 +3435,11 @@
                     </Platform>
                     <Platform Name="OSXARM64">
                         <RemoteDir>Contents\Resources\Picture</RemoteDir>
+                        <RemoteName>simple-picture.skp</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="Linux64">
+                        <RemoteDir>.\Picture</RemoteDir>
                         <RemoteName>simple-picture.skp</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
@@ -3038,6 +3475,11 @@
                         <RemoteName>simple-picture.skp</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
+                    <Platform Name="Linux64">
+                        <RemoteDir>.\Picture</RemoteDir>
+                        <RemoteName>simple-picture.skp</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
                 </DeployFile>
                 <DeployFile LocalName="..\..\Assets\RuntimeEffect\shader.brightness-and-contrast.sksl" Configuration="Debug" Class="File">
                     <Platform Name="iOSDevice64">
@@ -3067,6 +3509,11 @@
                     </Platform>
                     <Platform Name="OSXARM64">
                         <RemoteDir>Contents\Resources\RuntimeEffect</RemoteDir>
+                        <RemoteName>shader.brightness-and-contrast.sksl</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="Linux64">
+                        <RemoteDir>.\RuntimeEffect</RemoteDir>
                         <RemoteName>shader.brightness-and-contrast.sksl</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
@@ -3102,6 +3549,11 @@
                         <RemoteName>shader.brightness-and-contrast.sksl</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
+                    <Platform Name="Linux64">
+                        <RemoteDir>.\RuntimeEffect</RemoteDir>
+                        <RemoteName>shader.brightness-and-contrast.sksl</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
                 </DeployFile>
                 <DeployFile LocalName="..\..\Assets\RuntimeEffect\shader.mouse.sksl" Configuration="Debug" Class="File">
                     <Platform Name="iOSDevice64">
@@ -3131,6 +3583,11 @@
                     </Platform>
                     <Platform Name="OSXARM64">
                         <RemoteDir>Contents\Resources\RuntimeEffect</RemoteDir>
+                        <RemoteName>shader.mouse.sksl</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="Linux64">
+                        <RemoteDir>.\RuntimeEffect</RemoteDir>
                         <RemoteName>shader.mouse.sksl</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
@@ -3166,6 +3623,11 @@
                         <RemoteName>shader.mouse.sksl</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
+                    <Platform Name="Linux64">
+                        <RemoteDir>.\RuntimeEffect</RemoteDir>
+                        <RemoteName>shader.mouse.sksl</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
                 </DeployFile>
                 <DeployFile LocalName="..\..\Assets\Skottie\check.json" Configuration="Debug" Class="File">
                     <Platform Name="iOSDevice64">
@@ -3195,6 +3657,11 @@
                     </Platform>
                     <Platform Name="OSXARM64">
                         <RemoteDir>Contents\Resources\Skottie</RemoteDir>
+                        <RemoteName>check.json</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="Linux64">
+                        <RemoteDir>.\Skottie</RemoteDir>
                         <RemoteName>check.json</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
@@ -3230,6 +3697,11 @@
                         <RemoteName>check.json</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
+                    <Platform Name="Linux64">
+                        <RemoteDir>.\Skottie</RemoteDir>
+                        <RemoteName>check.json</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
                 </DeployFile>
                 <DeployFile LocalName="..\..\Assets\Skottie\rocket.json" Configuration="Debug" Class="File">
                     <Platform Name="iOSDevice64">
@@ -3259,6 +3731,11 @@
                     </Platform>
                     <Platform Name="OSXARM64">
                         <RemoteDir>Contents\Resources\Skottie</RemoteDir>
+                        <RemoteName>rocket.json</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="Linux64">
+                        <RemoteDir>.\Skottie</RemoteDir>
                         <RemoteName>rocket.json</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
@@ -3294,6 +3771,85 @@
                         <RemoteName>rocket.json</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
+                    <Platform Name="Linux64">
+                        <RemoteDir>.\Skottie</RemoteDir>
+                        <RemoteName>rocket.json</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="..\..\Assets\Svg\3d-shapes.svg" Configuration="Debug" Class="File">
+                    <Platform Name="iOSDevice64">
+                        <RemoteDir>StartUp\Documents\Svg</RemoteDir>
+                        <RemoteName>3d-shapes.svg</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="iOSSimARM64">
+                        <RemoteDir>StartUp\Documents\Svg</RemoteDir>
+                        <RemoteName>3d-shapes.svg</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="Android">
+                        <RemoteDir>assets\internal\Svg</RemoteDir>
+                        <RemoteName>3d-shapes.svg</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="Android64">
+                        <RemoteDir>assets\internal\Svg</RemoteDir>
+                        <RemoteName>3d-shapes.svg</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="OSX64">
+                        <RemoteDir>Contents\Resources\Svg</RemoteDir>
+                        <RemoteName>3d-shapes.svg</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="OSXARM64">
+                        <RemoteDir>Contents\Resources\Svg</RemoteDir>
+                        <RemoteName>3d-shapes.svg</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="Linux64">
+                        <RemoteDir>.\Svg</RemoteDir>
+                        <RemoteName>3d-shapes.svg</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="..\..\Assets\Svg\3d-shapes.svg" Configuration="Release" Class="File">
+                    <Platform Name="iOSDevice64">
+                        <RemoteDir>StartUp\Documents\Svg</RemoteDir>
+                        <RemoteName>3d-shapes.svg</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="iOSSimARM64">
+                        <RemoteDir>StartUp\Documents\Svg</RemoteDir>
+                        <RemoteName>3d-shapes.svg</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="Android">
+                        <RemoteDir>assets\internal\Svg</RemoteDir>
+                        <RemoteName>3d-shapes.svg</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="Android64">
+                        <RemoteDir>assets\internal\Svg</RemoteDir>
+                        <RemoteName>3d-shapes.svg</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="OSX64">
+                        <RemoteDir>Contents\Resources\Svg</RemoteDir>
+                        <RemoteName>3d-shapes.svg</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="OSXARM64">
+                        <RemoteDir>Contents\Resources\Svg</RemoteDir>
+                        <RemoteName>3d-shapes.svg</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="Linux64">
+                        <RemoteDir>.\Svg</RemoteDir>
+                        <RemoteName>3d-shapes.svg</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
                 </DeployFile>
                 <DeployFile LocalName="..\..\Assets\Svg\android.svg" Configuration="Debug" Class="File">
                     <Platform Name="iOSDevice64">
@@ -3323,6 +3879,11 @@
                     </Platform>
                     <Platform Name="OSXARM64">
                         <RemoteDir>Contents\Resources\Svg</RemoteDir>
+                        <RemoteName>android.svg</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="Linux64">
+                        <RemoteDir>.\Svg</RemoteDir>
                         <RemoteName>android.svg</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
@@ -3358,6 +3919,11 @@
                         <RemoteName>android.svg</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
+                    <Platform Name="Linux64">
+                        <RemoteDir>.\Svg</RemoteDir>
+                        <RemoteName>android.svg</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
                 </DeployFile>
                 <DeployFile LocalName="..\..\Assets\Svg\delphi.svg" Configuration="Debug" Class="File">
                     <Platform Name="iOSDevice64">
@@ -3387,6 +3953,11 @@
                     </Platform>
                     <Platform Name="OSXARM64">
                         <RemoteDir>Contents\Resources\Svg</RemoteDir>
+                        <RemoteName>delphi.svg</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="Linux64">
+                        <RemoteDir>.\Svg</RemoteDir>
                         <RemoteName>delphi.svg</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
@@ -3422,6 +3993,11 @@
                         <RemoteName>delphi.svg</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
+                    <Platform Name="Linux64">
+                        <RemoteDir>.\Svg</RemoteDir>
+                        <RemoteName>delphi.svg</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
                 </DeployFile>
                 <DeployFile LocalName="..\..\Assets\Svg\gorilla.svg" Configuration="Debug" Class="File">
                     <Platform Name="iOSDevice64">
@@ -3451,6 +4027,11 @@
                     </Platform>
                     <Platform Name="OSXARM64">
                         <RemoteDir>Contents\Resources\Svg</RemoteDir>
+                        <RemoteName>gorilla.svg</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="Linux64">
+                        <RemoteDir>.\Svg</RemoteDir>
                         <RemoteName>gorilla.svg</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
@@ -3486,6 +4067,11 @@
                         <RemoteName>gorilla.svg</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
+                    <Platform Name="Linux64">
+                        <RemoteDir>.\Svg</RemoteDir>
+                        <RemoteName>gorilla.svg</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
                 </DeployFile>
                 <DeployFile LocalName="..\..\Assets\Svg\lion.svg" Configuration="Debug" Class="File">
                     <Platform Name="iOSDevice64">
@@ -3515,6 +4101,11 @@
                     </Platform>
                     <Platform Name="OSXARM64">
                         <RemoteDir>Contents\Resources\Svg</RemoteDir>
+                        <RemoteName>lion.svg</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="Linux64">
+                        <RemoteDir>.\Svg</RemoteDir>
                         <RemoteName>lion.svg</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
@@ -3550,6 +4141,11 @@
                         <RemoteName>lion.svg</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
+                    <Platform Name="Linux64">
+                        <RemoteDir>.\Svg</RemoteDir>
+                        <RemoteName>lion.svg</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
                 </DeployFile>
                 <DeployFile LocalName="..\..\Assets\Svg\tesla.svg" Configuration="Debug" Class="File">
                     <Platform Name="iOSDevice64">
@@ -3582,6 +4178,11 @@
                         <RemoteName>tesla.svg</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
+                    <Platform Name="Linux64">
+                        <RemoteDir>.\Svg</RemoteDir>
+                        <RemoteName>tesla.svg</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
                 </DeployFile>
                 <DeployFile LocalName="..\..\Assets\Svg\tesla.svg" Configuration="Release" Class="File">
                     <Platform Name="iOSDevice64">
@@ -3611,6 +4212,11 @@
                     </Platform>
                     <Platform Name="OSXARM64">
                         <RemoteDir>Contents\Resources\Svg</RemoteDir>
+                        <RemoteName>tesla.svg</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="Linux64">
+                        <RemoteDir>.\Svg</RemoteDir>
                         <RemoteName>tesla.svg</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
@@ -4358,7 +4964,7 @@
             <Platforms>
                 <Platform value="Android">True</Platform>
                 <Platform value="Android64">True</Platform>
-                <Platform value="Linux64">False</Platform>
+                <Platform value="Linux64">True</Platform>
                 <Platform value="OSX64">True</Platform>
                 <Platform value="OSXARM64">True</Platform>
                 <Platform value="Win32">True</Platform>

@@ -60,6 +60,7 @@ uses
   System.Generics.Collections,
   System.SyncObjs,
   System.IOUtils,
+  System.Zip,
   {$IF CompilerVersion >= 29}
   System.Hash,
   {$ELSE}
@@ -79,10 +80,13 @@ type
   private const
     ImagesExtension = '.png';
   private class var
+    FExpectedImagesPath: string;
+    FExpectedImagesPathWasCreated: Boolean;
     FWrongImagesPath: string;
     FWrongImagesPathWasCreated: Boolean;
     class destructor Destroy;
     class function ExpectedImagesPath: string; static;
+    class function ExpectedImagesZipFile: string; static;
     class function WrongImagesPath: string; static;
   private
     FCanceled: Boolean;
@@ -217,6 +221,8 @@ end;
 
 class destructor TAsyncTestRunner.Destroy;
 begin
+  if FExpectedImagesPathWasCreated and TDirectory.Exists(FExpectedImagesPath) then
+    TDirectory.Delete(FExpectedImagesPath);
   if FWrongImagesPathWasCreated and TDirectory.Exists(FWrongImagesPath) then
     TDirectory.Delete(FWrongImagesPath);
 end;
@@ -233,6 +239,9 @@ begin
   FEvent.Free;
   FExecuteFinishedEvent.Free;
   FLock.Free;
+  if TDirectory.Exists(ExpectedImagesPath) then
+    for LFileName in TDirectory.GetFiles(ExpectedImagesPath, '*' + ImagesExtension, TSearchOption.soTopDirectoryOnly) do
+      TFile.Delete(LFileName);
   if TDirectory.Exists(WrongImagesPath) then
     for LFileName in TDirectory.GetFiles(WrongImagesPath, '*' + ImagesExtension, TSearchOption.soTopDirectoryOnly) do
       TFile.Delete(LFileName);
@@ -246,6 +255,11 @@ begin
   if FExecuting then
     Exit;
 
+  if FExpectedImagesPathWasCreated and TDirectory.Exists(FExpectedImagesPath) then
+  begin
+    TDirectory.Delete(FExpectedImagesPath, True);
+    FExpectedImagesPathWasCreated := False;
+  end;
   if FWrongImagesPathWasCreated and TDirectory.Exists(FWrongImagesPath) then
   begin
     TDirectory.Delete(FWrongImagesPath, True);
@@ -268,7 +282,24 @@ end;
 
 class function TAsyncTestRunner.ExpectedImagesPath: string;
 begin
-  Result := TPath.Combine(TTestBase.RootAssetsPath, 'Expected') + PathDelim;
+  if FExpectedImagesPath = '' then
+  begin
+    {$IF defined(IOS) or defined(ANDROID)}
+    FExpectedImagesPath := TPath.Combine(TPath.GetTempPath, 'Expected');
+    if not FExpectedImagesPath.EndsWith(TPath.DirectorySeparatorChar) then
+      FExpectedImagesPath := FExpectedImagesPath + TPath.DirectorySeparatorChar;
+    if not TDirectory.Exists(FExpectedImagesPath) then
+      TDirectory.CreateDirectory(FExpectedImagesPath);
+    {$ELSE}
+    FExpectedImagesPath := TPath.Combine(TPath.GetTempPath, TPath.GetGUIDFileName(False) + TPath.DirectorySeparatorChar);
+    {$ENDIF}
+  end;
+  Result := FExpectedImagesPath;
+end;
+
+class function TAsyncTestRunner.ExpectedImagesZipFile: string;
+begin
+  Result := TPath.Combine(TTestBase.RootAssetsPath, 'Expected.zip');
 end;
 
 function TAsyncTestRunner.GetExpectedImageFileName(
@@ -354,6 +385,8 @@ begin
               FWrongImagesPathWasCreated := True;
             end;
             FLastImageChecking.EncodeToFile(GetWrongImageFileName(ATest));
+            if (not FGenerateExpectedImages) and TFile.Exists(ExpectedImagesZipFile) and not TFile.Exists(GetExpectedImageFileName(ATest)) then
+              TZipFile.ExtractZipFile(ExpectedImagesZipFile, ExpectedImagesPath);
           end;
       else
       end;
@@ -443,6 +476,12 @@ end;
 
 procedure TAsyncTestRunner.OnTestingEnds(const ARunResults: IRunResults);
 begin
+  if FGenerateExpectedImages then
+  begin
+    if TFile.Exists(ExpectedImagesZipFile) then
+      TFile.Delete(ExpectedImagesZipFile);
+    TZipFile.ZipDirectoryContents(ExpectedImagesZipFile, ExpectedImagesPath, TZipCompression.zcStored);
+  end;
   TThread.ForceQueue(nil,
     procedure
     var
@@ -457,6 +496,8 @@ end;
 procedure TAsyncTestRunner.OnTestingStarts(const AThreadId: TThreadID;
   ATestCount, ATestActiveCount: Cardinal);
 begin
+  if FGenerateExpectedImages and TFile.Exists(ExpectedImagesZipFile) then
+    TZipFile.ExtractZipFile(ExpectedImagesZipFile, ExpectedImagesPath);
   TThread.ForceQueue(nil,
     procedure
     var
@@ -513,9 +554,11 @@ begin
   if FWrongImagesPath = '' then
   begin
     {$IF defined(IOS) or defined(ANDROID)}
-    FWrongImagesPath := TPath.GetTempPath;
+    FWrongImagesPath := TPath.Combine(TPath.GetTempPath, 'Wrong');
     if not FWrongImagesPath.EndsWith(TPath.DirectorySeparatorChar) then
       FWrongImagesPath := FWrongImagesPath + TPath.DirectorySeparatorChar;
+    if not TDirectory.Exists(FWrongImagesPath) then
+      TDirectory.CreateDirectory(FWrongImagesPath);
     {$ELSE}
     FWrongImagesPath := TPath.Combine(TPath.GetTempPath, TPath.GetGUIDFileName(False) + TPath.DirectorySeparatorChar);
     {$ENDIF}

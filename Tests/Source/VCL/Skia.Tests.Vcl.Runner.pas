@@ -29,6 +29,7 @@ uses
   Skia, Skia.Vcl,
 
   { Tests }
+  Skia.Tests.Foundation,
   Skia.Tests.Foundation.Runner;
 
 type
@@ -135,6 +136,7 @@ uses
   Winapi.CommCtrl,
   System.UITypes,
   System.IOUtils,
+  System.RegularExpressions,
   Vcl.Clipbrd;
 
 {$R *.dfm}
@@ -333,6 +335,7 @@ end;
 
 procedure TfrmVclRunner.lbxFailListClick(Sender: TObject);
 var
+  LRect: TRectF;
   LTestResult: ITestResult;
 begin
   FImagePreviewShowExpected := False;
@@ -360,6 +363,12 @@ begin
 
     if memFailTestMessage.Lines.Text.Contains(' (hash: ') then
       Clipboard.AsText := memFailTestMessage.Lines.Text.Split([' (hash: '], TStringSplitOptions.None)[1].Split(['). '], TStringSplitOptions.None)[0]
+    // Copy rect
+    else if TRegEx.IsMatch(memFailTestMessage.Lines.Text, ' but got \([+-]?([0-9]*[.])?[0-9]+,[+-]?([0-9]*[.])?[0-9]+,[+-]?([0-9]*[.])?[0-9]+,[+-]?([0-9]*[.])?[0-9]+\)') then
+    begin
+      LRect := StringToRect('(' + memFailTestMessage.Lines.Text.Split([' but got ('], TStringSplitOptions.None)[1].Split([')'])[0] + ')');
+      Clipboard.AsText := Format('%g,%g,%g,%g', [RoundTo(LRect.Left, -2),RoundTo(LRect.Top, -2),RoundTo(LRect.Right, -2),RoundTo(LRect.Bottom, -2)], TFormatSettings.Invariant);
+    end
     else
       Clipboard.AsText := memFailTestMessage.Lines.Text;
   end;

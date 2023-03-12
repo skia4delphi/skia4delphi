@@ -34,8 +34,6 @@ type
   TSkSvgBrushTests = class(TTestBase)
   private
     procedure TestRender(const ASvgFileName: string; const AWidth, AHeight: Integer; const AWrapMode: TSkSvgWrapMode; const AOverrideColor: TAlphaColor; const AExpectedImageHash: string);
-  protected
-    function AssetsPath: string; override;
   public
     [TestCase('android.svg', 'android.svg,80,80,/8PDgYHD5/////Phw8fv/////+XHz//////////f///wD9f/wAPAA8ADwAPwD/AP/b/9v/2///8')]
     [TestCase('delphi.svg',  'delphi.svg,80,80,w508PHgwmcP//fz8+PDZw////v7+/N33/////////ff/2f/R9gHsAP2I+gD8Qfqh+gPoQ/EP/D8')]
@@ -66,11 +64,6 @@ uses
 
 { TSkSvgBrushTests }
 
-function TSkSvgBrushTests.AssetsPath: string;
-begin
-  Result := CombinePaths(RootAssetsPath, 'Svg');
-end;
-
 procedure TSkSvgBrushTests.TestDefaultRenderWithACustomColor(
   const ASvgFileName: string; const AWidth, AHeight: Integer;
   const AExpectedImageHash: string);
@@ -98,7 +91,7 @@ begin
   try
     LBrush.OverrideColor := AOverrideColor;
     LBrush.WrapMode := AWrapMode;
-    LBrush.Source := TFile.ReadAllText(AssetsPath + ASvgFileName);
+    LBrush.Source := TFile.ReadAllText(SvgAssetsPath + ASvgFileName);
     LBrush.Render(LSurface.Canvas, RectF(0, 0, AWidth, AHeight), 1);
   finally
     LBrush.Free;

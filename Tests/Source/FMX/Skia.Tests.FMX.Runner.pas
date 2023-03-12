@@ -33,6 +33,7 @@ uses
   Skia, Skia.FMX, 
   
   { Tests }
+  Skia.Tests.Foundation,
   Skia.Tests.Foundation.Runner;
 
 type
@@ -138,13 +139,11 @@ implementation
 uses
   { Delphi }
   System.IOUtils,
+  System.RegularExpressions,
   {$IF CompilerVersion >= 31}
   FMX.DialogService,
   {$ELSE}
   FMX.Dialogs,
-  {$ENDIF}
-  {$IF CompilerVersion >= 29}
-  FMX.Utils,
   {$ENDIF}
   FMX.Platform;
 
@@ -393,9 +392,9 @@ begin
       FMX.Types.Log.d('Similarity hash obtained: "%s"', [LText]);
     end
     // Copy rect
-    else if memFailTestMessage.Text.Contains('. Rect obtained (') then
+    else if TRegEx.IsMatch(memFailTestMessage.Text, ' but got \([+-]?([0-9]*[.])?[0-9]+,[+-]?([0-9]*[.])?[0-9]+,[+-]?([0-9]*[.])?[0-9]+,[+-]?([0-9]*[.])?[0-9]+\)') then
     begin
-      LRect := StringToRect('(' + memFailTestMessage.Text.Split(['. Rect obtained ('], TStringSplitOptions.None)[1].Split([')'])[0] + ')');
+      LRect := StringToRect('(' + memFailTestMessage.Text.Split([' but got ('], TStringSplitOptions.None)[1].Split([')'])[0] + ')');
       LText := Format('%g,%g,%g,%g', [RoundTo(LRect.Left, -2),RoundTo(LRect.Top, -2),RoundTo(LRect.Right, -2),RoundTo(LRect.Bottom, -2)], TFormatSettings.Invariant);
       LClipboardService.SetClipboard(LText);
       FMX.Types.Log.d('Bounds rect obtained: "%s"', [LText]);

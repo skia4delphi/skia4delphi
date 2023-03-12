@@ -52,7 +52,6 @@ type
         'ut tellus elementum sagittis vitae et leo. In iaculis nunc sed augue lacus viverra vitae congue eu. Feugiat pretium ' +
         'nibh ipsum consequat nisl. Lobortis feugiat vivamus at augue eget arcu dictum.';
       {$ENDIF}
-    procedure CheckTextRect(const AExpectedTextRect, ATextRect: TRectF);
     procedure Test(const AText: string; const ABitmapSize: TSize; const AScale, AFontSize: Single; const ATextTopLeft, AMaxSize: TPointF; const AMaxLines: Integer; const ARightToLeft: Boolean; const AHorizontalAlign: TSkTextHorzAlign; const AVerticalAlign: TTextAlign; const ATrimming: TTextTrimming; const AColor: TAlphaColor; const AExpectedTextRect: TRectF; const ACheckTextRect: Boolean; const AMinSimilarity: Double; const AExpectedImageHash: string);
   protected
     function AssetsPath: string; override;
@@ -153,15 +152,6 @@ begin
   Result := CombinePaths(RootAssetsPath, 'TextLayout');
 end;
 
-procedure TSkLabelTests.CheckTextRect(const AExpectedTextRect,
-  ATextRect: TRectF);
-begin
-  Assert.AreSameValue(AExpectedTextRect.Left, ATextRect.Left, TextRectEpsilon, Format('in TextRect. Rect obtained %s', [RectToString(ATextRect)]));
-  Assert.AreSameValue(AExpectedTextRect.Top, ATextRect.Top, TextRectEpsilon, Format('in TextRect. Rect obtained %s', [RectToString(ATextRect)]));
-  Assert.AreSameValue(AExpectedTextRect.Right, ATextRect.Right, TextRectEpsilon, Format('in TextRect. Rect obtained %s', [RectToString(ATextRect)]));
-  Assert.AreSameValue(AExpectedTextRect.Bottom, ATextRect.Bottom, TextRectEpsilon, Format('in TextRect. Rect obtained %s', [RectToString(ATextRect)]));
-end;
-
 procedure TSkLabelTests.GenericTest(const AText: string; const AControlWidth,
   AControlHeight: Integer; const AScale, ATextLeft, ATextTop, AMaxWidth, AMaxHeight,
   AFontSize: Single; const AMaxLines: Integer; const ARightToLeft: Boolean;
@@ -237,7 +227,7 @@ begin
           begin
             LTextRect := TSkLabelAccess(LLabel).ParagraphBounds;
             LTextRect.Offset(ATextTopLeft);
-            CheckTextRect(AExpectedTextRect, LTextRect);
+            Assert.AreSameRect(AExpectedTextRect, LTextRect, TextRectEpsilon);
           end;
           LLabel.PaintTo(LBitmap.Canvas, TRectF.Create(PointF(LLabel.Position.X, LLabel.Position.Y), LLabel.Width, LLabel.Height));
         finally
