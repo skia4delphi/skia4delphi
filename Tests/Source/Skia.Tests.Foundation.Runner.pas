@@ -19,9 +19,9 @@ uses
   DUnitX.TestFramework, DUnitX.Extensibility;
 
 type
-  { IAsyncTestRunnerLogger }
+  { ITestRunnerLogger }
 
-  IAsyncTestRunnerLogger = interface
+  ITestRunnerLogger = interface
     ['{C0544B4A-7928-49CD-BA56-D8F863193DCE}']
     procedure OnEndTest(const AThreadId: TThreadID; const ATest: ITestResult);
     procedure OnEndTestFixture(const AThreadId: TThreadID; const AResults: IFixtureResult);
@@ -34,13 +34,13 @@ type
 
   IAsyncTestRunner = interface
     ['{0399B7E2-A927-4312-9440-BCEB4AC6BECD}']
-    procedure AddLogger(const ALogger: IAsyncTestRunnerLogger);
+    procedure AddLogger(const ALogger: ITestRunnerLogger);
     function GetExpectedImageFileName(const ATestResult: ITestResult): string;
     function GetFixtureList: ITestFixtureList;
     function GetGenerateExpectedImages: Boolean;
     function GetWrongImageFileName(const ATestResult: ITestResult): string;
     procedure Execute;
-    procedure RemoveLogger(const ALogger: IAsyncTestRunnerLogger);
+    procedure RemoveLogger(const ALogger: ITestRunnerLogger);
     procedure SetGenerateExpectedImages(const AValue: Boolean);
     procedure Wait;
     property FixtureList: ITestFixtureList read GetFixtureList;
@@ -96,15 +96,16 @@ type
     FGenerateExpectedImages: Boolean;
     FLastImageChecking: ISkImage;
     FLock: TCriticalSection;
-    FLoggers: TList<IAsyncTestRunnerLogger>;
+    FLoggers: TList<ITestRunnerLogger>;
     FTask: ITask;
     FTestRunner: ITestRunner;
+    procedure ExtractExpectedImages;
     function GetExpectedImageFileName(const ATestResult: ITestResult): string;
     function GetFixtureList: ITestFixtureList;
     function GetGenerateExpectedImages: Boolean;
-    function GetLoggers: TArray<IAsyncTestRunnerLogger>;
+    function GetLoggers: TArray<ITestRunnerLogger>;
     function GetWrongImageFileName(const ATestResult: ITestResult): string;
-    property Loggers: TArray<IAsyncTestRunnerLogger> read GetLoggers;
+    property Loggers: TArray<ITestRunnerLogger> read GetLoggers;
     procedure SetGenerateExpectedImages(const AValue: Boolean);
   protected
     { ITestLogger }
@@ -133,9 +134,9 @@ type
   public
     constructor Create;
     destructor Destroy; override;
-    procedure AddLogger(const ALogger: IAsyncTestRunnerLogger);
+    procedure AddLogger(const ALogger: ITestRunnerLogger);
     procedure Execute;
-    procedure RemoveLogger(const ALogger: IAsyncTestRunnerLogger);
+    procedure RemoveLogger(const ALogger: ITestRunnerLogger);
     procedure Wait;
     property FixtureList: ITestFixtureList read GetFixtureList;
     property GenerateExpectedImages: Boolean read GetGenerateExpectedImages write SetGenerateExpectedImages;
@@ -169,7 +170,7 @@ end;
 
 { TAsyncTestRunner }
 
-procedure TAsyncTestRunner.AddLogger(const ALogger: IAsyncTestRunnerLogger);
+procedure TAsyncTestRunner.AddLogger(const ALogger: ITestRunnerLogger);
 begin
   if ALogger = nil then
     Exit;
@@ -189,7 +190,7 @@ begin
   FEvent := TEvent.Create(nil, False, False, '');
   FExecuteFinishedEvent := TEvent.Create(nil, True, True, '');
   FLock := TCriticalSection.Create;
-  FLoggers := TList<IAsyncTestRunnerLogger>.Create;
+  FLoggers := TList<ITestRunnerLogger>.Create;
   FTestRunner := TDUnitX.CreateRunner;
   FTestRunner.UseRTTI := True;
   FTestRunner.FailsOnNoAsserts := False;
@@ -288,11 +289,14 @@ begin
     FExpectedImagesPath := TPath.Combine(TPath.GetTempPath, 'Expected');
     if not FExpectedImagesPath.EndsWith(TPath.DirectorySeparatorChar) then
       FExpectedImagesPath := FExpectedImagesPath + TPath.DirectorySeparatorChar;
-    if not TDirectory.Exists(FExpectedImagesPath) then
-      TDirectory.CreateDirectory(FExpectedImagesPath);
     {$ELSE}
     FExpectedImagesPath := TPath.Combine(TPath.GetTempPath, TPath.GetGUIDFileName(False) + TPath.DirectorySeparatorChar);
     {$ENDIF}
+    if not TDirectory.Exists(FExpectedImagesPath) then
+    begin
+      TDirectory.CreateDirectory(FExpectedImagesPath);
+      FExpectedImagesPathWasCreated := True;
+    end;
   end;
   Result := FExpectedImagesPath;
 end;
@@ -300,6 +304,15 @@ end;
 class function TAsyncTestRunner.ExpectedImagesZipFile: string;
 begin
   Result := TPath.Combine(TTestBase.RootAssetsPath, 'Expected.zip');
+end;
+
+procedure TAsyncTestRunner.ExtractExpectedImages;
+begin
+  if TDirectory.Exists(ExpectedImagesPath) then
+    TDirectory.Delete(ExpectedImagesPath);
+  TDirectory.CreateDirectory(ExpectedImagesPath);
+  FExpectedImagesPathWasCreated := True;
+  TZipFile.ExtractZipFile(ExpectedImagesZipFile, ExpectedImagesPath);
 end;
 
 function TAsyncTestRunner.GetExpectedImageFileName(
@@ -318,7 +331,7 @@ begin
   Result := FGenerateExpectedImages;
 end;
 
-function TAsyncTestRunner.GetLoggers: TArray<IAsyncTestRunnerLogger>;
+function TAsyncTestRunner.GetLoggers: TArray<ITestRunnerLogger>;
 begin
   FLock.Enter;
   try
@@ -372,7 +385,10 @@ begin
           if FGenerateExpectedImages then
           begin
             if not TDirectory.Exists(ExpectedImagesPath) then
+            begin
               TDirectory.CreateDirectory(ExpectedImagesPath);
+              FExpectedImagesPathWasCreated := True;
+            end;
             FLastImageChecking.EncodeToFile(GetExpectedImageFileName(ATest));
           end;
         TTestResultType.Failure,
@@ -386,7 +402,7 @@ begin
             end;
             FLastImageChecking.EncodeToFile(GetWrongImageFileName(ATest));
             if (not FGenerateExpectedImages) and TFile.Exists(ExpectedImagesZipFile) and not TFile.Exists(GetExpectedImageFileName(ATest)) then
-              TZipFile.ExtractZipFile(ExpectedImagesZipFile, ExpectedImagesPath);
+              ExtractExpectedImages;
           end;
       else
       end;
@@ -397,7 +413,7 @@ begin
   TThread.ForceQueue(nil,
     procedure
     var
-      LLogger: IAsyncTestRunnerLogger;
+      LLogger: ITestRunnerLogger;
     begin
       if Assigned(FAsyncTestRunner) then
         for LLogger in TAsyncTestRunner(FAsyncTestRunner).Loggers do
@@ -411,7 +427,7 @@ begin
   TThread.ForceQueue(nil,
     procedure
     var
-      LLogger: IAsyncTestRunnerLogger;
+      LLogger: ITestRunnerLogger;
     begin
       if Assigned(FAsyncTestRunner) then
         for LLogger in TAsyncTestRunner(FAsyncTestRunner).Loggers do
@@ -485,7 +501,7 @@ begin
   TThread.ForceQueue(nil,
     procedure
     var
-      LLogger: IAsyncTestRunnerLogger;
+      LLogger: ITestRunnerLogger;
     begin
       if Assigned(FAsyncTestRunner) then
         for LLogger in TAsyncTestRunner(FAsyncTestRunner).Loggers do
@@ -497,11 +513,11 @@ procedure TAsyncTestRunner.OnTestingStarts(const AThreadId: TThreadID;
   ATestCount, ATestActiveCount: Cardinal);
 begin
   if FGenerateExpectedImages and TFile.Exists(ExpectedImagesZipFile) then
-    TZipFile.ExtractZipFile(ExpectedImagesZipFile, ExpectedImagesPath);
+    ExtractExpectedImages;
   TThread.ForceQueue(nil,
     procedure
     var
-      LLogger: IAsyncTestRunnerLogger;
+      LLogger: ITestRunnerLogger;
     begin
       if Assigned(FAsyncTestRunner) then
         for LLogger in TAsyncTestRunner(FAsyncTestRunner).Loggers do
@@ -519,7 +535,7 @@ procedure TAsyncTestRunner.OnTestSuccess(const AThreadId: TThreadID;
 begin
 end;
 
-procedure TAsyncTestRunner.RemoveLogger(const ALogger: IAsyncTestRunnerLogger);
+procedure TAsyncTestRunner.RemoveLogger(const ALogger: ITestRunnerLogger);
 var
   I: Integer;
 begin
@@ -557,8 +573,6 @@ begin
     FWrongImagesPath := TPath.Combine(TPath.GetTempPath, 'Wrong');
     if not FWrongImagesPath.EndsWith(TPath.DirectorySeparatorChar) then
       FWrongImagesPath := FWrongImagesPath + TPath.DirectorySeparatorChar;
-    if not TDirectory.Exists(FWrongImagesPath) then
-      TDirectory.CreateDirectory(FWrongImagesPath);
     {$ELSE}
     FWrongImagesPath := TPath.Combine(TPath.GetTempPath, TPath.GetGUIDFileName(False) + TPath.DirectorySeparatorChar);
     {$ENDIF}

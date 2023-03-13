@@ -35,7 +35,7 @@ uses
 type
   { TfrmVclRunner }
 
-  TfrmVclRunner = class(TForm, IAsyncTestRunnerLogger)
+  TfrmVclRunner = class(TForm, ITestRunnerLogger)
     btnRunAll: TButton;
     tbcContents: TTabControl;
     pnlTestsFooter: TPanel;
@@ -116,7 +116,7 @@ type
     function GetNode(AFullName: string): TTreeNode;
     procedure SetVkCtrlPressed(const AValue: Boolean);
   protected
-    { IAsyncTestRunnerLogger }
+    { ITestRunnerLogger }
     procedure OnEndTest(const AThreadId: TThreadID; const ATest: ITestResult);
     procedure OnEndTestFixture(const AThreadId: TThreadID; const AResults: IFixtureResult);
     procedure OnLog(const ALogType: TLogLevel; const AMessage: string);

@@ -39,7 +39,7 @@ uses
 type
   { TfrmFMXRunner }
 
-  TfrmFMXRunner = class(TForm, IAsyncTestRunnerLogger)
+  TfrmFMXRunner = class(TForm, ITestRunnerLogger)
     pnlTestsTreeBackground: TPanel;
     trvTestTree: TTreeView;
     gplDetails: TGridPanelLayout;
@@ -121,7 +121,7 @@ type
     function GetNode(AFullName: string): TTreeViewItem;
     procedure SetVkControlPressed(const AValue: Boolean);
   protected
-    { IAsyncTestRunnerLogger }
+    { ITestRunnerLogger }
     procedure OnEndTest(const AThreadId: TThreadID; const ATest: ITestResult);
     procedure OnEndTestFixture(const AThreadId: TThreadID; const AResults: IFixtureResult);
     procedure OnLog(const ALogType: TLogLevel; const AMessage: string);
