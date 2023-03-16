@@ -35,9 +35,9 @@ uses
 type
   ESkVcl              = class(Exception);
   ESkBitmapHelper     = class(ESkVcl);
+  ESkLabel            = class(ESkVcl);
   ESkPersistentData   = class(ESkVcl);
   ESkTextSettingsInfo = class(ESkVcl);
-  ESkLabel            = class(ESkVcl);
 
   TSkDrawProc = reference to procedure(const ACanvas: ISkCanvas);
 
@@ -106,7 +106,6 @@ type
     FDrawCacheKind: TSkDrawCacheKind;
     FOnDraw: TSkDrawEvent;
     FOpacity: Byte;
-    procedure CreateBuffer(const AMemDC: HDC; out ABuffer: HBITMAP; out AData: Pointer; out AStride: Integer);
     procedure DeleteBuffers;
     procedure SetDrawCacheKind(const AValue: TSkDrawCacheKind);
     procedure SetOnDraw(const AValue: TSkDrawEvent);
@@ -237,41 +236,89 @@ type
     property OnDraw;
   end;
 
+  TSkControlRenderBackend = (Default, Raster, HardwareAcceleration);
+
+  { ISkControlRenderTarget }
+
+  ISkControlRenderTarget = interface
+    ['{DBEF2E70-E032-4B70-BDF9-C3DCAED502C7}']
+    procedure Draw(const ACanvas: ISkCanvas; const ADest: TRectF; const AOpacity: Single);
+    function GetCanvas: TCanvas;
+    function GetDeviceContext(var WindowHandle: HWND): HDC;
+    function GetDrawCacheKind: TSkDrawCacheKind;
+    function GetHeight: Integer;
+    function GetScaleFactor: Single;
+    function GetWidth: Integer;
+    property Canvas: TCanvas read GetCanvas;
+    property DrawCacheKind: TSkDrawCacheKind read GetDrawCacheKind;
+    property Height: Integer read GetHeight;
+    property ScaleFactor: Single read GetScaleFactor;
+    property Width: Integer read GetWidth;
+  end;
+
+  { ISkControlRender }
+
+  ISkControlRender = interface
+    ['{6ACA5428-9554-4CB8-8644-4D796B9D8333}']
+    procedure Redraw;
+    procedure Resized;
+    function TryRender(const ABackgroundBuffer: TBitmap; const AOpacity: Byte): Boolean;
+  end;
+
+  { TSkControlRender }
+
+  TSkControlRender = class abstract(TInterfacedObject)
+  public
+    class function MakeRender(const ATarget: ISkControlRenderTarget; const ABackend: TSkControlRenderBackend): ISkControlRender; static;
+  end;
+
   { TSkCustomWinControl }
 
-  TSkCustomWinControl = class abstract(TCustomControl)
+  TSkCustomWinControl = class abstract(TCustomControl, ISkControlRenderTarget)
   strict private
+    FAllowDrawParentInBackground: Boolean;
+    FBackendRender: TSkControlRenderBackend;
     FBackgroundBuffer: TBitmap;
-    FDrawBuffer: HBITMAP;
-    FDrawBufferData: Pointer;
-    FDrawBufferStride: Integer;
-    FDrawCached: Boolean;
+    FBackgroundColor: TAlphaColor;
     FDrawCacheKind: TSkDrawCacheKind;
-    FDrawParentInBackground: Boolean;
     FOnDraw: TSkDrawEvent;
     FOpacity: Byte;
-    procedure CreateBuffer(const AMemDC: HDC; out ABuffer: HBITMAP; out AData: Pointer; out AStride: Integer);
+    FRender: ISkControlRender;
     procedure DeleteBuffers;
     procedure DrawParentImage(ADC: HDC; AInvalidateParent: Boolean = False);
     function GetOpaqueParent: TWinControl;
+    function GetRender: ISkControlRender;                      
+    function IsOpaque: Boolean; inline;
+    procedure SetAllowDrawParentInBackground(const AValue: Boolean);
+    procedure SetBackendRender(const AValue: TSkControlRenderBackend);
+    procedure SetBackgroundColor(const AValue: TAlphaColor);
     procedure SetDrawCacheKind(const AValue: TSkDrawCacheKind);
-    procedure SetDrawParentInBackground(const AValue: Boolean);
     procedure SetOnDraw(const AValue: TSkDrawEvent);
     procedure SetOpacity(const AValue: Byte);
     procedure WMEraseBkgnd(var AMessage: TWMEraseBkgnd); message WM_ERASEBKGND;
+    { ISkControlRenderTarget }
+    function GetCanvas: TCanvas;
+    function GetDrawCacheKind: TSkDrawCacheKind;
+    function GetHeight: Integer;
+    function GetScaleFactor: Single;
+    function GetWidth: Integer;
   {$IF CompilerVersion < 33}
   strict protected
     FScaleFactor: Single;
     procedure ChangeScale(M, D: Integer); override;
   {$ENDIF}
   strict protected
+    procedure DestroyWindowHandle; override;
     procedure Draw(const ACanvas: ISkCanvas; const ADest: TRectF; const AOpacity: Single); virtual;
-    function NeedsRedraw: Boolean; virtual;
+    function MakeRender(ABackendRender: TSkControlRenderBackend): ISkControlRender; virtual;
     procedure Paint; override; final;
     procedure Resize; override;
+    property AllowDrawParentInBackground: Boolean read FAllowDrawParentInBackground write SetAllowDrawParentInBackground default True;
+    property BackendRender: TSkControlRenderBackend read FBackendRender write SetBackendRender default TSkControlRenderBackend.Default;
+    property BackgroundColor: TAlphaColor read FBackgroundColor write SetBackgroundColor default TAlphaColors.White;
     property DrawCacheKind: TSkDrawCacheKind read FDrawCacheKind write SetDrawCacheKind default TSkDrawCacheKind.Raster;
-    property DrawParentInBackground: Boolean read FDrawParentInBackground write SetDrawParentInBackground;
     property OnDraw: TSkDrawEvent read FOnDraw write SetOnDraw;
+    property Render: ISkControlRender read GetRender;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -495,6 +542,7 @@ type
     procedure ReadState(AReader: TReader); override;
     procedure RenderFrame(const ACanvas: ISkCanvas; const ADest: TRectF; const AProgress: Double; const AOpacity: Single); virtual;
     property AbsoluteVisible: Boolean read GetAbsoluteVisible;
+    property BackgroundColor default TAlphaColors.Null;
     property OnAnimationDraw: TSkAnimationDrawEvent read FOnAnimationDraw write SetOnAnimationDraw;
     property OnAnimationFinish: TNotifyEvent read FOnAnimationFinish write FOnAnimationFinish;
     property OnAnimationProcess: TNotifyEvent read FOnAnimationProcess write FOnAnimationProcess;
@@ -542,8 +590,11 @@ type
   strict protected
     function CreateAnimation: TSkCustomAnimatedControl.TAnimationBase; override;
     procedure DefineProperties(AFiler: TFiler); override;
+    function MakeRender(ABackendRender: TSkControlRenderBackend): ISkControlRender; override;
   published
     property Animation: TAnimation read GetAnimation write SetAnimation;
+    property BackendRender;
+    property BackgroundColor;
     property OnAnimationDraw;
     property OnAnimationFinish;
     property OnAnimationProcess;
@@ -1155,6 +1206,8 @@ implementation
 
 uses
   { Delphi }
+  Winapi.OpenGL,
+  Winapi.OpenGLext,
   Winapi.MMSystem,
   System.Math.Vectors,
   System.ZLib,
@@ -1299,6 +1352,33 @@ type
 function BitmapToSkImage(const ABitmap: TBitmap): ISkImage;
 begin
   Result := ABitmap.ToSkImage;
+end;
+
+procedure CreateBuffer(const AMemDC: HDC; const AWidth, AHeight: Integer; 
+  out ABuffer: HBITMAP; out AData: Pointer; out AStride: Integer);
+const
+  ColorMasks: array[0..2] of DWORD = ($00FF0000, $0000FF00, $000000FF);
+var
+  LBitmapInfo: PBitmapInfo;
+begin
+  AStride := BytesPerScanline(AWidth, 32, 32);
+  GetMem(LBitmapInfo, SizeOf(TBitmapInfoHeader) + SizeOf(ColorMasks));
+  try
+    LBitmapInfo.bmiHeader := Default(TBitmapInfoHeader);
+    LBitmapInfo.bmiHeader.biSize        := SizeOf(TBitmapInfoHeader);
+    LBitmapInfo.bmiHeader.biWidth       := AWidth;
+    LBitmapInfo.bmiHeader.biHeight      := -AHeight;
+    LBitmapInfo.bmiHeader.biPlanes      := 1;
+    LBitmapInfo.bmiHeader.biBitCount    := 32;
+    LBitmapInfo.bmiHeader.biCompression := BI_BITFIELDS;
+    LBitmapInfo.bmiHeader.biSizeImage   := AStride * AHeight;
+    Move(ColorMasks[0], LBitmapInfo.bmiColors[0], SizeOf(ColorMasks));
+    ABuffer := CreateDIBSection(AMemDC, LBitmapInfo^, DIB_RGB_COLORS, AData, 0, 0);
+    if ABuffer <> 0 then
+      GdiFlush;
+  finally
+    FreeMem(LBitmapInfo);
+  end;
 end;
 
 procedure DrawDesignBorder(const ACanvas: ISkCanvas; ADest: TRectF; const AOpacity: Single);
@@ -1753,33 +1833,6 @@ begin
   Width := 50;
 end;
 
-procedure TSkCustomControl.CreateBuffer(const AMemDC: HDC; out ABuffer: HBITMAP;
-  out AData: Pointer; out AStride: Integer);
-const
-  ColorMasks: array[0..2] of DWORD = ($00FF0000, $0000FF00, $000000FF);
-var
-  LBitmapInfo: PBitmapInfo;
-begin
-  AStride := BytesPerScanline(Width, 32, 32);
-  GetMem(LBitmapInfo, SizeOf(TBitmapInfoHeader) + SizeOf(ColorMasks));
-  try
-    LBitmapInfo.bmiHeader := Default(TBitmapInfoHeader);
-    LBitmapInfo.bmiHeader.biSize        := SizeOf(TBitmapInfoHeader);
-    LBitmapInfo.bmiHeader.biWidth       := Width;
-    LBitmapInfo.bmiHeader.biHeight      := -Height;
-    LBitmapInfo.bmiHeader.biPlanes      := 1;
-    LBitmapInfo.bmiHeader.biBitCount    := 32;
-    LBitmapInfo.bmiHeader.biCompression := BI_BITFIELDS;
-    LBitmapInfo.bmiHeader.biSizeImage   := AStride * Height;
-    Move(ColorMasks[0], LBitmapInfo.bmiColors[0], SizeOf(ColorMasks));
-    ABuffer := CreateDIBSection(AMemDC, LBitmapInfo^, DIB_RGB_COLORS, AData, 0, 0);
-    if ABuffer <> 0 then
-      GdiFlush;
-  finally
-    FreeMem(LBitmapInfo);
-  end;
-end;
-
 procedure TSkCustomControl.DeleteBuffers;
 begin
   if FDrawBuffer <> 0 then
@@ -1839,7 +1892,7 @@ begin
   if LDrawBufferDC <> 0 then
     try
       if FDrawBuffer = 0 then
-        CreateBuffer(LDrawBufferDC, FDrawBuffer, FDrawBufferData, FDrawBufferStride);
+        CreateBuffer(LDrawBufferDC, Width, Height, FDrawBuffer, FDrawBufferData, FDrawBufferStride);
       if FDrawBuffer <> 0 then
       begin
         LOldObj := SelectObject(LDrawBufferDC, FDrawBuffer);
@@ -2221,6 +2274,328 @@ begin
 end;
 
 type
+  { TSkRasterControlRender }
+
+  TSkRasterControlRender = class(TSkControlRender, ISkControlRender)
+  strict private
+    FDrawBuffer: HBITMAP;
+    FDrawBufferData: Pointer;
+    FDrawBufferStride: Integer;
+    FDrawCached: Boolean;
+    FTarget: ISkControlRenderTarget;
+    procedure DeleteBuffers;
+    procedure DoRender(const AWidth, AHeight: Integer; const AScaleFactor: Single; const ACanvas: TCanvas; const ABackgroundBuffer: TBitmap; const AOpacity: Byte);
+  public
+    constructor Create(const ATarget: ISkControlRenderTarget);
+    destructor Destroy; override;
+    procedure Redraw;         
+    procedure ISkControlRender.Resized = DeleteBuffers;
+    function TryRender(const ABackgroundBuffer: TBitmap; const AOpacity: Byte): Boolean;
+  end;
+
+constructor TSkRasterControlRender.Create(
+  const ATarget: ISkControlRenderTarget);
+begin
+  inherited Create;
+  FTarget := ATarget;
+end;
+
+procedure TSkRasterControlRender.DeleteBuffers;
+begin
+  FDrawCached := False;
+  if FDrawBuffer <> 0 then
+  begin
+    DeleteObject(FDrawBuffer);
+    FDrawBuffer := 0;
+  end;
+end;
+
+destructor TSkRasterControlRender.Destroy;
+begin
+  DeleteBuffers;
+  inherited;
+end;
+
+procedure TSkRasterControlRender.DoRender(const AWidth, AHeight: Integer;
+  const AScaleFactor: Single; const ACanvas: TCanvas;
+  const ABackgroundBuffer: TBitmap; const AOpacity: Byte);
+
+  procedure InternalDraw;
+  var
+    LSurface: ISkSurface;
+    LDestRect: TRectF;
+  begin
+    LSurface := TSkSurface.MakeRasterDirect(TSkImageInfo.Create(AWidth, AHeight), FDrawBufferData, FDrawBufferStride);
+    if LSurface = nil then
+      Exit;
+    LSurface.Canvas.Concat(TMatrix.CreateScaling(AScaleFactor, AScaleFactor));
+    LDestRect := RectF(0, 0, AWidth / AScaleFactor, AHeight / AScaleFactor);
+    LSurface.Canvas.Clear(TAlphaColors.Null);
+    FTarget.Draw(LSurface.Canvas, LDestRect, 1);
+    FDrawCached := True;
+  end;
+
+const
+  BlendFunction: TBlendFunction = (BlendOp: AC_SRC_OVER; BlendFlags: 0; SourceConstantAlpha: 255; AlphaFormat: AC_SRC_ALPHA);
+var
+  LBlendFunction: TBlendFunction;
+  LDrawBufferDC: HDC;
+  LOldObj: HGDIOBJ;
+begin
+  if (AWidth <= 0) or (AHeight <= 0) then
+    Exit;
+
+  LDrawBufferDC := CreateCompatibleDC(0);
+  if LDrawBufferDC <> 0 then
+  begin
+    try
+      if FDrawBuffer = 0 then
+        CreateBuffer(LDrawBufferDC, AWidth, AHeight, FDrawBuffer, FDrawBufferData, FDrawBufferStride);
+      if FDrawBuffer <> 0 then
+      begin
+        LOldObj := SelectObject(LDrawBufferDC, FDrawBuffer);
+        try
+          if (not FDrawCached) or (FDrawBuffer = 0) or (FTarget.DrawCacheKind = TSkDrawCacheKind.Never) then
+            InternalDraw;
+          LBlendFunction := BlendFunction;
+          LBlendFunction.SourceConstantAlpha := AOpacity;
+          if ABackgroundBuffer <> nil then
+            AlphaBlend(ABackgroundBuffer.Canvas.Handle, 0, 0, AWidth, AHeight, LDrawBufferDC, 0, 0, AWidth, AHeight, LBlendFunction)
+          else
+            AlphaBlend(ACanvas.Handle, 0, 0, AWidth, AHeight, LDrawBufferDC, 0, 0, AWidth, AHeight, LBlendFunction);
+        finally
+          if LOldObj <> 0 then
+            SelectObject(LDrawBufferDC, LOldObj);
+        end;
+      end;
+
+      if ABackgroundBuffer <> nil then
+        ACanvas.Draw(0, 0, ABackgroundBuffer);
+    finally
+      DeleteDC(LDrawBufferDC);
+    end;
+  end;
+end;
+
+procedure TSkRasterControlRender.Redraw;
+begin
+  FDrawCached := False;
+end;
+
+function TSkRasterControlRender.TryRender(const ABackgroundBuffer: TBitmap; const AOpacity: Byte): Boolean;
+begin
+  DoRender(FTarget.Width, FTarget.Height, FTarget.ScaleFactor, FTarget.Canvas, ABackgroundBuffer, AOpacity);
+  Result := True;
+end;
+
+type
+  { TSkGlControlRender }
+
+  TSkGlControlRender = class(TSkControlRender, ISkControlRender)
+  strict private
+    FCachedImage: ISkImage;
+    FDC: HDC;
+    FDrawBuffer: ISkSurface;
+    FGLRC: HGLRC;
+    FGrDirectContext: IGrDirectContext;
+    FTarget: ISkControlRenderTarget;
+    FWND: HWND;
+    function EnsureContext: Boolean;
+  public
+    constructor Create(const ATarget: ISkControlRenderTarget);
+    destructor Destroy; override;
+    procedure Redraw;         
+    procedure Resized;
+    function TryRender(const ABackgroundBuffer: TBitmap; const AOpacity: Byte): Boolean;
+  end;
+
+constructor TSkGlControlRender.Create(
+  const ATarget: ISkControlRenderTarget);
+begin
+  inherited Create;
+  FTarget := ATarget;
+end;
+
+destructor TSkGlControlRender.Destroy;
+begin
+  if Assigned(FGrDirectContext) then
+  begin
+    wglMakeCurrent(FDC, FGLRC);
+    FCachedImage := nil;
+    FDrawBuffer := nil;
+    FGrDirectContext.AbandonContext;
+    FGrDirectContext := nil;
+    wglDeleteContext(FGLRC);
+    ReleaseDC(FWND, FDC);
+  end;
+  inherited;
+end;
+
+function TSkGlControlRender.EnsureContext: Boolean;
+const
+  PixelFormatDescriptor: TPixelFormatDescriptor = (
+    nSize           : SizeOf(TPixelFormatDescriptor);
+    nVersion        : 1;
+    dwFlags         : PFD_DRAW_TO_WINDOW or PFD_SUPPORT_OPENGL or PFD_DOUBLEBUFFER;
+    iPixelType      : PFD_TYPE_RGBA;
+    cColorBits      : 24;
+    cRedBits        : 0;
+    cRedShift       : 0;
+    cGreenBits      : 0;
+    cGreenShift     : 0;
+    cBlueBits       : 0;
+    cBlueShift      : 0;
+    cAlphaBits      : 8;
+    cAlphaShift     : 0;
+    cAccumBits      : 0;
+    cAccumRedBits   : 0;
+    cAccumGreenBits : 0;
+    cAccumBlueBits  : 0;
+    cAccumAlphaBits : 0;
+    cDepthBits      : 0;
+    cStencilBits    : 8;
+    cAuxBuffers     : 0;
+    iLayerType      : PFD_MAIN_PLANE;
+    bReserved       : 0;
+    dwLayerMask     : 0;
+    dwVisibleMask   : 0;
+    dwDamageMask    : 0);
+var
+  LPixelFormat: Integer;
+begin
+  if not Assigned(FGrDirectContext) then
+  begin
+    Result := False;
+    FDC := FTarget.GetDeviceContext(FWND);
+    try
+      LPixelFormat := ChoosePixelFormat(FDC, @PixelFormatDescriptor);
+      if (LPixelFormat <> 0) and SetPixelFormat(FDC, LPixelFormat, @PixelFormatDescriptor) then
+      begin
+        FGLRC := wglCreateContext(FDC);
+        if FGLRC = 0 then
+          Exit(False);
+        try
+          if wglMakeCurrent(FDC, FGLRC) then
+          begin
+            FGrDirectContext := TGrDirectContext.MakeGl;
+            Result := Assigned(FGrDirectContext);
+          end;
+        finally
+          if not Result then
+          begin
+            wglDeleteContext(FGLRC);
+            FGLRC := 0;
+          end;
+        end;
+      end;
+    finally
+      if not Result then
+      begin
+        ReleaseDC(FWND, FDC);
+        FDC := 0;
+        FWND := 0;
+      end;
+    end;
+  end
+  else
+    Result := wglMakeCurrent(FDC, FGLRC);
+end;
+
+procedure TSkGlControlRender.Redraw;
+begin
+  FCachedImage := nil;
+end;
+
+procedure TSkGlControlRender.Resized;
+begin
+  FCachedImage := nil;
+  FDrawBuffer := nil;
+end;
+
+function TSkGlControlRender.TryRender(const ABackgroundBuffer: TBitmap; const AOpacity: Byte): Boolean; 
+var
+  LHeight: Integer;
+  LScaleFactor: Single;
+  LWidth: Integer; 
+
+  procedure InternalDraw(const ACanvas: ISkCanvas; AOpacity: Single);
+  var
+    LDestRect: TRectF;
+  begin
+    ACanvas.Concat(TMatrix.CreateScaling(LScaleFactor, LScaleFactor));
+    LDestRect := RectF(0, 0, LWidth / LScaleFactor, LHeight / LScaleFactor);
+    FTarget.Draw(ACanvas, LDestRect, AOpacity);
+  end;
+
+  procedure UpdateCache;
+  begin
+    if (FCachedImage = nil) or (FDrawBuffer = nil) then
+    begin
+      if FDrawBuffer = nil then
+        FDrawBuffer := TSkSurface.MakeRenderTarget(FGrDirectContext, False, TSkImageInfo.Create(LWidth, LHeight), 1);                                     
+      if FDrawBuffer <> nil then
+      begin
+        FDrawBuffer.Canvas.Clear(TAlphaColors.Null);
+        InternalDraw(FDrawBuffer.Canvas, 1);
+        FCachedImage := FDrawBuffer.MakeImageSnapshot;
+      end;    
+    end;
+  end;
+
+var
+  LGrBackendRenderTarget: IGrBackendRenderTarget;
+  LGrGlFramebufferInfo: TGrGlFramebufferInfo;
+  LPaint: ISkPaint;
+  LSurface: ISkSurface;
+begin                  
+  LWidth := FTarget.Width;
+  LHeight := FTarget.Height;
+  if (LWidth <= 0) or (LHeight <= 0) then
+    Exit(True);
+  if not EnsureContext then
+    Exit(False);
+  LScaleFactor := FTarget.ScaleFactor;
+  glGetIntegerv(GL_FRAMEBUFFER_BINDING, @GLuint(LGrGlFramebufferInfo.FBOID));
+  LGrGlFramebufferInfo.Format := GL_RGBA8;
+  LGrBackendRenderTarget := TGrBackendRenderTarget.CreateGl(LWidth, LHeight, 1, 8, LGrGlFramebufferInfo);
+  LSurface := TSkSurface.MakeFromRenderTarget(FGrDirectContext, LGrBackendRenderTarget, TGrSurfaceOrigin.BottomLeft, TSkColorType.RGBA8888);
+  LSurface.Canvas.Clear(TAlphaColors.Null);         
+  if ABackgroundBuffer <> nil then
+    LSurface.Canvas.DrawImage(ABackgroundBuffer.ToSkImage, 0, 0);
+
+  if FTarget.DrawCacheKind = TSkDrawCacheKind.Always then
+    UpdateCache;
+
+  if FCachedImage <> nil then
+  begin
+    LPaint := TSkPaint.Create;
+    LPaint.Alpha := AOpacity;
+    LSurface.Canvas.DrawImage(FCachedImage, 0, 0, LPaint);
+  end
+  else
+    InternalDraw(LSurface.Canvas, AOpacity / 255);
+
+  LSurface.FlushAndSubmit;
+  SwapBuffers(FDC);
+  Result := True;
+end;
+
+{ TSkControlRender }
+
+class function TSkControlRender.MakeRender(
+  const ATarget: ISkControlRenderTarget;
+  const ABackend: TSkControlRenderBackend): ISkControlRender;
+begin
+  case ABackend of
+    TSkControlRenderBackend.Default,
+    TSkControlRenderBackend.Raster: Result := TSkRasterControlRender.Create(ATarget);
+    TSkControlRenderBackend.HardwareAcceleration: Result := TSkGlControlRender.Create(ATarget);
+  else
+    Result := nil;
+  end;
+end;
+
+type
   TWinControlAccess = class(TWinControl);
 
 { TSkCustomWinControl }
@@ -2237,7 +2612,9 @@ end;
 constructor TSkCustomWinControl.Create(AOwner: TComponent);
 begin
   inherited;
-  ControlStyle := ControlStyle - [csOpaque] + [csAcceptsControls];
+  FAllowDrawParentInBackground := True;
+  FBackgroundColor := TAlphaColors.White;
+  ControlStyle := ControlStyle - [csOpaque] + [csAcceptsControls, csParentBackground];
   FDrawCacheKind := TSkDrawCacheKind.Raster;
   FOpacity := 255;
   {$IF CompilerVersion < 33}
@@ -2247,55 +2624,41 @@ begin
   Width := 50;
 end;
 
-procedure TSkCustomWinControl.CreateBuffer(const AMemDC: HDC; out ABuffer: HBITMAP;
-  out AData: Pointer; out AStride: Integer);
-const
-  ColorMasks: array[0..2] of DWORD = ($00FF0000, $0000FF00, $000000FF);
-var
-  LBitmapInfo: PBitmapInfo;
-begin
-  AStride := BytesPerScanline(Width, 32, 32);
-  GetMem(LBitmapInfo, SizeOf(TBitmapInfoHeader) + SizeOf(ColorMasks));
-  try
-    LBitmapInfo.bmiHeader := Default(TBitmapInfoHeader);
-    LBitmapInfo.bmiHeader.biSize        := SizeOf(TBitmapInfoHeader);
-    LBitmapInfo.bmiHeader.biWidth       := Width;
-    LBitmapInfo.bmiHeader.biHeight      := -Height;
-    LBitmapInfo.bmiHeader.biPlanes      := 1;
-    LBitmapInfo.bmiHeader.biBitCount    := 32;
-    LBitmapInfo.bmiHeader.biCompression := BI_BITFIELDS;
-    LBitmapInfo.bmiHeader.biSizeImage   := AStride * Height;
-    Move(ColorMasks[0], LBitmapInfo.bmiColors[0], SizeOf(ColorMasks));
-    ABuffer := CreateDIBSection(AMemDC, LBitmapInfo^, DIB_RGB_COLORS, AData, 0, 0);
-    if ABuffer <> 0 then
-      GdiFlush;
-  finally
-    FreeMem(LBitmapInfo);
-  end;
-end;
 
 procedure TSkCustomWinControl.DeleteBuffers;
 begin
-  FDrawCached := False;
-  if FDrawBuffer <> 0 then
-  begin
-    DeleteObject(FDrawBuffer);
-    FDrawBuffer := 0;
-  end;
   FreeAndNil(FBackgroundBuffer);
 end;
 
 destructor TSkCustomWinControl.Destroy;
 begin
   DeleteBuffers;
+  FRender := nil;
+  inherited;
+end;
+
+procedure TSkCustomWinControl.DestroyWindowHandle;
+begin
+  FRender := nil;
   inherited;
 end;
 
 procedure TSkCustomWinControl.Draw(const ACanvas: ISkCanvas; const ADest: TRectF;
   const AOpacity: Single);
+var
+  LPaint: ISkPaint;
 begin
+  if TAlphaColorRec(FBackgroundColor).A > 0 then
+  begin
+    LPaint := TSkPaint.Create;
+    LPaint.Color := FBackgroundColor;
+    LPaint.AntiAlias := True;
+    ACanvas.DrawRect(ADest, LPaint);
+  end;
   if csDesigning in ComponentState then
     DrawDesignBorder(ACanvas, ADest, AOpacity);
+  if Assigned(FOnDraw) then
+    FOnDraw(Self, ACanvas, ADest, AOpacity);
 end;
 
 procedure TSkCustomWinControl.DrawParentImage(ADC: HDC;
@@ -2374,6 +2737,21 @@ begin
   end;
 end;
 
+function TSkCustomWinControl.GetCanvas: TCanvas;
+begin
+  Result := Canvas;
+end;
+
+function TSkCustomWinControl.GetDrawCacheKind: TSkDrawCacheKind;
+begin
+  Result := FDrawCacheKind;
+end;
+
+function TSkCustomWinControl.GetHeight: Integer;
+begin
+  Result := Height;
+end;
+
 function TSkCustomWinControl.GetOpaqueParent: TWinControl;
 begin
   if Parent = nil then
@@ -2387,90 +2765,102 @@ begin
   end;
 end;
 
-function TSkCustomWinControl.NeedsRedraw: Boolean;
+function TSkCustomWinControl.GetRender: ISkControlRender;
 begin
-  Result := (not FDrawCached) or (FDrawCacheKind = TSkDrawCacheKind.Never) or (FDrawBuffer = 0);
+  if FRender = nil then
+    FRender := MakeRender(FBackendRender);
+  Result := FRender;
+end;
+
+function TSkCustomWinControl.GetScaleFactor: Single;
+begin
+  Result := ScaleFactor;
+end;
+
+function TSkCustomWinControl.GetWidth: Integer;
+begin
+  Result := Width;
+end;   
+
+function TSkCustomWinControl.IsOpaque: Boolean;
+begin
+  Result := (not FAllowDrawParentInBackground) or (TAlphaColorRec(FBackgroundColor).A = 255);
+end;
+
+function TSkCustomWinControl.MakeRender(ABackendRender: TSkControlRenderBackend): ISkControlRender;
+begin
+  Result := TSkControlRender.MakeRender(Self, ABackendRender);
 end;
 
 procedure TSkCustomWinControl.Paint;
-
-  procedure InternalDraw;
-  var
-    LSurface: ISkSurface;
-    LDestRect: TRectF;
-  begin
-    LSurface := TSkSurface.MakeRasterDirect(TSkImageInfo.Create(Width, Height), FDrawBufferData, FDrawBufferStride);
-    LSurface.Canvas.Clear(TAlphaColors.Null);
-    LSurface.Canvas.Concat(TMatrix.CreateScaling(ScaleFactor, ScaleFactor));
-    LDestRect := RectF(0, 0, Width / ScaleFactor, Height / ScaleFactor);
-    Draw(LSurface.Canvas, LDestRect, 1);
-    if Assigned(FOnDraw) then
-      FOnDraw(Self, LSurface.Canvas, LDestRect, 1);
-    FDrawCached := True;
-  end;
-
-const
-  BlendFunction: TBlendFunction = (BlendOp: AC_SRC_OVER; BlendFlags: 0; SourceConstantAlpha: 255; AlphaFormat: AC_SRC_ALPHA);
 var
-  LOldObj: HGDIOBJ;
-  LDrawBufferDC: HDC;
-  LBlendFunction: TBlendFunction;
+  LBackgroundBuffer: TBitmap;
 begin
-  if (Width <= 0) or (Height <= 0) then
+  if (Width <= 0) or (Height <= 0) or (Render = nil) then
     Exit;
-
-  LDrawBufferDC := CreateCompatibleDC(0);
-  if LDrawBufferDC <> 0 then
-    try
-      if FDrawParentInBackground then
-      begin
-        if FBackgroundBuffer = nil then
-        begin
-          FBackgroundBuffer := TBitmap.Create;
-          FBackgroundBuffer.SetSize(Width, Height);
-        end;
-        if (Parent <> nil) and Parent.DoubleBuffered then
-          PerformEraseBackground(Self, FBackgroundBuffer.Canvas.Handle);
-        DrawParentImage(FBackgroundBuffer.Canvas.Handle);
-      end;
-
-      if FDrawBuffer = 0 then
-        CreateBuffer(LDrawBufferDC, FDrawBuffer, FDrawBufferData, FDrawBufferStride);
-      if FDrawBuffer <> 0 then
-      begin
-        LOldObj := SelectObject(LDrawBufferDC, FDrawBuffer);
-        try
-          if NeedsRedraw then
-            InternalDraw;
-          LBlendFunction := BlendFunction;
-          LBlendFunction.SourceConstantAlpha := FOpacity;
-          if FDrawParentInBackground then
-            AlphaBlend(FBackgroundBuffer.Canvas.Handle, 0, 0, Width, Height, LDrawBufferDC, 0, 0, Width, Height, LBlendFunction)
-          else
-            AlphaBlend(Canvas.Handle, 0, 0, Width, Height, LDrawBufferDC, 0, 0, Width, Height, LBlendFunction);
-        finally
-          if LOldObj <> 0 then
-            SelectObject(LDrawBufferDC, LOldObj);
-        end;
-      end;
-
-      if FDrawParentInBackground then
-        Canvas.Draw(0, 0, FBackgroundBuffer);
-    finally
-      DeleteDC(LDrawBufferDC);
+  if IsOpaque then       
+    LBackgroundBuffer := nil
+  else
+  begin
+    if FBackgroundBuffer = nil then
+    begin
+      FBackgroundBuffer := TBitmap.Create;
+      FBackgroundBuffer.SetSize(Width, Height);
     end;
+    if (Parent <> nil) and Parent.DoubleBuffered then
+      PerformEraseBackground(Self, FBackgroundBuffer.Canvas.Handle);
+    DrawParentImage(FBackgroundBuffer.Canvas.Handle);
+    LBackgroundBuffer := FBackgroundBuffer;
+  end;
+  
+  if not FRender.TryRender(LBackgroundBuffer, FOpacity) and (FBackendRender = TSkControlRenderBackend.HardwareAcceleration) then
+  begin
+    FRender := MakeRender(TSkControlRenderBackend.Raster);
+    Redraw;
+  end;
 end;
 
 procedure TSkCustomWinControl.Redraw;
 begin
-  FDrawCached := False;
+  if FRender <> nil then
+    FRender.Redraw;
   Repaint;
 end;
 
 procedure TSkCustomWinControl.Resize;
-begin
+begin 
+  if FRender <> nil then
+    FRender.Resized;
   DeleteBuffers;
   inherited;
+end;
+
+procedure TSkCustomWinControl.SetAllowDrawParentInBackground(const AValue: Boolean);
+begin
+  if FAllowDrawParentInBackground <> AValue then
+  begin
+    FAllowDrawParentInBackground := AValue;
+    Repaint;
+  end;
+end;
+
+procedure TSkCustomWinControl.SetBackendRender(
+  const AValue: TSkControlRenderBackend);
+begin
+  if FBackendRender <> AValue then
+  begin
+    FBackendRender := AValue;
+    FRender := nil;
+  end;
+end;
+
+procedure TSkCustomWinControl.SetBackgroundColor(const AValue: TAlphaColor);
+begin
+  if FBackgroundColor <> AValue then
+  begin
+    FBackgroundColor := AValue;
+    Redraw;
+  end;
 end;
 
 procedure TSkCustomWinControl.SetDrawCacheKind(const AValue: TSkDrawCacheKind);
@@ -2479,16 +2869,7 @@ begin
   begin
     FDrawCacheKind := AValue;
     if FDrawCacheKind <> TSkDrawCacheKind.Always then
-      Repaint;
-  end;
-end;
-
-procedure TSkCustomWinControl.SetDrawParentInBackground(const AValue: Boolean);
-begin
-  if FDrawParentInBackground <> AValue then
-  begin
-    FDrawParentInBackground := AValue;
-    Repaint;
+      Redraw;
   end;
 end;
 
@@ -2511,19 +2892,17 @@ begin
 end;
 
 procedure TSkCustomWinControl.WMEraseBkgnd(var AMessage: TWMEraseBkgnd);
-var
-  LOpaqueParent: TWinControl;
 begin
-  if FDrawParentInBackground then
+  if (not IsOpaque) and ((not FDoubleBuffered) or
+    {$IF DEFINED(CLR)}
+    (AMessage.OriginalMessage.WParam = AMessage.OriginalMessage.LParam)) then
+    {$ELSE}
+    (Winapi.Messages.TMessage(AMessage).WParam = WParam(Winapi.Messages.TMessage(AMessage).LParam))) then
+    {$ENDIF}
   begin
-    LOpaqueParent := GetOpaqueParent;
-    if (LOpaqueParent <> nil) and LOpaqueParent.DoubleBuffered then
-      PerformEraseBackground(Self, AMessage.DC);
-    DrawParentImage(AMessage.DC, True);
-    AMessage.Result := 1;
-  end
-  else
     inherited;
+  end;
+  AMessage.Result := 1;
 end;
 
 { TSkCustomAnimation.TProcess }
@@ -3176,8 +3555,8 @@ begin
   FAnimation := CreateAnimation;
   FAbsoluteVisible := Visible;
   FAbsoluteVisibleCached := True;
+  BackgroundColor := TAlphaColors.Null;
   CheckDuration;
-  DrawParentInBackground := True;
 end;
 
 destructor TSkCustomAnimatedControl.Destroy;
@@ -3190,13 +3569,13 @@ procedure TSkCustomAnimatedControl.DoAnimationChanged;
 begin
   CheckDuration;
   if csDesigning in ComponentState then
-    Repaint;
+    Redraw;
 end;
 
 procedure TSkCustomAnimatedControl.DoAnimationFinish;
 begin
   if WindowHandle <> 0 then
-    Repaint;
+    Redraw;
   if Assigned(FOnAnimationFinish) then
     FOnAnimationFinish(Self);
 end;
@@ -3206,6 +3585,8 @@ begin
   CheckAnimation;
   if WindowHandle <> 0 then
   begin
+    if Render <> nil then
+      Render.Redraw;
     Paint;
     PaintControls(Canvas.Handle, nil);
   end;
@@ -3334,6 +3715,14 @@ end;
 function TSkAnimatedPaintBox.GetAnimation: TSkAnimatedPaintBox.TAnimation;
 begin
   Result := TSkAnimatedPaintBox.TAnimation(FAnimation);
+end;
+
+function TSkAnimatedPaintBox.MakeRender(
+  ABackendRender: TSkControlRenderBackend): ISkControlRender;
+begin
+  if ABackendRender = TSkControlRenderBackend.Default then
+    ABackendRender := TSkControlRenderBackend.HardwareAcceleration;
+  Result := inherited MakeRender(ABackendRender);
 end;
 
 procedure TSkAnimatedPaintBox.ReadAnimate(AReader: TReader);
