@@ -63,7 +63,7 @@ begin
     (TMatrix.CreateRotation(DegToRad(ADegreeAngle)) *
     TMatrix.CreateTranslation(LDest.CenterPoint.X, LDest.CenterPoint.Y));
   LRotationScaleMatrix := TSkRotationScaleMatrix.CreateDegrees(1, ADegreeAngle, LDest.CenterPoint.X, LDest.CenterPoint.Y, LDest.CenterPoint.X, LDest.CenterPoint.Y);
-  Assert.IsTrue(LMatrix.EqualsTo(LRotationScaleMatrix));
+  Assert.IsTrue(LRotationScaleMatrix.ToMatrix.EqualsTo(LMatrix));
 end;
 
 initialization

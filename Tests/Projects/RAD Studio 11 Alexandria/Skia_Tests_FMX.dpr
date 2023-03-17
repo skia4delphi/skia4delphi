@@ -13,6 +13,7 @@ uses
   Skia.Tests.Foundation in '..\..\Source\Skia.Tests.Foundation.pas',
   Skia.Tests.Foundation.Runner in '..\..\Source\Skia.Tests.Foundation.Runner.pas',
   Skia.Tests.Image in '..\..\Source\Skia.Tests.Image.pas',
+  Skia.Tests.MaskFilter in '..\..\Source\Skia.Tests.MaskFilter.pas',
   Skia.Tests.Paragraph in '..\..\Source\Skia.Tests.Paragraph.pas',
   Skia.Tests.Path in '..\..\Source\Skia.Tests.Path.pas',
   Skia.Tests.Picture in '..\..\Source\Skia.Tests.Picture.pas',

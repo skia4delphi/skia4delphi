@@ -149,6 +149,7 @@
         <DCCReference Include="..\..\Source\Skia.Tests.Foundation.pas"/>
         <DCCReference Include="..\..\Source\Skia.Tests.Foundation.Runner.pas"/>
         <DCCReference Include="..\..\Source\Skia.Tests.Image.pas"/>
+        <DCCReference Include="..\..\Source\Skia.Tests.MaskFilter.pas"/>
         <DCCReference Include="..\..\Source\Skia.Tests.Paragraph.pas"/>
         <DCCReference Include="..\..\Source\Skia.Tests.Path.pas"/>
         <DCCReference Include="..\..\Source\Skia.Tests.Picture.pas"/>
