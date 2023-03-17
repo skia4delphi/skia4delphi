@@ -33,8 +33,10 @@ type
   TfrmMain = class(TForm)
     vsbContent: TVertScrollBox;
     tmrSimulateScroll: TTimer;
+    tmrStart: TTimer;
     procedure tmrSimulateScrollTimer(Sender: TObject);
     procedure FormCreate(Sender: TObject);
+    procedure tmrStartTimer(Sender: TObject);
   private
     FNextScrollUp: Boolean;
     FPaintCount: Int64;
@@ -56,13 +58,16 @@ implementation
 {$R *.fmx}
 
 uses
+  {$IFDEF SKIA}
+  { Skia }
+  Skia.FMX,
+  {$ENDIF}
+
   { Delphi }
-  System.IOUtils,
   {$IF CompilerVersion >= 31}
   FMX.DialogService,
   {$ENDIF}
-  { Skia }
-  Skia.FMX;
+  System.IOUtils;
 
 { TfrmMain }
 
@@ -198,8 +203,7 @@ begin
   ShowMessage(StartingMessage,
     procedure
     begin
-      frmMain.FRunning := True;
-      frmMain.Invalidate;
+      frmMain.tmrStart.Enabled := True;
     end);
 end;
 
@@ -375,9 +379,11 @@ begin
     FStopwatch.Stop;
     tmrSimulateScroll.Enabled := False;
     vsbContent.HitTest := True;
+    {$IFDEF SKIA}
     if GlobalUseSkia then
       ShowMessage(Format('SkiaCanvas: %g fps' + sLineBreak + 'Form.Quality: %s' + sLineBreak + sLineBreak + 'To compare the results with the firemonkey''s default canvas, just remove the line "GlobalUseSkia := True" from the .dpr file of project.', [FPaintCount / FStopwatch.Elapsed.TotalSeconds, GetEnumName(TypeInfo(TCanvasQuality), Ord(Self.Quality))]))
     else
+    {$ENDIF}
       ShowMessage(Format('FmxCanvas: %g fps' + sLineBreak + 'Form.Quality: %s', [FPaintCount / FStopwatch.Elapsed.TotalSeconds, GetEnumName(TypeInfo(TCanvasQuality), Ord(Self.Quality))]));
   end
   else if FNextScrollUp then
@@ -385,6 +391,13 @@ begin
   else
     SimulateScrollDown;
   FNextScrollUp := not FNextScrollUp;
+end;
+
+procedure TfrmMain.tmrStartTimer(Sender: TObject);
+begin
+  tmrStart.Enabled := False;
+  FRunning := True;
+  Invalidate;
 end;
 
 { TVertScrollBox }

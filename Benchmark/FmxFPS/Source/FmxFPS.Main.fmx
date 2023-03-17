@@ -24,4 +24,10 @@ object frmMain: TfrmMain
     Left = 304
     Top = 352
   end
+  object tmrStart: TTimer
+    Enabled = False
+    OnTimer = tmrStartTimer
+    Left = 304
+    Top = 304
+  end
 end
