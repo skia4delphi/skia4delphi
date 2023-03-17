@@ -33,7 +33,6 @@ Google's Skia Graphics Library serves as the graphics engine for Google Chrome a
 - Image and path effects;
 - Animated image player; (Lottie, GIF, WebP)
 - Image codecs; (bmp, gif, ico, jpg, png, wbmp, webp and raw images)
-- Particles; (provides a way to quickly generate large numbers of drawing primitives with dynamic, animated behavior)
   **and much more...**
 
 ## FMX render replacement

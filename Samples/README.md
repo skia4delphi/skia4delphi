@@ -84,14 +84,6 @@ The main demo (and official) of the **Skia4Delphi** is in folder `Samples\Demo`.
 
   
 
-### Particles
-
-| Text | Confetti |
-| --- | --- |
-| <img src="../Assets/Documents/Demo-Screens/particles-text.png" width="240" alt="" /> | <img src="../Assets/Documents/Demo-Screens/particles-confetti.png" width="240" alt="" /> |
-
-  
-
 ### Runtime Effects
 
 | Shader animation | Shader with mouse |

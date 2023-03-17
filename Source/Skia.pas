@@ -2982,9 +2982,9 @@ type
     procedure Update(const ANow: Double);
     class constructor Create;
   public
-    class function Make(const AData: string; const AResourceProvider: ISkResourceProvider = nil): ISkParticleEffect; static;
-    class function MakeFromFile(const AFileName: string): ISkParticleEffect; static;
-    class function MakeFromStream(const AStream: TStream; const AResourceProvider: ISkResourceProvider = nil): ISkParticleEffect; static;
+    class function Make(const AData: string; const AResourceProvider: ISkResourceProvider = nil): ISkParticleEffect; static; deprecated;
+    class function MakeFromFile(const AFileName: string): ISkParticleEffect; static; deprecated;
+    class function MakeFromStream(const AStream: TStream; const AResourceProvider: ISkResourceProvider = nil): ISkParticleEffect; static; deprecated;
   end;
 
   { ISkottieAnimation }

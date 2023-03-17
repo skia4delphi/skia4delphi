@@ -48,11 +48,6 @@ type
     lblImageTitle: TSkLabel;
     svgImageArrow: TSkSvg;
     pnlImageLine: TPanel;
-    pnlParticles: TPanel;
-    lblParticlesDescription: TSkLabel;
-    lblParticlesTitle: TSkLabel;
-    svgParticlesArrow: TSkSvg;
-    pnlParticlesLine: TPanel;
     pnlPathsAndEffects: TPanel;
     lblPathsAndEffectsDescription: TSkLabel;
     lblPathsAndEffectsTitle: TSkLabel;
@@ -89,7 +84,6 @@ type
     procedure pnlDocumentsClick(Sender: TObject);
     procedure pnlFilterClick(Sender: TObject);
     procedure pnlImageClick(Sender: TObject);
-    procedure pnlParticlesClick(Sender: TObject);
     procedure pnlPathsAndEffectsClick(Sender: TObject);
     procedure pnlRuntimeEffectsClick(Sender: TObject);
     procedure pnlTextClick(Sender: TObject);
@@ -112,7 +106,6 @@ uses
   Sample.Form.Filter,
   Sample.Form.Image,
   Sample.Form.PathsAndEffects,
-  Sample.Form.Particles,
   Sample.Form.RuntimeEffects,
   Sample.Form.SplashScreen,
   Sample.Form.Text,
@@ -150,11 +143,6 @@ end;
 procedure TfrmMain.pnlImageClick(Sender: TObject);
 begin
   ChildForm<TfrmImage>.Show;
-end;
-
-procedure TfrmMain.pnlParticlesClick(Sender: TObject);
-begin
-  ChildForm<TfrmParticles>.Show;
 end;
 
 procedure TfrmMain.pnlPathsAndEffectsClick(Sender: TObject);

@@ -18,7 +18,6 @@ uses
   Sample.Form.Filter in '..\..\Source\Sample.Form.Filter.pas' {frmFilter},
   Sample.Form.Image in '..\..\Source\Sample.Form.Image.pas' {frmImage},
   Sample.Form.Main in '..\..\Source\Sample.Form.Main.pas' {frmMain},
-  Sample.Form.Particles in '..\..\Source\Sample.Form.Particles.pas' {frmParticles},
   Sample.Form.PathsAndEffects in '..\..\Source\Sample.Form.PathsAndEffects.pas' {frmPathsAndEffects},
   Sample.Form.RuntimeEffects in '..\..\Source\Sample.Form.RuntimeEffects.pas' {frmRuntimeEffects},
   Sample.Form.SplashScreen in '..\..\Source\Sample.Form.SplashScreen.pas' {frmSplashScreen},

@@ -179,10 +179,6 @@
             <Form>frmMain</Form>
             <FormType>dfm</FormType>
         </DCCReference>
-        <DCCReference Include="..\..\Source\Sample.Form.Particles.pas">
-            <Form>frmParticles</Form>
-            <FormType>dfm</FormType>
-        </DCCReference>
         <DCCReference Include="..\..\Source\Sample.Form.PathsAndEffects.pas">
             <Form>frmPathsAndEffects</Form>
             <FormType>dfm</FormType>

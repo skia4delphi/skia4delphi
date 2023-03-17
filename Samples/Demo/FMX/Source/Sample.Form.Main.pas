@@ -41,9 +41,6 @@ type
     btnRuntimeEffects: TSpeedButton;
     lblRuntimeEffectsTitle: TSkLabel;
     lblRuntimeEffectsDescription: TSkLabel;
-    btnParticles: TSpeedButton;
-    lblParticlesTitle: TSkLabel;
-    lblParticlesDescription: TSkLabel;
     btnImage: TSpeedButton;
     lblImageTitle: TSkLabel;
     lblImageDescription: TSkLabel;
@@ -74,7 +71,6 @@ type
     procedure btnDocumentsClick(Sender: TObject);
     procedure btnFilterClick(Sender: TObject);
     procedure btnImageClick(Sender: TObject);
-    procedure btnParticlesClick(Sender: TObject);
     procedure btnPathsAndEffectsClick(Sender: TObject);
     procedure btnRuntimeEffectsClick(Sender: TObject);
     procedure btnTextClick(Sender: TObject);
@@ -98,7 +94,6 @@ uses
   Sample.Form.Filter,
   Sample.Form.Image,
   Sample.Form.PathsAndEffects,
-  Sample.Form.Particles,
   Sample.Form.RuntimeEffects,
   Sample.Form.SplashScreen,
   Sample.Form.Text,
@@ -130,11 +125,6 @@ end;
 procedure TfrmMain.btnImageClick(Sender: TObject);
 begin
   ChildForm<TfrmImage>.Show;
-end;
-
-procedure TfrmMain.btnParticlesClick(Sender: TObject);
-begin
-  ChildForm<TfrmParticles>.Show;
 end;
 
 procedure TfrmMain.btnPathsAndEffectsClick(Sender: TObject);

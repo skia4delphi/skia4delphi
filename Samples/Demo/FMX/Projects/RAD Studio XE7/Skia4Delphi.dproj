@@ -196,10 +196,6 @@
             <Form>frmMain</Form>
             <FormType>fmx</FormType>
         </DCCReference>
-        <DCCReference Include="..\..\Source\Sample.Form.Particles.pas">
-            <Form>frmParticles</Form>
-            <FormType>fmx</FormType>
-        </DCCReference>
         <DCCReference Include="..\..\Source\Sample.Form.PathsAndEffects.pas">
             <Form>frmPathsAndEffects</Form>
             <FormType>fmx</FormType>
