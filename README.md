@@ -1,4 +1,4 @@
-<p><a href="https://www.skia4delphi.org"><img src="Assets/Artwork/logo-gradient.svg" alt="Logo" height="300" width="360" /></a></p>
+<p align="center"><a href="https://www.skia4delphi.org"><img src="Assets/Artwork/logo-gradient.svg" alt="Logo" height="300" width="360" /></a></p>
 
 <p>
   <a href="#compatibility"><img src="https://img.shields.io/static/v1?label=rad%20studio&message=xe7%2B&color=silver&style=for-the-badge&logo=delphi&logoColor=white" alt="Delphi XE7+ support" /></a>
