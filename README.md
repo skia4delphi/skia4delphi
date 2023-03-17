@@ -10,15 +10,15 @@
 
 #
 
-**[Skia4Delphi](https://skia4delphi.org)** is a cross-platform 2D graphics API for Delphi based on [Google's Skia](https://skia.org/) graphics library.
+**[Skia4Delphi](https://skia4delphi.org)** is an open-source, cross-platform 2D graphics library for Delphi, utilizing the esteemed [Google's Skia](https://skia.org/) library.
 
 https://user-images.githubusercontent.com/1863024/175955980-f6c57253-aaa3-4617-90dc-b0d9bf25e21b.mp4
 
 ## About
 
-Skia is a great open source library for drawing 2D Text, Geometries, Images, focused on accurate, high quality and high performance rendering, which provides common APIs that work across a variety of hardware and software platforms.
+Skia is an exceptional open-source library dedicated to rendering 2D text, geometries and images, with a focus on precision, superior quality and high performance. It offers versatile APIs compatible with a wide range of hardware and software platforms.
 
-Google's Skia Graphics Library serves as the graphics engine for Google Chrome and Chrome OS, Android, Flutter, Xamarin, Mozilla Firefox and Firefox OS, and many other products.
+Google's Skia Graphics Library functions as the graphics engine for numerous products, including Google Chrome, Chrome OS, Android, Flutter, Xamarin, Mozilla Firefox, Firefox OS, and more.
 
 ## Features
 
