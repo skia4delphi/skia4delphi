@@ -38,7 +38,6 @@ uses
   DCCStrs;
 
 type
-  TSkProjectConfig = (Release, Debug);
   TSkProjectPlatform = (Unknown, Win32, Win64, Android, Android64, iOSDevice32, iOSDevice64, iOSSimARM64, iOSSimulator, OSX64, OSXARM64, Linux64);
   TSkProjectPlatforms = set of TSkProjectPlatform;
 
@@ -53,13 +52,6 @@ type
     Operation: TDeployOperation;
     Condition: string;
     function Equals(const AProjectDeployFile: IProjectDeploymentFile; const APlatformName: string): Boolean;
-  end;
-
-  { TSkProjectConfigHelper }
-
-  TSkProjectConfigHelper = record helper for TSkProjectConfig
-    function ToString: string;
-    class function FromString(const AText: string): TSkProjectConfig; static;
   end;
 
   { TSkProjectPlatformHelper }
@@ -165,11 +157,11 @@ type
     class function IsValidDeployFile(const AFile: IProjectDeploymentFile; const APlatformName: string; const AAllowedFiles: TArray<TSkDeployFile>): Boolean; static;
   public
     class procedure AddDeployFiles(const AProject: IOTAProject); static;
-    class function CanDeploy(const AProject: IOTAProject; const APlatform: TSkProjectPlatform; const AConfig: TSkProjectConfig): Boolean; static;
-    class procedure CopyToOutput(const AProject: IOTAProject; const APlatform: TSkProjectPlatform; const AConfig: TSkProjectConfig); static;
+    class function CanDeploy(const AProject: IOTAProject; const APlatform: TSkProjectPlatform; const AConfig: string): Boolean; static;
+    class procedure CopyToOutput(const AProject: IOTAProject; const APlatform: TSkProjectPlatform; const AConfig: string); static;
     class procedure DeleteFromOutput(const AProject: IOTAProject); overload; static;
-    class procedure DeleteFromOutput(const AProject: IOTAProject; const APlatform: TSkProjectPlatform; const AConfig: TSkProjectConfig); overload; static;
-    class procedure EnsureDeployFiles(const AProject: IOTAProject; const APlatform: TSkProjectPlatform; const AConfig: TSkProjectConfig); static;
+    class procedure DeleteFromOutput(const AProject: IOTAProject; const APlatform: TSkProjectPlatform; const AConfig: string); overload; static;
+    class procedure EnsureDeployFiles(const AProject: IOTAProject; const APlatform: TSkProjectPlatform; const AConfig: string); static;
     class function LocalFilesExists: Boolean; static;
     class procedure RemoveDeployFiles(const AProject: IOTAProject); static;
   end;
@@ -182,7 +174,7 @@ type
     class function GetIsSkiaDefined(const AProject: IOTAProject): Boolean; static;
     class procedure SetIsSkiaDefined(const AProject: IOTAProject; const AValue: Boolean); static;
   public
-    class function IsSkiaDefinedForPlatform(const AProject: IOTAProject; const APlatform: TSkProjectPlatform; const AConfig: TSkProjectConfig): Boolean; static;
+    class function IsSkiaDefinedForPlatform(const AProject: IOTAProject; const APlatform: TSkProjectPlatform; const AConfig: string): Boolean; static;
     class function IsSupported(const AProject: IOTAProject): Boolean; overload; static;
     class function IsSupported(const AProject: IOTAProject; const APlatform: TSkProjectPlatform): Boolean; overload; static;
     class property IsSkiaDefined[const AProject: IOTAProject]: Boolean read GetIsSkiaDefined write SetIsSkiaDefined;
@@ -197,7 +189,7 @@ type
     OutputDirPropertyName = 'OutputDir'; // do not localize
   strict private
     class function ExpandConfiguration(const ASource: string; const AConfig: IOTABuildConfiguration): string; overload; static;
-    class function ExpandConfiguration(const ASource: string; const APlatform: TSkProjectPlatform; const AConfig: TSkProjectConfig): string; overload; static;
+    class function ExpandConfiguration(const ASource: string; const APlatform: TSkProjectPlatform; const AConfig: string): string; overload; static;
     class function ExpandEnvironmentVar(var AValue: string): Boolean; static;
     class function ExpandOutputPath(const ASource: string; const ABuildConfig: IOTABuildConfiguration): string; static;
     class function ExpandPath(const ABaseDir, ARelativeDir: string): string; static;
@@ -208,14 +200,15 @@ type
     class procedure StrResetLength(var S: string); static;
     class function TryGetProjectOutputPath(const AProject: IOTAProject; ABuildConfig: IOTABuildConfiguration; out AOutputPath: string): Boolean; overload; static;
   public
+    class function BuildConfigs(const AProject: IOTAProject): TArray<string>; static;
     class function ContainsOptionValue(const AValues, AValue: string; const ASeparator: string = DefaultOptionsSeparator): Boolean; static;
-    class function ExpandVars(const ASource: string; const APlatform: TSkProjectPlatform; const AConfig: TSkProjectConfig): string; overload; static;
+    class function ExpandVars(const ASource: string; const APlatform: TSkProjectPlatform; const AConfig: string): string; overload; static;
     class function InsertOptionValue(const AValues, AValue: string; const ASeparator: string = DefaultOptionsSeparator): string; static;
     class function RemoveOptionValue(const AValues, AValue: string; const ASeparator: string = DefaultOptionsSeparator): string; static;
-    class function TryCopyFileToOutputPath(const AProject: IOTAProject; const APlatform: TSkProjectPlatform; const AConfig: TSkProjectConfig; const AFileName: string): Boolean; static;
-    class function TryGetBuildConfig(const AProject: IOTAProject; const APlatform: TSkProjectPlatform; const AConfig: TSkProjectConfig; out ABuildConfig: IOTABuildConfiguration): Boolean; static;
-    class function TryGetProjectOutputPath(const AProject: IOTAProject; const APlatform: TSkProjectPlatform; const AConfig: TSkProjectConfig; out AOutputPath: string): Boolean; overload; static;
-    class function TryRemoveOutputFile(const AProject: IOTAProject; const APlatform: TSkProjectPlatform; const AConfig: TSkProjectConfig; AFileName: string): Boolean; static;
+    class function TryCopyFileToOutputPath(const AProject: IOTAProject; const APlatform: TSkProjectPlatform; const AConfig, AFileName: string): Boolean; static;
+    class function TryGetBuildConfig(const AProject: IOTAProject; const APlatform: TSkProjectPlatform; const AConfig: string; out ABuildConfig: IOTABuildConfiguration): Boolean; static;
+    class function TryGetProjectOutputPath(const AProject: IOTAProject; const APlatform: TSkProjectPlatform; const AConfig: string; out AOutputPath: string): Boolean; overload; static;
+    class function TryRemoveOutputFile(const AProject: IOTAProject; const APlatform: TSkProjectPlatform; const AConfig: string; AFileName: string): Boolean; static;
   end;
 
   { TSkiaLibrary }
@@ -258,6 +251,7 @@ resourcestring
     'be sure you are not using any Skia units, otherwise you will get "runtime error" on startup of your application.';
 
 const
+  cbtRelease                = 'Release'; // do not localize
   InvalidNotifier           = -1;
   SkiaDeploymentClass       = 'Skia'; // do not localize
   SkiaDirVariable           = 'SKIADIR'; // do not localize
@@ -342,18 +336,6 @@ begin
     (AProjectDeployFile.DeploymentClass = SkiaDeploymentClass) and
     AProjectDeployFile.Enabled[APlatformName] and AProjectDeployFile.Overwrite[APlatformName] and
     (AProjectDeployFile.Required = Required);
-end;
-
-{ TSkProjectConfigHelper }
-
-function TSkProjectConfigHelper.ToString: string;
-begin
-  Result := GetEnumName(TypeInfo(TSkProjectConfig), Ord(Self));
-end;
-
-class function TSkProjectConfigHelper.FromString(const AText: string): TSkProjectConfig;
-begin
-  Result := TSkProjectConfig(GetEnumValue(TypeInfo(TSkProjectConfig), AText));
 end;
 
 { TSkProjectPlatformHelper }
@@ -779,7 +761,7 @@ end;
 procedure TSkCompileNotifier.ProjectCompileStarted(const AProject: IOTAProject;
   AMode: TOTACompileMode);
 var
-  LConfig: TSkProjectConfig;
+  LConfig: string;
   LPlatform: TSkProjectPlatform;
 begin
   if TSkProjectHelper.IsSupported(AProject) and TSkProjectHelper.IsSkiaDefined[AProject] then
@@ -787,7 +769,7 @@ begin
     LPlatform := TSkProjectPlatform.FromString(AProject.CurrentPlatform);
     if LPlatform = TSkProjectPlatform.Unknown then
       Exit;
-    LConfig := TSkProjectConfig.FromString(AProject.CurrentConfiguration);
+    LConfig := AProject.CurrentConfiguration;
 
     case AMode of
       cmOTAMake,
@@ -856,39 +838,38 @@ class procedure TSkDeployFilesHelper.AddDeployFiles(
   end;
 
   procedure SetDeployFiles(const AProjectDeployment: IProjectDeployment;
-    const AConfig: TSkProjectConfig; const APlatform: TSkProjectPlatform);
+    const AConfig: string; const APlatform: TSkProjectPlatform);
   var
     LDeployFile: TSkDeployFile;
   begin
     if (AProject.ApplicationType = sLibrary) and not (APlatform in [TSkProjectPlatform.Win32, TSkProjectPlatform.Win64]) then
       Exit;
     for LDeployFile in GetSkiaDeployFiles(APlatform) do
-      DoAddFile(AProjectDeployment, LDeployFile.Platform.ToString, AConfig.ToString, LDeployFile);
+      DoAddFile(AProjectDeployment, LDeployFile.Platform.ToString, AConfig, LDeployFile);
   end;
 
 var
-  LConfig: TSkProjectConfig;
+  LConfig: string;
   LPlatform: TSkProjectPlatform;
   LProjectDeployment: IProjectDeployment;
 begin
   if Supports(AProject, IProjectDeployment, LProjectDeployment) then
-    for LPlatform := Low(TSkProjectPlatform) to High(TSkProjectPlatform) do
-      if TSkProjectHelper.IsSupported(AProject, LPlatform) then
-        for LConfig := Low(TSkProjectConfig) to High(TSkProjectConfig) do
-          if TSkProjectHelper.IsSkiaDefinedForPlatform(AProject, LPlatform, LConfig) then
+    for LConfig in TSkOTAHelper.BuildConfigs(AProject) do
+      for LPlatform := Low(TSkProjectPlatform) to High(TSkProjectPlatform) do
+        if TSkProjectHelper.IsSupported(AProject, LPlatform) and TSkProjectHelper.IsSkiaDefinedForPlatform(AProject, LPlatform, LConfig) then
             SetDeployFiles(LProjectDeployment, LConfig, LPlatform);
 end;
 
 class function TSkDeployFilesHelper.CanDeploy(const AProject: IOTAProject;
   const APlatform: TSkProjectPlatform;
-  const AConfig: TSkProjectConfig): Boolean;
+  const AConfig: string): Boolean;
 begin
   Result := TSkProjectHelper.IsSupported(AProject, APlatform) and Supports(AProject, IProjectDeployment)
     and TSkProjectHelper.IsSkiaDefined[AProject] and TSkProjectHelper.IsSkiaDefinedForPlatform(AProject, APlatform, AConfig);
 end;
 
 class procedure TSkDeployFilesHelper.CopyToOutput(const AProject: IOTAProject;
-  const APlatform: TSkProjectPlatform; const AConfig: TSkProjectConfig);
+  const APlatform: TSkProjectPlatform; const AConfig: string);
 var
   LDeployFile: TSkDeployFile;
 begin
@@ -900,18 +881,18 @@ end;
 class procedure TSkDeployFilesHelper.DeleteFromOutput(
   const AProject: IOTAProject);
 var
-  LConfig: TSkProjectConfig;
+  LConfig: string;
   LPlatform: TSkProjectPlatform;
 begin
-  for LPlatform := Low(TSkProjectPlatform) to High(TSkProjectPlatform) do
-    if TSkProjectHelper.IsSupported(AProject, LPlatform) then
-      for LConfig := Low(TSkProjectConfig) to High(TSkProjectConfig) do
+  for LConfig in TSkOTAHelper.BuildConfigs(AProject) do
+    for LPlatform := Low(TSkProjectPlatform) to High(TSkProjectPlatform) do
+      if TSkProjectHelper.IsSupported(AProject, LPlatform) then
         DeleteFromOutput(AProject, LPlatform, LConfig);
 end;
 
 class procedure TSkDeployFilesHelper.DeleteFromOutput(
   const AProject: IOTAProject; const APlatform: TSkProjectPlatform;
-  const AConfig: TSkProjectConfig);
+  const AConfig: string);
 var
   LDeployFile: TSkDeployFile;
 begin
@@ -922,7 +903,7 @@ end;
 
 class procedure TSkDeployFilesHelper.EnsureDeployFiles(
   const AProject: IOTAProject; const APlatform: TSkProjectPlatform;
-  const AConfig: TSkProjectConfig);
+  const AConfig: string);
 
   function HasValidSkiaFiles(const AProjectDeployment: IProjectDeployment): Boolean;
   var
@@ -938,11 +919,11 @@ class procedure TSkDeployFilesHelper.EnsureDeployFiles(
       LSkiaDeployFiles := []
     else
       LSkiaDeployFiles := GetSkiaDeployFiles(APlatform);
-    for LFile in AProjectDeployment.FindFiles('', AConfig.ToString, LPlatformName, '') do
+    for LFile in AProjectDeployment.FindFiles('', AConfig, LPlatformName, '') do
       if not IsValidDeployFile(LFile, LPlatformName, LSkiaDeployFiles) then
         Exit(False);
 
-    LFiles := AProjectDeployment.FindFiles('', AConfig.ToString, LPlatformName, SkiaDeploymentClass);
+    LFiles := AProjectDeployment.FindFiles('', AConfig, LPlatformName, SkiaDeploymentClass);
     for LSkiaFile in LSkiaDeployFiles do
     begin
       LFound := False;
@@ -1008,7 +989,7 @@ var
 begin
   Result := False;
   for LFile in GetSkiaDeployFiles(TSkProjectPlatform.Win32) do
-    if TFile.Exists(TSkOTAHelper.ExpandVars(LFile.LocalFileName, TSkProjectPlatform.Win32, TSkProjectConfig.Release)) then
+    if TFile.Exists(TSkOTAHelper.ExpandVars(LFile.LocalFileName, TSkProjectPlatform.Win32, cbtRelease)) then
       Exit(True);
 end;
 
@@ -1016,8 +997,7 @@ class procedure TSkDeployFilesHelper.RemoveDeployFiles(
   const AProject: IOTAProject);
 var
   LChanged: Boolean;
-  LConfig: TSkProjectConfig;
-  LConfigName: string;
+  LConfig: string;
   LFile: IProjectDeploymentFile;
   LPlatform: TSkProjectPlatform;
   LPlatformDeployFiles: TArray<TSkDeployFile>;
@@ -1029,23 +1009,22 @@ begin
     LChanged := LProjectDeployment.GetFilesOfClass(SkiaDeploymentClass) <> nil;
     LProjectDeployment.RemoveFilesOfClass(SkiaDeploymentClass);
     LProjectDeployment.RemoveClass(SkiaDeploymentClass);
-    for LPlatform := Low(TSkProjectPlatform) to High(TSkProjectPlatform) do
+    for LConfig in TSkOTAHelper.BuildConfigs(AProject) do
     begin
-      if LPlatform = TSkProjectPlatform.Unknown then
-        Continue;
-      LPlatformDeployFiles := GetSkiaDeployFiles(LPlatform);
-      for LConfig := Low(TSkProjectConfig) to High(TSkProjectConfig) do
+      for LPlatform := Low(TSkProjectPlatform) to High(TSkProjectPlatform) do
       begin
-        LConfigName := LConfig.ToString;
+        if LPlatform = TSkProjectPlatform.Unknown then
+          Continue;
+        LPlatformDeployFiles := GetSkiaDeployFiles(LPlatform);
         LPlatformName := LPlatform.ToString;
 
-        for LFile in LProjectDeployment.FindFiles('', LConfigName, LPlatformName, '') do
+        for LFile in LProjectDeployment.FindFiles('', LConfig, LPlatformName, '') do
         begin
           if LFile.DeploymentClass = SkiaDeploymentClass then
             Continue;
           if not IsValidDeployFile(LFile, LPlatformName, LPlatformDeployFiles) then
           begin
-            LProjectDeployment.RemoveFile(LConfigName, LPlatformName, LFile.LocalName);
+            LProjectDeployment.RemoveFile(LConfig, LPlatformName, LFile.LocalName);
             LChanged := True;
           end;
         end;
@@ -1086,7 +1065,7 @@ end;
 
 class function TSkProjectHelper.IsSkiaDefinedForPlatform(
   const AProject: IOTAProject; const APlatform: TSkProjectPlatform;
-  const AConfig: TSkProjectConfig): Boolean;
+  const AConfig: string): Boolean;
 var
   LBuildConfig: IOTABuildConfiguration;
 begin
@@ -1116,16 +1095,16 @@ class procedure TSkProjectHelper.SetIsSkiaDefined(const AProject: IOTAProject;
   procedure SetPlatformsOptions;
   var
     LBuildConfig: IOTABuildConfiguration;
-    LConfig: TSkProjectConfig;
+    LConfig: string;
     LLibrary: string;
     LPath: string;
     I: Integer;
   begin
     if AProject.Personality <> sCBuilderPersonality then
       Exit;
-    for I := 0 to Length(SkiaPlatformsOptions) - 1 do
+    for LConfig in TSkOTAHelper.BuildConfigs(AProject) do
     begin
-      for LConfig := Low(TSkProjectConfig) to High(TSkProjectConfig) do
+      for I := 0 to Length(SkiaPlatformsOptions) - 1 do
       begin
         if TSkOTAHelper.TryGetBuildConfig(AProject, SkiaPlatformsOptions[I].Platform, LConfig, LBuildConfig) then
         begin
@@ -1180,6 +1159,26 @@ end;
 
 { TSkOTAHelper }
 
+class function TSkOTAHelper.BuildConfigs(
+  const AProject: IOTAProject): TArray<string>;
+var
+  LOptionsConfigurations: IOTAProjectOptionsConfigurations;
+  I: Integer;
+begin
+  Result := [];
+  if Assigned(AProject) and Supports(AProject.ProjectOptions, IOTAProjectOptionsConfigurations, LOptionsConfigurations) then
+  begin
+    for I := 0 to LOptionsConfigurations.ConfigurationCount - 1 do
+    begin
+      if (LOptionsConfigurations.BaseConfiguration = nil) or
+        (LOptionsConfigurations.Configurations[I].Name <> LOptionsConfigurations.BaseConfiguration.Name) then
+      begin
+        Result := Result + [LOptionsConfigurations.Configurations[I].Name];
+      end;
+    end;
+  end;
+end;
+
 class function TSkOTAHelper.ContainsOptionValue(const AValues, AValue,
   ASeparator: string): Boolean;
 var
@@ -1201,10 +1200,10 @@ begin
 end;
 
 class function TSkOTAHelper.ExpandConfiguration(const ASource: string;
-  const APlatform: TSkProjectPlatform; const AConfig: TSkProjectConfig): string;
+  const APlatform: TSkProjectPlatform; const AConfig: string): string;
 begin
   Result := StringReplace(ASource, '$(Platform)', APlatform.ToString, [rfReplaceAll, rfIgnoreCase]);
-  Result := StringReplace(Result, '$(Config)', AConfig.ToString, [rfReplaceAll, rfIgnoreCase]);
+  Result := StringReplace(Result, '$(Config)', AConfig, [rfReplaceAll, rfIgnoreCase]);
 end;
 
 class function TSkOTAHelper.ExpandEnvironmentVar(var AValue: string): Boolean;
@@ -1247,7 +1246,7 @@ begin
 end;
 
 class function TSkOTAHelper.ExpandVars(const ASource: string;
-  const APlatform: TSkProjectPlatform; const AConfig: TSkProjectConfig): string;
+  const APlatform: TSkProjectPlatform; const AConfig: string): string;
 begin
   Result := ExpandVars(ExpandConfiguration(ASource, APlatform, AConfig));
 end;
@@ -1390,8 +1389,7 @@ begin
 end;
 
 class function TSkOTAHelper.TryCopyFileToOutputPath(const AProject: IOTAProject;
-  const APlatform: TSkProjectPlatform; const AConfig: TSkProjectConfig;
-  const AFileName: string): Boolean;
+  const APlatform: TSkProjectPlatform; const AConfig, AFileName: string): Boolean;
 var
   LProjectOutputPath: string;
 begin
@@ -1410,11 +1408,10 @@ begin
 end;
 
 class function TSkOTAHelper.TryGetBuildConfig(const AProject: IOTAProject;
-  const APlatform: TSkProjectPlatform; const AConfig: TSkProjectConfig;
+  const APlatform: TSkProjectPlatform; const AConfig: string;
   out ABuildConfig: IOTABuildConfiguration): Boolean;
 var
   LOptionsConfigurations: IOTAProjectOptionsConfigurations;
-  LConfigName: string;
   I: Integer;
 begin
   Result := False;
@@ -1424,11 +1421,10 @@ begin
     LOptionsConfigurations := GetProjectOptionsConfigurations(AProject);
     if Assigned(LOptionsConfigurations) then
     begin
-      LConfigName := AConfig.ToString;
       for I := LOptionsConfigurations.ConfigurationCount - 1 downto 0 do
       begin
         ABuildConfig := LOptionsConfigurations.Configurations[I];
-        if ABuildConfig.Name = LConfigName then
+        if ABuildConfig.Name = AConfig then
         begin
           ABuildConfig := ABuildConfig.PlatformConfiguration[APlatform.ToString];
           Exit(Assigned(ABuildConfig));
@@ -1439,7 +1435,7 @@ begin
 end;
 
 class function TSkOTAHelper.TryGetProjectOutputPath(const AProject: IOTAProject;
-  const APlatform: TSkProjectPlatform; const AConfig: TSkProjectConfig;
+  const APlatform: TSkProjectPlatform; const AConfig: string;
   out AOutputPath: string): Boolean;
 var
   LBuildConfig: IOTABuildConfiguration;
@@ -1496,7 +1492,7 @@ begin
 end;
 
 class function TSkOTAHelper.TryRemoveOutputFile(const AProject: IOTAProject;
-  const APlatform: TSkProjectPlatform; const AConfig: TSkProjectConfig;
+  const APlatform: TSkProjectPlatform; const AConfig: string;
   AFileName: string): Boolean;
 var
   LProjectOutputPath: string;
