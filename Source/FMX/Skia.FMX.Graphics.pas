@@ -3413,9 +3413,9 @@ type
     FCanvasClass: TSkCanvasClass;
     FCurrent: IFMXCanvasService;
     {$IFDEF DEBUG}
+    FFormBeforeShownMessageId: Integer;
     FGlobalUseSkiaInRegistration: Boolean;
-    FMainFormChangedMessageId: Integer;
-    procedure MainFormChangedChangeHandler(const ASender: TObject; const AMessage: System.Messaging.TMessage);
+    procedure FormBeforeShownHandler(const ASender: TObject; const AMessage: System.Messaging.TMessage);
     {$ENDIF}
     procedure RegisterCanvasClasses;
     procedure UnregisterCanvasClasses;
@@ -3433,7 +3433,7 @@ begin
   inherited Create;
   FCurrent := ACurrent;
   {$IFDEF DEBUG}
-  FMainFormChangedMessageId := TMessageManager.DefaultManager.SubscribeToMessage(TMainFormChangedMessage, MainFormChangedChangeHandler);
+  FFormBeforeShownMessageId := TMessageManager.DefaultManager.SubscribeToMessage(TFormBeforeShownMessage, FormBeforeShownHandler);
   {$ENDIF}
 end;
 
@@ -3441,12 +3441,12 @@ end;
 
 destructor TSkCanvasService.Destroy;
 begin
-  if FMainFormChangedMessageId > 0 then
-    TMessageManager.DefaultManager.Unsubscribe(TMainFormChangedMessage, FMainFormChangedMessageId);
+  if FFormBeforeShownMessageId > 0 then
+    TMessageManager.DefaultManager.Unsubscribe(TFormBeforeShownMessage, FFormBeforeShownMessageId);
   inherited;
 end;
 
-procedure TSkCanvasService.MainFormChangedChangeHandler(const ASender: TObject;
+procedure TSkCanvasService.FormBeforeShownHandler(const ASender: TObject;
   const AMessage: System.Messaging.TMessage);
 const
   MessageText = 'Your declaration of GlobalUseSkia has no effect because the ' +
@@ -3456,8 +3456,8 @@ const
                 ' this new unit, and declare this new unit before any other '  +
                 'unit of yours in the .dpr, that is, right after FMX.Forms.';
 begin
-  TMessageManager.DefaultManager.Unsubscribe(TMainFormChangedMessage, FMainFormChangedMessageId);
-  FMainFormChangedMessageId := 0;
+  TMessageManager.DefaultManager.Unsubscribe(TFormBeforeShownMessage, FFormBeforeShownMessageId);
+  FFormBeforeShownMessageId := 0;
   if FGlobalUseSkiaInRegistration <> GlobalUseSkia then
     raise ESkCanvas.Create(MessageText);
 end;
