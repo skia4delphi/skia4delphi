@@ -87,6 +87,7 @@ const
   RectSize = BitmapSize - 20;
   Radius: TPointF = (X: RectSize/3; Y: RectSize/3);
 var
+  LDestRect: TRectF;
   LImage: ISkImage;
   LRoundRect: ISkRoundRect;
   LSurface: ISkSurface;
@@ -98,7 +99,8 @@ begin
   LSurface.Canvas.Clear(TAlphaColors.Null);
   LSurface.Canvas.Save;
   try
-    LRoundRect := TSkRoundRect.Create(RectF(0, 0, RectSize, RectSize).CenterAt(RectF(0, 0, BitmapSize, BitmapSize)), Radius.X, Radius.Y);
+    LDestRect := RectF(0, 0, RectSize, RectSize);
+    LRoundRect := TSkRoundRect.Create(RectCenter(LDestRect, RectF(0, 0, BitmapSize, BitmapSize)), Radius.X, Radius.Y);
     Assert.IsNotNull(LRoundRect, 'Invalid ISkRoundRect (nil)');
     LSurface.Canvas.ClipRoundRect(LRoundRect, TSkClipOp.Intersect, True);
     DrawImageFitCrop(LSurface.Canvas, LRoundRect.Rect, LImage);
@@ -181,6 +183,7 @@ const
   RectSize = BitmapSize - 20;
   Radii: TSkRoundRectRadii = ((X: 0; Y: 0), (X: 0; Y: 0), (X: RectSize/2; Y: RectSize/2), (X: RectSize/2; Y: RectSize/2));
 var
+  LDestRect: TRectF;
   LPaint: ISkPaint;
   LRoundRect: ISkRoundRect;
   LSurface: ISkSurface;
@@ -188,7 +191,8 @@ begin
   LSurface := TSkSurface.MakeRaster(BitmapSize, BitmapSize);
   Assert.IsNotNull(LSurface, 'Invalid ISkSurface (nil)');
   LSurface.Canvas.Clear(TAlphaColors.Null);
-  LRoundRect := TSkRoundRect.Create(RectF(0, 0, RectSize, RectSize).CenterAt(RectF(0, 0, BitmapSize, BitmapSize)), Radii);
+  LDestRect := RectF(0, 0, RectSize, RectSize);
+  LRoundRect := TSkRoundRect.Create(RectCenter(LDestRect, RectF(0, 0, BitmapSize, BitmapSize)), Radii);
   Assert.IsNotNull(LRoundRect, 'Invalid ISkRoundRect (nil)');
   LPaint := TSkPaint.Create;
   LPaint.AntiAlias := True;
@@ -203,6 +207,7 @@ const
   RectSize = BitmapSize - 20;
   Radius: TPointF = (X: RectSize/3; Y: RectSize/3);
 var
+  LDestRect: TRectF;
   LPaint: ISkPaint;
   LRoundRect: ISkRoundRect;
   LSurface: ISkSurface;
@@ -210,7 +215,8 @@ begin
   LSurface := TSkSurface.MakeRaster(BitmapSize, BitmapSize);
   Assert.IsNotNull(LSurface, 'Invalid ISkSurface (nil)');
   LSurface.Canvas.Clear(TAlphaColors.Null);
-  LRoundRect := TSkRoundRect.Create(RectF(0, 0, RectSize, RectSize).CenterAt(RectF(0, 0, BitmapSize, BitmapSize)), Radius.X, Radius.Y);
+  LDestRect := RectF(0, 0, RectSize, RectSize);
+  LRoundRect := TSkRoundRect.Create(RectCenter(LDestRect, RectF(0, 0, BitmapSize, BitmapSize)), Radius.X, Radius.Y);
   Assert.IsNotNull(LRoundRect, 'Invalid ISkRoundRect (nil)');
   LPaint := TSkPaint.Create;
   LPaint.AntiAlias := True;

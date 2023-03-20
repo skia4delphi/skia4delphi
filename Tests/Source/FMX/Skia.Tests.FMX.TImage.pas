@@ -31,6 +31,7 @@ type
   [TestFixture]
   TImageTests = class(TTestBase)
   public
+    {$IF CompilerVersion >= 31}
     [TestCase('1.IconDoc',     'icons.png,46,46,8,8,30,30,1,0,0,0,-180,0.99,/4GBgYGBgf///fHhw8fN/////+/f3+//////////7//gB+AH4AfgB+AH4AfgB+AH4Af///////8')]
     [TestCase('2.IconArchive', 'icons.png,46,46,8,8,30,30,1,0,-30,0,-150,0.99,/8OBgYGBw/////Hhw8fP////++vr18//////////7//gB+AH4AfgB+AH4AfgB+AH4Af///////8')]
     [TestCase('3.IconImage',   'icons.png,46,46,8,8,30,30,1,0,-60,0,-120,0.99,/4GBgZGZgf///fHh09/N////9/fX3+//////////7//gB+AH4AfgB+AH4AfgB+AH4Af///////8')]
@@ -39,6 +40,7 @@ type
     [TestCase('6.IconBook',    'icons.png,46,46,8,8,30,30,1,0,-150,0,-30,0.99,/4GBvZmBgf///fH928fN////9//f5+//////////7//gB+AH4AfgB+AH4AfgB+AH4Af///////8')]
     [TestCase('7.IconFile',    'icons.png,46,46,8,8,30,30,1,0,-180,0,0,0.99,/4GBkZmBgf///fHx28fN////+//fz+//////////7//gB+AH4AfgB+AH4AfgB+AH4Af///////8')]
     procedure BitmapMarginsTest(const AImageFileName: string; ABitmapWidth, ABitmapHeight: Integer; AControlLeft, AControlTop, AControlWidth, AControlHeight, AScale, ALeft, ATop, ARight, ABottom: Single; const AMinSimilarity: Double; const AExpectedImageHash: string);
+    {$ENDIF}
   end;
 
 implementation
@@ -52,6 +54,7 @@ uses
 
 { TImageTests }
 
+{$IF CompilerVersion >= 31}
 procedure TImageTests.BitmapMarginsTest(const AImageFileName: string;
   ABitmapWidth, ABitmapHeight: Integer; AControlLeft, AControlTop,
   AControlWidth, AControlHeight, AScale, ALeft, ATop, ARight, ABottom: Single;
@@ -93,6 +96,7 @@ begin
     LBitmap.Free;
   end;
 end;
+{$ENDIF}
 
 initialization
   TDUnitX.RegisterTestFixture(TImageTests);
