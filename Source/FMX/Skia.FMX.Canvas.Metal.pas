@@ -13,48 +13,64 @@ unit Skia.FMX.Canvas.Metal;
 interface
 
 {$SCOPEDENUMS ON}
-
-{$IFDEF MACOS}
+{$HPPEMIT NOUSINGNAMESPACE}
 
 uses
   { Delphi }
-  {$IFDEF IOS}
-  iOSapi.CoreGraphics,
-  FMX.Platform.iOS,
-  {$ELSE}
-  Macapi.CocoaTypes,
-  FMX.Platform.Mac,
-  {$ENDIF}
-  Macapi.Metal,
-  Macapi.MetalKit,
-  Macapi.ObjectiveC,
-  System.SysUtils,
+  FMX.Graphics,
+  FMX.Types,
 
   { Skia }
   Skia,
   Skia.FMX.Graphics;
 
 type
-  { TMtlSharedResources }
-
-  TMtlSharedResources = class(TGrCanvasSharedResources)
-  strict protected
-    procedure InitializeContext(out ASharedGrDirectContext: IGrDirectContext); override;
-  end;
+  EMtlError = class(EGrCanvas);
 
   { TMtlCanvas }
 
   TMtlCanvas = class(TGrCanvas)
-  strict private
-    FCommandQueue: MTLCommandQueue;
-    FSampleCount: Integer;
-  strict protected
-    function CreateSurfaceFromWindow(var AGrDirectContext: IGrDirectContext): ISkSurface; override;
-    procedure DoEndScene; override;
-    class procedure InitializeSharedResources(out ASharedResources: IGrCanvasSharedResources); override;
-  end;
 
-{$ENDIF}
+  {$REGION ' - Workaround RSP-37935'}
+  // - --------------------------------------------------------------------------
+  // - WORKAROUND
+  // - -------------------------------------------------------------------------
+  // -
+  // - Description:
+  // -   This code is a workaround to a problem when Zoomed setting is enabled
+  // -   on the OS then the form does not fit the screen.
+  // -
+  // - Bug report:
+  // -   https://quality.embarcadero.com/browse/RSP-37935
+  // -
+  // - -------------------------------------------------------------------------
+  {$IF (CompilerVersion < 35) or ((CompilerVersion = 35) and not DECLARED(RTLVersion112))}
+  {$IFDEF MACOS}
+  strict private type
+    { TRSP37935Workaround }
+
+    TRSP37935Workaround = record
+      class procedure Apply(const ACanvas: TCanvas; const AParent: TWindowHandle); static; inline;
+    end;
+
+  {$ENDIF}
+  {$ENDIF}
+  // - -------------------------------------------------------------------------
+  {$ENDREGION}
+
+  strict private
+    FBackBufferSurface: ISkSurface;
+  strict protected
+    constructor CreateFromWindow(const AParent: TWindowHandle; const AWidth, AHeight: Integer; const AQuality: TCanvasQuality = TCanvasQuality.SystemDefault); override;
+    function CreateSharedContext: IGrSharedContext; override;
+    function GetSurfaceFromWindow(const AContextHandle: THandle): TSkSurface; override;
+    {$IF DECLARED(TRSP37935Workaround)}
+    procedure Resized; override;
+    {$ENDIF}
+    procedure SwapBuffers; override;
+  public
+    destructor Destroy; override;
+  end;
 
 implementation
 
@@ -62,133 +78,194 @@ implementation
 
 uses
   { Delphi }
-  FMX.Graphics;
+  {$IFDEF IOS}
+  FMX.Platform.iOS,
+  {$ELSE}
+  FMX.Platform.Mac,
+  {$ENDIF}
+  Macapi.Metal,
+  Macapi.MetalKit,
+  Macapi.ObjectiveC,
+  System.Math,
 
-{ TMtlSharedResources }
+  { Workarounds }
+  {$IFDEF IOS}
+  iOSapi.CoreGraphics;
+  {$ELSE}
+  Macapi.CocoaTypes;
+  {$ENDIF}
 
-procedure TMtlSharedResources.InitializeContext(
-  out ASharedGrDirectContext: IGrDirectContext);
+{$ENDIF}
+
+type
+  { TMtlSharedContext }
+
+  TMtlSharedContext = class(TGrSharedContext)
+  strict private
+    {$IFDEF MACOS}
+    FCommandQueue: MTLCommandQueue;
+    FDevice: MTLDevice;
+    {$ENDIF}
+  public
+    constructor Create;
+    {$IFDEF MACOS}
+    property CommandQueue: MTLCommandQueue read FCommandQueue;
+    property Device: MTLDevice read FDevice;
+    {$ENDIF}
+  end;
+
+{ TMtlSharedContext }
+
+constructor TMtlSharedContext.Create;
+{$IFDEF MACOS}
 var
-  LCommandQueue: MTLCommandQueue;
-  LDevice: MTLDevice;
   LGrMtlBackendContext: TGrMtlBackendContext;
+{$ENDIF}
 begin
-  LDevice := TMTLDevice.Wrap(MTLCreateSystemDefaultDevice);
-  if LDevice = nil then
-    raise EGrCanvas.Create('Could not get the default device instance Metal.');
+  inherited;
+  {$IFDEF MACOS}
+  FDevice := TMTLDevice.Wrap(MTLCreateSystemDefaultDevice);
+  if FDevice = nil then
+    raise EMtlError.Create('Could not get the default device instance Metal.');
   try
-    LCommandQueue := LDevice.newCommandQueue;
-    if LCommandQueue = nil then
-      raise EGrCanvas.Create('Could not create the shared command queue.');
+    FCommandQueue := FDevice.newCommandQueue;
+    if FCommandQueue = nil then
+      raise EMtlError.Create('Could not create the shared command queue.');
     try
-      LGrMtlBackendContext.Device        := (LDevice as ILocalObject).GetObjectID;
-      LGrMtlBackendContext.Queue         := (LCommandQueue as ILocalObject).GetObjectID;
+      LGrMtlBackendContext.Device        := (FDevice as ILocalObject).GetObjectID;
+      LGrMtlBackendContext.Queue         := (FCommandQueue as ILocalObject).GetObjectID;
       LGrMtlBackendContext.BinaryArchive := nil;
       // The direct context will take ownership of the device and the queue.
-      ASharedGrDirectContext := TGrDirectContext.MakeMetal(LGrMtlBackendContext);
+      FGrDirectContext := TGrDirectContext.MakeMetal(LGrMtlBackendContext);
+      if FGrDirectContext = nil then
+        raise EGrCanvas.Create('Could not create shared direct context.');
     except
-      LCommandQueue.release;
+      FCommandQueue.release;
       raise;
     end;
   except
-    LDevice.release;
+    FDevice.release;
     raise;
   end;
+  {$ENDIF}
 end;
 
 { TMtlCanvas }
 
-function TMtlCanvas.CreateSurfaceFromWindow(
-  var AGrDirectContext: IGrDirectContext): ISkSurface;
-var
-  LDevice: MTLDevice;
-  LGrMtlBackendContext: TGrMtlBackendContext;
+constructor TMtlCanvas.CreateFromWindow(const AParent: TWindowHandle;
+  const AWidth, AHeight: Integer; const AQuality: TCanvasQuality);
 begin
-  if not Assigned(AGrDirectContext) then
-  begin
-    if WindowHandleToPlatform(Parent).View = nil then
-      Exit(nil);
-    LDevice := TMTLDevice.Wrap(MTLCreateSystemDefaultDevice);
-    try
-      MTKView(WindowHandleToPlatform(Parent).View).setDevice(LDevice);
-      MTKView(WindowHandleToPlatform(Parent).View).setFramebufferOnly(False);
-      {$REGION ' - Workaround RSP-37935'}
-      // - ---------------------------------------------------------------------
-      // - WORKAROUND
-      // - ---------------------------------------------------------------------
-      // -
-      // - Description:
-      // -   This code is a workaround to a problem when Zoomed setting is
-      // -   enabled on the OS then the form does not fit the screen.
-      // -
-      // - Bug report:
-      // -   https://quality.embarcadero.com/browse/RSP-37935
-      // -
-      // - ---------------------------------------------------------------------
-      {$IF (CompilerVersion < 35) or ((CompilerVersion = 35) and not DECLARED(RTLVersion112))}
-      var LSize: CGSize;
-      LSize.width  := Width  * Scale;
-      LSize.height := Height * Scale;
-      MTKView(WindowHandleToPlatform(Parent).View).setDrawableSize(LSize);
-      {$ENDIF}
-      // - ---------------------------------------------------------------------
-      {$ENDREGION}
-      FCommandQueue := LDevice.newCommandQueue;
-      if FCommandQueue = nil then
-        raise EGrCanvas.Create('Could not create a command queue.');
-      try
-        LGrMtlBackendContext.Device        := (LDevice as ILocalObject).GetObjectID;
-        LGrMtlBackendContext.Queue         := (FCommandQueue as ILocalObject).GetObjectID;
-        LGrMtlBackendContext.BinaryArchive := nil;
-        // The direct context will take ownership of the device and the queue.
-        AGrDirectContext := TGrDirectContext.MakeMetal(LGrMtlBackendContext);
-      except
-        FCommandQueue.release;
-        raise;
-      end;
-    except
-      LDevice.release;
-      raise;
-    end;
-    if Quality = TCanvasQuality.HighQuality then
-      FSampleCount := GrDirectContext.GetMaxSurfaceSampleCountForColorType(TSkColorType.BGRA8888)
-    else
-      FSampleCount := 1;
-  end;
-  Result := TSkSurface.MakeFromMTKView(AGrDirectContext, (MTKView(WindowHandleToPlatform(Parent).View) as ILocalObject).GetObjectID, TGrSurfaceOrigin.TopLeft, FSampleCount, TSkColorType.BGRA8888);
+  inherited;
+  FGrDirectContext := TGrSharedContext(SharedContext).GrDirectContext;
+  {$IFDEF MACOS}
+  MTKView(WindowHandleToPlatform(Parent).View).setDevice(TMtlSharedContext(SharedContext).Device);
+  MTKView(WindowHandleToPlatform(Parent).View).setFramebufferOnly(False);
+  {$ENDIF}
+  {$IF DECLARED(TRSP37935Workaround)}
+  TRSP37935Workaround.Apply(Self, Parent);
+  {$ENDIF}
 end;
 
-procedure TMtlCanvas.DoEndScene;
+function TMtlCanvas.CreateSharedContext: IGrSharedContext;
+begin
+  Result := TMtlSharedContext.Create;
+end;
+
+destructor TMtlCanvas.Destroy;
+begin
+  if Parent <> nil then
+  begin
+    FBackBufferSurface := nil;
+    FGrDirectContext   := nil;
+  end;
+  inherited;
+end;
+
+function TMtlCanvas.GetSurfaceFromWindow(
+  const AContextHandle: THandle): TSkSurface;
+{$IFDEF MACOS}
 var
-  LCommandBuffer: MTLCommandBuffer;
+  LColorType: TSkColorType;
+  LSampleCount: Integer;
+{$ENDIF}
+begin
+  Result := nil;
+  SharedContext.BeginContext;
+  try
+    {$IFDEF MACOS}
+    case MTKView(WindowHandleToPlatform(Parent).View).colorPixelFormat of
+      MTLPixelFormatRGBA8Unorm,
+      MTLPixelFormatRGBA8Unorm_sRGB: LColorType := TSkColorType.RGBA8888;
+      MTLPixelFormatBGRA8Unorm,
+      MTLPixelFormatBGRA8Unorm_sRGB: LColorType := TSkColorType.BGRA8888;
+    else
+      Exit;
+    end;
+    case Quality of
+      TCanvasQuality.SystemDefault: LSampleCount := Min(FGrDirectContext.GetMaxSurfaceSampleCountForColorType(LColorType), 2);
+      TCanvasQuality.HighQuality  : LSampleCount := Min(FGrDirectContext.GetMaxSurfaceSampleCountForColorType(LColorType), 4);
+    else
+      LSampleCount := 1;
+    end;
+    FBackBufferSurface := TSkSurface.MakeFromMTKView(FGrDirectContext, (MTKView(WindowHandleToPlatform(Parent).View) as ILocalObject).GetObjectID, TGrSurfaceOrigin.TopLeft, LSampleCount, LColorType);
+    {$ENDIF}
+    Result := TSkSurface(FBackBufferSurface);
+  finally
+    if Result = nil then
+      SharedContext.EndContext;
+  end;
+end;
+
+{$IF DECLARED(TRSP37935Workaround)}
+
+procedure TMtlCanvas.Resized;
 begin
   inherited;
   if Parent <> nil then
-  begin
-    LCommandBuffer := FCommandQueue.commandBuffer;
-    LCommandBuffer.presentDrawable(MTKView(WindowHandleToPlatform(Parent).View).currentDrawable);
-    LCommandBuffer.commit;
+    TRSP37935Workaround.Apply(Self, Parent);
   end;
 end;
 
-class procedure TMtlCanvas.InitializeSharedResources(
-  out ASharedResources: IGrCanvasSharedResources);
+{$ENDIF}
+
+procedure TMtlCanvas.SwapBuffers;
+{$IFDEF MACOS}
+var
+  LCommandBuffer: MTLCommandBuffer;
+{$ENDIF}
 begin
-  ASharedResources := TMtlSharedResources.Create;
+  inherited;
+  FBackBufferSurface := nil;
+  {$IFDEF MACOS}
+  LCommandBuffer := TMtlSharedContext(SharedContext).CommandQueue.commandBuffer;
+  LCommandBuffer.presentDrawable(MTKView(WindowHandleToPlatform(Parent).View).currentDrawable);
+  LCommandBuffer.commit;
+  {$ENDIF}
+  SharedContext.EndContext;
+end;
+
+{$REGION ' - Workaround RSP-37935'}
+// - ---------------------------------------------------------------------------
+// - WORKAROUND
+// - ---------------------------------------------------------------------------
+{$IF (CompilerVersion < 35) or ((CompilerVersion = 35) and not DECLARED(RTLVersion112))}
+{$IFDEF MACOS}
+
+{ TMtlCanvas.TRSP37935Workaround }
+
+class procedure TMtlCanvas.TRSP37935Workaround.Apply(const ACanvas: TCanvas;
+  const AParent: TWindowHandle);
+var
+  LSize: CGSize;
+begin
+  LSize.width  := ACanvas.Width  * ACanvas.Scale;
+  LSize.height := ACanvas.Height * ACanvas.Scale;
+  MTKView(WindowHandleToPlatform(AParent).View).setDrawableSize(LSize);
 end;
 
 {$ENDIF}
-
-{$HPPEMIT NOUSINGNAMESPACE}
-(*$HPPEMIT 'namespace Skia {'*)
-(*$HPPEMIT '	namespace Fmx {'*)
-(*$HPPEMIT '	  namespace Platform {'*)
-{$IFDEF IOS}
-  (*$HPPEMIT '		  namespace Ios { using namespace ::Fmx::Platform::Ios; }'*)
-{$ELSE}
-  (*$HPPEMIT '		  namespace Mac { using namespace ::Fmx::Platform::Mac; }'*)
 {$ENDIF}
-(*$HPPEMIT '	  }'*)
-(*$HPPEMIT '	}'*)
-(*$HPPEMIT '}'*)
+// - ---------------------------------------------------------------------------
+{$ENDREGION}
+
 end.

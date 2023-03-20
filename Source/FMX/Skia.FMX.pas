@@ -3938,7 +3938,7 @@ class function TSkLottieAnimationCodec.TryMakeFromStream(const AStream: TStream;
   begin
     LDecompressionStream := TDecompressionStream.Create(AStream, 31);
     try
-      Result := TSkottieAnimation.MakeFromStream(LDecompressionStream, TSkDefaultProviders.Resource);
+      Result := TSkottieAnimation.MakeFromStream(LDecompressionStream, TSkDefaultProviders.Resource, TSkDefaultProviders.TypefaceFont);
     finally
       LDecompressionStream.Free;
     end;
@@ -3950,7 +3950,7 @@ begin
   if IsTgs then
     LSkottie := MakeFromTgsStream(AStream)
   else
-    LSkottie := TSkottieAnimation.MakeFromStream(AStream, TSkDefaultProviders.Resource);
+    LSkottie := TSkottieAnimation.MakeFromStream(AStream, TSkDefaultProviders.Resource, TSkDefaultProviders.TypefaceFont);
 
   Result := Assigned(LSkottie);
   if Result then
@@ -6133,6 +6133,7 @@ end;
 {$HPPEMIT END '    using ::Skia::Fmx::TSkTypefaceManager;'}
 {$HPPEMIT END '    typedef void (__fastcall *TAddSkPathToPathDataProc)(::Fmx::Graphics::TPathData* const APathData, const ::Skia::_di_ISkPath ASkPath);'}
 {$HPPEMIT END '    typedef ::Skia::_di_ISkImage (__fastcall *TBitmapToSkImageFunc)(::Fmx::Graphics::TBitmap* const ABitmap);'}
+{$HPPEMIT END '    typedef void (__fastcall *TDrawDesignBorderProc)(const ::Skia::_di_ISkCanvas ACanvas, const ::System::Types::TRectF &ADest, const float AOpacity);'}
 {$HPPEMIT END '    typedef ::Skia::_di_ISkPath (__fastcall *TPathDataToSkPathFunc)(::Fmx::Graphics::TPathData* const APathData);'}
 {$HPPEMIT END '    typedef void (__fastcall *TSkiaDrawProc)(::Fmx::Graphics::TBitmap* const ABitmap, const ::Skia::Fmx::_di_TSkDrawProc AProc, const bool AStartClean);'}
 {$HPPEMIT END '    typedef ::Fmx::Graphics::TBitmap* (__fastcall *TSkImageToBitmapFunc)(const ::Skia::_di_ISkImage AImage);'}
@@ -6145,6 +6146,7 @@ end;
 {$HPPEMIT END '    static ::System::StaticArray<Fmx::Types::TPixelFormat, 23>& SkFmxPixelFormat = ::Skia::Fmx::SkFmxPixelFormat;'}
 {$HPPEMIT END '    static const TAddSkPathToPathDataProc AddSkPathToPathData = ::Skia::Fmx::AddSkPathToPathData;'}
 {$HPPEMIT END '    static const TBitmapToSkImageFunc BitmapToSkImage = ::Skia::Fmx::BitmapToSkImage;'}
+{$HPPEMIT END '    static const TDrawDesignBorderProc DrawDesignBorder = ::Skia::Fmx::DrawDesignBorder;'}
 {$HPPEMIT END '    static const TPathDataToSkPathFunc PathDataToSkPath = ::Skia::Fmx::PathDataToSkPath;'}
 {$HPPEMIT END '    static const TSkiaDrawProc SkiaDraw = ::Skia::Fmx::SkiaDraw;'}
 {$HPPEMIT END '    static const TSkImageToBitmapFunc SkImageToBitmap = ::Skia::Fmx::SkImageToBitmap;'}

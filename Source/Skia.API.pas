@@ -27,13 +27,21 @@ interface
 {$ALIGN ON}
 {$MINENUMSIZE 4}
 
+uses
+  { Delphi }
+  System.SysUtils;
+
 {$IFDEF IOS}
   {$DEFINE SK_STATIC_LIBRARY}
 {$ENDIF}
 
 type
   _bool     = Boolean;
+  {$IF DECLARED(UTF8Char)}
+  _char     = UTF8Char;
+  {$ELSE}
   _char     = AnsiChar;
+  {$ENDIF}
   char16_t  = Char;
   _double   = Double;
   float     = Single;
@@ -81,6 +89,7 @@ type
   sk_data_t                     = THandle;
   sk_document_t                 = THandle;
   sk_font_t                     = THandle;
+  sk_fontmgr_t                  = THandle;
   sk_image_t                    = THandle;
   sk_imagefilter_t              = THandle;
   sk_maskfilter_t               = THandle;
@@ -125,6 +134,7 @@ type
   psk_data_t                     = ^sk_data_t;
   psk_document_t                 = ^sk_document_t;
   psk_font_t                     = ^sk_font_t;
+  psk_fontmgr_t                  = ^sk_fontmgr_t;
   psk_image_t                    = ^sk_image_t;
   psk_imagefilter_t              = ^sk_imagefilter_t;
   psk_maskfilter_t               = ^sk_maskfilter_t;
@@ -600,6 +610,12 @@ type
   end;
   psk_fontstyle_t = ^sk_fontstyle_t;
 
+  sk_frame_t = record
+    pixmap   : sk_pixmap_t;
+    duration : int32_t;
+  end;
+  psk_frame_t = ^sk_frame_t;
+
   sk_highcontrastconfig_t = record
     grayscale    : _bool;
     invert_style : sk_contrastinvertstyle_t;
@@ -782,6 +798,8 @@ type
   // Ganesh
 
   gr_backendrendertarget_t         = THandle;
+  gr_backendsemaphore_t            = THandle;
+  gr_backendsurfacemutablestate_t  = THandle;
   gr_backendtexture_t              = THandle;
   gr_directcontext_t               = THandle;
   gr_persistentcache_t             = THandle;
@@ -790,6 +808,8 @@ type
   gr_shadererrorhandlerbaseclass_t = THandle;
 
   pgr_backendrendertarget_t         = ^gr_backendrendertarget_t;
+  pgr_backendsemaphore_t            = ^gr_backendsemaphore_t;
+  pgr_backendsurfacemutablestate_t  = ^gr_backendsurfacemutablestate_t;
   pgr_backendtexture_t              = ^gr_backendtexture_t;
   pgr_directcontext_t               = ^gr_directcontext_t;
   pgr_persistentcache_t             = ^gr_persistentcache_t;
@@ -886,17 +906,13 @@ type
 
   // Ganesh - Vulkan
 
-  gr_vk_extensions_t              = THandle;
-  gr_vk_physicaldevicefeatures_t  = THandle;
-  gr_vk_physicaldevicefeatures2_t = THandle;
+  gr_vk_extensions_t  = THandle;
 
-  pgr_vk_extensions_t              = ^gr_vk_extensions_t;
-  pgr_vk_physicaldevicefeatures_t  = ^gr_vk_physicaldevicefeatures_t;
-  pgr_vk_physicaldevicefeatures2_t = ^gr_vk_physicaldevicefeatures2_t;
+  pgr_vk_extensions_t = ^gr_vk_extensions_t;
 
   gr_vk_bool32_t                      = uint32_t;
   gr_vk_chromalocation_t              = int32_t;
-  gr_vk_device_t                      = Pointer;
+  gr_vk_device_t                      = intptr_t;
   gr_vk_devicememory_t                = uint64_t;
   gr_vk_devicesize_t                  = uint64_t;
   gr_vk_filter_t                      = int32_t;
@@ -906,11 +922,12 @@ type
   gr_vk_imagelayout_t                 = int32_t;
   gr_vk_imagetiling_t                 = int32_t;
   gr_vk_imageusageflags_t             = uint32_t;
-  gr_vk_instance_t                    = Pointer;
-  gr_vk_physicaldevice_t              = Pointer;
-  gr_vk_queue_t                       = Pointer;
+  gr_vk_instance_t                    = intptr_t;
+  gr_vk_physicaldevice_t              = intptr_t;
+  gr_vk_queue_t                       = intptr_t;
   gr_vk_samplerycbcrmodelconversion_t = int32_t;
   gr_vk_samplerycbcrrange_t           = int32_t;
+  gr_vk_semaphore_t                   = uint64_t;
   gr_vk_sharingmode_t                 = int32_t;
 
   pgr_vk_bool32_t                      = ^gr_vk_bool32_t;
@@ -930,7 +947,14 @@ type
   pgr_vk_queue_t                       = ^gr_vk_queue_t;
   pgr_vk_samplerycbcrmodelconversion_t = ^gr_vk_samplerycbcrmodelconversion_t;
   pgr_vk_samplerycbcrrange_t           = ^gr_vk_samplerycbcrrange_t;
+  pgr_vk_semaphore_t                   = ^gr_vk_semaphore_t;
   pgr_vk_sharingmode_t                 = ^gr_vk_sharingmode_t;
+
+  gr_vk_physicaldevicefeatures_t  = record end;
+  gr_vk_physicaldevicefeatures2_t = record end;
+
+  pgr_vk_physicaldevicefeatures_t  = ^gr_vk_physicaldevicefeatures_t;
+  pgr_vk_physicaldevicefeatures2_t = ^gr_vk_physicaldevicefeatures2_t;
 
   gr_vk_get_proc = function (context: Pointer; const name: MarshaledAString; instance: gr_vk_instance_t; device: gr_vk_device_t): Pointer; cdecl;
 
@@ -950,10 +974,10 @@ type
     device                    : gr_vk_device_t;
     queue                     : gr_vk_queue_t;
     graphics_queue_index      : uint32_t;
-    max_version               : uint32_t;
+    max_api_version           : uint32_t;
     extensions                : gr_vk_extensions_t;
-    physical_device_features  : gr_vk_physicaldevicefeatures_t;
-    physical_device_features2 : gr_vk_physicaldevicefeatures2_t;
+    physical_device_features  : pgr_vk_physicaldevicefeatures_t;
+    physical_device_features2 : pgr_vk_physicaldevicefeatures2_t;
     get_context               : Pointer;
     get_proc                  : gr_vk_get_proc;
     protected_context         : _bool;
@@ -977,7 +1001,7 @@ type
     image                 : gr_vk_image_t;
     alloc                 : gr_vk_alloc_t;
     image_tiling          : gr_vk_imagetiling_t;
-    image_layout          : gr_vk_imagetiling_t;
+    image_layout          : gr_vk_imagelayout_t;
     format                : gr_vk_format_t;
     image_usage_flags     : gr_vk_imageusageflags_t;
     sample_count          : uint32_t;
@@ -1264,6 +1288,13 @@ type
 var
 {$ENDIF}
 
+  { include/c/gr4d_backendsemaphore.h }
+
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}gr4d_backendsemaphore_create     {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(): gr_backendsemaphore_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}gr4d_backendsemaphore_destroy    {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: gr_backendsemaphore_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}gr4d_backendsemaphore_init_vulkan{$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: gr_backendsemaphore_t; semaphore: gr_vk_semaphore_t); cdecl;
+
+
   { include/c/gr4d_backendsurface.h }
 
   {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}gr4d_backendrendertarget_create_gl         {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(width, height, sample_count, stencil_bits: int32_t; const framebuffer_info: pgr_gl_framebufferinfo_t): gr_backendrendertarget_t; cdecl;
@@ -1286,6 +1317,12 @@ var
   {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}gr4d_backendtexture_get_width              {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: gr_backendtexture_t): int32_t; cdecl;
   {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}gr4d_backendtexture_has_mipmaps            {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: gr_backendtexture_t): _bool; cdecl;
   {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}gr4d_backendtexture_is_valid               {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: gr_backendtexture_t): _bool; cdecl;
+
+
+  { include/c/gr4d_backendsurfacemutablestate.h }
+
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}gr4d_backendsurfacemutablestate_create {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(image_layout: gr_vk_imagelayout_t; queue_family_index: uint32_t): gr_backendsurfacemutablestate_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}gr4d_backendsurfacemutablestate_destroy{$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: gr_backendsurfacemutablestate_t); cdecl;
 
 
   { include/c/gr4d_contextoptions.h }
@@ -1341,8 +1378,14 @@ var
 
   {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}gr4d_vk_extensions_create       {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(): gr_vk_extensions_t; cdecl;
   {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}gr4d_vk_extensions_destroy      {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: gr_vk_extensions_t); cdecl;
-  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}gr4d_vk_extensions_has_extension{$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: gr_vk_extensions_t; const name: MarshaledAString; min_version: uint32_t): _bool; cdecl;
-  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}gr4d_vk_extensions_init         {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: gr_vk_extensions_t; context: Pointer; proc: gr_vk_get_proc; instance: gr_vk_instance_t; physical_device: gr_vk_physicaldevice_t; const instance_extensions: PMarshaledAString; instance_extension_count: int32_t; const device_extensions: PMarshaledAString; device_extension_count: int32_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}gr4d_vk_extensions_has_extension{$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: gr_vk_extensions_t; const name: MarshaledAString; min_api_version: uint32_t): _bool; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}gr4d_vk_extensions_init         {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: gr_vk_extensions_t; context: Pointer; proc: gr_vk_get_proc; instance: gr_vk_instance_t; physical_device: gr_vk_physicaldevice_t; instance_extension_count: int32_t; const instance_extensions: PMarshaledAString; device_extension_count: int32_t; const device_extensions: PMarshaledAString); cdecl;
+
+
+  { include/c/sk4d_animatedwebpencoder.h }
+
+  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_animatedwebpencoder_encode_to_file  {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(const file_name: MarshaledAString; const src: psk_frame_t; count: size_t; quality: int32_t): _bool; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_animatedwebpencoder_encode_to_stream{$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(w_stream: sk_wstream_t; const src: psk_frame_t; count: size_t; quality: int32_t): _bool; cdecl;
 
 
   { include/c/sk4d_blender.h }
@@ -1972,22 +2015,22 @@ var
 
   { include/c/sk4d_surface.h }
 
-  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_surface_draw                    {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_surface_t; canvas: sk_canvas_t; x, y: float; paint: sk_paint_t); cdecl;
-  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_surface_flush                   {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_surface_t); cdecl;
-  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_surface_flush_and_submit        {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_surface_t; sync_cpu: _bool); cdecl;
-  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_surface_get_canvas              {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(self: sk_surface_t): sk_canvas_t; cdecl;
-  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_surface_get_props               {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(const self: sk_surface_t; out result: sk_surfaceprops_t); cdecl;
-  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_surface_make_from_mtk_view      {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(context: gr_directcontext_t; layer: gr_mtl_handle_t; origin: gr_surfaceorigin_t; sample_count: int32_t; color_type: sk_colortype_t; color_space: sk_colorspace_t; const props: psk_surfaceprops_t): sk_surface_t; cdecl;
-  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_surface_make_from_render_target {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(context: gr_directcontext_t; const render_target: gr_backendrendertarget_t; origin: gr_surfaceorigin_t; color_type: sk_colortype_t; color_space: sk_colorspace_t; const props: psk_surfaceprops_t): sk_surface_t; cdecl;
-  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_surface_make_from_texture       {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(context: gr_directcontext_t; const texture: gr_backendtexture_t; origin: gr_surfaceorigin_t; sample_count: int32_t; color_type: sk_colortype_t; color_space: sk_colorspace_t; const props: psk_surfaceprops_t): sk_surface_t; cdecl;
-  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_surface_make_image_snapshot     {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(self: sk_surface_t): sk_image_t; cdecl;
-  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_surface_make_image_snapshot2    {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(self: sk_surface_t; const bounds: psk_irect_t): sk_image_t; cdecl;
-  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_surface_make_raster             {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const image_info: psk_imageinfo_t; row_bytes: size_t; const props: psk_surfaceprops_t): sk_surface_t; cdecl;
-  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_surface_make_raster_direct      {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const pixmap: sk_pixmap_t; proc: sk_surface_raster_release_proc; proc_context: Pointer; const props: psk_surfaceprops_t): sk_surface_t; cdecl;
-  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_surface_make_render_target      {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(context: gr_directcontext_t; is_budgeted: _bool; const image_info: psk_imageinfo_t; sample_count: int32_t; origin: gr_surfaceorigin_t; const props: psk_surfaceprops_t; should_create_with_mips: _bool): sk_surface_t; cdecl;
-  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_surface_peek_pixels             {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(self: sk_surface_t): sk_pixmap_t; cdecl;
-  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_surface_read_pixels             {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(self: sk_surface_t; const dest: sk_pixmap_t; src_x, src_y: int32_t): _bool; cdecl;
-
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_surface_draw                   {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_surface_t; canvas: sk_canvas_t; x, y: float; paint: sk_paint_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_surface_flush                  {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_surface_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_surface_flush_and_submit       {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_surface_t; semaphores: pgr_backendsemaphore_t; count: int32_t; const new_state: gr_backendsurfacemutablestate_t; sync_cpu: _bool); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_surface_get_canvas             {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(self: sk_surface_t): sk_canvas_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_surface_get_props              {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(const self: sk_surface_t; out result: sk_surfaceprops_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_surface_make_from_mtk_view     {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(context: gr_directcontext_t; layer: gr_mtl_handle_t; origin: gr_surfaceorigin_t; sample_count: int32_t; color_type: sk_colortype_t; color_space: sk_colorspace_t; const props: psk_surfaceprops_t): sk_surface_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_surface_make_from_render_target{$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(context: gr_directcontext_t; const render_target: gr_backendrendertarget_t; origin: gr_surfaceorigin_t; color_type: sk_colortype_t; color_space: sk_colorspace_t; const props: psk_surfaceprops_t): sk_surface_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_surface_make_from_texture      {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(context: gr_directcontext_t; const texture: gr_backendtexture_t; origin: gr_surfaceorigin_t; sample_count: int32_t; color_type: sk_colortype_t; color_space: sk_colorspace_t; const props: psk_surfaceprops_t): sk_surface_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_surface_make_image_snapshot    {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(self: sk_surface_t): sk_image_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_surface_make_image_snapshot2   {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(self: sk_surface_t; const bounds: psk_irect_t): sk_image_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_surface_make_raster            {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const image_info: psk_imageinfo_t; row_bytes: size_t; const props: psk_surfaceprops_t): sk_surface_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_surface_make_raster_direct     {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const pixmap: sk_pixmap_t; proc: sk_surface_raster_release_proc; proc_context: Pointer; const props: psk_surfaceprops_t): sk_surface_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_surface_make_render_target     {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(context: gr_directcontext_t; is_budgeted: _bool; const image_info: psk_imageinfo_t; sample_count: int32_t; origin: gr_surfaceorigin_t; const props: psk_surfaceprops_t; should_create_with_mips: _bool): sk_surface_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_surface_peek_pixels            {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(self: sk_surface_t): sk_pixmap_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_surface_read_pixels            {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(self: sk_surface_t; const dest: sk_pixmap_t; src_x, src_y: int32_t): _bool; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_surface_wait                   {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_surface_t; const semaphores: pgr_backendsemaphore_t; count: int32_t); cdecl;
 
   { include/c/sk4d_svgcanvas.h }
 
@@ -2060,8 +2103,8 @@ var
   {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_skottieanimation_get_out_point   {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_skottieanimation_t): _double; cdecl;
   {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_skottieanimation_get_size        {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(const self: sk_skottieanimation_t; out result: sk_size_t); cdecl;
   {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_skottieanimation_get_version     {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_skottieanimation_t): MarshaledAString; cdecl;
-  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_skottieanimation_make_from_file  {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const file_name: MarshaledAString): sk_skottieanimation_t; cdecl;
-  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_skottieanimation_make_from_stream{$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(stream: sk_stream_t; resource_provider: sk_resourceprovider_t): sk_skottieanimation_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_skottieanimation_make_from_file  {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const file_name: MarshaledAString; font_provider: sk_fontmgr_t): sk_skottieanimation_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_skottieanimation_make_from_stream{$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(stream: sk_stream_t; resource_provider: sk_resourceprovider_t; font_provider: sk_fontmgr_t): sk_skottieanimation_t; cdecl;
   {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_skottieanimation_ref             {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(const self: sk_skottieanimation_t); cdecl;
   {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_skottieanimation_render          {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(const self: sk_skottieanimation_t; canvas: sk_canvas_t; const dest: psk_rect_t; render_flags: uint32_t); cdecl;
   {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_skottieanimation_seek_frame      {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_skottieanimation_t; tick: _double); cdecl;
@@ -2097,7 +2140,7 @@ var
   {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_paragraphbuilder_add_text       {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_paragraphbuilder_t; const text: MarshaledAString); cdecl;
   {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_paragraphbuilder_build          {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(self: sk_paragraphbuilder_t): sk_paragraph_t; cdecl;
   {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_paragraphbuilder_create         {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const paragraph_style: sk_paragraphstyle_t): sk_paragraphbuilder_t; cdecl;
-  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_paragraphbuilder_create2        {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const paragraph_style: sk_paragraphstyle_t; font_provider: sk_typefacefontprovider_t; enable_font_fallback: _bool): sk_paragraphbuilder_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_paragraphbuilder_create2        {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const paragraph_style: sk_paragraphstyle_t; font_provider: sk_fontmgr_t; enable_font_fallback: _bool): sk_paragraphbuilder_t; cdecl;
   {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_paragraphbuilder_destroy        {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_paragraphbuilder_t); cdecl;
   {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_paragraphbuilder_pop            {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_paragraphbuilder_t); cdecl;
   {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_paragraphbuilder_push_style     {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_paragraphbuilder_t; const text_style: sk_textstyle_t); cdecl;
@@ -2225,8 +2268,8 @@ var
 
   {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_svgdom_find_node_by_id   {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(self: sk_svgdom_t; const id: MarshaledAString): sk_svgnode_t; cdecl;
   {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_svgdom_get_root          {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_svgdom_t): sk_svgsvg_t; cdecl;
-  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_svgdom_make_from_file    {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const file_name: MarshaledAString): sk_svgdom_t; cdecl;
-  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_svgdom_make_from_stream  {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(stream: sk_stream_t; resource_provider: sk_resourceprovider_t): sk_svgdom_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_svgdom_make_from_file    {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const file_name: MarshaledAString; font_provider: sk_fontmgr_t): sk_svgdom_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_svgdom_make_from_stream  {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(stream: sk_stream_t; resource_provider: sk_resourceprovider_t; font_provider: sk_fontmgr_t): sk_svgdom_t; cdecl;
   {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_svgdom_render            {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(const self: sk_svgdom_t; canvas: sk_canvas_t); cdecl;
   {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_svgdom_set_container_size{$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_svgdom_t; const size: psk_size_t); cdecl;
 
@@ -2259,15 +2302,18 @@ implementation
 
 {.$DEFINE SK_DEBUG}
 
+{$IF DEFINED(MSWINDOWS) or DEFINED(ANDROID)}
+
 uses
   { Delphi }
-{$IF DEFINED(MSWINDOWS)}
-  System.Math,
+  {$IF DEFINED(MSWINDOWS)}
   Winapi.Windows,
-{$ELSEIF DEFINED(ANDROID)}
-  System.IOUtils,
+  System.Math;
+  {$ELSEIF DEFINED(ANDROID)}
+  System.IOUtils;
+  {$ENDIF}
+
 {$ENDIF}
-  System.SysUtils;
 
 const
 {$IFDEF SK_STATIC_LIBRARY}
@@ -2295,7 +2341,7 @@ const
 
 {$IFNDEF SK_STATIC_LIBRARY}
 var
-  InitCount: Integer;
+  [Volatile] InitCount: Integer;
   LibraryHandle: HMODULE;
 {$ENDIF}
 
@@ -2328,6 +2374,19 @@ begin
   SetExceptionMask(exAllArithmeticExceptions);
   {$ENDIF}
 {$ENDIF}
+
+{ include/c/gr4d_backendsemaphore.h }
+
+{$IFNDEF SK_STATIC_LIBRARY}
+  gr4d_backendsemaphore_create      := GetProcAddress(LibraryHandle, PChar('gr4d_backendsemaphore_create'));
+  gr4d_backendsemaphore_destroy     := GetProcAddress(LibraryHandle, PChar('gr4d_backendsemaphore_destroy'));
+  gr4d_backendsemaphore_init_vulkan := GetProcAddress(LibraryHandle, PChar('gr4d_backendsemaphore_init_vulkan'));
+{$ELSE}
+function  gr4d_backendsemaphore_create;      external LibraryName name 'gr4d_backendsemaphore_create'     {$IFDEF IOS} dependency 'c++'{$ENDIF};
+procedure gr4d_backendsemaphore_destroy;     external LibraryName name 'gr4d_backendsemaphore_destroy'    {$IFDEF IOS} dependency 'c++'{$ENDIF};
+procedure gr4d_backendsemaphore_init_vulkan; external LibraryName name 'gr4d_backendsemaphore_init_vulkan'{$IFDEF IOS} dependency 'c++'{$ENDIF};
+{$ENDIF}
+
 
 { include/c/gr4d_backendsurface.h }
 
@@ -2373,6 +2432,17 @@ function  gr4d_backendtexture_get_height;              external LibraryName name
 function  gr4d_backendtexture_get_width;               external LibraryName name 'gr4d_backendtexture_get_width'              {$IFDEF IOS} dependency 'c++'{$ENDIF};
 function  gr4d_backendtexture_has_mipmaps;             external LibraryName name 'gr4d_backendtexture_has_mipmaps'            {$IFDEF IOS} dependency 'c++'{$ENDIF};
 function  gr4d_backendtexture_is_valid;                external LibraryName name 'gr4d_backendtexture_is_valid'               {$IFDEF IOS} dependency 'c++'{$ENDIF};
+{$ENDIF}
+
+
+{ include/c/gr4d_backendsurfacemutablestate.h }
+
+{$IFNDEF SK_STATIC_LIBRARY}
+  gr4d_backendsurfacemutablestate_create  := GetProcAddress(LibraryHandle, PChar('gr4d_backendsurfacemutablestate_create'));
+  gr4d_backendsurfacemutablestate_destroy := GetProcAddress(LibraryHandle, PChar('gr4d_backendsurfacemutablestate_destroy'));
+{$ELSE}
+function  gr4d_backendsurfacemutablestate_create;  external LibraryName name 'gr4d_backendsurfacemutablestate_create' {$IFDEF IOS} dependency 'c++'{$ENDIF};
+procedure gr4d_backendsurfacemutablestate_destroy; external LibraryName name 'gr4d_backendsurfacemutablestate_destroy'{$IFDEF IOS} dependency 'c++'{$ENDIF};
 {$ENDIF}
 
 
@@ -2482,6 +2552,17 @@ function  gr4d_vk_extensions_create;        external LibraryName name 'gr4d_vk_e
 procedure gr4d_vk_extensions_destroy;       external LibraryName name 'gr4d_vk_extensions_destroy'      {$IFDEF IOS} dependency 'c++'{$ENDIF};
 function  gr4d_vk_extensions_has_extension; external LibraryName name 'gr4d_vk_extensions_has_extension'{$IFDEF IOS} dependency 'c++'{$ENDIF};
 procedure gr4d_vk_extensions_init;          external LibraryName name 'gr4d_vk_extensions_init'         {$IFDEF IOS} dependency 'c++'{$ENDIF};
+{$ENDIF}
+
+
+{ include/c/sk4d_animatedwebpencoder.h }
+
+{$IFNDEF SK_STATIC_LIBRARY}
+  sk4d_animatedwebpencoder_encode_to_file   := GetProcAddress(LibraryHandle, PChar('sk4d_animatedwebpencoder_encode_to_file'));
+  sk4d_animatedwebpencoder_encode_to_stream := GetProcAddress(LibraryHandle, PChar('sk4d_animatedwebpencoder_encode_to_stream'));
+{$ELSE}
+function sk4d_animatedwebpencoder_encode_to_file;   external LibraryName name 'sk4d_animatedwebpencoder_encode_to_file'  {$IFDEF IOS} dependency 'c++'{$ENDIF};
+function sk4d_animatedwebpencoder_encode_to_stream; external LibraryName name 'sk4d_animatedwebpencoder_encode_to_stream'{$IFDEF IOS} dependency 'c++'{$ENDIF};
 {$ENDIF}
 
 
@@ -3708,37 +3789,39 @@ function  sk4d_string_get_text; external LibraryName name 'sk4d_string_get_text'
 { include/c/sk4d_surface.h }
 
 {$IFNDEF SK_STATIC_LIBRARY}
-  sk4d_surface_draw                     := GetProcAddress(LibraryHandle, PChar('sk4d_surface_draw'));
-  sk4d_surface_flush                    := GetProcAddress(LibraryHandle, PChar('sk4d_surface_flush'));
-  sk4d_surface_flush_and_submit         := GetProcAddress(LibraryHandle, PChar('sk4d_surface_flush_and_submit'));
-  sk4d_surface_get_canvas               := GetProcAddress(LibraryHandle, PChar('sk4d_surface_get_canvas'));
-  sk4d_surface_get_props                := GetProcAddress(LibraryHandle, PChar('sk4d_surface_get_props'));
-  sk4d_surface_make_from_mtk_view       := GetProcAddress(LibraryHandle, PChar('sk4d_surface_make_from_mtk_view'));
-  sk4d_surface_make_from_render_target  := GetProcAddress(LibraryHandle, PChar('sk4d_surface_make_from_render_target'));
-  sk4d_surface_make_from_texture        := GetProcAddress(LibraryHandle, PChar('sk4d_surface_make_from_texture'));
-  sk4d_surface_make_image_snapshot      := GetProcAddress(LibraryHandle, PChar('sk4d_surface_make_image_snapshot'));
-  sk4d_surface_make_image_snapshot2     := GetProcAddress(LibraryHandle, PChar('sk4d_surface_make_image_snapshot2'));
-  sk4d_surface_make_raster              := GetProcAddress(LibraryHandle, PChar('sk4d_surface_make_raster'));
-  sk4d_surface_make_raster_direct       := GetProcAddress(LibraryHandle, PChar('sk4d_surface_make_raster_direct'));
-  sk4d_surface_make_render_target       := GetProcAddress(LibraryHandle, PChar('sk4d_surface_make_render_target'));
-  sk4d_surface_peek_pixels              := GetProcAddress(LibraryHandle, PChar('sk4d_surface_peek_pixels'));
-  sk4d_surface_read_pixels              := GetProcAddress(LibraryHandle, PChar('sk4d_surface_read_pixels'));
+  sk4d_surface_draw                    := GetProcAddress(LibraryHandle, PChar('sk4d_surface_draw'));
+  sk4d_surface_flush                   := GetProcAddress(LibraryHandle, PChar('sk4d_surface_flush'));
+  sk4d_surface_flush_and_submit        := GetProcAddress(LibraryHandle, PChar('sk4d_surface_flush_and_submit'));
+  sk4d_surface_get_canvas              := GetProcAddress(LibraryHandle, PChar('sk4d_surface_get_canvas'));
+  sk4d_surface_get_props               := GetProcAddress(LibraryHandle, PChar('sk4d_surface_get_props'));
+  sk4d_surface_make_from_mtk_view      := GetProcAddress(LibraryHandle, PChar('sk4d_surface_make_from_mtk_view'));
+  sk4d_surface_make_from_render_target := GetProcAddress(LibraryHandle, PChar('sk4d_surface_make_from_render_target'));
+  sk4d_surface_make_from_texture       := GetProcAddress(LibraryHandle, PChar('sk4d_surface_make_from_texture'));
+  sk4d_surface_make_image_snapshot     := GetProcAddress(LibraryHandle, PChar('sk4d_surface_make_image_snapshot'));
+  sk4d_surface_make_image_snapshot2    := GetProcAddress(LibraryHandle, PChar('sk4d_surface_make_image_snapshot2'));
+  sk4d_surface_make_raster             := GetProcAddress(LibraryHandle, PChar('sk4d_surface_make_raster'));
+  sk4d_surface_make_raster_direct      := GetProcAddress(LibraryHandle, PChar('sk4d_surface_make_raster_direct'));
+  sk4d_surface_make_render_target      := GetProcAddress(LibraryHandle, PChar('sk4d_surface_make_render_target'));
+  sk4d_surface_peek_pixels             := GetProcAddress(LibraryHandle, PChar('sk4d_surface_peek_pixels'));
+  sk4d_surface_read_pixels             := GetProcAddress(LibraryHandle, PChar('sk4d_surface_read_pixels'));
+  sk4d_surface_wait                    := GetProcAddress(LibraryHandle, PChar('sk4d_surface_wait'));
 {$ELSE}
-procedure sk4d_surface_draw;                     external LibraryName name 'sk4d_surface_draw'                   {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_surface_flush;                    external LibraryName name 'sk4d_surface_flush'                  {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_surface_flush_and_submit;         external LibraryName name 'sk4d_surface_flush_and_submit'       {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_surface_get_canvas;               external LibraryName name 'sk4d_surface_get_canvas'             {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_surface_get_props;                external LibraryName name 'sk4d_surface_get_props'              {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_surface_make_from_mtk_view;       external LibraryName name 'sk4d_surface_make_from_mtk_view'     {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_surface_make_from_render_target;  external LibraryName name 'sk4d_surface_make_from_render_target'{$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_surface_make_from_texture;        external LibraryName name 'sk4d_surface_make_from_texture'      {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_surface_make_image_snapshot;      external LibraryName name 'sk4d_surface_make_image_snapshot'    {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_surface_make_image_snapshot2;     external LibraryName name 'sk4d_surface_make_image_snapshot2'   {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_surface_make_raster;              external LibraryName name 'sk4d_surface_make_raster'            {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_surface_make_raster_direct;       external LibraryName name 'sk4d_surface_make_raster_direct'     {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_surface_make_render_target;       external LibraryName name 'sk4d_surface_make_render_target'     {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_surface_peek_pixels;              external LibraryName name 'sk4d_surface_peek_pixels'            {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_surface_read_pixels;              external LibraryName name 'sk4d_surface_read_pixels'            {$IFDEF IOS} dependency 'c++'{$ENDIF};
+procedure sk4d_surface_draw;                    external LibraryName name 'sk4d_surface_draw'                   {$IFDEF IOS} dependency 'c++'{$ENDIF};
+procedure sk4d_surface_flush;                   external LibraryName name 'sk4d_surface_flush'                  {$IFDEF IOS} dependency 'c++'{$ENDIF};
+procedure sk4d_surface_flush_and_submit;        external LibraryName name 'sk4d_surface_flush_and_submit'       {$IFDEF IOS} dependency 'c++'{$ENDIF};
+function  sk4d_surface_get_canvas;              external LibraryName name 'sk4d_surface_get_canvas'             {$IFDEF IOS} dependency 'c++'{$ENDIF};
+procedure sk4d_surface_get_props;               external LibraryName name 'sk4d_surface_get_props'              {$IFDEF IOS} dependency 'c++'{$ENDIF};
+function  sk4d_surface_make_from_mtk_view;      external LibraryName name 'sk4d_surface_make_from_mtk_view'     {$IFDEF IOS} dependency 'c++'{$ENDIF};
+function  sk4d_surface_make_from_render_target; external LibraryName name 'sk4d_surface_make_from_render_target'{$IFDEF IOS} dependency 'c++'{$ENDIF};
+function  sk4d_surface_make_from_texture;       external LibraryName name 'sk4d_surface_make_from_texture'      {$IFDEF IOS} dependency 'c++'{$ENDIF};
+function  sk4d_surface_make_image_snapshot;     external LibraryName name 'sk4d_surface_make_image_snapshot'    {$IFDEF IOS} dependency 'c++'{$ENDIF};
+function  sk4d_surface_make_image_snapshot2;    external LibraryName name 'sk4d_surface_make_image_snapshot2'   {$IFDEF IOS} dependency 'c++'{$ENDIF};
+function  sk4d_surface_make_raster;             external LibraryName name 'sk4d_surface_make_raster'            {$IFDEF IOS} dependency 'c++'{$ENDIF};
+function  sk4d_surface_make_raster_direct;      external LibraryName name 'sk4d_surface_make_raster_direct'     {$IFDEF IOS} dependency 'c++'{$ENDIF};
+function  sk4d_surface_make_render_target;      external LibraryName name 'sk4d_surface_make_render_target'     {$IFDEF IOS} dependency 'c++'{$ENDIF};
+function  sk4d_surface_peek_pixels;             external LibraryName name 'sk4d_surface_peek_pixels'            {$IFDEF IOS} dependency 'c++'{$ENDIF};
+function  sk4d_surface_read_pixels;             external LibraryName name 'sk4d_surface_read_pixels'            {$IFDEF IOS} dependency 'c++'{$ENDIF};
+procedure sk4d_surface_wait;                    external LibraryName name 'sk4d_surface_wait'                   {$IFDEF IOS} dependency 'c++'{$ENDIF};
 {$ENDIF}
 
 
@@ -3879,19 +3962,19 @@ procedure sk4d_particleeffect_update;                 external LibraryName name 
   sk4d_skottieanimation_seek_frame_time  := GetProcAddress(LibraryHandle, PChar('sk4d_skottieanimation_seek_frame_time'));
   sk4d_skottieanimation_unref            := GetProcAddress(LibraryHandle, PChar('sk4d_skottieanimation_unref'));
 {$ELSE}
-function  sk4d_skottieanimation_get_duration;     external LibraryName name 'sk4d_skottieanimation_get_duration'    {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_skottieanimation_get_fps;          external LibraryName name 'sk4d_skottieanimation_get_fps'         {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_skottieanimation_get_in_point;     external LibraryName name 'sk4d_skottieanimation_get_in_point'    {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_skottieanimation_get_out_point;    external LibraryName name 'sk4d_skottieanimation_get_out_point'   {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_skottieanimation_get_size;         external LibraryName name 'sk4d_skottieanimation_get_size'        {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_skottieanimation_get_version;      external LibraryName name 'sk4d_skottieanimation_get_version'     {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_skottieanimation_make_from_file;   external LibraryName name 'sk4d_skottieanimation_make_from_file'  {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_skottieanimation_make_from_stream; external LibraryName name 'sk4d_skottieanimation_make_from_stream'{$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_skottieanimation_ref;              external LibraryName name 'sk4d_skottieanimation_ref'             {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_skottieanimation_render;           external LibraryName name 'sk4d_skottieanimation_render'          {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_skottieanimation_seek_frame;       external LibraryName name 'sk4d_skottieanimation_seek_frame'      {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_skottieanimation_seek_frame_time;  external LibraryName name 'sk4d_skottieanimation_seek_frame_time' {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_skottieanimation_unref;            external LibraryName name 'sk4d_skottieanimation_unref'           {$IFDEF IOS} dependency 'c++'{$ENDIF};
+function  sk4d_skottieanimation_get_duration;     external LibraryName name 'sk4d_skottieanimation_get_duration'     {$IFDEF IOS} dependency 'c++'{$ENDIF};
+function  sk4d_skottieanimation_get_fps;          external LibraryName name 'sk4d_skottieanimation_get_fps'          {$IFDEF IOS} dependency 'c++'{$ENDIF};
+function  sk4d_skottieanimation_get_in_point;     external LibraryName name 'sk4d_skottieanimation_get_in_point'     {$IFDEF IOS} dependency 'c++'{$ENDIF};
+function  sk4d_skottieanimation_get_out_point;    external LibraryName name 'sk4d_skottieanimation_get_out_point'    {$IFDEF IOS} dependency 'c++'{$ENDIF};
+procedure sk4d_skottieanimation_get_size;         external LibraryName name 'sk4d_skottieanimation_get_size'         {$IFDEF IOS} dependency 'c++'{$ENDIF};
+function  sk4d_skottieanimation_get_version;      external LibraryName name 'sk4d_skottieanimation_get_version'      {$IFDEF IOS} dependency 'c++'{$ENDIF};
+function  sk4d_skottieanimation_make_from_file;   external LibraryName name 'sk4d_skottieanimation_make_from_file'   {$IFDEF IOS} dependency 'c++'{$ENDIF};
+function  sk4d_skottieanimation_make_from_stream; external LibraryName name 'sk4d_skottieanimation_make_from_stream' {$IFDEF IOS} dependency 'c++'{$ENDIF};
+procedure sk4d_skottieanimation_ref;              external LibraryName name 'sk4d_skottieanimation_ref'              {$IFDEF IOS} dependency 'c++'{$ENDIF};
+procedure sk4d_skottieanimation_render;           external LibraryName name 'sk4d_skottieanimation_render'           {$IFDEF IOS} dependency 'c++'{$ENDIF};
+procedure sk4d_skottieanimation_seek_frame;       external LibraryName name 'sk4d_skottieanimation_seek_frame'       {$IFDEF IOS} dependency 'c++'{$ENDIF};
+procedure sk4d_skottieanimation_seek_frame_time;  external LibraryName name 'sk4d_skottieanimation_seek_frame_time'  {$IFDEF IOS} dependency 'c++'{$ENDIF};
+procedure sk4d_skottieanimation_unref;            external LibraryName name 'sk4d_skottieanimation_unref'            {$IFDEF IOS} dependency 'c++'{$ENDIF};
 {$ENDIF}
 
 
@@ -4264,9 +4347,8 @@ end;
 {$IFNDEF SK_STATIC_LIBRARY}
 procedure SkFinalize;
 begin
-  if AtomicDecrement(InitCount) <> 0 then
-    Exit;
-  FreeLibrary(LibraryHandle);
+  if AtomicDecrement(InitCount) = 0 then
+    FreeLibrary(LibraryHandle);
 end;
 {$ELSE}
 procedure SkFinalize;

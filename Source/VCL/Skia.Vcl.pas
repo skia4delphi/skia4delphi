@@ -4310,7 +4310,7 @@ class function TSkLottieAnimationCodec.TryMakeFromStream(const AStream: TStream;
   begin
     LDecompressionStream := TDecompressionStream.Create(AStream, 31);
     try
-      Result := TSkottieAnimation.MakeFromStream(LDecompressionStream, TSkDefaultProviders.Resource);
+      Result := TSkottieAnimation.MakeFromStream(LDecompressionStream, TSkDefaultProviders.Resource, TSkDefaultProviders.TypefaceFont);
     finally
       LDecompressionStream.Free;
     end;
@@ -4322,7 +4322,7 @@ begin
   if IsTgs then
     LSkottie := MakeFromTgsStream(AStream)
   else
-    LSkottie := TSkottieAnimation.MakeFromStream(AStream, TSkDefaultProviders.Resource);
+    LSkottie := TSkottieAnimation.MakeFromStream(AStream, TSkDefaultProviders.Resource, TSkDefaultProviders.TypefaceFont);
 
   Result := Assigned(LSkottie);
   if Result then
@@ -6531,6 +6531,8 @@ end;
 
 {$HPPEMIT NOUSINGNAMESPACE}
 {$HPPEMIT END '#if !defined(DELPHIHEADER_NO_IMPLICIT_NAMESPACE_USE) && !defined(NO_USING_NAMESPACE_SKIA)'}
+{$HPPEMIT END '    using ::Skia::Vcl::_di_ISkControlRender;'}
+{$HPPEMIT END '    using ::Skia::Vcl::_di_ISkControlRenderTarget;'}
 {$HPPEMIT END '    using ::Skia::Vcl::_di_ISkTextSettings;'}
 {$HPPEMIT END '    using ::Skia::Vcl::_di_TSkAnimationDrawProc;'}
 {$HPPEMIT END '    using ::Skia::Vcl::_di_TSkDrawProc;'}
@@ -6539,12 +6541,16 @@ end;
 {$HPPEMIT END '    using ::Skia::Vcl::ESkPersistentData;'}
 {$HPPEMIT END '    using ::Skia::Vcl::ESkTextSettingsInfo;'}
 {$HPPEMIT END '    using ::Skia::Vcl::ESkVcl;'}
+{$HPPEMIT END '    using ::Skia::Vcl::ISkControlRender;'}
+{$HPPEMIT END '    using ::Skia::Vcl::ISkControlRenderTarget;'}
 {$HPPEMIT END '    using ::Skia::Vcl::ISkTextSettings;'}
 {$HPPEMIT END '    using ::Skia::Vcl::TSkAnimatedImage;'}
 {$HPPEMIT END '    using ::Skia::Vcl::TSkAnimatedImageWrapMode;'}
 {$HPPEMIT END '    using ::Skia::Vcl::TSkAnimatedPaintBox;'}
 {$HPPEMIT END '    using ::Skia::Vcl::TSkAnimationDrawEvent;'}
 {$HPPEMIT END '    using ::Skia::Vcl::TSkAnimationDrawProc;'}
+{$HPPEMIT END '    using ::Skia::Vcl::TSkControlRender;'}
+{$HPPEMIT END '    using ::Skia::Vcl::TSkControlRenderBackend;'}
 {$HPPEMIT END '    using ::Skia::Vcl::TSkCustomAnimatedControl;'}
 {$HPPEMIT END '    using ::Skia::Vcl::TSkCustomAnimation;'}
 {$HPPEMIT END '    using ::Skia::Vcl::TSkCustomControl;'}
@@ -6571,11 +6577,13 @@ end;
 {$HPPEMIT END '    using ::Skia::Vcl::TSkTextVertAlign;'}
 {$HPPEMIT END '    using ::Skia::Vcl::TSkTypefaceManager;'}
 {$HPPEMIT END '    typedef ::Skia::_di_ISkImage (__fastcall *TBitmapToSkImageFunc)(::Vcl::Graphics::TBitmap* const ABitmap);'}
+{$HPPEMIT END '    typedef void (__fastcall *TDrawDesignBorderProc)(const ::Skia::_di_ISkCanvas ACanvas, const ::System::Types::TRectF &ADest, const float AOpacity);'}
 {$HPPEMIT END '    typedef void (__fastcall *TSkiaDrawProc)(::Vcl::Graphics::TBitmap* const ABitmap, const ::Skia::Vcl::_di_TSkDrawProc AProc, const bool AStartClean);'}
 {$HPPEMIT END '    typedef ::Vcl::Graphics::TBitmap* (__fastcall *TSkImageToBitmapFunc)(const ::Skia::_di_ISkImage AImage);'}
 {$HPPEMIT END '    static TSkStyledSettings& AllStyledSettings = ::Skia::Vcl::AllStyledSettings;'}
 {$HPPEMIT END '    static TSkStyledSettings& DefaultStyledSettings = ::Skia::Vcl::DefaultStyledSettings;'}
 {$HPPEMIT END '    static const TBitmapToSkImageFunc BitmapToSkImage = ::Skia::Vcl::BitmapToSkImage;'}
+{$HPPEMIT END '    static const TDrawDesignBorderProc DrawDesignBorder = ::Skia::Vcl::DrawDesignBorder;'}
 {$HPPEMIT END '    static const TSkiaDrawProc SkiaDraw = ::Skia::Vcl::SkiaDraw;'}
 {$HPPEMIT END '    static const TSkImageToBitmapFunc SkImageToBitmap = ::Skia::Vcl::SkImageToBitmap;'}
 {$HPPEMIT END '#endif'}
