@@ -79,6 +79,8 @@ type
 
 implementation
 
+{.$DEFINE SKIA_GL_LINUX}
+
 uses
   { Delphi }
   {$IF DEFINED(ANDROID)}
@@ -104,13 +106,16 @@ uses
   System.AnsiStrings,
   System.Generics.Collections,
   System.Generics.Defaults,
+  {$ELSEIF DEFINED(LINUX) and DEFINED(SKIA_GL_LINUX)}
+  Linux.OpenGL,
+  //Linuxapi.OpenGL,
   {$ENDIF}
   System.Math,
 
   { Skia }
   Skia.FMX;
 
-{$IFDEF MSWINDOWS}
+{$IF DEFINED(MSWINDOWS)}
 
 const
   WGL_DRAW_TO_WINDOW_ARB           = $2001;
@@ -400,9 +405,11 @@ end;
 
 function TGlCanvas.GetSurfaceFromWindow(
   const AContextHandle: THandle): TSkSurface;
+{$IF not DEFINED(LINUX) or DEFINED(SKIA_GL_LINUX)}
 var
   LGrBackendRenderTarget: IGrBackendRenderTarget;
   LGrGlFramebufferInfo: TGrGlFramebufferInfo;
+{$ENDIF}
 begin
   Result := nil;
   SaveCurrent;
@@ -421,10 +428,12 @@ begin
       end
       else if not TryMakeCurrent then
         Exit;
+      {$IF not DEFINED(LINUX) or DEFINED(SKIA_GL_LINUX)}
       glGetIntegerv(GL_FRAMEBUFFER_BINDING, @GLuint(LGrGlFramebufferInfo.FBOID));
       LGrGlFramebufferInfo.Format := {$IF DEFINED(IOS) or DEFINED(ANDROID)}GL_RGBA8_OES{$ELSE}GL_RGBA8{$ENDIF};
       LGrBackendRenderTarget := TGrBackendRenderTarget.CreateGl(Round(Width * Scale), Round(Height * Scale), Min(TGlSharedContext(SharedContext).SampleCount, FGrDirectContext.GetMaxSurfaceSampleCountForColorType(TSkColorType.RGBA8888)), TGlSharedContext(SharedContext).StencilBits, LGrGlFramebufferInfo);
       FBackBufferSurface     := TSkSurface.MakeFromRenderTarget(FGrDirectContext, LGrBackendRenderTarget, TGrSurfaceOrigin.BottomLeft, TSkColorType.RGBA8888);
+      {$ENDIF}
     end;
     Result := TSkSurface(FBackBufferSurface);
   finally
