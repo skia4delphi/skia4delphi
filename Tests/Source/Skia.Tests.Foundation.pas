@@ -155,6 +155,7 @@ type
 function BytesToHex(const ABytes: TBytes): string;
 procedure DrawImageFitCrop(const ACanvas: ISkCanvas; const ADest: TRectF; const AImage: ISkImage; const APaint: ISkPaint = nil);
 function HexToBytes(AString: string): TBytes;
+/// <summary>Simple conversion of path elements to text, to help compare paths.</summary>
 function PathToText(const APath: ISkPath): string;
 function RectToString(const R: TRectF): string;
 function StringToRect(const S: string): TRectF;
@@ -246,7 +247,6 @@ begin
   end;
 end;
 
-// Just simple conversion of path elements to text, to help compare paths
 function PathToText(const APath: ISkPath): string;
 
   function PointsToStr(const APoints: TSkPathPoints; const ACount: Integer): string; inline;
@@ -263,27 +263,22 @@ function PathToText(const APath: ISkPath): string;
   end;
 
 const
-  LPointCount: array[TSkPathVerb] of Integer = (   1   ,    2   ,    3   ,    3   ,    4  ,     1   );
-  LVerbNames : array[TSkPathVerb] of string  = ('Move' , 'Line' , 'Quad' , 'Conic', 'Cubic', 'Close');
+  PointCount: array[TSkPathVerb] of Integer = (   1   ,    2   ,    3   ,    3   ,    4  ,     1   );
+  VerbNames : array[TSkPathVerb] of string  = ('Move' , 'Line' , 'Quad' , 'Conic', 'Cubic', 'Close');
 var
   LElem: TSkPathIteratorElem;
-  LLine: string;
-  LStrings: TStrings;
+  LElementsReflection: TArray<string>;
+  LText: string;
 begin
-  LStrings := TStringList.Create;
-  try
-    LStrings.LineBreak := #13#10;
-    for LElem in APath.GetIterator(False) do
-    begin
-      LLine := LVerbNames[LElem.Verb] + ': ' + PointsToStr(LElem.Points, LPointCount[LElem.Verb]);
-      if LElem.Verb = TSkPathVerb.Conic then
-        LLine := LLine + ', (Conic Weight: ' + FormatFloat('0.####', LElem.ConicWeight, TFormatSettings.Invariant) + ')';
-      LStrings.Add(LLine);
-    end;
-    Result := LStrings.Text.Trim;
-  finally
-    LStrings.Free;
+  LElementsReflection := [];
+  for LElem in APath.GetIterator(False) do
+  begin
+    LText := VerbNames[LElem.Verb] + ': ' + PointsToStr(LElem.Points, PointCount[LElem.Verb]);
+    if LElem.Verb = TSkPathVerb.Conic then
+      LText := LText + ', (Conic Weight: ' + FormatFloat('0.####', LElem.ConicWeight, TFormatSettings.Invariant) + ')';
+    LElementsReflection := LElementsReflection + [LText];
   end;
+  Result := string.Join(' | ', LElementsReflection);
 end;
 
 function RectToString(const R: TRectF): string;
