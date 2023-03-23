@@ -2705,7 +2705,7 @@ const
     {$ENDIF}
     if (TFontStyle.fsUnderline in AFont.Style) or (TFontStyle.fsStrikeOut in AFont.Style) then
     begin
-      ATextStyle.DecorationColor := MakeColor(Color, FOpacity);
+      ATextStyle.DecorationColor := MakeColor(AColor, FOpacity);
       if TFontStyle.fsUnderline in AFont.Style then
         ATextStyle.Decorations := ATextStyle.Decorations + [TSkTextDecoration.Underline];
       if TFontStyle.fsStrikeOut in AFont.Style then

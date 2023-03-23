@@ -202,6 +202,52 @@ type
     {$ENDIF}
     procedure TestAttributesFontNil(const AText: string; const ABitmapWidth, ABitmapHeight: Integer; const AScale, ATextLeft, ATextTop, AMaxWidth, AMaxHeight, AFontSize: Single; const AWordWrap, ARightToLeft: Boolean; const AHorizontalAlign, AVerticalAlign: TTextAlign; const ATrimming: TTextTrimming; const AColor: string; const AExpectedTextLeft, AExpectedTextTop, AExpectedTextRight, AExpectedTextBottom: Single; const AAttrRangePos, AAttrRangeLength: Integer; const AAttrColor: string; const AMinSimilarity: Double; const AExpectedImageHash: string);
     {$IFDEF TEXT_RENDER}
+    [TestCase('1.Short attr middle', ShortText + ',100,30,1,0,0,65535,65535,14,false,false,Leading,Leading,Character,claBlack,0,0.38,32.08,19,2,3,8,False,claRed,0.97,Hx8fHx8///9/f39/X3///39/f39ff////////3////83/zf/N/83//////////////////////8')]
+    [TestCase('2.Short attr empty', ShortText + ',100,30,1,0,0,65535,65535,14,false,false,Leading,Leading,Character,claBlack,0,0.38,40.2,19,2,0,8,False,claRed,0.97,Hx8fHx8f//9/f39/X1///3///39fX/////////////8D/wP/A/8D//////////////////////8')]
+    [TestCase('3.Short attr begin', ShortText + ',100,30,1,0,0,65535,65535,14,false,false,Leading,Leading,Character,claBlack,0,0.38,30.8,19,0,3,8,False,claRed,0.97,Hx8fHx8///9/f39/X3///3////9ff//////////////H/8f/x//H//////////////////////8')]
+    [TestCase('4.Short attr end', ShortText + ',100,30,1,0,0,65535,65535,14,false,false,Leading,Leading,Character,claBlack,0,0.38,32.38,19,3,20,8,False,claRed,0.97,Hx8fHx8ff/9/f39/X19//3///39fX3///////1//f/8P/w//D/8P//////////////////////8')]
+    [TestCase('5.Short attr middle with big textlayout size', ShortText + ',100,30,1,0,0,65535,65535,20,false,false,Leading,Leading,Character,claBlack,0,0.4,41.2,27,2,3,8,False,claRed,0.97,X18fDw8fHx9/f39vT19fX39/f+/vf39f//////////97/3v/W/8b/1v/G/8b/xv///////////8')]
+    [TestCase('6.Short attr middle big', ShortText + ',100,30,1,0,0,65535,65535,14,false,false,Leading,Leading,Character,claBlack,0,0.06,45.61,24,2,3,18,False,claRed,0.97,Hw8PDw8PHz9/f39vT09ff3///29vb19/f///b29vf38kADwAPAA8ADwAPAAAAAAAAAAAAAAAAAA')]
+    [TestCase('7.Short attr empty big', ShortText + ',100,30,1,0,0,65535,65535,14,false,false,Leading,Leading,Character,claBlack,0,0.38,40.2,19,2,0,18,False,claRed,0.97,Hx8fHx8f//9/f39/X1///3///39fX/////////////8D/wP/A/8D//////////////////////8')]
+    [TestCase('8.Short attr begin big', ShortText + ',100,30,1,0,0,65535,65535,14,false,false,Leading,Leading,Character,claBlack,0,0.06,46.47,24,0,3,18,False,claRed,0.97,Hx8PDw8PHx9/f39vT09fX3///+9PX19ff///719f31+QAPAA+ADwAPAA8AAAAAAAAAAAAAAAAAA')]
+    [TestCase('9.Short attr end big', ShortText + ',100,30,1,0,0,65535,65535,14,false,false,Leading,Leading,Character,claBlack,0,0.06,45.42,24,3,20,18,False,claRed,0.97,jw8PDw8PHz//f39vT09ff/9//+/vT19//3//7+9PX38GAA4ADgAfAA4ADgAAAAAAAAAAAAAAAAA')]
+    [TestCase('10.Short attr middle big with big textlayout size', ShortText + ',100,30,1,0,0,65535,65535,20,false,false,Leading,Leading,Character,claBlack,0,0.4,54.73,27,2,3,18,False,claRed,0.97,768PDw8PDw///39vT09PT///f//ff09P//////////9/f35/Xn8ff19/H38ffx9///////////8')]
+    [TestCase('11.Short attr middle bold', ShortText + ',100,30,1,0,0,65535,65535,14,false,false,Leading,Leading,Character,claBlack,0,0.38,32.82,19,2,3,8,True,claRed,0.97,Hx8fHx8f//9/f39/X1///39/f39fX////////3////83/zf/N/83//////////////////////8')]
+    [TestCase('12.Short attr empty bold', ShortText + ',100,30,1,0,0,65535,65535,14,false,false,Leading,Leading,Character,claBlack,0,0.38,40.2,19,2,0,8,True,claRed,0.97,Hx8fHx8f//9/f39/X1///3///39fX/////////////8D/wP/A/8D//////////////////////8')]
+    [TestCase('13.Short attr begin bold', ShortText + ',100,30,1,0,0,65535,65535,14,false,false,Leading,Leading,Character,claBlack,0,0.38,31.61,19,0,3,8,True,claRed,0.97,Hx8fHx8///9/f39/X3///39///9ff//////////////H/8f/x//H//////////////////////8')]
+    [TestCase('14.Short attr end bold', ShortText + ',100,30,1,0,0,65535,65535,14,false,false,Leading,Leading,Character,claBlack,0,0.38,33.15,19,3,20,8,True,claRed,0.97,Hx8fHx8f//9/f39/X1///3///39fX////////1////8P/w//D/8f//////////////////////8')]
+    [TestCase('15.Short attr middle bold with big textlayout size', ShortText + ',100,30,1,0,0,65535,65535,20,false,false,Leading,Leading,Character,claBlack,0,0.4,41.93,27,2,3,8,True,claRed,0.97,f18fDw8fHx9/f39vT19fX39/f+/v/39f//////////99/3n/Wf8Z/1n/Gf8Z/xn///////////8')]
+    [TestCase('16.Short attr middle big bold', ShortText + ',100,30,1,0,0,65535,65535,14,false,false,Leading,Leading,Character,claBlack,0,0.06,47.28,24,2,3,18,True,claRed,0.97,jw8PDw8PHz//f39vT09ff////29PT19/////b29Pf38mADwAPAA+AD4APgAAAAAAAAAAAAAAAAA')]
+    [TestCase('17.Short attr empty big bold', ShortText + ',100,30,1,0,0,65535,65535,14,false,false,Leading,Leading,Character,claBlack,0,0.38,40.2,19,2,0,18,True,claRed,0.97,Hx8fHx8f//9/f39/X1///3///39fX/////////////8D/wP/A/8D//////////////////////8')]
+    [TestCase('18.Short attr begin big bold', ShortText + ',100,30,1,0,0,65535,65535,14,false,false,Leading,Leading,Character,claBlack,0,0.06,48.31,24,0,3,18,True,claRed,0.97,Px8PDw8fHz/////vz9/f/////+/P39//////79/f3/+QAPgA+AD4APgA+AAAAAAAAAAAAAAAAAA')]
+    [TestCase('19.Short attr end big bold', ShortText + ',100,30,1,0,0,65535,65535,14,false,false,Leading,Leading,Character,claBlack,0,0.06,47.15,24,3,20,18,True,claRed,0.97,j48PDw8PH9///39vT09f3////+/vT1/f/////////////1//H/8X/x//D//v//////////////8')]
+    [TestCase('20.Short attr middle big bold with big textlayout size', ShortText + ',100,30,1,0,0,65535,65535,20,false,false,Leading,Leading,Character,claBlack,0,0.4,56.39,27,2,3,18,True,claRed,0.97,r68PBwcPDw///39nR09PT///f+fnb19P//////////9/f35/X38ff19/H38ffx9///////////8')]
+    {$ENDIF}
+    procedure TestAttributesStrikeOut(const AText: string; const ABitmapWidth, ABitmapHeight: Integer; const AScale, ATextLeft, ATextTop, AMaxWidth, AMaxHeight, AFontSize: Single; const AWordWrap, ARightToLeft: Boolean; const AHorizontalAlign, AVerticalAlign: TTextAlign; const ATrimming: TTextTrimming; const AColor: string; const AExpectedTextLeft, AExpectedTextTop, AExpectedTextRight, AExpectedTextBottom: Single; const AAttrRangePos, AAttrRangeLength: Integer; const AAttrFontSize: Single; const AAttrFontBold: Boolean; const AAttrColor: string; const AMinSimilarity: Double; const AExpectedImageHash: string);
+    {$IFDEF TEXT_RENDER}
+    [TestCase('1.Short attr middle', ShortText + ',100,30,1,0,0,65535,65535,14,false,false,Leading,Leading,Character,claBlack,0,0.38,32.08,19,2,3,8,False,claRed,0.97,Hx8fHx8ff/9/f39/X19//39/f3/fX3//////////f/83/zf/N/83//////////////////////8')]
+    [TestCase('2.Short attr empty', ShortText + ',100,30,1,0,0,65535,65535,14,false,false,Leading,Leading,Character,claBlack,0,0.38,40.2,19,2,0,8,False,claRed,0.97,Hx8fHx8f//9/f39/X1///3///39fX/////////////8D/wP/A/8D//////////////////////8')]
+    [TestCase('3.Short attr begin', ShortText + ',100,30,1,0,0,65535,65535,14,false,false,Leading,Leading,Character,claBlack,0,0.38,30.8,19,0,3,8,False,claRed,0.97,Hx8fHx8/f/9/f39/X39//3////9ff3/////////////H/8f/x//H//////////////////////8')]
+    [TestCase('4.Short attr end', ShortText + ',100,30,1,0,0,65535,65535,14,false,false,Leading,Leading,Character,claBlack,0,0.38,32.38,19,3,20,8,False,claRed,0.97,Px8fHx8ff/9/f39/X19//3///39fX3///////1//f/8P/w//D/8P//////////////////////8')]
+    [TestCase('5.Short attr middle with big textlayout size', ShortText + ',100,30,1,0,0,65535,65535,20,false,false,Leading,Leading,Character,claBlack,0,0.4,41.2,27,2,3,8,False,claRed,0.97,X18fDw8fHx9/f39vT19fX39/f+/vf39f//////////97/3v/W/8b/1v/G/8b/xv///////////8')]
+    [TestCase('6.Short attr middle big', ShortText + ',100,30,1,0,0,65535,65535,14,false,false,Leading,Leading,Character,claBlack,0,0.06,45.61,24,2,3,18,False,claRed,0.97,Hx8PDw8PHx9/f39vT09fX3///29vz19ff///b2/Pf18kADwAPAA8ADwAPAA0ADwAAAAAAAAAAAA')]
+    [TestCase('7.Short attr empty big', ShortText + ',100,30,1,0,0,65535,65535,14,false,false,Leading,Leading,Character,claBlack,0,0.38,40.2,19,2,0,18,False,claRed,0.97,Hx8fHx8f//9/f39/X1///3///39fX/////////////8D/wP/A/8D//////////////////////8')]
+    [TestCase('8.Short attr begin big', ShortText + ',100,30,1,0,0,65535,65535,14,false,false,Leading,Leading,Character,claBlack,0,0.06,46.47,24,0,3,18,False,claRed,0.97,Px8PDw8PHx9/f39vT09fX3///+9PX19ff///719f31+QAPAA+ADwAPAA8ABoAPgAAAAAAAAAAAA')]
+    [TestCase('9.Short attr end big', ShortText + ',100,30,1,0,0,65535,65535,14,false,false,Leading,Leading,Character,claBlack,0,0.06,45.42,24,3,20,18,False,claRed,0.97,zw8PDw8PDw//f39vT09PT/9//+/vT09P/3//7+9PT08GAA4ADgAOAAYADgAfAB8AAAAAAAAAAAA')]
+    [TestCase('10.Short attr middle big with big textlayout size', ShortText + ',100,30,1,0,0,65535,65535,20,false,false,Leading,Leading,Character,claBlack,0,0.4,54.73,27,2,3,18,False,claRed,0.97,768PDw8PDw///39vT09PT///f///f89P//////////9/f35/Xn8ff19/H38ffx9//f////////8')]
+    [TestCase('11.Short attr middle bold', ShortText + ',100,30,1,0,0,65535,65535,14,false,false,Leading,Leading,Character,claBlack,0,0.38,32.82,19,2,3,8,True,claRed,0.97,Hx8fHx8fv/9/f39/X1///39/f3/fX/////////////83/zf/N/83//////////////////////8')]
+    [TestCase('12.Short attr empty bold', ShortText + ',100,30,1,0,0,65535,65535,14,false,false,Leading,Leading,Character,claBlack,0,0.38,40.2,19,2,0,8,True,claRed,0.97,Hx8fHx8f//9/f39/X1///3///39fX/////////////8D/wP/A/8D//////////////////////8')]
+    [TestCase('13.Short attr begin bold', ShortText + ',100,30,1,0,0,65535,65535,14,false,false,Leading,Leading,Character,claBlack,0,0.38,31.61,19,0,3,8,True,claRed,0.97,Hx8fHx8/f/9/f39/X39//39///9ff3/////////////H/8f/x//H//////////////////////8')]
+    [TestCase('14.Short attr end bold', ShortText + ',100,30,1,0,0,65535,65535,14,false,false,Leading,Leading,Character,claBlack,0,0.38,33.15,19,3,20,8,True,claRed,0.97,Hx8fHx8f//9/f39/X1///3///39fX////////1////8P/w//D/8P//////////////////////8')]
+    [TestCase('15.Short attr middle bold with big textlayout size', ShortText + ',100,30,1,0,0,65535,65535,20,false,false,Leading,Leading,Character,claBlack,0,0.4,41.93,27,2,3,8,True,claRed,0.97,f18fDw8fHx9/f39vT19fX39/f+/vf39f//////////99/3n/Wf8Z/1n/Gf8Z/xn///////////8')]
+    [TestCase('16.Short attr middle big bold', ShortText + ',100,30,1,0,0,65535,65535,14,false,false,Leading,Leading,Character,claBlack,0,0.06,47.28,24,2,3,18,True,claRed,0.97,jw8PDw8PHx//f39vT09fX////29Pz19f////b2/Pf18mADwAPAA+AD4APgAAAD4AAAAAAAAAAAA')]
+    [TestCase('17.Short attr empty big bold', ShortText + ',100,30,1,0,0,65535,65535,14,false,false,Leading,Leading,Character,claBlack,0,0.38,40.2,19,2,0,18,True,claRed,0.97,Hx8fHx8f//9/f39/X1///3///39fX/////////////8D/wP/A/8D//////////////////////8')]
+    [TestCase('18.Short attr begin big bold', ShortText + ',100,30,1,0,0,65535,65535,14,false,false,Leading,Leading,Character,claBlack,0,0.06,48.31,24,0,3,18,True,claRed,0.97,Px8PDw8fHx/////vz9/f3////+/P39/f////79/f39+QAPgA+AD4APgA+AAAAPgAAAAAAAAAAAA')]
+    [TestCase('19.Short attr end big bold', ShortText + ',100,30,1,0,0,65535,65535,14,false,false,Leading,Leading,Character,claBlack,0,0.06,47.15,24,3,20,18,True,claRed,0.97,z48PDw8PD4///39vT09Pz////+/vT0/P////7+9PT88GAA4AHgAWAB4ADgAfAB8AAAAAAAAAAAA')]
+    [TestCase('20.Short attr middle big bold with big textlayout size', ShortText + ',100,30,1,0,0,65535,65535,20,false,false,Leading,Leading,Character,claBlack,0,0.4,56.39,27,2,3,18,True,claRed,0.97,r6+PDw8PDw////9vT09PT////+/vb89P////7+9vz08TABIAEwAfAB8AHwAfAB4AHwAAAAAAAAA')]
+    {$ENDIF}
+    procedure TestAttributesUnderline(const AText: string; const ABitmapWidth, ABitmapHeight: Integer; const AScale, ATextLeft, ATextTop, AMaxWidth, AMaxHeight, AFontSize: Single; const AWordWrap, ARightToLeft: Boolean; const AHorizontalAlign, AVerticalAlign: TTextAlign; const ATrimming: TTextTrimming; const AColor: string; const AExpectedTextLeft, AExpectedTextTop, AExpectedTextRight, AExpectedTextBottom: Single; const AAttrRangePos, AAttrRangeLength: Integer; const AAttrFontSize: Single; const AAttrFontBold: Boolean; const AAttrColor: string; const AMinSimilarity: Double; const AExpectedImageHash: string);
+    {$IFDEF TEXT_RENDER}
     [TestCase('1', ShortText + ',9,false,false,Leading,Leading,Character,claBlack,0,0.03,25.84,12,0.97,///vAgMDA//////jw8PL//////vv88v/////////////+eSd9X3nHfV9BJ3///////////////8')]
     [TestCase('2', ShortText + ',10,false,false,Leading,Leading,Character,claBlack,0,-0.3,28.72,13,0.97,///+AAACA/////7hw8fP/////+nL78////////////9/9X/xZJV1pWeFdbUElf////////////8')]
     [TestCase('3', ShortText + ',11,false,false,Leading,Leading,Character,claBlack,0,0.37,31.59,15,0.97,///twAEDA/////3hQ0dP/////elb30////////////9/9X/xZJV0tWcVZzVktQSV//////////8')]
@@ -483,6 +529,70 @@ begin
     True, [TTextAttributedRange.Create(TTextRange.Create(AAttrRangePos, AAttrRangeLength),
       TTextAttribute.Create(nil, StringToAlphaColor(AAttrColor)))],
     AMinSimilarity, AExpectedImageHash);
+end;
+
+procedure TSkTextLayoutTests.TestAttributesStrikeOut(const AText: string;
+  const ABitmapWidth, ABitmapHeight: Integer; const AScale, ATextLeft, ATextTop,
+  AMaxWidth, AMaxHeight, AFontSize: Single; const AWordWrap,
+  ARightToLeft: Boolean; const AHorizontalAlign, AVerticalAlign: TTextAlign;
+  const ATrimming: TTextTrimming; const AColor: string; const AExpectedTextLeft,
+  AExpectedTextTop, AExpectedTextRight, AExpectedTextBottom: Single;
+  const AAttrRangePos, AAttrRangeLength: Integer; const AAttrFontSize: Single;
+  const AAttrFontBold: Boolean; const AAttrColor: string;
+  const AMinSimilarity: Double; const AExpectedImageHash: string);
+var
+  LFont: TFont;
+begin
+  LFont := TFont.Create;
+  try
+    LFont.Size := AAttrFontSize;
+    LFont.Style := [TFontStyle.fsStrikeOut];
+    if AAttrFontBold then
+      LFont.Style := LFont.Style + [TFontStyle.fsBold];
+    Test(AText, TSize.Create(ABitmapWidth, ABitmapHeight), AScale, AFontSize,
+      PointF(ATextLeft, ATextTop), PointF(AMaxWidth, AMaxHeight), AWordWrap,
+      ARightToLeft, AHorizontalAlign, AVerticalAlign, ATrimming, StringToAlphaColor(AColor),
+      RectF(AExpectedTextLeft, AExpectedTextTop, AExpectedTextRight, AExpectedTextBottom),
+      True, [TTextAttributedRange.Create(TTextRange.Create(AAttrRangePos, AAttrRangeLength),
+        TTextAttribute.Create(LFont, StringToAlphaColor(AAttrColor)))],
+      AMinSimilarity, AExpectedImageHash);
+  finally
+    {$IF CompilerVersion >= 32}
+    LFont.Free;
+    {$ENDIF}
+  end;
+end;
+
+procedure TSkTextLayoutTests.TestAttributesUnderline(const AText: string;
+  const ABitmapWidth, ABitmapHeight: Integer; const AScale, ATextLeft, ATextTop,
+  AMaxWidth, AMaxHeight, AFontSize: Single; const AWordWrap,
+  ARightToLeft: Boolean; const AHorizontalAlign, AVerticalAlign: TTextAlign;
+  const ATrimming: TTextTrimming; const AColor: string; const AExpectedTextLeft,
+  AExpectedTextTop, AExpectedTextRight, AExpectedTextBottom: Single;
+  const AAttrRangePos, AAttrRangeLength: Integer; const AAttrFontSize: Single;
+  const AAttrFontBold: Boolean; const AAttrColor: string;
+  const AMinSimilarity: Double; const AExpectedImageHash: string);
+var
+  LFont: TFont;
+begin
+  LFont := TFont.Create;
+  try
+    LFont.Size := AAttrFontSize;
+    LFont.Style := [TFontStyle.fsUnderline];
+    if AAttrFontBold then
+      LFont.Style := LFont.Style + [TFontStyle.fsBold];
+    Test(AText, TSize.Create(ABitmapWidth, ABitmapHeight), AScale, AFontSize,
+      PointF(ATextLeft, ATextTop), PointF(AMaxWidth, AMaxHeight), AWordWrap,
+      ARightToLeft, AHorizontalAlign, AVerticalAlign, ATrimming, StringToAlphaColor(AColor),
+      RectF(AExpectedTextLeft, AExpectedTextTop, AExpectedTextRight, AExpectedTextBottom),
+      True, [TTextAttributedRange.Create(TTextRange.Create(AAttrRangePos, AAttrRangeLength),
+        TTextAttribute.Create(LFont, StringToAlphaColor(AAttrColor)))],
+      AMinSimilarity, AExpectedImageHash);
+  finally
+    {$IF CompilerVersion >= 32}
+    LFont.Free;
+    {$ENDIF}
+  end;
 end;
 
 procedure TSkTextLayoutTests.TestTrimmingWithMaxWidthVeryFit(
