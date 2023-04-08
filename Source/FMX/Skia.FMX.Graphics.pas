@@ -3338,6 +3338,7 @@ begin
   begin
     FmuxBitmapDestroy(FBitmap);
     FreeMem(FBits);
+    FBitmap := nil;
   end;
   {$ENDIF}
 end;
@@ -3494,7 +3495,7 @@ begin
         LCanvasClass := TGlCanvas;
       {$ELSEIF DEFINED(MSWINDOWS)}
       if GlobalUseSkiaRasterWhenAvailable then
-        LCanvasClass := TSkRasterCanvas
+        LCanvasClass := TSkRasterCanvas;
       {$ELSEIF DEFINED(LINUX)}
       if GlobalUseSkiaRasterWhenAvailable then
         LCanvasClass := TSkRasterCanvas
