@@ -8,7 +8,7 @@
 { found in the LICENSE file.                                             }
 {                                                                        }
 {************************************************************************}
-unit Skia.Vcl.Designtime;
+unit Vcl.Skia.Designtime;
 
 interface
 
@@ -29,9 +29,9 @@ uses
   StrEdit,
 
   { Skia }
-  Skia.Vcl,
-  Skia.Vcl.Designtime.Editor.AnimatedImage,
-  Skia.Vcl.Designtime.Editor.SVG;
+  Vcl.Skia,
+  Vcl.Skia.Designtime.Editor.AnimatedImage,
+  Vcl.Skia.Designtime.Editor.SVG;
 
 type
   { TSkAnimatedImageSourcePropertyEditor }
@@ -247,13 +247,14 @@ end;
 procedure TSkSkiaVclSelectionEditor.RequiresUnits(AProc: TGetStrProc);
 begin
   inherited;
-  AProc('Skia');
+  AProc('System.Skia');
 end;
 
 { Register }
 
 procedure Register;
 begin
+  RegisterComponents('Skia', [TSkAnimatedImage, TSkAnimatedPaintBox, TSkLabel, TSkPaintBox, TSkSvg]);
   RegisterPropertyEditor(TypeInfo(TSkAnimatedImage.TSource), TSkAnimatedImage, 'Source', TSkAnimatedImageSourcePropertyEditor);
   RegisterComponentEditor(TSkAnimatedImage, TSkAnimatedImageComponentEditor);
   RegisterPropertyEditor(TypeInfo(string), TSkLabel.TCustomWordsItem, 'Caption', TSkLabelTextPropertyEditor);

@@ -8,7 +8,7 @@
 { found in the LICENSE file.                                             }
 {                                                                        }
 {************************************************************************}
-unit Skia.FMX.Designtime;
+unit FMX.Skia.Designtime;
 
 interface
 
@@ -29,9 +29,9 @@ uses
   StrEdit,
 
   { Skia }
-  Skia.FMX,
-  Skia.FMX.Designtime.Editor.AnimatedImage,
-  Skia.FMX.Designtime.Editor.SVG;
+  FMX.Skia,
+  FMX.Skia.Designtime.Editor.AnimatedImage,
+  FMX.Skia.Designtime.Editor.SVG;
 
 type
   { TSkAnimatedImageSourcePropertyEditor }
@@ -247,13 +247,14 @@ end;
 procedure TSkSkiaFMXSelectionEditor.RequiresUnits(AProc: TGetStrProc);
 begin
   inherited;
-  AProc('Skia');
+  AProc('System.Skia');
 end;
 
 { Register }
 
 procedure Register;
 begin
+  RegisterComponents('Skia', [TSkAnimatedImage, TSkAnimatedPaintBox, TSkLabel, TSkPaintBox, TSkSvg]);
   RegisterPropertyEditor(TypeInfo(TSkAnimatedImage.TSource), TSkAnimatedImage, 'Source', TSkAnimatedImageSourcePropertyEditor);
   RegisterComponentEditor(TSkAnimatedImage, TSkAnimatedImageComponentEditor);
   RegisterPropertyEditor(TypeInfo(string), TSkLabel.TCustomWordsItem, 'Text', TSkLabelTextPropertyEditor);

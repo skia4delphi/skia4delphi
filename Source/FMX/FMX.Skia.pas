@@ -8,7 +8,7 @@
 { found in the LICENSE file.                                             }
 {                                                                        }
 {************************************************************************}
-unit Skia.FMX;
+unit FMX.Skia;
 
 interface
 
@@ -29,7 +29,7 @@ uses
   FMX.ActnList,
 
   { Skia }
-  Skia;
+  System.Skia;
 
 const
   {$IF CompilerVersion < 33}
@@ -1205,6 +1205,7 @@ type
     FResource: ISkResourceProvider;
     FTypefaceFont: ISkTypefaceFontProvider;
     class constructor Create;
+    class destructor Destroy;
   public
     class procedure RegisterTypeface(const AFileName: string); overload; static;
     class procedure RegisterTypeface(const AStream: TStream); overload; static;
@@ -1257,31 +1258,30 @@ const
     { RGBA32F  } TSkColorType.RGBAF32
   );
 
-
   SkFmxPixelFormat: array[TSkColorType] of TPixelFormat = (
-    { Unknown        } TPixelFormat.None,
-    { Alpha8         } TPixelFormat.A,
-    { RGB565         } TPixelFormat.BGR_565,
-    { ARGB4444       } TPixelFormat.BGRA4,
-    { RGBA8888       } TPixelFormat.RGBA,
-    { RGB888X        } TPixelFormat.None,
-    { BGRA8888       } TPixelFormat.BGRA,
-    { RGBA1010102    } TPixelFormat.RGB10_A2,
-    { BGRA1010102    } TPixelFormat.BGR10_A2,
-    { RGB101010X     } TPixelFormat.None,
-    { BGR101010X     } TPixelFormat.None,
-    { Gray8          } TPixelFormat.L,
-    { RGBAF16        } TPixelFormat.RGBA16F,
-    { RGBAF16Clamped } TPixelFormat.RGBA16F,
-    { RGBAF32        } TPixelFormat.RGBA32F,
-    { RG88           } TPixelFormat.None,
-    { AlphaF16       } TPixelFormat.R16F,
-    { RGF16          } TPixelFormat.RG16F,
-    { Alpha16        } TPixelFormat.None,
-    { RG1616         } TPixelFormat.None,
-    { RGBA16161616   } TPixelFormat.RGBA16,
-    { SRGBA8888      } TPixelFormat.None,
-    { R8             } TPixelFormat.None
+    { Unknown           } TPixelFormat.None,
+    { Alpha8            } TPixelFormat.A,
+    { RGB565            } TPixelFormat.BGR_565,
+    { ARGB4444          } TPixelFormat.BGRA4,
+    { RGBA8888          } TPixelFormat.RGBA,
+    { RGB888X           } TPixelFormat.None,
+    { BGRA8888          } TPixelFormat.BGRA,
+    { RGBA1010102       } TPixelFormat.RGB10_A2,
+    { BGRA1010102       } TPixelFormat.BGR10_A2,
+    { RGB101010X        } TPixelFormat.None,
+    { BGR101010X        } TPixelFormat.None,
+    { Gray8             } TPixelFormat.L,
+    { RGBAF16Normalized } TPixelFormat.RGBA16F,
+    { RGBAF16           } TPixelFormat.RGBA16F,
+    { RGBAF32           } TPixelFormat.RGBA32F,
+    { RG88              } TPixelFormat.None,
+    { AlphaF16          } TPixelFormat.R16F,
+    { RGF16             } TPixelFormat.RG16F,
+    { Alpha16           } TPixelFormat.None,
+    { RG1616            } TPixelFormat.None,
+    { RGBA16161616      } TPixelFormat.RGBA16,
+    { SRGBA8888         } TPixelFormat.None,
+    { R8                } TPixelFormat.None
   );
 
 var
@@ -1291,8 +1291,6 @@ var
   GlobalUseSkiaRasterWhenAvailable: Boolean = True;
   /// <summary> Disables registration of Skia image codecs </summary>
   GlobalDisableSkiaCodecsReplacement: Boolean;
-
-procedure Register;
 
 implementation
 
@@ -1310,11 +1308,15 @@ uses
   {$ENDIF}
   FMX.Platform,
   FMX.BehaviorManager,
+  {$IF CompilerVersion >= 36}
+  FMX.FontManager,
+  FMX.Consts,
+  {$ENDIF}
   FMX.Forms,
   FMX.Ani,
 
   { Skia }
-  Skia.FMX.Graphics;
+  FMX.Skia.Canvas;
 
 type
   { TSkDefaultAnimationCodec }
@@ -1361,6 +1363,32 @@ type
     class function TryMakeFromStream(const AStream: TStream; out ACodec: TSkAnimatedImage.TAnimationCodec): Boolean; override;
   end;
 
+  {$IF CompilerVersion >= 36}
+  { TSkFontManagerService }
+
+  TSkFontManagerService = class(TSkTypefaceFontProvider, IFMXFontManagerService)
+  strict private
+    FFontFamilyNames: TDictionary<TFontName, TFontName>;
+    FFontInfos: TList<TFontInfo>;
+    FOriginalService: IFMXFontManagerService;
+    procedure AddFamilyName(const AFamilyName: string);
+  strict protected
+    procedure RegisterTypeface(const ATypeface: ISkTypeface); overload; override;
+    procedure RegisterTypeface(const ATypeface: ISkTypeface; const AFamilyName: string); overload; override;
+  public
+    constructor Create;
+    destructor Destroy; override;
+    { IFMXFontManagerService }
+    function AddCustomFontFromFile(const AFileName: TFileName): Boolean;
+    function AddCustomFontFromResource(const AResourceName: string): Boolean;
+    function AddCustomFontFromStream(const AStream: TStream): Boolean;
+    function HasCustomFont(const AFontFamily: TFontName): Boolean;
+    function HasCustomFonts: Boolean;
+    function GetCustomFontInfo(const AIndex: Integer): TFontInfo;
+    function GetCustomFontInfoCount: Integer;
+  end;
+  {$ENDIF}
+
   {$IF CompilerVersion < 31}
   { TSkCanvasHelper }
 
@@ -1394,10 +1422,12 @@ type
   {$ENDIF}
 
 const
-  ControlExceededBitmapLimitWarning = 'Skia.FMX: A control has exceeded the size allowed for a bitmap (class %s, name "%s"). We will reduce the drawing quality to avoid this exception. Consider using "GlobalUseSkia := True" to avoid this kind of problem.';
   SkFontSlant: array[TFontSlant] of TSkFontSlant = (TSkFontSlant.Upright, TSkFontSlant.Italic, TSkFontSlant.Oblique);
   SkFontWeightValue: array[TFontWeight] of Integer = (100, 200, 300, 350, 400, 500, 600, 700, 800, 900, 950);
   SkFontWidthValue: array[TFontStretch] of Integer = (1, 2, 3, 4, 5, 6, 7, 8, 9);
+
+resourcestring
+  ControlExceededBitmapLimitWarning = 'A control has exceeded the size allowed for a bitmap (class %s, name "%s"). We will reduce the drawing quality to avoid this exception. Consider using "GlobalUseSkia := True" to avoid this kind of problem.';
 
 procedure AddSkPathToPathData(const APathData: TPathData; const ASkPath: ISkPath);
 begin
@@ -1929,7 +1959,7 @@ procedure TSkCustomControl.Draw(const ACanvas: ISkCanvas; const ADest: TRectF;
   const AOpacity: Single);
 begin
   if (csDesigning in ComponentState) and not Locked then
-    Skia.FMX.DrawDesignBorder(ACanvas, ADest, AOpacity);
+    FMX.Skia.DrawDesignBorder(ACanvas, ADest, AOpacity);
 end;
 
 function TSkCustomControl.NeedsRedraw: Boolean;
@@ -2048,7 +2078,7 @@ procedure TSkStyledControl.Draw(const ACanvas: ISkCanvas; const ADest: TRectF;
   const AOpacity: Single);
 begin
   if (csDesigning in ComponentState) and not Locked then
-    Skia.FMX.DrawDesignBorder(ACanvas, ADest, AOpacity);
+    FMX.Skia.DrawDesignBorder(ACanvas, ADest, AOpacity);
 end;
 
 function TSkStyledControl.NeedsRedraw: Boolean;
@@ -3488,7 +3518,7 @@ begin
   if Assigned(FCodec) then
     inherited
   else if (csDesigning in ComponentState) and not Locked then
-    Skia.FMX.DrawDesignBorder(ACanvas, ADest, AOpacity);
+    FMX.Skia.DrawDesignBorder(ACanvas, ADest, AOpacity);
 end;
 
 function TSkAnimatedImage.GetAnimation: TSkAnimatedImage.TAnimation;
@@ -6021,11 +6051,140 @@ begin
     TextSettingsChanged(nil);
 end;
 
+{$IF CompilerVersion >= 36}
+
+{ TSkFontManagerService }
+
+function TSkFontManagerService.AddCustomFontFromFile(const AFileName: TFileName): Boolean;
+var
+  LTypeface: ISkTypeface;
+begin
+  LTypeface := TSkTypeFace.MakeFromFile(AFileName);
+  Result := LTypeface <> nil;
+  if Result then
+    RegisterTypeFace(LTypeface)
+  else
+    Log.d(SCannotFindFontFile, [AFileName]);
+  if FOriginalService <> nil then
+    FOriginalService.AddCustomFontFromFile(AFileName);
+end;
+
+function TSkFontManagerService.AddCustomFontFromResource(const AResourceName: string): Boolean;
+var
+  LResStream: TResourceStream;
+begin
+  if FindResource(HInstance, PChar(AResourceName), RT_RCDATA) <> 0 then
+  begin
+    LResStream := TResourceStream.Create(HInstance, AResourceName, RT_RCDATA);
+    try
+      Result := AddCustomFontFromStream(LResStream);
+    finally
+      LResStream.Free;
+    end;
+  end
+  else
+  begin
+    Log.d(SCannotFindFontResource, [AResourceName]);
+    Result := False;
+  end;
+  if FOriginalService <> nil then
+    FOriginalService.AddCustomFontFromResource(AResourceName);
+end;
+
+function TSkFontManagerService.AddCustomFontFromStream(const AStream: TStream): Boolean;
+var
+  LOriginalStreamPosition: Int64;
+  LTypeface: ISkTypeface;
+begin
+  LOriginalStreamPosition := AStream.Position;
+  LTypeface := TSkTypeFace.MakeFromStream(AStream);
+  Result := LTypeface <> nil;
+  if Result then
+    RegisterTypeFace(LTypeface);
+  if FOriginalService <> nil then
+  begin
+    AStream.Position := LOriginalStreamPosition;
+    FOriginalService.AddCustomFontFromStream(AStream);
+  end;
+end;
+
+procedure TSkFontManagerService.AddFamilyName(const AFamilyName: string);
+var
+  LFontInfo: TFontInfo;
+begin
+  LFontInfo.FamilyName := AFamilyName;
+  FFontInfos.Add(LFontInfo);
+  FFontFamilyNames.AddOrSetValue(AFamilyName.ToLower, AFamilyName);
+end;
+
+constructor TSkFontManagerService.Create;
+begin
+  inherited Create;
+  FFontFamilyNames := TDictionary<TFontName, TFontName>.Create;
+  FFontInfos := TList<TFontInfo>.Create;
+  TPlatformServices.Current.SupportsPlatformService(IFMXFontManagerService, FOriginalService);
+end;
+
+destructor TSkFontManagerService.Destroy;
+begin
+  FreeAndNil(FFontInfos);
+  FreeAndNil(FFontFamilyNames);
+  inherited;
+end;
+
+function TSkFontManagerService.HasCustomFont(const AFontFamily: TFontName): Boolean;
+begin
+  Result := FFontFamilyNames.ContainsKey(string(AFontFamily).ToLower);
+end;
+
+function TSkFontManagerService.HasCustomFonts: Boolean;
+begin
+  Result := FFontInfos.Count > 0;
+end;
+
+function TSkFontManagerService.GetCustomFontInfo(const AIndex: Integer): TFontInfo;
+begin
+  Result := FFontInfos[AIndex];
+end;
+
+function TSkFontManagerService.GetCustomFontInfoCount: Integer;
+begin
+  Result := FFontInfos.Count;
+end;
+
+procedure TSkFontManagerService.RegisterTypeface(const ATypeface: ISkTypeface);
+begin
+  inherited;
+  AddFamilyName(ATypeface.FamilyName);
+end;
+
+procedure TSkFontManagerService.RegisterTypeface(const ATypeface: ISkTypeface; const AFamilyName: string);
+begin
+  inherited;
+  AddFamilyName(ATypeface.FamilyName);
+  AddFamilyName(AFamilyName);
+end;
+
+{$ENDIF}
+
 { TSkDefaultProviders }
 
 class constructor TSkDefaultProviders.Create;
 begin
+  {$IF CompilerVersion >= 36}
+  FTypefaceFont := TSkFontManagerService.Create;
+  TPlatformServices.Current.RemovePlatformService(IFMXFontManagerService);
+  TPlatformServices.Current.AddPlatformService(IFMXFontManagerService, FTypefaceFont);
+  {$ELSE}
   FTypefaceFont := TSkTypefaceFontProvider.Create;
+  {$ENDIF}
+end;
+
+class destructor TSkDefaultProviders.Destroy;
+begin
+  {$IF CompilerVersion >= 36}
+  TPlatformServices.Current.RemovePlatformService(IFMXFontManagerService);
+  {$ENDIF}
 end;
 
 class procedure TSkDefaultProviders.RegisterTypeface(const AFileName: string);
@@ -6055,13 +6214,6 @@ begin
   TSkDefaultProviders.RegisterTypeface(AStream);
 end;
 
-{ Register }
-
-procedure Register;
-begin
-  RegisterComponents('Skia', [TSkAnimatedImage, TSkAnimatedPaintBox, TSkLabel, TSkPaintBox, TSkSvg]);
-end;
-
 {$IFDEF MSWINDOWS}
   {$HPPEMIT '#ifdef USEPACKAGES'}
   {$HPPEMIT '  #pragma link "Skia.Package.FMX.bpi"'}
@@ -6075,82 +6227,72 @@ end;
 {$IF DEFINED(IOS) or DEFINED(ANDROID)}
   {$HPPEMIT LINKUNIT}
 {$ELSEIF DEFINED(WIN32)}
-  {$HPPEMIT '#pragma link "Skia.FMX.obj"'}
+  {$HPPEMIT '#pragma link "FMX.Skia.obj"'}
 {$ELSEIF DEFINED(WIN64)}
-  {$HPPEMIT '#pragma link "Skia.FMX.o"'}
+  {$HPPEMIT '#pragma link "FMX.Skia.o"'}
 {$ENDIF}
 
-(*$HPPEMIT 'namespace Skia {'*)
-(*$HPPEMIT '	namespace Fmx {'*)
-(*$HPPEMIT '		namespace Types { using namespace ::Fmx::Types; }'*)
-(*$HPPEMIT '		namespace Graphics { using namespace ::Fmx::Graphics; }'*)
-(*$HPPEMIT '		namespace Controls { using namespace ::Fmx::Controls; }'*)
-(*$HPPEMIT '		namespace Ani { using namespace ::Fmx::Ani; }'*)
-(*$HPPEMIT '		namespace Actnlist { using namespace ::Fmx::Actnlist; }'*)
-(*$HPPEMIT '	}'*)
-(*$HPPEMIT '}'*)
-
 {$HPPEMIT NOUSINGNAMESPACE}
-{$HPPEMIT END '#if !defined(DELPHIHEADER_NO_IMPLICIT_NAMESPACE_USE) && !defined(NO_USING_NAMESPACE_SKIA)'}
-{$HPPEMIT END '    using ::Skia::Fmx::_di_ISkStyleTextObject;'}
-{$HPPEMIT END '    using ::Skia::Fmx::_di_ISkTextSettings;'}
-{$HPPEMIT END '    using ::Skia::Fmx::_di_TSkAnimationDrawProc;'}
-{$HPPEMIT END '    using ::Skia::Fmx::_di_TSkDrawProc;'}
-{$HPPEMIT END '    using ::Skia::Fmx::ESkBitmapHelper;'}
-{$HPPEMIT END '    using ::Skia::Fmx::ESkFMX;'}
-{$HPPEMIT END '    using ::Skia::Fmx::ESkLabel;'}
-{$HPPEMIT END '    using ::Skia::Fmx::ESkPersistentData;'}
-{$HPPEMIT END '    using ::Skia::Fmx::ESkTextSettingsInfo;'}
-{$HPPEMIT END '    using ::Skia::Fmx::ISkStyleTextObject;'}
-{$HPPEMIT END '    using ::Skia::Fmx::ISkTextSettings;'}
-{$HPPEMIT END '    using ::Skia::Fmx::TSkAnimatedImage;'}
-{$HPPEMIT END '    using ::Skia::Fmx::TSkAnimatedImageWrapMode;'}
-{$HPPEMIT END '    using ::Skia::Fmx::TSkAnimatedPaintBox;'}
-{$HPPEMIT END '    using ::Skia::Fmx::TSkAnimationDrawEvent;'}
-{$HPPEMIT END '    using ::Skia::Fmx::TSkAnimationDrawProc;'}
-{$HPPEMIT END '    using ::Skia::Fmx::TSkCustomAnimatedControl;'}
-{$HPPEMIT END '    using ::Skia::Fmx::TSkCustomAnimation;'}
-{$HPPEMIT END '    using ::Skia::Fmx::TSkCustomControl;'}
-{$HPPEMIT END '    using ::Skia::Fmx::TSkCustomStyleTextObject;'}
-{$HPPEMIT END '    using ::Skia::Fmx::TSkDefaultProviders;'}
-{$HPPEMIT END '    using ::Skia::Fmx::TSkDrawCacheKind;'}
-{$HPPEMIT END '    using ::Skia::Fmx::TSkDrawEvent;'}
-{$HPPEMIT END '    using ::Skia::Fmx::TSkDrawProc;'}
-{$HPPEMIT END '    using ::Skia::Fmx::TSkFontComponent;'}
-{$HPPEMIT END '    using ::Skia::Fmx::TSkLabel;'}
-{$HPPEMIT END '    using ::Skia::Fmx::TSkPaintBox;'}
-{$HPPEMIT END '    using ::Skia::Fmx::TSkPersistent;'}
-{$HPPEMIT END '    using ::Skia::Fmx::TSkStyledControl;'}
-{$HPPEMIT END '    using ::Skia::Fmx::TSkStyleTextObject;'}
-{$HPPEMIT END '    using ::Skia::Fmx::TSkSvg;'}
-{$HPPEMIT END '    using ::Skia::Fmx::TSkSvgBrush;'}
-{$HPPEMIT END '    using ::Skia::Fmx::TSkSvgSource;'}
-{$HPPEMIT END '    using ::Skia::Fmx::TSkSvgWrapMode;'}
-{$HPPEMIT END '    using ::Skia::Fmx::TSkTextHorzAlign;'}
-{$HPPEMIT END '    using ::Skia::Fmx::TSkTextSettings;'}
-{$HPPEMIT END '    using ::Skia::Fmx::TSkTextSettingsClass;'}
-{$HPPEMIT END '    using ::Skia::Fmx::TSkTextSettingsInfo;'}
-{$HPPEMIT END '    using ::Skia::Fmx::TSkTypefaceManager;'}
-{$HPPEMIT END '    typedef void (__fastcall *TAddSkPathToPathDataProc)(::Fmx::Graphics::TPathData* const APathData, const ::Skia::_di_ISkPath ASkPath);'}
-{$HPPEMIT END '    typedef ::Skia::_di_ISkImage (__fastcall *TBitmapToSkImageFunc)(::Fmx::Graphics::TBitmap* const ABitmap);'}
-{$HPPEMIT END '    typedef void (__fastcall *TDrawDesignBorderProc)(const ::Skia::_di_ISkCanvas ACanvas, const ::System::Types::TRectF &ADest, const float AOpacity);'}
-{$HPPEMIT END '    typedef ::Skia::_di_ISkPath (__fastcall *TPathDataToSkPathFunc)(::Fmx::Graphics::TPathData* const APathData);'}
-{$HPPEMIT END '    typedef void (__fastcall *TSkiaDrawProc)(::Fmx::Graphics::TBitmap* const ABitmap, const ::Skia::Fmx::_di_TSkDrawProc AProc, const bool AStartClean);'}
-{$HPPEMIT END '    typedef ::Fmx::Graphics::TBitmap* (__fastcall *TSkImageToBitmapFunc)(const ::Skia::_di_ISkImage AImage);'}
-{$HPPEMIT END '    typedef ::Fmx::Graphics::TPathData* (__fastcall *TSkPathToPathDataFunc)(const ::Skia::_di_ISkPath ASkPath);'}
-{$HPPEMIT END '    static const int SkSupportedPlatformsMask = ::Skia::Fmx::SkSupportedPlatformsMask;'}
-{$HPPEMIT END '    static bool& GlobalDisableSkiaCodecsReplacement = ::Skia::Fmx::GlobalDisableSkiaCodecsReplacement;'}
-{$HPPEMIT END '    static bool& GlobalUseSkia = ::Skia::Fmx::GlobalUseSkia;'}
-{$HPPEMIT END '    static bool& GlobalUseSkiaRasterWhenAvailable = ::Skia::Fmx::GlobalUseSkiaRasterWhenAvailable;'}
-{$HPPEMIT END '    static ::System::StaticArray<Skia::TSkColorType, 24>& SkFmxColorType = ::Skia::Fmx::SkFmxColorType;'}
-{$HPPEMIT END '    static ::System::StaticArray<Fmx::Types::TPixelFormat, 23>& SkFmxPixelFormat = ::Skia::Fmx::SkFmxPixelFormat;'}
-{$HPPEMIT END '    static const TAddSkPathToPathDataProc AddSkPathToPathData = ::Skia::Fmx::AddSkPathToPathData;'}
-{$HPPEMIT END '    static const TBitmapToSkImageFunc BitmapToSkImage = ::Skia::Fmx::BitmapToSkImage;'}
-{$HPPEMIT END '    static const TDrawDesignBorderProc DrawDesignBorder = ::Skia::Fmx::DrawDesignBorder;'}
-{$HPPEMIT END '    static const TPathDataToSkPathFunc PathDataToSkPath = ::Skia::Fmx::PathDataToSkPath;'}
-{$HPPEMIT END '    static const TSkiaDrawProc SkiaDraw = ::Skia::Fmx::SkiaDraw;'}
-{$HPPEMIT END '    static const TSkImageToBitmapFunc SkImageToBitmap = ::Skia::Fmx::SkImageToBitmap;'}
-{$HPPEMIT END '    static const TSkPathToPathDataFunc SkPathToPathData = ::Skia::Fmx::SkPathToPathData;'}
+{$HPPEMIT END '#if !defined(DELPHIHEADER_NO_IMPLICIT_NAMESPACE_USE) && !defined(NO_USING_NAMESPACE_FMX_SKIA)'}
+{$HPPEMIT END '    using ::Fmx::Skia::_di_ISkStyleTextObject;'}
+{$HPPEMIT END '    using ::Fmx::Skia::_di_ISkTextSettings;'}
+{$HPPEMIT END '    using ::Fmx::Skia::_di_TSkAnimationDrawProc;'}
+{$HPPEMIT END '    using ::Fmx::Skia::_di_TSkDrawProc;'}
+{$HPPEMIT END '    using ::Fmx::Skia::ESkBitmapHelper;'}
+{$HPPEMIT END '    using ::Fmx::Skia::ESkFMX;'}
+{$HPPEMIT END '    using ::Fmx::Skia::ESkLabel;'}
+{$HPPEMIT END '    using ::Fmx::Skia::ESkPersistentData;'}
+{$HPPEMIT END '    using ::Fmx::Skia::ESkTextSettingsInfo;'}
+{$HPPEMIT END '    using ::Fmx::Skia::ISkStyleTextObject;'}
+{$HPPEMIT END '    using ::Fmx::Skia::ISkTextSettings;'}
+{$HPPEMIT END '    using ::Fmx::Skia::TSkAnimatedImage;'}
+{$HPPEMIT END '    using ::Fmx::Skia::TSkAnimatedImageWrapMode;'}
+{$HPPEMIT END '    using ::Fmx::Skia::TSkAnimatedPaintBox;'}
+{$HPPEMIT END '    using ::Fmx::Skia::TSkAnimationDrawEvent;'}
+{$HPPEMIT END '    using ::Fmx::Skia::TSkAnimationDrawProc;'}
+{$HPPEMIT END '    using ::Fmx::Skia::TSkCustomAnimatedControl;'}
+{$HPPEMIT END '    using ::Fmx::Skia::TSkCustomAnimation;'}
+{$HPPEMIT END '    using ::Fmx::Skia::TSkCustomControl;'}
+{$HPPEMIT END '    using ::Fmx::Skia::TSkCustomStyleTextObject;'}
+{$HPPEMIT END '    using ::Fmx::Skia::TSkDefaultProviders;'}
+{$HPPEMIT END '    using ::Fmx::Skia::TSkDrawCacheKind;'}
+{$HPPEMIT END '    using ::Fmx::Skia::TSkDrawEvent;'}
+{$HPPEMIT END '    using ::Fmx::Skia::TSkDrawProc;'}
+{$HPPEMIT END '    using ::Fmx::Skia::TSkFontComponent;'}
+{$HPPEMIT END '    using ::Fmx::Skia::TSkLabel;'}
+{$HPPEMIT END '    using ::Fmx::Skia::TSkPaintBox;'}
+{$HPPEMIT END '    using ::Fmx::Skia::TSkPersistent;'}
+{$HPPEMIT END '    using ::Fmx::Skia::TSkStyledControl;'}
+{$HPPEMIT END '    using ::Fmx::Skia::TSkStyleTextObject;'}
+{$HPPEMIT END '    using ::Fmx::Skia::TSkSvg;'}
+{$HPPEMIT END '    using ::Fmx::Skia::TSkSvgBrush;'}
+{$HPPEMIT END '    using ::Fmx::Skia::TSkSvgSource;'}
+{$HPPEMIT END '    using ::Fmx::Skia::TSkSvgWrapMode;'}
+{$HPPEMIT END '    using ::Fmx::Skia::TSkTextHorzAlign;'}
+{$HPPEMIT END '    using ::Fmx::Skia::TSkTextSettings;'}
+{$HPPEMIT END '    using ::Fmx::Skia::TSkTextSettingsClass;'}
+{$HPPEMIT END '    using ::Fmx::Skia::TSkTextSettingsInfo;'}
+{$HPPEMIT END '    using ::Fmx::Skia::TSkTypefaceManager;'}
+{$HPPEMIT END '    typedef void (__fastcall *TAddSkPathToPathDataProc)(::Fmx::Graphics::TPathData* const APathData, const ::System::Skia::_di_ISkPath ASkPath);'}
+{$HPPEMIT END '    typedef ::System::Skia::_di_ISkImage (__fastcall *TBitmapToSkImageFunc)(::Fmx::Graphics::TBitmap* const ABitmap);'}
+{$HPPEMIT END '    typedef void (__fastcall *TDrawDesignBorderProc)(const ::System::Skia::_di_ISkCanvas ACanvas, const ::System::Types::TRectF &ADest, const float AOpacity);'}
+{$HPPEMIT END '    typedef ::System::Skia::_di_ISkPath (__fastcall *TPathDataToSkPathFunc)(::Fmx::Graphics::TPathData* const APathData);'}
+{$HPPEMIT END '    typedef void (__fastcall *TSkiaDrawProc)(::Fmx::Graphics::TBitmap* const ABitmap, const ::Fmx::Skia::_di_TSkDrawProc AProc, const bool AStartClean);'}
+{$HPPEMIT END '    typedef ::Fmx::Graphics::TBitmap* (__fastcall *TSkImageToBitmapFunc)(const ::System::Skia::_di_ISkImage AImage);'}
+{$HPPEMIT END '    typedef ::Fmx::Graphics::TPathData* (__fastcall *TSkPathToPathDataFunc)(const ::System::Skia::_di_ISkPath ASkPath);'}
+{$HPPEMIT END '    static const int SkSupportedPlatformsMask = ::Fmx::Skia::SkSupportedPlatformsMask;'}
+{$HPPEMIT END '    static bool& GlobalDisableSkiaCodecsReplacement = ::Fmx::Skia::GlobalDisableSkiaCodecsReplacement;'}
+{$HPPEMIT END '    static bool& GlobalUseSkia = ::Fmx::Skia::GlobalUseSkia;'}
+{$HPPEMIT END '    static bool& GlobalUseSkiaRasterWhenAvailable = ::Fmx::Skia::GlobalUseSkiaRasterWhenAvailable;'}
+{$HPPEMIT END '    static ::System::StaticArray<System::Skia::TSkColorType, 24>& SkFmxColorType = ::Fmx::Skia::SkFmxColorType;'}
+{$HPPEMIT END '    static ::System::StaticArray<Fmx::Types::TPixelFormat, 23>& SkFmxPixelFormat = ::Fmx::Skia::SkFmxPixelFormat;'}
+{$HPPEMIT END '    static const TAddSkPathToPathDataProc AddSkPathToPathData = ::Fmx::Skia::AddSkPathToPathData;'}
+{$HPPEMIT END '    static const TBitmapToSkImageFunc BitmapToSkImage = ::Fmx::Skia::BitmapToSkImage;'}
+{$HPPEMIT END '    static const TDrawDesignBorderProc DrawDesignBorder = ::Fmx::Skia::DrawDesignBorder;'}
+{$HPPEMIT END '    static const TPathDataToSkPathFunc PathDataToSkPath = ::Fmx::Skia::PathDataToSkPath;'}
+{$HPPEMIT END '    static const TSkiaDrawProc SkiaDraw = ::Fmx::Skia::SkiaDraw;'}
+{$HPPEMIT END '    static const TSkImageToBitmapFunc SkImageToBitmap = ::Fmx::Skia::SkImageToBitmap;'}
+{$HPPEMIT END '    static const TSkPathToPathDataFunc SkPathToPathData = ::Fmx::Skia::SkPathToPathData;'}
 {$HPPEMIT END '#endif'}
 
 initialization

@@ -8,7 +8,7 @@
 { found in the LICENSE file.                                             }
 {                                                                        }
 {************************************************************************}
-unit Skia.Vcl;
+unit Vcl.Skia;
 
 interface
 
@@ -30,7 +30,7 @@ uses
   Vcl.ExtCtrls,
 
   { Skia }
-  Skia;
+  System.Skia;
 
 type
   ESkVcl              = class(Exception);
@@ -287,7 +287,7 @@ type
     procedure DeleteBuffers;
     procedure DrawParentImage(ADC: HDC; AInvalidateParent: Boolean = False);
     function GetOpaqueParent: TWinControl;
-    function GetRender: ISkControlRender;                      
+    function GetRender: ISkControlRender;
     function IsOpaque: Boolean; inline;
     procedure SetAllowDrawParentInBackground(const AValue: Boolean);
     procedure SetBackendRender(const AValue: TSkControlRenderBackend);
@@ -1200,8 +1200,6 @@ const
   DefaultStyledSettings: TSkStyledSettings = [TSkStyledSetting.Family, TSkStyledSetting.Size,
     TSkStyledSetting.Style, TSkStyledSetting.FontColor];
 
-procedure Register;
-
 implementation
 
 uses
@@ -1354,7 +1352,7 @@ begin
   Result := ABitmap.ToSkImage;
 end;
 
-procedure CreateBuffer(const AMemDC: HDC; const AWidth, AHeight: Integer; 
+procedure CreateBuffer(const AMemDC: HDC; const AWidth, AHeight: Integer;
   out ABuffer: HBITMAP; out AData: Pointer; out AStride: Integer);
 const
   ColorMasks: array[0..2] of DWORD = ($00FF0000, $0000FF00, $000000FF);
@@ -2288,7 +2286,7 @@ type
   public
     constructor Create(const ATarget: ISkControlRenderTarget);
     destructor Destroy; override;
-    procedure Redraw;         
+    procedure Redraw;
     procedure ISkControlRender.Resized = DeleteBuffers;
     function TryRender(const ABackgroundBuffer: TBitmap; const AOpacity: Byte): Boolean;
   end;
@@ -2404,7 +2402,7 @@ type
   public
     constructor Create(const ATarget: ISkControlRenderTarget);
     destructor Destroy; override;
-    procedure Redraw;         
+    procedure Redraw;
     procedure Resized;
     function TryRender(const ABackgroundBuffer: TBitmap; const AOpacity: Byte): Boolean;
   end;
@@ -2512,11 +2510,11 @@ begin
   FDrawBuffer := nil;
 end;
 
-function TSkGlControlRender.TryRender(const ABackgroundBuffer: TBitmap; const AOpacity: Byte): Boolean; 
+function TSkGlControlRender.TryRender(const ABackgroundBuffer: TBitmap; const AOpacity: Byte): Boolean;
 var
   LHeight: Integer;
   LScaleFactor: Single;
-  LWidth: Integer; 
+  LWidth: Integer;
 
   procedure InternalDraw(const ACanvas: ISkCanvas; AOpacity: Single);
   var
@@ -2532,13 +2530,13 @@ var
     if (FCachedImage = nil) or (FDrawBuffer = nil) then
     begin
       if FDrawBuffer = nil then
-        FDrawBuffer := TSkSurface.MakeRenderTarget(FGrDirectContext, False, TSkImageInfo.Create(LWidth, LHeight), 1);                                     
+        FDrawBuffer := TSkSurface.MakeRenderTarget(FGrDirectContext, False, TSkImageInfo.Create(LWidth, LHeight), 1);
       if FDrawBuffer <> nil then
       begin
         FDrawBuffer.Canvas.Clear(TAlphaColors.Null);
         InternalDraw(FDrawBuffer.Canvas, 1);
         FCachedImage := FDrawBuffer.MakeImageSnapshot;
-      end;    
+      end;
     end;
   end;
 
@@ -2547,7 +2545,7 @@ var
   LGrGlFramebufferInfo: TGrGlFramebufferInfo;
   LPaint: ISkPaint;
   LSurface: ISkSurface;
-begin                  
+begin
   LWidth := FTarget.Width;
   LHeight := FTarget.Height;
   if (LWidth <= 0) or (LHeight <= 0) then
@@ -2559,7 +2557,7 @@ begin
   LGrGlFramebufferInfo.Format := GL_RGBA8;
   LGrBackendRenderTarget := TGrBackendRenderTarget.CreateGl(LWidth, LHeight, 1, 8, LGrGlFramebufferInfo);
   LSurface := TSkSurface.MakeFromRenderTarget(FGrDirectContext, LGrBackendRenderTarget, TGrSurfaceOrigin.BottomLeft, TSkColorType.RGBA8888);
-  LSurface.Canvas.Clear(TAlphaColors.Null);         
+  LSurface.Canvas.Clear(TAlphaColors.Null);
   if ABackgroundBuffer <> nil then
     LSurface.Canvas.DrawImage(ABackgroundBuffer.ToSkImage, 0, 0);
 
@@ -2780,7 +2778,7 @@ end;
 function TSkCustomWinControl.GetWidth: Integer;
 begin
   Result := Width;
-end;   
+end;
 
 function TSkCustomWinControl.IsOpaque: Boolean;
 begin
@@ -2798,7 +2796,7 @@ var
 begin
   if (Width <= 0) or (Height <= 0) or (Render = nil) then
     Exit;
-  if IsOpaque then       
+  if IsOpaque then
     LBackgroundBuffer := nil
   else
   begin
@@ -2828,7 +2826,7 @@ begin
 end;
 
 procedure TSkCustomWinControl.Resize;
-begin 
+begin
   if FRender <> nil then
     FRender.Resized;
   DeleteBuffers;
@@ -6498,13 +6496,6 @@ procedure TSkSvgGraphic.SetWidth(AValue: Integer);
 begin
 end;
 
-{ Register }
-
-procedure Register;
-begin
-  RegisterComponents('Skia', [TSkAnimatedImage, TSkAnimatedPaintBox, TSkLabel, TSkPaintBox, TSkSvg]);
-end;
-
 {$IFDEF MSWINDOWS}
   {$HPPEMIT '#ifdef USEPACKAGES'}
   {$HPPEMIT '  #pragma link "Skia.Package.VCL.bpi"'}
@@ -6516,76 +6507,68 @@ end;
 {$ENDIF}
 
 {$IF DEFINED(WIN32)}
-  {$HPPEMIT '#pragma link "Skia.Vcl.obj"'}
+  {$HPPEMIT '#pragma link "Vcl.Skia.obj"'}
 {$ELSEIF DEFINED(WIN64)}
-  {$HPPEMIT '#pragma link "Skia.Vcl.o"'}
+  {$HPPEMIT '#pragma link "Vcl.Skia.o"'}
 {$ENDIF}
 
-(*$HPPEMIT 'namespace Skia {'*)
-(*$HPPEMIT '	namespace Vcl {'*)
-(*$HPPEMIT '		namespace Graphics { using namespace ::Vcl::Graphics; }'*)
-(*$HPPEMIT '		namespace Controls { using namespace ::Vcl::Controls; }'*)
-(*$HPPEMIT '		namespace Extctrls { using namespace ::Vcl::Extctrls; }'*)
-(*$HPPEMIT '	}'*)
-(*$HPPEMIT '}'*)
-
 {$HPPEMIT NOUSINGNAMESPACE}
-{$HPPEMIT END '#if !defined(DELPHIHEADER_NO_IMPLICIT_NAMESPACE_USE) && !defined(NO_USING_NAMESPACE_SKIA)'}
-{$HPPEMIT END '    using ::Skia::Vcl::_di_ISkControlRender;'}
-{$HPPEMIT END '    using ::Skia::Vcl::_di_ISkControlRenderTarget;'}
-{$HPPEMIT END '    using ::Skia::Vcl::_di_ISkTextSettings;'}
-{$HPPEMIT END '    using ::Skia::Vcl::_di_TSkAnimationDrawProc;'}
-{$HPPEMIT END '    using ::Skia::Vcl::_di_TSkDrawProc;'}
-{$HPPEMIT END '    using ::Skia::Vcl::ESkBitmapHelper;'}
-{$HPPEMIT END '    using ::Skia::Vcl::ESkLabel;'}
-{$HPPEMIT END '    using ::Skia::Vcl::ESkPersistentData;'}
-{$HPPEMIT END '    using ::Skia::Vcl::ESkTextSettingsInfo;'}
-{$HPPEMIT END '    using ::Skia::Vcl::ESkVcl;'}
-{$HPPEMIT END '    using ::Skia::Vcl::ISkControlRender;'}
-{$HPPEMIT END '    using ::Skia::Vcl::ISkControlRenderTarget;'}
-{$HPPEMIT END '    using ::Skia::Vcl::ISkTextSettings;'}
-{$HPPEMIT END '    using ::Skia::Vcl::TSkAnimatedImage;'}
-{$HPPEMIT END '    using ::Skia::Vcl::TSkAnimatedImageWrapMode;'}
-{$HPPEMIT END '    using ::Skia::Vcl::TSkAnimatedPaintBox;'}
-{$HPPEMIT END '    using ::Skia::Vcl::TSkAnimationDrawEvent;'}
-{$HPPEMIT END '    using ::Skia::Vcl::TSkAnimationDrawProc;'}
-{$HPPEMIT END '    using ::Skia::Vcl::TSkControlRender;'}
-{$HPPEMIT END '    using ::Skia::Vcl::TSkControlRenderBackend;'}
-{$HPPEMIT END '    using ::Skia::Vcl::TSkCustomAnimatedControl;'}
-{$HPPEMIT END '    using ::Skia::Vcl::TSkCustomAnimation;'}
-{$HPPEMIT END '    using ::Skia::Vcl::TSkCustomControl;'}
-{$HPPEMIT END '    using ::Skia::Vcl::TSkCustomWinControl;'}
-{$HPPEMIT END '    using ::Skia::Vcl::TSkDefaultProviders;'}
-{$HPPEMIT END '    using ::Skia::Vcl::TSkDrawCacheKind;'}
-{$HPPEMIT END '    using ::Skia::Vcl::TSkDrawEvent;'}
-{$HPPEMIT END '    using ::Skia::Vcl::TSkDrawProc;'}
-{$HPPEMIT END '    using ::Skia::Vcl::TSkFontComponent;'}
-{$HPPEMIT END '    using ::Skia::Vcl::TSkLabel;'}
-{$HPPEMIT END '    using ::Skia::Vcl::TSkPaintBox;'}
-{$HPPEMIT END '    using ::Skia::Vcl::TSkPersistent;'}
-{$HPPEMIT END '    using ::Skia::Vcl::TSkStyledSetting;'}
-{$HPPEMIT END '    using ::Skia::Vcl::TSkStyledSettings;'}
-{$HPPEMIT END '    using ::Skia::Vcl::TSkSvg;'}
-{$HPPEMIT END '    using ::Skia::Vcl::TSkSvgBrush;'}
-{$HPPEMIT END '    using ::Skia::Vcl::TSkSvgSource;'}
-{$HPPEMIT END '    using ::Skia::Vcl::TSkSvgWrapMode;'}
-{$HPPEMIT END '    using ::Skia::Vcl::TSkTextHorzAlign;'}
-{$HPPEMIT END '    using ::Skia::Vcl::TSkTextSettings;'}
-{$HPPEMIT END '    using ::Skia::Vcl::TSkTextSettingsClass;'}
-{$HPPEMIT END '    using ::Skia::Vcl::TSkTextSettingsInfo;'}
-{$HPPEMIT END '    using ::Skia::Vcl::TSkTextTrimming;'}
-{$HPPEMIT END '    using ::Skia::Vcl::TSkTextVertAlign;'}
-{$HPPEMIT END '    using ::Skia::Vcl::TSkTypefaceManager;'}
-{$HPPEMIT END '    typedef ::Skia::_di_ISkImage (__fastcall *TBitmapToSkImageFunc)(::Vcl::Graphics::TBitmap* const ABitmap);'}
-{$HPPEMIT END '    typedef void (__fastcall *TDrawDesignBorderProc)(const ::Skia::_di_ISkCanvas ACanvas, const ::System::Types::TRectF &ADest, const float AOpacity);'}
-{$HPPEMIT END '    typedef void (__fastcall *TSkiaDrawProc)(::Vcl::Graphics::TBitmap* const ABitmap, const ::Skia::Vcl::_di_TSkDrawProc AProc, const bool AStartClean);'}
-{$HPPEMIT END '    typedef ::Vcl::Graphics::TBitmap* (__fastcall *TSkImageToBitmapFunc)(const ::Skia::_di_ISkImage AImage);'}
-{$HPPEMIT END '    static TSkStyledSettings& AllStyledSettings = ::Skia::Vcl::AllStyledSettings;'}
-{$HPPEMIT END '    static TSkStyledSettings& DefaultStyledSettings = ::Skia::Vcl::DefaultStyledSettings;'}
-{$HPPEMIT END '    static const TBitmapToSkImageFunc BitmapToSkImage = ::Skia::Vcl::BitmapToSkImage;'}
-{$HPPEMIT END '    static const TDrawDesignBorderProc DrawDesignBorder = ::Skia::Vcl::DrawDesignBorder;'}
-{$HPPEMIT END '    static const TSkiaDrawProc SkiaDraw = ::Skia::Vcl::SkiaDraw;'}
-{$HPPEMIT END '    static const TSkImageToBitmapFunc SkImageToBitmap = ::Skia::Vcl::SkImageToBitmap;'}
+{$HPPEMIT END '#if !defined(DELPHIHEADER_NO_IMPLICIT_NAMESPACE_USE) && !defined(NO_USING_NAMESPACE_VCL_SKIA)'}
+{$HPPEMIT END '    using ::Vcl::Skia::_di_ISkControlRender;'}
+{$HPPEMIT END '    using ::Vcl::Skia::_di_ISkControlRenderTarget;'}
+{$HPPEMIT END '    using ::Vcl::Skia::_di_ISkTextSettings;'}
+{$HPPEMIT END '    using ::Vcl::Skia::_di_TSkAnimationDrawProc;'}
+{$HPPEMIT END '    using ::Vcl::Skia::_di_TSkDrawProc;'}
+{$HPPEMIT END '    using ::Vcl::Skia::ESkBitmapHelper;'}
+{$HPPEMIT END '    using ::Vcl::Skia::ESkLabel;'}
+{$HPPEMIT END '    using ::Vcl::Skia::ESkPersistentData;'}
+{$HPPEMIT END '    using ::Vcl::Skia::ESkTextSettingsInfo;'}
+{$HPPEMIT END '    using ::Vcl::Skia::ESkVcl;'}
+{$HPPEMIT END '    using ::Vcl::Skia::ISkControlRender;'}
+{$HPPEMIT END '    using ::Vcl::Skia::ISkControlRenderTarget;'}
+{$HPPEMIT END '    using ::Vcl::Skia::ISkTextSettings;'}
+{$HPPEMIT END '    using ::Vcl::Skia::TSkAnimatedImage;'}
+{$HPPEMIT END '    using ::Vcl::Skia::TSkAnimatedImageWrapMode;'}
+{$HPPEMIT END '    using ::Vcl::Skia::TSkAnimatedPaintBox;'}
+{$HPPEMIT END '    using ::Vcl::Skia::TSkAnimationDrawEvent;'}
+{$HPPEMIT END '    using ::Vcl::Skia::TSkAnimationDrawProc;'}
+{$HPPEMIT END '    using ::Vcl::Skia::TSkControlRender;'}
+{$HPPEMIT END '    using ::Vcl::Skia::TSkControlRenderBackend;'}
+{$HPPEMIT END '    using ::Vcl::Skia::TSkCustomAnimatedControl;'}
+{$HPPEMIT END '    using ::Vcl::Skia::TSkCustomAnimation;'}
+{$HPPEMIT END '    using ::Vcl::Skia::TSkCustomControl;'}
+{$HPPEMIT END '    using ::Vcl::Skia::TSkCustomWinControl;'}
+{$HPPEMIT END '    using ::Vcl::Skia::TSkDefaultProviders;'}
+{$HPPEMIT END '    using ::Vcl::Skia::TSkDrawCacheKind;'}
+{$HPPEMIT END '    using ::Vcl::Skia::TSkDrawEvent;'}
+{$HPPEMIT END '    using ::Vcl::Skia::TSkDrawProc;'}
+{$HPPEMIT END '    using ::Vcl::Skia::TSkFontComponent;'}
+{$HPPEMIT END '    using ::Vcl::Skia::TSkLabel;'}
+{$HPPEMIT END '    using ::Vcl::Skia::TSkPaintBox;'}
+{$HPPEMIT END '    using ::Vcl::Skia::TSkPersistent;'}
+{$HPPEMIT END '    using ::Vcl::Skia::TSkStyledSetting;'}
+{$HPPEMIT END '    using ::Vcl::Skia::TSkStyledSettings;'}
+{$HPPEMIT END '    using ::Vcl::Skia::TSkSvg;'}
+{$HPPEMIT END '    using ::Vcl::Skia::TSkSvgBrush;'}
+{$HPPEMIT END '    using ::Vcl::Skia::TSkSvgSource;'}
+{$HPPEMIT END '    using ::Vcl::Skia::TSkSvgWrapMode;'}
+{$HPPEMIT END '    using ::Vcl::Skia::TSkTextHorzAlign;'}
+{$HPPEMIT END '    using ::Vcl::Skia::TSkTextSettings;'}
+{$HPPEMIT END '    using ::Vcl::Skia::TSkTextSettingsClass;'}
+{$HPPEMIT END '    using ::Vcl::Skia::TSkTextSettingsInfo;'}
+{$HPPEMIT END '    using ::Vcl::Skia::TSkTextTrimming;'}
+{$HPPEMIT END '    using ::Vcl::Skia::TSkTextVertAlign;'}
+{$HPPEMIT END '    using ::Vcl::Skia::TSkTypefaceManager;'}
+{$HPPEMIT END '    typedef ::System::Skia::_di_ISkImage (__fastcall *TBitmapToSkImageFunc)(::Vcl::Graphics::TBitmap* const ABitmap);'}
+{$HPPEMIT END '    typedef void (__fastcall *TDrawDesignBorderProc)(const ::System::Skia::_di_ISkCanvas ACanvas, const ::System::Types::TRectF &ADest, const float AOpacity);'}
+{$HPPEMIT END '    typedef void (__fastcall *TSkiaDrawProc)(::Vcl::Graphics::TBitmap* const ABitmap, const ::Vcl::Skia::_di_TSkDrawProc AProc, const bool AStartClean);'}
+{$HPPEMIT END '    typedef ::Vcl::Graphics::TBitmap* (__fastcall *TSkImageToBitmapFunc)(const ::System::Skia::_di_ISkImage AImage);'}
+{$HPPEMIT END '    static TSkStyledSettings& AllStyledSettings = ::Vcl::Skia::AllStyledSettings;'}
+{$HPPEMIT END '    static TSkStyledSettings& DefaultStyledSettings = ::Vcl::Skia::DefaultStyledSettings;'}
+{$HPPEMIT END '    static const TBitmapToSkImageFunc BitmapToSkImage = ::Vcl::Skia::BitmapToSkImage;'}
+{$HPPEMIT END '    static const TDrawDesignBorderProc DrawDesignBorder = ::Vcl::Skia::DrawDesignBorder;'}
+{$HPPEMIT END '    static const TSkiaDrawProc SkiaDraw = ::Vcl::Skia::SkiaDraw;'}
+{$HPPEMIT END '    static const TSkImageToBitmapFunc SkImageToBitmap = ::Vcl::Skia::SkImageToBitmap;'}
 {$HPPEMIT END '#endif'}
 
 initialization

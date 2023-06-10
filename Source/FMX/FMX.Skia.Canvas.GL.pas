@@ -8,30 +8,69 @@
 { found in the LICENSE file.                                             }
 {                                                                        }
 {************************************************************************}
-unit Skia.FMX.Canvas.GL;
+unit FMX.Skia.Canvas.GL;
 
 interface
 
 {$SCOPEDENUMS ON}
 {$HPPEMIT NOUSINGNAMESPACE}
 
+{$IF DEFINED(MSWINDOWS) or DEFINED(ANDROID) or DEFINED(IOS)}
+  {$DEFINE SKIA_GL}
+{$ENDIF}
+
+{$IFDEF SKIA_GL}
+
+uses
+  { Skia }
+  FMX.Skia.Canvas;
+
+type
+  { TGlSharedContextCustom }
+
+  TGlSharedContextCustom = class abstract(TGrSharedContext)
+  protected
+    FStencilBits: Integer;
+  public
+    property StencilBits: Integer read FStencilBits;
+  end;
+
+implementation
+
 uses
   { Delphi }
   FMX.Graphics,
   FMX.Types,
   {$IF DEFINED(ANDROID)}
+  FMX.Platform.UI.Android,
+  FMX.Presentation.Android.Style,
   Androidapi.Egl,
+  Androidapi.Gles2,
+  Androidapi.Gles2ext,
+  Androidapi.JNI.GraphicsContentViewText,
+  Androidapi.JNIBridge,
   Androidapi.NativeWindow,
+  Androidapi.NativeWindowJni,
   {$ELSEIF DEFINED(IOS)}
+  FMX.Platform.iOS,
+  iOSapi.GLKit,
   iOSapi.OpenGLES,
   {$ELSEIF DEFINED(MSWINDOWS)}
+  FMX.Platform.Win,
+  Winapi.OpenGL,
+  Winapi.OpenGLext,
   Winapi.Windows,
+  System.AnsiStrings,
+  System.Generics.Collections,
+  System.Generics.Defaults,
   {$ENDIF}
+  System.Math,
+  System.SysUtils,
   System.Types,
 
   { Skia }
-  Skia,
-  Skia.FMX.Graphics;
+  System.Skia,
+  FMX.Skia;
 
 type
   EGlError = class(EGrCanvas);
@@ -39,7 +78,7 @@ type
   { TGlCanvas }
 
   TGlCanvas = class(TGrCanvas)
-  strict private
+  private
     FBackBufferSurface: ISkSurface;
     {$IF DEFINED(ANDROID)}
     FANativeWindow: PANativeWindow;
@@ -64,56 +103,16 @@ type
     procedure RestoreCurrent;
     procedure SaveCurrent;
     function TryMakeCurrent: Boolean;
-  strict protected
+  protected
     procedure BeforeRestore; override;
     function CreateSharedContext: IGrSharedContext; override;
     procedure DoDrawBitmap(const ABitmap: FMX.Graphics.TBitmap; const ASrcRect, ADestRect: TRectF; const AOpacity: Single; const AHighSpeed: Boolean); override;
     function GetSurfaceFromWindow(const AContextHandle: THandle): TSkSurface; override;
     procedure Resized; override;
-    procedure SwapBuffers; override;
-    class function InitializeTextureCache(const ABitmap: TGrBitmapHandle): ISkImage; override;
-    class procedure FinalizeTextureCache(const ABitmap: TGrBitmapHandle); override;
+    procedure SwapBuffers(const AContextHandle: THandle); override;
   public
     destructor Destroy; override;
   end;
-
-implementation
-
-{.$DEFINE SKIA_GL_LINUX}
-
-uses
-  { Delphi }
-  {$IF DEFINED(ANDROID)}
-  FMX.Platform.UI.Android,
-  FMX.Presentation.Android.Style,
-  Androidapi.Gles2,
-  Androidapi.Gles2ext,
-  Androidapi.JNI.GraphicsContentViewText,
-  Androidapi.JNIBridge,
-  Androidapi.NativeWindowJni,
-  System.SysUtils,
-  {$ELSEIF DEFINED(IOS)}
-  FMX.Platform.iOS,
-  iOSapi.GLKit,
-  System.SysUtils,
-  {$ELSEIF DEFINED(MACOS)}
-  Macapi.CocoaTypes,
-  Macapi.OpenGL,
-  {$ELSEIF DEFINED(MSWINDOWS)}
-  FMX.Platform.Win,
-  Winapi.OpenGL,
-  Winapi.OpenGLext,
-  System.AnsiStrings,
-  System.Generics.Collections,
-  System.Generics.Defaults,
-  {$ELSEIF DEFINED(LINUX) and DEFINED(SKIA_GL_LINUX)}
-  Linux.OpenGL,
-  //Linuxapi.OpenGL,
-  {$ENDIF}
-  System.Math,
-
-  { Skia }
-  Skia.FMX;
 
 {$IF DEFINED(MSWINDOWS)}
 
@@ -143,13 +142,13 @@ type
   { TGlInterface }
 
   TGlInterface = record
-  strict private
+  private
     FChoosePixelFormatARB: PFNWGLCHOOSEPIXELFORMATARBPROC;
     FCreateContextAttribsARB: PFNWGLCREATECONTEXTATTRIBSARBPROC;
     FGetExtensionsStringARB: PFNWGLGETEXTENSIONSSTRINGARBPROC;
     FGetPixelFormatAttribivARB: PFNWGLGETPIXELFORMATATTRIBIVARBPROC;
     FSwapIntervalEXT: PFNWGLSWAPINTERVALEXTPROC;
-  strict private
+  private
     procedure GetGlProc(const AName: MarshaledAString; out AProc); inline;
   public
     procedure Initialize;
@@ -165,12 +164,12 @@ type
 type
   { TGlSharedContext }
 
-  TGlSharedContext = class(TGrSharedContext)
-  strict private
-    FBeginContextCount: Integer;
+  TGlSharedContext = class(TGlSharedContextCustom)
+  private
+    procedure MakeCurrent;
+  private
+    [Volatile] FBeginContextCount: Integer;
     FGrGlInterface: IGrGlInterface;
-    FSampleCount: Integer;
-    FStencilBits: Integer;
     {$IF DEFINED(ANDROID)}
     FConfig: EGLConfig;
     FContext: EGLContext;
@@ -197,19 +196,21 @@ type
     {$ENDIF}
     procedure CreateBackendContext(const AQuality: TCanvasQuality);
     procedure DestroyBackendContext;
-    procedure MakeCurrent;
     procedure RestoreCurrent;
     procedure SaveAndMakeCurrent; inline;
     procedure SaveCurrent;
-  strict protected
+  protected
     procedure BeginContext; override;
     procedure DestroyContext; override;
     procedure EndContext; override;
+    function GetTextureColorType: TSkColorType; override;
+    function GetTextureOrigin: TGrSurfaceOrigin; override;
+    procedure RefreshContext; override;
   public
     constructor Create(const AQuality: TCanvasQuality);
+    procedure FinalizeTextureCache(const ABitmap: TGrBitmapHandle); override;
+    procedure InitializeTextureCache(const ABitmap: TGrBitmapHandle); override;
     property GrGlInterface: IGrGlInterface read FGrGlInterface;
-    property SampleCount: Integer read FSampleCount;
-    property StencilBits: Integer read FStencilBits;
     {$IF DEFINED(ANDROID)}
     property Config: EGLConfig read FConfig;
     property Context: EGLContext read FContext;
@@ -232,7 +233,9 @@ procedure TGlCanvas.BeforeRestore;
 begin
   inherited;
   if Parent <> nil then
-    TryMakeCurrent;
+    MakeCurrent
+  else if Supports(FWrapper, IGrCanvasWrapper) then
+    TGlSharedContext(SharedContext).MakeCurrent;
 end;
 
 function TGlCanvas.CreateContext: Boolean;
@@ -389,27 +392,18 @@ procedure TGlCanvas.DoDrawBitmap(const ABitmap: FMX.Graphics.TBitmap;
   const ASrcRect, ADestRect: TRectF; const AOpacity: Single;
   const AHighSpeed: Boolean);
 begin
-  TryMakeCurrent;
+  if Parent <> nil then
+    MakeCurrent
+  else if Supports(FWrapper, IGrCanvasWrapper) then
+    TGlSharedContext(SharedContext).MakeCurrent;
   inherited;
-end;
-
-class procedure TGlCanvas.FinalizeTextureCache(const ABitmap: TGrBitmapHandle);
-begin
-  ABitmap.SharedContext.BeginContext;
-  try
-    inherited;
-  finally
-    ABitmap.SharedContext.EndContext;
-  end;
 end;
 
 function TGlCanvas.GetSurfaceFromWindow(
   const AContextHandle: THandle): TSkSurface;
-{$IF not DEFINED(LINUX) or DEFINED(SKIA_GL_LINUX)}
 var
   LGrBackendRenderTarget: IGrBackendRenderTarget;
   LGrGlFramebufferInfo: TGrGlFramebufferInfo;
-{$ENDIF}
 begin
   Result := nil;
   SaveCurrent;
@@ -428,28 +422,15 @@ begin
       end
       else if not TryMakeCurrent then
         Exit;
-      {$IF not DEFINED(LINUX) or DEFINED(SKIA_GL_LINUX)}
       glGetIntegerv(GL_FRAMEBUFFER_BINDING, @GLuint(LGrGlFramebufferInfo.FBOID));
       LGrGlFramebufferInfo.Format := {$IF DEFINED(IOS) or DEFINED(ANDROID)}GL_RGBA8_OES{$ELSE}GL_RGBA8{$ENDIF};
-      LGrBackendRenderTarget := TGrBackendRenderTarget.CreateGl(Round(Width * Scale), Round(Height * Scale), Min(TGlSharedContext(SharedContext).SampleCount, FGrDirectContext.GetMaxSurfaceSampleCountForColorType(TSkColorType.RGBA8888)), TGlSharedContext(SharedContext).StencilBits, LGrGlFramebufferInfo);
+      LGrBackendRenderTarget := TGrBackendRenderTarget.CreateGl(Round(Width * Scale), Round(Height * Scale), Min(CanvasQualitySampleCount[Quality], FGrDirectContext.GetMaxSurfaceSampleCountForColorType(TSkColorType.RGBA8888)), TGlSharedContext(SharedContext).StencilBits, LGrGlFramebufferInfo);
       FBackBufferSurface     := TSkSurface.MakeFromRenderTarget(FGrDirectContext, LGrBackendRenderTarget, TGrSurfaceOrigin.BottomLeft, TSkColorType.RGBA8888);
-      {$ENDIF}
     end;
     Result := TSkSurface(FBackBufferSurface);
   finally
     if Result = nil then
       RestoreCurrent;
-  end;
-end;
-
-class function TGlCanvas.InitializeTextureCache(
-  const ABitmap: TGrBitmapHandle): ISkImage;
-begin
-  ABitmap.SharedContext.BeginContext;
-  try
-    Result := TSkImage.MakeCrossContext(ABitmap.SharedContext.GrDirectContext, TSkImageInfo.Create(ABitmap.Width, ABitmap.Height, SkFmxColorType[ABitmap.PixelFormat]), ABitmap.Pixels, ABitmap.Width * PixelFormatBytes[ABitmap.PixelFormat], False);
-  finally
-    ABitmap.SharedContext.EndContext;
   end;
 end;
 
@@ -510,7 +491,7 @@ begin
   {$ENDIF}
 end;
 
-procedure TGlCanvas.SwapBuffers;
+procedure TGlCanvas.SwapBuffers(const AContextHandle: THandle);
 begin
   inherited;
   {$IF DEFINED(ANDROID)}
@@ -555,7 +536,7 @@ var
 begin
   if not Assigned(FGetExtensionsStringARB) then
     Exit(False);
-  if StrComp(AName, 'WGL_ARB_extensions_string') = 0 then
+  if System.AnsiStrings.StrComp(AName, 'WGL_ARB_extensions_string') = 0 then
     Exit(True);
   LExtensions := FGetExtensionsStringARB(AHDC);
   if LExtensions <> nil then
@@ -565,7 +546,7 @@ begin
       LEnd := LExtensions;
       while (LEnd^ <> ' ') and (LEnd^ <> #0) do
         Inc(LEnd);
-      if (LEnd - LExtensions = Length(AName)) and (StrLIComp(LExtensions, AName, LEnd - LExtensions) = 0) then
+      if (LEnd - LExtensions = Length(AName)) and (System.AnsiStrings.StrLIComp(LExtensions, AName, LEnd - LExtensions) = 0) then
         Exit(True);
       if LEnd^ = #0 then
         Break;
@@ -624,7 +605,7 @@ procedure TGlSharedContext.CreateBackendContext(const AQuality: TCanvasQuality);
 {$IF DEFINED(ANDROID)}
 
   function SelectConfig(const AAttributes: TArray<Integer>;
-    out ASampleCount: Integer; const AMinSampleCount: Integer = 1): EGLConfig;
+    const AMinSampleCount: Integer = 1): EGLConfig;
   var
     LAttributes: TArray<GLint>;
     LCount: GLint;
@@ -639,7 +620,6 @@ procedure TGlSharedContext.CreateBackendContext(const AQuality: TCanvasQuality);
     LAttributes := LAttributes + [EGL_NONE];
     if (eglChooseConfig(FDisplay, Pointer(LAttributes), @Result, 1, @LCount) = EGL_FALSE) or (LCount <= 0) then
       Exit(nil);
-    ASampleCount := AMinSampleCount;
   end;
 
 const
@@ -662,7 +642,7 @@ var
   // - The "pfAttribFList" parameter cannot be "nil", and attributes must end
   //   with two null values instead of one.
   function SelectPixelFormat(const AAttributes: TArray<Integer>;
-    out ASampleCount: Integer; const AMinSampleCount: Integer = 1): Integer;
+    const AMinSampleCount: Integer = 1): Integer;
   type
     TRankPixelFormat = record
       Index: Integer;
@@ -687,7 +667,6 @@ var
       LAttributes := AAttributes + [0, 0];
       if (not FGlInterface.ChoosePixelFormatARB(FDC, Pointer(LAttributes), @AttributesF, 1, @Result, @LCount)) or (LCount = 0) then
         Exit(0);
-      ASampleCount := 1;
     end
     else
     begin
@@ -714,8 +693,7 @@ var
             if Result = 0 then
               Result := ALeft.Index - ARight.Index;
           end));
-        ASampleCount := LRankPixelFormats.First.SampleCount;
-        Result       := LRankPixelFormats.First.PixelFormat;
+        Result := LRankPixelFormats.First.PixelFormat;
       finally
         LRankPixelFormats.Free;
       end;
@@ -784,13 +762,13 @@ begin
     if AQuality <> TCanvasQuality.HighPerformance then
     begin
       if AQuality = TCanvasQuality.HighQuality then
-        FConfig := SelectConfig(LConfigAttributes, FSampleCount, 4);
+        FConfig := SelectConfig(LConfigAttributes, 4);
       if FConfig = nil then
-        FConfig := SelectConfig(LConfigAttributes, FSampleCount, 2);
+        FConfig := SelectConfig(LConfigAttributes, 2);
     end;
     if FConfig = nil then
     begin
-      FConfig := SelectConfig(LConfigAttributes, FSampleCount);
+      FConfig := SelectConfig(LConfigAttributes);
       if FConfig = nil then
         raise EGlError.Create('Could not choose configuration.');
     end;
@@ -819,12 +797,6 @@ begin
     FContext := TEAGLContext.Wrap(TEAGLContext.Alloc.initWithAPI(kEAGLRenderingAPIOpenGLES2));
     if FContext = nil then
       raise EGlError.Create('Could not create shared context.');
-    case AQuality of
-      TCanvasQuality.SystemDefault: FSampleCount := 2;
-      TCanvasQuality.HighQuality  : FSampleCount := 4;
-    else
-      FSampleCount := 1;
-    end;
     SaveAndMakeCurrent;
     glGetIntegerv(GL_STENCIL_BITS, @FStencilBits);
   except
@@ -893,13 +865,13 @@ begin
           if (AQuality <> TCanvasQuality.HighPerformance) and (FGlInterface.HasExtension(FDC, 'WGL_ARB_multisample')) then
           begin
             if AQuality = TCanvasQuality.HighQuality then
-              FPixelFormat := SelectPixelFormat(LPixelFormatAttributes, FSampleCount, 4);
+              FPixelFormat := SelectPixelFormat(LPixelFormatAttributes, 4);
             if FPixelFormat = 0 then
-              FPixelFormat := SelectPixelFormat(LPixelFormatAttributes, FSampleCount, 2);
+              FPixelFormat := SelectPixelFormat(LPixelFormatAttributes, 2);
           end;
           if FPixelFormat = 0 then
           begin
-            FPixelFormat := SelectPixelFormat(LPixelFormatAttributes, FSampleCount);
+            FPixelFormat := SelectPixelFormat(LPixelFormatAttributes);
             if FPixelFormat = 0 then
               raise EGlError.Create('Could not choose pixel format.');
           end;
@@ -981,11 +953,40 @@ procedure TGlSharedContext.EndContext;
 begin
   Dec(FBeginContextCount);
   if FBeginContextCount = 0 then
-  begin
-    FGrDirectContext.FlushAndSubmit(True);
     RestoreCurrent;
-  end;
   inherited;
+end;
+
+procedure TGlSharedContext.FinalizeTextureCache(const ABitmap: TGrBitmapHandle);
+begin
+  BeginContext;
+  try
+    inherited;
+  finally
+    EndContext;
+  end;
+end;
+
+function TGlSharedContext.GetTextureColorType: TSkColorType;
+begin
+  Result := TSkColorType.RGBA8888;
+end;
+
+function TGlSharedContext.GetTextureOrigin: TGrSurfaceOrigin;
+begin
+  Result := TGrSurfaceOrigin.BottomLeft;
+end;
+
+procedure TGlSharedContext.InitializeTextureCache(
+  const ABitmap: TGrBitmapHandle);
+begin
+  BeginContext;
+  try
+    ABitmap.Cache := TSkImage.MakeCrossContext(FGrDirectContext, TSkImageInfo.Create(ABitmap.Width, ABitmap.Height, SkFmxColorType[ABitmap.PixelFormat]), ABitmap.Pixels, ABitmap.Width * PixelFormatBytes[ABitmap.PixelFormat], False);
+    FGrDirectContext.Submit(True);
+  finally
+    EndContext;
+  end;
 end;
 
 procedure TGlSharedContext.MakeCurrent;
@@ -998,6 +999,11 @@ begin
   if not wglMakeCurrent(FDC, FGLRC) then
   {$ENDIF}
     raise EGlError.Create('Could not make shared context as current.');
+end;
+
+procedure TGlSharedContext.RefreshContext;
+begin
+  MakeCurrent;
 end;
 
 procedure TGlSharedContext.RestoreCurrent;
@@ -1042,4 +1048,13 @@ begin
   {$ENDIF}
 end;
 
+{$HPPEMIT END '#if !defined(DELPHIHEADER_NO_IMPLICIT_NAMESPACE_USE) && !defined(NO_USING_NAMESPACE_FMX_SKIA_CANVAS_GL)'}
+{$HPPEMIT END '    using ::Fmx::Skia::Canvas::Gl::TGlSharedContextCustom;'}
+{$HPPEMIT END '#endif'}
+
+initialization
+  RegisterSkiaRenderCanvas(TGlCanvas, False);
+{$ELSE}
+implementation
+{$ENDIF}
 end.

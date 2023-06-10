@@ -8,7 +8,7 @@
 { found in the LICENSE file.                                             }
 {                                                                        }
 {************************************************************************}
-unit Skia.Vcl.Designtime.Editor.SVG;
+unit Vcl.Skia.Designtime.Editor.SVG;
 
 interface
 
@@ -36,7 +36,7 @@ uses
   Vcl.StdCtrls,
 
   { Skia }
-  Skia.Vcl;
+  Vcl.Skia;
 
 type
   { TSkSvgEditorForm }
@@ -94,7 +94,7 @@ uses
   {$ENDIF}
 
   { Skia }
-  Skia;
+  System.Skia;
 
 {$R *.dfm}
 

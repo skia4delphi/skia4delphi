@@ -8,7 +8,7 @@
 { found in the LICENSE file.                                             }
 {                                                                        }
 {************************************************************************}
-unit Skia.Vcl.Designtime.Editor.AnimatedImage;
+unit Vcl.Skia.Designtime.Editor.AnimatedImage;
 
 interface
 
@@ -36,7 +36,7 @@ uses
   Vcl.StdCtrls,
 
   { Skia }
-  Skia.Vcl;
+  Vcl.Skia;
 
 type
   { TSkAnimatedImageEditorForm }
@@ -88,7 +88,7 @@ uses
   {$ENDIF}
 
   { Skia }
-  Skia;
+  System.Skia;
 
 {$R *.dfm}
 

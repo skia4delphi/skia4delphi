@@ -8,7 +8,7 @@
 { found in the LICENSE file.                                             }
 {                                                                        }
 {************************************************************************}
-unit Skia.Vcl.Designtime.ProjectMenu;
+unit Vcl.Skia.Designtime.ProjectMenu;
 
 interface
 
@@ -534,7 +534,7 @@ procedure TSkProjectManagerMenuEnableSkia.SetSkiaEnabled(
 
   function ApplyDelphiSourceChange(var ASource: string; const AEnabled: Boolean): Boolean;
 
-    // Add the "Skia.FMX" to uses, after the FMX.Forms, if it isn't inside a ifdef
+    // Add the "FMX.Skia" to uses, after the FMX.Forms, if it isn't inside a ifdef
     function AddSkiaFMXUnit(const ASourceList: TStringList): Boolean;
     var
       LIfDefCount: Integer;
@@ -542,7 +542,7 @@ procedure TSkProjectManagerMenuEnableSkia.SetSkiaEnabled(
     begin
       Result := False;
       for I := 0 to ASourceList.Count - 1 do
-        if ASourceList[I].TrimLeft.StartsWith('Skia.FMX,', True) or ASourceList[I].TrimLeft.StartsWith('Skia.FMX ', True) then
+        if ASourceList[I].TrimLeft.StartsWith('FMX.Skia,', True) or ASourceList[I].TrimLeft.StartsWith('FMX.Skia ', True) then
           Exit;
       LIfDefCount := 0;
       for I := 0 to ASourceList.Count - 1 do
@@ -555,7 +555,7 @@ procedure TSkProjectManagerMenuEnableSkia.SetSkiaEnabled(
         begin
           if LIfDefCount = 0 then
           begin
-            ASourceList.Insert(I + 1, '  Skia.FMX,');
+            ASourceList.Insert(I + 1, '  FMX.Skia,');
             Exit(True);
           end
           else
@@ -570,8 +570,8 @@ procedure TSkProjectManagerMenuEnableSkia.SetSkiaEnabled(
       I: Integer;
     begin
       Result := False;
-      if not ASourceList.Text.ToLower.Contains(string('Skia.FMX,').ToLower) and
-        not ASourceList.Text.ToLower.Contains(string('Skia.FMX ').ToLower) then
+      if not ASourceList.Text.ToLower.Contains(string('FMX.Skia,').ToLower) and
+        not ASourceList.Text.ToLower.Contains(string('FMX.Skia ').ToLower) then
       begin
         Exit;
       end;
@@ -642,7 +642,7 @@ procedure TSkProjectManagerMenuEnableSkia.SetSkiaEnabled(
       end
       else
       begin
-        Result := RemoveLineStartingWith(LSourceList, '  Skia.FMX,');
+        Result := RemoveLineStartingWith(LSourceList, '  FMX.Skia,');
         Result := RemoveLineStartingWith(LSourceList, '  GlobalUseSkia :=') or Result;
         Result := RemoveLineStartingWith(LSourceList, '  GlobalUseSkiaRasterWhenAvailable :=') or Result;
       end;

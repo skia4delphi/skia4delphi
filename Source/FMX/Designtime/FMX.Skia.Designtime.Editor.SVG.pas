@@ -8,7 +8,7 @@
 { found in the LICENSE file.                                             }
 {                                                                        }
 {************************************************************************}
-unit Skia.FMX.Designtime.Editor.SVG;
+unit FMX.Skia.Designtime.Editor.SVG;
 
 interface
 
@@ -36,7 +36,7 @@ uses
   FMX.Controls.Presentation,
 
   { Skia }
-  Skia.FMX;
+  FMX.Skia;
 
 type
   { TSkSvgEditorForm }

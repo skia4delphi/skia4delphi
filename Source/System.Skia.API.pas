@@ -9,7 +9,7 @@
 { found in the LICENSE file.                                             }
 {                                                                        }
 {************************************************************************}
-unit Skia.API;
+unit System.Skia.API;
 
 interface
 
@@ -88,6 +88,7 @@ type
   sk_colorspaceiccprofile_t     = THandle;
   sk_data_t                     = THandle;
   sk_document_t                 = THandle;
+  sk_flattenable_t              = THandle;
   sk_font_t                     = THandle;
   sk_fontmgr_t                  = THandle;
   sk_image_t                    = THandle;
@@ -110,7 +111,10 @@ type
   sk_regioniterator_t           = THandle;
   sk_regionspanerator_t         = THandle;
   sk_rrect_t                    = THandle;
+  sk_runtimeblendbuilder_t      = THandle;
   sk_runtimeeffect_t            = THandle;
+  sk_runtimeeffectbuilder_t     = THandle;
+  sk_runtimeshaderbuilder_t     = THandle;
   sk_shader_t                   = THandle;
   sk_stream_t                   = THandle;
   sk_streamadapter_t            = THandle;
@@ -133,6 +137,7 @@ type
   psk_colorspaceiccprofile_t     = ^sk_colorspaceiccprofile_t;
   psk_data_t                     = ^sk_data_t;
   psk_document_t                 = ^sk_document_t;
+  psk_flattenable_t              = ^sk_flattenable_t;
   psk_font_t                     = ^sk_font_t;
   psk_fontmgr_t                  = ^sk_fontmgr_t;
   psk_image_t                    = ^sk_image_t;
@@ -155,7 +160,10 @@ type
   psk_regioniterator_t           = ^sk_regioniterator_t;
   psk_regionspanerator_t         = ^sk_regionspanerator_t;
   psk_rrect_t                    = ^sk_rrect_t;
+  psk_runtimeblendbuilder_t      = ^sk_runtimeblendbuilder_t;
   psk_runtimeeffect_t            = ^sk_runtimeeffect_t;
+  psk_runtimeeffectbuilder_t     = ^sk_runtimeeffectbuilder_t;
+  psk_runtimeshaderbuilder_t     = ^sk_runtimeshaderbuilder_t;
   psk_shader_t                   = ^sk_shader_t;
   psk_stream_t                   = ^sk_stream_t;
   psk_streamadapter_t            = ^sk_streamadapter_t;
@@ -1335,6 +1343,10 @@ var
   { include/c/gr4d_directcontext.h }
 
   {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}gr4d_directcontext_abandon_context                            {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: gr_directcontext_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}gr4d_directcontext_create_texture                             {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(self: gr_directcontext_t; width, height: int32_t; color_type: sk_colortype_t; is_mipmapped, is_renderable, is_protected: _bool): gr_backendtexture_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}gr4d_directcontext_create_texture2                            {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(self: gr_directcontext_t; width, height: int32_t; color_type: sk_colortype_t; color: sk_color_t; is_mipmapped, is_renderable, is_protected: _bool): gr_backendtexture_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}gr4d_directcontext_create_texture3                            {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(self: gr_directcontext_t; width, height: int32_t; color_type: sk_colortype_t; const color: psk_color4f_t; is_mipmapped, is_renderable, is_protected: _bool): gr_backendtexture_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}gr4d_directcontext_delete_texture                             {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: gr_directcontext_t; texture: gr_backendtexture_t); cdecl;
   {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}gr4d_directcontext_dump_memory_statistics                     {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(const self: gr_directcontext_t; trace_memory_dump: sk_tracememorydump_t); cdecl;
   {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}gr4d_directcontext_flush                                      {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: gr_directcontext_t); cdecl;
   {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}gr4d_directcontext_flush_and_submit                           {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: gr_directcontext_t; sync_cpu: _bool); cdecl;
@@ -1672,6 +1684,8 @@ var
   {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_imagefilter_make_picture             {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(picture: sk_picture_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl;
   {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_imagefilter_make_point_lit_diffuse   {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const location: psk_point3_t; light_color: sk_color_t; surface_scale, kd: float; input: sk_imagefilter_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl;
   {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_imagefilter_make_point_lit_specular  {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const location: psk_point3_t; light_color: sk_color_t; surface_scale, ks, shininess: float; input: sk_imagefilter_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_imagefilter_make_runtime_shader      {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const effect_builder: sk_runtimeshaderbuilder_t; const child: MarshaledAString; input: sk_imagefilter_t): sk_imagefilter_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_imagefilter_make_runtime_shader2     {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const effect_builder: sk_runtimeshaderbuilder_t; const children: PMarshaledAString; inputs: psk_imagefilter_t; count: int32_t): sk_imagefilter_t; cdecl;
   {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_imagefilter_make_shader              {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(shader: sk_shader_t; dither: _bool; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl;
   {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_imagefilter_make_spot_lit_diffuse    {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const location, target: psk_point3_t; falloff_exponent, cutoff_angle: float; light_color: sk_color_t; surface_scale, kd: float; input: sk_imagefilter_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl;
   {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_imagefilter_make_spot_lit_specular   {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const location, target: psk_point3_t; falloff_exponent, cutoff_angle: float; light_color: sk_color_t; surface_scale, ks, shininess: float; input: sk_imagefilter_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl;
@@ -1957,24 +1971,36 @@ var
 
   { include/c/sk4d_runtimeeffect.h }
 
-  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_runtimeeffect_get_child_count       {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(const self: sk_runtimeeffect_t): int32_t; cdecl;
-  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_runtimeeffect_get_child_name        {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(const self: sk_runtimeeffect_t; index: int32_t): MarshaledAString; cdecl;
-  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_runtimeeffect_get_child_type        {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(const self: sk_runtimeeffect_t; index: int32_t): sk_runtimeeffectchildtype_t; cdecl;
-  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_runtimeeffect_get_uniform_count     {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(const self: sk_runtimeeffect_t): int32_t; cdecl;
-  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_runtimeeffect_get_uniform_data_size {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(const self: sk_runtimeeffect_t): size_t; cdecl;
-  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_runtimeeffect_get_uniform_name      {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(const self: sk_runtimeeffect_t; index: int32_t): MarshaledAString; cdecl;
-  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_runtimeeffect_get_uniform_offset    {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(const self: sk_runtimeeffect_t; index: int32_t): size_t; cdecl;
-  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_runtimeeffect_get_uniform_type      {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(const self: sk_runtimeeffect_t; index: int32_t): sk_runtimeeffectuniformtype_t; cdecl;
-  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_runtimeeffect_get_uniform_type_count{$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(const self: sk_runtimeeffect_t; index: int32_t): int32_t; cdecl;
-  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_runtimeeffect_index_of_child        {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(const self: sk_runtimeeffect_t; const name: MarshaledAString): int32_t; cdecl;
-  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_runtimeeffect_index_of_uniform      {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(const self: sk_runtimeeffect_t; const name: MarshaledAString): int32_t; cdecl;
-  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_runtimeeffect_make_blender          {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(const self: sk_runtimeeffect_t; const uniforms: Pointer; children: psk_blender_t): sk_blender_t; cdecl;
-  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_runtimeeffect_make_color_filter     {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(const self: sk_runtimeeffect_t; const uniforms: Pointer; children: psk_colorfilter_t): sk_colorfilter_t; cdecl;
-  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_runtimeeffect_make_for_blender      {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(const sksl: MarshaledAString; error_text: sk_string_t): sk_runtimeeffect_t; cdecl;
-  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_runtimeeffect_make_for_color_filter {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(const sksl: MarshaledAString; error_text: sk_string_t): sk_runtimeeffect_t; cdecl;
-  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_runtimeeffect_make_for_shader       {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(const sksl: MarshaledAString; error_text: sk_string_t): sk_runtimeeffect_t; cdecl;
-  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_runtimeeffect_make_image            {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(const self: sk_runtimeeffect_t; context: gr_directcontext_t; const uniforms: Pointer; children: psk_shader_t; const local_matrix: psk_matrix_t; const image_info: psk_imageinfo_t; mipmapped: _bool): sk_image_t; cdecl;
-  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_runtimeeffect_make_shader           {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(const self: sk_runtimeeffect_t; const uniforms: Pointer; children: psk_shader_t; const local_matrix: psk_matrix_t): sk_shader_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_runtimeblendbuilder_create          {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(effect: sk_runtimeeffect_t): sk_runtimeblendbuilder_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_runtimeblendbuilder_destroy         {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_runtimeblendbuilder_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_runtimeblendbuilder_make_blender    {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(self: sk_runtimeblendbuilder_t): sk_blender_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_runtimeeffect_get_child_count       {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_runtimeeffect_t): int32_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_runtimeeffect_get_child_name        {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_runtimeeffect_t; index: int32_t): sk_string_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_runtimeeffect_get_child_type        {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_runtimeeffect_t; index: int32_t): sk_runtimeeffectchildtype_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_runtimeeffect_get_uniform_count     {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_runtimeeffect_t): int32_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_runtimeeffect_get_uniform_data_size {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_runtimeeffect_t): size_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_runtimeeffect_get_uniform_name      {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_runtimeeffect_t; index: int32_t): sk_string_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_runtimeeffect_get_uniform_offset    {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_runtimeeffect_t; index: int32_t): size_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_runtimeeffect_get_uniform_type      {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_runtimeeffect_t; index: int32_t): sk_runtimeeffectuniformtype_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_runtimeeffect_get_uniform_type_count{$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_runtimeeffect_t; index: int32_t): int32_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_runtimeeffect_index_of_child        {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_runtimeeffect_t; const name: MarshaledAString): int32_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_runtimeeffect_index_of_uniform      {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_runtimeeffect_t; const name: MarshaledAString): int32_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_runtimeeffect_make_blender          {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_runtimeeffect_t; const uniforms: Pointer; children: psk_flattenable_t): sk_blender_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_runtimeeffect_make_color_filter     {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_runtimeeffect_t; const uniforms: Pointer; children: psk_flattenable_t): sk_colorfilter_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_runtimeeffect_make_for_blender      {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const sksl: MarshaledAString; error_text: sk_string_t): sk_runtimeeffect_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_runtimeeffect_make_for_color_filter {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const sksl: MarshaledAString; error_text: sk_string_t): sk_runtimeeffect_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_runtimeeffect_make_for_shader       {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const sksl: MarshaledAString; error_text: sk_string_t): sk_runtimeeffect_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_runtimeeffect_make_image            {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_runtimeeffect_t; context: gr_directcontext_t; const uniforms: Pointer; children: psk_flattenable_t; const local_matrix: psk_matrix_t; const image_info: psk_imageinfo_t; mipmapped: _bool): sk_image_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_runtimeeffect_make_shader           {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_runtimeeffect_t; const uniforms: Pointer; children: psk_flattenable_t; const local_matrix: psk_matrix_t): sk_shader_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_runtimeeffectbuilder_set_child      {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_runtimeeffectbuilder_t; const name: MarshaledAString; shader: sk_shader_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_runtimeeffectbuilder_set_child2     {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_runtimeeffectbuilder_t; const name: MarshaledAString; color_filter: sk_colorfilter_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_runtimeeffectbuilder_set_child3     {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_runtimeeffectbuilder_t; const name: MarshaledAString; blender: sk_blender_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_runtimeeffectbuilder_set_uniform    {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_runtimeeffectbuilder_t; const name: MarshaledAString; const data: Pointer); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_runtimeeffectbuilder_get_effect     {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_runtimeeffectbuilder_t): sk_runtimeeffect_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_runtimeshaderbuilder_create         {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(effect: sk_runtimeeffect_t): sk_runtimeshaderbuilder_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_runtimeshaderbuilder_destroy        {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_runtimeshaderbuilder_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_runtimeshaderbuilder_make_image     {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(self: sk_runtimeshaderbuilder_t; context: gr_directcontext_t; const local_matrix: psk_matrix_t; const image_info: psk_imageinfo_t; mipmapped: _bool): sk_image_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_runtimeshaderbuilder_make_shader    {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(self: sk_runtimeshaderbuilder_t; const local_matrix: psk_matrix_t): sk_shader_t; cdecl;
 
 
   { include/c/sk4d_shader.h }
@@ -1982,6 +2008,7 @@ var
   {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_shader_make_blend                      {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(mode: sk_blendmode_t; dest, src: sk_shader_t): sk_shader_t; cdecl;
   {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_shader_make_color                      {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(color: sk_color_t): sk_shader_t; cdecl;
   {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_shader_make_color2                     {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(const color: psk_color4f_t; color_space: sk_colorspace_t): sk_shader_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_shader_make_empty                      {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(): sk_shader_t; cdecl;
   {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_shader_make_gradient_linear            {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(const points: psk_point_t; const colors: psk_color_t; const positions: pfloat; count: int32_t; tile_mode: sk_tilemode_t; const local_matrix: psk_matrix_t): sk_shader_t; cdecl;
   {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_shader_make_gradient_linear2           {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(const points: psk_point_t; const colors: psk_color4f_t; color_space: sk_colorspace_t; const positions: pfloat; count: int32_t; tile_mode: sk_tilemode_t; const local_matrix: psk_matrix_t): sk_shader_t; cdecl;
   {$IFDEF SK_STATIC_LIBRARY}function {$ENDIF}sk4d_shader_make_gradient_radial            {$IFNDEF SK_STATIC_LIBRARY}: function {$ENDIF}(const center: psk_point_t; radius: float; const colors: psk_color_t; const positions: pfloat; count: int32_t; tile_mode: sk_tilemode_t; const local_matrix: psk_matrix_t): sk_shader_t; cdecl;
@@ -2031,6 +2058,7 @@ var
   {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_surface_peek_pixels            {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(self: sk_surface_t): sk_pixmap_t; cdecl;
   {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_surface_read_pixels            {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(self: sk_surface_t; const dest: sk_pixmap_t; src_x, src_y: int32_t): _bool; cdecl;
   {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_surface_wait                   {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_surface_t; const semaphores: pgr_backendsemaphore_t; count: int32_t); cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_surface_write_pixels           {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_surface_t; const src: sk_pixmap_t; dest_x, dest_y: int32_t); cdecl;
 
   { include/c/sk4d_svgcanvas.h }
 
@@ -2463,6 +2491,10 @@ procedure gr4d_persistentcachebaseclass_set_procs; external LibraryName name 'gr
 
 {$IFNDEF SK_STATIC_LIBRARY}
   gr4d_directcontext_abandon_context                             := GetProcAddress(LibraryHandle, PChar('gr4d_directcontext_abandon_context'));
+  gr4d_directcontext_create_texture                              := GetProcAddress(LibraryHandle, PChar('gr4d_directcontext_create_texture'));
+  gr4d_directcontext_create_texture2                             := GetProcAddress(LibraryHandle, PChar('gr4d_directcontext_create_texture2'));
+  gr4d_directcontext_create_texture3                             := GetProcAddress(LibraryHandle, PChar('gr4d_directcontext_create_texture3'));
+  gr4d_directcontext_delete_texture                              := GetProcAddress(LibraryHandle, PChar('gr4d_directcontext_delete_texture'));
   gr4d_directcontext_dump_memory_statistics                      := GetProcAddress(LibraryHandle, PChar('gr4d_directcontext_dump_memory_statistics'));
   gr4d_directcontext_flush                                       := GetProcAddress(LibraryHandle, PChar('gr4d_directcontext_flush'));
   gr4d_directcontext_flush_and_submit                            := GetProcAddress(LibraryHandle, PChar('gr4d_directcontext_flush_and_submit'));
@@ -2484,6 +2516,10 @@ procedure gr4d_persistentcachebaseclass_set_procs; external LibraryName name 'gr
   gr4d_directcontext_submit                                      := GetProcAddress(LibraryHandle, PChar('gr4d_directcontext_submit'));
 {$ELSE}
 procedure gr4d_directcontext_abandon_context;                             external LibraryName name 'gr4d_directcontext_abandon_context'                            {$IFDEF IOS} dependency 'c++'{$ENDIF};
+function  gr4d_directcontext_create_texture;                              external LibraryName name 'gr4d_directcontext_create_texture'                             {$IFDEF IOS} dependency 'c++'{$ENDIF};
+function  gr4d_directcontext_create_texture2;                             external LibraryName name 'gr4d_directcontext_create_texture2'                            {$IFDEF IOS} dependency 'c++'{$ENDIF};
+function  gr4d_directcontext_create_texture3;                             external LibraryName name 'gr4d_directcontext_create_texture3'                            {$IFDEF IOS} dependency 'c++'{$ENDIF};
+procedure gr4d_directcontext_delete_texture;                              external LibraryName name 'gr4d_directcontext_delete_texture'                             {$IFDEF IOS} dependency 'c++'{$ENDIF};
 procedure gr4d_directcontext_dump_memory_statistics;                      external LibraryName name 'gr4d_directcontext_dump_memory_statistics'                     {$IFDEF IOS} dependency 'c++'{$ENDIF};
 procedure gr4d_directcontext_flush;                                       external LibraryName name 'gr4d_directcontext_flush'                                      {$IFDEF IOS} dependency 'c++'{$ENDIF};
 procedure gr4d_directcontext_flush_and_submit;                            external LibraryName name 'gr4d_directcontext_flush_and_submit'                           {$IFDEF IOS} dependency 'c++'{$ENDIF};
@@ -3098,6 +3134,8 @@ function sk4d_imageencoder_encode_to_stream; external LibraryName name 'sk4d_ima
   sk4d_imagefilter_make_picture              := GetProcAddress(LibraryHandle, PChar('sk4d_imagefilter_make_picture'));
   sk4d_imagefilter_make_point_lit_diffuse    := GetProcAddress(LibraryHandle, PChar('sk4d_imagefilter_make_point_lit_diffuse'));
   sk4d_imagefilter_make_point_lit_specular   := GetProcAddress(LibraryHandle, PChar('sk4d_imagefilter_make_point_lit_specular'));
+  sk4d_imagefilter_make_runtime_shader       := GetProcAddress(LibraryHandle, PChar('sk4d_imagefilter_make_runtime_shader'));
+  sk4d_imagefilter_make_runtime_shader2      := GetProcAddress(LibraryHandle, PChar('sk4d_imagefilter_make_runtime_shader2'));
   sk4d_imagefilter_make_shader               := GetProcAddress(LibraryHandle, PChar('sk4d_imagefilter_make_shader'));
   sk4d_imagefilter_make_spot_lit_diffuse     := GetProcAddress(LibraryHandle, PChar('sk4d_imagefilter_make_spot_lit_diffuse'));
   sk4d_imagefilter_make_spot_lit_specular    := GetProcAddress(LibraryHandle, PChar('sk4d_imagefilter_make_spot_lit_specular'));
@@ -3128,6 +3166,8 @@ function  sk4d_imagefilter_make_offset;               external LibraryName name 
 function  sk4d_imagefilter_make_picture;              external LibraryName name 'sk4d_imagefilter_make_picture'             {$IFDEF IOS} dependency 'c++'{$ENDIF};
 function  sk4d_imagefilter_make_point_lit_diffuse;    external LibraryName name 'sk4d_imagefilter_make_point_lit_diffuse'   {$IFDEF IOS} dependency 'c++'{$ENDIF};
 function  sk4d_imagefilter_make_point_lit_specular;   external LibraryName name 'sk4d_imagefilter_make_point_lit_specular'  {$IFDEF IOS} dependency 'c++'{$ENDIF};
+function  sk4d_imagefilter_make_runtime_shader;       external LibraryName name 'sk4d_imagefilter_make_runtime_shader'      {$IFDEF IOS} dependency 'c++'{$ENDIF};
+function  sk4d_imagefilter_make_runtime_shader2;      external LibraryName name 'sk4d_imagefilter_make_runtime_shader2'     {$IFDEF IOS} dependency 'c++'{$ENDIF};
 function  sk4d_imagefilter_make_shader;               external LibraryName name 'sk4d_imagefilter_make_shader'              {$IFDEF IOS} dependency 'c++'{$ENDIF};
 function  sk4d_imagefilter_make_spot_lit_diffuse;     external LibraryName name 'sk4d_imagefilter_make_spot_lit_diffuse'    {$IFDEF IOS} dependency 'c++'{$ENDIF};
 function  sk4d_imagefilter_make_spot_lit_specular;    external LibraryName name 'sk4d_imagefilter_make_spot_lit_specular'   {$IFDEF IOS} dependency 'c++'{$ENDIF};
@@ -3677,6 +3717,9 @@ function  sk4d_rrect_transform;        external LibraryName name 'sk4d_rrect_tra
 { include/c/sk4d_runtimeeffect.h }
 
 {$IFNDEF SK_STATIC_LIBRARY}
+  sk4d_runtimeblendbuilder_create           := GetProcAddress(LibraryHandle, PChar('sk4d_runtimeblendbuilder_create'));
+  sk4d_runtimeblendbuilder_destroy          := GetProcAddress(LibraryHandle, PChar('sk4d_runtimeblendbuilder_destroy'));
+  sk4d_runtimeblendbuilder_make_blender     := GetProcAddress(LibraryHandle, PChar('sk4d_runtimeblendbuilder_make_blender'));
   sk4d_runtimeeffect_get_child_count        := GetProcAddress(LibraryHandle, PChar('sk4d_runtimeeffect_get_child_count'));
   sk4d_runtimeeffect_get_child_name         := GetProcAddress(LibraryHandle, PChar('sk4d_runtimeeffect_get_child_name'));
   sk4d_runtimeeffect_get_child_type         := GetProcAddress(LibraryHandle, PChar('sk4d_runtimeeffect_get_child_type'));
@@ -3695,25 +3738,46 @@ function  sk4d_rrect_transform;        external LibraryName name 'sk4d_rrect_tra
   sk4d_runtimeeffect_make_for_shader        := GetProcAddress(LibraryHandle, PChar('sk4d_runtimeeffect_make_for_shader'));
   sk4d_runtimeeffect_make_image             := GetProcAddress(LibraryHandle, PChar('sk4d_runtimeeffect_make_image'));
   sk4d_runtimeeffect_make_shader            := GetProcAddress(LibraryHandle, PChar('sk4d_runtimeeffect_make_shader'));
+  sk4d_runtimeeffectbuilder_set_child       := GetProcAddress(LibraryHandle, PChar('sk4d_runtimeeffectbuilder_set_child'));
+  sk4d_runtimeeffectbuilder_set_child2      := GetProcAddress(LibraryHandle, PChar('sk4d_runtimeeffectbuilder_set_child2'));
+  sk4d_runtimeeffectbuilder_set_child3      := GetProcAddress(LibraryHandle, PChar('sk4d_runtimeeffectbuilder_set_child3'));
+  sk4d_runtimeeffectbuilder_set_uniform     := GetProcAddress(LibraryHandle, PChar('sk4d_runtimeeffectbuilder_set_uniform'));
+  sk4d_runtimeeffectbuilder_get_effect      := GetProcAddress(LibraryHandle, PChar('sk4d_runtimeeffectbuilder_get_effect'));
+  sk4d_runtimeshaderbuilder_create          := GetProcAddress(LibraryHandle, PChar('sk4d_runtimeshaderbuilder_create'));
+  sk4d_runtimeshaderbuilder_destroy         := GetProcAddress(LibraryHandle, PChar('sk4d_runtimeshaderbuilder_destroy'));
+  sk4d_runtimeshaderbuilder_make_image      := GetProcAddress(LibraryHandle, PChar('sk4d_runtimeshaderbuilder_make_image'));
+  sk4d_runtimeshaderbuilder_make_shader     := GetProcAddress(LibraryHandle, PChar('sk4d_runtimeshaderbuilder_make_shader'));
 {$ELSE}
-function sk4d_runtimeeffect_get_child_count;        external LibraryName name 'sk4d_runtimeeffect_get_child_count'       {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function sk4d_runtimeeffect_get_child_name;         external LibraryName name 'sk4d_runtimeeffect_get_child_name'        {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function sk4d_runtimeeffect_get_child_type;         external LibraryName name 'sk4d_runtimeeffect_get_child_type'        {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function sk4d_runtimeeffect_get_uniform_count;      external LibraryName name 'sk4d_runtimeeffect_get_uniform_count'     {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function sk4d_runtimeeffect_get_uniform_data_size;  external LibraryName name 'sk4d_runtimeeffect_get_uniform_data_size' {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function sk4d_runtimeeffect_get_uniform_name;       external LibraryName name 'sk4d_runtimeeffect_get_uniform_name'      {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function sk4d_runtimeeffect_get_uniform_offset;     external LibraryName name 'sk4d_runtimeeffect_get_uniform_offset'    {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function sk4d_runtimeeffect_get_uniform_type;       external LibraryName name 'sk4d_runtimeeffect_get_uniform_type'      {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function sk4d_runtimeeffect_get_uniform_type_count; external LibraryName name 'sk4d_runtimeeffect_get_uniform_type_count'{$IFDEF IOS} dependency 'c++'{$ENDIF};
-function sk4d_runtimeeffect_index_of_child;         external LibraryName name 'sk4d_runtimeeffect_index_of_child'        {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function sk4d_runtimeeffect_index_of_uniform;       external LibraryName name 'sk4d_runtimeeffect_index_of_uniform'      {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function sk4d_runtimeeffect_make_blender;           external LibraryName name 'sk4d_runtimeeffect_make_blender'          {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function sk4d_runtimeeffect_make_color_filter;      external LibraryName name 'sk4d_runtimeeffect_make_color_filter'     {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function sk4d_runtimeeffect_make_for_blender;       external LibraryName name 'sk4d_runtimeeffect_make_for_blender'      {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function sk4d_runtimeeffect_make_for_color_filter;  external LibraryName name 'sk4d_runtimeeffect_make_for_color_filter' {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function sk4d_runtimeeffect_make_for_shader;        external LibraryName name 'sk4d_runtimeeffect_make_for_shader'       {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function sk4d_runtimeeffect_make_image;             external LibraryName name 'sk4d_runtimeeffect_make_image'            {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function sk4d_runtimeeffect_make_shader;            external LibraryName name 'sk4d_runtimeeffect_make_shader'           {$IFDEF IOS} dependency 'c++'{$ENDIF};
+function  sk4d_runtimeblendbuilder_create;           external LibraryName name 'sk4d_runtimeblendbuilder_create'          {$IFDEF IOS} dependency 'c++'{$ENDIF};
+procedure sk4d_runtimeblendbuilder_destroy;          external LibraryName name 'sk4d_runtimeblendbuilder_destroy'         {$IFDEF IOS} dependency 'c++'{$ENDIF};
+function  sk4d_runtimeblendbuilder_make_blender;     external LibraryName name 'sk4d_runtimeblendbuilder_make_blender'    {$IFDEF IOS} dependency 'c++'{$ENDIF};
+function  sk4d_runtimeeffect_get_child_count;        external LibraryName name 'sk4d_runtimeeffect_get_child_count'       {$IFDEF IOS} dependency 'c++'{$ENDIF};
+function  sk4d_runtimeeffect_get_child_name;         external LibraryName name 'sk4d_runtimeeffect_get_child_name'        {$IFDEF IOS} dependency 'c++'{$ENDIF};
+function  sk4d_runtimeeffect_get_child_type;         external LibraryName name 'sk4d_runtimeeffect_get_child_type'        {$IFDEF IOS} dependency 'c++'{$ENDIF};
+function  sk4d_runtimeeffect_get_uniform_count;      external LibraryName name 'sk4d_runtimeeffect_get_uniform_count'     {$IFDEF IOS} dependency 'c++'{$ENDIF};
+function  sk4d_runtimeeffect_get_uniform_data_size;  external LibraryName name 'sk4d_runtimeeffect_get_uniform_data_size' {$IFDEF IOS} dependency 'c++'{$ENDIF};
+function  sk4d_runtimeeffect_get_uniform_name;       external LibraryName name 'sk4d_runtimeeffect_get_uniform_name'      {$IFDEF IOS} dependency 'c++'{$ENDIF};
+function  sk4d_runtimeeffect_get_uniform_offset;     external LibraryName name 'sk4d_runtimeeffect_get_uniform_offset'    {$IFDEF IOS} dependency 'c++'{$ENDIF};
+function  sk4d_runtimeeffect_get_uniform_type;       external LibraryName name 'sk4d_runtimeeffect_get_uniform_type'      {$IFDEF IOS} dependency 'c++'{$ENDIF};
+function  sk4d_runtimeeffect_get_uniform_type_count; external LibraryName name 'sk4d_runtimeeffect_get_uniform_type_count'{$IFDEF IOS} dependency 'c++'{$ENDIF};
+function  sk4d_runtimeeffect_index_of_child;         external LibraryName name 'sk4d_runtimeeffect_index_of_child'        {$IFDEF IOS} dependency 'c++'{$ENDIF};
+function  sk4d_runtimeeffect_index_of_uniform;       external LibraryName name 'sk4d_runtimeeffect_index_of_uniform'      {$IFDEF IOS} dependency 'c++'{$ENDIF};
+function  sk4d_runtimeeffect_make_blender;           external LibraryName name 'sk4d_runtimeeffect_make_blender'          {$IFDEF IOS} dependency 'c++'{$ENDIF};
+function  sk4d_runtimeeffect_make_color_filter;      external LibraryName name 'sk4d_runtimeeffect_make_color_filter'     {$IFDEF IOS} dependency 'c++'{$ENDIF};
+function  sk4d_runtimeeffect_make_for_blender;       external LibraryName name 'sk4d_runtimeeffect_make_for_blender'      {$IFDEF IOS} dependency 'c++'{$ENDIF};
+function  sk4d_runtimeeffect_make_for_color_filter;  external LibraryName name 'sk4d_runtimeeffect_make_for_color_filter' {$IFDEF IOS} dependency 'c++'{$ENDIF};
+function  sk4d_runtimeeffect_make_for_shader;        external LibraryName name 'sk4d_runtimeeffect_make_for_shader'       {$IFDEF IOS} dependency 'c++'{$ENDIF};
+function  sk4d_runtimeeffect_make_image;             external LibraryName name 'sk4d_runtimeeffect_make_image'            {$IFDEF IOS} dependency 'c++'{$ENDIF};
+function  sk4d_runtimeeffect_make_shader;            external LibraryName name 'sk4d_runtimeeffect_make_shader'           {$IFDEF IOS} dependency 'c++'{$ENDIF};
+procedure sk4d_runtimeeffectbuilder_set_child;       external LibraryName name 'sk4d_runtimeeffectbuilder_set_child'      {$IFDEF IOS} dependency 'c++'{$ENDIF};
+procedure sk4d_runtimeeffectbuilder_set_child2;      external LibraryName name 'sk4d_runtimeeffectbuilder_set_child2'     {$IFDEF IOS} dependency 'c++'{$ENDIF};
+procedure sk4d_runtimeeffectbuilder_set_child3;      external LibraryName name 'sk4d_runtimeeffectbuilder_set_child3'     {$IFDEF IOS} dependency 'c++'{$ENDIF};
+procedure sk4d_runtimeeffectbuilder_set_uniform;     external LibraryName name 'sk4d_runtimeeffectbuilder_set_uniform'    {$IFDEF IOS} dependency 'c++'{$ENDIF};
+function  sk4d_runtimeeffectbuilder_get_effect;      external LibraryName name 'sk4d_runtimeeffectbuilder_get_effect'     {$IFDEF IOS} dependency 'c++'{$ENDIF};
+function  sk4d_runtimeshaderbuilder_create;          external LibraryName name 'sk4d_runtimeshaderbuilder_create'         {$IFDEF IOS} dependency 'c++'{$ENDIF};
+procedure sk4d_runtimeshaderbuilder_destroy;         external LibraryName name 'sk4d_runtimeshaderbuilder_destroy'        {$IFDEF IOS} dependency 'c++'{$ENDIF};
+function  sk4d_runtimeshaderbuilder_make_image;      external LibraryName name 'sk4d_runtimeshaderbuilder_make_image'     {$IFDEF IOS} dependency 'c++'{$ENDIF};
+function  sk4d_runtimeshaderbuilder_make_shader;     external LibraryName name 'sk4d_runtimeshaderbuilder_make_shader'    {$IFDEF IOS} dependency 'c++'{$ENDIF};
 {$ENDIF}
 
 
@@ -3723,6 +3787,7 @@ function sk4d_runtimeeffect_make_shader;            external LibraryName name 's
   sk4d_shader_make_blend                       := GetProcAddress(LibraryHandle, PChar('sk4d_shader_make_blend'));
   sk4d_shader_make_color                       := GetProcAddress(LibraryHandle, PChar('sk4d_shader_make_color'));
   sk4d_shader_make_color2                      := GetProcAddress(LibraryHandle, PChar('sk4d_shader_make_color2'));
+  sk4d_shader_make_empty                       := GetProcAddress(LibraryHandle, PChar('sk4d_shader_make_empty'));
   sk4d_shader_make_gradient_linear             := GetProcAddress(LibraryHandle, PChar('sk4d_shader_make_gradient_linear'));
   sk4d_shader_make_gradient_linear2            := GetProcAddress(LibraryHandle, PChar('sk4d_shader_make_gradient_linear2'));
   sk4d_shader_make_gradient_radial             := GetProcAddress(LibraryHandle, PChar('sk4d_shader_make_gradient_radial'));
@@ -3739,6 +3804,7 @@ function sk4d_runtimeeffect_make_shader;            external LibraryName name 's
 function sk4d_shader_make_blend;                       external LibraryName name 'sk4d_shader_make_blend'                      {$IFDEF IOS} dependency 'c++'{$ENDIF};
 function sk4d_shader_make_color;                       external LibraryName name 'sk4d_shader_make_color'                      {$IFDEF IOS} dependency 'c++'{$ENDIF};
 function sk4d_shader_make_color2;                      external LibraryName name 'sk4d_shader_make_color2'                     {$IFDEF IOS} dependency 'c++'{$ENDIF};
+function sk4d_shader_make_empty;                       external LibraryName name 'sk4d_shader_make_empty'                      {$IFDEF IOS} dependency 'c++'{$ENDIF};
 function sk4d_shader_make_gradient_linear;             external LibraryName name 'sk4d_shader_make_gradient_linear'            {$IFDEF IOS} dependency 'c++'{$ENDIF};
 function sk4d_shader_make_gradient_linear2;            external LibraryName name 'sk4d_shader_make_gradient_linear2'           {$IFDEF IOS} dependency 'c++'{$ENDIF};
 function sk4d_shader_make_gradient_radial;             external LibraryName name 'sk4d_shader_make_gradient_radial'            {$IFDEF IOS} dependency 'c++'{$ENDIF};
@@ -3805,6 +3871,7 @@ function  sk4d_string_get_text; external LibraryName name 'sk4d_string_get_text'
   sk4d_surface_peek_pixels             := GetProcAddress(LibraryHandle, PChar('sk4d_surface_peek_pixels'));
   sk4d_surface_read_pixels             := GetProcAddress(LibraryHandle, PChar('sk4d_surface_read_pixels'));
   sk4d_surface_wait                    := GetProcAddress(LibraryHandle, PChar('sk4d_surface_wait'));
+  sk4d_surface_write_pixels            := GetProcAddress(LibraryHandle, PChar('sk4d_surface_write_pixels'));
 {$ELSE}
 procedure sk4d_surface_draw;                    external LibraryName name 'sk4d_surface_draw'                   {$IFDEF IOS} dependency 'c++'{$ENDIF};
 procedure sk4d_surface_flush;                   external LibraryName name 'sk4d_surface_flush'                  {$IFDEF IOS} dependency 'c++'{$ENDIF};
@@ -3822,6 +3889,7 @@ function  sk4d_surface_make_render_target;      external LibraryName name 'sk4d_
 function  sk4d_surface_peek_pixels;             external LibraryName name 'sk4d_surface_peek_pixels'            {$IFDEF IOS} dependency 'c++'{$ENDIF};
 function  sk4d_surface_read_pixels;             external LibraryName name 'sk4d_surface_read_pixels'            {$IFDEF IOS} dependency 'c++'{$ENDIF};
 procedure sk4d_surface_wait;                    external LibraryName name 'sk4d_surface_wait'                   {$IFDEF IOS} dependency 'c++'{$ENDIF};
+procedure sk4d_surface_write_pixels;            external LibraryName name 'sk4d_surface_write_pixels'           {$IFDEF IOS} dependency 'c++'{$ENDIF};
 {$ENDIF}
 
 

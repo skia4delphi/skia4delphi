@@ -8,7 +8,7 @@
 { found in the LICENSE file.                                             }
 {                                                                        }
 {************************************************************************}
-unit Skia;
+unit System.Skia;
 
 interface
 
@@ -28,10 +28,10 @@ uses
   System.UITypes,
 
   { Skia }
-  Skia.API;
+  System.Skia.API;
 
 const
-  SkVersion = '5.0.0';
+  SkVersion = '6.0.0';
 
 type
   TGrBackendAPI                   = (OpenGl, Vulkan, Metal);
@@ -45,7 +45,7 @@ type
   TSkBreakType                    = (Words, Graphemes, Lines);
   TSkClipOp                       = (Difference, Intersect);
   TSkColorChannel                 = (R, G, B, A);
-  TSkColorType                    = (Unknown, Alpha8, RGB565, ARGB4444, RGBA8888, RGB888X, BGRA8888, RGBA1010102, BGRA1010102, RGB101010X, BGR101010X, Gray8, RGBAF16, RGBAF16Clamped, RGBAF32, RG88, AlphaF16, RGF16, Alpha16, RG1616, RGBA16161616, SRGBA8888, R8);
+  TSkColorType                    = (Unknown, Alpha8, RGB565, ARGB4444, RGBA8888, RGB888X, BGRA8888, RGBA1010102, BGRA1010102, RGB101010X, BGR101010X, Gray8, RGBAF16Normalized, RGBAF16, RGBAF32, RG88, AlphaF16, RGF16, Alpha16, RG1616, RGBA16161616, SRGBA8888, R8);
   TSkContrastInvertStyle          = (NoInvert, InvertBrightness, InvertLightness);
   TSkDirection                    = (LeftToRight, RightToLeft);
   TSkDrawPointsMode               = (Points, Lines, Polygon);
@@ -128,6 +128,7 @@ type
   ISkRegion                       = interface;
   ISkResourceProvider             = interface;
   ISkRoundRect                    = interface;
+  ISkRuntimeShaderBuilder         = interface;
   ISkShader                       = interface;
   ISkSurface                      = interface;
   ISkSVGNode                      = interface;
@@ -807,9 +808,8 @@ type
 
   (*$HPPEMIT END '#define __SkCreate(AClass, AIntf, ...) \' *)
   (*$HPPEMIT END '    ({ \' *)
-  (*$HPPEMIT END '        using namespace ::Skia; \' *)
-  (*$HPPEMIT END '        _di_##AIntf __Result; \' *)
-  (*$HPPEMIT END '        (new AClass(__VA_ARGS__))->GetInterface(__Result); \' *)
+  (*$HPPEMIT END '        ::System::Skia::_di_##AIntf __Result; \' *)
+  (*$HPPEMIT END '        (new ::System::Skia::AClass(__VA_ARGS__))->GetInterface(__Result); \' *)
   (*$HPPEMIT END '        __Result; \' *)
   (*$HPPEMIT END '    })' *)
 
@@ -1024,6 +1024,10 @@ type
   IGrDirectContext = interface(ISkReferenceCounted)
     ['{8B4304D7-385A-4165-ADE2-F052DAAA70D3}']
     procedure AbandonContext;
+    function CreateTexture(const AWidth, AHeight: Integer; const AColorType: TSkColorType; const AIsMipmapped, AIsRenderable: Boolean; const AIsProtected: Boolean = False): IGrBackendTexture; overload;
+    function CreateTexture(const AWidth, AHeight: Integer; const AColorType: TSkColorType; const AColor: TAlphaColor; const AIsMipmapped, AIsRenderable: Boolean; const AIsProtected: Boolean = False): IGrBackendTexture; overload;
+    function CreateTexture(const AWidth, AHeight: Integer; const AColorType: TSkColorType; const AColor: TAlphaColorF; const AIsMipmapped, AIsRenderable: Boolean; const AIsProtected: Boolean = False): IGrBackendTexture; overload;
+    procedure DeleteTexture(const ATexture: IGrBackendTexture);
     procedure DumpMemoryStatistics(const ATraceMemoryDump: ISkTraceMemoryDump);
     procedure Flush;
     procedure FlushAndSubmit(const ASyncCpu: Boolean = False);
@@ -1056,6 +1060,10 @@ type
     procedure SetResourceCacheLimit(const AValue: NativeUInt);
   public
     procedure AbandonContext;
+    function CreateTexture(const AWidth, AHeight: Integer; const AColorType: TSkColorType; const AIsMipmapped, AIsRenderable: Boolean; const AIsProtected: Boolean = False): IGrBackendTexture; overload;
+    function CreateTexture(const AWidth, AHeight: Integer; const AColorType: TSkColorType; const AColor: TAlphaColor; const AIsMipmapped, AIsRenderable: Boolean; const AIsProtected: Boolean = False): IGrBackendTexture; overload;
+    function CreateTexture(const AWidth, AHeight: Integer; const AColorType: TSkColorType; const AColor: TAlphaColorF; const AIsMipmapped, AIsRenderable: Boolean; const AIsProtected: Boolean = False): IGrBackendTexture; overload;
+    procedure DeleteTexture(const ATexture: IGrBackendTexture);
     procedure DumpMemoryStatistics(const ATraceMemoryDump: ISkTraceMemoryDump);
     procedure Flush;
     procedure FlushAndSubmit(const ASyncCpu: Boolean = False);
@@ -1161,9 +1169,15 @@ type
 
   {$HPPEMIT END '#define GrVkExtensions(...) __SkCreate(TGrVkExtensions, IGrVkExtensions, __VA_ARGS__)'}
 
+  { ISkFlattenable }
+
+  ISkFlattenable = interface(ISkReferenceCounted)
+    ['{5CE62F93-1D06-4880-96D2-D9BAEF4C13D3}']
+  end;
+
   { ISkBlender }
 
-  ISkBlender = interface(ISkReferenceCounted)
+  ISkBlender = interface(ISkFlattenable)
     ['{78342141-22D6-4D38-A87D-38D70DE65A8C}']
   end;
 
@@ -1265,9 +1279,6 @@ type
 
   TSkCanvas = class(TSkObject, ISkCanvas)
   strict private
-    function GetBaseProperties: TSkSurfaceProperties;
-    function GetTopProperties: TSkSurfaceProperties;
-  public
     procedure Clear(const AColor: TAlphaColor); overload;
     procedure Clear(const AColor: TAlphaColorF); overload;
     procedure Discard;
@@ -1319,11 +1330,13 @@ type
     procedure DrawSimpleTextGlyphs(const AGlyphs: TArray<Word>; const AX, AY: Single; const AFont: ISkFont; const APaint: ISkPaint);
     procedure DrawTextBlob(const ATextBlob: ISkTextBlob; const AX, AY: Single; const APaint: ISkPaint); overload;
     procedure DrawVertices(const AVertices: ISkVertices; const ABlendMode: TSkBlendMode; const APaint: ISkPaint);
+    function GetBaseProperties: TSkSurfaceProperties;
     function GetDeviceClipBounds: TRect;
     function GetLocalClipBounds: TRectF;
     function GetLocalToDevice: TMatrix3D;
     function GetLocalToDeviceAs3x3: TMatrix;
     function GetSaveCount: Integer;
+    function GetTopProperties: TSkSurfaceProperties;
     function MakeSurface(const AImageInfo: TSkImageInfo): ISkSurface; overload;
     function MakeSurface(const AImageInfo: TSkImageInfo; const AProperties: TSkSurfaceProperties): ISkSurface; overload;
     function QuickReject(const ARect: TRectF): Boolean; overload;
@@ -1344,8 +1357,7 @@ type
     procedure SetMatrix(const AMatrix: TMatrix3D); overload;
     procedure Skew(const ASkewX, ASkewY: Single);
     procedure Translate(const ADeltaX, ADeltaY: Single);
-    property BaseProperties: TSkSurfaceProperties read GetBaseProperties;
-    property TopProperties: TSkSurfaceProperties read GetTopProperties;
+  public
     class procedure __DestroyHandle(const AHandle: THandle); override;
   end;
 
@@ -1418,7 +1430,7 @@ type
 
   { ISkColorFilter }
 
-  ISkColorFilter = interface(ISkReferenceCounted)
+  ISkColorFilter = interface(ISkFlattenable)
     ['{A7F1A527-A796-4387-8957-5D5C2DAB0924}']
   end;
 
@@ -1823,6 +1835,8 @@ type
     class function MakePointLitDiffuse(const ALocation: TPoint3D; const ALightColor: TAlphaColor; const ASurfaceScale, AKd: Single; const ACropRect: TRectF; AInput: ISkImageFilter = nil): ISkImageFilter; overload; static;
     class function MakePointLitSpecular(const ALocation: TPoint3D; const ALightColor: TAlphaColor; const ASurfaceScale, AKs, AShininess: Single; AInput: ISkImageFilter = nil): ISkImageFilter; overload; static;
     class function MakePointLitSpecular(const ALocation: TPoint3D; const ALightColor: TAlphaColor; const ASurfaceScale, AKs, AShininess: Single; const ACropRect: TRectF; AInput: ISkImageFilter = nil): ISkImageFilter; overload; static;
+    class function MakeRuntimeShader(const AEffectBuilder: ISkRuntimeShaderBuilder; const AChild: string = ''; const AInput: ISkImageFilter = nil): ISkImageFilter; overload; static;
+    class function MakeRuntimeShader(const AEffectBuilder: ISkRuntimeShaderBuilder; const AChildren: TArray<string>; const AInputs: TArray<ISkImageFilter>): ISkImageFilter; overload; static;
     class function MakeShader(const AShader: ISkShader; const ADither: Boolean): ISkImageFilter; overload; static;
     class function MakeShader(const AShader: ISkShader; const ADither: Boolean; const ACropRect: TRectF): ISkImageFilter; overload; static;
     class function MakeSpotLitDiffuse(const ALocation, ATarget: TPoint3D; const AFalloffExponent, ACutoffAngle: Single; const ALightColor: TAlphaColor; const ASurfaceScale, AKd: Single; AInput: ISkImageFilter = nil): ISkImageFilter; overload; static;
@@ -2576,22 +2590,24 @@ type
   { ISkRuntimeEffect }
 
   ISkRuntimeEffect = interface(ISkReferenceCounted)
-    ['{BC1BDAAE-9331-47E5-A869-E7EC2D15ED52}']
+    ['{206A8478-49E2-44DE-B198-014FEC68B721}']
     function ChildExists(const AName: string): Boolean;
-    function GetChildColorFilter(const AIndex: Integer): ISkColorFilter;
-    function GetChildColorFilterByName(const AName: string): ISkColorFilter;
+    function IndexOfChild(const AName: string): Integer;
+    function IndexOfUniform(const AName: string): Integer;
+    function IsUniformTypeOrdinal(const AIndex: Integer): Boolean;
+    function IsUniformTypeOrdinalByName(const AName: string): Boolean;
+    function MakeBlender(const AUniforms; const AChildren: TArray<ISkFlattenable>): ISkBlender;
+    function MakeColorFilter(const AUniforms; const AChildren: TArray<ISkFlattenable>): ISkColorFilter;
+    function MakeImage(const AUniforms; const AChildren: TArray<ISkFlattenable>; const AImageInfo: TSkImageInfo; const AMipmapped: Boolean = False; const AContext: IGrDirectContext = nil): ISkImage; overload;
+    function MakeImage(const AUniforms; const AChildren: TArray<ISkFlattenable>; const AImageInfo: TSkImageInfo; const ALocalMatrix: TMatrix; const AMipmapped: Boolean = False; const AContext: IGrDirectContext = nil): ISkImage; overload;
+    function MakeShader(const AUniforms; const AChildren: TArray<ISkFlattenable>): ISkShader; overload;
+    function MakeShader(const AUniforms; const AChildren: TArray<ISkFlattenable>; const ALocalMatrix: TMatrix): ISkShader; overload;
+    function UniformExists(const AName: string): Boolean;
     function GetChildCount: Integer;
     function GetChildName(const AIndex: Integer): string;
-    function GetChildBlender(const AIndex: Integer): ISkBlender;
-    function GetChildBlenderByName(const AName: string): ISkBlender;
-    function GetChildShader(const AIndex: Integer): ISkShader;
-    function GetChildShaderByName(const AName: string): ISkShader;
     function GetChildType(const AIndex: Integer): TSkRuntimeEffectChildType;
     function GetChildTypeByName(const AName: string): TSkRuntimeEffectChildType;
-    function GetUniform(const AIndex: Integer): Pointer;
-    function GetUniformByName(const AName: string): Pointer;
     function GetUniformCount: Integer;
-    function GetUniformData: Pointer;
     function GetUniformDataSize: NativeUInt;
     function GetUniformName(const AIndex: Integer): string;
     function GetUniformOffset(const AIndex: Integer): NativeUInt;
@@ -2600,76 +2616,15 @@ type
     function GetUniformTypeByName(const AName: string): TSkRuntimeEffectUniformType;
     function GetUniformTypeCount(const AIndex: Integer): Integer;
     function GetUniformTypeCountByName(const AName: string): Integer;
-    function IndexOfChild(const AName: string): Integer;
-    function IndexOfUniform(const AName: string): Integer;
-    function IsUniformTypeOrdinal(const AIndex: Integer): Boolean;
-    function IsUniformTypeOrdinalByName(const AName: string): Boolean;
-    function MakeBlender: ISkBlender;
-    function MakeColorFilter: ISkColorFilter;
-    function MakeImage(const AImageInfo: TSkImageInfo; const AMipmapped: Boolean = False; const AContext: IGrDirectContext = nil): ISkImage; overload;
-    function MakeImage(const AImageInfo: TSkImageInfo; const ALocalMatrix: TMatrix; const AMipmapped: Boolean = False; const AContext: IGrDirectContext = nil): ISkImage; overload;
-    function MakeShader: ISkShader; overload;
-    function MakeShader(const ALocalMatrix: TMatrix): ISkShader; overload;
-    procedure SetChildBlender(const AIndex: Integer; const AValue: ISkBlender);
-    procedure SetChildBlenderByName(const AName: string; const AValue: ISkBlender);
-    procedure SetChildColorFilter(const AIndex: Integer; const AValue: ISkColorFilter);
-    procedure SetChildColorFilterByName(const AName: string; const AValue: ISkColorFilter);
-    procedure SetChildShader(const AIndex: Integer; const AValue: ISkShader);
-    procedure SetChildShaderByName(const AName: string; const AValue: ISkShader);
-    procedure SetUniform(const AIndex: Integer; const AData; const ASize: NativeUInt); overload;
-    procedure SetUniform(const AIndex: Integer; const AValue: Integer); overload;
-    procedure SetUniform(const AIndex: Integer; const AValue: TArray<Integer>); overload;
-    procedure SetUniform(const AIndex: Integer; const AValue: TPoint); overload;
-    procedure SetUniform(const AIndex: Integer; const AValue: TSkRuntimeEffectInt2); overload;
-    procedure SetUniform(const AIndex: Integer; const AValue: TSkRuntimeEffectInt3); overload;
-    procedure SetUniform(const AIndex: Integer; const AValue: TSkRuntimeEffectInt4); overload;
-    procedure SetUniform(const AIndex: Integer; const AValue: Single); overload;
-    procedure SetUniform(const AIndex: Integer; const AValue: TArray<Single>); overload;
-    procedure SetUniform(const AIndex: Integer; const AValue: TPointF); overload;
-    procedure SetUniform(const AIndex: Integer; const AValue: TAlphaColorF); overload;
-    procedure SetUniform(const AIndex: Integer; const AValue: TSkRuntimeEffectFloat2); overload;
-    procedure SetUniform(const AIndex: Integer; const AValue: TSkRuntimeEffectFloat3); overload;
-    procedure SetUniform(const AIndex: Integer; const AValue: TSkRuntimeEffectFloat4); overload;
-    procedure SetUniform(const AIndex: Integer; const AValue: TSkRuntimeEffectFloat2x2); overload;
-    procedure SetUniform(const AIndex: Integer; const AValue: TSkRuntimeEffectFloat3x3); overload;
-    procedure SetUniform(const AIndex: Integer; const AValue: TSkRuntimeEffectFloat4x4); overload;
-    procedure SetUniform(const AName: string; const AData; const ASize: NativeUInt); overload;
-    procedure SetUniform(const AName: string; const AValue: Integer); overload;
-    procedure SetUniform(const AName: string; const AValue: TArray<Integer>); overload;
-    procedure SetUniform(const AName: string; const AValue: TPoint); overload;
-    procedure SetUniform(const AName: string; const AValue: TSkRuntimeEffectInt2); overload;
-    procedure SetUniform(const AName: string; const AValue: TSkRuntimeEffectInt3); overload;
-    procedure SetUniform(const AName: string; const AValue: TSkRuntimeEffectInt4); overload;
-    procedure SetUniform(const AName: string; const AValue: Single); overload;
-    procedure SetUniform(const AName: string; const AValue: TArray<Single>); overload;
-    procedure SetUniform(const AName: string; const AValue: TPointF); overload;
-    procedure SetUniform(const AName: string; const AValue: TAlphaColorF); overload;
-    procedure SetUniform(const AName: string; const AValue: TSkRuntimeEffectFloat2); overload;
-    procedure SetUniform(const AName: string; const AValue: TSkRuntimeEffectFloat3); overload;
-    procedure SetUniform(const AName: string; const AValue: TSkRuntimeEffectFloat4); overload;
-    procedure SetUniform(const AName: string; const AValue: TSkRuntimeEffectFloat2x2); overload;
-    procedure SetUniform(const AName: string; const AValue: TSkRuntimeEffectFloat3x3); overload;
-    procedure SetUniform(const AName: string; const AValue: TSkRuntimeEffectFloat4x4); overload;
-    function UniformExists(const AName: string): Boolean;
-    procedure WriteUniform(const AOffset: NativeUInt; const AData; const ASize: NativeUInt);
     property ChildCount: Integer read GetChildCount;
-    property ChildrenBlenders[const AIndex: Integer]: ISkBlender read GetChildBlender write SetChildBlender;
-    property ChildrenBlendersByName[const AName: string]: ISkBlender read GetChildBlenderByName write SetChildBlenderByName;
-    property ChildrenColorFilters[const AIndex: Integer]: ISkColorFilter read GetChildColorFilter write SetChildColorFilter;
-    property ChildrenColorFiltersByName[const AName: string]: ISkColorFilter read GetChildColorFilterByName write SetChildColorFilterByName;
     property ChildrenNames[const AIndex: Integer]: string read GetChildName;
-    property ChildrenShaders[const AIndex: Integer]: ISkShader read GetChildShader write SetChildShader;
-    property ChildrenShadersByName[const AName: string]: ISkShader read GetChildShaderByName write SetChildShaderByName;
     property ChildType[const AIndex: Integer]: TSkRuntimeEffectChildType read GetChildType;
     property ChildTypeByName[const AName: string]: TSkRuntimeEffectChildType read GetChildTypeByName;
     property UniformCount: Integer read GetUniformCount;
-    property UniformData: Pointer read GetUniformData;
     property UniformDataSize: NativeUInt read GetUniformDataSize;
     property UniformNames[const AIndex: Integer]: string read GetUniformName;
     property UniformOffset[const AIndex: Integer]: NativeUInt read GetUniformOffset;
     property UniformOffsetByName[const AName: string]: NativeUInt read GetUniformOffsetByName;
-    property Uniforms[const AIndex: Integer]: Pointer read GetUniform;
-    property UniformsByName[const AName: string]: Pointer read GetUniformByName;
     property UniformType[const AIndex: Integer]: TSkRuntimeEffectUniformType read GetUniformType;
     property UniformTypeByName[const AName: string]: TSkRuntimeEffectUniformType read GetUniformTypeByName;
     property UniformTypeCount[const AIndex: Integer]: Integer read GetUniformTypeCount;
@@ -2680,22 +2635,11 @@ type
 
   TSkRuntimeEffect = class(TSkReferenceCounted, ISkRuntimeEffect)
   strict private
-    FChildren: TArray<ISkObject>;
-    FUniformData: Pointer;
-    function GetChildBlender(const AIndex: Integer): ISkBlender;
-    function GetChildBlenderByName(const AName: string): ISkBlender;
-    function GetChildColorFilter(const AIndex: Integer): ISkColorFilter;
-    function GetChildColorFilterByName(const AName: string): ISkColorFilter;
     function GetChildCount: Integer;
     function GetChildName(const AIndex: Integer): string;
-    function GetChildShader(const AIndex: Integer): ISkShader;
-    function GetChildShaderByName(const AName: string): ISkShader;
     function GetChildType(const AIndex: Integer): TSkRuntimeEffectChildType;
     function GetChildTypeByName(const AName: string): TSkRuntimeEffectChildType;
-    function GetUniform(const AIndex: Integer): Pointer;
-    function GetUniformByName(const AName: string): Pointer;
     function GetUniformCount: Integer;
-    function GetUniformData: Pointer;
     function GetUniformDataSize: NativeUInt;
     function GetUniformName(const AIndex: Integer): string;
     function GetUniformOffset(const AIndex: Integer): NativeUInt;
@@ -2704,43 +2648,54 @@ type
     function GetUniformTypeByName(const AName: string): TSkRuntimeEffectUniformType;
     function GetUniformTypeCount(const AIndex: Integer): Integer;
     function GetUniformTypeCountByName(const AName: string): Integer;
-    procedure SetChildBlender(const AIndex: Integer; const AValue: ISkBlender);
-    procedure SetChildBlenderByName(const AName: string; const AValue: ISkBlender);
-    procedure SetChildColorFilter(const AIndex: Integer; const AValue: ISkColorFilter);
-    procedure SetChildColorFilterByName(const AName: string; const AValue: ISkColorFilter);
-    procedure SetChildShader(const AIndex: Integer; const AValue: ISkShader);
-    procedure SetChildShaderByName(const AName: string; const AValue: ISkShader);
   public
-    procedure AfterConstruction; override;
-    procedure BeforeDestruction; override;
     function ChildExists(const AName: string): Boolean;
     function IndexOfChild(const AName: string): Integer;
     function IndexOfUniform(const AName: string): Integer;
     function IsUniformTypeOrdinal(const AIndex: Integer): Boolean;
     function IsUniformTypeOrdinalByName(const AName: string): Boolean;
-    function MakeBlender: ISkBlender;
-    function MakeColorFilter: ISkColorFilter;
-    function MakeImage(const AImageInfo: TSkImageInfo; const AMipmapped: Boolean = False; const AContext: IGrDirectContext = nil): ISkImage; overload;
-    function MakeImage(const AImageInfo: TSkImageInfo; const ALocalMatrix: TMatrix; const AMipmapped: Boolean = False; const AContext: IGrDirectContext = nil): ISkImage; overload;
-    function MakeShader: ISkShader; overload;
-    function MakeShader(const ALocalMatrix: TMatrix): ISkShader; overload;
-    procedure SetUniform(const AIndex: Integer; const AData; const ASize: NativeUInt); overload;
-    procedure SetUniform(const AIndex: Integer; const AValue: Integer); overload;
-    procedure SetUniform(const AIndex: Integer; const AValue: TArray<Integer>); overload;
-    procedure SetUniform(const AIndex: Integer; const AValue: TPoint); overload;
-    procedure SetUniform(const AIndex: Integer; const AValue: TSkRuntimeEffectInt2); overload;
-    procedure SetUniform(const AIndex: Integer; const AValue: TSkRuntimeEffectInt3); overload;
-    procedure SetUniform(const AIndex: Integer; const AValue: TSkRuntimeEffectInt4); overload;
-    procedure SetUniform(const AIndex: Integer; const AValue: Single); overload;
-    procedure SetUniform(const AIndex: Integer; const AValue: TArray<Single>); overload;
-    procedure SetUniform(const AIndex: Integer; const AValue: TPointF); overload;
-    procedure SetUniform(const AIndex: Integer; const AValue: TAlphaColorF); overload;
-    procedure SetUniform(const AIndex: Integer; const AValue: TSkRuntimeEffectFloat2); overload;
-    procedure SetUniform(const AIndex: Integer; const AValue: TSkRuntimeEffectFloat3); overload;
-    procedure SetUniform(const AIndex: Integer; const AValue: TSkRuntimeEffectFloat4); overload;
-    procedure SetUniform(const AIndex: Integer; const AValue: TSkRuntimeEffectFloat2x2); overload;
-    procedure SetUniform(const AIndex: Integer; const AValue: TSkRuntimeEffectFloat3x3); overload;
-    procedure SetUniform(const AIndex: Integer; const AValue: TSkRuntimeEffectFloat4x4); overload;
+    function MakeBlender(const AUniforms; const AChildren: TArray<ISkFlattenable>): ISkBlender;
+    function MakeColorFilter(const AUniforms; const AChildren: TArray<ISkFlattenable>): ISkColorFilter;
+    function MakeImage(const AUniforms; const AChildren: TArray<ISkFlattenable>; const AImageInfo: TSkImageInfo; const AMipmapped: Boolean = False; const AContext: IGrDirectContext = nil): ISkImage; overload;
+    function MakeImage(const AUniforms; const AChildren: TArray<ISkFlattenable>; const AImageInfo: TSkImageInfo; const ALocalMatrix: TMatrix; const AMipmapped: Boolean = False; const AContext: IGrDirectContext = nil): ISkImage; overload;
+    function MakeShader(const AUniforms; const AChildren: TArray<ISkFlattenable>): ISkShader; overload;
+    function MakeShader(const AUniforms; const AChildren: TArray<ISkFlattenable>; const ALocalMatrix: TMatrix): ISkShader; overload;
+    function UniformExists(const AName: string): Boolean;
+    property ChildCount: Integer read GetChildCount;
+    property ChildrenNames[const AIndex: Integer]: string read GetChildName;
+    property ChildType[const AIndex: Integer]: TSkRuntimeEffectChildType read GetChildType;
+    property ChildTypeByName[const AName: string]: TSkRuntimeEffectChildType read GetChildTypeByName;
+    property UniformCount: Integer read GetUniformCount;
+    property UniformDataSize: NativeUInt read GetUniformDataSize;
+    property UniformNames[const AIndex: Integer]: string read GetUniformName;
+    property UniformOffset[const AIndex: Integer]: NativeUInt read GetUniformOffset;
+    property UniformOffsetByName[const AName: string]: NativeUInt read GetUniformOffsetByName;
+    property UniformType[const AIndex: Integer]: TSkRuntimeEffectUniformType read GetUniformType;
+    property UniformTypeByName[const AName: string]: TSkRuntimeEffectUniformType read GetUniformTypeByName;
+    property UniformTypeCount[const AIndex: Integer]: Integer read GetUniformTypeCount;
+    property UniformTypeCountByName[const AName: string]: Integer read GetUniformTypeCountByName;
+    class function MakeForBlender(const ASkSL: string): ISkRuntimeEffect; overload; static;
+    class function MakeForBlender(const ASkSL: MarshaledAString): ISkRuntimeEffect; overload; static;
+    class function MakeForBlender(const ASkSL: string; out AErrorText: string): ISkRuntimeEffect; overload; static;
+    class function MakeForBlender(const ASkSL: MarshaledAString; out AErrorText: string): ISkRuntimeEffect; overload; static;
+    class function MakeForColorFilter(const ASkSL: string): ISkRuntimeEffect; overload; static;
+    class function MakeForColorFilter(const ASkSL: MarshaledAString): ISkRuntimeEffect; overload; static;
+    class function MakeForColorFilter(const ASkSL: string; out AErrorText: string): ISkRuntimeEffect; overload; static;
+    class function MakeForColorFilter(const ASkSL: MarshaledAString; out AErrorText: string): ISkRuntimeEffect; overload; static;
+    class function MakeForShader(const ASkSL: string): ISkRuntimeEffect; overload; static;
+    class function MakeForShader(const ASkSL: MarshaledAString): ISkRuntimeEffect; overload; static;
+    class function MakeForShader(const ASkSL: string; out AErrorText: string): ISkRuntimeEffect; overload; static;
+    class function MakeForShader(const ASkSL: MarshaledAString; out AErrorText: string): ISkRuntimeEffect; overload; static;
+  end;
+
+  { ISkRuntimeEffectBuilder }
+
+  ISkRuntimeEffectBuilder = interface(ISkObject)
+    ['{49AE29A9-1C5A-4D67-AF39-AB54CECFA89E}']
+    function GetEffect: TSkRuntimeEffect;
+    procedure SetChild(const AName: string; const AChild: ISkShader); overload;
+    procedure SetChild(const AName: string; const AChild: ISkColorFilter); overload;
+    procedure SetChild(const AName: string; const AChild: ISkBlender); overload;
     procedure SetUniform(const AName: string; const AData; const ASize: NativeUInt); overload;
     procedure SetUniform(const AName: string; const AValue: Integer); overload;
     procedure SetUniform(const AName: string; const AValue: TArray<Integer>); overload;
@@ -2758,41 +2713,88 @@ type
     procedure SetUniform(const AName: string; const AValue: TSkRuntimeEffectFloat2x2); overload;
     procedure SetUniform(const AName: string; const AValue: TSkRuntimeEffectFloat3x3); overload;
     procedure SetUniform(const AName: string; const AValue: TSkRuntimeEffectFloat4x4); overload;
-    function UniformExists(const AName: string): Boolean;
-    procedure WriteUniform(const AOffset: NativeUInt; const AData; const ASize: NativeUInt);
-    property ChildCount: Integer read GetChildCount;
-    property ChildrenBlenders[const AIndex: Integer]: ISkBlender read GetChildBlender write SetChildBlender;
-    property ChildrenBlendersByName[const AName: string]: ISkBlender read GetChildBlenderByName write SetChildBlenderByName;
-    property ChildrenColorFilters[const AIndex: Integer]: ISkColorFilter read GetChildColorFilter write SetChildColorFilter;
-    property ChildrenColorFiltersByName[const AName: string]: ISkColorFilter read GetChildColorFilterByName write SetChildColorFilterByName;
-    property ChildrenNames[const AIndex: Integer]: string read GetChildName;
-    property ChildrenShaders[const AIndex: Integer]: ISkShader read GetChildShader write SetChildShader;
-    property ChildrenShadersByName[const AName: string]: ISkShader read GetChildShaderByName write SetChildShaderByName;
-    property ChildType[const AIndex: Integer]: TSkRuntimeEffectChildType read GetChildType;
-    property ChildTypeByName[const AName: string]: TSkRuntimeEffectChildType read GetChildTypeByName;
-    property UniformCount: Integer read GetUniformCount;
-    property UniformData: Pointer read GetUniformData;
-    property UniformDataSize: NativeUInt read GetUniformDataSize;
-    property UniformNames[const AIndex: Integer]: string read GetUniformName;
-    property UniformOffset[const AIndex: Integer]: NativeUInt read GetUniformOffset;
-    property UniformOffsetByName[const AName: string]: NativeUInt read GetUniformOffsetByName;
-    property Uniforms[const AIndex: Integer]: Pointer read GetUniform;
-    property UniformsByName[const AName: string]: Pointer read GetUniformByName;
-    property UniformType[const AIndex: Integer]: TSkRuntimeEffectUniformType read GetUniformType;
-    property UniformTypeByName[const AName: string]: TSkRuntimeEffectUniformType read GetUniformTypeByName;
-    property UniformTypeCount[const AIndex: Integer]: Integer read GetUniformTypeCount;
-    property UniformTypeCountByName[const AName: string]: Integer read GetUniformTypeCountByName;
-    class function MakeForBlender(const ASkSL: string): ISkRuntimeEffect; overload; static;
-    class function MakeForBlender(const ASkSL: string; out AErrorText: string): ISkRuntimeEffect; overload; static;
-    class function MakeForColorFilter(const ASkSL: string): ISkRuntimeEffect; overload; static;
-    class function MakeForColorFilter(const ASkSL: string; out AErrorText: string): ISkRuntimeEffect; overload; static;
-    class function MakeForShader(const ASkSL: string): ISkRuntimeEffect; overload; static;
-    class function MakeForShader(const ASkSL: string; out AErrorText: string): ISkRuntimeEffect; overload; static;
+    procedure SetUniform(const AName: string; const AValue: TMatrix); overload;
+    property Effect: TSkRuntimeEffect read GetEffect;
   end;
+
+  { TSkRuntimeEffectBuilder }
+
+  TSkRuntimeEffectBuilder = class abstract(TSkObject, ISkRuntimeEffectBuilder)
+  strict private
+    FEffect: ISkRuntimeEffect;
+    function GetEffect: TSkRuntimeEffect;
+    procedure SetChild(const AName: string; const AChild: ISkShader); overload;
+    procedure SetChild(const AName: string; const AChild: ISkColorFilter); overload;
+    procedure SetChild(const AName: string; const AChild: ISkBlender); overload;
+    procedure SetUniform(const AName: string; const AData; const ASize: NativeUInt); overload;
+    procedure SetUniform(const AName: string; const AValue: Integer); overload;
+    procedure SetUniform(const AName: string; const AValue: TArray<Integer>); overload;
+    procedure SetUniform(const AName: string; const AValue: TPoint); overload;
+    procedure SetUniform(const AName: string; const AValue: TSkRuntimeEffectInt2); overload;
+    procedure SetUniform(const AName: string; const AValue: TSkRuntimeEffectInt3); overload;
+    procedure SetUniform(const AName: string; const AValue: TSkRuntimeEffectInt4); overload;
+    procedure SetUniform(const AName: string; const AValue: Single); overload;
+    procedure SetUniform(const AName: string; const AValue: TArray<Single>); overload;
+    procedure SetUniform(const AName: string; const AValue: TPointF); overload;
+    procedure SetUniform(const AName: string; const AValue: TAlphaColorF); overload;
+    procedure SetUniform(const AName: string; const AValue: TSkRuntimeEffectFloat2); overload;
+    procedure SetUniform(const AName: string; const AValue: TSkRuntimeEffectFloat3); overload;
+    procedure SetUniform(const AName: string; const AValue: TSkRuntimeEffectFloat4); overload;
+    procedure SetUniform(const AName: string; const AValue: TSkRuntimeEffectFloat2x2); overload;
+    procedure SetUniform(const AName: string; const AValue: TSkRuntimeEffectFloat3x3); overload;
+    procedure SetUniform(const AName: string; const AValue: TSkRuntimeEffectFloat4x4); overload;
+    procedure SetUniform(const AName: string; const AValue: TMatrix); overload;
+  public
+    procedure AfterConstruction; override;
+  end;
+
+  { ISkRuntimeBlenderBuilder }
+
+  ISkRuntimeBlenderBuilder = interface(ISkRuntimeEffectBuilder)
+    ['{BEFC3953-2989-44C0-AC08-FA5D3BEF284A}']
+    function MakeBlender: ISkBlender;
+  end;
+
+  { TSkRuntimeBlenderBuilder }
+
+  TSkRuntimeBlenderBuilder = class(TSkRuntimeEffectBuilder, ISkRuntimeBlenderBuilder)
+  strict private
+    function MakeBlender: ISkBlender;
+  public
+    constructor Create(const AEffect: ISkRuntimeEffect);
+    class procedure __DestroyHandle(const AHandle: THandle); override;
+  end;
+
+  {$HPPEMIT END '#define SkRuntimeBlenderBuilder(...) __SkCreate(TSkRuntimeBlenderBuilder, ISkRuntimeBlenderBuilder, __VA_ARGS__)'}
+
+  { ISkRuntimeShaderBuilder }
+
+  ISkRuntimeShaderBuilder = interface(ISkRuntimeEffectBuilder)
+    ['{2360AC47-2928-4D9F-AF04-8505D881D88A}']
+    function MakeImage(const AImageInfo: TSkImageInfo; const AMipmapped: Boolean = False; const AContext: IGrDirectContext = nil): ISkImage; overload;
+    function MakeImage(const AImageInfo: TSkImageInfo; const ALocalMatrix: TMatrix; const AMipmapped: Boolean = False; const AContext: IGrDirectContext = nil): ISkImage; overload;
+    function MakeShader: ISkShader; overload;
+    function MakeShader(const ALocalMatrix: TMatrix): ISkShader; overload;
+  end;
+
+  { TSkRuntimeShaderBuilder }
+
+  TSkRuntimeShaderBuilder = class(TSkRuntimeEffectBuilder, ISkRuntimeShaderBuilder)
+  strict private
+    function MakeImage(const AImageInfo: TSkImageInfo; const AMipmapped: Boolean = False; const AContext: IGrDirectContext = nil): ISkImage; overload;
+    function MakeImage(const AImageInfo: TSkImageInfo; const ALocalMatrix: TMatrix; const AMipmapped: Boolean = False; const AContext: IGrDirectContext = nil): ISkImage; overload;
+    function MakeShader: ISkShader; overload;
+    function MakeShader(const ALocalMatrix: TMatrix): ISkShader; overload;
+  public
+    constructor Create(const AEffect: ISkRuntimeEffect);
+    class procedure __DestroyHandle(const AHandle: THandle); override;
+  end;
+
+  {$HPPEMIT END '#define SkRuntimeShaderBuilder(...) __SkCreate(TSkRuntimeShaderBuilder, ISkRuntimeShaderBuilder, __VA_ARGS__)'}
 
   { ISkShader }
 
-  ISkShader = interface(ISkReferenceCounted)
+  ISkShader = interface(ISkFlattenable)
     ['{7CB71D93-131A-4C89-96C5-B966D39F43AF}']
     function MakeWithColorFilter(const AColorFilter: ISkColorFilter): ISkShader;
     function MakeWithLocalMatrix(const AMatrix: TMatrix): ISkShader;
@@ -2807,6 +2809,7 @@ type
     class function MakeBlend(const AMode: TSkBlendMode; const ADest, ASrc: ISkShader): ISkShader; static;
     class function MakeColor(const AColor: TAlphaColor): ISkShader; overload; static;
     class function MakeColor(const AColor: TAlphaColorF; AColorSpace: ISkColorSpace = nil): ISkShader; overload; static;
+    class function MakeEmpty: ISkShader; static;
     class function MakeGradientLinear(const AStart, AEnd: TPointF; const AColor1, AColor2: TAlphaColor; const ATileMode: TSkTileMode = TSkTileMode.Clamp): ISkShader; overload; static; inline;
     class function MakeGradientLinear(const AStart, AEnd: TPointF; const AColor1, AColor2: TAlphaColor; const ALocalMatrix: TMatrix; const ATileMode: TSkTileMode = TSkTileMode.Clamp): ISkShader; overload; static; inline;
     class function MakeGradientLinear(const AStart, AEnd: TPointF; const AColor1, AColor2: TAlphaColorF; const ATileMode: TSkTileMode = TSkTileMode.Clamp; AColorSpace: ISkColorSpace = nil): ISkShader; overload; static; inline;
@@ -2859,8 +2862,9 @@ type
     ['{69826677-0632-4D9E-ABAB-B210BE9309C3}']
     procedure Draw(const ACanvas: ISkCanvas; const AX, AY: Single; const APaint: ISkPaint = nil);
     procedure Flush;
-    procedure FlushAndSubmit(const ASemaphores: TArray<IGrBackendSemaphore> = nil; const ANewState: IGrBackendSurfaceMutableState = nil; const ASyncCpu: Boolean = False);
-    function GetCanvas: TSkCanvas;
+    procedure FlushAndSubmit(const ASyncCpu: Boolean = False); overload;
+    procedure FlushAndSubmit(const ASemaphores: TArray<IGrBackendSemaphore>; const ANewState: IGrBackendSurfaceMutableState; const ASyncCpu: Boolean = False); overload;
+    function GetCanvas: ISkCanvas;
     function GetProperties: TSkSurfaceProperties;
     function MakeImageSnapshot: ISkImage; overload;
     function MakeImageSnapshot(const ABounds: TRect): ISkImage; overload;
@@ -2868,7 +2872,9 @@ type
     function ReadPixels(const ADest: ISkPixmap; const ASrcX: Integer = 0; const ASrcY: Integer = 0): Boolean; overload;
     function ReadPixels(const ADestImageInfo: TSkImageInfo; const ADestPixels: Pointer; const ADestRowBytes: NativeUInt; const ASrcX: Integer = 0; const ASrcY: Integer = 0): Boolean; overload;
     procedure Wait(const ASemaphores: TArray<IGrBackendSemaphore>);
-    property Canvas: TSkCanvas read GetCanvas;
+    procedure WritePixels(const ASrc: ISkPixmap; const ADestX: Integer = 0; const ADestY: Integer = 0); overload;
+    procedure WritePixels(const ASrcImageInfo: TSkImageInfo; const ASrcPixels: Pointer; const ASrcRowBytes: NativeUInt; const ADestX: Integer = 0; const ADestY: Integer = 0); overload;
+    property Canvas: ISkCanvas read GetCanvas;
     property Properties: TSkSurfaceProperties read GetProperties;
   end;
 
@@ -2877,20 +2883,23 @@ type
   TSkSurface = class(TSkReferenceCounted, ISkSurface)
   strict private
     FCanvas: ISkCanvas;
-    function GetCanvas: TSkCanvas;
+    function GetCanvas: ISkCanvas;
     function GetProperties: TSkSurfaceProperties;
     class procedure raster_release_proc(pixels: Pointer; context: Pointer); cdecl; static;
   public
     procedure Draw(const ACanvas: ISkCanvas; const AX, AY: Single; const APaint: ISkPaint = nil);
     procedure Flush;
-    procedure FlushAndSubmit(const ASemaphores: TArray<IGrBackendSemaphore> = nil; const ANewState: IGrBackendSurfaceMutableState = nil; const ASyncCpu: Boolean = False);
+    procedure FlushAndSubmit(const ASyncCpu: Boolean = False); overload;
+    procedure FlushAndSubmit(const ASemaphores: TArray<IGrBackendSemaphore>; const ANewState: IGrBackendSurfaceMutableState; const ASyncCpu: Boolean = False); overload;
     function MakeImageSnapshot: ISkImage; overload;
     function MakeImageSnapshot(const ABounds: TRect): ISkImage; overload;
     function PeekPixels: ISkPixmap;
     function ReadPixels(const ADest: ISkPixmap; const ASrcX: Integer = 0; const ASrcY: Integer = 0): Boolean; overload;
     function ReadPixels(const ADestImageInfo: TSkImageInfo; const ADestPixels: Pointer; const ADestRowBytes: NativeUInt; const ASrcX: Integer = 0; const ASrcY: Integer = 0): Boolean; overload;
     procedure Wait(const ASemaphores: TArray<IGrBackendSemaphore>);
-    property Canvas: TSkCanvas read GetCanvas;
+    procedure WritePixels(const ASrc: ISkPixmap; const ADestX: Integer = 0; const ADestY: Integer = 0); overload;
+    procedure WritePixels(const ASrcImageInfo: TSkImageInfo; const ASrcPixels: Pointer; const ASrcRowBytes: NativeUInt; const ADestX: Integer = 0; const ADestY: Integer = 0); overload;
+    property Canvas: ISkCanvas read GetCanvas;
     property Properties: TSkSurfaceProperties read GetProperties;
     class function MakeFromMTKView(const AContext: IGrDirectContext; const AView: GrMtlHandle; const AOrigin: TGrSurfaceOrigin; const ASampleCount: Integer; const AColorType: TSkColorType; AColorSpace: ISkColorSpace = nil): ISkSurface; overload; static;
     class function MakeFromMTKView(const AContext: IGrDirectContext; const AView: GrMtlHandle; const AOrigin: TGrSurfaceOrigin; const ASampleCount: Integer; const AColorType: TSkColorType; const AProperties: TSkSurfaceProperties; AColorSpace: ISkColorSpace = nil): ISkSurface; overload; static;
@@ -3440,9 +3449,9 @@ type
   { TSkTypefaceFontProvider }
 
   TSkTypefaceFontProvider = class(TSkReferenceCounted, ISkTypefaceFontProvider)
-  strict private
-    procedure RegisterTypeface(const ATypeface: ISkTypeface); overload;
-    procedure RegisterTypeface(const ATypeface: ISkTypeface; const AFamilyName: string); overload;
+  strict protected
+    procedure RegisterTypeface(const ATypeface: ISkTypeface); overload; virtual;
+    procedure RegisterTypeface(const ATypeface: ISkTypeface; const AFamilyName: string); overload; virtual;
   public
     constructor Create;
   end;
@@ -3657,29 +3666,29 @@ function ExtensionToEncodedImageFormat(const AValue: string): TSkEncodedImageFor
 
 const
   SkBytesPerPixel: array[TSkColorType] of Integer = (
-    { Unknown        }  0,
-    { Alpha8         }  1,
-    { RGB565         }  2,
-    { ARGB4444       }  2,
-    { RGBA8888       }  4,
-    { RGB888X        }  4,
-    { BGRA8888       }  4,
-    { RGBA1010102    }  4,
-    { BGRA1010102    }  4,
-    { RGB101010X     }  4,
-    { BGR101010X     }  4,
-    { Gray8          }  1,
-    { RGBAF16        }  8,
-    { RGBAF16Clamped }  8,
-    { RGBAF32        } 16,
-    { RG88           }  2,
-    { AlphaF16       }  2,
-    { RGF16          }  4,
-    { Alpha16        }  2,
-    { RG1616         }  4,
-    { RGBA16161616   }  8,
-    { SRGBA8888      }  4,
-    { R8             }  1
+    { Unknown           }  0,
+    { Alpha8            }  1,
+    { RGB565            }  2,
+    { ARGB4444          }  2,
+    { RGBA8888          }  4,
+    { RGB888X           }  4,
+    { BGRA8888          }  4,
+    { RGBA1010102       }  4,
+    { BGRA1010102       }  4,
+    { RGB101010X        }  4,
+    { BGR101010X        }  4,
+    { Gray8             }  1,
+    { RGBAF16Normalized }  8,
+    { RGBAF16           }  8,
+    { RGBAF32           } 16,
+    { RG88              }  2,
+    { AlphaF16          }  2,
+    { RGF16             }  4,
+    { Alpha16           }  2,
+    { RG1616            }  4,
+    { RGBA16161616      }  8,
+    { SRGBA8888         }  4,
+    { R8                }  1
   );
 
   SkColorMatrixIdentity: TSkColorMatrix = (M11: 1; M12: 0; M13: 0; M14: 0; M15: 0;
@@ -3744,29 +3753,29 @@ const
   SkSamplingOptionsMedium: TSkSamplingOptions = (UseCubic: False; Cubic: (B: 0; C: 0); Filter: TSkFilterMode.Linear; Mipmap: TSkMipmapMode.Nearest);
 
   SkShiftPerPixel: array[TSkColorType] of Integer = (
-    { Unknown        } 0,
-    { Alpha8         } 0,
-    { RGB565         } 1,
-    { ARGB4444       } 1,
-    { RGBA8888       } 2,
-    { RGB888X        } 2,
-    { BGRA8888       } 2,
-    { RGBA1010102    } 2,
-    { BGRA1010102    } 2,
-    { RGB101010X     } 2,
-    { BGR101010X     } 2,
-    { Gray8          } 0,
-    { RGBAF16        } 3,
-    { RGBAF16Clamped } 3,
-    { RGBAF32        } 4,
-    { RG88           } 1,
-    { AlphaF16       } 1,
-    { RGF16          } 2,
-    { Alpha16        } 1,
-    { RG1616         } 2,
-    { RGBA16161616   } 3,
-    { SRGBA8888      } 2,
-    { R8             } 0
+    { Unknown           } 0,
+    { Alpha8            } 0,
+    { RGB565            } 1,
+    { ARGB4444          } 1,
+    { RGBA8888          } 2,
+    { RGB888X           } 2,
+    { BGRA8888          } 2,
+    { RGBA1010102       } 2,
+    { BGRA1010102       } 2,
+    { RGB101010X        } 2,
+    { BGR101010X        } 2,
+    { Gray8             } 0,
+    { RGBAF16Normalized } 3,
+    { RGBAF16           } 3,
+    { RGBAF32           } 4,
+    { RG88              } 1,
+    { AlphaF16          } 1,
+    { RGF16             } 2,
+    { Alpha16           } 1,
+    { RG1616            } 2,
+    { RGBA16161616      } 3,
+    { SRGBA8888         } 2,
+    { R8                } 0
   );
 
   SFileNameIsEmpty   = 'File name cannot be empty';
@@ -4019,7 +4028,6 @@ end;
 constructor TSkObject.Wrap(const AHandle: THandle; const AOwnsHandle: Boolean);
 begin
   inherited Create;
-  Assert(AHandle <> 0);
   FHandle     := AHandle;
   FOwnsHandle := AOwnsHandle;
 end;
@@ -5740,6 +5748,34 @@ end;
 procedure TGrDirectContext.AbandonContext;
 begin
   gr4d_directcontext_abandon_context(Handle);
+end;
+
+function TGrDirectContext.CreateTexture(const AWidth, AHeight: Integer;
+  const AColorType: TSkColorType; const AColor: TAlphaColorF;
+  const AIsMipmapped, AIsRenderable, AIsProtected: Boolean): IGrBackendTexture;
+begin
+  Result := TGrBackendTexture.Wrap(gr4d_directcontext_create_texture3(Handle, AWidth, AHeight, sk_colortype_t(AColorType), @AColor, AIsMipmapped, AIsRenderable, AIsProtected));
+end;
+
+function TGrDirectContext.CreateTexture(const AWidth, AHeight: Integer;
+  const AColorType: TSkColorType; const AColor: TAlphaColor; const AIsMipmapped,
+  AIsRenderable, AIsProtected: Boolean): IGrBackendTexture;
+begin
+  Result := TGrBackendTexture.Wrap(gr4d_directcontext_create_texture2(Handle, AWidth, AHeight, sk_colortype_t(AColorType), AColor, AIsMipmapped, AIsRenderable, AIsProtected));
+end;
+
+function TGrDirectContext.CreateTexture(const AWidth, AHeight: Integer;
+  const AColorType: TSkColorType; const AIsMipmapped, AIsRenderable,
+  AIsProtected: Boolean): IGrBackendTexture;
+begin
+  Result := TGrBackendTexture.Wrap(gr4d_directcontext_create_texture(Handle, AWidth, AHeight, sk_colortype_t(AColorType), AIsMipmapped, AIsRenderable, AIsProtected));
+end;
+
+procedure TGrDirectContext.DeleteTexture(const ATexture: IGrBackendTexture);
+begin
+  if not Assigned(ATexture) then
+    raise ESkArgumentException.CreateFmt(SParamIsNil, ['ATexture']);
+  gr4d_directcontext_delete_texture(Handle, ATexture.Handle);
 end;
 
 procedure TGrDirectContext.DumpMemoryStatistics(
@@ -8216,6 +8252,41 @@ begin
   Result := TSkBindings.SafeCreate<TSkImageFilter>(sk4d_imagefilter_make_point_lit_specular(@ALocation, ALightColor, ASurfaceScale, AKs, AShininess, TSkBindings.SafeHandle(AInput), @ACropRect));
 end;
 
+class function TSkImageFilter.MakeRuntimeShader(
+  const AEffectBuilder: ISkRuntimeShaderBuilder;
+  const AChildren: TArray<string>;
+  const AInputs: TArray<ISkImageFilter>): ISkImageFilter;
+var
+  I: Integer;
+  LChildren: TArray<MarshaledAString>;
+  LInputs: TArray<sk_imagefilter_t>;
+  LMarshaller: TMarshaller;
+begin
+  if not Assigned(AEffectBuilder) then
+    raise ESkArgumentException.CreateFmt(SParamIsNil, ['AEffectBuilder']);
+  if Length(AChildren) <> Length(AInputs) then
+    raise ESkArgumentException.CreateFmt(SParamSizeMismatch, ['AInputs']);
+  SetLength(LChildren, Length(AChildren));
+  SetLength(LInputs, Length(AInputs));
+  for I := 0 to Length(AChildren) - 1 do
+  begin
+    LChildren[I] := LMarshaller.AsUtf8(AChildren[I]).ToPointer;
+    LInputs[I]   := TSkBindings.SafeHandle(AInputs[I]);
+  end;
+  Result := TSkBindings.SafeCreate<TSkImageFilter>(sk4d_imagefilter_make_runtime_shader2(AEffectBuilder.Handle, @LChildren[0], @LInputs[0], Length(AChildren)));
+end;
+
+class function TSkImageFilter.MakeRuntimeShader(
+  const AEffectBuilder: ISkRuntimeShaderBuilder; const AChild: string;
+  const AInput: ISkImageFilter): ISkImageFilter;
+var
+  LMarshaller: TMarshaller;
+begin
+  if not Assigned(AEffectBuilder) then
+    raise ESkArgumentException.CreateFmt(SParamIsNil, ['AEffectBuilder']);
+  Result := TSkBindings.SafeCreate<TSkImageFilter>(sk4d_imagefilter_make_runtime_shader(AEffectBuilder.Handle, LMarshaller.AsUtf8(AChild).ToPointer, TSkBindings.SafeHandle(AInput)));
+end;
+
 class function TSkImageFilter.MakeShader(const AShader: ISkShader;
   const ADither: Boolean; const ACropRect: TRectF): ISkImageFilter;
 begin
@@ -9889,49 +9960,9 @@ end;
 
 { TSkRuntimeEffect }
 
-procedure TSkRuntimeEffect.AfterConstruction;
-begin
-  SetLength(FChildren, GetChildCount);
-  FUniformData := AllocMem(GetUniformDataSize);
-  inherited;
-end;
-
-procedure TSkRuntimeEffect.BeforeDestruction;
-begin
-  inherited;
-  FreeMem(FUniformData);
-end;
-
 function TSkRuntimeEffect.ChildExists(const AName: string): Boolean;
 begin
   Result := IndexOfChild(AName) >= 0;
-end;
-
-function TSkRuntimeEffect.GetChildBlender(const AIndex: Integer): ISkBlender;
-begin
-  if GetChildType(AIndex) <> TSkRuntimeEffectChildType.Blender then
-    raise ESkException.Create(SInvalidOperation);
-  Result := FChildren[AIndex] as ISkBlender;
-end;
-
-function TSkRuntimeEffect.GetChildBlenderByName(
-  const AName: string): ISkBlender;
-begin
-  Result := GetChildBlender(IndexOfChild(AName));
-end;
-
-function TSkRuntimeEffect.GetChildColorFilter(
-  const AIndex: Integer): ISkColorFilter;
-begin
-  if GetChildType(AIndex) <> TSkRuntimeEffectChildType.ColorFilter then
-    raise ESkException.Create(SInvalidOperation);
-  Result := FChildren[AIndex] as ISkColorFilter;
-end;
-
-function TSkRuntimeEffect.GetChildColorFilterByName(
-  const AName: string): ISkColorFilter;
-begin
-  Result := GetChildColorFilter(IndexOfChild(AName));
 end;
 
 function TSkRuntimeEffect.GetChildCount: Integer;
@@ -9940,22 +9971,13 @@ begin
 end;
 
 function TSkRuntimeEffect.GetChildName(const AIndex: Integer): string;
+var
+  LResult: ISkString;
 begin
   if (AIndex < 0) or (AIndex >= GetChildCount) then
     raise ESkArgumentException.CreateFmt(SParamOutOfRange, ['AIndex', AIndex, 0, GetChildCount]);
-  Result := string(sk4d_runtimeeffect_get_child_name(Handle, AIndex));
-end;
-
-function TSkRuntimeEffect.GetChildShader(const AIndex: Integer): ISkShader;
-begin
-  if GetChildType(AIndex) <> TSkRuntimeEffectChildType.Shader then
-    raise ESkException.Create(SInvalidOperation);
-  Result := FChildren[AIndex] as ISkShader;
-end;
-
-function TSkRuntimeEffect.GetChildShaderByName(const AName: string): ISkShader;
-begin
-  Result := GetChildShader(IndexOfChild(AName));
+  LResult := TSkString.Wrap(sk4d_runtimeeffect_get_child_name(Handle, AIndex));
+  Result  := LResult.Text;
 end;
 
 function TSkRuntimeEffect.GetChildType(
@@ -9972,26 +9994,9 @@ begin
   Result := GetChildType(IndexOfChild(AName));
 end;
 
-function TSkRuntimeEffect.GetUniform(const AIndex: Integer): Pointer;
-begin
-  if (AIndex < 0) or (AIndex >= GetUniformCount) then
-    raise ESkArgumentException.CreateFmt(SParamOutOfRange, ['AIndex', AIndex, 0, GetUniformCount]);
-  Result := Pointer(NativeUInt(FUniformData) + GetUniformOffset(AIndex));
-end;
-
-function TSkRuntimeEffect.GetUniformByName(const AName: string): Pointer;
-begin
-  Result := GetUniform(IndexOfUniform(AName));
-end;
-
 function TSkRuntimeEffect.GetUniformCount: Integer;
 begin
   Result := sk4d_runtimeeffect_get_uniform_count(Handle);
-end;
-
-function TSkRuntimeEffect.GetUniformData: Pointer;
-begin
-  Result := FUniformData;
 end;
 
 function TSkRuntimeEffect.GetUniformDataSize: NativeUInt;
@@ -10000,10 +10005,13 @@ begin
 end;
 
 function TSkRuntimeEffect.GetUniformName(const AIndex: Integer): string;
+var
+  LResult: ISkString;
 begin
   if (AIndex < 0) or (AIndex >= GetUniformCount) then
     raise ESkArgumentException.CreateFmt(SParamOutOfRange, ['AIndex', AIndex, 0, GetUniformCount]);
-  Result := string(sk4d_runtimeeffect_get_uniform_name(Handle, AIndex));
+  LResult := TSkString.Wrap(sk4d_runtimeeffect_get_uniform_name(Handle, AIndex));
+  Result  := LResult.Text;
 end;
 
 function TSkRuntimeEffect.GetUniformOffset(const AIndex: Integer): NativeUInt;
@@ -10071,38 +10079,55 @@ begin
   Result := IsUniformTypeOrdinal(IndexOfUniform(AName));
 end;
 
-function TSkRuntimeEffect.MakeBlender: ISkBlender;
+function TSkRuntimeEffect.MakeBlender(const AUniforms;
+  const AChildren: TArray<ISkFlattenable>): ISkBlender;
 var
   I: Integer;
   LChildren: TArray<THandle>;
 begin
-  SetLength(LChildren, Length(FChildren));
-  for I := 0 to Length(FChildren) - 1 do
-    LChildren[I] := TSkBindings.SafeHandle(FChildren[I]);
-  Result := TSkBindings.SafeCreate<TSkBlender>(sk4d_runtimeeffect_make_blender(Handle, GetUniformData, @LChildren[0]));
+  SetLength(LChildren, Length(AChildren));
+  for I := 0 to Length(AChildren) - 1 do
+    LChildren[I] := TSkBindings.SafeHandle(AChildren[I]);
+  Result := TSkBindings.SafeCreate<TSkBlender>(sk4d_runtimeeffect_make_blender(Handle, @AUniforms, @LChildren[0]));
 end;
 
-function TSkRuntimeEffect.MakeColorFilter: ISkColorFilter;
+function TSkRuntimeEffect.MakeColorFilter(const AUniforms;
+  const AChildren: TArray<ISkFlattenable>): ISkColorFilter;
 var
   I: Integer;
   LChildren: TArray<THandle>;
 begin
-  SetLength(LChildren, Length(FChildren));
-  for I := 0 to Length(FChildren) - 1 do
-    LChildren[I] := TSkBindings.SafeHandle(FChildren[I]);
-  Result := TSkBindings.SafeCreate<TSkColorFilter>(sk4d_runtimeeffect_make_color_filter(Handle, GetUniformData, @LChildren[0]));
+  SetLength(LChildren, Length(AChildren));
+  for I := 0 to Length(AChildren) - 1 do
+    LChildren[I] := TSkBindings.SafeHandle(AChildren[I]);
+  Result := TSkBindings.SafeCreate<TSkColorFilter>(sk4d_runtimeeffect_make_color_filter(Handle, @AUniforms, @LChildren[0]));
+end;
+
+class function TSkRuntimeEffect.MakeForBlender(
+  const ASkSL: MarshaledAString): ISkRuntimeEffect;
+begin
+  if Length(ASKSL) < 1 then
+    raise ESkArgumentException.CreateFmt(SParamIsEmpty, ['ASKSL']);
+  Result := TSkBindings.SafeCreate<TSkRuntimeEffect>(sk4d_runtimeeffect_make_for_blender(ASkSL, 0));
 end;
 
 class function TSkRuntimeEffect.MakeForBlender(const ASkSL: string;
   out AErrorText: string): ISkRuntimeEffect;
 var
-  LErrorText: ISkString;
   LMarshaller: TMarshaller;
 begin
-  if ASKSL.IsEmpty then
+  Result := MakeForBlender(LMarshaller.AsUtf8(ASkSL).ToPointer, AErrorText);
+end;
+
+class function TSkRuntimeEffect.MakeForBlender(const ASkSL: MarshaledAString;
+  out AErrorText: string): ISkRuntimeEffect;
+var
+  LErrorText: ISkString;
+begin
+  if Length(ASKSL) < 1 then
     raise ESkArgumentException.CreateFmt(SParamIsEmpty, ['ASKSL']);
   LErrorText := TSkString.Create;
-  Result     := TSkBindings.SafeCreate<TSkRuntimeEffect>(sk4d_runtimeeffect_make_for_blender(LMarshaller.AsUtf8(ASkSL).ToPointer, LErrorText.Handle));
+  Result     := TSkBindings.SafeCreate<TSkRuntimeEffect>(sk4d_runtimeeffect_make_for_blender(ASkSL, LErrorText.Handle));
   AErrorText := LErrorText.Text;
 end;
 
@@ -10111,9 +10136,7 @@ class function TSkRuntimeEffect.MakeForBlender(
 var
   LMarshaller: TMarshaller;
 begin
-  if ASKSL.IsEmpty then
-    raise ESkArgumentException.CreateFmt(SParamIsEmpty, ['ASKSL']);
-  Result := TSkBindings.SafeCreate<TSkRuntimeEffect>(sk4d_runtimeeffect_make_for_blender(LMarshaller.AsUtf8(ASkSL).ToPointer, 0));
+  Result := MakeForBlender(LMarshaller.AsUtf8(ASkSL).ToPointer);
 end;
 
 class function TSkRuntimeEffect.MakeForColorFilter(
@@ -10121,35 +10144,35 @@ class function TSkRuntimeEffect.MakeForColorFilter(
 var
   LMarshaller: TMarshaller;
 begin
-  if ASKSL.IsEmpty then
+  Result := MakeForColorFilter(LMarshaller.AsUtf8(ASkSL).ToPointer);
+end;
+
+class function TSkRuntimeEffect.MakeForColorFilter(
+  const ASkSL: MarshaledAString; out AErrorText: string): ISkRuntimeEffect;
+var
+  LErrorText: ISkString;
+begin
+  if Length(ASKSL) < 1 then
     raise ESkArgumentException.CreateFmt(SParamIsEmpty, ['ASKSL']);
-  Result := TSkBindings.SafeCreate<TSkRuntimeEffect>(sk4d_runtimeeffect_make_for_color_filter(LMarshaller.AsUtf8(ASkSL).ToPointer, 0));
+  LErrorText := TSkString.Create;
+  Result     := TSkBindings.SafeCreate<TSkRuntimeEffect>(sk4d_runtimeeffect_make_for_color_filter(ASKSL, LErrorText.Handle));
+  AErrorText := LErrorText.Text;
+end;
+
+class function TSkRuntimeEffect.MakeForColorFilter(
+  const ASkSL: MarshaledAString): ISkRuntimeEffect;
+begin
+  if Length(ASKSL) < 1 then
+    raise ESkArgumentException.CreateFmt(SParamIsEmpty, ['ASKSL']);
+  Result := TSkBindings.SafeCreate<TSkRuntimeEffect>(sk4d_runtimeeffect_make_for_color_filter(ASkSL, 0));
 end;
 
 class function TSkRuntimeEffect.MakeForColorFilter(const ASkSL: string;
   out AErrorText: string): ISkRuntimeEffect;
 var
-  LErrorText: ISkString;
   LMarshaller: TMarshaller;
 begin
-  if ASKSL.IsEmpty then
-    raise ESkArgumentException.CreateFmt(SParamIsEmpty, ['ASKSL']);
-  LErrorText := TSkString.Create;
-  Result     := TSkBindings.SafeCreate<TSkRuntimeEffect>(sk4d_runtimeeffect_make_for_color_filter(LMarshaller.AsUtf8(ASkSL).ToPointer, LErrorText.Handle));
-  AErrorText := LErrorText.Text;
-end;
-
-class function TSkRuntimeEffect.MakeForShader(const ASkSL: string;
-  out AErrorText: string): ISkRuntimeEffect;
-var
-  LErrorText: ISkString;
-  LMarshaller: TMarshaller;
-begin
-  if ASKSL.IsEmpty then
-    raise ESkArgumentException.CreateFmt(SParamIsEmpty, ['ASKSL']);
-  LErrorText := TSkString.Create;
-  Result     := TSkBindings.SafeCreate<TSkRuntimeEffect>(sk4d_runtimeeffect_make_for_shader(LMarshaller.AsUtf8(ASkSL).ToPointer, LErrorText.Handle));
-  AErrorText := LErrorText.Text;
+  Result := MakeForColorFilter(LMarshaller.AsUtf8(ASkSL).ToPointer, AErrorText);
 end;
 
 class function TSkRuntimeEffect.MakeForShader(
@@ -10157,26 +10180,54 @@ class function TSkRuntimeEffect.MakeForShader(
 var
   LMarshaller: TMarshaller;
 begin
-  if ASKSL.IsEmpty then
-    raise ESkArgumentException.CreateFmt(SParamIsEmpty, ['ASKSL']);
-  Result := TSkBindings.SafeCreate<TSkRuntimeEffect>(sk4d_runtimeeffect_make_for_shader(LMarshaller.AsUtf8(ASkSL).ToPointer, 0));
+  Result := MakeForShader(LMarshaller.AsUtf8(ASkSL).ToPointer);
 end;
 
-function TSkRuntimeEffect.MakeImage(const AImageInfo: TSkImageInfo;
+class function TSkRuntimeEffect.MakeForShader(const ASkSL: string;
+  out AErrorText: string): ISkRuntimeEffect;
+var
+  LMarshaller: TMarshaller;
+begin
+  Result := MakeForShader(LMarshaller.AsUtf8(ASkSL).ToPointer, AErrorText);
+end;
+
+class function TSkRuntimeEffect.MakeForShader(const ASkSL: MarshaledAString;
+  out AErrorText: string): ISkRuntimeEffect;
+var
+  LErrorText: ISkString;
+begin
+  if Length(ASKSL) < 1 then
+    raise ESkArgumentException.CreateFmt(SParamIsEmpty, ['ASKSL']);
+  LErrorText := TSkString.Create;
+  Result     := TSkBindings.SafeCreate<TSkRuntimeEffect>(sk4d_runtimeeffect_make_for_shader(ASkSL, LErrorText.Handle));
+  AErrorText := LErrorText.Text;
+end;
+
+class function TSkRuntimeEffect.MakeForShader(
+  const ASkSL: MarshaledAString): ISkRuntimeEffect;
+begin
+  if Length(ASKSL) < 1 then
+    raise ESkArgumentException.CreateFmt(SParamIsEmpty, ['ASKSL']);
+  Result := TSkBindings.SafeCreate<TSkRuntimeEffect>(sk4d_runtimeeffect_make_for_shader(ASkSL, 0));
+end;
+
+function TSkRuntimeEffect.MakeImage(const AUniforms;
+  const AChildren: TArray<ISkFlattenable>; const AImageInfo: TSkImageInfo;
   const AMipmapped: Boolean; const AContext: IGrDirectContext): ISkImage;
 var
   I: Integer;
   LChildren: TArray<THandle>;
   LImageInfo: sk_imageinfo_t;
 begin
-  SetLength(LChildren, Length(FChildren));
-  for I := 0 to Length(FChildren) - 1 do
-    LChildren[I] := TSkBindings.SafeHandle(FChildren[I]);
+  SetLength(LChildren, Length(AChildren));
+  for I := 0 to Length(AChildren) - 1 do
+    LChildren[I] := TSkBindings.SafeHandle(AChildren[I]);
   MapImageInfo(AImageInfo, LImageInfo);
-  Result := TSkBindings.SafeCreate<TSkImage>(sk4d_runtimeeffect_make_image(Handle, TSkBindings.SafeHandle(AContext), GetUniformData, @LChildren[0], nil, @LImageInfo, AMipmapped));
+  Result := TSkBindings.SafeCreate<TSkImage>(sk4d_runtimeeffect_make_image(Handle, TSkBindings.SafeHandle(AContext), @AUniforms, @LChildren[0], nil, @LImageInfo, AMipmapped));
 end;
 
-function TSkRuntimeEffect.MakeImage(const AImageInfo: TSkImageInfo;
+function TSkRuntimeEffect.MakeImage(const AUniforms;
+  const AChildren: TArray<ISkFlattenable>; const AImageInfo: TSkImageInfo;
   const ALocalMatrix: TMatrix; const AMipmapped: Boolean;
   const AContext: IGrDirectContext): ISkImage;
 var
@@ -10184,339 +10235,36 @@ var
   LChildren: TArray<THandle>;
   LImageInfo: sk_imageinfo_t;
 begin
-  SetLength(LChildren, Length(FChildren));
-  for I := 0 to Length(FChildren) - 1 do
-    LChildren[I] := TSkBindings.SafeHandle(FChildren[I]);
+  SetLength(LChildren, Length(AChildren));
+  for I := 0 to Length(AChildren) - 1 do
+    LChildren[I] := TSkBindings.SafeHandle(AChildren[I]);
   MapImageInfo(AImageInfo, LImageInfo);
-  Result := TSkBindings.SafeCreate<TSkImage>(sk4d_runtimeeffect_make_image(Handle, TSkBindings.SafeHandle(AContext), GetUniformData, @LChildren[0], @ALocalMatrix, @LImageInfo, AMipmapped));
+  Result := TSkBindings.SafeCreate<TSkImage>(sk4d_runtimeeffect_make_image(Handle, TSkBindings.SafeHandle(AContext), @AUniforms, @LChildren[0], @ALocalMatrix, @LImageInfo, AMipmapped));
 end;
 
-function TSkRuntimeEffect.MakeShader(const ALocalMatrix: TMatrix): ISkShader;
+function TSkRuntimeEffect.MakeShader(const AUniforms;
+  const AChildren: TArray<ISkFlattenable>): ISkShader;
 var
   I: Integer;
   LChildren: TArray<THandle>;
 begin
-  SetLength(LChildren, Length(FChildren));
-  for I := 0 to Length(FChildren) - 1 do
-    LChildren[I] := TSkBindings.SafeHandle(FChildren[I]);
-  Result := TSkBindings.SafeCreate<TSkShader>(sk4d_runtimeeffect_make_shader(Handle, GetUniformData, @LChildren[0], @ALocalMatrix));
+  SetLength(LChildren, Length(AChildren));
+  for I := 0 to Length(AChildren) - 1 do
+    LChildren[I] := TSkBindings.SafeHandle(AChildren[I]);
+  Result := TSkBindings.SafeCreate<TSkShader>(sk4d_runtimeeffect_make_shader(Handle, @AUniforms, @LChildren[0], nil));
 end;
 
-function TSkRuntimeEffect.MakeShader: ISkShader;
+function TSkRuntimeEffect.MakeShader(const AUniforms;
+  const AChildren: TArray<ISkFlattenable>;
+  const ALocalMatrix: TMatrix): ISkShader;
 var
   I: Integer;
   LChildren: TArray<THandle>;
 begin
-  SetLength(LChildren, Length(FChildren));
-  for I := 0 to Length(FChildren) - 1 do
-    LChildren[I] := TSkBindings.SafeHandle(FChildren[I]);
-  Result := TSkBindings.SafeCreate<TSkShader>(sk4d_runtimeeffect_make_shader(Handle, GetUniformData, @LChildren[0], nil));
-end;
-
-procedure TSkRuntimeEffect.SetChildBlender(const AIndex: Integer;
-  const AValue: ISkBlender);
-begin
-  if GetChildType(AIndex) <> TSkRuntimeEffectChildType.Blender then
-    raise ESkException.Create(SInvalidOperation);
-  FChildren[AIndex] := AValue;
-end;
-
-procedure TSkRuntimeEffect.SetChildBlenderByName(const AName: string;
-  const AValue: ISkBlender);
-begin
-  SetChildBlender(IndexOfChild(AName), AValue);
-end;
-
-procedure TSkRuntimeEffect.SetChildColorFilter(const AIndex: Integer;
-  const AValue: ISkColorFilter);
-begin
-  if GetChildType(AIndex) <> TSkRuntimeEffectChildType.ColorFilter then
-    raise ESkException.Create(SInvalidOperation);
-  FChildren[AIndex] := AValue;
-end;
-
-procedure TSkRuntimeEffect.SetChildColorFilterByName(const AName: string;
-  const AValue: ISkColorFilter);
-begin
-  SetChildColorFilter(IndexOfChild(AName), AValue);
-end;
-
-procedure TSkRuntimeEffect.SetChildShader(const AIndex: Integer;
-  const AValue: ISkShader);
-begin
-  if GetChildType(AIndex) <> TSkRuntimeEffectChildType.Shader then
-    raise ESkException.Create(SInvalidOperation);
-  FChildren[AIndex] := AValue;
-end;
-
-procedure TSkRuntimeEffect.SetChildShaderByName(const AName: string;
-  const AValue: ISkShader);
-begin
-  SetChildShader(IndexOfChild(AName), AValue);
-end;
-
-procedure TSkRuntimeEffect.SetUniform(const AIndex: Integer;
-  const AValue: TPoint);
-var
-  LValue: TSkRuntimeEffectFloat2;
-begin
-  if not IsUniformTypeOrdinal(AIndex) then
-  begin
-    LValue := TSkRuntimeEffectFloat2.Create(AValue.X, AValue.Y);
-    SetUniform(AIndex, LValue);
-  end
-  else
-    SetUniform(AIndex, AValue, SizeOf(AValue));
-end;
-
-procedure TSkRuntimeEffect.SetUniform(const AIndex: Integer;
-  const AValue: TSkRuntimeEffectInt2);
-var
-  LValue: TSkRuntimeEffectFloat2;
-begin
-  if not IsUniformTypeOrdinal(AIndex) then
-  begin
-    LValue := TSkRuntimeEffectFloat2.Create(AValue.V1, AValue.V2);
-    SetUniform(AIndex, LValue);
-  end
-  else
-    SetUniform(AIndex, AValue, SizeOf(AValue));
-end;
-
-procedure TSkRuntimeEffect.SetUniform(const AIndex: Integer;
-  const AValue: TSkRuntimeEffectInt3);
-var
-  LValue: TSkRuntimeEffectFloat3;
-begin
-  if not IsUniformTypeOrdinal(AIndex) then
-  begin
-    LValue := TSkRuntimeEffectFloat3.Create(AValue.V1, AValue.V2, AValue.V3);
-    SetUniform(AIndex, LValue);
-  end
-  else
-    SetUniform(AIndex, AValue, SizeOf(AValue));
-end;
-
-procedure TSkRuntimeEffect.SetUniform(const AIndex: Integer; const AData;
-  const ASize: NativeUInt);
-const
-  UniformCount: array[TSkRuntimeEffectUniformType] of Integer = (1, 2, 3, 4, 4, 9, 16, 1, 2, 3, 4);
-var
-  LSize: NativeUInt;
-begin
-  if IsUniformTypeOrdinal(AIndex) then
-    LSize := UniformCount[GetUniformType(AIndex)] * GetUniformTypeCount(AIndex) * SizeOf(Integer)
-  else
-    LSize := UniformCount[GetUniformType(AIndex)] * GetUniformTypeCount(AIndex) * SizeOf(Single);
-  if ASize <> LSize then
-    raise ESkException.Create(SInvalidOperation);
-  WriteUniform(GetUniformOffset(AIndex), AData, ASize);
-end;
-
-procedure TSkRuntimeEffect.SetUniform(const AIndex, AValue: Integer);
-var
-  LValue: Single;
-begin
-  if not IsUniformTypeOrdinal(AIndex) then
-  begin
-    LValue := AValue;
-    SetUniform(AIndex, LValue);
-  end
-  else
-    SetUniform(AIndex, AValue, SizeOf(AValue));
-end;
-
-procedure TSkRuntimeEffect.SetUniform(const AIndex: Integer;
-  const AValue: TArray<Integer>);
-var
-  I: Integer;
-  LValue: TArray<Single>;
-begin
-  if not IsUniformTypeOrdinal(AIndex) then
-  begin
-    SetLength(LValue, Length(AValue));
-    for I := 0 to Length(AValue) - 1 do
-      LValue[I] := AValue[I];
-    SetUniform(AIndex, LValue);
-  end
-  else
-    SetUniform(AIndex, AValue[0], Length(AValue) * SizeOf(Integer));
-end;
-
-procedure TSkRuntimeEffect.SetUniform(const AIndex: Integer;
-  const AValue: TSkRuntimeEffectInt4);
-var
-  LValue: TSkRuntimeEffectFloat4;
-begin
-  if not IsUniformTypeOrdinal(AIndex) then
-  begin
-    LValue := TSkRuntimeEffectFloat4.Create(AValue.V1, AValue.V2, AValue.V3, AValue.V4);
-    SetUniform(AIndex, LValue);
-  end
-  else
-    SetUniform(AIndex, AValue, SizeOf(AValue));
-end;
-
-procedure TSkRuntimeEffect.SetUniform(const AName: string;
-  const AValue: Single);
-begin
-  SetUniform(IndexOfUniform(AName), AValue);
-end;
-
-procedure TSkRuntimeEffect.SetUniform(const AName: string;
-  const AValue: TArray<Single>);
-begin
-  SetUniform(IndexOfUniform(AName), AValue);
-end;
-
-procedure TSkRuntimeEffect.SetUniform(const AName: string;
-  const AValue: TPointF);
-begin
-  SetUniform(IndexOfUniform(AName), AValue);
-end;
-
-procedure TSkRuntimeEffect.SetUniform(const AName: string;
-  const AValue: TSkRuntimeEffectInt2);
-begin
-  SetUniform(IndexOfUniform(AName), AValue);
-end;
-
-procedure TSkRuntimeEffect.SetUniform(const AName: string;
-  const AValue: TSkRuntimeEffectInt3);
-begin
-  SetUniform(IndexOfUniform(AName), AValue);
-end;
-
-procedure TSkRuntimeEffect.SetUniform(const AName: string;
-  const AValue: TSkRuntimeEffectInt4);
-begin
-  SetUniform(IndexOfUniform(AName), AValue);
-end;
-
-procedure TSkRuntimeEffect.SetUniform(const AName: string;
-  const AValue: TAlphaColorF);
-begin
-  SetUniform(IndexOfUniform(AName), AValue);
-end;
-
-procedure TSkRuntimeEffect.SetUniform(const AName: string;
-  const AValue: TSkRuntimeEffectFloat2x2);
-begin
-  SetUniform(IndexOfUniform(AName), AValue);
-end;
-
-procedure TSkRuntimeEffect.SetUniform(const AName: string;
-  const AValue: TSkRuntimeEffectFloat3x3);
-begin
-  SetUniform(IndexOfUniform(AName), AValue);
-end;
-
-procedure TSkRuntimeEffect.SetUniform(const AName: string;
-  const AValue: TSkRuntimeEffectFloat4x4);
-begin
-  SetUniform(IndexOfUniform(AName), AValue);
-end;
-
-procedure TSkRuntimeEffect.SetUniform(const AName: string;
-  const AValue: TSkRuntimeEffectFloat2);
-begin
-  SetUniform(IndexOfUniform(AName), AValue);
-end;
-
-procedure TSkRuntimeEffect.SetUniform(const AName: string;
-  const AValue: TSkRuntimeEffectFloat3);
-begin
-  SetUniform(IndexOfUniform(AName), AValue);
-end;
-
-procedure TSkRuntimeEffect.SetUniform(const AName: string;
-  const AValue: TSkRuntimeEffectFloat4);
-begin
-  SetUniform(IndexOfUniform(AName), AValue);
-end;
-
-procedure TSkRuntimeEffect.SetUniform(const AName: string;
-  const AValue: TPoint);
-begin
-  SetUniform(IndexOfUniform(AName), AValue);
-end;
-
-procedure TSkRuntimeEffect.SetUniform(const AIndex: Integer;
-  const AValue: TAlphaColorF);
-begin
-  SetUniform(AIndex, AValue, SizeOf(AValue));
-end;
-
-procedure TSkRuntimeEffect.SetUniform(const AIndex: Integer;
-  const AValue: TSkRuntimeEffectFloat2);
-begin
-  SetUniform(AIndex, AValue, SizeOf(AValue));
-end;
-
-procedure TSkRuntimeEffect.SetUniform(const AIndex: Integer;
-  const AValue: TSkRuntimeEffectFloat3);
-begin
-  SetUniform(AIndex, AValue, SizeOf(AValue));
-end;
-
-procedure TSkRuntimeEffect.SetUniform(const AIndex: Integer;
-  const AValue: Single);
-begin
-  SetUniform(AIndex, AValue, SizeOf(AValue));
-end;
-
-procedure TSkRuntimeEffect.SetUniform(const AIndex: Integer;
-  const AValue: TArray<Single>);
-begin
-  SetUniform(AIndex, AValue[0], Length(AValue) * SizeOf(Single));
-end;
-
-procedure TSkRuntimeEffect.SetUniform(const AIndex: Integer;
-  const AValue: TPointF);
-begin
-  SetUniform(AIndex, AValue, SizeOf(AValue));
-end;
-
-procedure TSkRuntimeEffect.SetUniform(const AIndex: Integer;
-  const AValue: TSkRuntimeEffectFloat4);
-begin
-  SetUniform(AIndex, AValue, SizeOf(AValue));
-end;
-
-procedure TSkRuntimeEffect.SetUniform(const AName: string; const AData;
-  const ASize: NativeUInt);
-begin
-  SetUniform(IndexOfUniform(AName), AData, ASize);
-end;
-
-procedure TSkRuntimeEffect.SetUniform(const AName: string;
-  const AValue: Integer);
-begin
-  SetUniform(IndexOfUniform(AName), AValue);
-end;
-
-procedure TSkRuntimeEffect.SetUniform(const AName: string;
-  const AValue: TArray<Integer>);
-begin
-  SetUniform(IndexOfUniform(AName), AValue);
-end;
-
-procedure TSkRuntimeEffect.SetUniform(const AIndex: Integer;
-  const AValue: TSkRuntimeEffectFloat4x4);
-begin
-  SetUniform(AIndex, AValue, SizeOf(AValue));
-end;
-
-procedure TSkRuntimeEffect.SetUniform(const AIndex: Integer;
-  const AValue: TSkRuntimeEffectFloat3x3);
-begin
-  SetUniform(AIndex, AValue, SizeOf(AValue));
-end;
-
-procedure TSkRuntimeEffect.SetUniform(const AIndex: Integer;
-  const AValue: TSkRuntimeEffectFloat2x2);
-begin
-  SetUniform(AIndex, AValue, SizeOf(AValue));
+  SetLength(LChildren, Length(AChildren));
+  for I := 0 to Length(AChildren) - 1 do
+    LChildren[I] := TSkBindings.SafeHandle(AChildren[I]);
+  Result := TSkBindings.SafeCreate<TSkShader>(sk4d_runtimeeffect_make_shader(Handle, @AUniforms, @LChildren[0], @ALocalMatrix));
 end;
 
 function TSkRuntimeEffect.UniformExists(const AName: string): Boolean;
@@ -10524,12 +10272,281 @@ begin
   Result := IndexOfUniform(AName) >= 0;
 end;
 
-procedure TSkRuntimeEffect.WriteUniform(const AOffset: NativeUInt; const AData;
-  const ASize: NativeUInt);
+{ TSkRuntimeEffectBuilder }
+
+procedure TSkRuntimeEffectBuilder.AfterConstruction;
 begin
-  if (AOffset + ASize) > GetUniformDataSize then
-    raise ESkException.Create(SOutOfMemory);
-  Move(AData, Pointer(NativeUInt(FUniformData) + AOffset)^, ASize);
+  inherited;
+  FEffect := TSkRuntimeEffect.Wrap(sk4d_runtimeeffectbuilder_get_effect(Handle), False);
+end;
+
+function TSkRuntimeEffectBuilder.GetEffect: TSkRuntimeEffect;
+begin
+  Result := TSkRuntimeEffect(FEffect);
+end;
+
+procedure TSkRuntimeEffectBuilder.SetChild(const AName: string;
+  const AChild: ISkBlender);
+var
+  LMarshaller: TMarshaller;
+begin
+  if FEffect.GetChildTypeByName(AName) <> TSkRuntimeEffectChildType.Blender then
+    raise ESkException.Create(SInvalidOperation);
+  sk4d_runtimeeffectbuilder_set_child3(Handle, LMarshaller.AsUtf8(AName).ToPointer, TSkBindings.SafeHandle(AChild));
+end;
+
+procedure TSkRuntimeEffectBuilder.SetChild(const AName: string;
+  const AChild: ISkShader);
+var
+  LMarshaller: TMarshaller;
+begin
+  if FEffect.GetChildTypeByName(AName) <> TSkRuntimeEffectChildType.Shader then
+    raise ESkException.Create(SInvalidOperation);
+  sk4d_runtimeeffectbuilder_set_child(Handle, LMarshaller.AsUtf8(AName).ToPointer, TSkBindings.SafeHandle(AChild));
+end;
+
+procedure TSkRuntimeEffectBuilder.SetChild(const AName: string;
+  const AChild: ISkColorFilter);
+var
+  LMarshaller: TMarshaller;
+begin
+  if FEffect.GetChildTypeByName(AName) <> TSkRuntimeEffectChildType.ColorFilter then
+    raise ESkException.Create(SInvalidOperation);
+  sk4d_runtimeeffectbuilder_set_child2(Handle, LMarshaller.AsUtf8(AName).ToPointer, TSkBindings.SafeHandle(AChild));
+end;
+
+procedure TSkRuntimeEffectBuilder.SetUniform(const AName: string;
+  const AValue: TSkRuntimeEffectInt4);
+var
+  LValue: TSkRuntimeEffectFloat4;
+begin
+  if not FEffect.IsUniformTypeOrdinalByName(AName) then
+  begin
+    LValue := TSkRuntimeEffectFloat4.Create(AValue.V1, AValue.V2, AValue.V3, AValue.V4);
+    SetUniform(AName, LValue);
+  end
+  else
+    SetUniform(AName, AValue, SizeOf(AValue));
+end;
+
+procedure TSkRuntimeEffectBuilder.SetUniform(const AName: string;
+  const AValue: TSkRuntimeEffectInt3);
+var
+  LValue: TSkRuntimeEffectFloat3;
+begin
+  if not FEffect.IsUniformTypeOrdinalByName(AName) then
+  begin
+    LValue := TSkRuntimeEffectFloat3.Create(AValue.V1, AValue.V2, AValue.V3);
+    SetUniform(AName, LValue);
+  end
+  else
+    SetUniform(AName, AValue, SizeOf(AValue));
+end;
+
+procedure TSkRuntimeEffectBuilder.SetUniform(const AName: string;
+  const AValue: Single);
+begin
+  SetUniform(AName, AValue, SizeOf(AValue));
+end;
+
+procedure TSkRuntimeEffectBuilder.SetUniform(const AName: string;
+  const AValue: TArray<Single>);
+begin
+  SetUniform(AName, AValue[0], Length(AValue) * SizeOf(Single));
+end;
+
+procedure TSkRuntimeEffectBuilder.SetUniform(const AName: string;
+  const AValue: TSkRuntimeEffectInt2);
+var
+  LValue: TSkRuntimeEffectFloat2;
+begin
+  if not FEffect.IsUniformTypeOrdinalByName(AName) then
+  begin
+    LValue := TSkRuntimeEffectFloat2.Create(AValue.V1, AValue.V2);
+    SetUniform(AName, LValue);
+  end
+  else
+    SetUniform(AName, AValue, SizeOf(AValue));
+end;
+
+procedure TSkRuntimeEffectBuilder.SetUniform(const AName: string; const AData;
+  const ASize: NativeUInt);
+const
+  UniformCount: array[TSkRuntimeEffectUniformType] of Integer = (1, 2, 3, 4, 4, 9, 16, 1, 2, 3, 4);
+var
+  LMarshaller: TMarshaller;
+  LSize: NativeUInt;
+begin
+  if FEffect.IsUniformTypeOrdinalByName(AName) then
+    LSize := UniformCount[FEffect.GetUniformTypeByName(AName)] * FEffect.GetUniformTypeCountByName(AName) * SizeOf(Integer)
+  else
+    LSize := UniformCount[FEffect.GetUniformTypeByName(AName)] * FEffect.GetUniformTypeCountByName(AName) * SizeOf(Single);
+  if ASize <> LSize then
+    raise ESkException.Create(SInvalidOperation);
+  sk4d_runtimeeffectbuilder_set_uniform(Handle, LMarshaller.AsUtf8(AName).ToPointer, @AData);
+end;
+
+procedure TSkRuntimeEffectBuilder.SetUniform(const AName: string;
+  const AValue: Integer);
+var
+  LValue: Single;
+begin
+  if not FEffect.IsUniformTypeOrdinalByName(AName) then
+  begin
+    LValue := AValue;
+    SetUniform(AName, LValue);
+  end
+  else
+    SetUniform(AName, AValue, SizeOf(AValue));
+end;
+
+procedure TSkRuntimeEffectBuilder.SetUniform(const AName: string;
+  const AValue: TArray<Integer>);
+var
+  I: Integer;
+  LValue: TArray<Single>;
+begin
+  if not FEffect.IsUniformTypeOrdinalByName(AName) then
+  begin
+    SetLength(LValue, Length(AValue));
+    for I := 0 to Length(AValue) - 1 do
+      LValue[I] := AValue[I];
+    SetUniform(AName, LValue);
+  end
+  else
+    SetUniform(AName, AValue[0], Length(AValue) * SizeOf(Integer));
+end;
+
+procedure TSkRuntimeEffectBuilder.SetUniform(const AName: string;
+  const AValue: TPoint);
+var
+  LValue: TSkRuntimeEffectFloat2;
+begin
+  if not FEffect.IsUniformTypeOrdinalByName(AName) then
+  begin
+    LValue := TSkRuntimeEffectFloat2.Create(AValue.X, AValue.Y);
+    SetUniform(AName, LValue);
+  end
+  else
+    SetUniform(AName, AValue, SizeOf(AValue));
+end;
+
+procedure TSkRuntimeEffectBuilder.SetUniform(const AName: string;
+  const AValue: TSkRuntimeEffectFloat2x2);
+begin
+  SetUniform(AName, AValue, SizeOf(AValue));
+end;
+
+procedure TSkRuntimeEffectBuilder.SetUniform(const AName: string;
+  const AValue: TSkRuntimeEffectFloat3x3);
+begin
+  SetUniform(AName, AValue, SizeOf(AValue));
+end;
+
+procedure TSkRuntimeEffectBuilder.SetUniform(const AName: string;
+  const AValue: TSkRuntimeEffectFloat4x4);
+begin
+  SetUniform(AName, AValue, SizeOf(AValue));
+end;
+
+procedure TSkRuntimeEffectBuilder.SetUniform(const AName: string;
+  const AValue: TMatrix);
+begin
+  SetUniform(AName, AValue, SizeOf(AValue));
+end;
+
+procedure TSkRuntimeEffectBuilder.SetUniform(const AName: string;
+  const AValue: TSkRuntimeEffectFloat4);
+begin
+  SetUniform(AName, AValue, SizeOf(AValue));
+end;
+
+procedure TSkRuntimeEffectBuilder.SetUniform(const AName: string;
+  const AValue: TPointF);
+begin
+  SetUniform(AName, AValue, SizeOf(AValue));
+end;
+
+procedure TSkRuntimeEffectBuilder.SetUniform(const AName: string;
+  const AValue: TAlphaColorF);
+begin
+  SetUniform(AName, AValue, SizeOf(AValue));
+end;
+
+procedure TSkRuntimeEffectBuilder.SetUniform(const AName: string;
+  const AValue: TSkRuntimeEffectFloat2);
+begin
+  SetUniform(AName, AValue, SizeOf(AValue));
+end;
+
+procedure TSkRuntimeEffectBuilder.SetUniform(const AName: string;
+  const AValue: TSkRuntimeEffectFloat3);
+begin
+  SetUniform(AName, AValue, SizeOf(AValue));
+end;
+
+{ TSkRuntimeBlenderBuilder }
+
+constructor TSkRuntimeBlenderBuilder.Create(const AEffect: ISkRuntimeEffect);
+begin
+  if not Assigned(AEffect) then
+    raise ESkArgumentException.CreateFmt(SParamIsNil, ['AEffect']);
+  inherited Create(sk4d_runtimeblendbuilder_create(AEffect.Handle));
+end;
+
+function TSkRuntimeBlenderBuilder.MakeBlender: ISkBlender;
+begin
+  Result := TSkBindings.SafeCreate<TSkBlender>(sk4d_runtimeblendbuilder_make_blender(Handle));
+end;
+
+class procedure TSkRuntimeBlenderBuilder.__DestroyHandle(
+  const AHandle: THandle);
+begin
+  sk4d_runtimeblendbuilder_destroy(AHandle);
+end;
+
+{ TSkRuntimeShaderBuilder }
+
+constructor TSkRuntimeShaderBuilder.Create(const AEffect: ISkRuntimeEffect);
+begin
+  if not Assigned(AEffect) then
+    raise ESkArgumentException.CreateFmt(SParamIsNil, ['AEffect']);
+  inherited Create(sk4d_runtimeshaderbuilder_create(AEffect.Handle));
+end;
+
+function TSkRuntimeShaderBuilder.MakeImage(const AImageInfo: TSkImageInfo;
+  const AMipmapped: Boolean; const AContext: IGrDirectContext): ISkImage;
+var
+  LImageInfo: sk_imageinfo_t;
+begin
+  MapImageInfo(AImageInfo, LImageInfo);
+  Result := TSkBindings.SafeCreate<TSkImage>(sk4d_runtimeshaderbuilder_make_image(Handle, TSkBindings.SafeHandle(AContext), nil, @LImageInfo, AMipmapped));
+end;
+
+function TSkRuntimeShaderBuilder.MakeImage(const AImageInfo: TSkImageInfo;
+  const ALocalMatrix: TMatrix; const AMipmapped: Boolean;
+  const AContext: IGrDirectContext): ISkImage;
+var
+  LImageInfo: sk_imageinfo_t;
+begin
+  MapImageInfo(AImageInfo, LImageInfo);
+  Result := TSkBindings.SafeCreate<TSkImage>(sk4d_runtimeshaderbuilder_make_image(Handle, TSkBindings.SafeHandle(AContext), @ALocalMatrix, @LImageInfo, AMipmapped));
+end;
+
+function TSkRuntimeShaderBuilder.MakeShader(
+  const ALocalMatrix: TMatrix): ISkShader;
+begin
+  Result := TSkBindings.SafeCreate<TSkShader>(sk4d_runtimeshaderbuilder_make_shader(Handle, @ALocalMatrix));
+end;
+
+function TSkRuntimeShaderBuilder.MakeShader: ISkShader;
+begin
+  Result := TSkBindings.SafeCreate<TSkShader>(sk4d_runtimeshaderbuilder_make_shader(Handle, nil));
+end;
+
+class procedure TSkRuntimeShaderBuilder.__DestroyHandle(const AHandle: THandle);
+begin
+  sk4d_runtimeshaderbuilder_destroy(AHandle);
 end;
 
 { TSkShader }
@@ -10553,6 +10570,11 @@ class function TSkShader.MakeColor(const AColor: TAlphaColorF;
   AColorSpace: ISkColorSpace): ISkShader;
 begin
   Result := TSkBindings.SafeCreate<TSkShader>(sk4d_shader_make_color2(@AColor, TSkBindings.SafeHandle(AColorSpace)));
+end;
+
+class function TSkShader.MakeEmpty: ISkShader;
+begin
+  Result := TSkBindings.SafeCreate<TSkShader>(sk4d_shader_make_empty());
 end;
 
 class function TSkShader.MakeGradientLinear(const AStart, AEnd: TPointF;
@@ -11004,6 +11026,11 @@ begin
   sk4d_surface_flush(Handle);
 end;
 
+procedure TSkSurface.FlushAndSubmit(const ASyncCpu: Boolean);
+begin
+  sk4d_surface_flush_and_submit(Handle, nil, 0, 0, ASyncCpu);
+end;
+
 procedure TSkSurface.FlushAndSubmit(
   const ASemaphores: TArray<IGrBackendSemaphore>;
   const ANewState: IGrBackendSurfaceMutableState; const ASyncCpu: Boolean);
@@ -11021,11 +11048,11 @@ begin
   sk4d_surface_flush_and_submit(Handle, @LSemaphores[0], Length(ASemaphores), TSkBindings.SafeHandle(ANewState), ASyncCpu);
 end;
 
-function TSkSurface.GetCanvas: TSkCanvas;
+function TSkSurface.GetCanvas: ISkCanvas;
 begin
   if not Assigned(FCanvas) then
     FCanvas := TSkBindings.SafeCreate<TSkCanvas>(sk4d_surface_get_canvas(Handle), False);
-  Result := TSkCanvas(FCanvas);
+  Result := FCanvas;
 end;
 
 function TSkSurface.GetProperties: TSkSurfaceProperties;
@@ -11306,6 +11333,24 @@ begin
     LSemaphores[I] := ASemaphores[I].Handle;
   end;
   sk4d_surface_wait(Handle, @LSemaphores[0], Length(ASemaphores));
+end;
+
+procedure TSkSurface.WritePixels(const ASrcImageInfo: TSkImageInfo;
+  const ASrcPixels: Pointer; const ASrcRowBytes: NativeUInt; const ADestX,
+  ADestY: Integer);
+var
+  LPixmap: ISkPixmap;
+begin
+  LPixmap := TSkPixmap.Create(ASrcImageInfo, ASrcPixels, ASrcRowBytes);
+  WritePixels(LPixmap, ADestX, ADestY);
+end;
+
+procedure TSkSurface.WritePixels(const ASrc: ISkPixmap; const ADestX,
+  ADestY: Integer);
+begin
+  if not Assigned(ASrc) then
+    raise ESkArgumentException.CreateFmt(SParamIsNil, ['ASrc']);
+  sk4d_surface_write_pixels(Handle, ASrc.Handle, ADestX, ADestY);
 end;
 
 { TSkTextBlob }
@@ -12936,403 +12981,414 @@ begin
 end;
 
 {$HPPEMIT NOUSINGNAMESPACE}
-{$HPPEMIT END '#if !defined(DELPHIHEADER_NO_IMPLICIT_NAMESPACE_USE) && !defined(NO_USING_NAMESPACE_SKIA)'}
-{$HPPEMIT END '    using ::Skia::_di_IGrBackendRenderTarget;'}
-{$HPPEMIT END '    using ::Skia::_di_IGrBackendSemaphore;'}
-{$HPPEMIT END '    using ::Skia::_di_IGrBackendSurfaceMutableState;'}
-{$HPPEMIT END '    using ::Skia::_di_IGrBackendTexture;'}
-{$HPPEMIT END '    using ::Skia::_di_IGrDirectContext;'}
-{$HPPEMIT END '    using ::Skia::_di_IGrGlInterface;'}
-{$HPPEMIT END '    using ::Skia::_di_IGrPersistentCache;'}
-{$HPPEMIT END '    using ::Skia::_di_IGrShaderErrorHandler;'}
-{$HPPEMIT END '    using ::Skia::_di_IGrVkExtensions;'}
-{$HPPEMIT END '    using ::Skia::_di_ISkAnimationCodecPlayer;'}
-{$HPPEMIT END '    using ::Skia::_di_ISkBlender;'}
-{$HPPEMIT END '    using ::Skia::_di_ISkCanvas;'}
-{$HPPEMIT END '    using ::Skia::_di_ISkCodec;'}
-{$HPPEMIT END '    using ::Skia::_di_ISkColorFilter;'}
-{$HPPEMIT END '    using ::Skia::_di_ISkColorSpace;'}
-{$HPPEMIT END '    using ::Skia::_di_ISkColorSpaceICCProfile;'}
-{$HPPEMIT END '    using ::Skia::_di_ISkDocument;'}
-{$HPPEMIT END '    using ::Skia::_di_ISkEnumerable;'}
-{$HPPEMIT END '    using ::Skia::_di_ISkFileResourceProvider;'}
-{$HPPEMIT END '    using ::Skia::_di_ISkFont;'}
-{$HPPEMIT END '    using ::Skia::_di_ISkImage;'}
-{$HPPEMIT END '    using ::Skia::_di_ISkImageFilter;'}
-{$HPPEMIT END '    using ::Skia::_di_ISkMaskFilter;'}
-{$HPPEMIT END '    using ::Skia::_di_ISkNonVirtualReferenceCounted;'}
-{$HPPEMIT END '    using ::Skia::_di_ISkObject;'}
-{$HPPEMIT END '    using ::Skia::_di_ISkOpBuilder;'}
-{$HPPEMIT END '    using ::Skia::_di_ISkottieAnimation;'}
-{$HPPEMIT END '    using ::Skia::_di_ISkPaint;'}
-{$HPPEMIT END '    using ::Skia::_di_ISkParagraph;'}
-{$HPPEMIT END '    using ::Skia::_di_ISkParagraphBuilder;'}
-{$HPPEMIT END '    using ::Skia::_di_ISkParagraphStyle;'}
-{$HPPEMIT END '    using ::Skia::_di_ISkParticleEffect;'}
-{$HPPEMIT END '    using ::Skia::_di_ISkPath;'}
-{$HPPEMIT END '    using ::Skia::_di_ISkPathBuilder;'}
-{$HPPEMIT END '    using ::Skia::_di_ISkPathEffect;'}
-{$HPPEMIT END '    using ::Skia::_di_ISkPathIterator;'}
-{$HPPEMIT END '    using ::Skia::_di_ISkPathMeasure;'}
-{$HPPEMIT END '    using ::Skia::_di_ISkPicture;'}
-{$HPPEMIT END '    using ::Skia::_di_ISkPictureRecorder;'}
-{$HPPEMIT END '    using ::Skia::_di_ISkPixmap;'}
-{$HPPEMIT END '    using ::Skia::_di_ISkReferenceCounted;'}
-{$HPPEMIT END '    using ::Skia::_di_ISkRegion;'}
-{$HPPEMIT END '    using ::Skia::_di_ISkRegionCliperator;'}
-{$HPPEMIT END '    using ::Skia::_di_ISkRegionIterator;'}
-{$HPPEMIT END '    using ::Skia::_di_ISkRegionSpanerator;'}
-{$HPPEMIT END '    using ::Skia::_di_ISkResourceProvider;'}
-{$HPPEMIT END '    using ::Skia::_di_ISkRoundRect;'}
-{$HPPEMIT END '    using ::Skia::_di_ISkRuntimeEffect;'}
-{$HPPEMIT END '    using ::Skia::_di_ISkShader;'}
-{$HPPEMIT END '    using ::Skia::_di_ISkShaper;'}
-{$HPPEMIT END '    using ::Skia::_di_ISkStrutStyle;'}
-{$HPPEMIT END '    using ::Skia::_di_ISkSurface;'}
-{$HPPEMIT END '    using ::Skia::_di_ISkSVGDOM;'}
-{$HPPEMIT END '    using ::Skia::_di_ISkSVGNode;'}
-{$HPPEMIT END '    using ::Skia::_di_ISkSVGSVG;'}
-{$HPPEMIT END '    using ::Skia::_di_ISkTextBlob;'}
-{$HPPEMIT END '    using ::Skia::_di_ISkTextStyle;'}
-{$HPPEMIT END '    using ::Skia::_di_ISkTraceMemoryDump;'}
-{$HPPEMIT END '    using ::Skia::_di_ISkTypeface;'}
-{$HPPEMIT END '    using ::Skia::_di_ISkTypefaceFontProvider;'}
-{$HPPEMIT END '    using ::Skia::_di_ISkUnicode;'}
-{$HPPEMIT END '    using ::Skia::_di_ISkUnicodeBreakIterator;'}
-{$HPPEMIT END '    using ::Skia::_di_ISkVertices;'}
-{$HPPEMIT END '    using ::Skia::_di_TGrGlGetProc;'}
-{$HPPEMIT END '    using ::Skia::_di_TGrVkGetProc;'}
-{$HPPEMIT END '    using ::Skia::_di_TSkFontPathProc;'}
-{$HPPEMIT END '    using ::Skia::_di_TSkImageRasterReleaseProc;'}
-{$HPPEMIT END '    using ::Skia::_di_TSkImageTextureReleaseProc;'}
-{$HPPEMIT END '    using ::Skia::_di_TSkParagraphVisitProc;'}
-{$HPPEMIT END '    using ::Skia::_di_TSkSurfaceRasterReleaseProc;'}
-{$HPPEMIT END '    using ::Skia::_di_TSkUnicodeBidiRegionProc;'}
-{$HPPEMIT END '    using ::Skia::_di_TSkUnicodeBreakProc;'}
-{$HPPEMIT END '    using ::Skia::_di_TSkUnicodeCodepointProc;'}
-{$HPPEMIT END '    using ::Skia::ESkArgumentException;'}
-{$HPPEMIT END '    using ::Skia::ESkException;'}
-{$HPPEMIT END '    using ::Skia::GrGlenum;'}
-{$HPPEMIT END '    using ::Skia::GrGluint;'}
-{$HPPEMIT END '    using ::Skia::GrMtlHandle;'}
-{$HPPEMIT END '    using ::Skia::GrVkBool32;'}
-{$HPPEMIT END '    using ::Skia::GrVkChromaLocation;'}
-{$HPPEMIT END '    using ::Skia::GrVkDevice;'}
-{$HPPEMIT END '    using ::Skia::GrVkDeviceMemory;'}
-{$HPPEMIT END '    using ::Skia::GrVkDeviceSize;'}
-{$HPPEMIT END '    using ::Skia::GrVkFilter;'}
-{$HPPEMIT END '    using ::Skia::GrVkFormat;'}
-{$HPPEMIT END '    using ::Skia::GrVkFormatFeatureFlags;'}
-{$HPPEMIT END '    using ::Skia::GrVkImage;'}
-{$HPPEMIT END '    using ::Skia::GrVkImageLayout;'}
-{$HPPEMIT END '    using ::Skia::GrVkImageTiling;'}
-{$HPPEMIT END '    using ::Skia::GrVkImageUsageFlags;'}
-{$HPPEMIT END '    using ::Skia::GrVkInstance;'}
-{$HPPEMIT END '    using ::Skia::GrVkPhysicalDevice;'}
-{$HPPEMIT END '    using ::Skia::GrVkQueue;'}
-{$HPPEMIT END '    using ::Skia::GrVkSamplerYcbcrModelConversion;'}
-{$HPPEMIT END '    using ::Skia::GrVkSamplerYcbcrRange;'}
-{$HPPEMIT END '    using ::Skia::GrVkSemaphore;'}
-{$HPPEMIT END '    using ::Skia::GrVkSharingMode;'}
-{$HPPEMIT END '    using ::Skia::IGrBackendRenderTarget;'}
-{$HPPEMIT END '    using ::Skia::IGrBackendSemaphore;'}
-{$HPPEMIT END '    using ::Skia::IGrBackendSurfaceMutableState;'}
-{$HPPEMIT END '    using ::Skia::IGrBackendTexture;'}
-{$HPPEMIT END '    using ::Skia::IGrDirectContext;'}
-{$HPPEMIT END '    using ::Skia::IGrGlInterface;'}
-{$HPPEMIT END '    using ::Skia::IGrPersistentCache;'}
-{$HPPEMIT END '    using ::Skia::IGrShaderErrorHandler;'}
-{$HPPEMIT END '    using ::Skia::IGrVkExtensions;'}
-{$HPPEMIT END '    using ::Skia::ISkAnimationCodecPlayer;'}
-{$HPPEMIT END '    using ::Skia::ISkBlender;'}
-{$HPPEMIT END '    using ::Skia::ISkCanvas;'}
-{$HPPEMIT END '    using ::Skia::ISkCodec;'}
-{$HPPEMIT END '    using ::Skia::ISkColorFilter;'}
-{$HPPEMIT END '    using ::Skia::ISkColorSpace;'}
-{$HPPEMIT END '    using ::Skia::ISkColorSpaceICCProfile;'}
-{$HPPEMIT END '    using ::Skia::ISkDocument;'}
-{$HPPEMIT END '    using ::Skia::ISkEnumerable;'}
-{$HPPEMIT END '    using ::Skia::ISkFileResourceProvider;'}
-{$HPPEMIT END '    using ::Skia::ISkFont;'}
-{$HPPEMIT END '    using ::Skia::ISkImage;'}
-{$HPPEMIT END '    using ::Skia::ISkImageFilter;'}
-{$HPPEMIT END '    using ::Skia::ISkMaskFilter;'}
-{$HPPEMIT END '    using ::Skia::ISkNonVirtualReferenceCounted;'}
-{$HPPEMIT END '    using ::Skia::ISkObject;'}
-{$HPPEMIT END '    using ::Skia::ISkOpBuilder;'}
-{$HPPEMIT END '    using ::Skia::ISkottieAnimation;'}
-{$HPPEMIT END '    using ::Skia::ISkPaint;'}
-{$HPPEMIT END '    using ::Skia::ISkParagraph;'}
-{$HPPEMIT END '    using ::Skia::ISkParagraphBuilder;'}
-{$HPPEMIT END '    using ::Skia::ISkParagraphStyle;'}
-{$HPPEMIT END '    using ::Skia::ISkParticleEffect;'}
-{$HPPEMIT END '    using ::Skia::ISkPath;'}
-{$HPPEMIT END '    using ::Skia::ISkPathBuilder;'}
-{$HPPEMIT END '    using ::Skia::ISkPathEffect;'}
-{$HPPEMIT END '    using ::Skia::ISkPathIterator;'}
-{$HPPEMIT END '    using ::Skia::ISkPathMeasure;'}
-{$HPPEMIT END '    using ::Skia::ISkPicture;'}
-{$HPPEMIT END '    using ::Skia::ISkPictureRecorder;'}
-{$HPPEMIT END '    using ::Skia::ISkPixmap;'}
-{$HPPEMIT END '    using ::Skia::ISkReferenceCounted;'}
-{$HPPEMIT END '    using ::Skia::ISkRegion;'}
-{$HPPEMIT END '    using ::Skia::ISkRegionCliperator;'}
-{$HPPEMIT END '    using ::Skia::ISkRegionIterator;'}
-{$HPPEMIT END '    using ::Skia::ISkRegionSpanerator;'}
-{$HPPEMIT END '    using ::Skia::ISkResourceProvider;'}
-{$HPPEMIT END '    using ::Skia::ISkRoundRect;'}
-{$HPPEMIT END '    using ::Skia::ISkRuntimeEffect;'}
-{$HPPEMIT END '    using ::Skia::ISkShader;'}
-{$HPPEMIT END '    using ::Skia::ISkShaper;'}
-{$HPPEMIT END '    using ::Skia::ISkStrutStyle;'}
-{$HPPEMIT END '    using ::Skia::ISkSurface;'}
-{$HPPEMIT END '    using ::Skia::ISkSVGDOM;'}
-{$HPPEMIT END '    using ::Skia::ISkSVGNode;'}
-{$HPPEMIT END '    using ::Skia::ISkSVGSVG;'}
-{$HPPEMIT END '    using ::Skia::ISkTextBlob;'}
-{$HPPEMIT END '    using ::Skia::ISkTextStyle;'}
-{$HPPEMIT END '    using ::Skia::ISkTraceMemoryDump;'}
-{$HPPEMIT END '    using ::Skia::ISkTypeface;'}
-{$HPPEMIT END '    using ::Skia::ISkTypefaceFontProvider;'}
-{$HPPEMIT END '    using ::Skia::ISkUnicode;'}
-{$HPPEMIT END '    using ::Skia::ISkUnicodeBreakIterator;'}
-{$HPPEMIT END '    using ::Skia::ISkVertices;'}
-{$HPPEMIT END '    using ::Skia::PCardinalArray;'}
-{$HPPEMIT END '    using ::Skia::PPointFArray;'}
-{$HPPEMIT END '    using ::Skia::PSingleArray;'}
-{$HPPEMIT END '    using ::Skia::PWordArray;'}
-{$HPPEMIT END '    using ::Skia::TGrBackendAPI;'}
-{$HPPEMIT END '    using ::Skia::TGrBackendRenderTarget;'}
-{$HPPEMIT END '    using ::Skia::TGrBackendSemaphore;'}
-{$HPPEMIT END '    using ::Skia::TGrBackendSurfaceMutableState;'}
-{$HPPEMIT END '    using ::Skia::TGrBackendTexture;'}
-{$HPPEMIT END '    using ::Skia::TGrContextOptions;'}
-{$HPPEMIT END '    using ::Skia::TGrDirectContext;'}
-{$HPPEMIT END '    using ::Skia::TGrGlFramebufferInfo;'}
-{$HPPEMIT END '    using ::Skia::TGrGlGetProc;'}
-{$HPPEMIT END '    using ::Skia::TGrGlInterface;'}
-{$HPPEMIT END '    using ::Skia::TGrGlTextureInfo;'}
-{$HPPEMIT END '    using ::Skia::TGrMtlBackendContext;'}
-{$HPPEMIT END '    using ::Skia::TGrMtlTextureInfo;'}
-{$HPPEMIT END '    using ::Skia::TGrPersistentCacheBaseClass;'}
-{$HPPEMIT END '    using ::Skia::TGrShaderCacheStrategy;'}
-{$HPPEMIT END '    using ::Skia::TGrShaderErrorHandlerBaseClass;'}
-{$HPPEMIT END '    using ::Skia::TGrSurfaceOrigin;'}
-{$HPPEMIT END '    using ::Skia::TGrVkAlloc;'}
-{$HPPEMIT END '    using ::Skia::TGrVkAllocFlag;'}
-{$HPPEMIT END '    using ::Skia::TGrVkAllocFlags;'}
-{$HPPEMIT END '    using ::Skia::TGrVkBackendContext;'}
-{$HPPEMIT END '    using ::Skia::TGrVkExtensions;'}
-{$HPPEMIT END '    using ::Skia::TGrVkGetProc;'}
-{$HPPEMIT END '    using ::Skia::TGrVkImageInfo;'}
-{$HPPEMIT END '    using ::Skia::TGrVkYcbcrConversionInfo;'}
-{$HPPEMIT END '    using ::Skia::TSkAffinity;'}
-{$HPPEMIT END '    using ::Skia::TSkAlphaType;'}
-{$HPPEMIT END '    using ::Skia::TSkAnimatedWebPEncoder;'}
-{$HPPEMIT END '    using ::Skia::TSkAnimationCodecPlayer;'}
-{$HPPEMIT END '    using ::Skia::TSkBlender;'}
-{$HPPEMIT END '    using ::Skia::TSkBlendMode;'}
-{$HPPEMIT END '    using ::Skia::TSkBlurStyle;'}
-{$HPPEMIT END '    using ::Skia::TSkBreakType;'}
-{$HPPEMIT END '    using ::Skia::TSkCanvas;'}
-{$HPPEMIT END '    using ::Skia::TSkClipOp;'}
-{$HPPEMIT END '    using ::Skia::TSkCodec;'}
-{$HPPEMIT END '    using ::Skia::TSkColorChannel;'}
-{$HPPEMIT END '    using ::Skia::TSkColorFilter;'}
-{$HPPEMIT END '    using ::Skia::TSkColorMatrix;'}
-{$HPPEMIT END '    using ::Skia::TSkColorSpace;'}
-{$HPPEMIT END '    using ::Skia::TSkColorSpaceICCProfile;'}
-{$HPPEMIT END '    using ::Skia::TSkColorSpacePrimaries;'}
-{$HPPEMIT END '    using ::Skia::TSkColorSpaceTransferFunction;'}
-{$HPPEMIT END '    using ::Skia::TSkColorSpaceXyz;'}
-{$HPPEMIT END '    using ::Skia::TSkColorType;'}
-{$HPPEMIT END '    using ::Skia::TSkContrastInvertStyle;'}
-{$HPPEMIT END '    using ::Skia::TSkCubicResampler;'}
-{$HPPEMIT END '    using ::Skia::TSkDirection;'}
-{$HPPEMIT END '    using ::Skia::TSkDocument;'}
-{$HPPEMIT END '    using ::Skia::TSkDrawPointsMode;'}
-{$HPPEMIT END '    using ::Skia::TSkEncodedImageFormat;'}
-{$HPPEMIT END '    using ::Skia::TSkFileResourceProvider;'}
-{$HPPEMIT END '    using ::Skia::TSkFilterMode;'}
-{$HPPEMIT END '    using ::Skia::TSkFont;'}
-{$HPPEMIT END '    using ::Skia::TSkFontEdging;'}
-{$HPPEMIT END '    using ::Skia::TSkFontHinting;'}
-{$HPPEMIT END '    using ::Skia::TSkFontMetrics;'}
-{$HPPEMIT END '    using ::Skia::TSkFontMetricsFlag;'}
-{$HPPEMIT END '    using ::Skia::TSkFontMetricsFlags;'}
-{$HPPEMIT END '    using ::Skia::TSkFontPathProc;'}
-{$HPPEMIT END '    using ::Skia::TSkFontSlant;'}
-{$HPPEMIT END '    using ::Skia::TSkFontStyle;'}
-{$HPPEMIT END '    using ::Skia::TSkFontWeight;'}
-{$HPPEMIT END '    using ::Skia::TSkFontWidth;'}
-{$HPPEMIT END '    using ::Skia::TSkFrame;'}
-{$HPPEMIT END '    using ::Skia::TSkGraphics;'}
-{$HPPEMIT END '    using ::Skia::TSkHighContrastConfig;'}
-{$HPPEMIT END '    using ::Skia::TSkImage;'}
-{$HPPEMIT END '    using ::Skia::TSkImageCachingHint;'}
-{$HPPEMIT END '    using ::Skia::TSkImageEncoder;'}
-{$HPPEMIT END '    using ::Skia::TSkImageFilter;'}
-{$HPPEMIT END '    using ::Skia::TSkImageInfo;'}
-{$HPPEMIT END '    using ::Skia::TSkImageRasterReleaseProc;'}
-{$HPPEMIT END '    using ::Skia::TSkImageTextureReleaseProc;'}
-{$HPPEMIT END '    using ::Skia::TSkLattice;'}
-{$HPPEMIT END '    using ::Skia::TSkLatticeRectType;'}
-{$HPPEMIT END '    using ::Skia::TSkMaskFilter;'}
-{$HPPEMIT END '    using ::Skia::TSkMetrics;'}
-{$HPPEMIT END '    using ::Skia::TSkMipmapMode;'}
-{$HPPEMIT END '    using ::Skia::TSkNonVirtualReferenceCounted;'}
-{$HPPEMIT END '    using ::Skia::TSkObject;'}
-{$HPPEMIT END '    using ::Skia::TSkOpBuilder;'}
-{$HPPEMIT END '    using ::Skia::TSkottieAnimation;'}
-{$HPPEMIT END '    using ::Skia::TSkottieAnimationRenderFlag;'}
-{$HPPEMIT END '    using ::Skia::TSkottieAnimationRenderFlags;'}
-{$HPPEMIT END '    using ::Skia::TSkOverdrawColor;'}
-{$HPPEMIT END '    using ::Skia::TSkPaint;'}
-{$HPPEMIT END '    using ::Skia::TSkPaintStyle;'}
-{$HPPEMIT END '    using ::Skia::TSkParagraph;'}
-{$HPPEMIT END '    using ::Skia::TSkParagraphBuilder;'}
-{$HPPEMIT END '    using ::Skia::TSkParagraphStyle;'}
-{$HPPEMIT END '    using ::Skia::TSkParagraphVisitorFlag;'}
-{$HPPEMIT END '    using ::Skia::TSkParagraphVisitorFlags;'}
-{$HPPEMIT END '    using ::Skia::TSkParagraphVisitorInfo;'}
-{$HPPEMIT END '    using ::Skia::TSkParagraphVisitProc;'}
-{$HPPEMIT END '    using ::Skia::TSkParticleEffect;'}
-{$HPPEMIT END '    using ::Skia::TSkParticleUniform;'}
-{$HPPEMIT END '    using ::Skia::TSkParticleUniformData;'}
-{$HPPEMIT END '    using ::Skia::TSkPatchColors;'}
-{$HPPEMIT END '    using ::Skia::TSkPatchCubics;'}
-{$HPPEMIT END '    using ::Skia::TSkPatchTexCoords;'}
-{$HPPEMIT END '    using ::Skia::TSkPath;'}
-{$HPPEMIT END '    using ::Skia::TSkPathArcSize;'}
-{$HPPEMIT END '    using ::Skia::TSkPathBuilder;'}
-{$HPPEMIT END '    using ::Skia::TSkPathDirection;'}
-{$HPPEMIT END '    using ::Skia::TSkPathEffect;'}
-{$HPPEMIT END '    using ::Skia::TSkPathEffect1DStyle;'}
-{$HPPEMIT END '    using ::Skia::TSkPathEffectTrimMode;'}
-{$HPPEMIT END '    using ::Skia::TSkPathFillType;'}
-{$HPPEMIT END '    using ::Skia::TSkPathIteratorElem;'}
-{$HPPEMIT END '    using ::Skia::TSkPathMeasure;'}
-{$HPPEMIT END '    using ::Skia::TSkPathMeasureMatrixFlag;'}
-{$HPPEMIT END '    using ::Skia::TSkPathMeasureMatrixFlags;'}
-{$HPPEMIT END '    using ::Skia::TSkPathOp;'}
-{$HPPEMIT END '    using ::Skia::TSkPathPoints;'}
-{$HPPEMIT END '    using ::Skia::TSkPathVerb;'}
-{$HPPEMIT END '    using ::Skia::TSkPDFMetadata;'}
-{$HPPEMIT END '    using ::Skia::TSkPicture;'}
-{$HPPEMIT END '    using ::Skia::TSkPictureRecorder;'}
-{$HPPEMIT END '    using ::Skia::TSkPixelGeometry;'}
-{$HPPEMIT END '    using ::Skia::TSkPixmap;'}
-{$HPPEMIT END '    using ::Skia::TSkPlaceholderAlignment;'}
-{$HPPEMIT END '    using ::Skia::TSkPlaceholderStyle;'}
-{$HPPEMIT END '    using ::Skia::TSkPositionAffinity;'}
-{$HPPEMIT END '    using ::Skia::TSkRectHeightStyle;'}
-{$HPPEMIT END '    using ::Skia::TSkRectWidthStyle;'}
-{$HPPEMIT END '    using ::Skia::TSkReferenceCounted;'}
-{$HPPEMIT END '    using ::Skia::TSkRegion;'}
-{$HPPEMIT END '    using ::Skia::TSkRegionOp;'}
-{$HPPEMIT END '    using ::Skia::TSkResourceProviderBaseClass;'}
-{$HPPEMIT END '    using ::Skia::TSkRotationScaleMatrix;'}
-{$HPPEMIT END '    using ::Skia::TSkRoundRect;'}
-{$HPPEMIT END '    using ::Skia::TSkRoundRectCorner;'}
-{$HPPEMIT END '    using ::Skia::TSkRoundRectRadii;'}
-{$HPPEMIT END '    using ::Skia::TSkRuntimeEffect;'}
-{$HPPEMIT END '    using ::Skia::TSkRuntimeEffectChildType;'}
-{$HPPEMIT END '    using ::Skia::TSkRuntimeEffectFloat2;'}
-{$HPPEMIT END '    using ::Skia::TSkRuntimeEffectFloat2x2;'}
-{$HPPEMIT END '    using ::Skia::TSkRuntimeEffectFloat3;'}
-{$HPPEMIT END '    using ::Skia::TSkRuntimeEffectFloat3x3;'}
-{$HPPEMIT END '    using ::Skia::TSkRuntimeEffectFloat4;'}
-{$HPPEMIT END '    using ::Skia::TSkRuntimeEffectFloat4x4;'}
-{$HPPEMIT END '    using ::Skia::TSkRuntimeEffectInt2;'}
-{$HPPEMIT END '    using ::Skia::TSkRuntimeEffectInt3;'}
-{$HPPEMIT END '    using ::Skia::TSkRuntimeEffectInt4;'}
-{$HPPEMIT END '    using ::Skia::TSkRuntimeEffectUniformType;'}
-{$HPPEMIT END '    using ::Skia::TSkSamplingOptions;'}
-{$HPPEMIT END '    using ::Skia::TSkSaveLayerFlag;'}
-{$HPPEMIT END '    using ::Skia::TSkSaveLayerFlags;'}
-{$HPPEMIT END '    using ::Skia::TSkSegmentMask;'}
-{$HPPEMIT END '    using ::Skia::TSkSegmentMasks;'}
-{$HPPEMIT END '    using ::Skia::TSkShader;'}
-{$HPPEMIT END '    using ::Skia::TSkShaper;'}
-{$HPPEMIT END '    using ::Skia::TSkSrcRectConstraint;'}
-{$HPPEMIT END '    using ::Skia::TSkStrokeCap;'}
-{$HPPEMIT END '    using ::Skia::TSkStrokeJoin;'}
-{$HPPEMIT END '    using ::Skia::TSkStrutStyle;'}
-{$HPPEMIT END '    using ::Skia::TSkSurface;'}
-{$HPPEMIT END '    using ::Skia::TSkSurfaceProperties;'}
-{$HPPEMIT END '    using ::Skia::TSkSurfacePropertiesFlag;'}
-{$HPPEMIT END '    using ::Skia::TSkSurfacePropertiesFlags;'}
-{$HPPEMIT END '    using ::Skia::TSkSurfaceRasterReleaseProc;'}
-{$HPPEMIT END '    using ::Skia::TSkSVGAspectAlign;'}
-{$HPPEMIT END '    using ::Skia::TSkSVGAspectScale;'}
-{$HPPEMIT END '    using ::Skia::TSkSVGCanvas;'}
-{$HPPEMIT END '    using ::Skia::TSkSVGCanvasFlag;'}
-{$HPPEMIT END '    using ::Skia::TSkSVGCanvasFlags;'}
-{$HPPEMIT END '    using ::Skia::TSkSVGDOM;'}
-{$HPPEMIT END '    using ::Skia::TSkSVGLength;'}
-{$HPPEMIT END '    using ::Skia::TSkSVGLengthUnit;'}
-{$HPPEMIT END '    using ::Skia::TSkSVGNode;'}
-{$HPPEMIT END '    using ::Skia::TSkSVGPreserveAspectRatio;'}
-{$HPPEMIT END '    using ::Skia::TSkSVGSVG;'}
-{$HPPEMIT END '    using ::Skia::TSkTableFilter;'}
-{$HPPEMIT END '    using ::Skia::TSkTextAlign;'}
-{$HPPEMIT END '    using ::Skia::TSkTextBaseline;'}
-{$HPPEMIT END '    using ::Skia::TSkTextBlob;'}
-{$HPPEMIT END '    using ::Skia::TSkTextBox;'}
-{$HPPEMIT END '    using ::Skia::TSkTextDecoration;'}
-{$HPPEMIT END '    using ::Skia::TSkTextDecorations;'}
-{$HPPEMIT END '    using ::Skia::TSkTextDecorationStyle;'}
-{$HPPEMIT END '    using ::Skia::TSkTextDirection;'}
-{$HPPEMIT END '    using ::Skia::TSkTextHeightBehavior;'}
-{$HPPEMIT END '    using ::Skia::TSkTextHeightBehaviors;'}
-{$HPPEMIT END '    using ::Skia::TSkTextShadow;'}
-{$HPPEMIT END '    using ::Skia::TSkTextStyle;'}
-{$HPPEMIT END '    using ::Skia::TSkTileMode;'}
-{$HPPEMIT END '    using ::Skia::TSkTraceMemoryDumpBaseClass;'}
-{$HPPEMIT END '    using ::Skia::TSkTypeface;'}
-{$HPPEMIT END '    using ::Skia::TSkTypefaceFontProvider;'}
-{$HPPEMIT END '    using ::Skia::TSkUnicode;'}
-{$HPPEMIT END '    using ::Skia::TSkUnicodeBidiRegionProc;'}
-{$HPPEMIT END '    using ::Skia::TSkUnicodeBreakIteratorElem;'}
-{$HPPEMIT END '    using ::Skia::TSkUnicodeBreakProc;'}
-{$HPPEMIT END '    using ::Skia::TSkUnicodeCodepointProc;'}
-{$HPPEMIT END '    using ::Skia::TSkVertexMode;'}
-{$HPPEMIT END '    using ::Skia::TSkVertices;'}
+{$HPPEMIT END '#if !defined(DELPHIHEADER_NO_IMPLICIT_NAMESPACE_USE) && !defined(NO_USING_NAMESPACE_SYSTEM_SKIA)'}
+{$HPPEMIT END '    using ::System::Skia::_di_IGrBackendRenderTarget;'}
+{$HPPEMIT END '    using ::System::Skia::_di_IGrBackendSemaphore;'}
+{$HPPEMIT END '    using ::System::Skia::_di_IGrBackendSurfaceMutableState;'}
+{$HPPEMIT END '    using ::System::Skia::_di_IGrBackendTexture;'}
+{$HPPEMIT END '    using ::System::Skia::_di_IGrDirectContext;'}
+{$HPPEMIT END '    using ::System::Skia::_di_IGrGlInterface;'}
+{$HPPEMIT END '    using ::System::Skia::_di_IGrPersistentCache;'}
+{$HPPEMIT END '    using ::System::Skia::_di_IGrShaderErrorHandler;'}
+{$HPPEMIT END '    using ::System::Skia::_di_IGrVkExtensions;'}
+{$HPPEMIT END '    using ::System::Skia::_di_ISkAnimationCodecPlayer;'}
+{$HPPEMIT END '    using ::System::Skia::_di_ISkBlender;'}
+{$HPPEMIT END '    using ::System::Skia::_di_ISkCanvas;'}
+{$HPPEMIT END '    using ::System::Skia::_di_ISkCodec;'}
+{$HPPEMIT END '    using ::System::Skia::_di_ISkColorFilter;'}
+{$HPPEMIT END '    using ::System::Skia::_di_ISkColorSpace;'}
+{$HPPEMIT END '    using ::System::Skia::_di_ISkColorSpaceICCProfile;'}
+{$HPPEMIT END '    using ::System::Skia::_di_ISkDocument;'}
+{$HPPEMIT END '    using ::System::Skia::_di_ISkEnumerable;'}
+{$HPPEMIT END '    using ::System::Skia::_di_ISkFileResourceProvider;'}
+{$HPPEMIT END '    using ::System::Skia::_di_ISkFlattenable;'}
+{$HPPEMIT END '    using ::System::Skia::_di_ISkFont;'}
+{$HPPEMIT END '    using ::System::Skia::_di_ISkImage;'}
+{$HPPEMIT END '    using ::System::Skia::_di_ISkImageFilter;'}
+{$HPPEMIT END '    using ::System::Skia::_di_ISkMaskFilter;'}
+{$HPPEMIT END '    using ::System::Skia::_di_ISkNonVirtualReferenceCounted;'}
+{$HPPEMIT END '    using ::System::Skia::_di_ISkObject;'}
+{$HPPEMIT END '    using ::System::Skia::_di_ISkOpBuilder;'}
+{$HPPEMIT END '    using ::System::Skia::_di_ISkottieAnimation;'}
+{$HPPEMIT END '    using ::System::Skia::_di_ISkPaint;'}
+{$HPPEMIT END '    using ::System::Skia::_di_ISkParagraph;'}
+{$HPPEMIT END '    using ::System::Skia::_di_ISkParagraphBuilder;'}
+{$HPPEMIT END '    using ::System::Skia::_di_ISkParagraphStyle;'}
+{$HPPEMIT END '    using ::System::Skia::_di_ISkParticleEffect;'}
+{$HPPEMIT END '    using ::System::Skia::_di_ISkPath;'}
+{$HPPEMIT END '    using ::System::Skia::_di_ISkPathBuilder;'}
+{$HPPEMIT END '    using ::System::Skia::_di_ISkPathEffect;'}
+{$HPPEMIT END '    using ::System::Skia::_di_ISkPathIterator;'}
+{$HPPEMIT END '    using ::System::Skia::_di_ISkPathMeasure;'}
+{$HPPEMIT END '    using ::System::Skia::_di_ISkPicture;'}
+{$HPPEMIT END '    using ::System::Skia::_di_ISkPictureRecorder;'}
+{$HPPEMIT END '    using ::System::Skia::_di_ISkPixmap;'}
+{$HPPEMIT END '    using ::System::Skia::_di_ISkReferenceCounted;'}
+{$HPPEMIT END '    using ::System::Skia::_di_ISkRegion;'}
+{$HPPEMIT END '    using ::System::Skia::_di_ISkRegionCliperator;'}
+{$HPPEMIT END '    using ::System::Skia::_di_ISkRegionIterator;'}
+{$HPPEMIT END '    using ::System::Skia::_di_ISkRegionSpanerator;'}
+{$HPPEMIT END '    using ::System::Skia::_di_ISkResourceProvider;'}
+{$HPPEMIT END '    using ::System::Skia::_di_ISkRoundRect;'}
+{$HPPEMIT END '    using ::System::Skia::_di_ISkRuntimeBlenderBuilder;'}
+{$HPPEMIT END '    using ::System::Skia::_di_ISkRuntimeEffect;'}
+{$HPPEMIT END '    using ::System::Skia::_di_ISkRuntimeEffectBuilder;'}
+{$HPPEMIT END '    using ::System::Skia::_di_ISkRuntimeShaderBuilder;'}
+{$HPPEMIT END '    using ::System::Skia::_di_ISkShader;'}
+{$HPPEMIT END '    using ::System::Skia::_di_ISkShaper;'}
+{$HPPEMIT END '    using ::System::Skia::_di_ISkStrutStyle;'}
+{$HPPEMIT END '    using ::System::Skia::_di_ISkSurface;'}
+{$HPPEMIT END '    using ::System::Skia::_di_ISkSVGDOM;'}
+{$HPPEMIT END '    using ::System::Skia::_di_ISkSVGNode;'}
+{$HPPEMIT END '    using ::System::Skia::_di_ISkSVGSVG;'}
+{$HPPEMIT END '    using ::System::Skia::_di_ISkTextBlob;'}
+{$HPPEMIT END '    using ::System::Skia::_di_ISkTextStyle;'}
+{$HPPEMIT END '    using ::System::Skia::_di_ISkTraceMemoryDump;'}
+{$HPPEMIT END '    using ::System::Skia::_di_ISkTypeface;'}
+{$HPPEMIT END '    using ::System::Skia::_di_ISkTypefaceFontProvider;'}
+{$HPPEMIT END '    using ::System::Skia::_di_ISkUnicode;'}
+{$HPPEMIT END '    using ::System::Skia::_di_ISkUnicodeBreakIterator;'}
+{$HPPEMIT END '    using ::System::Skia::_di_ISkVertices;'}
+{$HPPEMIT END '    using ::System::Skia::_di_TGrGlGetProc;'}
+{$HPPEMIT END '    using ::System::Skia::_di_TGrVkGetProc;'}
+{$HPPEMIT END '    using ::System::Skia::_di_TSkFontPathProc;'}
+{$HPPEMIT END '    using ::System::Skia::_di_TSkImageRasterReleaseProc;'}
+{$HPPEMIT END '    using ::System::Skia::_di_TSkImageTextureReleaseProc;'}
+{$HPPEMIT END '    using ::System::Skia::_di_TSkParagraphVisitProc;'}
+{$HPPEMIT END '    using ::System::Skia::_di_TSkSurfaceRasterReleaseProc;'}
+{$HPPEMIT END '    using ::System::Skia::_di_TSkUnicodeBidiRegionProc;'}
+{$HPPEMIT END '    using ::System::Skia::_di_TSkUnicodeBreakProc;'}
+{$HPPEMIT END '    using ::System::Skia::_di_TSkUnicodeCodepointProc;'}
+{$HPPEMIT END '    using ::System::Skia::ESkArgumentException;'}
+{$HPPEMIT END '    using ::System::Skia::ESkException;'}
+{$HPPEMIT END '    using ::System::Skia::GrGlenum;'}
+{$HPPEMIT END '    using ::System::Skia::GrGluint;'}
+{$HPPEMIT END '    using ::System::Skia::GrMtlHandle;'}
+{$HPPEMIT END '    using ::System::Skia::GrVkBool32;'}
+{$HPPEMIT END '    using ::System::Skia::GrVkChromaLocation;'}
+{$HPPEMIT END '    using ::System::Skia::GrVkDevice;'}
+{$HPPEMIT END '    using ::System::Skia::GrVkDeviceMemory;'}
+{$HPPEMIT END '    using ::System::Skia::GrVkDeviceSize;'}
+{$HPPEMIT END '    using ::System::Skia::GrVkFilter;'}
+{$HPPEMIT END '    using ::System::Skia::GrVkFormat;'}
+{$HPPEMIT END '    using ::System::Skia::GrVkFormatFeatureFlags;'}
+{$HPPEMIT END '    using ::System::Skia::GrVkImage;'}
+{$HPPEMIT END '    using ::System::Skia::GrVkImageLayout;'}
+{$HPPEMIT END '    using ::System::Skia::GrVkImageTiling;'}
+{$HPPEMIT END '    using ::System::Skia::GrVkImageUsageFlags;'}
+{$HPPEMIT END '    using ::System::Skia::GrVkInstance;'}
+{$HPPEMIT END '    using ::System::Skia::GrVkPhysicalDevice;'}
+{$HPPEMIT END '    using ::System::Skia::GrVkQueue;'}
+{$HPPEMIT END '    using ::System::Skia::GrVkSamplerYcbcrModelConversion;'}
+{$HPPEMIT END '    using ::System::Skia::GrVkSamplerYcbcrRange;'}
+{$HPPEMIT END '    using ::System::Skia::GrVkSemaphore;'}
+{$HPPEMIT END '    using ::System::Skia::GrVkSharingMode;'}
+{$HPPEMIT END '    using ::System::Skia::IGrBackendRenderTarget;'}
+{$HPPEMIT END '    using ::System::Skia::IGrBackendSemaphore;'}
+{$HPPEMIT END '    using ::System::Skia::IGrBackendSurfaceMutableState;'}
+{$HPPEMIT END '    using ::System::Skia::IGrBackendTexture;'}
+{$HPPEMIT END '    using ::System::Skia::IGrDirectContext;'}
+{$HPPEMIT END '    using ::System::Skia::IGrGlInterface;'}
+{$HPPEMIT END '    using ::System::Skia::IGrPersistentCache;'}
+{$HPPEMIT END '    using ::System::Skia::IGrShaderErrorHandler;'}
+{$HPPEMIT END '    using ::System::Skia::IGrVkExtensions;'}
+{$HPPEMIT END '    using ::System::Skia::ISkAnimationCodecPlayer;'}
+{$HPPEMIT END '    using ::System::Skia::ISkBlender;'}
+{$HPPEMIT END '    using ::System::Skia::ISkCanvas;'}
+{$HPPEMIT END '    using ::System::Skia::ISkCodec;'}
+{$HPPEMIT END '    using ::System::Skia::ISkColorFilter;'}
+{$HPPEMIT END '    using ::System::Skia::ISkColorSpace;'}
+{$HPPEMIT END '    using ::System::Skia::ISkColorSpaceICCProfile;'}
+{$HPPEMIT END '    using ::System::Skia::ISkDocument;'}
+{$HPPEMIT END '    using ::System::Skia::ISkEnumerable;'}
+{$HPPEMIT END '    using ::System::Skia::ISkFileResourceProvider;'}
+{$HPPEMIT END '    using ::System::Skia::ISkFlattenable;'}
+{$HPPEMIT END '    using ::System::Skia::ISkFont;'}
+{$HPPEMIT END '    using ::System::Skia::ISkImage;'}
+{$HPPEMIT END '    using ::System::Skia::ISkImageFilter;'}
+{$HPPEMIT END '    using ::System::Skia::ISkMaskFilter;'}
+{$HPPEMIT END '    using ::System::Skia::ISkNonVirtualReferenceCounted;'}
+{$HPPEMIT END '    using ::System::Skia::ISkObject;'}
+{$HPPEMIT END '    using ::System::Skia::ISkOpBuilder;'}
+{$HPPEMIT END '    using ::System::Skia::ISkottieAnimation;'}
+{$HPPEMIT END '    using ::System::Skia::ISkPaint;'}
+{$HPPEMIT END '    using ::System::Skia::ISkParagraph;'}
+{$HPPEMIT END '    using ::System::Skia::ISkParagraphBuilder;'}
+{$HPPEMIT END '    using ::System::Skia::ISkParagraphStyle;'}
+{$HPPEMIT END '    using ::System::Skia::ISkParticleEffect;'}
+{$HPPEMIT END '    using ::System::Skia::ISkPath;'}
+{$HPPEMIT END '    using ::System::Skia::ISkPathBuilder;'}
+{$HPPEMIT END '    using ::System::Skia::ISkPathEffect;'}
+{$HPPEMIT END '    using ::System::Skia::ISkPathIterator;'}
+{$HPPEMIT END '    using ::System::Skia::ISkPathMeasure;'}
+{$HPPEMIT END '    using ::System::Skia::ISkPicture;'}
+{$HPPEMIT END '    using ::System::Skia::ISkPictureRecorder;'}
+{$HPPEMIT END '    using ::System::Skia::ISkPixmap;'}
+{$HPPEMIT END '    using ::System::Skia::ISkReferenceCounted;'}
+{$HPPEMIT END '    using ::System::Skia::ISkRegion;'}
+{$HPPEMIT END '    using ::System::Skia::ISkRegionCliperator;'}
+{$HPPEMIT END '    using ::System::Skia::ISkRegionIterator;'}
+{$HPPEMIT END '    using ::System::Skia::ISkRegionSpanerator;'}
+{$HPPEMIT END '    using ::System::Skia::ISkResourceProvider;'}
+{$HPPEMIT END '    using ::System::Skia::ISkRoundRect;'}
+{$HPPEMIT END '    using ::System::Skia::ISkRuntimeBlenderBuilder;'}
+{$HPPEMIT END '    using ::System::Skia::ISkRuntimeEffect;'}
+{$HPPEMIT END '    using ::System::Skia::ISkRuntimeEffectBuilder;'}
+{$HPPEMIT END '    using ::System::Skia::ISkRuntimeShaderBuilder;'}
+{$HPPEMIT END '    using ::System::Skia::ISkShader;'}
+{$HPPEMIT END '    using ::System::Skia::ISkShaper;'}
+{$HPPEMIT END '    using ::System::Skia::ISkStrutStyle;'}
+{$HPPEMIT END '    using ::System::Skia::ISkSurface;'}
+{$HPPEMIT END '    using ::System::Skia::ISkSVGDOM;'}
+{$HPPEMIT END '    using ::System::Skia::ISkSVGNode;'}
+{$HPPEMIT END '    using ::System::Skia::ISkSVGSVG;'}
+{$HPPEMIT END '    using ::System::Skia::ISkTextBlob;'}
+{$HPPEMIT END '    using ::System::Skia::ISkTextStyle;'}
+{$HPPEMIT END '    using ::System::Skia::ISkTraceMemoryDump;'}
+{$HPPEMIT END '    using ::System::Skia::ISkTypeface;'}
+{$HPPEMIT END '    using ::System::Skia::ISkTypefaceFontProvider;'}
+{$HPPEMIT END '    using ::System::Skia::ISkUnicode;'}
+{$HPPEMIT END '    using ::System::Skia::ISkUnicodeBreakIterator;'}
+{$HPPEMIT END '    using ::System::Skia::ISkVertices;'}
+{$HPPEMIT END '    using ::System::Skia::PCardinalArray;'}
+{$HPPEMIT END '    using ::System::Skia::PPointFArray;'}
+{$HPPEMIT END '    using ::System::Skia::PSingleArray;'}
+{$HPPEMIT END '    using ::System::Skia::PWordArray;'}
+{$HPPEMIT END '    using ::System::Skia::TGrBackendAPI;'}
+{$HPPEMIT END '    using ::System::Skia::TGrBackendRenderTarget;'}
+{$HPPEMIT END '    using ::System::Skia::TGrBackendSemaphore;'}
+{$HPPEMIT END '    using ::System::Skia::TGrBackendSurfaceMutableState;'}
+{$HPPEMIT END '    using ::System::Skia::TGrBackendTexture;'}
+{$HPPEMIT END '    using ::System::Skia::TGrContextOptions;'}
+{$HPPEMIT END '    using ::System::Skia::TGrDirectContext;'}
+{$HPPEMIT END '    using ::System::Skia::TGrGlFramebufferInfo;'}
+{$HPPEMIT END '    using ::System::Skia::TGrGlGetProc;'}
+{$HPPEMIT END '    using ::System::Skia::TGrGlInterface;'}
+{$HPPEMIT END '    using ::System::Skia::TGrGlTextureInfo;'}
+{$HPPEMIT END '    using ::System::Skia::TGrMtlBackendContext;'}
+{$HPPEMIT END '    using ::System::Skia::TGrMtlTextureInfo;'}
+{$HPPEMIT END '    using ::System::Skia::TGrPersistentCacheBaseClass;'}
+{$HPPEMIT END '    using ::System::Skia::TGrShaderCacheStrategy;'}
+{$HPPEMIT END '    using ::System::Skia::TGrShaderErrorHandlerBaseClass;'}
+{$HPPEMIT END '    using ::System::Skia::TGrSurfaceOrigin;'}
+{$HPPEMIT END '    using ::System::Skia::TGrVkAlloc;'}
+{$HPPEMIT END '    using ::System::Skia::TGrVkAllocFlag;'}
+{$HPPEMIT END '    using ::System::Skia::TGrVkAllocFlags;'}
+{$HPPEMIT END '    using ::System::Skia::TGrVkBackendContext;'}
+{$HPPEMIT END '    using ::System::Skia::TGrVkExtensions;'}
+{$HPPEMIT END '    using ::System::Skia::TGrVkGetProc;'}
+{$HPPEMIT END '    using ::System::Skia::TGrVkImageInfo;'}
+{$HPPEMIT END '    using ::System::Skia::TGrVkYcbcrConversionInfo;'}
+{$HPPEMIT END '    using ::System::Skia::TSkAffinity;'}
+{$HPPEMIT END '    using ::System::Skia::TSkAlphaType;'}
+{$HPPEMIT END '    using ::System::Skia::TSkAnimatedWebPEncoder;'}
+{$HPPEMIT END '    using ::System::Skia::TSkAnimationCodecPlayer;'}
+{$HPPEMIT END '    using ::System::Skia::TSkBlender;'}
+{$HPPEMIT END '    using ::System::Skia::TSkBlendMode;'}
+{$HPPEMIT END '    using ::System::Skia::TSkBlurStyle;'}
+{$HPPEMIT END '    using ::System::Skia::TSkBreakType;'}
+{$HPPEMIT END '    using ::System::Skia::TSkCanvas;'}
+{$HPPEMIT END '    using ::System::Skia::TSkClipOp;'}
+{$HPPEMIT END '    using ::System::Skia::TSkCodec;'}
+{$HPPEMIT END '    using ::System::Skia::TSkColorChannel;'}
+{$HPPEMIT END '    using ::System::Skia::TSkColorFilter;'}
+{$HPPEMIT END '    using ::System::Skia::TSkColorMatrix;'}
+{$HPPEMIT END '    using ::System::Skia::TSkColorSpace;'}
+{$HPPEMIT END '    using ::System::Skia::TSkColorSpaceICCProfile;'}
+{$HPPEMIT END '    using ::System::Skia::TSkColorSpacePrimaries;'}
+{$HPPEMIT END '    using ::System::Skia::TSkColorSpaceTransferFunction;'}
+{$HPPEMIT END '    using ::System::Skia::TSkColorSpaceXyz;'}
+{$HPPEMIT END '    using ::System::Skia::TSkColorType;'}
+{$HPPEMIT END '    using ::System::Skia::TSkContrastInvertStyle;'}
+{$HPPEMIT END '    using ::System::Skia::TSkCubicResampler;'}
+{$HPPEMIT END '    using ::System::Skia::TSkDirection;'}
+{$HPPEMIT END '    using ::System::Skia::TSkDocument;'}
+{$HPPEMIT END '    using ::System::Skia::TSkDrawPointsMode;'}
+{$HPPEMIT END '    using ::System::Skia::TSkEncodedImageFormat;'}
+{$HPPEMIT END '    using ::System::Skia::TSkFileResourceProvider;'}
+{$HPPEMIT END '    using ::System::Skia::TSkFilterMode;'}
+{$HPPEMIT END '    using ::System::Skia::TSkFont;'}
+{$HPPEMIT END '    using ::System::Skia::TSkFontEdging;'}
+{$HPPEMIT END '    using ::System::Skia::TSkFontHinting;'}
+{$HPPEMIT END '    using ::System::Skia::TSkFontMetrics;'}
+{$HPPEMIT END '    using ::System::Skia::TSkFontMetricsFlag;'}
+{$HPPEMIT END '    using ::System::Skia::TSkFontMetricsFlags;'}
+{$HPPEMIT END '    using ::System::Skia::TSkFontPathProc;'}
+{$HPPEMIT END '    using ::System::Skia::TSkFontSlant;'}
+{$HPPEMIT END '    using ::System::Skia::TSkFontStyle;'}
+{$HPPEMIT END '    using ::System::Skia::TSkFontWeight;'}
+{$HPPEMIT END '    using ::System::Skia::TSkFontWidth;'}
+{$HPPEMIT END '    using ::System::Skia::TSkFrame;'}
+{$HPPEMIT END '    using ::System::Skia::TSkGraphics;'}
+{$HPPEMIT END '    using ::System::Skia::TSkHighContrastConfig;'}
+{$HPPEMIT END '    using ::System::Skia::TSkImage;'}
+{$HPPEMIT END '    using ::System::Skia::TSkImageCachingHint;'}
+{$HPPEMIT END '    using ::System::Skia::TSkImageEncoder;'}
+{$HPPEMIT END '    using ::System::Skia::TSkImageFilter;'}
+{$HPPEMIT END '    using ::System::Skia::TSkImageInfo;'}
+{$HPPEMIT END '    using ::System::Skia::TSkImageRasterReleaseProc;'}
+{$HPPEMIT END '    using ::System::Skia::TSkImageTextureReleaseProc;'}
+{$HPPEMIT END '    using ::System::Skia::TSkLattice;'}
+{$HPPEMIT END '    using ::System::Skia::TSkLatticeRectType;'}
+{$HPPEMIT END '    using ::System::Skia::TSkMaskFilter;'}
+{$HPPEMIT END '    using ::System::Skia::TSkMetrics;'}
+{$HPPEMIT END '    using ::System::Skia::TSkMipmapMode;'}
+{$HPPEMIT END '    using ::System::Skia::TSkNonVirtualReferenceCounted;'}
+{$HPPEMIT END '    using ::System::Skia::TSkObject;'}
+{$HPPEMIT END '    using ::System::Skia::TSkOpBuilder;'}
+{$HPPEMIT END '    using ::System::Skia::TSkottieAnimation;'}
+{$HPPEMIT END '    using ::System::Skia::TSkottieAnimationRenderFlag;'}
+{$HPPEMIT END '    using ::System::Skia::TSkottieAnimationRenderFlags;'}
+{$HPPEMIT END '    using ::System::Skia::TSkOverdrawColor;'}
+{$HPPEMIT END '    using ::System::Skia::TSkPaint;'}
+{$HPPEMIT END '    using ::System::Skia::TSkPaintStyle;'}
+{$HPPEMIT END '    using ::System::Skia::TSkParagraph;'}
+{$HPPEMIT END '    using ::System::Skia::TSkParagraphBuilder;'}
+{$HPPEMIT END '    using ::System::Skia::TSkParagraphStyle;'}
+{$HPPEMIT END '    using ::System::Skia::TSkParagraphVisitorFlag;'}
+{$HPPEMIT END '    using ::System::Skia::TSkParagraphVisitorFlags;'}
+{$HPPEMIT END '    using ::System::Skia::TSkParagraphVisitorInfo;'}
+{$HPPEMIT END '    using ::System::Skia::TSkParagraphVisitProc;'}
+{$HPPEMIT END '    using ::System::Skia::TSkParticleEffect;'}
+{$HPPEMIT END '    using ::System::Skia::TSkParticleUniform;'}
+{$HPPEMIT END '    using ::System::Skia::TSkParticleUniformData;'}
+{$HPPEMIT END '    using ::System::Skia::TSkPatchColors;'}
+{$HPPEMIT END '    using ::System::Skia::TSkPatchCubics;'}
+{$HPPEMIT END '    using ::System::Skia::TSkPatchTexCoords;'}
+{$HPPEMIT END '    using ::System::Skia::TSkPath;'}
+{$HPPEMIT END '    using ::System::Skia::TSkPathArcSize;'}
+{$HPPEMIT END '    using ::System::Skia::TSkPathBuilder;'}
+{$HPPEMIT END '    using ::System::Skia::TSkPathDirection;'}
+{$HPPEMIT END '    using ::System::Skia::TSkPathEffect;'}
+{$HPPEMIT END '    using ::System::Skia::TSkPathEffect1DStyle;'}
+{$HPPEMIT END '    using ::System::Skia::TSkPathEffectTrimMode;'}
+{$HPPEMIT END '    using ::System::Skia::TSkPathFillType;'}
+{$HPPEMIT END '    using ::System::Skia::TSkPathIteratorElem;'}
+{$HPPEMIT END '    using ::System::Skia::TSkPathMeasure;'}
+{$HPPEMIT END '    using ::System::Skia::TSkPathMeasureMatrixFlag;'}
+{$HPPEMIT END '    using ::System::Skia::TSkPathMeasureMatrixFlags;'}
+{$HPPEMIT END '    using ::System::Skia::TSkPathOp;'}
+{$HPPEMIT END '    using ::System::Skia::TSkPathPoints;'}
+{$HPPEMIT END '    using ::System::Skia::TSkPathVerb;'}
+{$HPPEMIT END '    using ::System::Skia::TSkPDFMetadata;'}
+{$HPPEMIT END '    using ::System::Skia::TSkPicture;'}
+{$HPPEMIT END '    using ::System::Skia::TSkPictureRecorder;'}
+{$HPPEMIT END '    using ::System::Skia::TSkPixelGeometry;'}
+{$HPPEMIT END '    using ::System::Skia::TSkPixmap;'}
+{$HPPEMIT END '    using ::System::Skia::TSkPlaceholderAlignment;'}
+{$HPPEMIT END '    using ::System::Skia::TSkPlaceholderStyle;'}
+{$HPPEMIT END '    using ::System::Skia::TSkPositionAffinity;'}
+{$HPPEMIT END '    using ::System::Skia::TSkRectHeightStyle;'}
+{$HPPEMIT END '    using ::System::Skia::TSkRectWidthStyle;'}
+{$HPPEMIT END '    using ::System::Skia::TSkReferenceCounted;'}
+{$HPPEMIT END '    using ::System::Skia::TSkRegion;'}
+{$HPPEMIT END '    using ::System::Skia::TSkRegionOp;'}
+{$HPPEMIT END '    using ::System::Skia::TSkResourceProviderBaseClass;'}
+{$HPPEMIT END '    using ::System::Skia::TSkRotationScaleMatrix;'}
+{$HPPEMIT END '    using ::System::Skia::TSkRoundRect;'}
+{$HPPEMIT END '    using ::System::Skia::TSkRoundRectCorner;'}
+{$HPPEMIT END '    using ::System::Skia::TSkRoundRectRadii;'}
+{$HPPEMIT END '    using ::System::Skia::TSkRuntimeBlenderBuilder;'}
+{$HPPEMIT END '    using ::System::Skia::TSkRuntimeEffect;'}
+{$HPPEMIT END '    using ::System::Skia::TSkRuntimeEffectBuilder;'}
+{$HPPEMIT END '    using ::System::Skia::TSkRuntimeEffectChildType;'}
+{$HPPEMIT END '    using ::System::Skia::TSkRuntimeEffectFloat2;'}
+{$HPPEMIT END '    using ::System::Skia::TSkRuntimeEffectFloat2x2;'}
+{$HPPEMIT END '    using ::System::Skia::TSkRuntimeEffectFloat3;'}
+{$HPPEMIT END '    using ::System::Skia::TSkRuntimeEffectFloat3x3;'}
+{$HPPEMIT END '    using ::System::Skia::TSkRuntimeEffectFloat4;'}
+{$HPPEMIT END '    using ::System::Skia::TSkRuntimeEffectFloat4x4;'}
+{$HPPEMIT END '    using ::System::Skia::TSkRuntimeEffectInt2;'}
+{$HPPEMIT END '    using ::System::Skia::TSkRuntimeEffectInt3;'}
+{$HPPEMIT END '    using ::System::Skia::TSkRuntimeEffectInt4;'}
+{$HPPEMIT END '    using ::System::Skia::TSkRuntimeEffectUniformType;'}
+{$HPPEMIT END '    using ::System::Skia::TSkRuntimeShaderBuilder;'}
+{$HPPEMIT END '    using ::System::Skia::TSkSamplingOptions;'}
+{$HPPEMIT END '    using ::System::Skia::TSkSaveLayerFlag;'}
+{$HPPEMIT END '    using ::System::Skia::TSkSaveLayerFlags;'}
+{$HPPEMIT END '    using ::System::Skia::TSkSegmentMask;'}
+{$HPPEMIT END '    using ::System::Skia::TSkSegmentMasks;'}
+{$HPPEMIT END '    using ::System::Skia::TSkShader;'}
+{$HPPEMIT END '    using ::System::Skia::TSkShaper;'}
+{$HPPEMIT END '    using ::System::Skia::TSkSrcRectConstraint;'}
+{$HPPEMIT END '    using ::System::Skia::TSkStrokeCap;'}
+{$HPPEMIT END '    using ::System::Skia::TSkStrokeJoin;'}
+{$HPPEMIT END '    using ::System::Skia::TSkStrutStyle;'}
+{$HPPEMIT END '    using ::System::Skia::TSkSurface;'}
+{$HPPEMIT END '    using ::System::Skia::TSkSurfaceProperties;'}
+{$HPPEMIT END '    using ::System::Skia::TSkSurfacePropertiesFlag;'}
+{$HPPEMIT END '    using ::System::Skia::TSkSurfacePropertiesFlags;'}
+{$HPPEMIT END '    using ::System::Skia::TSkSurfaceRasterReleaseProc;'}
+{$HPPEMIT END '    using ::System::Skia::TSkSVGAspectAlign;'}
+{$HPPEMIT END '    using ::System::Skia::TSkSVGAspectScale;'}
+{$HPPEMIT END '    using ::System::Skia::TSkSVGCanvas;'}
+{$HPPEMIT END '    using ::System::Skia::TSkSVGCanvasFlag;'}
+{$HPPEMIT END '    using ::System::Skia::TSkSVGCanvasFlags;'}
+{$HPPEMIT END '    using ::System::Skia::TSkSVGDOM;'}
+{$HPPEMIT END '    using ::System::Skia::TSkSVGLength;'}
+{$HPPEMIT END '    using ::System::Skia::TSkSVGLengthUnit;'}
+{$HPPEMIT END '    using ::System::Skia::TSkSVGNode;'}
+{$HPPEMIT END '    using ::System::Skia::TSkSVGPreserveAspectRatio;'}
+{$HPPEMIT END '    using ::System::Skia::TSkSVGSVG;'}
+{$HPPEMIT END '    using ::System::Skia::TSkTableFilter;'}
+{$HPPEMIT END '    using ::System::Skia::TSkTextAlign;'}
+{$HPPEMIT END '    using ::System::Skia::TSkTextBaseline;'}
+{$HPPEMIT END '    using ::System::Skia::TSkTextBlob;'}
+{$HPPEMIT END '    using ::System::Skia::TSkTextBox;'}
+{$HPPEMIT END '    using ::System::Skia::TSkTextDecoration;'}
+{$HPPEMIT END '    using ::System::Skia::TSkTextDecorations;'}
+{$HPPEMIT END '    using ::System::Skia::TSkTextDecorationStyle;'}
+{$HPPEMIT END '    using ::System::Skia::TSkTextDirection;'}
+{$HPPEMIT END '    using ::System::Skia::TSkTextHeightBehavior;'}
+{$HPPEMIT END '    using ::System::Skia::TSkTextHeightBehaviors;'}
+{$HPPEMIT END '    using ::System::Skia::TSkTextShadow;'}
+{$HPPEMIT END '    using ::System::Skia::TSkTextStyle;'}
+{$HPPEMIT END '    using ::System::Skia::TSkTileMode;'}
+{$HPPEMIT END '    using ::System::Skia::TSkTraceMemoryDumpBaseClass;'}
+{$HPPEMIT END '    using ::System::Skia::TSkTypeface;'}
+{$HPPEMIT END '    using ::System::Skia::TSkTypefaceFontProvider;'}
+{$HPPEMIT END '    using ::System::Skia::TSkUnicode;'}
+{$HPPEMIT END '    using ::System::Skia::TSkUnicodeBidiRegionProc;'}
+{$HPPEMIT END '    using ::System::Skia::TSkUnicodeBreakIteratorElem;'}
+{$HPPEMIT END '    using ::System::Skia::TSkUnicodeBreakProc;'}
+{$HPPEMIT END '    using ::System::Skia::TSkUnicodeCodepointProc;'}
+{$HPPEMIT END '    using ::System::Skia::TSkVertexMode;'}
+{$HPPEMIT END '    using ::System::Skia::TSkVertices;'}
 {$HPPEMIT END '    typedef TSkEncodedImageFormat (__fastcall *TExtensionToEncodedImageFormatFunc)(const ::System::UnicodeString AValue);'}
-{$HPPEMIT END '    static const TSkFontSlant SkFontSlantRegular = ::Skia::SkFontSlantRegular;'}
-{$HPPEMIT END '    static const TSkFontWeight SkFontWeightDemiBold = ::Skia::SkFontWeightDemiBold;'}
-{$HPPEMIT END '    static const TSkFontWeight SkFontWeightHairline = ::Skia::SkFontWeightHairline;'}
-{$HPPEMIT END '    static const TSkFontWeight SkFontWeightHeavy = ::Skia::SkFontWeightHeavy;'}
-{$HPPEMIT END '    static const TSkFontWeight SkFontWeightRegular = ::Skia::SkFontWeightRegular;'}
-{$HPPEMIT END '    static const TSkFontWeight SkFontWeightUltraBlack = ::Skia::SkFontWeightUltraBlack;'}
-{$HPPEMIT END '    static const TSkFontWeight SkFontWeightUltraBold = ::Skia::SkFontWeightUltraBold;'}
-{$HPPEMIT END '    static const TSkFontWeight SkFontWeightUltraLight = ::Skia::SkFontWeightUltraLight;'}
-{$HPPEMIT END '    static const TSkFontWidth SkFontWidthRegular = ::Skia::SkFontWidthRegular;'}
-{$HPPEMIT END '    static ::System::StaticArray<int, 23>& SkBytesPerPixel = ::Skia::SkBytesPerPixel;'}
-{$HPPEMIT END '    static TSkColorMatrix& SkColorMatrixIdentity = ::Skia::SkColorMatrixIdentity;'}
-{$HPPEMIT END '    static TSkColorSpaceTransferFunction& SkColorSpaceTransferFunctionHLG = ::Skia::SkColorSpaceTransferFunctionHLG;'}
-{$HPPEMIT END '    static TSkColorSpaceTransferFunction& SkColorSpaceTransferFunctionLinear = ::Skia::SkColorSpaceTransferFunctionLinear;'}
-{$HPPEMIT END '    static TSkColorSpaceTransferFunction& SkColorSpaceTransferFunctionPQ = ::Skia::SkColorSpaceTransferFunctionPQ;'}
-{$HPPEMIT END '    static TSkColorSpaceTransferFunction& SkColorSpaceTransferFunctionRec2020 = ::Skia::SkColorSpaceTransferFunctionRec2020;'}
-{$HPPEMIT END '    static TSkColorSpaceTransferFunction& SkColorSpaceTransferFunctionSRGB = ::Skia::SkColorSpaceTransferFunctionSRGB;'}
-{$HPPEMIT END '    static TSkColorSpaceTransferFunction& SkColorSpaceTransferFunctionTwoDotTwo = ::Skia::SkColorSpaceTransferFunctionTwoDotTwo;'}
-{$HPPEMIT END '    static TSkColorSpaceXyz& SkColorSpaceXyzAdobeRGB = ::Skia::SkColorSpaceXyzAdobeRGB;'}
-{$HPPEMIT END '    static TSkColorSpaceXyz& SkColorSpaceXyzDisplayP3 = ::Skia::SkColorSpaceXyzDisplayP3;'}
-{$HPPEMIT END '    static TSkColorSpaceXyz& SkColorSpaceXyzIdentity = ::Skia::SkColorSpaceXyzIdentity;'}
-{$HPPEMIT END '    static TSkColorSpaceXyz& SkColorSpaceXyzRec2020 = ::Skia::SkColorSpaceXyzRec2020;'}
-{$HPPEMIT END '    static TSkColorSpaceXyz& SkColorSpaceXyzSRGB = ::Skia::SkColorSpaceXyzSRGB;'}
-{$HPPEMIT END '    static TSkCubicResampler& SkCubicResamplerCatmullRom = ::Skia::SkCubicResamplerCatmullRom;'}
-{$HPPEMIT END '    static TSkCubicResampler& SkCubicResamplerMitchell = ::Skia::SkCubicResamplerMitchell;'}
-{$HPPEMIT END '    static TSkFontStyle& SkFontStyleBold = ::Skia::SkFontStyleBold;'}
-{$HPPEMIT END '    static TSkFontStyle& SkFontStyleBoldItalic = ::Skia::SkFontStyleBoldItalic;'}
-{$HPPEMIT END '    static TSkFontStyle& SkFontStyleItalic = ::Skia::SkFontStyleItalic;'}
-{$HPPEMIT END '    static TSkFontStyle& SkFontStyleNormal = ::Skia::SkFontStyleNormal;'}
-{$HPPEMIT END '    static TSkColorType& SkNative32ColorType = ::Skia::SkNative32ColorType;'}
-{$HPPEMIT END '    static TSkRotationScaleMatrix& SkRotationScaleMatrixIdentity = ::Skia::SkRotationScaleMatrixIdentity;'}
-{$HPPEMIT END '    static TSkSamplingOptions& SkSamplingOptionsHigh = ::Skia::SkSamplingOptionsHigh;'}
-{$HPPEMIT END '    static TSkSamplingOptions& SkSamplingOptionsLow = ::Skia::SkSamplingOptionsLow;'}
-{$HPPEMIT END '    static TSkSamplingOptions& SkSamplingOptionsMedium = ::Skia::SkSamplingOptionsMedium;'}
-{$HPPEMIT END '    static ::System::StaticArray<int, 23>& SkShiftPerPixel = ::Skia::SkShiftPerPixel;'}
-{$HPPEMIT END '    static const TExtensionToEncodedImageFormatFunc ExtensionToEncodedImageFormat = ::Skia::ExtensionToEncodedImageFormat;'}
+{$HPPEMIT END '    static const TSkFontSlant SkFontSlantRegular = ::System::Skia::SkFontSlantRegular;'}
+{$HPPEMIT END '    static const TSkFontWeight SkFontWeightDemiBold = ::System::Skia::SkFontWeightDemiBold;'}
+{$HPPEMIT END '    static const TSkFontWeight SkFontWeightHairline = ::System::Skia::SkFontWeightHairline;'}
+{$HPPEMIT END '    static const TSkFontWeight SkFontWeightHeavy = ::System::Skia::SkFontWeightHeavy;'}
+{$HPPEMIT END '    static const TSkFontWeight SkFontWeightRegular = ::System::Skia::SkFontWeightRegular;'}
+{$HPPEMIT END '    static const TSkFontWeight SkFontWeightUltraBlack = ::System::Skia::SkFontWeightUltraBlack;'}
+{$HPPEMIT END '    static const TSkFontWeight SkFontWeightUltraBold = ::System::Skia::SkFontWeightUltraBold;'}
+{$HPPEMIT END '    static const TSkFontWeight SkFontWeightUltraLight = ::System::Skia::SkFontWeightUltraLight;'}
+{$HPPEMIT END '    static const TSkFontWidth SkFontWidthRegular = ::System::Skia::SkFontWidthRegular;'}
+{$HPPEMIT END '    static ::System::StaticArray<int, 23>& SkBytesPerPixel = ::System::Skia::SkBytesPerPixel;'}
+{$HPPEMIT END '    static TSkColorMatrix& SkColorMatrixIdentity = ::System::Skia::SkColorMatrixIdentity;'}
+{$HPPEMIT END '    static TSkColorSpaceTransferFunction& SkColorSpaceTransferFunctionHLG = ::System::Skia::SkColorSpaceTransferFunctionHLG;'}
+{$HPPEMIT END '    static TSkColorSpaceTransferFunction& SkColorSpaceTransferFunctionLinear = ::System::Skia::SkColorSpaceTransferFunctionLinear;'}
+{$HPPEMIT END '    static TSkColorSpaceTransferFunction& SkColorSpaceTransferFunctionPQ = ::System::Skia::SkColorSpaceTransferFunctionPQ;'}
+{$HPPEMIT END '    static TSkColorSpaceTransferFunction& SkColorSpaceTransferFunctionRec2020 = ::System::Skia::SkColorSpaceTransferFunctionRec2020;'}
+{$HPPEMIT END '    static TSkColorSpaceTransferFunction& SkColorSpaceTransferFunctionSRGB = ::System::Skia::SkColorSpaceTransferFunctionSRGB;'}
+{$HPPEMIT END '    static TSkColorSpaceTransferFunction& SkColorSpaceTransferFunctionTwoDotTwo = ::System::Skia::SkColorSpaceTransferFunctionTwoDotTwo;'}
+{$HPPEMIT END '    static TSkColorSpaceXyz& SkColorSpaceXyzAdobeRGB = ::System::Skia::SkColorSpaceXyzAdobeRGB;'}
+{$HPPEMIT END '    static TSkColorSpaceXyz& SkColorSpaceXyzDisplayP3 = ::System::Skia::SkColorSpaceXyzDisplayP3;'}
+{$HPPEMIT END '    static TSkColorSpaceXyz& SkColorSpaceXyzIdentity = ::System::Skia::SkColorSpaceXyzIdentity;'}
+{$HPPEMIT END '    static TSkColorSpaceXyz& SkColorSpaceXyzRec2020 = ::System::Skia::SkColorSpaceXyzRec2020;'}
+{$HPPEMIT END '    static TSkColorSpaceXyz& SkColorSpaceXyzSRGB = ::System::Skia::SkColorSpaceXyzSRGB;'}
+{$HPPEMIT END '    static TSkCubicResampler& SkCubicResamplerCatmullRom = ::System::Skia::SkCubicResamplerCatmullRom;'}
+{$HPPEMIT END '    static TSkCubicResampler& SkCubicResamplerMitchell = ::System::Skia::SkCubicResamplerMitchell;'}
+{$HPPEMIT END '    static TSkFontStyle& SkFontStyleBold = ::System::Skia::SkFontStyleBold;'}
+{$HPPEMIT END '    static TSkFontStyle& SkFontStyleBoldItalic = ::System::Skia::SkFontStyleBoldItalic;'}
+{$HPPEMIT END '    static TSkFontStyle& SkFontStyleItalic = ::System::Skia::SkFontStyleItalic;'}
+{$HPPEMIT END '    static TSkFontStyle& SkFontStyleNormal = ::System::Skia::SkFontStyleNormal;'}
+{$HPPEMIT END '    static TSkColorType& SkNative32ColorType = ::System::Skia::SkNative32ColorType;'}
+{$HPPEMIT END '    static TSkRotationScaleMatrix& SkRotationScaleMatrixIdentity = ::System::Skia::SkRotationScaleMatrixIdentity;'}
+{$HPPEMIT END '    static TSkSamplingOptions& SkSamplingOptionsHigh = ::System::Skia::SkSamplingOptionsHigh;'}
+{$HPPEMIT END '    static TSkSamplingOptions& SkSamplingOptionsLow = ::System::Skia::SkSamplingOptionsLow;'}
+{$HPPEMIT END '    static TSkSamplingOptions& SkSamplingOptionsMedium = ::System::Skia::SkSamplingOptionsMedium;'}
+{$HPPEMIT END '    static ::System::StaticArray<int, 23>& SkShiftPerPixel = ::System::Skia::SkShiftPerPixel;'}
+{$HPPEMIT END '    static const TExtensionToEncodedImageFormatFunc ExtensionToEncodedImageFormat = ::System::Skia::ExtensionToEncodedImageFormat;'}
 {$HPPEMIT END '#endif'}
 end.
