@@ -388,6 +388,9 @@ uses
   Posix.Unistd,
   System.Rtti,
   {$ENDIF}
+  {$IF defined(LINUX)}
+  FMUX.Api,
+  {$ENDIF}
 
   { Skia }
   Skia.API,
@@ -1362,6 +1365,9 @@ type
     FColorSpace: CGColorSpaceRef;
     {$ELSEIF DEFINED(MSWINDOWS)}
     FBitmap: HBITMAP;
+    {$ELSEIF DEFINED(LINUX)}
+    FBitmap: Pointer;
+    FBits: Pointer;
     {$ENDIF}
     procedure ReleaseBitmap; inline;
   strict protected
@@ -3243,12 +3249,15 @@ end;
 
 function TSkRasterCanvas.GetSurfaceFromWindow(
   const AContextHandle: THandle): TSkSurface;
-{$IF (DEFINED(MACOS) and not DEFINED(IOS)) or DEFINED(MSWINDOWS)}
+{$IF (DEFINED(MACOS) and not DEFINED(IOS)) or DEFINED(MSWINDOWS) or DEFINED(LINUX)}
 var
   {$IFDEF MSWINDOWS}
   LBitmapInfo: TBitmapInfo;
   LBits: Pointer;
   LDIBSection: TDIBSection;
+  {$ENDIF}
+  {$IF DEFINED(LINUX)}
+  LData: Pointer;
   {$ENDIF}
   LHeight: Integer;
   LWidth: Integer;
@@ -3293,6 +3302,17 @@ begin
     if GetObject(FBitmap, SizeOf(TDIBSection), @LDIBSection) = 0 then
       Exit(nil);
     FBackBufferSurface := TSkSurface.MakeRasterDirect(TSkImageInfo.Create(LDIBSection.dsBm.bmWidth, LDIBSection.dsBm.bmHeight, TSkColorType.BGRA8888), LDIBSection.dsBm.bmBits, LDIBSection.dsBm.bmWidthBytes);
+    {$ELSEIF DEFINED(LINUX)}
+    if FBitmap = nil then
+    begin
+      LWidth  := Round(Width  * Scale);
+      LHeight := Round(Height * Scale);
+      GetMem(FBits, LWidth * LHeight * 4);
+      FillChar(FBits^, LWidth * LHeight * 4, 0);
+      FBitmap := FmuxBitmapCreate(LWidth, LHeight, FBits);
+    end;
+    FmuxGetBitmapInfo(FBitmap, LWidth, LHeight, LData);
+    FBackBufferSurface := TSkSurface.MakeRasterDirect(TSkImageInfo.Create(LWidth, LHeight, TSkColorType.RGBA8888), LData, LWidth * 4);
     {$ENDIF}
   end;
   Result := TSkSurface(FBackBufferSurface);
@@ -3312,6 +3332,13 @@ begin
   begin
     DeleteObject(FBitmap);
     FBitmap := 0;
+  end;
+  {$ELSEIF DEFINED(LINUX)}
+  if FBitmap <> nil then
+  begin
+    FmuxBitmapDestroy(FBitmap);
+    FreeMem(FBits);
+    FBitmap := nil;
   end;
   {$ENDIF}
 end;
@@ -3356,6 +3383,11 @@ begin
         DeleteDC(LDC);
       end;
     end;
+    {$ELSEIF DEFINED(LINUX)}
+    FmuxCanvasDrawBitmap(Pointer(FContextHandle), FBitmap,
+      TRectF.Create(0, 0, Round(Width * Scale), Round(Height * Scale)),
+      TRectF.Create(0, 0, Round(Width * Scale), Round(Height * Scale)),
+      1, True);
     {$ENDIF}
   end;
 end;
@@ -3462,6 +3494,9 @@ begin
       {$ENDIF}
         LCanvasClass := TGlCanvas;
       {$ELSEIF DEFINED(MSWINDOWS)}
+      if GlobalUseSkiaRasterWhenAvailable then
+        LCanvasClass := TSkRasterCanvas;
+      {$ELSEIF DEFINED(LINUX)}
       if GlobalUseSkiaRasterWhenAvailable then
         LCanvasClass := TSkRasterCanvas
       {$IFDEF SKIA_VULKAN_BACKEND}
