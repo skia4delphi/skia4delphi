@@ -19,7 +19,7 @@ uses
   FMX.Controls.Presentation, FMX.Objects, FMX.Layouts,
 
   { Skia }
-  Skia, Skia.FMX;
+  System.Skia, FMX.Skia;
 
 type
   { TfrmPDFCreation }

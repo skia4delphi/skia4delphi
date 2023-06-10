@@ -26,7 +26,7 @@ uses
   DUnitX.Assert,
 
   { Skia }
-  Skia;
+  System.Skia;
 
 type
   TOnImageCheckingProc = reference to procedure(const AImage: ISkImage);

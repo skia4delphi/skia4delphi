@@ -19,7 +19,7 @@ uses
   FMX.Controls.Presentation, FMX.StdCtrls, FMX.Objects, FMX.WebBrowser,
 
   { Skia }
-  Skia, Skia.FMX;
+  System.Skia, FMX.Skia;
 
 type
   { TfrmPDFViewer }

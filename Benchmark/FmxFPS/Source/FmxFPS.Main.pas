@@ -60,7 +60,7 @@ implementation
 uses
   {$IFDEF SKIA}
   { Skia }
-  Skia.FMX,
+  FMX.Skia,
   {$ENDIF}
 
   { Delphi }

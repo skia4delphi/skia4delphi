@@ -66,7 +66,7 @@ uses
   System.IOUtils,
 
   { Skia }
-  Skia;
+  System.Skia;
 
 { TSkRoundRectTests }
 

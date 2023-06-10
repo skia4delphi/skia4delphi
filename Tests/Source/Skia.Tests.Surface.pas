@@ -46,7 +46,7 @@ uses
   System.IOUtils,
 
   { Skia }
-  Skia;
+  System.Skia;
 
 { TSkSurfaceTests }
 

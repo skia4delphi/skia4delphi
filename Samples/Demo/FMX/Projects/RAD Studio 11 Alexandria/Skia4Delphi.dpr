@@ -4,7 +4,7 @@ uses
   System.StartUpCopy,
   FMX.Forms,
   FMX.Types,
-  Skia.FMX,
+  FMX.Skia,
   Sample.Form.Base in '..\..\Source\Base\Sample.Form.Base.pas' {frmBase},
   Sample.Form.Base.Styled.Seattle in '..\..\Source\Base\Sample.Form.Base.Styled.Seattle.pas' {frmStyledBase},
   Sample.Form.Base.Viewer in '..\..\Source\Base\Sample.Form.Base.Viewer.pas' {frmBaseViewer},

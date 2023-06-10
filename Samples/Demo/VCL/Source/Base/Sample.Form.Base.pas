@@ -21,7 +21,7 @@ uses
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.ExtCtrls, Vcl.Dialogs, Vcl.Themes,
 
   { Skia }
-  Skia, Skia.Vcl;
+  System.Skia, Vcl.Skia;
 
 type
   { TScrollBox }

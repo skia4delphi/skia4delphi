@@ -20,7 +20,7 @@ uses
   DUnitX.TestFramework,
 
   { Skia }
-  Skia,
+  System.Skia,
 
   { Tests }
   Skia.Tests.Foundation;

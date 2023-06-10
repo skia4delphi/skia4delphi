@@ -30,7 +30,7 @@ uses
   {$ENDIF}
 
   { Skia }
-  Skia, Skia.FMX, 
+  System.Skia, FMX.Skia, 
   
   { Tests }
   Skia.Tests.Foundation,

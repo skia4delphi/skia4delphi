@@ -195,27 +195,29 @@ begin
         LGeneratedHppPlatformDir := CombinePath(LGeneratedHppDir, GetProjectPlatformName(LPlatform));
         if not DirExists(LGeneratedHppPlatformDir) then
           Continue;
-        // Removes the generated hpp from old versions
+        // Removes the generated hpp from old versions - Old namespace
         DeleteFile(CombinePath(LGeneratedHppPlatformDir, 'Skia.hpp'));
         DeleteFile(CombinePath(LGeneratedHppPlatformDir, 'Skia.API.hpp'));
         DeleteFile(CombinePath(LGeneratedHppPlatformDir, 'Skia.Bindings.hpp'));
         DeleteFile(CombinePath(LGeneratedHppPlatformDir, 'Skia.FMX.hpp'));
         DeleteFile(CombinePath(LGeneratedHppPlatformDir, 'Skia.FMX.Canvas.GL.hpp'));
         DeleteFile(CombinePath(LGeneratedHppPlatformDir, 'Skia.FMX.Canvas.Metal.hpp'));
-        DeleteFile(CombinePath(LGeneratedHppPlatformDir, 'Skia.FMX.Designtime.Editor.AnimatedImage.hpp'));
-        DeleteFile(CombinePath(LGeneratedHppPlatformDir, 'Skia.FMX.Designtime.Editor.SVG.hpp'));
-        DeleteFile(CombinePath(LGeneratedHppPlatformDir, 'Skia.FMX.Designtime.hpp'));
         DeleteFile(CombinePath(LGeneratedHppPlatformDir, 'Skia.FMX.Graphics.hpp'));
         DeleteFile(CombinePath(LGeneratedHppPlatformDir, 'Skia.Vcl.hpp'));
-        DeleteFile(CombinePath(LGeneratedHppPlatformDir, 'Skia.Vcl.Designtime.Editor.AnimatedImage.hpp'));
-        DeleteFile(CombinePath(LGeneratedHppPlatformDir, 'Skia.Vcl.Designtime.Editor.SVG.hpp'));
-        DeleteFile(CombinePath(LGeneratedHppPlatformDir, 'Skia.Vcl.Designtime.hpp'));
-        DeleteFile(CombinePath(LGeneratedHppPlatformDir, 'Skia.Vcl.Designtime.ProjectMenu.hpp'));
         DeleteFile(CombinePath(LGeneratedHppPlatformDir, 'Skia.Package.FMX.hpp'));
-        DeleteFile(CombinePath(LGeneratedHppPlatformDir, 'Skia.Package.FMX.Designtime.hpp'));
         DeleteFile(CombinePath(LGeneratedHppPlatformDir, 'Skia.Package.RTL.hpp'));
         DeleteFile(CombinePath(LGeneratedHppPlatformDir, 'Skia.Package.VCL.hpp'));
-        DeleteFile(CombinePath(LGeneratedHppPlatformDir, 'Skia.Package.VCL.Designtime.hpp'));
+        // Removes the generated hpp from old versions - New namespace (v6+)
+        DeleteFile(CombinePath(LGeneratedHppPlatformDir, 'System.Skia.hpp'));
+        DeleteFile(CombinePath(LGeneratedHppPlatformDir, 'System.Skia.API.hpp'));
+        DeleteFile(CombinePath(LGeneratedHppPlatformDir, 'FMX.Skia.hpp'));
+        DeleteFile(CombinePath(LGeneratedHppPlatformDir, 'FMX.Skia.Canvas.GL.hpp'));
+        DeleteFile(CombinePath(LGeneratedHppPlatformDir, 'FMX.Skia.Canvas.Metal.hpp'));
+        DeleteFile(CombinePath(LGeneratedHppPlatformDir, 'FMX.Skia.Canvas.hpp'));
+        DeleteFile(CombinePath(LGeneratedHppPlatformDir, 'Vcl.Skia.hpp'));
+        DeleteFile(CombinePath(LGeneratedHppPlatformDir, 'Skia.Package.FMX.hpp'));
+        DeleteFile(CombinePath(LGeneratedHppPlatformDir, 'Skia.Package.RTL.hpp'));
+        DeleteFile(CombinePath(LGeneratedHppPlatformDir, 'Skia.Package.VCL.hpp'));
       end;
     end
     else

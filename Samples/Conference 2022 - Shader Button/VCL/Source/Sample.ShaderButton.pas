@@ -18,7 +18,7 @@ uses
   System.Diagnostics, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
 
   { Skia }
-  Skia, Skia.Vcl;
+  System.Skia, Vcl.Skia;
 
 type
   { TfrmShaderButton }

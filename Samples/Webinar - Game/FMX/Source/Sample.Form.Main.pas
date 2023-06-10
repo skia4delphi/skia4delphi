@@ -41,7 +41,7 @@ uses
   FMX.Graphics, FMX.Dialogs, FMX.Memo.Types, FMX.Controls.Presentation,
 
   { Skia }
-  Skia, Skia.FMX;
+  System.Skia, FMX.Skia;
 
 type
   { TfrmMain }

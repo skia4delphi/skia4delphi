@@ -68,7 +68,7 @@ uses
   {$ENDIF}
 
   { Skia }
-  Skia,
+  System.Skia,
 
   { Tests }
   Skia.Tests.Foundation;

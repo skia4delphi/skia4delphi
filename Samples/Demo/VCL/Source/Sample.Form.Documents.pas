@@ -21,7 +21,7 @@ uses
   Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls,
 
   { Skia }
-  Skia, Skia.Vcl,
+  System.Skia, Vcl.Skia,
 
   { Sample }
   Sample.Form.Base;

@@ -21,7 +21,7 @@ uses
   FMX.Layouts, FMX.Objects, FMX.Controls.Presentation,
 
   { Skia }
-  Skia, Skia.FMX,
+  System.Skia, FMX.Skia,
 
   { Sample }
   Sample.Form.Viewer.PaintBox;

@@ -22,7 +22,7 @@ uses
   FMX.Forms, FMX.Layouts, FMX.StdCtrls, FMX.Objects, FMX.Controls.Presentation,
 
   { Skia }
-  Skia, Skia.FMX,
+  System.Skia, FMX.Skia,
 
   { Sample }
   {$IF CompilerVersion < 30}
