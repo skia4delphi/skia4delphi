@@ -67,7 +67,7 @@ uses
   {$IF CompilerVersion >= 31}
   FMX.DialogService,
   {$ENDIF}
-  System.IOUtils;
+  System.IOUtils, FMX.Types3D;
 
 { TfrmMain }
 
@@ -373,6 +373,15 @@ begin
 end;
 
 procedure TfrmMain.tmrSimulateScrollTimer(Sender: TObject);
+
+  function GetRenderName: string;
+  begin
+    Result := Canvas.ClassName;
+    // When TCanvasGpu is used, the real render is the 3D forms render
+    if SameText(Result, 'TCanvasGpu') then
+      Result := Format('%s -> %s', [TContextManager.DefaultContextClass.ClassName, Result]);
+  end;
+
 begin
   if FStopwatch.ElapsedMilliseconds > 6000 then
   begin
@@ -381,10 +390,16 @@ begin
     vsbContent.HitTest := True;
     {$IFDEF SKIA}
     if GlobalUseSkia then
-      ShowMessage(Format('SkiaCanvas: %g fps' + sLineBreak + 'Form.Quality: %s' + sLineBreak + sLineBreak + 'To compare the results with the firemonkey''s default canvas, just remove the line "GlobalUseSkia := True" from the .dpr file of project.', [FPaintCount / FStopwatch.Elapsed.TotalSeconds, GetEnumName(TypeInfo(TCanvasQuality), Ord(Self.Quality))]))
+    begin
+      ShowMessage(Format('Skia render (%s): %g fps' + sLineBreak + 'Form.Quality: %s' + sLineBreak + sLineBreak +
+        'To compare the results with the firemonkey''s default canvas, just remove the line "GlobalUseSkia := True" ' +
+        'from the .dpr file of project.', [GetRenderName, FPaintCount / FStopwatch.Elapsed.TotalSeconds,
+        GetEnumName(TypeInfo(TCanvasQuality), Ord(Self.Quality))]))
+    end
     else
     {$ENDIF}
-      ShowMessage(Format('FmxCanvas: %g fps' + sLineBreak + 'Form.Quality: %s', [FPaintCount / FStopwatch.Elapsed.TotalSeconds, GetEnumName(TypeInfo(TCanvasQuality), Ord(Self.Quality))]));
+      ShowMessage(Format('FMX render (%s): %g fps' + sLineBreak + 'Form.Quality: %s', [GetRenderName,
+        FPaintCount / FStopwatch.Elapsed.TotalSeconds, GetEnumName(TypeInfo(TCanvasQuality), Ord(Self.Quality))]));
   end
   else if FNextScrollUp then
     SimulateScrollUp
