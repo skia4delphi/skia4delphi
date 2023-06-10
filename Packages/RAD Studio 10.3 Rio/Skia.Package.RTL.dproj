@@ -116,8 +116,8 @@
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
         <DCCReference Include="rtl.dcp"/>
-        <DCCReference Include="..\..\Source\Skia.API.pas"/>
-        <DCCReference Include="..\..\Source\Skia.pas"/>
+        <DCCReference Include="..\..\Source\System.Skia.API.pas"/>
+        <DCCReference Include="..\..\Source\System.Skia.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

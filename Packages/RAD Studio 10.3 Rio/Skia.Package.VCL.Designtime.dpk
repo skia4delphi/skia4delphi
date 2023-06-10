@@ -49,9 +49,9 @@ requires
   Skia.Package.VCL;
 
 contains
-  Skia.Vcl.Designtime.Editor.AnimatedImage in '..\..\Source\VCL\Designtime\Skia.Vcl.Designtime.Editor.AnimatedImage.pas' {SkAnimatedImageEditorForm},
-  Skia.Vcl.Designtime.Editor.Svg in '..\..\Source\VCL\Designtime\Skia.Vcl.Designtime.Editor.Svg.pas' {SKSvgEditorForm},
-  Skia.Vcl.Designtime in '..\..\Source\VCL\Designtime\Skia.Vcl.Designtime.pas',
-  Skia.Vcl.Designtime.ProjectMenu in '..\..\Source\VCL\Designtime\Skia.Vcl.Designtime.ProjectMenu.pas';
+  Vcl.Skia.Designtime.Editor.AnimatedImage in '..\..\Source\VCL\Designtime\Vcl.Skia.Designtime.Editor.AnimatedImage.pas' {SkAnimatedImageEditorForm},
+  Vcl.Skia.Designtime.Editor.SVG in '..\..\Source\VCL\Designtime\Vcl.Skia.Designtime.Editor.SVG.pas' {SKSvgEditorForm},
+  Vcl.Skia.Designtime in '..\..\Source\VCL\Designtime\Vcl.Skia.Designtime.pas',
+  Vcl.Skia.Designtime.ProjectMenu in '..\..\Source\VCL\Designtime\Vcl.Skia.Designtime.ProjectMenu.pas';
 
 end.

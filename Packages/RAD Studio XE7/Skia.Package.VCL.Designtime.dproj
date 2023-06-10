@@ -92,16 +92,16 @@
         <DCCReference Include="designide.dcp"/>
         <DCCReference Include="Skia.Package.RTL.dcp"/>
         <DCCReference Include="Skia.Package.VCL.dcp"/>
-        <DCCReference Include="..\..\Source\VCL\Designtime\Skia.Vcl.Designtime.Editor.AnimatedImage.pas">
+        <DCCReference Include="..\..\Source\VCL\Designtime\Vcl.Skia.Designtime.Editor.AnimatedImage.pas">
             <Form>SkAnimatedImageEditorForm</Form>
             <FormType>dfm</FormType>
         </DCCReference>
-        <DCCReference Include="..\..\Source\VCL\Designtime\Skia.Vcl.Designtime.Editor.Svg.pas">
+        <DCCReference Include="..\..\Source\VCL\Designtime\Vcl.Skia.Designtime.Editor.Svg.pas">
             <Form>SKSvgEditorForm</Form>
             <FormType>dfm</FormType>
         </DCCReference>
-        <DCCReference Include="..\..\Source\VCL\Designtime\Skia.Vcl.Designtime.pas"/>
-        <DCCReference Include="..\..\Source\VCL\Designtime\Skia.Vcl.Designtime.ProjectMenu.pas"/>
+        <DCCReference Include="..\..\Source\VCL\Designtime\Vcl.Skia.Designtime.pas"/>
+        <DCCReference Include="..\..\Source\VCL\Designtime\Vcl.Skia.Designtime.ProjectMenu.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

@@ -48,8 +48,8 @@ requires
   Skia.Package.FMX;
 
 contains
-  Skia.FMX.Designtime.Editor.AnimatedImage in '..\..\Source\FMX\Designtime\Skia.FMX.Designtime.Editor.AnimatedImage.pas' {SkAnimatedImageEditorForm},
-  Skia.FMX.Designtime.Editor.SVG in '..\..\Source\FMX\Designtime\Skia.FMX.Designtime.Editor.SVG.pas' {SkSvgEditorForm},
-  Skia.FMX.Designtime in '..\..\Source\FMX\Designtime\Skia.FMX.Designtime.pas';
+  FMX.Skia.Designtime.Editor.AnimatedImage in '..\..\Source\FMX\Designtime\FMX.Skia.Designtime.Editor.AnimatedImage.pas' {SkAnimatedImageEditorForm},
+  FMX.Skia.Designtime.Editor.SVG in '..\..\Source\FMX\Designtime\FMX.Skia.Designtime.Editor.SVG.pas' {SkSvgEditorForm},
+  FMX.Skia.Designtime in '..\..\Source\FMX\Designtime\FMX.Skia.Designtime.pas';
 
 end.
