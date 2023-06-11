@@ -19,8 +19,8 @@ uses
   DUnitX.TestFramework,
 
   { Skia }
-  Skia,
-  Skia.FMX,
+  System.Skia,
+  FMX.Skia,
 
   { Tests }
   Skia.Tests.Foundation;

@@ -20,7 +20,7 @@ uses
   System.Math.Vectors, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.ExtCtrls,
 
   { Skia }
-  Skia, Skia.Vcl,
+  System.Skia, Vcl.Skia,
 
   { Sample }
   Sample.Form.Viewer.PaintBox;

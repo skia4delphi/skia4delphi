@@ -21,8 +21,8 @@ uses
   DUnitX.TestFramework,
 
   { Skia }
-  Skia,
-  Skia.Vcl,
+  System.Skia,
+  Vcl.Skia,
 
   { Tests }
   Skia.Tests.Foundation;

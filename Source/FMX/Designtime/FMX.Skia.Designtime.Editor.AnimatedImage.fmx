@@ -1,0 +1,128 @@
+object SkAnimatedImageEditorForm: TSkAnimatedImageEditorForm
+  Left = 0
+  Top = 0
+  Caption = 'Animated Image Editor'
+  ClientHeight = 330
+  ClientWidth = 490
+  Position = MainFormCenter
+  FormFactor.Width = 320
+  FormFactor.Height = 480
+  FormFactor.Devices = [Desktop]
+  OnCreate = FormCreate
+  OnKeyDown = FormKeyDown
+  DesignerMasterStyle = 0
+  object sdgSaveDialog: TSaveDialog
+    FilterIndex = 0
+    Options = [ofOverwritePrompt, ofHideReadOnly, ofPathMustExist, ofEnableSizing]
+    Title = 'Save animated image'
+    Left = 32
+    Top = 58
+  end
+  object odgOpenDialog: TOpenDialog
+    FilterIndex = 0
+    Options = [ofHideReadOnly, ofPathMustExist, ofFileMustExist, ofEnableSizing]
+    Title = 'Open animated image'
+    Left = 32
+    Top = 8
+  end
+  object lytContent: TLayout
+    Align = Client
+    HitTest = True
+    Size.Width = 490.000000000000000000
+    Size.Height = 330.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 4
+    OnDragOver = lytContentDragOver
+    OnDragDrop = lytContentDragDrop
+    object lytRightMenu: TLayout
+      Align = Right
+      Padding.Left = 8.000000000000000000
+      Padding.Top = 8.000000000000000000
+      Padding.Right = 8.000000000000000000
+      Padding.Bottom = 8.000000000000000000
+      Position.X = 330.000000000000000000
+      Size.Width = 160.000000000000000000
+      Size.Height = 330.000000000000000000
+      Size.PlatformDefault = False
+      TabOrder = 0
+      object btnOpen: TSpeedButton
+        Align = Top
+        Margins.Bottom = 6.000000000000000000
+        Position.X = 8.000000000000000000
+        Position.Y = 8.000000000000000000
+        Size.Width = 144.000000000000000000
+        Size.Height = 34.000000000000000000
+        Size.PlatformDefault = False
+        StyleLookup = 'buttonstyle'
+        Text = 'Open'
+        OnClick = btnOpenClick
+      end
+      object btnSave: TSpeedButton
+        Align = Top
+        Enabled = False
+        Margins.Bottom = 6.000000000000000000
+        Position.X = 8.000000000000000000
+        Position.Y = 48.000000000000000000
+        Size.Width = 144.000000000000000000
+        Size.Height = 34.000000000000000000
+        Size.PlatformDefault = False
+        StyleLookup = 'buttonstyle'
+        Text = 'Save'
+        OnClick = btnSaveClick
+      end
+      object btnOk: TSpeedButton
+        Align = Top
+        ModalResult = 1
+        Margins.Bottom = 6.000000000000000000
+        Position.X = 8.000000000000000000
+        Position.Y = 88.000000000000000000
+        Size.Width = 144.000000000000000000
+        Size.Height = 34.000000000000000000
+        Size.PlatformDefault = False
+        StyleLookup = 'buttonstyle'
+        Text = 'Ok'
+      end
+      object btnCancel: TSpeedButton
+        Align = Top
+        ModalResult = 2
+        Margins.Bottom = 6.000000000000000000
+        Position.X = 8.000000000000000000
+        Position.Y = 128.000000000000000000
+        Size.Width = 144.000000000000000000
+        Size.Height = 34.000000000000000000
+        Size.PlatformDefault = False
+        StyleLookup = 'buttonstyle'
+        Text = 'Cancel'
+      end
+      object btnClear: TSpeedButton
+        Align = Top
+        Enabled = False
+        Margins.Bottom = 6.000000000000000000
+        Position.X = 8.000000000000000000
+        Position.Y = 168.000000000000000000
+        Size.Width = 144.000000000000000000
+        Size.Height = 34.000000000000000000
+        Size.PlatformDefault = False
+        StyleLookup = 'buttonstyle'
+        Text = 'Clear'
+        OnClick = btnClearClick
+      end
+    end
+    object rctPreviewBackground: TRectangle
+      Align = Client
+      Fill.Bitmap.Bitmap.PNG = {
+        89504E470D0A1A0A0000000D49484452000000100000001008060000001FF3FF
+        61000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
+        003449444154384F63FC0F040C78C0D9B367A12CEC80094A930D460D180C0630
+        9E3973066F3A30363686B2B083D1401C060630300000D64D0A7EF0F060CA0000
+        000049454E44AE426082}
+      Fill.Bitmap.WrapMode = Tile
+      Fill.Kind = Bitmap
+      HitTest = False
+      Size.Width = 330.000000000000000000
+      Size.Height = 330.000000000000000000
+      Size.PlatformDefault = False
+      Stroke.Kind = None
+    end
+  end
+end

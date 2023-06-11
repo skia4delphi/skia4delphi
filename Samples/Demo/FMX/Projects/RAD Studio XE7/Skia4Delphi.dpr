@@ -3,7 +3,7 @@ program Skia4Delphi;
 uses
   System.StartUpCopy,
   FMX.Forms,
-  Skia.FMX,
+  FMX.Skia,
   Sample.Form.Base in '..\..\Source\Base\Sample.Form.Base.pas' {frmBase},
   Sample.Form.Base.Styled.XE7 in '..\..\Source\Base\Sample.Form.Base.Styled.XE7.pas' {frmStyledBase},
   Sample.Form.Base.Viewer in '..\..\Source\Base\Sample.Form.Base.Viewer.pas' {frmBaseViewer},

@@ -4,7 +4,7 @@ uses
   System.StartUpCopy,
   FMX.Forms,
   {$IFDEF SKIA}
-  Skia.FMX,
+  FMX.Skia,
   {$ENDIF}
   FmxFPS.Main in '..\..\Source\FmxFPS.Main.pas' {frmMain};
 

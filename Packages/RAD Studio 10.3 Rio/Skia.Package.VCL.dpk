@@ -37,6 +37,7 @@ package Skia.Package.VCL;
 {$ENDIF IMPLICITBUILDING}
 {$DESCRIPTION 'Skia4Delphi VCL package'}
 {$LIBSUFFIX '260'}
+{$RUNONLY}
 {$IMPLICITBUILD OFF}
 {$HPPEMIT NOUSINGNAMESPACE}
 
@@ -46,6 +47,6 @@ requires
   Skia.Package.RTL;
 
 contains
-  Skia.Vcl in '..\..\Source\VCL\Skia.Vcl.pas';
+  Vcl.Skia in '..\..\Source\VCL\Vcl.Skia.pas';
 
 end.

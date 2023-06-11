@@ -4,7 +4,7 @@ uses
   System.StartUpCopy,
   FMX.Forms,
   FMX.Types,
-  Skia.FMX,
+  FMX.Skia,
   Skia.Tests.Blender in '..\..\Source\Skia.Tests.Blender.pas',
   Skia.Tests.Codec in '..\..\Source\Skia.Tests.Codec.pas',
   Skia.Tests.ColorFilter in '..\..\Source\Skia.Tests.ColorFilter.pas',

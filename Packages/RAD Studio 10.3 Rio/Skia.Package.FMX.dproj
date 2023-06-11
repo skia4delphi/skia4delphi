@@ -69,6 +69,7 @@
         <DllSuffix>260</DllSuffix>
         <GenDll>true</GenDll>
         <GenPackage>true</GenPackage>
+        <RuntimeOnlyPackage>true</RuntimeOnlyPackage>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Android)'!=''">
         <BT_BuildType>Debug</BT_BuildType>
@@ -118,10 +119,10 @@
         <DCCReference Include="rtl.dcp"/>
         <DCCReference Include="fmx.dcp"/>
         <DCCReference Include="Skia.Package.RTL.dcp"/>
-        <DCCReference Include="..\..\Source\FMX\Skia.FMX.Canvas.GL.pas"/>
-        <DCCReference Include="..\..\Source\FMX\Skia.FMX.Canvas.Metal.pas"/>
-        <DCCReference Include="..\..\Source\FMX\Skia.FMX.Graphics.pas"/>
-        <DCCReference Include="..\..\Source\FMX\Skia.FMX.pas"/>
+        <DCCReference Include="..\..\Source\FMX\FMX.Skia.Canvas.GL.pas"/>
+        <DCCReference Include="..\..\Source\FMX\FMX.Skia.Canvas.Metal.pas"/>
+        <DCCReference Include="..\..\Source\FMX\FMX.Skia.Canvas.pas"/>
+        <DCCReference Include="..\..\Source\FMX\FMX.Skia.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

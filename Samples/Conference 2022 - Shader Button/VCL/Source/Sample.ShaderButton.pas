@@ -14,11 +14,11 @@ interface
 
 uses
   { Delphi }
-  System.SysUtils, System.Types, System.UITypes, System.Classes, System.Math,
-  System.Diagnostics, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
+  System.SysUtils, System.Types, System.UITypes, System.Classes, System.Math, System.Diagnostics, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
 
   { Skia }
-  Skia, Skia.Vcl;
+  System.Skia, Vcl.Skia;
 
 type
   { TfrmShaderButton }
@@ -26,7 +26,8 @@ type
   TfrmShaderButton = class(TFrame)
     apbBackground: TSkAnimatedPaintBox;
     lblText: TSkLabel;
-    procedure apbBackgroundAnimationDraw(ASender: TObject; const ACanvas: ISkCanvas; const ADest: TRectF; const AProgress: Double; const AOpacity: Single);
+    procedure apbBackgroundAnimationDraw(ASender: TObject; const ACanvas: ISkCanvas; const ADest: TRectF;
+      const AProgress: Double; const AOpacity: Single);
     procedure FrameMouseDown(ASender: TObject; AButton: TMouseButton; AShift: TShiftState; AX, AY: Integer);
     procedure FrameMouseUp(ASender: TObject; AButton: TMouseButton; AShift: TShiftState; AX, AY: Integer);
   private const
@@ -37,12 +38,11 @@ type
   private
     FBorderThickness: Single;
     FCornerRadius: Single;
-    FEffect: ISkRuntimeEffect;
     FLeftColor: TAlphaColor;
-    FPaint: ISkPaint;
     FPressed: Boolean;
     FPressedTime: TStopwatch;
     FRightColor: TAlphaColor;
+    FShaderBuilder: ISkRuntimeShaderBuilder;
     function GetFontColor: TAlphaColor;
     function GetCaption: string;
     procedure SetBorderThickness(const AValue: Single);
@@ -80,9 +80,8 @@ type
 
 { TfrmShaderButton }
 
-procedure TfrmShaderButton.apbBackgroundAnimationDraw(ASender: TObject;
-  const ACanvas: ISkCanvas; const ADest: TRectF; const AProgress: Double;
-  const AOpacity: Single);
+procedure TfrmShaderButton.apbBackgroundAnimationDraw(ASender: TObject; const ACanvas: ISkCanvas; const ADest: TRectF;
+  const AProgress: Double; const AOpacity: Single);
 
   function GetOpacityAnimation(const APressed: Boolean; const APressedTime: TStopwatch): Single; inline;
   begin
@@ -96,16 +95,19 @@ procedure TfrmShaderButton.apbBackgroundAnimationDraw(ASender: TObject;
 
 var
   LOpacityAnimation: Single;
+  LPaint: ISkPaint;
 begin
-  if Assigned(FEffect) and Assigned(FPaint) then
+  if FShaderBuilder <> nil then
   begin
     LOpacityAnimation := GetOpacityAnimation(FPressed, FPressedTime);
-    FEffect.SetUniform('iResolution', [ADest.Width, ADest.Height, ACanvas.GetLocalToDeviceAs3x3.ExtractScale.X]);
-    FEffect.SetUniform('iTime', apbBackground.Animation.CurrentTime);
-    FPaint.AlphaF := AOpacity * (0.9 + 0.1 * LOpacityAnimation);
-    ACanvas.DrawRect(ADest, FPaint);
+    FShaderBuilder.SetUniform('iResolution', [ADest.Width, ADest.Height, ACanvas.GetLocalToDeviceAs3x3.ExtractScale.X]);
+    FShaderBuilder.SetUniform('iTime', apbBackground.Animation.CurrentTime);
+    LPaint := TSkPaint.Create;
+    LPaint.Shader := FShaderBuilder.MakeShader;
+    LPaint.AlphaF := AOpacity * (0.9 + 0.1 * LOpacityAnimation);
+    ACanvas.DrawRect(ADest, LPaint);
     // To avoid flicker, let's draw the text inside the animation control
-    TSkLabelAccess(lblText).Render(ACanvas, ADest, FPaint.AlphaF {* (lblText.Opacity / 255)} * (0.7 + 0.3 * LOpacityAnimation));
+    TSkLabelAccess(lblText).Render(ACanvas, ADest, LPaint.AlphaF {* (lblText.Opacity / 255)} * (0.7 + 0.3 * LOpacityAnimation));
   end;
 end;
 
@@ -128,6 +130,7 @@ constructor TfrmShaderButton.Create(AOwner: TComponent);
 
 var
   LErrorCaption: string;
+  LEffect: ISkRuntimeEffect;
 begin
   inherited;
   FPressedTime := TStopwatch.Create;
@@ -135,29 +138,27 @@ begin
   FCornerRadius := DefaultCornerRadius;
   FLeftColor := DefaultLeftColor;
   FRightColor := DefaultRightColor;
-  FEffect := TSkRuntimeEffect.MakeForShader(TFile.ReadAllText(GetAssetsPath + 'button.sksl'), LErrorCaption);
-  if FEffect = nil then
+  LEffect := TSkRuntimeEffect.MakeForShader(TFile.ReadAllText(GetAssetsPath + 'button.sksl'), LErrorCaption);
+  if LEffect = nil then
   begin
     ShowMessage(LErrorCaption);
     Exit;
   end;
-  FEffect.SetUniform('iBorderThickness', FBorderThickness);
-  FEffect.SetUniform('iCornerRadius', FCornerRadius);
-  FEffect.SetUniform('iLeftColor', TAlphaColorF.Create(FLeftColor));
-  FEffect.SetUniform('iRightColor', TAlphaColorF.Create(FRightColor));
-  FPaint := TSkPaint.Create;
-  FPaint.Shader := FEffect.MakeShader;
+  FShaderBuilder := TSkRuntimeShaderBuilder.Create(LEffect);
+  FShaderBuilder.SetUniform('iBorderThickness', FBorderThickness);
+  FShaderBuilder.SetUniform('iCornerRadius', FCornerRadius);
+  FShaderBuilder.SetUniform('iLeftColor', TAlphaColorF.Create(FLeftColor));
+  FShaderBuilder.SetUniform('iRightColor', TAlphaColorF.Create(FRightColor));
 end;
 
-procedure TfrmShaderButton.FrameMouseDown(ASender: TObject; AButton: TMouseButton;
-  AShift: TShiftState; AX, AY: Integer);
+procedure TfrmShaderButton.FrameMouseDown(ASender: TObject; AButton: TMouseButton; AShift: TShiftState; AX,
+  AY: Integer);
 begin
   if AButton = TMouseButton.mbLeft then
     Pressed := True;
 end;
 
-procedure TfrmShaderButton.FrameMouseUp(ASender: TObject; AButton: TMouseButton;
-  AShift: TShiftState; AX, AY: Integer);
+procedure TfrmShaderButton.FrameMouseUp(ASender: TObject; AButton: TMouseButton; AShift: TShiftState; AX, AY: Integer);
 begin
   if AButton = TMouseButton.mbLeft then
     Pressed := False;
@@ -178,7 +179,7 @@ begin
   if not SameValue(FBorderThickness, AValue, TEpsilon.Position) then
   begin
     FBorderThickness := AValue;
-    FEffect.SetUniform('iBorderThickness', FBorderThickness);
+    FShaderBuilder.SetUniform('iBorderThickness', FBorderThickness);
   end;
 end;
 
@@ -187,7 +188,7 @@ begin
   if not SameValue(FCornerRadius, AValue, TEpsilon.Position) then
   begin
     FCornerRadius := AValue;
-    FEffect.SetUniform('iCornerRadius', FCornerRadius);
+    FShaderBuilder.SetUniform('iCornerRadius', FCornerRadius);
   end;
 end;
 
@@ -201,7 +202,7 @@ begin
   if FLeftColor <> AValue then
   begin
     FLeftColor := AValue;
-    FEffect.SetUniform('iLeftColor', TAlphaColorF.Create(FLeftColor));
+    FShaderBuilder.SetUniform('iLeftColor', TAlphaColorF.Create(FLeftColor));
   end;
 end;
 
@@ -219,7 +220,7 @@ begin
   if FRightColor <> AValue then
   begin
     FRightColor := AValue;
-    FEffect.SetUniform('iRightColor', TAlphaColorF.Create(FRightColor));
+    FShaderBuilder.SetUniform('iRightColor', TAlphaColorF.Create(FRightColor));
   end;
 end;
 
@@ -230,8 +231,7 @@ end;
 
 { TSkLabelAccess }
 
-procedure TSkLabelAccess.Render(const ACanvas: ISkCanvas; const ADest: TRectF;
-  const AOpacity: Single);
+procedure TSkLabelAccess.Render(const ACanvas: ISkCanvas; const ADest: TRectF; const AOpacity: Single);
 begin
   inherited Draw(ACanvas, ADest, AOpacity);
 end;

@@ -20,7 +20,7 @@ uses
   FMX.Forms, FMX.StdCtrls, FMX.Layouts, FMX.Objects, FMX.Controls.Presentation,
 
   { Skia }
-  Skia, Skia.FMX,
+  System.Skia, FMX.Skia,
 
   { Sample }
   Sample.Form.Base.Viewer;

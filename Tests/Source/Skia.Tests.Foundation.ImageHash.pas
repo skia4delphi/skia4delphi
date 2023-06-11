@@ -22,7 +22,7 @@ uses
   System.Generics.Collections,
 
   { Skia }
-  Skia;
+  System.Skia;
 
 type
   { TImageHashing }

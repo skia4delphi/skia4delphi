@@ -5,7 +5,7 @@ uses
   FMX.Forms,
   FMX.Types,
   {$IFDEF SKIA}
-  Skia.FMX,
+  FMX.Skia,
   {$ENDIF}
   FmxFPS.Main in '..\..\Source\FmxFPS.Main.pas' {frmMain};
 

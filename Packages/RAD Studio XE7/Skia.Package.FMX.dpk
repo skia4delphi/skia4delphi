@@ -37,6 +37,7 @@ package Skia.Package.FMX;
 {$ENDIF IMPLICITBUILDING}
 {$DESCRIPTION 'Skia4Delphi FMX package'}
 {$LIBSUFFIX '210'}
+{$RUNONLY}
 {$IMPLICITBUILD OFF}
 {$HPPEMIT NOUSINGNAMESPACE}
 
@@ -46,9 +47,9 @@ requires
   Skia.Package.RTL;
 
 contains
-  Skia.FMX.Canvas.GL in '..\..\Source\FMX\Skia.FMX.Canvas.GL.pas',
-  Skia.FMX.Canvas.Metal in '..\..\Source\FMX\Skia.FMX.Canvas.Metal.pas',
-  Skia.FMX.Graphics in '..\..\Source\FMX\Skia.FMX.Graphics.pas',
-  Skia.FMX in '..\..\Source\FMX\Skia.FMX.pas';
+  FMX.Skia.Canvas.GL in '..\..\Source\FMX\FMX.Skia.Canvas.GL.pas',
+  FMX.Skia.Canvas.Metal in '..\..\Source\FMX\FMX.Skia.Canvas.Metal.pas',
+  FMX.Skia.Canvas in '..\..\Source\FMX\FMX.Skia.Canvas.pas',
+  FMX.Skia in '..\..\Source\FMX\FMX.Skia.pas';
 
 end.

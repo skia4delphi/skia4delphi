@@ -45,7 +45,7 @@ requires
   rtl;
 
 contains
-  Skia.API in '..\..\Source\Skia.API.pas',
-  Skia in '..\..\Source\Skia.pas';
+  System.Skia.API in '..\..\Source\System.Skia.API.pas',
+  System.Skia in '..\..\Source\System.Skia.pas';
 
 end.

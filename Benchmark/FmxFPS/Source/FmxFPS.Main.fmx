@@ -26,7 +26,7 @@ object frmMain: TfrmMain
   end
   object tmrStart: TTimer
     Enabled = False
-    Interval = 500
+    Interval = 400
     OnTimer = tmrStartTimer
     Left = 304
     Top = 304

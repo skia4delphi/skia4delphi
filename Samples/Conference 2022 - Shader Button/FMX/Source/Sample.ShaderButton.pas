@@ -14,11 +14,11 @@ interface
 
 uses
   { Delphi }
-  System.SysUtils, System.Types, System.UITypes, System.Classes, FMX.Types,
-  FMX.Graphics, FMX.Controls, FMX.Forms, FMX.Dialogs, FMX.StdCtrls, FMX.Ani,
+  System.SysUtils, System.Types, System.UITypes, System.Classes, FMX.Types, FMX.Graphics, FMX.Controls, FMX.Forms,
+  FMX.Dialogs, FMX.StdCtrls, FMX.Ani,
 
   { Skia }
-  Skia, Skia.FMX;
+  System.Skia, FMX.Skia;
 
 type
   { TfrmShaderButton }
@@ -27,9 +27,8 @@ type
     apbBackground: TSkAnimatedPaintBox;
     lblText: TSkLabel;
     fanClickAnimation: TFloatAnimation;
-    procedure apbBackgroundAnimationDraw(ASender: TObject;
-      const ACanvas: ISkCanvas; const ADest: TRectF; const AProgress: Double;
-      const AOpacity: Single);
+    procedure apbBackgroundAnimationDraw(ASender: TObject; const ACanvas: ISkCanvas; const ADest: TRectF;
+      const AProgress: Double; const AOpacity: Single);
     procedure fanClickAnimationProcess(Sender: TObject);
   private const
     DefaultBorderThickness = 1.33333;
@@ -39,10 +38,9 @@ type
   private
     FBorderThickness: Single;
     FCornerRadius: Single;
-    FEffect: ISkRuntimeEffect;
     FLeftColor: TAlphaColor;
-    FPaint: ISkPaint;
     FRightColor: TAlphaColor;
+    FShaderBuilder: ISkRuntimeShaderBuilder;
     function GetFontColor: TAlphaColor;
     function GetText: string;
     procedure SetBorderThickness(const AValue: Single);
@@ -73,16 +71,19 @@ uses
 
 { TfrmShaderButton }
 
-procedure TfrmShaderButton.apbBackgroundAnimationDraw(ASender: TObject;
-  const ACanvas: ISkCanvas; const ADest: TRectF; const AProgress: Double;
-  const AOpacity: Single);
+procedure TfrmShaderButton.apbBackgroundAnimationDraw(ASender: TObject; const ACanvas: ISkCanvas; const ADest: TRectF;
+  const AProgress: Double; const AOpacity: Single);
+var
+  LPaint: ISkPaint;
 begin
-  if Assigned(FEffect) and Assigned(FPaint) then
+  if FShaderBuilder <> nil then
   begin
-    FEffect.SetUniform('iResolution', [ADest.Width, ADest.Height, ACanvas.GetLocalToDeviceAs3x3.ExtractScale.X]);
-    FEffect.SetUniform('iTime', apbBackground.Animation.CurrentTime);
-    FPaint.AlphaF := AOpacity;
-    ACanvas.DrawRect(ADest, FPaint);
+    FShaderBuilder.SetUniform('iResolution', [ADest.Width, ADest.Height, ACanvas.GetLocalToDeviceAs3x3.ExtractScale.X]);
+    FShaderBuilder.SetUniform('iTime', apbBackground.Animation.CurrentTime);
+    LPaint := TSkPaint.Create;
+    LPaint.Shader := FShaderBuilder.MakeShader;
+    LPaint.AlphaF := AOpacity;
+    ACanvas.DrawRect(ADest, LPaint);
   end;
 end;
 
@@ -104,6 +105,7 @@ constructor TfrmShaderButton.Create(AOwner: TComponent);
   end;
 
 var
+  LEffect: ISkRuntimeEffect;
   LErrorText: string;
 begin
   inherited;
@@ -112,18 +114,17 @@ begin
   FCornerRadius := DefaultCornerRadius;
   FLeftColor := DefaultLeftColor;
   FRightColor := DefaultRightColor;
-  FEffect := TSkRuntimeEffect.MakeForShader(TFile.ReadAllText(GetAssetsPath + 'button.sksl'), LErrorText);
-  if FEffect = nil then
+  LEffect := TSkRuntimeEffect.MakeForShader(TFile.ReadAllText(GetAssetsPath + 'button.sksl'), LErrorText);
+  if LEffect = nil then
   begin
     ShowMessage(LErrorText);
     Exit;
   end;
-  FEffect.SetUniform('iBorderThickness', FBorderThickness);
-  FEffect.SetUniform('iCornerRadius', FCornerRadius);
-  FEffect.SetUniform('iLeftColor', TAlphaColorF.Create(FLeftColor));
-  FEffect.SetUniform('iRightColor', TAlphaColorF.Create(FRightColor));
-  FPaint := TSkPaint.Create;
-  FPaint.Shader := FEffect.MakeShader;
+  FShaderBuilder := TSkRuntimeShaderBuilder.Create(LEffect);
+  FShaderBuilder.SetUniform('iBorderThickness', FBorderThickness);
+  FShaderBuilder.SetUniform('iCornerRadius', FCornerRadius);
+  FShaderBuilder.SetUniform('iLeftColor', TAlphaColorF.Create(FLeftColor));
+  FShaderBuilder.SetUniform('iRightColor', TAlphaColorF.Create(FRightColor));
 end;
 
 procedure TfrmShaderButton.fanClickAnimationProcess(Sender: TObject);
@@ -146,7 +147,7 @@ begin
   if not SameValue(FBorderThickness, AValue, TEpsilon.Position) then
   begin
     FBorderThickness := AValue;
-    FEffect.SetUniform('iBorderThickness', FBorderThickness);
+    FShaderBuilder.SetUniform('iBorderThickness', FBorderThickness);
   end;
 end;
 
@@ -155,7 +156,7 @@ begin
   if not SameValue(FCornerRadius, AValue, TEpsilon.Position) then
   begin
     FCornerRadius := AValue;
-    FEffect.SetUniform('iCornerRadius', FCornerRadius);
+    FShaderBuilder.SetUniform('iCornerRadius', FCornerRadius);
   end;
 end;
 
@@ -169,7 +170,7 @@ begin
   if FLeftColor <> AValue then
   begin
     FLeftColor := AValue;
-    FEffect.SetUniform('iLeftColor', TAlphaColorF.Create(FLeftColor));
+    FShaderBuilder.SetUniform('iLeftColor', TAlphaColorF.Create(FLeftColor));
   end;
 end;
 
@@ -178,7 +179,7 @@ begin
   if FRightColor <> AValue then
   begin
     FRightColor := AValue;
-    FEffect.SetUniform('iRightColor', TAlphaColorF.Create(FRightColor));
+    FShaderBuilder.SetUniform('iRightColor', TAlphaColorF.Create(FRightColor));
   end;
 end;
 
