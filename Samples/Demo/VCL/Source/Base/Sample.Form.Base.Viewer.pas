@@ -106,8 +106,7 @@ type
   private
     class var
       FChessBitmap: TBitmap;
-      FChessEffect: ISkRuntimeEffect;
-      FChessPaint: ISkPaint;
+      FChessEffectBuilder: ISkRuntimeShaderBuilder;
     class destructor Destroy;
   private
     FBackgroundKind: TBackgroundKind;
@@ -554,9 +553,11 @@ end;
 // A fast way to draw the chess background
 procedure TfrmBaseViewer.ScrollBoxEraseBackground(ASender: TObject; const ADC: HDC);
 
-  procedure CreateChessPaint;
+  procedure CreateChessEffect;
+  var
+    LChessEffect: ISkRuntimeEffect;
   begin
-    FChessEffect := TSkRuntimeEffect.MakeForShader(
+    LChessEffect := TSkRuntimeEffect.MakeForShader(
       'uniform float4 iOddSquareColor, iEvenSquareColor;' + sLineBreak +
       'uniform float2 iSquareSize;' + sLineBreak +
       'half4 main(float2 fragCoord) {' + sLineBreak +
@@ -565,24 +566,27 @@ procedure TfrmBaseViewer.ScrollBoxEraseBackground(ASender: TObject; const ADC: H
       '  if ((p && q) || !(p || q))' + sLineBreak +
       '    return iOddSquareColor;' + sLineBreak +
       '  return iEvenSquareColor;}');
-    FChessEffect.SetUniform('iOddSquareColor', TAlphaColorF.Create($FFCCCCCC));
-    FChessEffect.SetUniform('iEvenSquareColor', TAlphaColorF.Create(TAlphaColors.White));
-    FChessPaint := TSkPaint.Create;
-    FChessPaint.Shader := FChessEffect.MakeShader;
+    FChessEffectBuilder := TSkRuntimeShaderBuilder.Create(LChessEffect);
+    FChessEffectBuilder.SetUniform('iOddSquareColor', TAlphaColorF.Create($FFCCCCCC));
+    FChessEffectBuilder.SetUniform('iEvenSquareColor', TAlphaColorF.Create(TAlphaColors.White));
   end;
 
   procedure UpdateChessBitmap;
   begin
-    if FChessPaint = nil then
-      CreateChessPaint;
-    FChessEffect.SetUniform('iSquareSize', PointF(8, 8) {$IF CompilerVersion >= 33}* pnlContent.ScaleFactor{$ENDIF});
+    if FChessEffectBuilder = nil then
+      CreateChessEffect;
+    FChessEffectBuilder.SetUniform('iSquareSize', PointF(8, 8) {$IF CompilerVersion >= 33}* pnlContent.ScaleFactor{$ENDIF});
     if FChessBitmap = nil then
       FChessBitmap := TBitmap.Create;
     FChessBitmap.SetSize(Min(Screen.Width, Max(pnlContent.Width * 2, 300)), Min(Screen.Height, Max(pnlContent.Height * 2, 300)));
     FChessBitmap.SkiaDraw(
       procedure(const ACanvas: ISkCanvas)
+      var
+        LPaint: ISkPaint;
       begin
-        ACanvas.DrawPaint(FChessPaint);
+        LPaint := TSkPaint.Create;
+        LPaint.Shader := FChessEffectBuilder.MakeShader;
+        ACanvas.DrawPaint(LPaint);
       end);
   end;
 

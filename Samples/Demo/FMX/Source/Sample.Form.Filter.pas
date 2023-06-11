@@ -126,7 +126,7 @@ var
   LOptions: IViewerOptions;
   LImage: ISkImage;
   LEffect: ISkRuntimeEffect;
-  LPaint: ISkPaint;
+  LEffectBuilder: ISkRuntimeShaderBuilder;
 begin
   LOptions := TViewerOptions.Create;
   LOptions.AddFloat('Brightness', -1, 1, 0, 0.01);
@@ -148,9 +148,8 @@ begin
     '    }' + sLineBreak +
     '    return color;' + sLineBreak +
     '}');
-  LEffect.SetChildShaderByName('texture', LImage.MakeShader(TSkSamplingOptions.Medium));
-  LPaint := TSkPaint.Create;
-  LPaint.Shader := LEffect.MakeShader;
+  LEffectBuilder := TSkRuntimeShaderBuilder.Create(LEffect);
+  LEffectBuilder.SetChild('texture', LImage.MakeShader(TSkSamplingOptions.Medium));
 
   // Mouse events
   ChildForm<TfrmPaintBoxViewer>.OnMouseDown :=
@@ -171,17 +170,18 @@ begin
     procedure (const ACanvas: ISkCanvas; const ADest: TRectF)
     var
       LImageDest: TRectF;
+      LPaint: ISkPaint;
       LRatio: Single;
     begin
       if LOptions['IsMouseDown'] then
       begin
-        LEffect.SetUniform('brightness', 0);
-        LEffect.SetUniform('contrast', 0);
+        LEffectBuilder.SetUniform('brightness', 0);
+        LEffectBuilder.SetUniform('contrast', 0);
       end
       else
       begin
-        LEffect.SetUniform('brightness', Single(LOptions['Brightness']));
-        LEffect.SetUniform('contrast', Single(LOptions['Contrast']));
+        LEffectBuilder.SetUniform('brightness', Single(LOptions['Brightness']));
+        LEffectBuilder.SetUniform('contrast', Single(LOptions['Contrast']));
       end;
       LImageDest := RectF(0, 0, LImage.Width, LImage.Height).FitInto(ADest, LRatio);
       ACanvas.Save;
@@ -189,6 +189,8 @@ begin
         ACanvas.ClipRect(LImageDest);
         ACanvas.Scale(1 / LRatio, 1 / LRatio);
         ACanvas.Translate(LImageDest.Left * LRatio, LImageDest.Top * LRatio);
+        LPaint := TSkPaint.Create;
+        LPaint.Shader := LEffectBuilder.MakeShader;
         ACanvas.DrawPaint(LPaint);
       finally
         ACanvas.Restore;
@@ -334,7 +336,7 @@ var
   LOptions: IViewerOptions;
   LImage: ISkImage;
   LEffect: ISkRuntimeEffect;
-  LPaint: ISkPaint;
+  LEffectBuilder: ISkRuntimeShaderBuilder;
 begin
   LOptions := TViewerOptions.Create;
   LOptions.AddFloat('Hue', -1, 1, 0, 0.01);
@@ -367,9 +369,8 @@ begin
     '    }' + sLineBreak +
     '    return color;' + sLineBreak +
     '}');
-  LEffect.SetChildShaderByName('texture', LImage.MakeShader(TSkSamplingOptions.Medium));
-  LPaint := TSkPaint.Create;
-  LPaint.Shader := LEffect.MakeShader;
+  LEffectBuilder := TSkRuntimeShaderBuilder.Create(LEffect);
+  LEffectBuilder.SetChild('texture', LImage.MakeShader(TSkSamplingOptions.Medium));
 
   // Mouse events
   ChildForm<TfrmPaintBoxViewer>.OnMouseDown :=
@@ -390,17 +391,18 @@ begin
     procedure (const ACanvas: ISkCanvas; const ADest: TRectF)
     var
       LImageDest: TRectF;
+      LPaint: ISkPaint;
       LRatio: Single;
     begin
       if LOptions['IsMouseDown'] then
       begin
-        LEffect.SetUniform('hue', 0);
-        LEffect.SetUniform('saturation', 0);
+        LEffectBuilder.SetUniform('hue', 0);
+        LEffectBuilder.SetUniform('saturation', 0);
       end
       else
       begin
-        LEffect.SetUniform('hue', Single(LOptions['Hue']));
-        LEffect.SetUniform('saturation', Single(LOptions['Saturation']));
+        LEffectBuilder.SetUniform('hue', Single(LOptions['Hue']));
+        LEffectBuilder.SetUniform('saturation', Single(LOptions['Saturation']));
       end;
       LImageDest := RectF(0, 0, LImage.Width, LImage.Height).FitInto(ADest, LRatio);
       ACanvas.Save;
@@ -408,6 +410,8 @@ begin
         ACanvas.ClipRect(LImageDest);
         ACanvas.Scale(1 / LRatio, 1 / LRatio);
         ACanvas.Translate(LImageDest.Left * LRatio, LImageDest.Top * LRatio);
+        LPaint := TSkPaint.Create;
+        LPaint.Shader := LEffectBuilder.MakeShader;
         ACanvas.DrawPaint(LPaint);
       finally
         ACanvas.Restore;
@@ -468,7 +472,7 @@ var
   LOptions: IViewerOptions;
   LImage: ISkImage;
   LEffect: ISkRuntimeEffect;
-  LPaint: ISkPaint;
+  LEffectBuilder: ISkRuntimeShaderBuilder;
 begin
   LOptions := TViewerOptions.Create;
   LOptions.AddFloat('Size', 0, 1, 0.5, 0.005);
@@ -487,9 +491,8 @@ begin
     '    color.rgb *= smoothstep(0.8, size * 0.799, dist * (amount + size));' + sLineBreak +
     '    return color;' + sLineBreak +
     '}');
-  LEffect.SetChildShaderByName('texture', LImage.MakeShader(TSkSamplingOptions.Medium));
-  LPaint := TSkPaint.Create;
-  LPaint.Shader := LEffect.MakeShader;
+  LEffectBuilder := TSkRuntimeShaderBuilder.Create(LEffect);
+  LEffectBuilder.SetChild('texture', LImage.MakeShader(TSkSamplingOptions.Medium));
 
   // Mouse events
   ChildForm<TfrmPaintBoxViewer>.OnMouseDown :=
@@ -510,20 +513,23 @@ begin
     procedure (const ACanvas: ISkCanvas; const ADest: TRectF)
     var
       LImageDest: TRectF;
+      LPaint: ISkPaint;
       LRatio: Single;
     begin
-      LEffect.SetUniform('size', Single(LOptions['Size']));
+      LEffectBuilder.SetUniform('size', Single(LOptions['Size']));
       if LOptions['IsMouseDown'] then
-        LEffect.SetUniform('amount', 0)
+        LEffectBuilder.SetUniform('amount', 0)
       else
-        LEffect.SetUniform('amount', Single(LOptions['Amount']));
+        LEffectBuilder.SetUniform('amount', Single(LOptions['Amount']));
       LImageDest := RectF(0, 0, LImage.Width, LImage.Height).FitInto(ADest, LRatio);
       ACanvas.Save;
       try
         ACanvas.ClipRect(LImageDest);
         ACanvas.Scale(1 / LRatio, 1 / LRatio);
         ACanvas.Translate(LImageDest.Left * LRatio, LImageDest.Top * LRatio);
-        LEffect.SetUniform('resolution', PointF(LImageDest.Width * LRatio, LImageDest.Height * LRatio));
+        LEffectBuilder.SetUniform('resolution', PointF(LImageDest.Width * LRatio, LImageDest.Height * LRatio));
+        LPaint := TSkPaint.Create;
+        LPaint.Shader := LEffectBuilder.MakeShader;
         ACanvas.DrawPaint(LPaint);
       finally
         ACanvas.Restore;

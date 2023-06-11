@@ -36,9 +36,9 @@ interface
 
 uses
   { Delphi }
-  System.SysUtils, System.Types, System.UITypes, System.Classes, System.IOUtils,
-  System.Diagnostics, System.Math.Vectors, FMX.Types, FMX.Controls, FMX.Forms,
-  FMX.Graphics, FMX.Dialogs, FMX.Memo.Types, FMX.Controls.Presentation,
+  System.SysUtils, System.Types, System.UITypes, System.Classes, System.IOUtils, System.Diagnostics,
+  System.Math.Vectors, FMX.Types, FMX.Controls, FMX.Forms, FMX.Graphics, FMX.Dialogs, FMX.Memo.Types,
+  FMX.Controls.Presentation,
 
   { Skia }
   System.Skia, FMX.Skia;
@@ -51,7 +51,8 @@ type
     procedure FormCreate(Sender: TObject);
     procedure FormKeyDown(Sender: TObject; var Key: Word; var KeyChar: Char; Shift: TShiftState);
     procedure FormKeyUp(Sender: TObject; var Key: Word; var KeyChar: Char; Shift: TShiftState);
-    procedure SkAnimatedPaintBox1AnimationDraw(ASender: TObject; const ACanvas: ISkCanvas; const ADest: TRectF; const AProgress: Double; const AOpacity: Single);
+    procedure SkAnimatedPaintBox1AnimationDraw(ASender: TObject; const ACanvas: ISkCanvas; const ADest: TRectF;
+      const AProgress: Double; const AOpacity: Single);
     procedure SkAnimatedPaintBox1Gesture(Sender: TObject; const EventInfo: TGestureEventInfo; var Handled: Boolean);
     procedure SkAnimatedPaintBox1MouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Single);
   private
@@ -65,8 +66,7 @@ type
     FTimer: TStopwatch;
     // Image shader - Render shader, which will draw the game based on the
     // current game state (BufferA shader).
-    FImageEffect: ISkRuntimeEffect;
-    FImagePaint: ISkPaint;
+    FImageShaderBuilder: ISkRuntimeShaderBuilder;
     // BufferA shader - Game logic shader, which will compute the current game
     // state. The resulting image is not exactly an image, with colors in its
     // pixels, but with data in its pixels, such as ball speed, positions,
@@ -74,7 +74,7 @@ type
     // were made to work with images, outputing just images, and not any other
     // type of data. This doesn't stop us from storing non-color data within the
     // images, at each pixel, and that's exactly what BufferA does.
-    FBufferAEffect: ISkRuntimeEffect;
+    FBufferAShaderBuilder: ISkRuntimeShaderBuilder;
     FBufferAShader: ISkShader;
   end;
 
@@ -105,31 +105,32 @@ procedure TfrmMain.FormCreate(Sender: TObject);
       Result := Result + PathDelim;
   end;
 
+var
+  LEffect: ISkRuntimeEffect;
 begin
-  FImagePaint    := TSkPaint.Create;
-  FImageEffect   := TSkRuntimeEffect.MakeForShader(TFile.ReadAllText(GetAssetsPath + 'Image.sksl'));
-  FBufferAEffect := TSkRuntimeEffect.MakeForShader(TFile.ReadAllText(GetAssetsPath + 'BufferA.sksl'));
+  LEffect := TSkRuntimeEffect.MakeForShader(TFile.ReadAllText(GetAssetsPath + 'Image.sksl'));
+  FImageShaderBuilder := TSkRuntimeShaderBuilder.Create(LEffect);
+
+  LEffect := TSkRuntimeEffect.MakeForShader(TFile.ReadAllText(GetAssetsPath + 'BufferA.sksl'));
+  FBufferAShaderBuilder := TSkRuntimeShaderBuilder.Create(LEffect);
 end;
 
-procedure TfrmMain.FormKeyDown(Sender: TObject; var Key: Word; var KeyChar: Char;
-  Shift: TShiftState);
+procedure TfrmMain.FormKeyDown(Sender: TObject; var Key: Word; var KeyChar: Char; Shift: TShiftState);
 begin
-  FIsVKLeftPressing  := FIsVKLeftPressing or (Key = vkLeft);
+  FIsVKLeftPressing := FIsVKLeftPressing or (Key = vkLeft);
   FIsVKRightPressing := FIsVKRightPressing or (Key = vkRight);
   FIsVKSpacePressing := FIsVKSpacePressing or (KeyChar = ' ');
 end;
 
-procedure TfrmMain.FormKeyUp(Sender: TObject; var Key: Word; var KeyChar: Char;
-  Shift: TShiftState);
+procedure TfrmMain.FormKeyUp(Sender: TObject; var Key: Word; var KeyChar: Char; Shift: TShiftState);
 begin
-  FIsVKLeftPressing  := FIsVKLeftPressing and (Key <> vkLeft);
+  FIsVKLeftPressing := FIsVKLeftPressing and (Key <> vkLeft);
   FIsVKRightPressing := FIsVKRightPressing and (Key <> vkRight);
   FIsVKSpacePressing := FIsVKSpacePressing and (KeyChar <> ' ');
 end;
 
-procedure TfrmMain.SkAnimatedPaintBox1AnimationDraw(ASender: TObject;
-  const ACanvas: ISkCanvas; const ADest: TRectF; const AProgress: Double;
-  const AOpacity: Single);
+procedure TfrmMain.SkAnimatedPaintBox1AnimationDraw(ASender: TObject; const ACanvas: ISkCanvas; const ADest: TRectF;
+  const AProgress: Double; const AOpacity: Single);
 
   procedure RunBufferAShader(const ATime: Single);
   const
@@ -137,29 +138,33 @@ procedure TfrmMain.SkAnimatedPaintBox1AnimationDraw(ASender: TObject;
   var
     LBufferAImage: ISkImage;
   begin
-    FBufferAEffect.SetUniform('iResolution', PointF(ADest.Width, ADest.Height));
-    FBufferAEffect.SetUniform('iTime', ATime);
-    FBufferAEffect.SetUniform('iTimeDelta', ATime - FLastFrameTime);
-    FBufferAEffect.SetUniform('iFrame', FFrame);
-    FBufferAEffect.SetUniform('iMouse', [FMouse.X, FMouse.Y, FMouse.Z]);
-    FBufferAEffect.SetUniform('ivkLeftPressing', Integer(FIsVKLeftPressing));
-    FBufferAEffect.SetUniform('ivkRightPressing', Integer(FIsVKRightPressing));
-    FBufferAEffect.SetUniform('ivkSpacePressing', Integer(FIsVKSpacePressing));
-    // Set the BufferA result of last frame (the result of this shader in last
-    // draw). This process is called Multipass system.
-    FBufferAEffect.ChildrenShadersByName['iChannel0'] := FBufferAShader;
+    FBufferAShaderBuilder.SetUniform('iResolution', PointF(ADest.Width, ADest.Height));
+    FBufferAShaderBuilder.SetUniform('iTime', ATime);
+    FBufferAShaderBuilder.SetUniform('iTimeDelta', ATime - FLastFrameTime);
+    FBufferAShaderBuilder.SetUniform('iFrame', FFrame);
+    FBufferAShaderBuilder.SetUniform('iMouse', [FMouse.X, FMouse.Y, FMouse.Z]);
+    FBufferAShaderBuilder.SetUniform('ivkLeftPressing', Integer(FIsVKLeftPressing));
+    FBufferAShaderBuilder.SetUniform('ivkRightPressing', Integer(FIsVKRightPressing));
+    FBufferAShaderBuilder.SetUniform('ivkSpacePressing', Integer(FIsVKSpacePressing));
+    // Set the BufferA result of last frame (the result of this shader in last draw). This process is called Multipass
+    // system.
+    FBufferAShaderBuilder.SetChild('iChannel0', FBufferAShader);
 
-    LBufferAImage  := FBufferAEffect.MakeImage(TSkImageInfo.Create(BufferASize.Width, BufferASize.Height, TSkColorType.RGBAF16Clamped));
+    LBufferAImage := FBufferAShaderBuilder.MakeImage(TSkImageInfo.Create(BufferASize.Width, BufferASize.Height,
+      TSkColorType.RGBAF16));
     FBufferAShader := LBufferAImage.MakeRawShader(TSkSamplingOptions.Create(TSkFilterMode.Nearest, TSkMipmapMode.None));
   end;
 
   procedure RenderImageShader(const ATime: Single);
+  var
+    LPaint: ISkPaint;
   begin
-    FImageEffect.SetUniform('iResolution', PointF(ADest.Width, ADest.Height));
-    FImageEffect.SetUniform('iTime', ATime);
-    FImageEffect.ChildrenShadersByName['iChannel0'] := FBufferAShader;
-    FImagePaint.Shader := FImageEffect.MakeShader;
-    ACanvas.DrawRect(ADest, FImagePaint);
+    FImageShaderBuilder.SetUniform('iResolution', PointF(ADest.Width, ADest.Height));
+    FImageShaderBuilder.SetUniform('iTime', ATime);
+    FImageShaderBuilder.SetChild('iChannel0', FBufferAShader);
+    LPaint := TSkPaint.Create;
+    LPaint.Shader := FImageShaderBuilder.MakeShader;
+    ACanvas.DrawRect(ADest, LPaint);
   end;
 
 var
@@ -178,15 +183,15 @@ begin
   FMouse := TPoint3D.Create(FMouse.X, FMouse.Y, MouseDownFlag[False]);
 end;
 
-procedure TfrmMain.SkAnimatedPaintBox1Gesture(Sender: TObject;
-  const EventInfo: TGestureEventInfo; var Handled: Boolean);
+procedure TfrmMain.SkAnimatedPaintBox1Gesture(Sender: TObject; const EventInfo: TGestureEventInfo;
+  var Handled: Boolean);
 begin
   if EventInfo.GestureID = igiDoubleTap then
     FIsVKSpacePressing := True;
 end;
 
-procedure TfrmMain.SkAnimatedPaintBox1MouseDown(Sender: TObject;
-  Button: TMouseButton; Shift: TShiftState; X, Y: Single);
+procedure TfrmMain.SkAnimatedPaintBox1MouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X,
+  Y: Single);
 begin
   FMouse := TPoint3D.Create(X, Y, MouseDownFlag[True]);
 end;
