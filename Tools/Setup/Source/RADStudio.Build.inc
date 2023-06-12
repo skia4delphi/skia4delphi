@@ -21,6 +21,7 @@
   #include "Source\RADStudio.Project.inc"
 
 type
+  TBeforeProjectBuildProc = procedure(const AProject: TRADStudioProject; const APlatform: TProjectPlatform; const AInfo: TRADStudioInfo);
   TTryExtractPreBuildObjectsProc = function(const AInfo: TRADStudioInfo): Boolean;
 
 /// <summary> Get platforms that are allowed to build in specific platform. Current, allowed only windows platforms to avoid problems with sdk. </summary>
@@ -28,7 +29,7 @@ function GetPlatformsAllowedToBuild(const ARADStudioInfo: TRADStudioInfo): TProj
 /// <summary> Get steps of TryBuildRADStudioPackages used in WizardForm.ProgressGauge.Position. Use this to set WizardForm.ProgressGauge.Max before call the TryBuildRADStudioPackages. </summary>
 function GetTryBuildRADStudioPackagesSteps(const ARADStudioInfos: TRADStudioInfos; const AGroupProjects: TRADStudioGroupProjects): Integer; forward;
 /// <summary> Try to build RAD Studio packages, but only in allowed platforms. </summary>
-function TryBuildRADStudioPackages(const ARADStudioInfos: TRADStudioInfos; const AGroupProjects: TRADStudioGroupProjects; const ACustomParameter: string; const ATryExtractPreBuildObjects: TTryExtractPreBuildObjectsProc): Boolean; forward;
+function TryBuildRADStudioPackages(const ARADStudioInfos: TRADStudioInfos; const AGroupProjects: TRADStudioGroupProjects; const ACustomParameter: string; const ABeforeProjectBuild: TBeforeProjectBuildProc; const ATryExtractPreBuildObjects: TTryExtractPreBuildObjectsProc): Boolean; forward;
 
 // implementation
 
@@ -42,7 +43,7 @@ const
 /// <summary> Get the MSBuild parameters. The custom parameter is optionally. </summary>
 function _GetMSBuildParams(const AConfig: TProjectConfig; const APlatform: TProjectPlatform; const ACustomParameter: string): string; forward;
 /// <summary> Try to get the comand to build a project. The custom parameter is optionally. </summary>
-function _TryBuildRADStudioProject(const ARADStudioInfo: TRADStudioInfo; const AConfig: TProjectConfig; const APlatform: TProjectPlatform; const AProjectFileName, ACustomParameter, ALogFileName: string; out AResultCode: Integer): Boolean; forward;
+function _TryBuildRADStudioProject(const ARADStudioInfo: TRADStudioInfo; const AConfig: TProjectConfig; const APlatform: TProjectPlatform; const AProject: TRADStudioProject; const ACustomParameter, ALogFileName: string; const ABeforeProjectBuild: TBeforeProjectBuildProc; out AResultCode: Integer): Boolean; forward;
 /// <summary> Try to get the comand to build a project. The custom parameter is optionally. </summary>
 function _TryGetBuildCommand(const ARADStudioInfo: TRADStudioInfo; const AConfig: TProjectConfig; const APlatform: TProjectPlatform; const AProjectFileName, ACustomParameter, ALogFileName: string; out ACommand: string): Boolean; forward;
 
@@ -89,7 +90,8 @@ begin
   end;
 end;
 
-function TryBuildRADStudioPackages(const ARADStudioInfos: TRADStudioInfos; const AGroupProjects: TRADStudioGroupProjects; const ACustomParameter: string; const ATryExtractPreBuildObjects: TTryExtractPreBuildObjectsProc): Boolean;
+function TryBuildRADStudioPackages(const ARADStudioInfos: TRADStudioInfos; const AGroupProjects: TRADStudioGroupProjects; const ACustomParameter: string; 
+  const ABeforeProjectBuild: TBeforeProjectBuildProc; const ATryExtractPreBuildObjects: TTryExtractPreBuildObjectsProc): Boolean;
 var
   I, J, K: Integer;
   LInfo: TRADStudioInfo;
@@ -118,7 +120,7 @@ begin
             Log(Format('RADStudio.Build.TryBuildRADStudioPackages: Trying to build the package "%s" to %s platform for %s', [ExtractFileName(LProject.FileName), GetProjectPlatformName(LPlatform), LInfo.Version.Name]));
             WizardForm.StatusLabel.Caption := FmtMessage(CustomMessage('RADStudioBuildBuildingFor'), [LInfo.Version.Name, GetProjectPlatformName(LPlatform)]);
             WizardForm.FilenameLabel.Caption := ExtractFileName(LProject.FileName);
-            if (LInfo.Status = riToolchainNotSupported) or (not _TryBuildRADStudioProject(LInfo, LInfo.Version.BuildConfig, LPlatform, LProject.FileName, ACustomParameter, ExpandConstant(_BuilLogsFileName), LResultCode)) then
+            if (LInfo.Status = riToolchainNotSupported) or (not _TryBuildRADStudioProject(LInfo, LInfo.Version.BuildConfig, LPlatform, LProject, ACustomParameter, ExpandConstant(_BuilLogsFileName), ABeforeProjectBuild, LResultCode)) then
             begin
               Log(Format('RADStudio.Build.TryBuildRADStudioPackages: Failed to build the package "%s" to %s platform for %s', [ExtractFileName(LProject.FileName), GetProjectPlatformName(LPlatform), LInfo.Version.Name]));
               if (ATryExtractPreBuildObjects <> nil) and ATryExtractPreBuildObjects(LInfo) then
@@ -149,17 +151,20 @@ begin
   Result := True;
 end;
 
-function _TryBuildRADStudioProject(const ARADStudioInfo: TRADStudioInfo; const AConfig: TProjectConfig; const APlatform: TProjectPlatform; const AProjectFileName, ACustomParameter, ALogFileName: string; out AResultCode: Integer): Boolean;
+function _TryBuildRADStudioProject(const ARADStudioInfo: TRADStudioInfo; const AConfig: TProjectConfig; const APlatform: TProjectPlatform; 
+  const AProject: TRADStudioProject; const ACustomParameter, ALogFileName: string; const ABeforeProjectBuild: TBeforeProjectBuildProc; out AResultCode: Integer): Boolean;
 var
   LProjectDir: string;
   LCommand: string;
 begin
   DeleteFile(ALogFileName);
-  Result := _TryGetBuildCommand(ARADStudioInfo, AConfig, APlatform, AProjectFileName, ACustomParameter, ALogFileName, LCommand);
+  Result := _TryGetBuildCommand(ARADStudioInfo, AConfig, APlatform, AProject.FileName, ACustomParameter, ALogFileName, LCommand);
   if Result then
   begin
     AResultCode := 0;
-    LProjectDir := ExtractFilePath(AProjectFileName);
+    LProjectDir := ExtractFilePath(AProject.FileName);
+    if ABeforeProjectBuild <> nil then
+      ABeforeProjectBuild(AProject, APlatform, ARADStudioInfo);
     Result := Exec(ExpandConstant('{cmd}'), '/C ' + LCommand, LProjectDir, SW_HIDE, ewWaitUntilTerminated, AResultCode) and (AResultCode = 0);
   end;
   if Result then

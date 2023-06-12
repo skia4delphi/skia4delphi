@@ -51,6 +51,8 @@ type
 
 /// <summary> Checks if RAD Studio supports the platform </summary>
 function CheckIfRADStudioSupportsPlatform(const ARADStudioInfo: TRADStudioInfo; const APlatform: TProjectPlatform): Boolean; forward;
+/// <summary> Compare version of RAD Studio </summary>
+function CompareRADStudioVersion(const ARADStudioVersion: TRADStudioVersion; const ARegVersion: string): Integer; forward;
 /// <summary> Compare two versions of RAD Studio </summary>
 function CompareRADStudioVersions(const AVersion1, AVersion2: TRADStudioVersion): Integer; forward;
 /// <summary> Get common directory of RAD Studio BPLs </summary>
@@ -146,6 +148,17 @@ function CheckIfRADStudioSupportsPlatform(const ARADStudioInfo: TRADStudioInfo; 
 begin
   Result := (APlatform in ARADStudioInfo.Version.SupportedPlatforms) and
     RegKeyExists(HKEY_CURRENT_USER, GetRADStudioRegKey(ARADStudioInfo.Version) + '\Library\' + GetProjectPlatformLibraryName(APlatform));
+end;
+
+function CompareRADStudioVersion(const ARADStudioVersion: TRADStudioVersion; const ARegVersion: string): Integer;
+var
+  LVersion1, LVersion2: Int64;
+begin
+  if not StrToVersion(ARADStudioVersion.RegVersion, LVersion1) then
+    RaiseException(FmtMessage('RADStudio.CompareRADStudioVersion: Invalid version "%1"', [ARADStudioVersion.RegVersion]));
+  if not StrToVersion(ARegVersion, LVersion2) then
+    RaiseException(FmtMessage('RADStudio.CompareRADStudioVersion: Invalid version "%1"', [ARegVersion]));
+  Result := ComparePackedVersion(LVersion1, LVersion2);
 end;
 
 function CompareRADStudioVersions(const AVersion1, AVersion2: TRADStudioVersion): Integer;

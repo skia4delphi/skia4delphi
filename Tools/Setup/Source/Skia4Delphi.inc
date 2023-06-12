@@ -33,6 +33,8 @@ const
 
 /// <summary> Get platforms where the library is static </summary>
 function _GetLibraryStaticPlatforms: TProjectPlatforms; forward;
+/// <summary> Make custom changes before project build </summary>
+procedure _OnBeforeProjectBuild(const AProject: TRADStudioProject; const APlatform: TProjectPlatform; const AInfo: TRADStudioInfo); forward;
 /// <summary> Get the custom param on build </summary>
 function _OnGetBuildCustonParam(): string; forward;
 /// <summary> Try to extract pre-build objects binaries when the command line compilation has failed </summary>
@@ -57,6 +59,44 @@ var
 function _GetLibraryStaticPlatforms: TProjectPlatforms;
 begin
   Result := [pfiOSDevice64, pfiOSSimARM64];
+end;
+
+procedure _OnBeforeProjectBuild(const AProject: TRADStudioProject; const APlatform: TProjectPlatform; const AInfo: TRADStudioInfo);
+var
+  I, J: Integer;
+  LFileFound: Boolean;
+  LNativeSkiaUnits: TArrayOfString;
+  LNativeUnit: string;
+  LSourcePath: string;
+begin
+  // Check if it is newer than RAD Studio 11 Alexandria
+  if CompareRADStudioVersion(AInfo.Version, '22.0') > 0 then
+  begin 
+    // Try copy exclusive units from RAD Studio source to recompile it
+    if SameText(ExtractFileName(AProject.FileName), 'Skia.Package.FMX.dproj') and (APlatform = LowProjectPlatform) and (GetArrayLength(AProject.SourcePaths) > 0) then
+    begin
+      LSourcePath := AProject.SourcePaths[0];
+      StringChangeEx(LSourcePath, LibraryDirDefine, '{app}', True);
+      LSourcePath := ExpandConstant(LSourcePath);
+      LNativeSkiaUnits := GetFiles(CombinePath(AInfo.RootDir, 'Source\FMX\'), 'FMX.Skia.*.pas', soTopDirectoryOnly);
+      Log(Format('Skia4Delphi._OnBeforeProjectBuild: copying exclusive files to "%s"', [LSourcePath]));
+      for I := 0 to GetArrayLength(LNativeSkiaUnits) - 1 do
+      begin
+        LNativeUnit := LNativeSkiaUnits[I];
+        LFileFound := False;
+        for J := 0 to GetArrayLength(AProject.SourceFiles) - 1 do
+        begin
+          if SameText(ExtractFileName(LNativeUnit), ExtractFileName(AProject.SourceFiles[J])) then
+          begin
+            LFileFound := True;
+            Break;
+          end;
+        end;
+        if not LFileFound then
+          CopyFileToDir(LNativeUnit, LSourcePath);
+      end;
+    end;
+  end;
 end;
 
 function _OnGetBuildCustonParam(): string;
@@ -262,6 +302,7 @@ end;
 <event('InitializeSetup')>
 function _Skia4DelphiInitializeSetup: Boolean;
 begin
+  FOnBeforeProjectBuild := @_OnBeforeProjectBuild;
   FOnGetBuildCustonParam := @_OnGetBuildCustonParam;
   FOnTryExtractPreBuildObjects := @_OnTryExtractPreBuildObjects;
   FOnTryPrepareProjectInstallation := @_OnTryPrepareProjectInstallation;
