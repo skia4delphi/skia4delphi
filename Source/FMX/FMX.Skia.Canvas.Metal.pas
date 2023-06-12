@@ -169,7 +169,9 @@ begin
   Result := nil;
   SharedContext.BeginContext;
   try
-    {$IF DEFINED(IOS) or (CompilerVersion < 36)}
+    {$IF CompilerVersion < 36}
+    FCurrentDrawable := MTKView(WindowHandleToPlatform(Parent).View).currentDrawable;
+    {$ELSEIF DEFINED(IOS)}
     FCurrentDrawable := WindowHandleToPlatform(Parent).MTView.currentDrawable;
     {$ELSE}
     FCurrentDrawable := TMacWindowHandle(Parent).CurrentMetalDrawable;
