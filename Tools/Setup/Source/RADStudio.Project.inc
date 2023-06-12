@@ -26,6 +26,7 @@ type
   TRADStudioProject = record
     FileName: string;
     Description: string;
+    SourceFiles: TArrayOfString;
     SourcePaths: TArrayOfString;
     BplOutputPath: string;
     DcpOutputPath: string;
@@ -127,6 +128,9 @@ begin
     Result.Items[I].Project.IsPackage := AGroupProject.Items[I].Project.IsPackage;
     Result.Items[I].Project.IsInstallable := AGroupProject.Items[I].Project.IsInstallable;
     Result.Items[I].Project.RequiresDCPCount := AGroupProject.Items[I].Project.RequiresDCPCount;
+    SetArrayLength(Result.Items[I].Project.SourceFiles, GetArrayLength(AGroupProject.Items[I].Project.SourceFiles));
+    for J := 0 to GetArrayLength(AGroupProject.Items[I].Project.SourceFiles) - 1 do
+      Result.Items[I].Project.SourceFiles[J] := AGroupProject.Items[I].Project.SourceFiles[J];
     SetArrayLength(Result.Items[I].Project.SourcePaths, GetArrayLength(AGroupProject.Items[I].Project.SourcePaths));
     for J := 0 to GetArrayLength(AGroupProject.Items[I].Project.SourcePaths) - 1 do
       Result.Items[I].Project.SourcePaths[J] := AGroupProject.Items[I].Project.SourcePaths[J];
@@ -233,6 +237,8 @@ begin
       LGroupProjectItem := LGroupProject.Items[J];
       LProject := LGroupProjectItem.Project;
       StringChangeEx(LProject.FileName, AddBackslash(AOldRootPath), AddBackslash(ANewRootPath), True);
+      for K := 0 to GetArrayLength(LProject.SourceFiles) - 1 do
+        StringChangeEx(LProject.SourceFiles[K], AddBackslash(AOldRootPath), AddBackslash(ANewRootPath), True);
       for K := 0 to GetArrayLength(LProject.SourcePaths) - 1 do
         StringChangeEx(LProject.SourcePaths[K], AddBackslash(AOldRootPath), AddBackslash(ANewRootPath), True);
       StringChangeEx(LProject.BplOutputPath, AddBackslash(AOldRootPath), AddBackslash(ANewRootPath), True);
@@ -265,6 +271,8 @@ begin
       LProject := LGroupProjectItem.Project;
       _ExpandProjectRootPath(LProject.FileName, LGroupProjectPath);
       LProjectPath := ExtractFilePath(LProject.FileName);
+      for K := 0 to GetArrayLength(LProject.SourceFiles) - 1 do
+        _ExpandProjectRootPath(LProject.SourceFiles[K], LProjectPath);
       for K := 0 to GetArrayLength(LProject.SourcePaths) - 1 do
         _ExpandProjectRootPath(LProject.SourcePaths[K], LProjectPath);
       _ExpandProjectRootPath(LProject.BplOutputPath, LProjectPath);
@@ -446,7 +454,10 @@ begin
       for I := 0 to LXMLNodeList.Length-1 do
       begin
         if EndsWithText(LXMLNodeList.Item[I].Text, '.pas') then
-          AProject.SourcePaths := AppendString(AProject.SourcePaths, RemoveBackslash(ExpandFileName(AddBackslash(ExtractFilePath(AFileName)) + ExtractFilePath(LXMLNodeList.Item[I].Text))), False)
+        begin
+          AProject.SourceFiles := AppendString(AProject.SourceFiles, RemoveBackslash(ExpandFileName(AddBackslash(ExtractFilePath(AFileName)) + LXMLNodeList.Item[I].Text)), False);
+          AProject.SourcePaths := AppendString(AProject.SourcePaths, RemoveBackslash(ExpandFileName(AddBackslash(ExtractFilePath(AFileName)) + ExtractFilePath(LXMLNodeList.Item[I].Text))), False);
+        end
         else if EndsWithText(LXMLNodeList.Item[I].Text, '.dcp') then
           AProject.RequiresDCPCount := AProject.RequiresDCPCount + 1;
       end;

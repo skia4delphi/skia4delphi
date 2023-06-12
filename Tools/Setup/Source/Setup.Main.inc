@@ -55,6 +55,7 @@ function UninstallPackages(const ARADStudioInfos: TRADStudioInfos; const AGroupP
 var
   FGroupProjects: TRADStudioGroupProjects;
   FMaxVersionInGroupProjects: TRADStudioVersion;
+  FOnBeforeProjectBuild: TBeforeProjectBuildProc;
   FOnGetBuildCustonParam: TGetBuildCustonParamEvent;
   FOnTryExtractPreBuildObjects: TTryExtractPreBuildObjectsProc;
   FOnTryPrepareProjectInstallation: TTryPrepareProjectInstallationEvent;
@@ -229,7 +230,7 @@ begin
     LCustomParam := FOnGetBuildCustonParam()
   else
     LCustomParam := '';
-  Result := TryBuildRADStudioPackages(ARADStudioInfos, AGroupProjects, LCustomParam, FOnTryExtractPreBuildObjects);
+  Result := TryBuildRADStudioPackages(ARADStudioInfos, AGroupProjects, LCustomParam, FOnBeforeProjectBuild, FOnTryExtractPreBuildObjects);
   if Result then
   begin
     WizardForm.StatusLabel.Caption := CustomMessage('SetupMainInstallingPackages');
