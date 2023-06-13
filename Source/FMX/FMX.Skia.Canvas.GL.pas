@@ -371,7 +371,7 @@ begin
   begin
     SaveCurrent;
     try
-      MakeCurrent;
+      TryMakeCurrent;
       FBackBufferSurface := nil;
       FGrDirectContext.AbandonContext;
       FGrDirectContext := nil;
