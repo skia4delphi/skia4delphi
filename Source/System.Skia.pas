@@ -31,7 +31,7 @@ uses
   System.Skia.API;
 
 const
-  SkVersion = '6.0.0-beta1';
+  SkVersion = '6.0.0-beta2';
 
 type
   TGrBackendAPI                   = (OpenGl, Vulkan, Metal);
