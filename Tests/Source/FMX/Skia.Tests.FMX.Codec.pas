@@ -17,6 +17,9 @@ interface
 {$IFNDEF MSWINDOWS}
   {$DEFINE SUPPORT_DNG}
 {$ENDIF}
+{$IF CompilerVersion >= 33}
+  {$DEFINE SUPPORT_WBMP}
+{$ENDIF}
 
 uses
   { Delphi }
@@ -57,7 +60,9 @@ type
     [TestCase('PNG (emoji2.png)',             'emoji2.png')]
     [TestCase('PNG (world-time-zone.png)',    'world-time-zone.png')]
     [TestCase('PNG Animated (animated.png)',  'animated.png')]
+    {$IFDEF SUPPORT_WBMP}
     [TestCase('WBMP (mandrill.wbmp)',         'mandrill.wbmp')]
+    {$ENDIF}
     [TestCase('WebP (kung-fu-panda.webp)',    'kung-fu-panda.webp')]
     [TestCase('WebP Animated (rocket.webp)',  'rocket.webp')]
     procedure TestDecodeFile(const AImageFileName: string);
