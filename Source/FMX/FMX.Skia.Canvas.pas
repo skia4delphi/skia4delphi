@@ -3850,7 +3850,7 @@ type
   TSkCanvasService = class(TInterfacedObject, IFMXCanvasService)
   strict private
     FCurrent: IFMXCanvasService;
-    {$IFDEF DEBUG}
+    {$IF DEFINED(DEBUG) and (CompilerVersion >= 31)}
     FFormBeforeShownMessageId: Integer;
     FGlobalUseSkiaInRegistration: Boolean;
     procedure FormBeforeShownHandler(const ASender: TObject; const AMessage: System.Messaging.TMessage);
@@ -3859,7 +3859,7 @@ type
     procedure UnregisterCanvasClasses;
   public
     constructor Create(const ACurrent: IFMXCanvasService);
-    {$IFDEF DEBUG}
+    {$IF DEFINED(DEBUG) and (CompilerVersion >= 31)}
     destructor Destroy; override;
     {$ENDIF}
   end;
@@ -3892,12 +3892,12 @@ constructor TSkCanvasService.Create(const ACurrent: IFMXCanvasService);
 begin
   inherited Create;
   FCurrent := ACurrent;
-  {$IFDEF DEBUG}
+  {$IF DEFINED(DEBUG) and (CompilerVersion >= 31)}
   FFormBeforeShownMessageId := TMessageManager.DefaultManager.SubscribeToMessage(TFormBeforeShownMessage, FormBeforeShownHandler);
   {$ENDIF}
 end;
 
-{$IFDEF DEBUG}
+{$IF DEFINED(DEBUG) and (CompilerVersion >= 31)}
 
 destructor TSkCanvasService.Destroy;
 begin
@@ -3980,7 +3980,7 @@ begin
     end;
     FCurrent.RegisterCanvasClasses;
   end;
-  {$IFDEF DEBUG}
+  {$IF DEFINED(DEBUG) and (CompilerVersion >= 31)}
   FGlobalUseSkiaInRegistration := GlobalUseSkia;
   {$ENDIF}
 end;
