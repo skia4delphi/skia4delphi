@@ -128,7 +128,7 @@ type
     procedure OnTestFailure(const AThreadId: TThreadID; const AFailure: ITestError);
     procedure OnTestIgnored(const AThreadId: TThreadID; const AIgnored: ITestResult);
     procedure OnTestingEnds(const ARunResults: IRunResults);
-    {$IF CompilerVersion < 30}
+    {$IF CompilerVersion = 29}
     procedure OnTestingStarts(const AThreadId, ATestCount, ATestActiveCount: Cardinal);
     {$ELSE}
     procedure OnTestingStarts(const AThreadId: TThreadID; ATestCount, ATestActiveCount: Cardinal);
@@ -515,7 +515,7 @@ begin
     end);
 end;
 
-{$IF CompilerVersion < 30}
+{$IF CompilerVersion = 29}
 procedure TAsyncTestRunner.OnTestingStarts(const AThreadId, ATestCount,
   ATestActiveCount: Cardinal);
 {$ELSE}
