@@ -391,9 +391,11 @@ begin
             end;
             FLastImageChecking.EncodeToFile(GetExpectedImageFileName(ATest));
           end;
+        {$IF CompilerVersion >= 32}
+        TTestResultType.Warning,
+        {$ENDIF}
         TTestResultType.Failure,
-        TTestResultType.Error,
-        TTestResultType.Warning:
+        TTestResultType.Error:
           begin
             if not TDirectory.Exists(WrongImagesPath) then
             begin
