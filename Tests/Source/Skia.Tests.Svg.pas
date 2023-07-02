@@ -41,7 +41,7 @@ type
     procedure TestGetIntrinsicSize(const ASvgFileName: string; const AWidth, AHeight: Single);
     [TestCase('android.svg', 'android.svg,true,0,0,96,105')]
     [TestCase('delphi.svg',  'delphi.svg,true,0,0,10666.667,10666.667')]
-    [TestCase('gorilla.svg', 'gorilla.svg,true,0,0,944.88,944.88')]
+    [TestCase('gorilla.svg', 'gorilla.svg,true,0,0,944.880,944.880')]
     [TestCase('lion.svg',    'lion.svg,true,0,0,888,746.66669')]
     [TestCase('tesla.svg',   'tesla.svg,false,0,0,0,0')]
     procedure TestTryGetViewBox(const ASvgFileName: string; const AExpectedResult: Boolean; const AX, AY, AWidth, AHeight: Single);
@@ -95,8 +95,8 @@ begin
   LSVGDOM := TSkSVGDOM.MakeFromFile(SvgAssetsPath + ASvgFileName);
   Assert.IsNotNull(LSVGDOM, 'Invalid SkSVGDOM');
   LSize := LSVGDOM.Root.GetIntrinsicSize(TSizeF.Create(0, 0));
-  Assert.AreEqual(LSize.Width, AWidth, TEpsilon.Vector, 'Different width');
-  Assert.AreEqual(LSize.Height, AHeight, TEpsilon.Vector, 'Different height');
+  Assert.AreEqual(AWidth, LSize.Width, TEpsilon.Vector, 'Different width');
+  Assert.AreEqual(AHeight, LSize.Height, TEpsilon.Vector, 'Different height');
 end;
 
 procedure TSkSvgDOMTests.TestTryGetViewBox(const ASvgFileName: string;
@@ -110,10 +110,10 @@ begin
   Assert.IsTrue(LSVGDOM.Root.TryGetViewBox(LViewBox) = AExpectedResult, 'Different result of TryGetViewBox');
   if AExpectedResult then
   begin
-    Assert.AreEqual(LViewBox.Left, AX, TEpsilon.Vector, 'Different x position');
-    Assert.AreEqual(LViewBox.Top, AY, TEpsilon.Vector, 'Different y position');
-    Assert.AreEqual(LViewBox.Width, AWidth, TEpsilon.Vector, 'Different width');
-    Assert.AreEqual(LViewBox.Height, AHeight, TEpsilon.Vector, 'Different height');
+    Assert.AreEqual(AX, LViewBox.Left, TEpsilon.Vector, 'Different x position');
+    Assert.AreEqual(AY, LViewBox.Top, TEpsilon.Vector, 'Different y position');
+    Assert.AreEqual(AWidth, LViewBox.Width, TEpsilon.Vector, 'Different width');
+    Assert.AreEqual(AHeight, LViewBox.Height, TEpsilon.Vector, 'Different height');
   end;
 end;
 
