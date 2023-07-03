@@ -1,0 +1,260 @@
+name: Build for Development
+
+on:
+  push:
+    branches:
+      - main
+      - v6-lts
+
+jobs:
+  test-bds-22:
+    name: Running Tests on BDS 22.0
+    runs-on: windows-2022
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Checkout Toolchain
+        uses: actions/checkout@v3
+        with:
+          repository: skia4delphibot/toolchain22
+          token: ${{ secrets.GH_SK_PAT }}
+          path: Toolchain
+
+      - name: Build and Test
+        run: |
+          Toolchain/Run.ps1
+        shell: pwsh
+
+      - name: Upload Logs on Failure
+        uses: actions/upload-artifact@v3
+        if: failure()
+        with:
+          name: BDS 22.0 Logs
+          path: Toolchain/logs.txt
+          retention-days: 4
+
+  test-bds-21:
+    name: Running Tests on BDS 21.0
+    runs-on: windows-2022
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Checkout Toolchain
+        uses: actions/checkout@v3
+        with:
+          repository: skia4delphibot/toolchain21
+          token: ${{ secrets.GH_SK_PAT }}
+          path: Toolchain
+
+      - name: Build and Test
+        run: |
+          Toolchain/Run.ps1
+        shell: pwsh
+
+      - name: Upload Logs on Failure
+        uses: actions/upload-artifact@v3
+        if: failure()
+        with:
+          name: BDS 21.0 Logs
+          path: Toolchain/logs.txt
+          retention-days: 4
+
+  test-bds-20:
+    name: Running Tests on BDS 20.0
+    runs-on: windows-2022
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Checkout Toolchain
+        uses: actions/checkout@v3
+        with:
+          repository: skia4delphibot/toolchain20
+          token: ${{ secrets.GH_SK_PAT }}
+          path: Toolchain
+
+      - name: Build and Test
+        run: |
+          Toolchain/Run.ps1
+        shell: pwsh
+
+      - name: Upload Logs on Failure
+        uses: actions/upload-artifact@v3
+        if: failure()
+        with:
+          name: BDS 20.0 Logs
+          path: Toolchain/logs.txt
+          retention-days: 4
+
+  test-bds-19:
+    name: Running Tests on BDS 19.0
+    runs-on: windows-2022
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Checkout Toolchain
+        uses: actions/checkout@v3
+        with:
+          repository: skia4delphibot/toolchain19
+          token: ${{ secrets.GH_SK_PAT }}
+          path: Toolchain
+
+      - name: Build and Test
+        run: |
+          Toolchain/Run.ps1
+        shell: pwsh
+
+      - name: Upload Logs on Failure
+        uses: actions/upload-artifact@v3
+        if: failure()
+        with:
+          name: BDS 19.0 Logs
+          path: Toolchain/logs.txt
+          retention-days: 4
+
+  test-bds-18:
+    name: Running Tests on BDS 18.0
+    runs-on: windows-2022
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Checkout Toolchain
+        uses: actions/checkout@v3
+        with:
+          repository: skia4delphibot/toolchain18
+          token: ${{ secrets.GH_SK_PAT }}
+          path: Toolchain
+
+      - name: Build and Test
+        run: |
+          Toolchain/Run.ps1
+        shell: pwsh
+
+      - name: Upload Logs on Failure
+        uses: actions/upload-artifact@v3
+        if: failure()
+        with:
+          name: BDS 18.0 Logs
+          path: Toolchain/logs.txt
+          retention-days: 4
+
+  test-bds-17:
+    name: Running Tests on BDS 17.0
+    runs-on: windows-2022
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Checkout Toolchain
+        uses: actions/checkout@v3
+        with:
+          repository: skia4delphibot/toolchain17
+          token: ${{ secrets.GH_SK_PAT }}
+          path: Toolchain
+
+      - name: Build and Test
+        run: |
+          Toolchain/Run.ps1
+        shell: pwsh
+
+      - name: Upload Logs on Failure
+        uses: actions/upload-artifact@v3
+        if: failure()
+        with:
+          name: BDS 17.0 Logs
+          path: Toolchain/logs.txt
+          retention-days: 4
+
+  test-bds-16:
+    name: Running Tests on BDS 16.0
+    runs-on: windows-2022
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Checkout Toolchain
+        uses: actions/checkout@v3
+        with:
+          repository: skia4delphibot/toolchain16
+          token: ${{ secrets.GH_SK_PAT }}
+          path: Toolchain
+
+      - name: Build and Test
+        run: |
+          Toolchain/Run.ps1
+        shell: pwsh
+
+      - name: Upload Logs on Failure
+        uses: actions/upload-artifact@v3
+        if: failure()
+        with:
+          name: BDS 16.0 Logs
+          path: Toolchain/logs.txt
+          retention-days: 4
+
+  test-bds-15:
+    name: Running Tests on BDS 15.0
+    runs-on: windows-2022
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Checkout Toolchain
+        uses: actions/checkout@v3
+        with:
+          repository: skia4delphibot/toolchain15
+          token: ${{ secrets.GH_SK_PAT }}
+          path: Toolchain
+
+      - name: Build and Test
+        run: |
+          Toolchain/Run.ps1
+        shell: pwsh
+
+      - name: Upload Logs on Failure
+        uses: actions/upload-artifact@v3
+        if: failure()
+        with:
+          name: BDS 15.0 Logs
+          path: Toolchain/logs.txt
+          retention-days: 4
+
+  make:
+    needs: [test-bds-22, test-bds-21, test-bds-20, test-bds-19, test-bds-18, test-bds-17, test-bds-16, test-bds-15]
+    name: Building Installer
+    runs-on: windows-2022
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Checkout Toolchain
+        uses: actions/checkout@v3
+        with:
+          repository: skia4delphibot/toolchain
+          token: ${{ secrets.GH_SK_PAT }}
+          path: Tools/Setup/Toolchain
+
+      - name: Build
+        run: |
+          Tools/Setup/Toolchain/Run.ps1
+        shell: pwsh
+
+      - name: Upload Logs on Failure
+        uses: actions/upload-artifact@v3
+        if: failure()
+        with:
+          name: Logs
+          path: Tools/Setup/Toolchain/logs.txt
+          retention-days: 4
+
+      - name: Upload Setup
+        uses: actions/upload-artifact@v3
+        with:
+          name: Installer
+          path: Tools/Setup/Output/Skia4Delphi*.exe
+          if-no-files-found: error
+          retention-days: 2
