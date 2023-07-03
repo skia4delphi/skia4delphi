@@ -1,6 +1,7 @@
 program Skia_Tests_VCL;
 
 uses
+  System.SysUtils,
   Vcl.Forms,
   Skia.Tests.Blender in '..\..\Source\Skia.Tests.Blender.pas',
   Skia.Tests.Codec in '..\..\Source\Skia.Tests.Codec.pas',
@@ -30,6 +31,10 @@ uses
 {$R *.res}
 
 begin
+  // Fix issue of old versions of DUnitX
+  // https://github.com/VSoftTechnologies/DUnitX/issues/108
+  FormatSettings.DecimalSeparator := '.';
+
   ReportMemoryLeaksOnShutdown := True;
   Application.Initialize;
   Application.MainFormOnTaskbar := True;

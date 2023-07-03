@@ -2,6 +2,7 @@ program Skia_Tests_FMX;
 
 uses
   System.StartUpCopy,
+  System.SysUtils,
   FMX.Forms,
   FMX.Skia,
   Skia.Tests.Blender in '..\..\Source\Skia.Tests.Blender.pas',
@@ -35,6 +36,10 @@ uses
 {$R *.res}
 
 begin
+  // Fix issue of old versions of DUnitX
+  // https://github.com/VSoftTechnologies/DUnitX/issues/108
+  FormatSettings.DecimalSeparator := '.';
+
   GlobalUseSkia := True;
   ReportMemoryLeaksOnShutdown := True;
   Application.Initialize;
