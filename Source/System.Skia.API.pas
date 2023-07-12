@@ -2367,6 +2367,12 @@ uses
   System.Math;
   {$ENDIF}
 
+{$ELSEIF DEFINED(ANDROID) and not DEFINED(FPC)}
+
+uses
+  { Delphi }
+  System.IOUtils;
+
 {$ENDIF}
 
 
@@ -2419,7 +2425,7 @@ begin
   // and other devices, normally new, do not accept the full path.
   LibraryHandle := SafeLoadLibrary(LibraryName);
   if LibraryHandle = 0 then
-    LibraryHandle := SafeLoadLibrary(ExtractFilePath(ParamStr(0)) + LibraryName);
+    LibraryHandle := SafeLoadLibrary({$IFDEF FPC}ExtractFilePath(ParamStr(0)) + LibraryName{$ELSE}TPath.Combine(TPath.GetLibraryPath, LibraryName){$ENDIF});
   {$ELSE}
   LibraryHandle := SafeLoadLibrary(LibraryName);
   {$ENDIF}
