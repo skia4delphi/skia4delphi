@@ -13,6 +13,13 @@ unit System.Skia.API;
 
 interface
 
+{$IFDEF FPC}
+  {$MODE DELPHI}
+  {$IFDEF DARWIN}
+    {$DEFINE MACOS}
+  {$ENDIF}
+{$ENDIF}
+
 {$HPPEMIT NOUSINGNAMESPACE}
 {$IFDEF MSWINDOWS}
   {$HPPEMIT '#ifdef USEPACKAGES'}
@@ -28,8 +35,13 @@ interface
 {$MINENUMSIZE 4}
 
 uses
+  {$IFDEF FPC}
+  { FPC }
+  SysUtils;
+  {$ELSE}
   { Delphi }
   System.SysUtils;
+  {$ENDIF}
 
 {$IFDEF IOS}
   {$DEFINE SK_STATIC_LIBRARY}
@@ -46,14 +58,25 @@ type
   _double   = Double;
   float     = Single;
   int16_t   = SmallInt;
+  {$IF DECLARED(FixedInt)}
+  int32_t   = FixedInt;
+  {$ELSEIF DEFINED(FPC) or DEFINED(MSWINDOWS)}
+  int32_t   = Longint;
+  {$ELSE}
   int32_t   = Integer;
+  {$ENDIF}
   int64_t   = Int64;
   int8_t    = ShortInt;
   intptr_t  = NativeInt;
-  long      = LongInt;
   size_t    = NativeUInt;
   uint16_t  = Word;
+  {$IF DECLARED(FixedUInt)}
+  uint32_t  = FixedUInt;
+  {$ELSEIF DEFINED(FPC) or DEFINED(MSWINDOWS)}
+  uint32_t  = Longword;
+  {$ELSE}
   uint32_t  = Cardinal;
+  {$ENDIF}
   uint64_t  = UInt64;
   uint8_t   = Byte;
   uintptr_t = NativeUInt;
@@ -68,7 +91,6 @@ type
   pint64_t   = ^int64_t;
   pint8_t    = ^int8_t;
   pintptr_t  = ^intptr_t;
-  plong      = ^long;
   psize_t    = ^size_t;
   puint16_t  = ^uint16_t;
   puint32_t  = ^uint32_t;
@@ -79,54 +101,56 @@ type
 
   { include/c/sk4d_types.h }
 
-  sk_animcodecplayer_t          = THandle;
-  sk_blender_t                  = THandle;
-  sk_canvas_t                   = THandle;
-  sk_codec_t                    = THandle;
-  sk_colorfilter_t              = THandle;
-  sk_colorspace_t               = THandle;
-  sk_colorspaceiccprofile_t     = THandle;
-  sk_data_t                     = THandle;
-  sk_document_t                 = THandle;
-  sk_flattenable_t              = THandle;
-  sk_font_t                     = THandle;
-  sk_fontmgr_t                  = THandle;
-  sk_image_t                    = THandle;
-  sk_imagefilter_t              = THandle;
-  sk_maskfilter_t               = THandle;
-  sk_opbuilder_t                = THandle;
-  sk_paint_t                    = THandle;
-  sk_path_t                     = THandle;
-  sk_pathbuilder_t              = THandle;
-  sk_patheffect_t               = THandle;
-  sk_pathiterator_t             = THandle;
-  sk_pathmeasure_t              = THandle;
-  sk_pathrawiter_t              = THandle;
-  sk_picture_t                  = THandle;
-  sk_picturerecorder_t          = THandle;
-  sk_pixmap_t                   = THandle;
-  sk_refcnt_t                   = THandle;
-  sk_region_t                   = THandle;
-  sk_regioncliperator_t         = THandle;
-  sk_regioniterator_t           = THandle;
-  sk_regionspanerator_t         = THandle;
-  sk_rrect_t                    = THandle;
-  sk_runtimeblendbuilder_t      = THandle;
-  sk_runtimeeffect_t            = THandle;
-  sk_runtimeeffectbuilder_t     = THandle;
-  sk_runtimeshaderbuilder_t     = THandle;
-  sk_shader_t                   = THandle;
-  sk_stream_t                   = THandle;
-  sk_streamadapter_t            = THandle;
-  sk_string_t                   = THandle;
-  sk_surface_t                  = THandle;
-  sk_textblob_t                 = THandle;
-  sk_tracememorydump_t          = THandle;
-  sk_tracememorydumpbaseclass_t = THandle;
-  sk_typeface_t                 = THandle;
-  sk_vertices_t                 = THandle;
-  sk_wstream_t                  = THandle;
-  sk_wstreamadapter_t           = THandle;
+  sk_handle_t                   = uintptr_t;
+
+  sk_animcodecplayer_t          = sk_handle_t;
+  sk_blender_t                  = sk_handle_t;
+  sk_canvas_t                   = sk_handle_t;
+  sk_codec_t                    = sk_handle_t;
+  sk_colorfilter_t              = sk_handle_t;
+  sk_colorspace_t               = sk_handle_t;
+  sk_colorspaceiccprofile_t     = sk_handle_t;
+  sk_data_t                     = sk_handle_t;
+  sk_document_t                 = sk_handle_t;
+  sk_flattenable_t              = sk_handle_t;
+  sk_font_t                     = sk_handle_t;
+  sk_fontmgr_t                  = sk_handle_t;
+  sk_image_t                    = sk_handle_t;
+  sk_imagefilter_t              = sk_handle_t;
+  sk_maskfilter_t               = sk_handle_t;
+  sk_opbuilder_t                = sk_handle_t;
+  sk_paint_t                    = sk_handle_t;
+  sk_path_t                     = sk_handle_t;
+  sk_pathbuilder_t              = sk_handle_t;
+  sk_patheffect_t               = sk_handle_t;
+  sk_pathiterator_t             = sk_handle_t;
+  sk_pathmeasure_t              = sk_handle_t;
+  sk_pathrawiter_t              = sk_handle_t;
+  sk_picture_t                  = sk_handle_t;
+  sk_picturerecorder_t          = sk_handle_t;
+  sk_pixmap_t                   = sk_handle_t;
+  sk_refcnt_t                   = sk_handle_t;
+  sk_region_t                   = sk_handle_t;
+  sk_regioncliperator_t         = sk_handle_t;
+  sk_regioniterator_t           = sk_handle_t;
+  sk_regionspanerator_t         = sk_handle_t;
+  sk_rrect_t                    = sk_handle_t;
+  sk_runtimeblendbuilder_t      = sk_handle_t;
+  sk_runtimeeffect_t            = sk_handle_t;
+  sk_runtimeeffectbuilder_t     = sk_handle_t;
+  sk_runtimeshaderbuilder_t     = sk_handle_t;
+  sk_shader_t                   = sk_handle_t;
+  sk_stream_t                   = sk_handle_t;
+  sk_streamadapter_t            = sk_handle_t;
+  sk_string_t                   = sk_handle_t;
+  sk_surface_t                  = sk_handle_t;
+  sk_textblob_t                 = sk_handle_t;
+  sk_tracememorydump_t          = sk_handle_t;
+  sk_tracememorydumpbaseclass_t = sk_handle_t;
+  sk_typeface_t                 = sk_handle_t;
+  sk_vertices_t                 = sk_handle_t;
+  sk_wstream_t                  = sk_handle_t;
+  sk_wstreamadapter_t           = sk_handle_t;
 
   psk_animcodecplayer_t          = ^sk_animcodecplayer_t;
   psk_blender_t                  = ^sk_blender_t;
@@ -805,15 +829,15 @@ type
 
   // Ganesh
 
-  gr_backendrendertarget_t         = THandle;
-  gr_backendsemaphore_t            = THandle;
-  gr_backendsurfacemutablestate_t  = THandle;
-  gr_backendtexture_t              = THandle;
-  gr_directcontext_t               = THandle;
-  gr_persistentcache_t             = THandle;
-  gr_persistentcachebaseclass_t    = THandle;
-  gr_shadererrorhandler_t          = THandle;
-  gr_shadererrorhandlerbaseclass_t = THandle;
+  gr_backendrendertarget_t         = sk_handle_t;
+  gr_backendsemaphore_t            = sk_handle_t;
+  gr_backendsurfacemutablestate_t  = sk_handle_t;
+  gr_backendtexture_t              = sk_handle_t;
+  gr_directcontext_t               = sk_handle_t;
+  gr_persistentcache_t             = sk_handle_t;
+  gr_persistentcachebaseclass_t    = sk_handle_t;
+  gr_shadererrorhandler_t          = sk_handle_t;
+  gr_shadererrorhandlerbaseclass_t = sk_handle_t;
 
   pgr_backendrendertarget_t         = ^gr_backendrendertarget_t;
   pgr_backendsemaphore_t            = ^gr_backendsemaphore_t;
@@ -871,7 +895,7 @@ type
 
   // Ganesh - OpenGL
 
-  gr_gl_interface_t = THandle;
+  gr_gl_interface_t = sk_handle_t;
 
   pgr_gl_interface_t = ^gr_gl_interface_t;
 
@@ -914,7 +938,7 @@ type
 
   // Ganesh - Vulkan
 
-  gr_vk_extensions_t  = THandle;
+  gr_vk_extensions_t  = sk_handle_t;
 
   pgr_vk_extensions_t = ^gr_vk_extensions_t;
 
@@ -1023,7 +1047,7 @@ type
 
   { modules/particles/include/sk4d_particles_types.h }
 
-  sk_particleeffect_t = THandle;
+  sk_particleeffect_t = sk_handle_t;
 
   psk_particleeffect_t = ^sk_particleeffect_t;
 
@@ -1037,19 +1061,19 @@ type
 
   { modules/skottie/include/sk4d_skottie_types.h }
 
-  sk_skottieanimation_t = THandle;
+  sk_skottieanimation_t = sk_handle_t;
 
   psk_skottieanimation_t = ^sk_skottieanimation_t;
 
 
   { modules/skparagraph/include/sk4d_paragraph_types.h }
 
-  sk_paragraph_t            = THandle;
-  sk_paragraphbuilder_t     = THandle;
-  sk_paragraphstyle_t       = THandle;
-  sk_strutstyle_t           = THandle;
-  sk_textstyle_t            = THandle;
-  sk_typefacefontprovider_t = THandle;
+  sk_paragraph_t            = sk_handle_t;
+  sk_paragraphbuilder_t     = sk_handle_t;
+  sk_paragraphstyle_t       = sk_handle_t;
+  sk_strutstyle_t           = sk_handle_t;
+  sk_textstyle_t            = sk_handle_t;
+  sk_typefacefontprovider_t = sk_handle_t;
 
   psk_paragraph_t            = ^sk_paragraph_t;
   psk_paragraphbuilder_t     = ^sk_paragraphbuilder_t;
@@ -1182,8 +1206,8 @@ type
 
   { modules/skresources/include/sk4d_resources_types.h }
 
-  sk_resourceprovider_t          = THandle;
-  sk_resourceproviderbaseclass_t = THandle;
+  sk_resourceprovider_t          = sk_handle_t;
+  sk_resourceproviderbaseclass_t = sk_handle_t;
 
   psk_resourceprovider_t          = ^sk_resourceprovider_t;
   psk_resourceproviderbaseclass_t = ^sk_resourceproviderbaseclass_t;
@@ -1196,15 +1220,15 @@ type
 
   { modules/skshaper/include/sk4d_shaper_types.h }
 
-  sk_shaper_t = THandle;
+  sk_shaper_t = sk_handle_t;
 
   psk_shaper_t = ^sk_shaper_t;
 
 
   { modules/skunicode/include/sk4d_unicode_types.h }
 
-  sk_unicode_t              = THandle;
-  sk_unicodebreakiterator_t = THandle;
+  sk_unicode_t              = sk_handle_t;
+  sk_unicodebreakiterator_t = sk_handle_t;
 
   psk_unicode_t              = ^sk_unicode_t;
   psk_unicodebreakiterator_t = ^sk_unicodebreakiterator_t;
@@ -1235,9 +1259,9 @@ type
 
   { modules/svg/include/sk4d_svg_types.h }
 
-  sk_svgdom_t  = THandle;
-  sk_svgsvg_t  = THandle;
-  sk_svgnode_t = THandle;
+  sk_svgdom_t  = sk_handle_t;
+  sk_svgsvg_t  = sk_handle_t;
+  sk_svgnode_t = sk_handle_t;
 
   psk_svgdom_t  = ^sk_svgdom_t;
   psk_svgsvg_t  = ^sk_svgsvg_t;
@@ -2330,18 +2354,21 @@ implementation
 
 {.$DEFINE SK_DEBUG}
 
-{$IF DEFINED(MSWINDOWS) or DEFINED(ANDROID)}
+{$IF DEFINED(MSWINDOWS)}
 
 uses
+  {$IFDEF FPC}
+  { FPC }
+  Windows,
+  Math;
+  {$ELSE}
   { Delphi }
-  {$IF DEFINED(MSWINDOWS)}
   Winapi.Windows,
   System.Math;
-  {$ELSEIF DEFINED(ANDROID)}
-  System.IOUtils;
   {$ENDIF}
 
 {$ENDIF}
+
 
 const
 {$IFDEF SK_STATIC_LIBRARY}
@@ -2369,7 +2396,7 @@ const
 
 {$IFNDEF SK_STATIC_LIBRARY}
 var
-  [Volatile] InitCount: Integer;
+  {$IFNDEF FPC}[Volatile]{$ENDIF} InitCount: Integer;
   LibraryHandle: HMODULE;
 {$ENDIF}
 
@@ -2385,21 +2412,21 @@ end;
 {$IFNDEF SK_STATIC_LIBRARY}
 procedure SkInitialize;
 begin
-  if AtomicIncrement(InitCount) <> 1 then
+  if {$IFDEF FPC}InterlockedIncrement{$ELSE}AtomicIncrement{$ENDIF}(InitCount) <> 1 then
     Exit;
   {$IF DEFINED(ANDROID)}
   // Some Android devices, normally old, need the full path of the library,
   // and other devices, normally new, do not accept the full path.
   LibraryHandle := SafeLoadLibrary(LibraryName);
   if LibraryHandle = 0 then
-    LibraryHandle := SafeLoadLibrary(TPath.Combine(TPath.GetLibraryPath, LibraryName));
+    LibraryHandle := SafeLoadLibrary(ExtractFilePath(ParamStr(0)) + LibraryName);
   {$ELSE}
   LibraryHandle := SafeLoadLibrary(LibraryName);
   {$ENDIF}
   if LibraryHandle = 0 then
     Abort;
   {$IFDEF MSWINDOWS}
-  SetExceptionMask(exAllArithmeticExceptions);
+  SetExceptionMask([exInvalidOp, exDenormalized, exZeroDivide, exOverflow, exUnderflow, exPrecision]);
   {$ENDIF}
 {$ENDIF}
 
@@ -4415,7 +4442,7 @@ end;
 {$IFNDEF SK_STATIC_LIBRARY}
 procedure SkFinalize;
 begin
-  if AtomicDecrement(InitCount) = 0 then
+  if {$IFDEF FPC}InterlockedDecrement{$ELSE}AtomicDecrement{$ENDIF}(InitCount) = 0 then
     FreeLibrary(LibraryHandle);
 end;
 {$ELSE}

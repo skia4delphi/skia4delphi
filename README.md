@@ -605,7 +605,7 @@ The APIs are very similar to Skia's, few methods and functions have been renamed
 
 # Version
 
-**[Skia4Delphi 6.0.0-beta2](/../../releases/latest)**
+**[Skia4Delphi 6.0.0-beta3](/../../releases/latest)**
 
 Skia Version used: [chrome/m107](https://github.com/google/skia/tree/chrome/m107)
 
