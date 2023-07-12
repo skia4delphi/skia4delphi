@@ -204,8 +204,9 @@ begin
   FTask := TTask.Run(
     procedure
     var
-      LSelf: TAsyncTestRunner absolute LSelfPointer;
+      LSelf: TAsyncTestRunner;
     begin
+      LSelf := TAsyncTestRunner(LSelfPointer);
       try
         repeat
           LSelf.FEvent.WaitFor;
