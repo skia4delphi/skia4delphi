@@ -8,11 +8,9 @@
   <a href="https://www.youtube.com/@skia4delphi"><img src="https://img.shields.io/static/v1?label=youtube&message=skia4delphi&color=silver&style=for-the-badge&logo=youtube&logoColor=white" alt="YouTube channel" />
 </p>
 
-#
-
 **[Skia4Delphi](https://skia4delphi.org)** is an open-source, cross-platform 2D graphics library for Delphi, utilizing the esteemed [Google's Skia](https://skia.org/) library.
 
-https://user-images.githubusercontent.com/1863024/175955980-f6c57253-aaa3-4617-90dc-b0d9bf25e21b.mp4
+[![Skia]](https://github.com/skia4delphi/skia4delphi/assets/1863024/e1be5912-d328-4d72-99a4-6071fdb6dd56)
 
 ## About
 
