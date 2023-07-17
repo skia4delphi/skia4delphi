@@ -20,13 +20,15 @@ interface
   {$MODESWITCH ANONYMOUSFUNCTIONS}
   {$MODESWITCH FUNCTIONREFERENCES}
   {$MODESWITCH UNICODESTRINGS}
-  {$WARN 4105 off : Implicit string type conversion with potential data loss from "$1" to "$2"}
-  {$WARN 5024 off : Parameter "$1" not used}
-  {$WARN 5026 off : Value parameter "$1" is assigned but never used}
-  {$WARN 5091 off : Local variable "$1" of a managed type does not seem to be initialized}
-  {$WARN 5092 off : Variable "$1" of a managed type does not seem to be initialized}
-  {$WARN 5093 off : Function result variable of a managed type does not seem to be initialized}
-  {$WARN 6058 off : Call to subroutine "$1" marked as inline is not inlined}
+  {$IFDEF STANDALONE}
+    {$WARN 4105 off : Implicit string type conversion with potential data loss from "$1" to "$2"}
+    {$WARN 5024 off : Parameter "$1" not used}
+    {$WARN 5026 off : Value parameter "$1" is assigned but never used}
+    {$WARN 5091 off : Local variable "$1" of a managed type does not seem to be initialized}
+    {$WARN 5092 off : Variable "$1" of a managed type does not seem to be initialized}
+    {$WARN 5093 off : Function result variable of a managed type does not seem to be initialized}
+    {$WARN 6058 off : Call to subroutine "$1" marked as inline is not inlined}
+  {$ENDIF}
 {$ENDIF}
 
 {$ALIGN ON}
@@ -38,6 +40,7 @@ uses
   {$IFDEF FPC}
   { FPC }
   Classes,
+  System.UITypes,
   SysUtils,
   Types,
   {$ELSE}
@@ -60,29 +63,6 @@ const
 {$IFDEF FPC}
 
 type
-  TAlphaColor = type Cardinal;
-
-  TAlphaColors = record
-    const
-      Alpha = TAlphaColor($FF000000);
-      Black = Alpha;
-      Blue  = Alpha or TAlphaColor($0000FF);
-      Green = Alpha or TAlphaColor($008000);
-      Lime  = Alpha or TAlphaColor($00FF00);
-      Red   = Alpha or TAlphaColor($FF0000);
-      White = Alpha or TAlphaColor($FFFFFF);
-      Null  = TAlphaColor(0);
-  public
-    case Cardinal of
-      0: (Color: TAlphaColor);
-      2: (HiWord, LoWord: Word);
-      3: ({$IFDEF BIGENDIAN}A, R, G, B: Byte{$ELSE}B, G, R, A: Byte{$ENDIF});
-  end;
-
-  TAlphaColorF = record
-    R, G, B, A: Single;
-  end;
-
   TPolygon = array of TPointF;
 
   TVector3DType = array [0..3] of Single;
@@ -964,8 +944,8 @@ type
     {$IFNDEF AUTOREFCOUNT}
     class procedure __MarkDestroying(const Obj); static;
     {$ENDIF}
-    class procedure __RefHandle(const AHandle: sk_handle_t); virtual;
-    class procedure __UnrefHandle(const AHandle: sk_handle_t); virtual;
+    class procedure __RefHandle(const {%H-}AHandle: sk_handle_t); virtual;
+    class procedure __UnrefHandle(const {%H-}AHandle: sk_handle_t); virtual;
   public
     constructor Create(const AHandle: sk_handle_t);
     constructor Wrap(const AHandle: sk_handle_t; const AOwnsHandle: Boolean = True);
@@ -2853,17 +2833,17 @@ type
     procedure SetUniform(const AName: string; const AValue: TSkRuntimeEffectInt2); overload;
     procedure SetUniform(const AName: string; const AValue: TSkRuntimeEffectInt3); overload;
     procedure SetUniform(const AName: string; const AValue: TSkRuntimeEffectInt4); overload;
-    procedure SetUniform(const AName: string; const AValue: Single); overload;
+    procedure SetUniform(const AName: string; const {%H-}AValue: Single); overload;
     procedure SetUniform(const AName: string; const AValue: TArray<Single>); overload;
-    procedure SetUniform(const AName: string; const AValue: TPointF); overload;
-    procedure SetUniform(const AName: string; const AValue: TAlphaColorF); overload;
-    procedure SetUniform(const AName: string; const AValue: TSkRuntimeEffectFloat2); overload;
-    procedure SetUniform(const AName: string; const AValue: TSkRuntimeEffectFloat3); overload;
-    procedure SetUniform(const AName: string; const AValue: TSkRuntimeEffectFloat4); overload;
-    procedure SetUniform(const AName: string; const AValue: TSkRuntimeEffectFloat2x2); overload;
-    procedure SetUniform(const AName: string; const AValue: TSkRuntimeEffectFloat3x3); overload;
-    procedure SetUniform(const AName: string; const AValue: TSkRuntimeEffectFloat4x4); overload;
-    procedure SetUniform(const AName: string; const AValue: TMatrix); overload;
+    procedure SetUniform(const AName: string; const {%H-}AValue: TPointF); overload;
+    procedure SetUniform(const AName: string; const {%H-}AValue: TAlphaColorF); overload;
+    procedure SetUniform(const AName: string; const {%H-}AValue: TSkRuntimeEffectFloat2); overload;
+    procedure SetUniform(const AName: string; const {%H-}AValue: TSkRuntimeEffectFloat3); overload;
+    procedure SetUniform(const AName: string; const {%H-}AValue: TSkRuntimeEffectFloat4); overload;
+    procedure SetUniform(const AName: string; const {%H-}AValue: TSkRuntimeEffectFloat2x2); overload;
+    procedure SetUniform(const AName: string; const {%H-}AValue: TSkRuntimeEffectFloat3x3); overload;
+    procedure SetUniform(const AName: string; const {%H-}AValue: TSkRuntimeEffectFloat4x4); overload;
+    procedure SetUniform(const AName: string; const {%H-}AValue: TMatrix); overload;
   public
     procedure AfterConstruction; override;
   end;
@@ -4136,12 +4116,12 @@ end;
 procedure TSkObject.AfterConstruction;
 begin
   inherited;
-  {$IFDEF FPC}InterlockedDecrement{$ELSE}AtomicDecrement{$ENDIF}(FRefCount);
+  AtomicDecrement(FRefCount);
 end;
 
 procedure TSkObject.BeforeDestruction;
 begin
-  if RefCount <> 0 then
+  if {%H-}RefCount <> 0 then
     System.Error(reInvalidPtr);
   inherited;
 end;
@@ -4208,7 +4188,7 @@ end;
 function TSkObject._AddRef: {$IFDEF FPC}Longint{$ELSE}Integer{$ENDIF};
 begin
   {$IFNDEF AUTOREFCOUNT}
-  Result := {$IFDEF FPC}InterlockedIncrement{$ELSE}AtomicIncrement{$ENDIF}(FRefCount);
+  Result := AtomicIncrement(FRefCount);
   {$ELSE}
   Result := __ObjAddRef;
   {$ENDIF}
@@ -4219,7 +4199,7 @@ end;
 function TSkObject._Release: {$IFDEF FPC}Longint{$ELSE}Integer{$ENDIF};
 begin
   {$IFNDEF AUTOREFCOUNT}
-  Result := {$IFDEF FPC}InterlockedDecrement{$ELSE}AtomicDecrement{$ENDIF}(FRefCount);
+  Result := AtomicDecrement(FRefCount);
   if Result = 0 then
   begin
     __MarkDestroying(Self);
@@ -4245,7 +4225,7 @@ var
 begin
   repeat
     LRef := TSkObject(Obj).FRefCount;
-  until {$IFDEF FPC}InterlockedCompareExchange{$ELSE}AtomicCmpExchange{$ENDIF}(TSkObject(Obj).FRefCount, LRef or objDestroyingFlag, LRef) = LRef;
+  until AtomicCmpExchange(TSkObject(Obj).FRefCount, LRef or objDestroyingFlag, LRef) = LRef;
 end;
 
 {$ENDIF}
@@ -5110,7 +5090,7 @@ begin
     raise ESkException.Create(SFileNameIsEmpty);
   if Length(ASrc) < 1 then
     raise ESkArgumentException.CreateFmt(SParamIsEmpty, ['ASrc']);
-  SetLength(LSrc, Length(ASrc));
+  SetLength(LSrc{%H-}, Length(ASrc));
   for I := 0 to Length(ASrc) - 1 do
   begin
     if not Assigned(ASrc[I].Pixmap) then
@@ -5129,7 +5109,7 @@ var
 begin
   if Length(ASrc) < 1 then
     raise ESkArgumentException.CreateFmt(SParamIsEmpty, ['ASrc']);
-  SetLength(LSrc, Length(ASrc));
+  SetLength(LSrc{%H-}, Length(ASrc));
   for I := 0 to Length(ASrc) - 1 do
   begin
     if not Assigned(ASrc[I].Pixmap) then
@@ -6195,7 +6175,7 @@ class function TGrPersistentCacheBaseClass.load_proc(context: Pointer;
 var
   LKey: TBytes;
 begin
-  SetLength(LKey, key_size);
+  SetLength(LKey{%H-}, key_size);
   Move(key_data^, LKey[0], Length(LKey));
   Result := TSkObject.__ReleaseHandle(TSkData.MakeFromBytes(TGrPersistentCacheBaseClass(context).Load(LKey)));
 end;
@@ -6206,9 +6186,9 @@ var
   LData: TBytes;
   LKey: TBytes;
 begin
-  SetLength(LKey, key_size);
+  SetLength(LKey{%H-}, key_size);
   Move(key_data^, LKey[0], Length(LKey));
-  SetLength(LData, size);
+  SetLength(LData{%H-}, size);
   Move(data^, LData[0], Length(LData));
   TGrPersistentCacheBaseClass(context).Store(LKey, LData);
 end;
@@ -7177,7 +7157,7 @@ var
   LSize: Cardinal;
 begin
   LBuffer := sk4d_colorspaceiccprofile_get_buffer(Handle, @LSize);
-  SetLength(Result, LSize);
+  SetLength(Result{%H-}, LSize);
   Move(LBuffer^, Result[0], Length(Result));
 end;
 
@@ -7301,7 +7281,7 @@ end;
 function TSkFont.GetBounds(const AGlyphs: TArray<Word>;
   const APaint: ISkPaint): TArray<TRectF>;
 begin
-  SetLength(Result, Length(AGlyphs));
+  SetLength(Result{%H-}, Length(AGlyphs));
   sk4d_font_get_widths_bounds(Handle, @AGlyphs[0], Length(AGlyphs), nil, @Result[0], TSkBindings.SafeHandle(APaint));
 end;
 
@@ -7327,7 +7307,7 @@ end;
 
 function TSkFont.GetGlyphs(const AText: string): TArray<Word>;
 begin
-  SetLength(Result, sk4d_font_get_glyphs_count(Handle, @AText[Low(AText)], Length(AText) * 2, sk_textencoding_t.UTF16_SK_TEXTENCODING));
+  SetLength(Result{%H-}, sk4d_font_get_glyphs_count(Handle, @AText[Low(AText)], Length(AText) * 2, sk_textencoding_t.UTF16_SK_TEXTENCODING));
   sk4d_font_get_glyphs(Handle, @AText[Low(AText)], Length(AText) * 2, sk_textencoding_t.UTF16_SK_TEXTENCODING, @Result[0], Length(Result));
 end;
 
@@ -7339,7 +7319,7 @@ end;
 function TSkFont.GetHorizontalPositions(const AGlyphs: TArray<Word>;
   const AOrigin: Single): TArray<Single>;
 begin
-  SetLength(Result, Length(AGlyphs));
+  SetLength(Result{%H-}, Length(AGlyphs));
   sk4d_font_get_horizontal_positions(Handle, @AGlyphs[0], Length(AGlyphs), @Result[0], AOrigin);
 end;
 
@@ -7353,7 +7333,7 @@ begin
     raise ESkArgumentException.CreateFmt(SParamSizeMismatch, ['APositions']);
   LBounds[0] := AUpperBounds;
   LBounds[1] := ALowerBounds;
-  SetLength(Result, sk4d_font_get_intercepts(Handle, @AGlyphs[0], Length(AGlyphs), @APositions[0], @LBounds[0], nil, TSkBindings.SafeHandle(APaint)));
+  SetLength(Result{%H-}, sk4d_font_get_intercepts(Handle, @AGlyphs[0], Length(AGlyphs), @APositions[0], @LBounds[0], nil, TSkBindings.SafeHandle(APaint)));
   sk4d_font_get_intercepts(Handle, @AGlyphs[0], Length(AGlyphs), @APositions[0], @LBounds[0], @Result[0], TSkBindings.SafeHandle(APaint));
 end;
 
@@ -7405,7 +7385,7 @@ end;
 function TSkFont.GetPositions(const AGlyphs: TArray<Word>;
   const AOrigin: TPointF): TArray<TPointF>;
 begin
-  SetLength(Result, Length(AGlyphs));
+  SetLength(Result{%H-}, Length(AGlyphs));
   sk4d_font_get_positions(Handle, @AGlyphs[0], Length(AGlyphs), @Result[0], @AOrigin);
 end;
 
@@ -7447,7 +7427,7 @@ end;
 function TSkFont.GetWidths(const AGlyphs: TArray<Word>;
   const APaint: ISkPaint): TArray<Single>;
 begin
-  SetLength(Result, Length(AGlyphs));
+  SetLength(Result{%H-}, Length(AGlyphs));
   sk4d_font_get_widths_bounds(Handle, @AGlyphs[0], Length(AGlyphs), @Result[0], nil, TSkBindings.SafeHandle(APaint));
 end;
 
@@ -7455,8 +7435,8 @@ procedure TSkFont.GetWidthsAndBounds(const AGlyphs: TArray<Word>;
   out AWidths: TArray<Single>; out ABounds: TArray<TRectF>;
   const APaint: ISkPaint);
 begin
-  SetLength(AWidths, Length(AGlyphs));
-  SetLength(ABounds, Length(AGlyphs));
+  SetLength(AWidths{%H-}, Length(AGlyphs));
+  SetLength(ABounds{%H-}, Length(AGlyphs));
   sk4d_font_get_widths_bounds(Handle, @AGlyphs[0], Length(AGlyphs), @AWidths[0], @ABounds[0], TSkBindings.SafeHandle(APaint));
 end;
 
@@ -7576,7 +7556,7 @@ end;
 function TSkFont.UnicharsToGlyphs(
   const AUnichars: TArray<Integer>): TArray<Word>;
 begin
-  SetLength(Result, Length(AUnichars));
+  SetLength(Result{%H-}, Length(AUnichars));
   sk4d_font_unichars_to_glyphs(Handle, @AUnichars[0], Length(AUnichars), @Result[0]);
 end;
 
@@ -8322,7 +8302,7 @@ var
   I: Integer;
   LFilters: TArray<sk_imagefilter_t>;
 begin
-  SetLength(LFilters, Length(AFilters));
+  SetLength(LFilters{%H-}, Length(AFilters));
   for I := 0 to Length(AFilters) - 1 do
     LFilters[I] := TSkBindings.SafeHandle(AFilters[I]);
   Result := TSkBindings.SafeCreate<TSkImageFilter>(sk4d_imagefilter_make_merge(@LFilters[0], Length(LFilters), @ACropRect));
@@ -8340,7 +8320,7 @@ var
   I: Integer;
   LFilters: TArray<sk_imagefilter_t>;
 begin
-  SetLength(LFilters, Length(AFilters));
+  SetLength(LFilters{%H-}, Length(AFilters));
   for I := 0 to Length(AFilters) - 1 do
     LFilters[I] := TSkBindings.SafeHandle(AFilters[I]);
   Result := TSkBindings.SafeCreate<TSkImageFilter>(sk4d_imagefilter_make_merge(@LFilters[0], Length(LFilters), nil));
@@ -8416,9 +8396,9 @@ begin
     raise ESkArgumentException.CreateFmt(SParamIsNil, ['AEffectBuilder']);
   if Length(AChildren) <> Length(AInputs) then
     raise ESkArgumentException.CreateFmt(SParamSizeMismatch, ['AInputs']);
-  SetLength(LChildren, Length(AChildren));
-  SetLength(LChildrenStr, Length(AChildren));
-  SetLength(LInputs, Length(AInputs));
+  SetLength(LChildren{%H-}, Length(AChildren));
+  SetLength(LChildrenStr{%H-}, Length(AChildren));
+  SetLength(LInputs{%H-}, Length(AInputs));
   for I := 0 to Length(AChildren) - 1 do
   begin
     LChildrenStr[I] := UTF8String(AChildren[I]);
@@ -8787,7 +8767,7 @@ class function TSkPath.ConvertConicToQuads(const APoint1, APoint2,
   APoint3: TPointF; const AWeight: Single;
   const APower2: Integer): TArray<TPointF>;
 begin
-  SetLength(Result, 1 + 2 * (1 shl APower2));
+  SetLength(Result{%H-}, 1 + 2 * (1 shl APower2));
   sk4d_path_convert_conic_to_quads(@APoint1, @APoint2, @APoint3, AWeight, @Result[0], APower2);
 end;
 
@@ -10229,7 +10209,7 @@ var
   I: Integer;
   LChildren: TArray<sk_handle_t>;
 begin
-  SetLength(LChildren, Length(AChildren));
+  SetLength(LChildren{%H-}, Length(AChildren));
   for I := 0 to Length(AChildren) - 1 do
     LChildren[I] := TSkBindings.SafeHandle(AChildren[I]);
   Result := TSkBindings.SafeCreate<TSkBlender>(sk4d_runtimeeffect_make_blender(Handle, @AUniforms, @LChildren[0]));
@@ -10241,7 +10221,7 @@ var
   I: Integer;
   LChildren: TArray<sk_handle_t>;
 begin
-  SetLength(LChildren, Length(AChildren));
+  SetLength(LChildren{%H-}, Length(AChildren));
   for I := 0 to Length(AChildren) - 1 do
     LChildren[I] := TSkBindings.SafeHandle(AChildren[I]);
   Result := TSkBindings.SafeCreate<TSkColorFilter>(sk4d_runtimeeffect_make_color_filter(Handle, @AUniforms, @LChildren[0]));
@@ -10351,7 +10331,7 @@ var
   LChildren: TArray<sk_handle_t>;
   LImageInfo: sk_imageinfo_t;
 begin
-  SetLength(LChildren, Length(AChildren));
+  SetLength(LChildren{%H-}, Length(AChildren));
   for I := 0 to Length(AChildren) - 1 do
     LChildren[I] := TSkBindings.SafeHandle(AChildren[I]);
   MapImageInfo(AImageInfo, LImageInfo);
@@ -10367,7 +10347,7 @@ var
   LChildren: TArray<sk_handle_t>;
   LImageInfo: sk_imageinfo_t;
 begin
-  SetLength(LChildren, Length(AChildren));
+  SetLength(LChildren{%H-}, Length(AChildren));
   for I := 0 to Length(AChildren) - 1 do
     LChildren[I] := TSkBindings.SafeHandle(AChildren[I]);
   MapImageInfo(AImageInfo, LImageInfo);
@@ -10380,7 +10360,7 @@ var
   I: Integer;
   LChildren: TArray<sk_handle_t>;
 begin
-  SetLength(LChildren, Length(AChildren));
+  SetLength(LChildren{%H-}, Length(AChildren));
   for I := 0 to Length(AChildren) - 1 do
     LChildren[I] := TSkBindings.SafeHandle(AChildren[I]);
   Result := TSkBindings.SafeCreate<TSkShader>(sk4d_runtimeeffect_make_shader(Handle, @AUniforms, @LChildren[0], nil));
@@ -10393,7 +10373,7 @@ var
   I: Integer;
   LChildren: TArray<sk_handle_t>;
 begin
-  SetLength(LChildren, Length(AChildren));
+  SetLength(LChildren{%H-}, Length(AChildren));
   for I := 0 to Length(AChildren) - 1 do
     LChildren[I] := TSkBindings.SafeHandle(AChildren[I]);
   Result := TSkBindings.SafeCreate<TSkShader>(sk4d_runtimeeffect_make_shader(Handle, @AUniforms, @LChildren[0], @ALocalMatrix));
@@ -10533,7 +10513,7 @@ var
 begin
   if not FEffect.IsUniformTypeOrdinalByName(AName) then
   begin
-    SetLength(LValue, Length(AValue));
+    SetLength(LValue{%H-}, Length(AValue));
     for I := 0 to Length(AValue) - 1 do
       LValue[I] := AValue[I];
     SetUniform(AName, LValue);
@@ -11163,7 +11143,7 @@ var
   I: Integer;
   LSemaphores: TArray<gr_backendsemaphore_t>;
 begin
-  SetLength(LSemaphores, Length(ASemaphores));
+  SetLength(LSemaphores{%H-}, Length(ASemaphores));
   for I := 0 to Length(ASemaphores) - 1 do
   begin
     if not Assigned(ASemaphores[I]) then
@@ -11443,7 +11423,7 @@ var
   I: Integer;
   LSemaphores: TArray<gr_backendsemaphore_t>;
 begin
-  SetLength(LSemaphores, Length(ASemaphores));
+  SetLength(LSemaphores{%H-}, Length(ASemaphores));
   for I := 0 to Length(ASemaphores) - 1 do
   begin
     if not Assigned(ASemaphores[I]) then
@@ -11480,7 +11460,7 @@ var
 begin
   LBounds[0] := AUpperBounds;
   LBounds[1] := ALowerBounds;
-  SetLength(Result, sk4d_textblob_get_intercepts(Handle, @LBounds[0], nil, TSkBindings.SafeHandle(APaint)));
+  SetLength(Result{%H-}, sk4d_textblob_get_intercepts(Handle, @LBounds[0], nil, TSkBindings.SafeHandle(APaint)));
   sk4d_textblob_get_intercepts(Handle, @LBounds[0], @Result[0], TSkBindings.SafeHandle(APaint));
 end;
 
@@ -11910,7 +11890,7 @@ end;
 
 function TSkParagraph.GetLineMetrics: TArray<TSkMetrics>;
 begin
-  SetLength(Result, sk4d_paragraph_get_line_metrics(Handle, nil));
+  SetLength(Result{%H-}, sk4d_paragraph_get_line_metrics(Handle, nil));
   sk4d_paragraph_get_line_metrics(Handle, @Result[0]);
 end;
 
@@ -11936,7 +11916,7 @@ end;
 
 function TSkParagraph.GetRectsForPlaceholders: TArray<TSkTextBox>;
 begin
-  SetLength(Result, sk4d_paragraph_get_rects_for_placeholders(Handle, nil));
+  SetLength(Result{%H-}, sk4d_paragraph_get_rects_for_placeholders(Handle, nil));
   sk4d_paragraph_get_rects_for_placeholders(Handle, @Result[0]);
 end;
 
@@ -11944,7 +11924,7 @@ function TSkParagraph.GetRectsForRange(const AStart, AEnd: Cardinal;
   const ARectHeightStyle: TSkRectHeightStyle;
   const ARectWidthStyle: TSkRectWidthStyle): TArray<TSkTextBox>;
 begin
-  SetLength(Result, sk4d_paragraph_get_rects_for_range(Handle, AStart, AEnd, sk_rectheightstyle_t(ARectHeightStyle), sk_rectwidthstyle_t(ARectWidthStyle), nil));
+  SetLength(Result{%H-}, sk4d_paragraph_get_rects_for_range(Handle, AStart, AEnd, sk_rectheightstyle_t(ARectHeightStyle), sk_rectwidthstyle_t(ARectWidthStyle), nil));
   sk4d_paragraph_get_rects_for_range(Handle, AStart, AEnd, sk_rectheightstyle_t(ARectHeightStyle), sk_rectwidthstyle_t(ARectWidthStyle), @Result[0]);
 end;
 
@@ -12071,9 +12051,9 @@ var
   I: Integer;
   LFontFamilies: TArray<MarshaledAString>;
 begin
-  SetLength(LFontFamilies, sk4d_strutstyle_get_font_families(Handle, nil));
+  SetLength(LFontFamilies{%H-}, sk4d_strutstyle_get_font_families(Handle, nil));
   sk4d_strutstyle_get_font_families(Handle, @LFontFamilies[0]);
-  SetLength(Result, Length(LFontFamilies));
+  SetLength(Result{%H-}, Length(LFontFamilies));
   for I := 0 to Length(LFontFamilies) - 1 do
     Result[I] := string(LFontFamilies[I]);
 end;
@@ -12126,8 +12106,8 @@ var
   LFontFamilies: TArray<MarshaledAString>;
   LFontFamiliesStr: TArray<UTF8String>;
 begin
-  SetLength(LFontFamilies, Length(AValue));
-  SetLength(LFontFamiliesStr, Length(AValue));
+  SetLength(LFontFamilies{%H-}, Length(AValue));
+  SetLength(LFontFamiliesStr{%H-}, Length(AValue));
   for I := 0 to Length(AValue) - 1 do
   begin
     LFontFamiliesStr[I] := UTF8String(AValue[I]);
@@ -12340,9 +12320,9 @@ var
   I: Integer;
   LFontFamilies: TArray<MarshaledAString>;
 begin
-  SetLength(LFontFamilies, sk4d_textstyle_get_font_families(Handle, nil));
+  SetLength(LFontFamilies{%H-}, sk4d_textstyle_get_font_families(Handle, nil));
   sk4d_textstyle_get_font_families(Handle, @LFontFamilies[0]);
-  SetLength(Result, Length(LFontFamilies));
+  SetLength(Result{%H-}, Length(LFontFamilies));
   for I := 0 to Length(LFontFamilies) - 1 do
     Result[I] := string(LFontFamilies[I]);
 end;
@@ -12468,8 +12448,8 @@ var
   LFontFamilies: TArray<MarshaledAString>;
   LFontFamiliesStr: TArray<UTF8String>;
 begin
-  SetLength(LFontFamilies, Length(AValue));
-  SetLength(LFontFamiliesStr, Length(AValue));
+  SetLength(LFontFamilies{%H-}, Length(AValue));
+  SetLength(LFontFamiliesStr{%H-}, Length(AValue));
   for I := 0 to Length(AValue) - 1 do
   begin
     LFontFamiliesStr[I] := UTF8String(AValue[I]);
@@ -12590,9 +12570,9 @@ begin
   LFileName := IncludeTrailingPathDelimiter(IncludeTrailingPathDelimiter(FBaseDir) + APath) + AName;
   if FileExists(LFileName) then
   begin
-    LFileStream := TFileStream.Create(LFileName, fmOpenRead or fmShareDenyNone);
+    LFileStream := TFileStream.Create(LFileName{%H-}, fmOpenRead or fmShareDenyNone);
     try
-      SetLength(Result, LFileStream.Size);
+      SetLength(Result{%H-}, LFileStream.Size);
       LFileStream.Read(Result[0], Length(Result));
     finally
       LFileStream.Free;
@@ -12853,7 +12833,7 @@ begin
   LResult := TList<string>.Create;
   try
     ForEachBreak(AText, AType,
-      procedure (const APosition, AStatus: Integer)
+      procedure (const APosition, {%H-}AStatus: Integer)
       begin
         if APosition = 0 then
           Exit;
@@ -12916,11 +12896,11 @@ end;
 function ExtensionToEncodedImageFormat(
   const AValue: string): TSkEncodedImageFormat;
 begin
-  if SameText('.jpg', AValue) or SameText('.jpeg', AValue) then
+  if SameText('.jpg', AValue{%H-}) or SameText('.jpeg', AValue{%H-}) then
     Result := TSkEncodedImageFormat.JPEG
-  else if SameText('.webp', AValue) then
+  else if SameText('.webp', AValue{%H-}) then
     Result := TSkEncodedImageFormat.WEBP
-  else if SameText('.png', AValue) then
+  else if SameText('.png', AValue{%H-}) then
     Result := TSkEncodedImageFormat.PNG
   else
     raise ESkArgumentException.Create('Invalid extension');

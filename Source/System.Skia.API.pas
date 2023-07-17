@@ -2367,7 +2367,7 @@ uses
   System.Math;
   {$ENDIF}
 
-{$ELSEIF DEFINED(ANDROID) and not DEFINED(FPC)}
+{$ELSEIF DEFINED(ANDROID) and NOT DEFINED(FPC)}
 
 uses
   { Delphi }
@@ -2375,22 +2375,37 @@ uses
 
 {$ENDIF}
 
-
-const
 {$IFDEF SK_STATIC_LIBRARY}
-  {$IFDEF IOS}
-    LibraryName = 'libsk4d.a';
-
-    {$IFDEF IOSSIMULATOR}
-    procedure libclang_rt; external '/usr/lib/clang/lib/darwin/libclang_rt.iossim.a';
+  {$IFDEF FPC}
+    {$DEFINE SK_EXTERNAL_LINK}
+  {$ENDIF}
+  {$IFDEF IOS)}
+    {$IFDEF FPC}
+      {$LINKLIB 'sk4d'}
+      {$LINKLIB 'c++'}
+      {$LINKFRAMEWORK CoreGraphics}
+      {$LINKFRAMEWORK CoreText}
+      {$LINKFRAMEWORK Foundation}
+      {$LINKFRAMEWORK Metal}
+      {$LINKFRAMEWORK UIKit}
     {$ELSE}
-    procedure libclang_rt; external '/usr/lib/clang/lib/darwin/libclang_rt.ios.a';
+      const
+        LibraryName = 'libsk4d.a';
+
+      {$IFDEF IOSSIMULATOR}
+      procedure libclang_rt; external '/usr/lib/clang/lib/darwin/libclang_rt.iossim.a';
+      {$ELSE}
+      procedure libclang_rt; external '/usr/lib/clang/lib/darwin/libclang_rt.ios.a';
+      {$ENDIF}
+      procedure CoreGraphics; external framework 'CoreGraphics';
+      procedure CoreText; external framework 'CoreText';
+      procedure Foundation; external framework 'Foundation';
+      procedure Metal; external framework 'Metal';
+      procedure UIKit; external framework 'UIKit';
     {$ENDIF}
-    procedure CoreText; external framework 'CoreText';
-    procedure UIKit; external framework 'UIKit';
-    procedure Metal; external framework 'Metal';
   {$ENDIF}
 {$ELSE}
+const
   {$IF DEFINED(MSWINDOWS)}
   LibraryName = 'sk4d.dll';
   {$ELSEIF DEFINED(MACOS)}
@@ -2418,14 +2433,14 @@ end;
 {$IFNDEF SK_STATIC_LIBRARY}
 procedure SkInitialize;
 begin
-  if {$IFDEF FPC}InterlockedIncrement{$ELSE}AtomicIncrement{$ENDIF}(InitCount) <> 1 then
+  if AtomicIncrement(InitCount) <> 1 then
     Exit;
-  {$IF DEFINED(ANDROID)}
+  {$IF DEFINED(ANDROID) and NOT DEFINED(FPC)}
   // Some Android devices, normally old, need the full path of the library,
   // and other devices, normally new, do not accept the full path.
   LibraryHandle := SafeLoadLibrary(LibraryName);
   if LibraryHandle = 0 then
-    LibraryHandle := SafeLoadLibrary({$IFDEF FPC}ExtractFilePath(ParamStr(0)) + LibraryName{$ELSE}TPath.Combine(TPath.GetLibraryPath, LibraryName){$ENDIF});
+    LibraryHandle := SafeLoadLibrary(TPath.Combine(TPath.GetLibraryPath, LibraryName));
   {$ELSE}
   LibraryHandle := SafeLoadLibrary(LibraryName);
   {$ENDIF}
@@ -2443,9 +2458,9 @@ begin
   gr4d_backendsemaphore_destroy     := GetProcAddress(LibraryHandle, PChar('gr4d_backendsemaphore_destroy'));
   gr4d_backendsemaphore_init_vulkan := GetProcAddress(LibraryHandle, PChar('gr4d_backendsemaphore_init_vulkan'));
 {$ELSE}
-function  gr4d_backendsemaphore_create;      external LibraryName name 'gr4d_backendsemaphore_create'     {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure gr4d_backendsemaphore_destroy;     external LibraryName name 'gr4d_backendsemaphore_destroy'    {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure gr4d_backendsemaphore_init_vulkan; external LibraryName name 'gr4d_backendsemaphore_init_vulkan'{$IFDEF IOS} dependency 'c++'{$ENDIF};
+function  gr4d_backendsemaphore_create(): gr_backendsemaphore_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'gr4d_backendsemaphore_create'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure gr4d_backendsemaphore_destroy(self: gr_backendsemaphore_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'gr4d_backendsemaphore_destroy'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure gr4d_backendsemaphore_init_vulkan(self: gr_backendsemaphore_t; semaphore: gr_vk_semaphore_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'gr4d_backendsemaphore_init_vulkan'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
 {$ENDIF}
 
 
@@ -2473,26 +2488,26 @@ procedure gr4d_backendsemaphore_init_vulkan; external LibraryName name 'gr4d_bac
   gr4d_backendtexture_has_mipmaps             := GetProcAddress(LibraryHandle, PChar('gr4d_backendtexture_has_mipmaps'));
   gr4d_backendtexture_is_valid                := GetProcAddress(LibraryHandle, PChar('gr4d_backendtexture_is_valid'));
 {$ELSE}
-function  gr4d_backendrendertarget_create_gl;          external LibraryName name 'gr4d_backendrendertarget_create_gl'         {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  gr4d_backendrendertarget_create_mtl;         external LibraryName name 'gr4d_backendrendertarget_create_mtl'        {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  gr4d_backendrendertarget_create_vk;          external LibraryName name 'gr4d_backendrendertarget_create_vk'         {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure gr4d_backendrendertarget_destroy;            external LibraryName name 'gr4d_backendrendertarget_destroy'           {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  gr4d_backendrendertarget_get_backend_api;    external LibraryName name 'gr4d_backendrendertarget_get_backend_api'   {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  gr4d_backendrendertarget_get_height;         external LibraryName name 'gr4d_backendrendertarget_get_height'        {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  gr4d_backendrendertarget_get_sample_count;   external LibraryName name 'gr4d_backendrendertarget_get_sample_count'  {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  gr4d_backendrendertarget_get_stencil_bits;   external LibraryName name 'gr4d_backendrendertarget_get_stencil_bits'  {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  gr4d_backendrendertarget_get_width;          external LibraryName name 'gr4d_backendrendertarget_get_width'         {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  gr4d_backendrendertarget_is_valid;           external LibraryName name 'gr4d_backendrendertarget_is_valid'          {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  gr4d_backendtexture_create_gl;               external LibraryName name 'gr4d_backendtexture_create_gl'              {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  gr4d_backendtexture_create_mtl;              external LibraryName name 'gr4d_backendtexture_create_mtl'             {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  gr4d_backendtexture_create_vk;               external LibraryName name 'gr4d_backendtexture_create_vk'              {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure gr4d_backendtexture_destroy;                 external LibraryName name 'gr4d_backendtexture_destroy'                {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  gr4d_backendtexture_get_backend_api;         external LibraryName name 'gr4d_backendtexture_get_backend_api'        {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  gr4d_backendtexture_get_gl_framebuffer_info; external LibraryName name 'gr4d_backendtexture_get_gl_framebuffer_info'{$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  gr4d_backendtexture_get_height;              external LibraryName name 'gr4d_backendtexture_get_height'             {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  gr4d_backendtexture_get_width;               external LibraryName name 'gr4d_backendtexture_get_width'              {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  gr4d_backendtexture_has_mipmaps;             external LibraryName name 'gr4d_backendtexture_has_mipmaps'            {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  gr4d_backendtexture_is_valid;                external LibraryName name 'gr4d_backendtexture_is_valid'               {$IFDEF IOS} dependency 'c++'{$ENDIF};
+function  gr4d_backendrendertarget_create_gl(width, height, sample_count, stencil_bits: int32_t; const framebuffer_info: pgr_gl_framebufferinfo_t): gr_backendrendertarget_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'gr4d_backendrendertarget_create_gl'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  gr4d_backendrendertarget_create_mtl(width, height: int32_t; const texture_info: pgr_mtl_textureinfo_t): gr_backendrendertarget_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'gr4d_backendrendertarget_create_mtl'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  gr4d_backendrendertarget_create_vk(width, height: int32_t; const image_info: pgr_vk_imageinfo_t): gr_backendrendertarget_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'gr4d_backendrendertarget_create_vk'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure gr4d_backendrendertarget_destroy(self: gr_backendrendertarget_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'gr4d_backendrendertarget_destroy'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  gr4d_backendrendertarget_get_backend_api(const self: gr_backendrendertarget_t): gr_backendapi_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'gr4d_backendrendertarget_get_backend_api'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  gr4d_backendrendertarget_get_height(const self: gr_backendrendertarget_t): int32_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'gr4d_backendrendertarget_get_height'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  gr4d_backendrendertarget_get_sample_count(const self: gr_backendrendertarget_t): int32_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'gr4d_backendrendertarget_get_sample_count'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  gr4d_backendrendertarget_get_stencil_bits(const self: gr_backendrendertarget_t): int32_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'gr4d_backendrendertarget_get_stencil_bits'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  gr4d_backendrendertarget_get_width(const self: gr_backendrendertarget_t): int32_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'gr4d_backendrendertarget_get_width'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  gr4d_backendrendertarget_is_valid(const self: gr_backendrendertarget_t): _bool; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'gr4d_backendrendertarget_is_valid'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  gr4d_backendtexture_create_gl(width, height: int32_t; is_mipmapped: _bool; const texture_info: pgr_gl_textureinfo_t): gr_backendtexture_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'gr4d_backendtexture_create_gl'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  gr4d_backendtexture_create_mtl(width, height: int32_t; is_mipmapped: _bool; const texture_info: pgr_mtl_textureinfo_t): gr_backendtexture_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'gr4d_backendtexture_create_mtl'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  gr4d_backendtexture_create_vk(width, height: int32_t; const image_info: pgr_vk_imageinfo_t): gr_backendtexture_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'gr4d_backendtexture_create_vk'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure gr4d_backendtexture_destroy(self: gr_backendtexture_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'gr4d_backendtexture_destroy'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  gr4d_backendtexture_get_backend_api(const self: gr_backendtexture_t): gr_backendapi_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'gr4d_backendtexture_get_backend_api'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  gr4d_backendtexture_get_gl_framebuffer_info(const self: gr_backendtexture_t; out texture_info: gr_gl_textureinfo_t): _bool; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'gr4d_backendtexture_get_gl_framebuffer_info'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  gr4d_backendtexture_get_height(const self: gr_backendtexture_t): int32_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'gr4d_backendtexture_get_height'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  gr4d_backendtexture_get_width(const self: gr_backendtexture_t): int32_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'gr4d_backendtexture_get_width'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  gr4d_backendtexture_has_mipmaps(const self: gr_backendtexture_t): _bool; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'gr4d_backendtexture_has_mipmaps'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  gr4d_backendtexture_is_valid(const self: gr_backendtexture_t): _bool; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'gr4d_backendtexture_is_valid'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
 {$ENDIF}
 
 
@@ -2502,8 +2517,8 @@ function  gr4d_backendtexture_is_valid;                external LibraryName name
   gr4d_backendsurfacemutablestate_create  := GetProcAddress(LibraryHandle, PChar('gr4d_backendsurfacemutablestate_create'));
   gr4d_backendsurfacemutablestate_destroy := GetProcAddress(LibraryHandle, PChar('gr4d_backendsurfacemutablestate_destroy'));
 {$ELSE}
-function  gr4d_backendsurfacemutablestate_create;  external LibraryName name 'gr4d_backendsurfacemutablestate_create' {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure gr4d_backendsurfacemutablestate_destroy; external LibraryName name 'gr4d_backendsurfacemutablestate_destroy'{$IFDEF IOS} dependency 'c++'{$ENDIF};
+function  gr4d_backendsurfacemutablestate_create(image_layout: gr_vk_imagelayout_t; queue_family_index: uint32_t): gr_backendsurfacemutablestate_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'gr4d_backendsurfacemutablestate_create'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure gr4d_backendsurfacemutablestate_destroy(self: gr_backendsurfacemutablestate_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'gr4d_backendsurfacemutablestate_destroy'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
 {$ENDIF}
 
 
@@ -2514,9 +2529,9 @@ gr4d_persistentcachebaseclass_create    := GetProcAddress(LibraryHandle, PChar('
 gr4d_persistentcachebaseclass_destroy   := GetProcAddress(LibraryHandle, PChar('gr4d_persistentcachebaseclass_destroy'));
 gr4d_persistentcachebaseclass_set_procs := GetProcAddress(LibraryHandle, PChar('gr4d_persistentcachebaseclass_set_procs'));
 {$ELSE}
-function  gr4d_persistentcachebaseclass_create;    external LibraryName name 'gr4d_persistentcachebaseclass_create'   {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure gr4d_persistentcachebaseclass_destroy;   external LibraryName name 'gr4d_persistentcachebaseclass_destroy'  {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure gr4d_persistentcachebaseclass_set_procs; external LibraryName name 'gr4d_persistentcachebaseclass_set_procs'{$IFDEF IOS} dependency 'c++'{$ENDIF};
+function  gr4d_persistentcachebaseclass_create(context: Pointer): gr_persistentcachebaseclass_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'gr4d_persistentcachebaseclass_create'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure gr4d_persistentcachebaseclass_destroy(self: gr_persistentcachebaseclass_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'gr4d_persistentcachebaseclass_destroy'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure gr4d_persistentcachebaseclass_set_procs(const procs: pgr_persistentcachebaseclass_procs_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'gr4d_persistentcachebaseclass_set_procs'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
 {$ENDIF}
 
 
@@ -2548,30 +2563,30 @@ procedure gr4d_persistentcachebaseclass_set_procs; external LibraryName name 'gr
   gr4d_directcontext_set_resource_cache_limit                    := GetProcAddress(LibraryHandle, PChar('gr4d_directcontext_set_resource_cache_limit'));
   gr4d_directcontext_submit                                      := GetProcAddress(LibraryHandle, PChar('gr4d_directcontext_submit'));
 {$ELSE}
-procedure gr4d_directcontext_abandon_context;                             external LibraryName name 'gr4d_directcontext_abandon_context'                            {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  gr4d_directcontext_create_texture;                              external LibraryName name 'gr4d_directcontext_create_texture'                             {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  gr4d_directcontext_create_texture2;                             external LibraryName name 'gr4d_directcontext_create_texture2'                            {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  gr4d_directcontext_create_texture3;                             external LibraryName name 'gr4d_directcontext_create_texture3'                            {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure gr4d_directcontext_delete_texture;                              external LibraryName name 'gr4d_directcontext_delete_texture'                             {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure gr4d_directcontext_dump_memory_statistics;                      external LibraryName name 'gr4d_directcontext_dump_memory_statistics'                     {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure gr4d_directcontext_flush;                                       external LibraryName name 'gr4d_directcontext_flush'                                      {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure gr4d_directcontext_flush_and_submit;                            external LibraryName name 'gr4d_directcontext_flush_and_submit'                           {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure gr4d_directcontext_free_gpu_resources;                          external LibraryName name 'gr4d_directcontext_free_gpu_resources'                         {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  gr4d_directcontext_get_backend_api;                             external LibraryName name 'gr4d_directcontext_get_backend_api'                            {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  gr4d_directcontext_get_max_surface_sample_count_for_color_type; external LibraryName name 'gr4d_directcontext_get_max_surface_sample_count_for_color_type'{$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  gr4d_directcontext_get_resource_cache_limit;                    external LibraryName name 'gr4d_directcontext_get_resource_cache_limit'                   {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure gr4d_directcontext_get_resource_cache_usage;                    external LibraryName name 'gr4d_directcontext_get_resource_cache_usage'                   {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  gr4d_directcontext_is_abandoned;                                external LibraryName name 'gr4d_directcontext_is_abandoned'                               {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  gr4d_directcontext_make_gl;                                     external LibraryName name 'gr4d_directcontext_make_gl'                                    {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  gr4d_directcontext_make_metal;                                  external LibraryName name 'gr4d_directcontext_make_metal'                                 {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  gr4d_directcontext_make_vulkan;                                 external LibraryName name 'gr4d_directcontext_make_vulkan'                                {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure gr4d_directcontext_perform_deferred_cleanup;                    external LibraryName name 'gr4d_directcontext_perform_deferred_cleanup'                   {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure gr4d_directcontext_purge_unlocked_resources;                    external LibraryName name 'gr4d_directcontext_purge_unlocked_resources'                   {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure gr4d_directcontext_purge_unlocked_resources2;                   external LibraryName name 'gr4d_directcontext_purge_unlocked_resources2'                  {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure gr4d_directcontext_release_resources_and_abandon_context;       external LibraryName name 'gr4d_directcontext_release_resources_and_abandon_context'      {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure gr4d_directcontext_reset_context;                               external LibraryName name 'gr4d_directcontext_reset_context'                              {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure gr4d_directcontext_set_resource_cache_limit;                    external LibraryName name 'gr4d_directcontext_set_resource_cache_limit'                   {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  gr4d_directcontext_submit;                                      external LibraryName name 'gr4d_directcontext_submit'                                     {$IFDEF IOS} dependency 'c++'{$ENDIF};
+procedure gr4d_directcontext_abandon_context(self: gr_directcontext_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'gr4d_directcontext_abandon_context'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  gr4d_directcontext_create_texture(self: gr_directcontext_t; width, height: int32_t; color_type: sk_colortype_t; is_mipmapped, is_renderable, is_protected: _bool): gr_backendtexture_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'gr4d_directcontext_create_texture'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  gr4d_directcontext_create_texture2(self: gr_directcontext_t; width, height: int32_t; color_type: sk_colortype_t; color: sk_color_t; is_mipmapped, is_renderable, is_protected: _bool): gr_backendtexture_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'gr4d_directcontext_create_texture2'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  gr4d_directcontext_create_texture3(self: gr_directcontext_t; width, height: int32_t; color_type: sk_colortype_t; const color: psk_color4f_t; is_mipmapped, is_renderable, is_protected: _bool): gr_backendtexture_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'gr4d_directcontext_create_texture3'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure gr4d_directcontext_delete_texture(self: gr_directcontext_t; texture: gr_backendtexture_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'gr4d_directcontext_delete_texture'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure gr4d_directcontext_dump_memory_statistics(const self: gr_directcontext_t; trace_memory_dump: sk_tracememorydump_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'gr4d_directcontext_dump_memory_statistics'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure gr4d_directcontext_flush(self: gr_directcontext_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'gr4d_directcontext_flush'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure gr4d_directcontext_flush_and_submit(self: gr_directcontext_t; sync_cpu: _bool); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'gr4d_directcontext_flush_and_submit'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure gr4d_directcontext_free_gpu_resources(self: gr_directcontext_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'gr4d_directcontext_free_gpu_resources'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  gr4d_directcontext_get_backend_api(const self: gr_directcontext_t): gr_backendapi_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'gr4d_directcontext_get_backend_api'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  gr4d_directcontext_get_max_surface_sample_count_for_color_type(const self: gr_directcontext_t; color_type: sk_colortype_t): int32_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'gr4d_directcontext_get_max_surface_sample_count_for_color_type'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  gr4d_directcontext_get_resource_cache_limit(const self: gr_directcontext_t): size_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'gr4d_directcontext_get_resource_cache_limit'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure gr4d_directcontext_get_resource_cache_usage(const self: gr_directcontext_t; out resources: int32_t; out resources_bytes: size_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'gr4d_directcontext_get_resource_cache_usage'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  gr4d_directcontext_is_abandoned(self: gr_directcontext_t): _bool; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'gr4d_directcontext_is_abandoned'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  gr4d_directcontext_make_gl(const gl_interface: gr_gl_interface_t; const options: pgr_contextoptions_t): gr_directcontext_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'gr4d_directcontext_make_gl'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  gr4d_directcontext_make_metal(const backend_context: pgr_mtl_backendcontext_t; const options: pgr_contextoptions_t): gr_directcontext_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'gr4d_directcontext_make_metal'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  gr4d_directcontext_make_vulkan(const backend_context: pgr_vk_backendcontext_t; const options: pgr_contextoptions_t): gr_directcontext_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'gr4d_directcontext_make_vulkan'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure gr4d_directcontext_perform_deferred_cleanup(self: gr_directcontext_t; milliseconds: int64_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'gr4d_directcontext_perform_deferred_cleanup'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure gr4d_directcontext_purge_unlocked_resources(self: gr_directcontext_t; scratch_resources_only: _bool); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'gr4d_directcontext_purge_unlocked_resources'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure gr4d_directcontext_purge_unlocked_resources2(self: gr_directcontext_t; bytes_to_purge: size_t; prefer_scratch_resources: _bool); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'gr4d_directcontext_purge_unlocked_resources2'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure gr4d_directcontext_release_resources_and_abandon_context(self: gr_directcontext_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'gr4d_directcontext_release_resources_and_abandon_context'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure gr4d_directcontext_reset_context(self: gr_directcontext_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'gr4d_directcontext_reset_context'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure gr4d_directcontext_set_resource_cache_limit(self: gr_directcontext_t; value: size_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'gr4d_directcontext_set_resource_cache_limit'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  gr4d_directcontext_submit(self: gr_directcontext_t; sync_cpu: _bool): _bool; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'gr4d_directcontext_submit'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
 {$ENDIF}
 
 
@@ -2586,13 +2601,13 @@ function  gr4d_directcontext_submit;                                      extern
   gr4d_gl_interface_make_native          := GetProcAddress(LibraryHandle, PChar('gr4d_gl_interface_make_native'));
   gr4d_gl_interface_validate             := GetProcAddress(LibraryHandle, PChar('gr4d_gl_interface_validate'));
 {$ELSE}
-function gr4d_gl_interface_has_extension;        external LibraryName name 'gr4d_gl_interface_has_extension'       {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function gr4d_gl_interface_make_assembled;       external LibraryName name 'gr4d_gl_interface_make_assembled'      {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function gr4d_gl_interface_make_assembled_gl;    external LibraryName name 'gr4d_gl_interface_make_assembled_gl'   {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function gr4d_gl_interface_make_assembled_gles;  external LibraryName name 'gr4d_gl_interface_make_assembled_gles' {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function gr4d_gl_interface_make_assembled_webgl; external LibraryName name 'gr4d_gl_interface_make_assembled_webgl'{$IFDEF IOS} dependency 'c++'{$ENDIF};
-function gr4d_gl_interface_make_native;          external LibraryName name 'gr4d_gl_interface_make_native'         {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function gr4d_gl_interface_validate;             external LibraryName name 'gr4d_gl_interface_validate'            {$IFDEF IOS} dependency 'c++'{$ENDIF};
+function gr4d_gl_interface_has_extension(const self: gr_gl_interface_t; const name: MarshaledAString): _bool; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'gr4d_gl_interface_has_extension'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function gr4d_gl_interface_make_assembled(context: Pointer; proc: gr_gl_get_proc): gr_gl_interface_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'gr4d_gl_interface_make_assembled'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function gr4d_gl_interface_make_assembled_gl(context: Pointer; proc: gr_gl_get_proc): gr_gl_interface_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'gr4d_gl_interface_make_assembled_gl'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function gr4d_gl_interface_make_assembled_gles(context: Pointer; proc: gr_gl_get_proc): gr_gl_interface_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'gr4d_gl_interface_make_assembled_gles'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function gr4d_gl_interface_make_assembled_webgl(context: Pointer; proc: gr_gl_get_proc): gr_gl_interface_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'gr4d_gl_interface_make_assembled_webgl'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function gr4d_gl_interface_make_native(): gr_gl_interface_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'gr4d_gl_interface_make_native'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function gr4d_gl_interface_validate(const self: gr_gl_interface_t): _bool; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'gr4d_gl_interface_validate'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
 {$ENDIF}
 
 
@@ -2603,9 +2618,9 @@ gr4d_shadererrorhandlerbaseclass_create    := GetProcAddress(LibraryHandle, PCha
 gr4d_shadererrorhandlerbaseclass_destroy   := GetProcAddress(LibraryHandle, PChar('gr4d_shadererrorhandlerbaseclass_destroy'));
 gr4d_shadererrorhandlerbaseclass_set_procs := GetProcAddress(LibraryHandle, PChar('gr4d_shadererrorhandlerbaseclass_set_procs'));
 {$ELSE}
-function  gr4d_shadererrorhandlerbaseclass_create;    external LibraryName name 'gr4d_shadererrorhandlerbaseclass_create'   {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure gr4d_shadererrorhandlerbaseclass_destroy;   external LibraryName name 'gr4d_shadererrorhandlerbaseclass_destroy'  {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure gr4d_shadererrorhandlerbaseclass_set_procs; external LibraryName name 'gr4d_shadererrorhandlerbaseclass_set_procs'{$IFDEF IOS} dependency 'c++'{$ENDIF};
+function  gr4d_shadererrorhandlerbaseclass_create(context: Pointer): gr_shadererrorhandlerbaseclass_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'gr4d_shadererrorhandlerbaseclass_create'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure gr4d_shadererrorhandlerbaseclass_destroy(self: gr_shadererrorhandlerbaseclass_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'gr4d_shadererrorhandlerbaseclass_destroy'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure gr4d_shadererrorhandlerbaseclass_set_procs(const procs: pgr_shadererrorhandlerbaseclass_procs_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'gr4d_shadererrorhandlerbaseclass_set_procs'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
 {$ENDIF}
 
 
@@ -2617,10 +2632,10 @@ gr4d_vk_extensions_destroy       := GetProcAddress(LibraryHandle, PChar('gr4d_vk
 gr4d_vk_extensions_has_extension := GetProcAddress(LibraryHandle, PChar('gr4d_vk_extensions_has_extension'));
 gr4d_vk_extensions_init          := GetProcAddress(LibraryHandle, PChar('gr4d_vk_extensions_init'));
 {$ELSE}
-function  gr4d_vk_extensions_create;        external LibraryName name 'gr4d_vk_extensions_create'       {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure gr4d_vk_extensions_destroy;       external LibraryName name 'gr4d_vk_extensions_destroy'      {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  gr4d_vk_extensions_has_extension; external LibraryName name 'gr4d_vk_extensions_has_extension'{$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure gr4d_vk_extensions_init;          external LibraryName name 'gr4d_vk_extensions_init'         {$IFDEF IOS} dependency 'c++'{$ENDIF};
+function  gr4d_vk_extensions_create(): gr_vk_extensions_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'gr4d_vk_extensions_create'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure gr4d_vk_extensions_destroy(self: gr_vk_extensions_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'gr4d_vk_extensions_destroy'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  gr4d_vk_extensions_has_extension(const self: gr_vk_extensions_t; const name: MarshaledAString; min_api_version: uint32_t): _bool; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'gr4d_vk_extensions_has_extension'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure gr4d_vk_extensions_init(self: gr_vk_extensions_t; context: Pointer; proc: gr_vk_get_proc; instance: gr_vk_instance_t; physical_device: gr_vk_physicaldevice_t; instance_extension_count: int32_t; const instance_extensions: PMarshaledAString; device_extension_count: int32_t; const device_extensions: PMarshaledAString); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'gr4d_vk_extensions_init'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
 {$ENDIF}
 
 
@@ -2630,8 +2645,8 @@ procedure gr4d_vk_extensions_init;          external LibraryName name 'gr4d_vk_e
   sk4d_animatedwebpencoder_encode_to_file   := GetProcAddress(LibraryHandle, PChar('sk4d_animatedwebpencoder_encode_to_file'));
   sk4d_animatedwebpencoder_encode_to_stream := GetProcAddress(LibraryHandle, PChar('sk4d_animatedwebpencoder_encode_to_stream'));
 {$ELSE}
-function sk4d_animatedwebpencoder_encode_to_file;   external LibraryName name 'sk4d_animatedwebpencoder_encode_to_file'  {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function sk4d_animatedwebpencoder_encode_to_stream; external LibraryName name 'sk4d_animatedwebpencoder_encode_to_stream'{$IFDEF IOS} dependency 'c++'{$ENDIF};
+function sk4d_animatedwebpencoder_encode_to_file(const file_name: MarshaledAString; const src: psk_frame_t; count: size_t; quality: int32_t): _bool; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_animatedwebpencoder_encode_to_file'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function sk4d_animatedwebpencoder_encode_to_stream(w_stream: sk_wstream_t; const src: psk_frame_t; count: size_t; quality: int32_t): _bool; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_animatedwebpencoder_encode_to_stream'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
 {$ENDIF}
 
 
@@ -2641,8 +2656,8 @@ function sk4d_animatedwebpencoder_encode_to_stream; external LibraryName name 's
   sk4d_blender_make_arithmetic := GetProcAddress(LibraryHandle, PChar('sk4d_blender_make_arithmetic'));
   sk4d_blender_make_mode       := GetProcAddress(LibraryHandle, PChar('sk4d_blender_make_mode'));
 {$ELSE}
-function  sk4d_blender_make_arithmetic; external LibraryName name 'sk4d_blender_make_arithmetic'{$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_blender_make_mode;       external LibraryName name 'sk4d_blender_make_mode'      {$IFDEF IOS} dependency 'c++'{$ENDIF};
+function  sk4d_blender_make_arithmetic(k1, k2, k3, k4: float; enforce_premultiplied_color: _bool): sk_blender_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_blender_make_arithmetic'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_blender_make_mode(mode: sk_blendmode_t): sk_blender_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_blender_make_mode'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
 {$ENDIF}
 
 
@@ -2712,68 +2727,68 @@ function  sk4d_blender_make_mode;       external LibraryName name 'sk4d_blender_
   sk4d_canvas_skew                       := GetProcAddress(LibraryHandle, PChar('sk4d_canvas_skew'));
   sk4d_canvas_translate                  := GetProcAddress(LibraryHandle, PChar('sk4d_canvas_translate'));
 {$ELSE}
-procedure sk4d_canvas_clear;                      external LibraryName name 'sk4d_canvas_clear'                     {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_canvas_clear2;                     external LibraryName name 'sk4d_canvas_clear2'                    {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_canvas_destroy;                    external LibraryName name 'sk4d_canvas_destroy'                   {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_canvas_discard;                    external LibraryName name 'sk4d_canvas_discard'                   {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_canvas_clip_path;                  external LibraryName name 'sk4d_canvas_clip_path'                 {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_canvas_clip_rect;                  external LibraryName name 'sk4d_canvas_clip_rect'                 {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_canvas_clip_region;                external LibraryName name 'sk4d_canvas_clip_region'               {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_canvas_clip_rrect;                 external LibraryName name 'sk4d_canvas_clip_rrect'                {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_canvas_clip_shader;                external LibraryName name 'sk4d_canvas_clip_shader'               {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_canvas_concat;                     external LibraryName name 'sk4d_canvas_concat'                    {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_canvas_concat2;                    external LibraryName name 'sk4d_canvas_concat2'                   {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_canvas_draw_annotation;            external LibraryName name 'sk4d_canvas_draw_annotation'           {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_canvas_draw_arc;                   external LibraryName name 'sk4d_canvas_draw_arc'                  {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_canvas_draw_atlas;                 external LibraryName name 'sk4d_canvas_draw_atlas'                {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_canvas_draw_circle;                external LibraryName name 'sk4d_canvas_draw_circle'               {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_canvas_draw_color;                 external LibraryName name 'sk4d_canvas_draw_color'                {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_canvas_draw_color2;                external LibraryName name 'sk4d_canvas_draw_color2'               {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_canvas_draw_glyphs;                external LibraryName name 'sk4d_canvas_draw_glyphs'               {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_canvas_draw_glyphs2;               external LibraryName name 'sk4d_canvas_draw_glyphs2'              {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_canvas_draw_image;                 external LibraryName name 'sk4d_canvas_draw_image'                {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_canvas_draw_image_lattice;         external LibraryName name 'sk4d_canvas_draw_image_lattice'        {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_canvas_draw_image_nine;            external LibraryName name 'sk4d_canvas_draw_image_nine'           {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_canvas_draw_image_rect;            external LibraryName name 'sk4d_canvas_draw_image_rect'           {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_canvas_draw_line;                  external LibraryName name 'sk4d_canvas_draw_line'                 {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_canvas_draw_oval;                  external LibraryName name 'sk4d_canvas_draw_oval'                 {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_canvas_draw_paint;                 external LibraryName name 'sk4d_canvas_draw_paint'                {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_canvas_draw_patch;                 external LibraryName name 'sk4d_canvas_draw_patch'                {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_canvas_draw_path;                  external LibraryName name 'sk4d_canvas_draw_path'                 {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_canvas_draw_picture;               external LibraryName name 'sk4d_canvas_draw_picture'              {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_canvas_draw_point;                 external LibraryName name 'sk4d_canvas_draw_point'                {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_canvas_draw_points;                external LibraryName name 'sk4d_canvas_draw_points'               {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_canvas_draw_rect;                  external LibraryName name 'sk4d_canvas_draw_rect'                 {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_canvas_draw_region;                external LibraryName name 'sk4d_canvas_draw_region'               {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_canvas_draw_rrect;                 external LibraryName name 'sk4d_canvas_draw_rrect'                {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_canvas_draw_rrect2;                external LibraryName name 'sk4d_canvas_draw_rrect2'               {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_canvas_draw_rrect_difference;      external LibraryName name 'sk4d_canvas_draw_rrect_difference'     {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_canvas_draw_simple_text;           external LibraryName name 'sk4d_canvas_draw_simple_text'          {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_canvas_draw_text_blob;             external LibraryName name 'sk4d_canvas_draw_text_blob'            {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_canvas_draw_vertices;              external LibraryName name 'sk4d_canvas_draw_vertices'             {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_canvas_get_base_props;             external LibraryName name 'sk4d_canvas_get_base_props'            {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_canvas_get_device_clip_bounds;     external LibraryName name 'sk4d_canvas_get_device_clip_bounds'    {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_canvas_get_local_clip_bounds;      external LibraryName name 'sk4d_canvas_get_local_clip_bounds'     {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_canvas_get_local_to_device;        external LibraryName name 'sk4d_canvas_get_local_to_device'       {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_canvas_get_local_to_device_as_3x3; external LibraryName name 'sk4d_canvas_get_local_to_device_as_3x3'{$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_canvas_get_top_props;              external LibraryName name 'sk4d_canvas_get_top_props'             {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_canvas_get_save_count;             external LibraryName name 'sk4d_canvas_get_save_count'            {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_canvas_make_surface;               external LibraryName name 'sk4d_canvas_make_surface'              {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_canvas_quick_reject;               external LibraryName name 'sk4d_canvas_quick_reject'              {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_canvas_quick_reject2;              external LibraryName name 'sk4d_canvas_quick_reject2'             {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_canvas_reset_matrix;               external LibraryName name 'sk4d_canvas_reset_matrix'              {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_canvas_restore;                    external LibraryName name 'sk4d_canvas_restore'                   {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_canvas_restore_to_count;           external LibraryName name 'sk4d_canvas_restore_to_count'          {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_canvas_rotate;                     external LibraryName name 'sk4d_canvas_rotate'                    {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_canvas_rotate2;                    external LibraryName name 'sk4d_canvas_rotate2'                   {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_canvas_save;                       external LibraryName name 'sk4d_canvas_save'                      {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_canvas_save_layer;                 external LibraryName name 'sk4d_canvas_save_layer'                {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_canvas_save_layer_alpha;           external LibraryName name 'sk4d_canvas_save_layer_alpha'          {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_canvas_scale;                      external LibraryName name 'sk4d_canvas_scale'                     {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_canvas_set_matrix;                 external LibraryName name 'sk4d_canvas_set_matrix'                {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_canvas_set_matrix2;                external LibraryName name 'sk4d_canvas_set_matrix2'               {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_canvas_skew;                       external LibraryName name 'sk4d_canvas_skew'                      {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_canvas_translate;                  external LibraryName name 'sk4d_canvas_translate'                 {$IFDEF IOS} dependency 'c++'{$ENDIF};
+procedure sk4d_canvas_clear(self: sk_canvas_t; color: sk_color_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_canvas_clear'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_canvas_clear2(self: sk_canvas_t; const color: psk_color4f_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_canvas_clear2'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_canvas_destroy(self: sk_canvas_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_canvas_destroy'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_canvas_discard(self: sk_canvas_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_canvas_discard'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_canvas_clip_path(self: sk_canvas_t; const path: sk_path_t; op: sk_clipop_t; anti_alias: _bool); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_canvas_clip_path'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_canvas_clip_rect(self: sk_canvas_t; const rect: psk_rect_t; op: sk_clipop_t; anti_alias: _bool); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_canvas_clip_rect'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_canvas_clip_region(self: sk_canvas_t; const region: sk_region_t; op: sk_clipop_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_canvas_clip_region'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_canvas_clip_rrect(self: sk_canvas_t; const rrect: sk_rrect_t; op: sk_clipop_t; anti_alias: _bool); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_canvas_clip_rrect'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_canvas_clip_shader(self: sk_canvas_t; shader: sk_shader_t; op: sk_clipop_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_canvas_clip_shader'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_canvas_concat(self: sk_canvas_t; const matrix: psk_matrix44_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_canvas_concat'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_canvas_concat2(self: sk_canvas_t; const matrix: psk_matrix_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_canvas_concat2'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_canvas_draw_annotation(self: sk_canvas_t; const rect: psk_rect_t; const key: MarshaledAString; const value: Pointer; size: size_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_canvas_draw_annotation'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_canvas_draw_arc(self: sk_canvas_t; const oval: psk_rect_t; start_angle, sweep_angle: float; use_center: _bool; const paint: sk_paint_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_canvas_draw_arc'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_canvas_draw_atlas(self: sk_canvas_t; const atlas: sk_image_t; const transforms: psk_rotationscalematrix_t; const sprites: psk_rect_t; const colors: psk_color_t; count: int32_t; blend_mode: sk_blendmode_t; const sampling: psk_samplingoptions_t; const cull_rect: psk_rect_t; const paint: sk_paint_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_canvas_draw_atlas'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_canvas_draw_circle(self: sk_canvas_t; const center: psk_point_t; radius: float; const paint: sk_paint_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_canvas_draw_circle'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_canvas_draw_color(self: sk_canvas_t; color: sk_color_t; blend_mode: sk_blendmode_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_canvas_draw_color'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_canvas_draw_color2(self: sk_canvas_t; const color: psk_color4f_t; blend_mode: sk_blendmode_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_canvas_draw_color2'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_canvas_draw_glyphs(self: sk_canvas_t; count: int32_t; const glyphs: psk_glyphid_t; const positions: psk_point_t; const origin: psk_point_t; const font: sk_font_t; const paint: sk_paint_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_canvas_draw_glyphs'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_canvas_draw_glyphs2(self: sk_canvas_t; count: int32_t; const glyphs: psk_glyphid_t; const matrices: psk_rotationscalematrix_t; const origin: psk_point_t; const font: sk_font_t; const paint: sk_paint_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_canvas_draw_glyphs2'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_canvas_draw_image(self: sk_canvas_t; const image: sk_image_t; x, y: float; const sampling: psk_samplingoptions_t; const paint: sk_paint_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_canvas_draw_image'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_canvas_draw_image_lattice(self: sk_canvas_t; const image: sk_image_t; const lattice: psk_lattice_t; const dest: psk_rect_t; filter_mode: sk_filtermode_t; const paint: sk_paint_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_canvas_draw_image_lattice'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_canvas_draw_image_nine(self: sk_canvas_t; const image: sk_image_t; const center: psk_irect_t; const dest: psk_rect_t; filter_mode: sk_filtermode_t; const paint: sk_paint_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_canvas_draw_image_nine'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_canvas_draw_image_rect(self: sk_canvas_t; const image: sk_image_t; const src, dest: psk_rect_t; const sampling: psk_samplingoptions_t; const paint: sk_paint_t; constraint: sk_srcrectconstraint_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_canvas_draw_image_rect'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_canvas_draw_line(self: sk_canvas_t; const point1, point2: psk_point_t; paint: sk_paint_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_canvas_draw_line'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_canvas_draw_oval(self: sk_canvas_t; const oval: psk_rect_t; const paint: sk_paint_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_canvas_draw_oval'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_canvas_draw_paint(self: sk_canvas_t; const paint: sk_paint_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_canvas_draw_paint'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_canvas_draw_patch(self: sk_canvas_t; const cubics: psk_point_t; const colors: psk_color_t; const tex_coords: psk_point_t; blend_mode: sk_blendmode_t; const paint: sk_paint_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_canvas_draw_patch'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_canvas_draw_path(self: sk_canvas_t; const path: sk_path_t; const paint: sk_paint_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_canvas_draw_path'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_canvas_draw_picture(self: sk_canvas_t; const picture: sk_picture_t; const matrix: psk_matrix_t; const paint: sk_paint_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_canvas_draw_picture'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_canvas_draw_point(self: sk_canvas_t; const point: psk_point_t; const paint: sk_paint_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_canvas_draw_point'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_canvas_draw_points(self: sk_canvas_t; mode: sk_drawpointsmode_t; count: size_t; const points: psk_point_t; const paint: sk_paint_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_canvas_draw_points'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_canvas_draw_rect(self: sk_canvas_t; const rect: psk_rect_t; const paint: sk_paint_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_canvas_draw_rect'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_canvas_draw_region(self: sk_canvas_t; const region: sk_region_t; const paint: sk_paint_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_canvas_draw_region'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_canvas_draw_rrect(self: sk_canvas_t; const rrect: sk_rrect_t; const paint: sk_paint_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_canvas_draw_rrect'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_canvas_draw_rrect2(self: sk_canvas_t; const rect: psk_rect_t; radius_x, radius_y: float; const paint: sk_paint_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_canvas_draw_rrect2'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_canvas_draw_rrect_difference(self: sk_canvas_t; const outer, inner: sk_rrect_t; const paint: sk_paint_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_canvas_draw_rrect_difference'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_canvas_draw_simple_text(self: sk_canvas_t; const text: Pointer; size: size_t; encoding: sk_textencoding_t; x, y: float; const font: sk_font_t; const paint: sk_paint_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_canvas_draw_simple_text'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_canvas_draw_text_blob(self: sk_canvas_t; const text_blob: sk_textblob_t; x, y: float; const paint: sk_paint_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_canvas_draw_text_blob'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_canvas_draw_vertices(self: sk_canvas_t; const vertices: sk_vertices_t; blend_mode: sk_blendmode_t; const paint: sk_paint_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_canvas_draw_vertices'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_canvas_get_base_props(const self: sk_canvas_t; out result: sk_surfaceprops_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_canvas_get_base_props'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_canvas_get_device_clip_bounds(const self: sk_canvas_t; out result: sk_irect_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_canvas_get_device_clip_bounds'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_canvas_get_local_clip_bounds(const self: sk_canvas_t; out result: sk_rect_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_canvas_get_local_clip_bounds'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_canvas_get_local_to_device(const self: sk_canvas_t; out result: sk_matrix44_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_canvas_get_local_to_device'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_canvas_get_local_to_device_as_3x3(const self: sk_canvas_t; out result: sk_matrix_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_canvas_get_local_to_device_as_3x3'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_canvas_get_top_props(const self: sk_canvas_t; out result: sk_surfaceprops_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_canvas_get_top_props'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_canvas_get_save_count(const self: sk_canvas_t): int32_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_canvas_get_save_count'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_canvas_make_surface(self: sk_canvas_t; const image_info: psk_imageinfo_t; const props: psk_surfaceprops_t): sk_surface_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_canvas_make_surface'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_canvas_quick_reject(const self: sk_canvas_t; const rect: psk_rect_t): _bool; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_canvas_quick_reject'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_canvas_quick_reject2(const self: sk_canvas_t; const path: sk_path_t): _bool; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_canvas_quick_reject2'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_canvas_reset_matrix(self: sk_canvas_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_canvas_reset_matrix'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_canvas_restore(self: sk_canvas_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_canvas_restore'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_canvas_restore_to_count(self: sk_canvas_t; save_count: int32_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_canvas_restore_to_count'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_canvas_rotate(self: sk_canvas_t; degrees: float); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_canvas_rotate'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_canvas_rotate2(self: sk_canvas_t; degrees, px, py: float); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_canvas_rotate2'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_canvas_save(self: sk_canvas_t): int32_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_canvas_save'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_canvas_save_layer(self: sk_canvas_t; const bounds: psk_rect_t; const paint: sk_paint_t; const backdrop: sk_imagefilter_t; flags: uint32_t): int32_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_canvas_save_layer'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_canvas_save_layer_alpha(self: sk_canvas_t; const bounds: psk_rect_t; alpha: uint8_t): int32_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_canvas_save_layer_alpha'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_canvas_scale(self: sk_canvas_t; sx, sy: float); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_canvas_scale'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_canvas_set_matrix(self: sk_canvas_t; const matrix: psk_matrix44_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_canvas_set_matrix'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_canvas_set_matrix2(self: sk_canvas_t; const matrix: psk_matrix_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_canvas_set_matrix2'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_canvas_skew(self: sk_canvas_t; kx, ky: float); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_canvas_skew'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_canvas_translate(self: sk_canvas_t; dx, dy: float); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_canvas_translate'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
 {$ENDIF}
 
 
@@ -2797,22 +2812,22 @@ procedure sk4d_canvas_translate;                  external LibraryName name 'sk4
   sk4d_animcodecplayer_make_from_stream := GetProcAddress(LibraryHandle, PChar('sk4d_animcodecplayer_make_from_stream'));
   sk4d_animcodecplayer_seek             := GetProcAddress(LibraryHandle, PChar('sk4d_animcodecplayer_seek'));
 {$ELSE}
-procedure sk4d_codec_destroy;                    external LibraryName name 'sk4d_codec_destroy'                   {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_codec_get_dimensions;             external LibraryName name 'sk4d_codec_get_dimensions'            {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_codec_get_encoded_image_format;   external LibraryName name 'sk4d_codec_get_encoded_image_format'  {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_codec_get_image;                  external LibraryName name 'sk4d_codec_get_image'                 {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_codec_get_pixels;                 external LibraryName name 'sk4d_codec_get_pixels'                {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_codec_make_from_file;             external LibraryName name 'sk4d_codec_make_from_file'            {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_codec_make_from_stream;           external LibraryName name 'sk4d_codec_make_from_stream'          {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_codec_make_with_copy;             external LibraryName name 'sk4d_codec_make_with_copy'            {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_codec_make_without_copy;          external LibraryName name 'sk4d_codec_make_without_copy'         {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_animcodecplayer_destroy;          external LibraryName name 'sk4d_animcodecplayer_destroy'         {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_animcodecplayer_get_dimensions;   external LibraryName name 'sk4d_animcodecplayer_get_dimensions'  {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_animcodecplayer_get_duration;     external LibraryName name 'sk4d_animcodecplayer_get_duration'    {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_animcodecplayer_get_frame;        external LibraryName name 'sk4d_animcodecplayer_get_frame'       {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_animcodecplayer_make_from_file;   external LibraryName name 'sk4d_animcodecplayer_make_from_file'  {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_animcodecplayer_make_from_stream; external LibraryName name 'sk4d_animcodecplayer_make_from_stream'{$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_animcodecplayer_seek;             external LibraryName name 'sk4d_animcodecplayer_seek'            {$IFDEF IOS} dependency 'c++'{$ENDIF};
+procedure sk4d_codec_destroy(codec: sk_codec_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_codec_destroy'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_codec_get_dimensions(const self: sk_codec_t; out result: sk_isize_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_codec_get_dimensions'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_codec_get_encoded_image_format(const self: sk_codec_t): sk_encodedimageformat_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_codec_get_encoded_image_format'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_codec_get_image(self: sk_codec_t; color_type: sk_colortype_t; alpha_type: sk_alphatype_t; color_space: sk_colorspace_t): sk_image_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_codec_get_image'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_codec_get_pixels(self: sk_codec_t; pixels: Pointer; row_bytes: size_t; color_type: sk_colortype_t; alpha_type: sk_alphatype_t; color_space: sk_colorspace_t): _bool; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_codec_get_pixels'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_codec_make_from_file(const file_name: MarshaledAString): sk_codec_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_codec_make_from_file'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_codec_make_from_stream(stream: sk_stream_t): sk_codec_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_codec_make_from_stream'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_codec_make_with_copy(const data: Pointer; size: size_t): sk_codec_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_codec_make_with_copy'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_codec_make_without_copy(const data: Pointer; size: size_t): sk_codec_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_codec_make_without_copy'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_animcodecplayer_destroy(self: sk_animcodecplayer_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_animcodecplayer_destroy'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_animcodecplayer_get_dimensions(const self: sk_animcodecplayer_t; out result: sk_isize_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_animcodecplayer_get_dimensions'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_animcodecplayer_get_duration(const self: sk_animcodecplayer_t): uint32_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_animcodecplayer_get_duration'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_animcodecplayer_get_frame(self: sk_animcodecplayer_t): sk_image_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_animcodecplayer_get_frame'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_animcodecplayer_make_from_file(const file_name: MarshaledAString): sk_animcodecplayer_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_animcodecplayer_make_from_file'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_animcodecplayer_make_from_stream(stream: sk_stream_t): sk_animcodecplayer_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_animcodecplayer_make_from_stream'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_animcodecplayer_seek(self: sk_animcodecplayer_t; milliseconds: uint32_t): _bool; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_animcodecplayer_seek'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
 {$ENDIF}
 
 
@@ -2831,17 +2846,17 @@ function  sk4d_animcodecplayer_seek;             external LibraryName name 'sk4d
   sk4d_colorfilter_make_overdraw             := GetProcAddress(LibraryHandle, PChar('sk4d_colorfilter_make_overdraw'));
   sk4d_colorfilter_make_table                := GetProcAddress(LibraryHandle, PChar('sk4d_colorfilter_make_table'));
 {$ELSE}
-function sk4d_colorfilter_make_blend;                external LibraryName name 'sk4d_colorfilter_make_blend'               {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function sk4d_colorfilter_make_blend2;               external LibraryName name 'sk4d_colorfilter_make_blend2'              {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function sk4d_colorfilter_make_compose;              external LibraryName name 'sk4d_colorfilter_make_compose'             {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function sk4d_colorfilter_make_high_contrast;        external LibraryName name 'sk4d_colorfilter_make_high_contrast'       {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function sk4d_colorfilter_make_hsla_matrix;          external LibraryName name 'sk4d_colorfilter_make_hsla_matrix'         {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function sk4d_colorfilter_make_lighting;             external LibraryName name 'sk4d_colorfilter_make_lighting'            {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function sk4d_colorfilter_make_linear_to_srgb_gamma; external LibraryName name 'sk4d_colorfilter_make_linear_to_srgb_gamma'{$IFDEF IOS} dependency 'c++'{$ENDIF};
-function sk4d_colorfilter_make_luma_color;           external LibraryName name 'sk4d_colorfilter_make_luma_color'          {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function sk4d_colorfilter_make_matrix;               external LibraryName name 'sk4d_colorfilter_make_matrix'              {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function sk4d_colorfilter_make_overdraw;             external LibraryName name 'sk4d_colorfilter_make_overdraw'            {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function sk4d_colorfilter_make_table;                external LibraryName name 'sk4d_colorfilter_make_table'               {$IFDEF IOS} dependency 'c++'{$ENDIF};
+function sk4d_colorfilter_make_blend(color: sk_color_t; mode: sk_blendmode_t): sk_colorfilter_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_colorfilter_make_blend'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function sk4d_colorfilter_make_blend2(const color: psk_color4f_t; color_space: sk_colorspace_t; mode: sk_blendmode_t): sk_colorfilter_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_colorfilter_make_blend2'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function sk4d_colorfilter_make_compose(outer, inner: sk_colorfilter_t): sk_colorfilter_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_colorfilter_make_compose'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function sk4d_colorfilter_make_high_contrast(const config: psk_highcontrastconfig_t): sk_colorfilter_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_colorfilter_make_high_contrast'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function sk4d_colorfilter_make_hsla_matrix(const matrix: psk_colormatrix_t): sk_colorfilter_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_colorfilter_make_hsla_matrix'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function sk4d_colorfilter_make_lighting(multiply, add: sk_color_t): sk_colorfilter_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_colorfilter_make_lighting'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function sk4d_colorfilter_make_linear_to_srgb_gamma(): sk_colorfilter_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_colorfilter_make_linear_to_srgb_gamma'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function sk4d_colorfilter_make_luma_color(): sk_colorfilter_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_colorfilter_make_luma_color'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function sk4d_colorfilter_make_matrix(const matrix: psk_colormatrix_t): sk_colorfilter_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_colorfilter_make_matrix'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function sk4d_colorfilter_make_overdraw(const colors: psk_color_t): sk_colorfilter_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_colorfilter_make_overdraw'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function sk4d_colorfilter_make_table(const tablea_a, tablea_r, tablea_g, tablea_b: puint8_t): sk_colorfilter_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_colorfilter_make_table'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
 {$ENDIF}
 
 
@@ -2871,28 +2886,28 @@ function sk4d_colorfilter_make_table;                external LibraryName name '
   sk4d_colorspacetransferfn_invert          := GetProcAddress(LibraryHandle, PChar('sk4d_colorspacetransferfn_invert'));
   sk4d_colorspacetransferfn_transform       := GetProcAddress(LibraryHandle, PChar('sk4d_colorspacetransferfn_transform'));
 {$ELSE}
-function  sk4d_colorspace_gamma_close_to_srgb;       external LibraryName name 'sk4d_colorspace_gamma_close_to_srgb'      {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_colorspace_gamma_is_linear;           external LibraryName name 'sk4d_colorspace_gamma_is_linear'          {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_colorspace_is_equal;                  external LibraryName name 'sk4d_colorspace_is_equal'                 {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_colorspace_is_numerical_transfer_fn;  external LibraryName name 'sk4d_colorspace_is_numerical_transfer_fn' {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_colorspace_is_srgb;                   external LibraryName name 'sk4d_colorspace_is_srgb'                  {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_colorspace_make;                      external LibraryName name 'sk4d_colorspace_make'                     {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_colorspace_make_linear_gamma;         external LibraryName name 'sk4d_colorspace_make_linear_gamma'        {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_colorspace_make_rgb;                  external LibraryName name 'sk4d_colorspace_make_rgb'                 {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_colorspace_make_srgb;                 external LibraryName name 'sk4d_colorspace_make_srgb'                {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_colorspace_make_srgb_gamma;           external LibraryName name 'sk4d_colorspace_make_srgb_gamma'          {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_colorspace_make_srgb_linear;          external LibraryName name 'sk4d_colorspace_make_srgb_linear'         {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_colorspace_ref;                       external LibraryName name 'sk4d_colorspace_ref'                      {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_colorspace_to_profile;                external LibraryName name 'sk4d_colorspace_to_profile'               {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_colorspace_to_xyz;                    external LibraryName name 'sk4d_colorspace_to_xyz'                   {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_colorspace_unref;                     external LibraryName name 'sk4d_colorspace_unref'                    {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_colorspaceiccprofile_destroy;         external LibraryName name 'sk4d_colorspaceiccprofile_destroy'        {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_colorspaceiccprofile_get_buffer;      external LibraryName name 'sk4d_colorspaceiccprofile_get_buffer'     {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_colorspaceiccprofile_make_with_parse; external LibraryName name 'sk4d_colorspaceiccprofile_make_with_parse'{$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_colorspaceiccprofile_to_xyz;          external LibraryName name 'sk4d_colorspaceiccprofile_to_xyz'         {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_colorspaceprimaries_to_xyz;           external LibraryName name 'sk4d_colorspaceprimaries_to_xyz'          {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_colorspacetransferfn_invert;          external LibraryName name 'sk4d_colorspacetransferfn_invert'         {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_colorspacetransferfn_transform;       external LibraryName name 'sk4d_colorspacetransferfn_transform'      {$IFDEF IOS} dependency 'c++'{$ENDIF};
+function  sk4d_colorspace_gamma_close_to_srgb(const self: sk_colorspace_t): _bool; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_colorspace_gamma_close_to_srgb'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_colorspace_gamma_is_linear(const self: sk_colorspace_t): _bool; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_colorspace_gamma_is_linear'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_colorspace_is_equal(const self, color_space: sk_colorspace_t): _bool; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_colorspace_is_equal'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_colorspace_is_numerical_transfer_fn(const self: sk_colorspace_t; out transfer_function: sk_colorspacetransferfn_t): _bool; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_colorspace_is_numerical_transfer_fn'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_colorspace_is_srgb(const self: sk_colorspace_t): _bool; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_colorspace_is_srgb'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_colorspace_make(const profile: sk_colorspaceiccprofile_t): sk_colorspace_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_colorspace_make'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_colorspace_make_linear_gamma(const self: sk_colorspace_t): sk_colorspace_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_colorspace_make_linear_gamma'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_colorspace_make_rgb(const transfer_function: psk_colorspacetransferfn_t; const xyz: psk_colorspacexyz_t): sk_colorspace_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_colorspace_make_rgb'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_colorspace_make_srgb(): sk_colorspace_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_colorspace_make_srgb'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_colorspace_make_srgb_gamma(const self: sk_colorspace_t): sk_colorspace_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_colorspace_make_srgb_gamma'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_colorspace_make_srgb_linear(): sk_colorspace_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_colorspace_make_srgb_linear'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_colorspace_ref(const self: sk_colorspace_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_colorspace_ref'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_colorspace_to_profile(const self: sk_colorspace_t): sk_colorspaceiccprofile_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_colorspace_to_profile'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_colorspace_to_xyz(const self: sk_colorspace_t; out xyz: sk_colorspacexyz_t): _bool; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_colorspace_to_xyz'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_colorspace_unref(const self: sk_colorspace_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_colorspace_unref'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_colorspaceiccprofile_destroy(self: sk_colorspaceiccprofile_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_colorspaceiccprofile_destroy'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_colorspaceiccprofile_get_buffer(const self: sk_colorspaceiccprofile_t; size: puint32_t): puint8_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_colorspaceiccprofile_get_buffer'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_colorspaceiccprofile_make_with_parse(const buffer: Pointer; size: size_t): sk_colorspaceiccprofile_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_colorspaceiccprofile_make_with_parse'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_colorspaceiccprofile_to_xyz(const self: sk_colorspaceiccprofile_t; out dest: sk_colorspacexyz_t): _bool; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_colorspaceiccprofile_to_xyz'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_colorspaceprimaries_to_xyz(const self: psk_colorspaceprimaries_t; out xyz: sk_colorspacexyz_t): _bool; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_colorspaceprimaries_to_xyz'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_colorspacetransferfn_invert(const self: psk_colorspacetransferfn_t; out transfer_function: sk_colorspacetransferfn_t): _bool; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_colorspacetransferfn_invert'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_colorspacetransferfn_transform(const self: psk_colorspacetransferfn_t; x: float): float; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_colorspacetransferfn_transform'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
 {$ENDIF}
 
 
@@ -2904,10 +2919,10 @@ function  sk4d_colorspacetransferfn_transform;       external LibraryName name '
   sk4d_data_ref            := GetProcAddress(LibraryHandle, PChar('sk4d_data_ref'));
   sk4d_data_unref          := GetProcAddress(LibraryHandle, PChar('sk4d_data_unref'));
 {$ELSE}
-function  sk4d_data_make_empty;     external LibraryName name 'sk4d_data_make_empty'    {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_data_make_with_copy; external LibraryName name 'sk4d_data_make_with_copy'{$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_data_ref;            external LibraryName name 'sk4d_data_ref'           {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_data_unref;          external LibraryName name 'sk4d_data_unref'         {$IFDEF IOS} dependency 'c++'{$ENDIF};
+function  sk4d_data_make_empty(): sk_data_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_data_make_empty'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_data_make_with_copy(const data: Pointer; size: size_t): sk_data_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_data_make_with_copy'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_data_ref(const self: sk_data_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_data_ref'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_data_unref(const self: sk_data_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_data_unref'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
 {$ENDIF}
 
 
@@ -2922,13 +2937,13 @@ procedure sk4d_data_unref;          external LibraryName name 'sk4d_data_unref' 
   sk4d_document_make_xps   := GetProcAddress(LibraryHandle, PChar('sk4d_document_make_xps'));
   sk4d_document_terminate  := GetProcAddress(LibraryHandle, PChar('sk4d_document_terminate'));
 {$ELSE}
-function  sk4d_document_begin_page; external LibraryName name 'sk4d_document_begin_page'{$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_document_close;      external LibraryName name 'sk4d_document_close'     {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_document_end_page;   external LibraryName name 'sk4d_document_end_page'  {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_document_make_pdf;   external LibraryName name 'sk4d_document_make_pdf'  {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_document_make_pdf2;  external LibraryName name 'sk4d_document_make_pdf2' {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_document_make_xps;   external LibraryName name 'sk4d_document_make_xps'  {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_document_terminate;  external LibraryName name 'sk4d_document_terminate' {$IFDEF IOS} dependency 'c++'{$ENDIF};
+function  sk4d_document_begin_page(self: sk_document_t; width, height: float; const content: psk_rect_t): sk_canvas_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_document_begin_page'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_document_close(self: sk_document_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_document_close'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_document_end_page(self: sk_document_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_document_end_page'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_document_make_pdf(w_stream: sk_wstream_t): sk_document_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_document_make_pdf'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_document_make_pdf2(w_stream: sk_wstream_t; const metadata: psk_pdfmetadata_t): sk_document_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_document_make_pdf2'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_document_make_xps(w_stream: sk_wstream_t; dpi: float): sk_document_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_document_make_xps'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_document_terminate(self: sk_document_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_document_terminate'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
 {$ENDIF}
 
 
@@ -2977,47 +2992,47 @@ procedure sk4d_document_terminate;  external LibraryName name 'sk4d_document_ter
   sk4d_font_unichar_to_glyph         := GetProcAddress(LibraryHandle, PChar('sk4d_font_unichar_to_glyph'));
   sk4d_font_unichars_to_glyphs       := GetProcAddress(LibraryHandle, PChar('sk4d_font_unichars_to_glyphs'));
 {$ELSE}
-function  sk4d_font_create;                   external LibraryName name 'sk4d_font_create'                  {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_font_create2;                  external LibraryName name 'sk4d_font_create2'                 {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_font_destroy;                  external LibraryName name 'sk4d_font_destroy'                 {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_font_get_baseline_snap;        external LibraryName name 'sk4d_font_get_baseline_snap'       {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_font_get_edging;               external LibraryName name 'sk4d_font_get_edging'              {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_font_get_embedded_bitmaps;     external LibraryName name 'sk4d_font_get_embedded_bitmaps'    {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_font_get_embolden;             external LibraryName name 'sk4d_font_get_embolden'            {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_font_get_force_auto_hinting;   external LibraryName name 'sk4d_font_get_force_auto_hinting'  {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_font_get_glyphs;               external LibraryName name 'sk4d_font_get_glyphs'              {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_font_get_glyphs_count;         external LibraryName name 'sk4d_font_get_glyphs_count'        {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_font_get_hinting;              external LibraryName name 'sk4d_font_get_hinting'             {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_font_get_horizontal_positions; external LibraryName name 'sk4d_font_get_horizontal_positions'{$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_font_get_intercepts;           external LibraryName name 'sk4d_font_get_intercepts'          {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_font_get_linear_metrics;       external LibraryName name 'sk4d_font_get_linear_metrics'      {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_font_get_metrics;              external LibraryName name 'sk4d_font_get_metrics'             {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_font_get_path;                 external LibraryName name 'sk4d_font_get_path'                {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_font_get_paths;                external LibraryName name 'sk4d_font_get_paths'               {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_font_get_positions;            external LibraryName name 'sk4d_font_get_positions'           {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_font_get_scale_x;              external LibraryName name 'sk4d_font_get_scale_x'             {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_font_get_size;                 external LibraryName name 'sk4d_font_get_size'                {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_font_get_skew_x;               external LibraryName name 'sk4d_font_get_skew_x'              {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_font_get_subpixel;             external LibraryName name 'sk4d_font_get_subpixel'            {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_font_get_typeface;             external LibraryName name 'sk4d_font_get_typeface'            {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_font_get_typeface_or_default;  external LibraryName name 'sk4d_font_get_typeface_or_default' {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_font_get_widths_bounds;        external LibraryName name 'sk4d_font_get_widths_bounds'       {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_font_is_equal;                 external LibraryName name 'sk4d_font_is_equal'                {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_font_measure_text;             external LibraryName name 'sk4d_font_measure_text'            {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_font_set_baseline_snap;        external LibraryName name 'sk4d_font_set_baseline_snap'       {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_font_set_edging;               external LibraryName name 'sk4d_font_set_edging'              {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_font_set_embedded_bitmaps;     external LibraryName name 'sk4d_font_set_embedded_bitmaps'    {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_font_set_embolden;             external LibraryName name 'sk4d_font_set_embolden'            {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_font_set_force_auto_hinting;   external LibraryName name 'sk4d_font_set_force_auto_hinting'  {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_font_set_hinting;              external LibraryName name 'sk4d_font_set_hinting'             {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_font_set_linear_metrics;       external LibraryName name 'sk4d_font_set_linear_metrics'      {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_font_set_scale_x;              external LibraryName name 'sk4d_font_set_scale_x'             {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_font_set_size;                 external LibraryName name 'sk4d_font_set_size'                {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_font_set_skew_x;               external LibraryName name 'sk4d_font_set_skew_x'              {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_font_set_subpixel;             external LibraryName name 'sk4d_font_set_subpixel'            {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_font_set_typeface;             external LibraryName name 'sk4d_font_set_typeface'            {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_font_unichar_to_glyph;         external LibraryName name 'sk4d_font_unichar_to_glyph'        {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_font_unichars_to_glyphs;       external LibraryName name 'sk4d_font_unichars_to_glyphs'      {$IFDEF IOS} dependency 'c++'{$ENDIF};
+function  sk4d_font_create(typeface: sk_typeface_t; size, sx, kx: float): sk_font_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_font_create'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_font_create2(const font: sk_font_t): sk_font_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_font_create2'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_font_destroy(self: sk_font_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_font_destroy'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_font_get_baseline_snap(const self: sk_font_t): _bool; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_font_get_baseline_snap'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_font_get_edging(const self: sk_font_t): sk_fontedging_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_font_get_edging'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_font_get_embedded_bitmaps(const self: sk_font_t): _bool; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_font_get_embedded_bitmaps'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_font_get_embolden(const self: sk_font_t): _bool; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_font_get_embolden'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_font_get_force_auto_hinting(const self: sk_font_t): _bool; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_font_get_force_auto_hinting'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_font_get_glyphs(const self: sk_font_t; const text: Pointer; size: size_t; encoding: sk_textencoding_t; result: psk_glyphid_t; max_count: int32_t): int32_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_font_get_glyphs'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_font_get_glyphs_count(const self: sk_font_t; const text: Pointer; size: size_t; encoding: sk_textencoding_t): int32_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_font_get_glyphs_count'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_font_get_hinting(const self: sk_font_t): sk_fonthinting_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_font_get_hinting'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_font_get_horizontal_positions(const self: sk_font_t; const glyphs: psk_glyphid_t; count: int32_t; result: pfloat; origin: float); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_font_get_horizontal_positions'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_font_get_intercepts(const self: sk_font_t; const glyphs: psk_glyphid_t; count: int32_t; const positions: psk_point_t; const bounds: pfloat; result: pfloat; const paint: sk_paint_t): size_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_font_get_intercepts'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_font_get_linear_metrics(const self: sk_font_t): _bool; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_font_get_linear_metrics'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_font_get_metrics(const self: sk_font_t; metrics: psk_fontmetrics_t): float; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_font_get_metrics'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_font_get_path(const self: sk_font_t; glyph: sk_glyphid_t): sk_path_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_font_get_path'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_font_get_paths(const self: sk_font_t; const glyphs: psk_glyphid_t; count: int32_t; proc: sk_font_path_proc; proc_context: Pointer); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_font_get_paths'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_font_get_positions(const self: sk_font_t; const glyphs: psk_glyphid_t; count: int32_t; result: psk_point_t; const origin: psk_point_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_font_get_positions'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_font_get_scale_x(const self: sk_font_t): float; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_font_get_scale_x'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_font_get_size(const self: sk_font_t): float; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_font_get_size'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_font_get_skew_x(const self: sk_font_t): float; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_font_get_skew_x'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_font_get_subpixel(const self: sk_font_t): _bool; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_font_get_subpixel'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_font_get_typeface(const self: sk_font_t): sk_typeface_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_font_get_typeface'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_font_get_typeface_or_default(const self: sk_font_t): sk_typeface_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_font_get_typeface_or_default'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_font_get_widths_bounds(const self: sk_font_t; const glyphs: psk_glyphid_t; count: int32_t; widths: pfloat; bounds: psk_rect_t; const paint: sk_paint_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_font_get_widths_bounds'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_font_is_equal(const self, font: sk_font_t): _bool; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_font_is_equal'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_font_measure_text(const self: sk_font_t; const text: Pointer; size: size_t; encoding: sk_textencoding_t; bounds: psk_rect_t; const paint: sk_paint_t): float; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_font_measure_text'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_font_set_baseline_snap(self: sk_font_t; value: _bool); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_font_set_baseline_snap'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_font_set_edging(self: sk_font_t; value: sk_fontedging_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_font_set_edging'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_font_set_embedded_bitmaps(self: sk_font_t; value: _bool); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_font_set_embedded_bitmaps'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_font_set_embolden(self: sk_font_t; value: _bool); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_font_set_embolden'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_font_set_force_auto_hinting(self: sk_font_t; value: _bool); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_font_set_force_auto_hinting'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_font_set_hinting(self: sk_font_t; value: sk_fonthinting_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_font_set_hinting'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_font_set_linear_metrics(self: sk_font_t; value: _bool); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_font_set_linear_metrics'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_font_set_scale_x(self: sk_font_t; value: float); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_font_set_scale_x'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_font_set_size(self: sk_font_t; value: float); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_font_set_size'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_font_set_skew_x(self: sk_font_t; value: float); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_font_set_skew_x'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_font_set_subpixel(self: sk_font_t; value: _bool); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_font_set_subpixel'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_font_set_typeface(self: sk_font_t; typeface: sk_typeface_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_font_set_typeface'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_font_unichar_to_glyph(const self: sk_font_t; uni_char: sk_unichar_t): sk_glyphid_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_font_unichar_to_glyph'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_font_unichars_to_glyphs(const self: sk_font_t; const uni_chars: psk_unichar_t; count: int32_t; result: psk_glyphid_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_font_unichars_to_glyphs'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
 {$ENDIF}
 
 
@@ -3042,23 +3057,23 @@ procedure sk4d_font_unichars_to_glyphs;       external LibraryName name 'sk4d_fo
   sk4d_graphics_set_resource_cache_single_allocation_byte_limit := GetProcAddress(LibraryHandle, PChar('sk4d_graphics_set_resource_cache_single_allocation_byte_limit'));
   sk4d_graphics_set_resource_cache_total_byte_limit             := GetProcAddress(LibraryHandle, PChar('sk4d_graphics_set_resource_cache_total_byte_limit'));
 {$ELSE}
-procedure sk4d_graphics_allow_jit;                                       external LibraryName name 'sk4d_graphics_allow_jit'                                      {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_graphics_dump_memory_statistics;                          external LibraryName name 'sk4d_graphics_dump_memory_statistics'                         {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_graphics_get_font_cache_count_limit;                      external LibraryName name 'sk4d_graphics_get_font_cache_count_limit'                     {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_graphics_get_font_cache_count_used;                       external LibraryName name 'sk4d_graphics_get_font_cache_count_used'                      {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_graphics_get_font_cache_limit;                            external LibraryName name 'sk4d_graphics_get_font_cache_limit'                           {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_graphics_get_font_cache_used;                             external LibraryName name 'sk4d_graphics_get_font_cache_used'                            {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_graphics_get_resource_cache_single_allocation_byte_limit; external LibraryName name 'sk4d_graphics_get_resource_cache_single_allocation_byte_limit'{$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_graphics_get_resource_cache_total_byte_limit;             external LibraryName name 'sk4d_graphics_get_resource_cache_total_byte_limit'            {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_graphics_get_resource_cache_total_bytes_used;             external LibraryName name 'sk4d_graphics_get_resource_cache_total_bytes_used'            {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_graphics_init;                                            external LibraryName name 'sk4d_graphics_init'                                           {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_graphics_purge_all_caches;                                external LibraryName name 'sk4d_graphics_purge_all_caches'                               {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_graphics_purge_font_cache;                                external LibraryName name 'sk4d_graphics_purge_font_cache'                               {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_graphics_purge_resource_cache;                            external LibraryName name 'sk4d_graphics_purge_resource_cache'                           {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_graphics_set_font_cache_count_limit;                      external LibraryName name 'sk4d_graphics_set_font_cache_count_limit'                     {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_graphics_set_font_cache_limit;                            external LibraryName name 'sk4d_graphics_set_font_cache_limit'                           {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_graphics_set_resource_cache_single_allocation_byte_limit; external LibraryName name 'sk4d_graphics_set_resource_cache_single_allocation_byte_limit'{$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_graphics_set_resource_cache_total_byte_limit;             external LibraryName name 'sk4d_graphics_set_resource_cache_total_byte_limit'            {$IFDEF IOS} dependency 'c++'{$ENDIF};
+procedure sk4d_graphics_allow_jit(); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_graphics_allow_jit'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_graphics_dump_memory_statistics(trace_memory_dump: sk_tracememorydump_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_graphics_dump_memory_statistics'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_graphics_get_font_cache_count_limit(): int32_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_graphics_get_font_cache_count_limit'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_graphics_get_font_cache_count_used(): int32_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_graphics_get_font_cache_count_used'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_graphics_get_font_cache_limit(): size_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_graphics_get_font_cache_limit'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_graphics_get_font_cache_used(): size_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_graphics_get_font_cache_used'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_graphics_get_resource_cache_single_allocation_byte_limit(): size_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_graphics_get_resource_cache_single_allocation_byte_limit'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_graphics_get_resource_cache_total_byte_limit(): size_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_graphics_get_resource_cache_total_byte_limit'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_graphics_get_resource_cache_total_bytes_used(): size_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_graphics_get_resource_cache_total_bytes_used'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_graphics_init(); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_graphics_init'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_graphics_purge_all_caches(); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_graphics_purge_all_caches'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_graphics_purge_font_cache(); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_graphics_purge_font_cache'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_graphics_purge_resource_cache(); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_graphics_purge_resource_cache'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_graphics_set_font_cache_count_limit(value: int32_t): int32_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_graphics_set_font_cache_count_limit'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_graphics_set_font_cache_limit(value: size_t): size_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_graphics_set_font_cache_limit'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_graphics_set_resource_cache_single_allocation_byte_limit(value: size_t): size_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_graphics_set_resource_cache_single_allocation_byte_limit'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_graphics_set_resource_cache_total_byte_limit(value: size_t): size_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_graphics_set_resource_cache_total_byte_limit'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
 {$ENDIF}
 
 
@@ -3096,36 +3111,36 @@ function  sk4d_graphics_set_resource_cache_total_byte_limit;             externa
   sk4d_image_read_pixels               := GetProcAddress(LibraryHandle, PChar('sk4d_image_read_pixels'));
   sk4d_image_scale_pixels              := GetProcAddress(LibraryHandle, PChar('sk4d_image_scale_pixels'));
 {$ELSE}
-function  sk4d_image_encode_to_file;            external LibraryName name 'sk4d_image_encode_to_file'           {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_image_encode_to_stream;          external LibraryName name 'sk4d_image_encode_to_stream'         {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_image_get_alpha_type;            external LibraryName name 'sk4d_image_get_alpha_type'           {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_image_get_color_space;           external LibraryName name 'sk4d_image_get_color_space'          {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_image_get_color_type;            external LibraryName name 'sk4d_image_get_color_type'           {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_image_get_height;                external LibraryName name 'sk4d_image_get_height'               {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_image_get_image_info;            external LibraryName name 'sk4d_image_get_image_info'           {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_image_get_unique_id;             external LibraryName name 'sk4d_image_get_unique_id'            {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_image_get_width;                 external LibraryName name 'sk4d_image_get_width'                {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_image_is_lazy_generated;         external LibraryName name 'sk4d_image_is_lazy_generated'        {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_image_is_texture_backed;         external LibraryName name 'sk4d_image_is_texture_backed'        {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_image_is_valid;                  external LibraryName name 'sk4d_image_is_valid'                 {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_image_make_cross_context;        external LibraryName name 'sk4d_image_make_cross_context'       {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_image_make_from_adopted_texture; external LibraryName name 'sk4d_image_make_from_adopted_texture'{$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_image_make_from_encoded_file;    external LibraryName name 'sk4d_image_make_from_encoded_file'   {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_image_make_from_encoded_stream;  external LibraryName name 'sk4d_image_make_from_encoded_stream' {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_image_make_from_picture;         external LibraryName name 'sk4d_image_make_from_picture'        {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_image_make_from_raster;          external LibraryName name 'sk4d_image_make_from_raster'         {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_image_make_from_texture;         external LibraryName name 'sk4d_image_make_from_texture'        {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_image_make_non_texture_image;    external LibraryName name 'sk4d_image_make_non_texture_image'   {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_image_make_raster_copy;          external LibraryName name 'sk4d_image_make_raster_copy'         {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_image_make_raster_image;         external LibraryName name 'sk4d_image_make_raster_image'        {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_image_make_raw_shader;           external LibraryName name 'sk4d_image_make_raw_shader'          {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_image_make_shader;               external LibraryName name 'sk4d_image_make_shader'              {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_image_make_subset;               external LibraryName name 'sk4d_image_make_subset'              {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_image_make_texture_image;        external LibraryName name 'sk4d_image_make_texture_image'       {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_image_make_with_filter;          external LibraryName name 'sk4d_image_make_with_filter'         {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_image_peek_pixels;               external LibraryName name 'sk4d_image_peek_pixels'              {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_image_read_pixels;               external LibraryName name 'sk4d_image_read_pixels'              {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_image_scale_pixels;              external LibraryName name 'sk4d_image_scale_pixels'             {$IFDEF IOS} dependency 'c++'{$ENDIF};
+function  sk4d_image_encode_to_file(const self: sk_image_t; const file_name: MarshaledAString; format: sk_encodedimageformat_t; quality: int32_t): _bool; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_image_encode_to_file'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_image_encode_to_stream(const self: sk_image_t; w_stream: sk_wstream_t; format: sk_encodedimageformat_t; quality: int32_t): _bool; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_image_encode_to_stream'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_image_get_alpha_type(const self: sk_image_t): sk_alphatype_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_image_get_alpha_type'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_image_get_color_space(const self: sk_image_t): sk_colorspace_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_image_get_color_space'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_image_get_color_type(const self: sk_image_t): sk_colortype_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_image_get_color_type'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_image_get_height(const self: sk_image_t): int32_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_image_get_height'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_image_get_image_info(const self: sk_image_t; out result: sk_imageinfo_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_image_get_image_info'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_image_get_unique_id(const self: sk_image_t): uint32_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_image_get_unique_id'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_image_get_width(const self: sk_image_t): int32_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_image_get_width'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_image_is_lazy_generated(const self: sk_image_t): _bool; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_image_is_lazy_generated'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_image_is_texture_backed(const self: sk_image_t): _bool; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_image_is_texture_backed'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_image_is_valid(const self: sk_image_t; context: gr_directcontext_t): _bool; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_image_is_valid'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_image_make_cross_context(context: gr_directcontext_t; const pixmap: sk_pixmap_t; build_mips, limit_to_max_texture_size: _bool): sk_image_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_image_make_cross_context'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_image_make_from_adopted_texture(context: gr_directcontext_t; const texture: gr_backendtexture_t; origin: gr_surfaceorigin_t; color_type: sk_colortype_t; alpha_type: sk_alphatype_t; color_space: sk_colorspace_t): sk_image_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_image_make_from_adopted_texture'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_image_make_from_encoded_file(const file_name: MarshaledAString): sk_image_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_image_make_from_encoded_file'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_image_make_from_encoded_stream(stream: sk_stream_t): sk_image_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_image_make_from_encoded_stream'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_image_make_from_picture(picture: sk_picture_t; const dimensions: psk_isize_t; const matrix: psk_matrix_t; const paint: sk_paint_t; color_space: sk_colorspace_t; const props: psk_surfaceprops_t): sk_image_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_image_make_from_picture'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_image_make_from_raster(const pixmap: sk_pixmap_t; proc: sk_image_raster_release_proc; proc_context: Pointer): sk_image_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_image_make_from_raster'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_image_make_from_texture(context: gr_directcontext_t; const texture: gr_backendtexture_t; origin: gr_surfaceorigin_t; color_type: sk_colortype_t; alpha_type: sk_alphatype_t; color_space: sk_colorspace_t; proc: sk_image_texture_release_proc; proc_context: Pointer): sk_image_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_image_make_from_texture'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_image_make_non_texture_image(const self: sk_image_t): sk_image_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_image_make_non_texture_image'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_image_make_raster_copy(const pixmap: sk_pixmap_t): sk_image_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_image_make_raster_copy'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_image_make_raster_image(const self: sk_image_t): sk_image_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_image_make_raster_image'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_image_make_raw_shader(const self: sk_image_t; tile_mode_x, tile_mode_y: sk_tilemode_t; const sampling: psk_samplingoptions_t; const local_matrix: psk_matrix_t): sk_shader_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_image_make_raw_shader'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_image_make_shader(const self: sk_image_t; tile_mode_x, tile_mode_y: sk_tilemode_t; const sampling: psk_samplingoptions_t; const local_matrix: psk_matrix_t): sk_shader_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_image_make_shader'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_image_make_subset(const self: sk_image_t; const subset: psk_irect_t; context: gr_directcontext_t): sk_image_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_image_make_subset'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_image_make_texture_image(const self: sk_image_t; context: gr_directcontext_t; is_mipmapped: _bool): sk_image_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_image_make_texture_image'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_image_make_with_filter(const self: sk_image_t; context: gr_directcontext_t; const filter: sk_imagefilter_t; const subset, clip_bounds: psk_irect_t; out out_subset: sk_irect_t; out offset: sk_ipoint_t): sk_image_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_image_make_with_filter'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_image_peek_pixels(const self: sk_image_t): sk_pixmap_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_image_peek_pixels'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_image_read_pixels(const self: sk_image_t; context: gr_directcontext_t; const dest: sk_pixmap_t; src_x, src_y: int32_t; caching_hint: sk_imagecachinghint_t): _bool; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_image_read_pixels'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_image_scale_pixels(const self: sk_image_t; const dest: sk_pixmap_t; const sampling: psk_samplingoptions_t; caching_hint: sk_imagecachinghint_t): _bool; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_image_scale_pixels'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
 {$ENDIF}
 
 
@@ -3135,8 +3150,8 @@ function  sk4d_image_scale_pixels;              external LibraryName name 'sk4d_
   sk4d_imageencoder_encode_to_file   := GetProcAddress(LibraryHandle, PChar('sk4d_imageencoder_encode_to_file'));
   sk4d_imageencoder_encode_to_stream := GetProcAddress(LibraryHandle, PChar('sk4d_imageencoder_encode_to_stream'));
 {$ELSE}
-function sk4d_imageencoder_encode_to_file;   external LibraryName name 'sk4d_imageencoder_encode_to_file'  {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function sk4d_imageencoder_encode_to_stream; external LibraryName name 'sk4d_imageencoder_encode_to_stream'{$IFDEF IOS} dependency 'c++'{$ENDIF};
+function sk4d_imageencoder_encode_to_file(const file_name: MarshaledAString; const src: sk_pixmap_t; format: sk_encodedimageformat_t; quality: int32_t): _bool; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_imageencoder_encode_to_file'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function sk4d_imageencoder_encode_to_stream(w_stream: sk_wstream_t; const src: sk_pixmap_t; format: sk_encodedimageformat_t; quality: int32_t): _bool; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_imageencoder_encode_to_stream'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
 {$ENDIF}
 
 
@@ -3175,37 +3190,37 @@ function sk4d_imageencoder_encode_to_stream; external LibraryName name 'sk4d_ima
   sk4d_imagefilter_make_tile                 := GetProcAddress(LibraryHandle, PChar('sk4d_imagefilter_make_tile'));
   sk4d_imagefilter_make_with_local_matrix    := GetProcAddress(LibraryHandle, PChar('sk4d_imagefilter_make_with_local_matrix'));
 {$ELSE}
-function  sk4d_imagefilter_can_compute_fast_bounds;   external LibraryName name 'sk4d_imagefilter_can_compute_fast_bounds'  {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_imagefilter_compute_fast_bounds;       external LibraryName name 'sk4d_imagefilter_compute_fast_bounds'      {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_imagefilter_make_alpha_threshold;      external LibraryName name 'sk4d_imagefilter_make_alpha_threshold'     {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_imagefilter_make_arithmetic;           external LibraryName name 'sk4d_imagefilter_make_arithmetic'          {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_imagefilter_make_blend;                external LibraryName name 'sk4d_imagefilter_make_blend'               {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_imagefilter_make_blur;                 external LibraryName name 'sk4d_imagefilter_make_blur'                {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_imagefilter_make_colorfilter;          external LibraryName name 'sk4d_imagefilter_make_colorfilter'         {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_imagefilter_make_compose;              external LibraryName name 'sk4d_imagefilter_make_compose'             {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_imagefilter_make_dilate;               external LibraryName name 'sk4d_imagefilter_make_dilate'              {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_imagefilter_make_displacement_map;     external LibraryName name 'sk4d_imagefilter_make_displacement_map'    {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_imagefilter_make_distant_lit_diffuse;  external LibraryName name 'sk4d_imagefilter_make_distant_lit_diffuse' {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_imagefilter_make_distant_lit_specular; external LibraryName name 'sk4d_imagefilter_make_distant_lit_specular'{$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_imagefilter_make_drop_shadow;          external LibraryName name 'sk4d_imagefilter_make_drop_shadow'         {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_imagefilter_make_drop_shadow_only;     external LibraryName name 'sk4d_imagefilter_make_drop_shadow_only'    {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_imagefilter_make_erode;                external LibraryName name 'sk4d_imagefilter_make_erode'               {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_imagefilter_make_image;                external LibraryName name 'sk4d_imagefilter_make_image'               {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_imagefilter_make_magnifier;            external LibraryName name 'sk4d_imagefilter_make_magnifier'           {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_imagefilter_make_matrix_convolution;   external LibraryName name 'sk4d_imagefilter_make_matrix_convolution'  {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_imagefilter_make_matrix_transform;     external LibraryName name 'sk4d_imagefilter_make_matrix_transform'    {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_imagefilter_make_merge;                external LibraryName name 'sk4d_imagefilter_make_merge'               {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_imagefilter_make_offset;               external LibraryName name 'sk4d_imagefilter_make_offset'              {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_imagefilter_make_picture;              external LibraryName name 'sk4d_imagefilter_make_picture'             {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_imagefilter_make_point_lit_diffuse;    external LibraryName name 'sk4d_imagefilter_make_point_lit_diffuse'   {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_imagefilter_make_point_lit_specular;   external LibraryName name 'sk4d_imagefilter_make_point_lit_specular'  {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_imagefilter_make_runtime_shader;       external LibraryName name 'sk4d_imagefilter_make_runtime_shader'      {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_imagefilter_make_runtime_shader2;      external LibraryName name 'sk4d_imagefilter_make_runtime_shader2'     {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_imagefilter_make_shader;               external LibraryName name 'sk4d_imagefilter_make_shader'              {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_imagefilter_make_spot_lit_diffuse;     external LibraryName name 'sk4d_imagefilter_make_spot_lit_diffuse'    {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_imagefilter_make_spot_lit_specular;    external LibraryName name 'sk4d_imagefilter_make_spot_lit_specular'   {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_imagefilter_make_tile;                 external LibraryName name 'sk4d_imagefilter_make_tile'                {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_imagefilter_make_with_local_matrix;    external LibraryName name 'sk4d_imagefilter_make_with_local_matrix'   {$IFDEF IOS} dependency 'c++'{$ENDIF};
+function  sk4d_imagefilter_can_compute_fast_bounds(const self: sk_imagefilter_t): _bool; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_imagefilter_can_compute_fast_bounds'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_imagefilter_compute_fast_bounds(const self: sk_imagefilter_t; const bounds: psk_rect_t; out result: sk_rect_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_imagefilter_compute_fast_bounds'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_imagefilter_make_alpha_threshold(const region: sk_region_t; inner_min, outer_max: float; input: sk_imagefilter_t): sk_imagefilter_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_imagefilter_make_alpha_threshold'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_imagefilter_make_arithmetic(k1, k2, k3, k4: float; enforce_premultiplied_color: _bool; background, foreground: sk_imagefilter_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_imagefilter_make_arithmetic'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_imagefilter_make_blend(mode: sk_blendmode_t; background, foreground: sk_imagefilter_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_imagefilter_make_blend'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_imagefilter_make_blur(sigma_x, sigma_y: float; tile_mode: sk_tilemode_t; input: sk_imagefilter_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_imagefilter_make_blur'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_imagefilter_make_colorfilter(color_filter: sk_colorfilter_t; input: sk_imagefilter_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_imagefilter_make_colorfilter'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_imagefilter_make_compose(inner, outer: sk_imagefilter_t): sk_imagefilter_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_imagefilter_make_compose'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_imagefilter_make_dilate(radius_x, radius_y: float; input: sk_imagefilter_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_imagefilter_make_dilate'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_imagefilter_make_displacement_map(x_channel_selector, y_channel_selector: sk_colorchannel_t; scale: float; displacement, input: sk_imagefilter_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_imagefilter_make_displacement_map'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_imagefilter_make_distant_lit_diffuse(const direction: psk_point3_t; light_color: sk_color_t; surface_scale, kd: float; input: sk_imagefilter_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_imagefilter_make_distant_lit_diffuse'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_imagefilter_make_distant_lit_specular(const direction: psk_point3_t; light_color: sk_color_t; surface_scale, ks, shininess: float; input: sk_imagefilter_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_imagefilter_make_distant_lit_specular'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_imagefilter_make_drop_shadow(dx, dy, sigma_x, sigma_y: float; color: sk_color_t; input: sk_imagefilter_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_imagefilter_make_drop_shadow'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_imagefilter_make_drop_shadow_only(dx, dy, sigma_x, sigma_y: float; color: sk_color_t; input: sk_imagefilter_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_imagefilter_make_drop_shadow_only'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_imagefilter_make_erode(radius_x, radius_y: float; input: sk_imagefilter_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_imagefilter_make_erode'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_imagefilter_make_image(image: sk_image_t; const src, dest: psk_rect_t; const sampling: psk_samplingoptions_t): sk_imagefilter_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_imagefilter_make_image'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_imagefilter_make_magnifier(const src: psk_rect_t; inset: float; input: sk_imagefilter_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_imagefilter_make_magnifier'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_imagefilter_make_matrix_convolution(const kernel_size: psk_isize_t; const kernel: pfloat; gain, bias: float; const kernel_offset: psk_ipoint_t; tile_mode: sk_tilemode_t; convolve_alpha: _bool; input: sk_imagefilter_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_imagefilter_make_matrix_convolution'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_imagefilter_make_matrix_transform(const matrix: psk_matrix_t; const sampling: psk_samplingoptions_t; input: sk_imagefilter_t): sk_imagefilter_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_imagefilter_make_matrix_transform'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_imagefilter_make_merge(const filters: psk_imagefilter_t; count: int32_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_imagefilter_make_merge'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_imagefilter_make_offset(dx, dy: float; input: sk_imagefilter_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_imagefilter_make_offset'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_imagefilter_make_picture(picture: sk_picture_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_imagefilter_make_picture'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_imagefilter_make_point_lit_diffuse(const location: psk_point3_t; light_color: sk_color_t; surface_scale, kd: float; input: sk_imagefilter_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_imagefilter_make_point_lit_diffuse'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_imagefilter_make_point_lit_specular(const location: psk_point3_t; light_color: sk_color_t; surface_scale, ks, shininess: float; input: sk_imagefilter_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_imagefilter_make_point_lit_specular'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_imagefilter_make_runtime_shader(const effect_builder: sk_runtimeshaderbuilder_t; const child: MarshaledAString; input: sk_imagefilter_t): sk_imagefilter_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_imagefilter_make_runtime_shader'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_imagefilter_make_runtime_shader2(const effect_builder: sk_runtimeshaderbuilder_t; const children: PMarshaledAString; inputs: psk_imagefilter_t; count: int32_t): sk_imagefilter_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_imagefilter_make_runtime_shader2'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_imagefilter_make_shader(shader: sk_shader_t; dither: _bool; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_imagefilter_make_shader'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_imagefilter_make_spot_lit_diffuse(const location, target: psk_point3_t; falloff_exponent, cutoff_angle: float; light_color: sk_color_t; surface_scale, kd: float; input: sk_imagefilter_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_imagefilter_make_spot_lit_diffuse'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_imagefilter_make_spot_lit_specular(const location, target: psk_point3_t; falloff_exponent, cutoff_angle: float; light_color: sk_color_t; surface_scale, ks, shininess: float; input: sk_imagefilter_t; const crop_rect: psk_rect_t): sk_imagefilter_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_imagefilter_make_spot_lit_specular'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_imagefilter_make_tile(const src, dest: psk_rect_t; input: sk_imagefilter_t): sk_imagefilter_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_imagefilter_make_tile'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_imagefilter_make_with_local_matrix(const self: sk_imagefilter_t; const local_matrix: psk_matrix_t): sk_imagefilter_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_imagefilter_make_with_local_matrix'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
 {$ENDIF}
 
 
@@ -3218,11 +3233,11 @@ function  sk4d_imagefilter_make_with_local_matrix;    external LibraryName name 
   sk4d_maskfilter_make_table_clip  := GetProcAddress(LibraryHandle, PChar('sk4d_maskfilter_make_table_clip'));
   sk4d_maskfilter_make_table_gamma := GetProcAddress(LibraryHandle, PChar('sk4d_maskfilter_make_table_gamma'));
 {$ELSE}
-function sk4d_maskfilter_make_blur;        external LibraryName name 'sk4d_maskfilter_make_blur'       {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function sk4d_maskfilter_make_shader;      external LibraryName name 'sk4d_maskfilter_make_shader'     {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function sk4d_maskfilter_make_table;       external LibraryName name 'sk4d_maskfilter_make_table'      {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function sk4d_maskfilter_make_table_clip;  external LibraryName name 'sk4d_maskfilter_make_table_clip' {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function sk4d_maskfilter_make_table_gamma; external LibraryName name 'sk4d_maskfilter_make_table_gamma'{$IFDEF IOS} dependency 'c++'{$ENDIF};
+function sk4d_maskfilter_make_blur(style: sk_blurstyle_t; sigma: float; respect_ctm: _bool): sk_maskfilter_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_maskfilter_make_blur'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function sk4d_maskfilter_make_shader(shader: sk_shader_t): sk_maskfilter_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_maskfilter_make_shader'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function sk4d_maskfilter_make_table(const table: puint8_t): sk_maskfilter_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_maskfilter_make_table'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function sk4d_maskfilter_make_table_clip(min, max: uint8_t): sk_maskfilter_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_maskfilter_make_table_clip'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function sk4d_maskfilter_make_table_gamma(gamma: float): sk_maskfilter_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_maskfilter_make_table_gamma'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
 {$ENDIF}
 
 
@@ -3270,46 +3285,46 @@ function sk4d_maskfilter_make_table_gamma; external LibraryName name 'sk4d_maskf
   sk4d_paint_set_stroke_width   := GetProcAddress(LibraryHandle, PChar('sk4d_paint_set_stroke_width'));
   sk4d_paint_set_style          := GetProcAddress(LibraryHandle, PChar('sk4d_paint_set_style'));
 {$ELSE}
-function  sk4d_paint_create;             external LibraryName name 'sk4d_paint_create'          {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_paint_create2;            external LibraryName name 'sk4d_paint_create2'         {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_paint_destroy;            external LibraryName name 'sk4d_paint_destroy'         {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_paint_get_alpha;          external LibraryName name 'sk4d_paint_get_alpha'       {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_paint_get_alphaf;         external LibraryName name 'sk4d_paint_get_alphaf'      {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_paint_get_anti_alias;     external LibraryName name 'sk4d_paint_get_anti_alias'  {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_paint_get_blender;        external LibraryName name 'sk4d_paint_get_blender'     {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_paint_get_color;          external LibraryName name 'sk4d_paint_get_color'       {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_paint_get_colorf;         external LibraryName name 'sk4d_paint_get_colorf'      {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_paint_get_color_filter;   external LibraryName name 'sk4d_paint_get_color_filter'{$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_paint_get_dither;         external LibraryName name 'sk4d_paint_get_dither'      {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_paint_get_fill_path;      external LibraryName name 'sk4d_paint_get_fill_path'   {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_paint_get_image_filter;   external LibraryName name 'sk4d_paint_get_image_filter'{$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_paint_get_mask_filter;    external LibraryName name 'sk4d_paint_get_mask_filter' {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_paint_get_path_effect;    external LibraryName name 'sk4d_paint_get_path_effect' {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_paint_get_shader;         external LibraryName name 'sk4d_paint_get_shader'      {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_paint_get_stroke_cap;     external LibraryName name 'sk4d_paint_get_stroke_cap'  {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_paint_get_stroke_join;    external LibraryName name 'sk4d_paint_get_stroke_join' {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_paint_get_stroke_miter;   external LibraryName name 'sk4d_paint_get_stroke_miter'{$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_paint_get_stroke_width;   external LibraryName name 'sk4d_paint_get_stroke_width'{$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_paint_get_style;          external LibraryName name 'sk4d_paint_get_style'       {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_paint_reset;              external LibraryName name 'sk4d_paint_reset'           {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_paint_set_alpha;          external LibraryName name 'sk4d_paint_set_alpha'       {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_paint_set_alphaf;         external LibraryName name 'sk4d_paint_set_alphaf'      {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_paint_set_antialias;      external LibraryName name 'sk4d_paint_set_antialias'   {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_paint_set_argb;           external LibraryName name 'sk4d_paint_set_argb'        {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_paint_set_blender;        external LibraryName name 'sk4d_paint_set_blender'     {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_paint_set_color;          external LibraryName name 'sk4d_paint_set_color'       {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_paint_set_colorf;         external LibraryName name 'sk4d_paint_set_colorf'      {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_paint_set_color_filter;   external LibraryName name 'sk4d_paint_set_color_filter'{$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_paint_set_dither;         external LibraryName name 'sk4d_paint_set_dither'      {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_paint_set_image_filter;   external LibraryName name 'sk4d_paint_set_image_filter'{$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_paint_set_mask_filter;    external LibraryName name 'sk4d_paint_set_mask_filter' {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_paint_set_path_effect;    external LibraryName name 'sk4d_paint_set_path_effect' {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_paint_set_shader;         external LibraryName name 'sk4d_paint_set_shader'      {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_paint_set_stroke_cap;     external LibraryName name 'sk4d_paint_set_stroke_cap'  {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_paint_set_stroke_join;    external LibraryName name 'sk4d_paint_set_stroke_join' {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_paint_set_stroke_miter;   external LibraryName name 'sk4d_paint_set_stroke_miter'{$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_paint_set_stroke_width;   external LibraryName name 'sk4d_paint_set_stroke_width'{$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_paint_set_style;          external LibraryName name 'sk4d_paint_set_style'       {$IFDEF IOS} dependency 'c++'{$ENDIF};
+function  sk4d_paint_create(): sk_paint_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_paint_create'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_paint_create2(const paint: sk_paint_t): sk_paint_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_paint_create2'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_paint_destroy(self: sk_paint_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_paint_destroy'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_paint_get_alpha(const self: sk_paint_t): uint8_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_paint_get_alpha'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_paint_get_alphaf(const self: sk_paint_t): float; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_paint_get_alphaf'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_paint_get_anti_alias(const self: sk_paint_t): _bool; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_paint_get_anti_alias'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_paint_get_blender(const self: sk_paint_t): sk_blender_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_paint_get_blender'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_paint_get_color(const self: sk_paint_t): sk_color_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_paint_get_color'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_paint_get_colorf(const self: sk_paint_t; out result: sk_color4f_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_paint_get_colorf'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_paint_get_color_filter(const self: sk_paint_t): sk_colorfilter_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_paint_get_color_filter'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_paint_get_dither(const self: sk_paint_t): _bool; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_paint_get_dither'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_paint_get_fill_path(const self: sk_paint_t; const path: sk_path_t; const cull_rect: psk_rect_t; res_scale: float): sk_path_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_paint_get_fill_path'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_paint_get_image_filter(const self: sk_paint_t): sk_imagefilter_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_paint_get_image_filter'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_paint_get_mask_filter(const self: sk_paint_t): sk_maskfilter_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_paint_get_mask_filter'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_paint_get_path_effect(const self: sk_paint_t): sk_patheffect_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_paint_get_path_effect'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_paint_get_shader(const self: sk_paint_t): sk_shader_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_paint_get_shader'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_paint_get_stroke_cap(const self: sk_paint_t): sk_strokecap_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_paint_get_stroke_cap'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_paint_get_stroke_join(const self: sk_paint_t): sk_strokejoin_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_paint_get_stroke_join'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_paint_get_stroke_miter(const self: sk_paint_t): float; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_paint_get_stroke_miter'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_paint_get_stroke_width(const self: sk_paint_t): float; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_paint_get_stroke_width'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_paint_get_style(const self: sk_paint_t): sk_paintstyle_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_paint_get_style'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_paint_reset(self: sk_paint_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_paint_reset'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_paint_set_alpha(self: sk_paint_t; value: uint8_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_paint_set_alpha'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_paint_set_alphaf(self: sk_paint_t; value: float); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_paint_set_alphaf'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_paint_set_antialias(self: sk_paint_t; value: _bool); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_paint_set_antialias'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_paint_set_argb(self: sk_paint_t; a, r, g, b: uint8_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_paint_set_argb'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_paint_set_blender(self: sk_paint_t; value: sk_blender_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_paint_set_blender'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_paint_set_color(self: sk_paint_t; value: sk_color_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_paint_set_color'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_paint_set_colorf(self: sk_paint_t; const value: psk_color4f_t; color_space: sk_colorspace_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_paint_set_colorf'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_paint_set_color_filter(self: sk_paint_t; value: sk_colorfilter_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_paint_set_color_filter'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_paint_set_dither(self: sk_paint_t; value: _bool); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_paint_set_dither'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_paint_set_image_filter(self: sk_paint_t; value: sk_imagefilter_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_paint_set_image_filter'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_paint_set_mask_filter(self: sk_paint_t; value: sk_maskfilter_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_paint_set_mask_filter'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_paint_set_path_effect(self: sk_paint_t; value: sk_patheffect_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_paint_set_path_effect'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_paint_set_shader(self: sk_paint_t; value: sk_shader_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_paint_set_shader'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_paint_set_stroke_cap(self: sk_paint_t; value: sk_strokecap_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_paint_set_stroke_cap'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_paint_set_stroke_join(self: sk_paint_t; value: sk_strokejoin_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_paint_set_stroke_join'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_paint_set_stroke_miter(self: sk_paint_t; value: float); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_paint_set_stroke_miter'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_paint_set_stroke_width(self: sk_paint_t; value: float); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_paint_set_stroke_width'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_paint_set_style(self: sk_paint_t; value: sk_paintstyle_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_paint_set_style'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
 {$ENDIF}
 
 
@@ -3348,37 +3363,37 @@ procedure sk4d_paint_set_style;          external LibraryName name 'sk4d_paint_s
   sk4d_pathiterator_destroy        := GetProcAddress(LibraryHandle, PChar('sk4d_pathiterator_destroy'));
   sk4d_pathiterator_next           := GetProcAddress(LibraryHandle, PChar('sk4d_pathiterator_next'));
 {$ELSE}
-procedure sk4d_opbuilder_add;               external LibraryName name 'sk4d_opbuilder_add'              {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_opbuilder_create;            external LibraryName name 'sk4d_opbuilder_create'           {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_opbuilder_destroy;           external LibraryName name 'sk4d_opbuilder_destroy'          {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_opbuilder_detach;            external LibraryName name 'sk4d_opbuilder_detach'           {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_path_contains;               external LibraryName name 'sk4d_path_contains'              {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_path_convert_conic_to_quads; external LibraryName name 'sk4d_path_convert_conic_to_quads'{$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_path_create;                 external LibraryName name 'sk4d_path_create'                {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_path_create2;                external LibraryName name 'sk4d_path_create2'               {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_path_destroy;                external LibraryName name 'sk4d_path_destroy'               {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_path_get_bounds;             external LibraryName name 'sk4d_path_get_bounds'            {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_path_get_fill_type;          external LibraryName name 'sk4d_path_get_fill_type'         {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_path_get_last_point;         external LibraryName name 'sk4d_path_get_last_point'        {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_path_get_segment_masks;      external LibraryName name 'sk4d_path_get_segment_masks'     {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_path_get_tight_bounds;       external LibraryName name 'sk4d_path_get_tight_bounds'      {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_path_interpolate;            external LibraryName name 'sk4d_path_interpolate'           {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_path_is_convex;              external LibraryName name 'sk4d_path_is_convex'             {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_path_is_empty;               external LibraryName name 'sk4d_path_is_empty'              {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_path_is_finite;              external LibraryName name 'sk4d_path_is_finite'             {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_path_is_interpolatable;      external LibraryName name 'sk4d_path_is_interpolatable'     {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_path_is_last_contour_closed; external LibraryName name 'sk4d_path_is_last_contour_closed'{$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_path_is_line;                external LibraryName name 'sk4d_path_is_line'               {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_path_is_oval;                external LibraryName name 'sk4d_path_is_oval'               {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_path_is_rect;                external LibraryName name 'sk4d_path_is_rect'               {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_path_is_rrect;               external LibraryName name 'sk4d_path_is_rrect'              {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_path_op;                     external LibraryName name 'sk4d_path_op'                    {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_path_serialize_to_stream;    external LibraryName name 'sk4d_path_serialize_to_stream'   {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_path_to_svg;                 external LibraryName name 'sk4d_path_to_svg'                {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_path_transform;              external LibraryName name 'sk4d_path_transform'             {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_pathiterator_create;         external LibraryName name 'sk4d_pathiterator_create'        {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_pathiterator_destroy;        external LibraryName name 'sk4d_pathiterator_destroy'       {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_pathiterator_next;           external LibraryName name 'sk4d_pathiterator_next'          {$IFDEF IOS} dependency 'c++'{$ENDIF};
+procedure sk4d_opbuilder_add(self: sk_opbuilder_t; const path: sk_path_t; op: sk_pathop_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_opbuilder_add'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_opbuilder_create(): sk_opbuilder_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_opbuilder_create'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_opbuilder_destroy(self: sk_opbuilder_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_opbuilder_destroy'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_opbuilder_detach(self: sk_opbuilder_t): sk_path_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_opbuilder_detach'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_path_contains(const self: sk_path_t; x, y: float): _bool; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_path_contains'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_path_convert_conic_to_quads(const point1, point2, point3: psk_point_t; weight: float; points: psk_point_t; power2: int32_t): int32_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_path_convert_conic_to_quads'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_path_create(const svg: MarshaledAString): sk_path_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_path_create'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_path_create2(stream: sk_stream_t): sk_path_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_path_create2'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_path_destroy(self: sk_path_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_path_destroy'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_path_get_bounds(const self: sk_path_t; out result: sk_rect_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_path_get_bounds'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_path_get_fill_type(const self: sk_path_t): sk_pathfilltype_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_path_get_fill_type'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_path_get_last_point(const self: sk_path_t; out result: sk_point_t): _bool; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_path_get_last_point'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_path_get_segment_masks(const self: sk_path_t): uint32_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_path_get_segment_masks'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_path_get_tight_bounds(const self: sk_path_t; out result: sk_rect_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_path_get_tight_bounds'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_path_interpolate(const self, ending: sk_path_t; weight: float): sk_path_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_path_interpolate'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_path_is_convex(const self: sk_path_t): _bool; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_path_is_convex'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_path_is_empty(const self: sk_path_t): _bool; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_path_is_empty'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_path_is_finite(const self: sk_path_t): _bool; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_path_is_finite'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_path_is_interpolatable(const self, path: sk_path_t): _bool; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_path_is_interpolatable'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_path_is_last_contour_closed(const self: sk_path_t): _bool; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_path_is_last_contour_closed'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_path_is_line(const self: sk_path_t; lines: psk_point_t): _bool; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_path_is_line'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_path_is_oval(const self: sk_path_t; oval: psk_rect_t): _bool; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_path_is_oval'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_path_is_rect(const self: sk_path_t; rect: psk_rect_t): _bool; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_path_is_rect'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_path_is_rrect(const self: sk_path_t; rrect: sk_rrect_t): _bool; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_path_is_rrect'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_path_op(const self, path: sk_path_t; op: sk_pathop_t): sk_path_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_path_op'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_path_serialize_to_stream(const self: sk_path_t; w_stream: sk_wstream_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_path_serialize_to_stream'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_path_to_svg(const self: sk_path_t): sk_string_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_path_to_svg'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_path_transform(const self: sk_path_t; const matrix: psk_matrix_t): sk_path_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_path_transform'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_pathiterator_create(const path: sk_path_t; force_close: _bool): sk_pathiterator_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_pathiterator_create'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_pathiterator_destroy(self: sk_pathiterator_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_pathiterator_destroy'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_pathiterator_next(self: sk_pathiterator_t; out elem: sk_pathiteratorelem_t): _bool; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_pathiterator_next'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
 {$ENDIF}
 
 
@@ -3419,39 +3434,39 @@ function  sk4d_pathiterator_next;           external LibraryName name 'sk4d_path
   sk4d_pathbuilder_snapshot                := GetProcAddress(LibraryHandle, PChar('sk4d_pathbuilder_snapshot'));
   sk4d_pathbuilder_toggle_inverse_filltype := GetProcAddress(LibraryHandle, PChar('sk4d_pathbuilder_toggle_inverse_filltype'));
 {$ELSE}
-procedure sk4d_pathbuilder_add_arc;                 external LibraryName name 'sk4d_pathbuilder_add_arc'                {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_pathbuilder_add_circle;              external LibraryName name 'sk4d_pathbuilder_add_circle'             {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_pathbuilder_add_oval;                external LibraryName name 'sk4d_pathbuilder_add_oval'               {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_pathbuilder_add_path;                external LibraryName name 'sk4d_pathbuilder_add_path'               {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_pathbuilder_add_polygon;             external LibraryName name 'sk4d_pathbuilder_add_polygon'            {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_pathbuilder_add_rect;                external LibraryName name 'sk4d_pathbuilder_add_rect'               {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_pathbuilder_add_rrect;               external LibraryName name 'sk4d_pathbuilder_add_rrect'              {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_pathbuilder_arc_to;                  external LibraryName name 'sk4d_pathbuilder_arc_to'                 {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_pathbuilder_arc_to2;                 external LibraryName name 'sk4d_pathbuilder_arc_to2'                {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_pathbuilder_arc_to3;                 external LibraryName name 'sk4d_pathbuilder_arc_to3'                {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_pathbuilder_close;                   external LibraryName name 'sk4d_pathbuilder_close'                  {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_pathbuilder_conic_to;                external LibraryName name 'sk4d_pathbuilder_conic_to'               {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_pathbuilder_create;                  external LibraryName name 'sk4d_pathbuilder_create'                 {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_pathbuilder_create2;                 external LibraryName name 'sk4d_pathbuilder_create2'                {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_pathbuilder_cubic_to;                external LibraryName name 'sk4d_pathbuilder_cubic_to'               {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_pathbuilder_destroy;                 external LibraryName name 'sk4d_pathbuilder_destroy'                {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_pathbuilder_detach;                  external LibraryName name 'sk4d_pathbuilder_detach'                 {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_pathbuilder_get_bounds;              external LibraryName name 'sk4d_pathbuilder_get_bounds'             {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_pathbuilder_get_fill_type;           external LibraryName name 'sk4d_pathbuilder_get_fill_type'          {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_pathbuilder_inc_reserve;             external LibraryName name 'sk4d_pathbuilder_inc_reserve'            {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_pathbuilder_line_to;                 external LibraryName name 'sk4d_pathbuilder_line_to'                {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_pathbuilder_move_to;                 external LibraryName name 'sk4d_pathbuilder_move_to'                {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_pathbuilder_offset;                  external LibraryName name 'sk4d_pathbuilder_offset'                 {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_pathbuilder_polyline_to;             external LibraryName name 'sk4d_pathbuilder_polyline_to'            {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_pathbuilder_quad_to;                 external LibraryName name 'sk4d_pathbuilder_quad_to'                {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_pathbuilder_r_conic_to;              external LibraryName name 'sk4d_pathbuilder_r_conic_to'             {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_pathbuilder_r_cubic_to;              external LibraryName name 'sk4d_pathbuilder_r_cubic_to'             {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_pathbuilder_r_line_to;               external LibraryName name 'sk4d_pathbuilder_r_line_to'              {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_pathbuilder_r_quad_to;               external LibraryName name 'sk4d_pathbuilder_r_quad_to'              {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_pathbuilder_reset;                   external LibraryName name 'sk4d_pathbuilder_reset'                  {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_pathbuilder_set_filltype;            external LibraryName name 'sk4d_pathbuilder_set_filltype'           {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_pathbuilder_snapshot;                external LibraryName name 'sk4d_pathbuilder_snapshot'               {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_pathbuilder_toggle_inverse_filltype; external LibraryName name 'sk4d_pathbuilder_toggle_inverse_filltype'{$IFDEF IOS} dependency 'c++'{$ENDIF};
+procedure sk4d_pathbuilder_add_arc(self: sk_pathbuilder_t; const oval: psk_rect_t; start_angle, sweep_angle: float); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_pathbuilder_add_arc'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_pathbuilder_add_circle(self: sk_pathbuilder_t; center_x, center_y, radius: float; direction: sk_pathdirection_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_pathbuilder_add_circle'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_pathbuilder_add_oval(self: sk_pathbuilder_t; const oval: psk_rect_t; direction: sk_pathdirection_t; start_index: uint32_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_pathbuilder_add_oval'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_pathbuilder_add_path(self: sk_pathbuilder_t; const path: sk_path_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_pathbuilder_add_path'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_pathbuilder_add_polygon(self: sk_pathbuilder_t; polygon: psk_point_t; count: int32_t; is_closed: _bool); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_pathbuilder_add_polygon'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_pathbuilder_add_rect(self: sk_pathbuilder_t; const rect: psk_rect_t; direction: sk_pathdirection_t; start_index: uint32_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_pathbuilder_add_rect'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_pathbuilder_add_rrect(self: sk_pathbuilder_t; const rrect: sk_rrect_t; direction: sk_pathdirection_t; start_index: uint32_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_pathbuilder_add_rrect'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_pathbuilder_arc_to(self: sk_pathbuilder_t; const radius: psk_point_t; x_axis_rotate: float; large_arc: sk_patharcsize_t; sweep: sk_pathdirection_t; const xy: psk_point_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_pathbuilder_arc_to'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_pathbuilder_arc_to2(self: sk_pathbuilder_t; const oval: psk_rect_t; start_angle, sweep_angle: float; force_move_to: _bool); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_pathbuilder_arc_to2'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_pathbuilder_arc_to3(self: sk_pathbuilder_t; const point1, point2: psk_point_t; radius: float); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_pathbuilder_arc_to3'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_pathbuilder_close(self: sk_pathbuilder_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_pathbuilder_close'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_pathbuilder_conic_to(self: sk_pathbuilder_t; const point1, point2: psk_point_t; weight: float); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_pathbuilder_conic_to'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_pathbuilder_create(): sk_pathbuilder_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_pathbuilder_create'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_pathbuilder_create2(const path_builder: sk_pathbuilder_t): sk_pathbuilder_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_pathbuilder_create2'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_pathbuilder_cubic_to(self: sk_pathbuilder_t; const point1, point2, point3: psk_point_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_pathbuilder_cubic_to'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_pathbuilder_destroy(self: sk_pathbuilder_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_pathbuilder_destroy'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_pathbuilder_detach(self: sk_pathbuilder_t): sk_path_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_pathbuilder_detach'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_pathbuilder_get_bounds(const self: sk_pathbuilder_t; out result: sk_rect_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_pathbuilder_get_bounds'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_pathbuilder_get_fill_type(const self: sk_pathbuilder_t): sk_pathfilltype_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_pathbuilder_get_fill_type'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_pathbuilder_inc_reserve(self: sk_pathbuilder_t; extra_point_count, extra_verb_count: int32_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_pathbuilder_inc_reserve'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_pathbuilder_line_to(self: sk_pathbuilder_t; const cpoint: psk_point_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_pathbuilder_line_to'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_pathbuilder_move_to(self: sk_pathbuilder_t; const cpoint: psk_point_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_pathbuilder_move_to'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_pathbuilder_offset(self: sk_pathbuilder_t; dx, dy: float); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_pathbuilder_offset'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_pathbuilder_polyline_to(self: sk_pathbuilder_t; const points: psk_point_t; count: int32_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_pathbuilder_polyline_to'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_pathbuilder_quad_to(self: sk_pathbuilder_t; const point1, point2: psk_point_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_pathbuilder_quad_to'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_pathbuilder_r_conic_to(self: sk_pathbuilder_t; const point1, point2: psk_point_t; weight: float); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_pathbuilder_r_conic_to'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_pathbuilder_r_cubic_to(self: sk_pathbuilder_t; const point1, point2, point3: psk_point_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_pathbuilder_r_cubic_to'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_pathbuilder_r_line_to(self: sk_pathbuilder_t; const point: psk_point_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_pathbuilder_r_line_to'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_pathbuilder_r_quad_to(self: sk_pathbuilder_t; const point1, point2: psk_point_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_pathbuilder_r_quad_to'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_pathbuilder_reset(self: sk_pathbuilder_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_pathbuilder_reset'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_pathbuilder_set_filltype(self: sk_pathbuilder_t; value: sk_pathfilltype_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_pathbuilder_set_filltype'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_pathbuilder_snapshot(const self: sk_pathbuilder_t): sk_path_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_pathbuilder_snapshot'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_pathbuilder_toggle_inverse_filltype(self: sk_pathbuilder_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_pathbuilder_toggle_inverse_filltype'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
 {$ENDIF}
 
 
@@ -3473,20 +3488,20 @@ procedure sk4d_pathbuilder_toggle_inverse_filltype; external LibraryName name 's
   sk4d_patheffect_make_translate       := GetProcAddress(LibraryHandle, PChar('sk4d_patheffect_make_translate'));
   sk4d_patheffect_make_trim            := GetProcAddress(LibraryHandle, PChar('sk4d_patheffect_make_trim'));
 {$ELSE}
-function sk4d_patheffect_make_1dpath;          external LibraryName name 'sk4d_patheffect_make_1dpath'         {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function sk4d_patheffect_make_2dline;          external LibraryName name 'sk4d_patheffect_make_2dline'         {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function sk4d_patheffect_make_2dpath;          external LibraryName name 'sk4d_patheffect_make_2dpath'         {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function sk4d_patheffect_make_compose;         external LibraryName name 'sk4d_patheffect_make_compose'        {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function sk4d_patheffect_make_corner;          external LibraryName name 'sk4d_patheffect_make_corner'         {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function sk4d_patheffect_make_dash;            external LibraryName name 'sk4d_patheffect_make_dash'           {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function sk4d_patheffect_make_discrete;        external LibraryName name 'sk4d_patheffect_make_discrete'       {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function sk4d_patheffect_make_matrix;          external LibraryName name 'sk4d_patheffect_make_matrix'         {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function sk4d_patheffect_make_merge;           external LibraryName name 'sk4d_patheffect_make_merge'          {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function sk4d_patheffect_make_stroke;          external LibraryName name 'sk4d_patheffect_make_stroke'         {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function sk4d_patheffect_make_stroke_and_fill; external LibraryName name 'sk4d_patheffect_make_stroke_and_fill'{$IFDEF IOS} dependency 'c++'{$ENDIF};
-function sk4d_patheffect_make_sum;             external LibraryName name 'sk4d_patheffect_make_sum'            {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function sk4d_patheffect_make_translate;       external LibraryName name 'sk4d_patheffect_make_translate'      {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function sk4d_patheffect_make_trim;            external LibraryName name 'sk4d_patheffect_make_trim'           {$IFDEF IOS} dependency 'c++'{$ENDIF};
+function sk4d_patheffect_make_1dpath(const path: sk_path_t; advance, phase: float; style: sk_patheffect1dstyle_t): sk_patheffect_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_patheffect_make_1dpath'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function sk4d_patheffect_make_2dline(width: float; const matrix: psk_matrix_t): sk_patheffect_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_patheffect_make_2dline'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function sk4d_patheffect_make_2dpath(const matrix: psk_matrix_t; const path: sk_path_t): sk_patheffect_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_patheffect_make_2dpath'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function sk4d_patheffect_make_compose(outer, inner: sk_patheffect_t): sk_patheffect_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_patheffect_make_compose'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function sk4d_patheffect_make_corner(radius: float): sk_patheffect_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_patheffect_make_corner'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function sk4d_patheffect_make_dash(const intervals: pfloat; count: int32_t; phase: float): sk_patheffect_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_patheffect_make_dash'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function sk4d_patheffect_make_discrete(seg_length, deviation: float; seed_assist: uint32_t): sk_patheffect_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_patheffect_make_discrete'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function sk4d_patheffect_make_matrix(const matrix: psk_matrix_t): sk_patheffect_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_patheffect_make_matrix'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function sk4d_patheffect_make_merge(effect1, effect2: sk_patheffect_t; op: sk_pathop_t): sk_patheffect_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_patheffect_make_merge'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function sk4d_patheffect_make_stroke(width: float; join: sk_strokejoin_t; cap: sk_strokecap_t; miter: float): sk_patheffect_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_patheffect_make_stroke'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function sk4d_patheffect_make_stroke_and_fill(): sk_patheffect_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_patheffect_make_stroke_and_fill'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function sk4d_patheffect_make_sum(effect1, effect2: sk_patheffect_t): sk_patheffect_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_patheffect_make_sum'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function sk4d_patheffect_make_translate(dx, dy: float): sk_patheffect_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_patheffect_make_translate'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function sk4d_patheffect_make_trim(start, stop: float; mode: sk_patheffecttrimmode_t): sk_patheffect_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_patheffect_make_trim'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
 {$ENDIF}
 
 
@@ -3502,14 +3517,14 @@ function sk4d_patheffect_make_trim;            external LibraryName name 'sk4d_p
   sk4d_pathmeasure_is_closed                := GetProcAddress(LibraryHandle, PChar('sk4d_pathmeasure_is_closed'));
   sk4d_pathmeasure_next_contour             := GetProcAddress(LibraryHandle, PChar('sk4d_pathmeasure_next_contour'));
 {$ELSE}
-function  sk4d_pathmeasure_create;                   external LibraryName name 'sk4d_pathmeasure_create'                  {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_pathmeasure_destroy;                  external LibraryName name 'sk4d_pathmeasure_destroy'                 {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_pathmeasure_get_length;               external LibraryName name 'sk4d_pathmeasure_get_length'              {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_pathmeasure_get_matrix;               external LibraryName name 'sk4d_pathmeasure_get_matrix'              {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_pathmeasure_get_position_and_tangent; external LibraryName name 'sk4d_pathmeasure_get_position_and_tangent'{$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_pathmeasure_get_segment;              external LibraryName name 'sk4d_pathmeasure_get_segment'             {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_pathmeasure_is_closed;                external LibraryName name 'sk4d_pathmeasure_is_closed'               {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_pathmeasure_next_contour;             external LibraryName name 'sk4d_pathmeasure_next_contour'            {$IFDEF IOS} dependency 'c++'{$ENDIF};
+function  sk4d_pathmeasure_create(const path: sk_path_t; force_closed: _bool; res_scale: float): sk_pathmeasure_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_pathmeasure_create'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_pathmeasure_destroy(self: sk_pathmeasure_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_pathmeasure_destroy'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_pathmeasure_get_length(self: sk_pathmeasure_t): float; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_pathmeasure_get_length'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_pathmeasure_get_matrix(self: sk_pathmeasure_t; distance: float; out matrix: sk_matrix_t; matrix_flags: uint32_t): _bool; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_pathmeasure_get_matrix'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_pathmeasure_get_position_and_tangent(self: sk_pathmeasure_t; distance: float; out position: sk_point_t; out tangent: sk_vector_t): _bool; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_pathmeasure_get_position_and_tangent'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_pathmeasure_get_segment(self: sk_pathmeasure_t; start, stop: float; start_with_move_to: _bool): sk_path_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_pathmeasure_get_segment'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_pathmeasure_is_closed(self: sk_pathmeasure_t): _bool; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_pathmeasure_is_closed'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_pathmeasure_next_contour(self: sk_pathmeasure_t): _bool; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_pathmeasure_next_contour'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
 {$ENDIF}
 
 
@@ -3524,13 +3539,13 @@ function  sk4d_pathmeasure_next_contour;             external LibraryName name '
   sk4d_picture_playback               := GetProcAddress(LibraryHandle, PChar('sk4d_picture_playback'));
   sk4d_picture_serialize_to_stream    := GetProcAddress(LibraryHandle, PChar('sk4d_picture_serialize_to_stream'));
 {$ELSE}
-function  sk4d_picture_approximate_bytes_used; external LibraryName name 'sk4d_picture_approximate_bytes_used'{$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_picture_approximate_op_count;   external LibraryName name 'sk4d_picture_approximate_op_count'  {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_picture_get_cull_rect;          external LibraryName name 'sk4d_picture_get_cull_rect'         {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_picture_make_from_stream;       external LibraryName name 'sk4d_picture_make_from_stream'      {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_picture_make_shader;            external LibraryName name 'sk4d_picture_make_shader'           {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_picture_playback;               external LibraryName name 'sk4d_picture_playback'              {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_picture_serialize_to_stream;    external LibraryName name 'sk4d_picture_serialize_to_stream'   {$IFDEF IOS} dependency 'c++'{$ENDIF};
+function  sk4d_picture_approximate_bytes_used(const self: sk_picture_t): size_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_picture_approximate_bytes_used'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_picture_approximate_op_count(const self: sk_picture_t; nested: _bool): int32_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_picture_approximate_op_count'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_picture_get_cull_rect(const self: sk_picture_t; out result: sk_rect_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_picture_get_cull_rect'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_picture_make_from_stream(stream: sk_stream_t): sk_picture_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_picture_make_from_stream'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_picture_make_shader(const self: sk_picture_t; tile_mode_x, tile_mode_y: sk_tilemode_t; filter_mode: sk_filtermode_t; const local_matrix: psk_matrix_t; const tile_rect: psk_rect_t): sk_shader_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_picture_make_shader'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_picture_playback(const self: sk_picture_t; canvas: sk_canvas_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_picture_playback'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_picture_serialize_to_stream(const self: sk_picture_t; w_stream: sk_wstream_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_picture_serialize_to_stream'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
 {$ENDIF}
 
 
@@ -3543,11 +3558,11 @@ procedure sk4d_picture_serialize_to_stream;    external LibraryName name 'sk4d_p
   sk4d_picturerecorder_finish_recording  := GetProcAddress(LibraryHandle, PChar('sk4d_picturerecorder_finish_recording'));
   sk4d_picturerecorder_finish_recording2 := GetProcAddress(LibraryHandle, PChar('sk4d_picturerecorder_finish_recording2'));
 {$ELSE}
-function  sk4d_picturerecorder_begin_recording;   external LibraryName name 'sk4d_picturerecorder_begin_recording'  {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_picturerecorder_create;            external LibraryName name 'sk4d_picturerecorder_create'           {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_picturerecorder_destroy;           external LibraryName name 'sk4d_picturerecorder_destroy'          {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_picturerecorder_finish_recording;  external LibraryName name 'sk4d_picturerecorder_finish_recording' {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_picturerecorder_finish_recording2; external LibraryName name 'sk4d_picturerecorder_finish_recording2'{$IFDEF IOS} dependency 'c++'{$ENDIF};
+function  sk4d_picturerecorder_begin_recording(self: sk_picturerecorder_t; const bounds: psk_rect_t): sk_canvas_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_picturerecorder_begin_recording'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_picturerecorder_create(): sk_picturerecorder_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_picturerecorder_create'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_picturerecorder_destroy(self: sk_picturerecorder_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_picturerecorder_destroy'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_picturerecorder_finish_recording(self: sk_picturerecorder_t): sk_picture_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_picturerecorder_finish_recording'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_picturerecorder_finish_recording2(self: sk_picturerecorder_t; const cull_rect: psk_rect_t): sk_picture_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_picturerecorder_finish_recording2'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
 {$ENDIF}
 
 
@@ -3575,26 +3590,26 @@ function  sk4d_picturerecorder_finish_recording2; external LibraryName name 'sk4
   sk4d_pixmap_scale_pixels    := GetProcAddress(LibraryHandle, PChar('sk4d_pixmap_scale_pixels'));
   sk4d_pixmap_set_colorspace  := GetProcAddress(LibraryHandle, PChar('sk4d_pixmap_set_colorspace'));
 {$ELSE}
-function  sk4d_pixmap_create;          external LibraryName name 'sk4d_pixmap_create'         {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_pixmap_destroy;         external LibraryName name 'sk4d_pixmap_destroy'        {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_pixmap_erase;           external LibraryName name 'sk4d_pixmap_erase'          {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_pixmap_erase2;          external LibraryName name 'sk4d_pixmap_erase2'         {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_pixmap_extract_subset;  external LibraryName name 'sk4d_pixmap_extract_subset' {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_pixmap_get_alpha;       external LibraryName name 'sk4d_pixmap_get_alpha'      {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_pixmap_get_alpha_type;  external LibraryName name 'sk4d_pixmap_get_alpha_type' {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_pixmap_get_color;       external LibraryName name 'sk4d_pixmap_get_color'      {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_pixmap_get_color_space; external LibraryName name 'sk4d_pixmap_get_color_space'{$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_pixmap_get_color_type;  external LibraryName name 'sk4d_pixmap_get_color_type' {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_pixmap_get_colorf;      external LibraryName name 'sk4d_pixmap_get_colorf'     {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_pixmap_get_height;      external LibraryName name 'sk4d_pixmap_get_height'     {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_pixmap_get_image_info;  external LibraryName name 'sk4d_pixmap_get_image_info' {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_pixmap_get_pixel_addr;  external LibraryName name 'sk4d_pixmap_get_pixel_addr' {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_pixmap_get_pixels;      external LibraryName name 'sk4d_pixmap_get_pixels'     {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_pixmap_get_row_bytes;   external LibraryName name 'sk4d_pixmap_get_row_bytes'  {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_pixmap_get_width;       external LibraryName name 'sk4d_pixmap_get_width'      {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_pixmap_read_pixels;     external LibraryName name 'sk4d_pixmap_read_pixels'    {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_pixmap_scale_pixels;    external LibraryName name 'sk4d_pixmap_scale_pixels'   {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_pixmap_set_colorspace;  external LibraryName name 'sk4d_pixmap_set_colorspace' {$IFDEF IOS} dependency 'c++'{$ENDIF};
+function  sk4d_pixmap_create(const image_info: psk_imageinfo_t; const pixels: Pointer; row_bytes: size_t): sk_pixmap_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_pixmap_create'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_pixmap_destroy(self: sk_pixmap_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_pixmap_destroy'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_pixmap_erase(const self: sk_pixmap_t; color: sk_color_t; const area: psk_irect_t): _bool; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_pixmap_erase'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_pixmap_erase2(const self: sk_pixmap_t; const color: psk_color4f_t; color_space: sk_colorspace_t; const area: psk_irect_t): _bool; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_pixmap_erase2'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_pixmap_extract_subset(const self: sk_pixmap_t; dest: sk_pixmap_t; const area: psk_irect_t): _bool; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_pixmap_extract_subset'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_pixmap_get_alpha(const self: sk_pixmap_t; x, y: int32_t): float; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_pixmap_get_alpha'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_pixmap_get_alpha_type(const self: sk_pixmap_t): sk_alphatype_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_pixmap_get_alpha_type'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_pixmap_get_color(const self: sk_pixmap_t; x, y: int32_t): sk_color_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_pixmap_get_color'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_pixmap_get_color_space(const self: sk_pixmap_t): sk_colorspace_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_pixmap_get_color_space'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_pixmap_get_color_type(const self: sk_pixmap_t): sk_colortype_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_pixmap_get_color_type'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_pixmap_get_colorf(const self: sk_pixmap_t; x, y: int32_t; out result: sk_color4f_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_pixmap_get_colorf'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_pixmap_get_height(const self: sk_pixmap_t): int32_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_pixmap_get_height'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_pixmap_get_image_info(const self: sk_pixmap_t; out result: sk_imageinfo_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_pixmap_get_image_info'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_pixmap_get_pixel_addr(const self: sk_pixmap_t; x, y: int32_t): Pointer; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_pixmap_get_pixel_addr'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_pixmap_get_pixels(const self: sk_pixmap_t): Pointer; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_pixmap_get_pixels'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_pixmap_get_row_bytes(const self: sk_pixmap_t): size_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_pixmap_get_row_bytes'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_pixmap_get_width(const self: sk_pixmap_t): int32_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_pixmap_get_width'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_pixmap_read_pixels(const self, dest: sk_pixmap_t; src_x, src_y: int32_t): _bool; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_pixmap_read_pixels'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_pixmap_scale_pixels(const self, dest: sk_pixmap_t; const sampling: psk_samplingoptions_t): _bool; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_pixmap_scale_pixels'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_pixmap_set_colorspace(self: sk_pixmap_t; value: sk_colorspace_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_pixmap_set_colorspace'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
 {$ENDIF}
 
 
@@ -3604,8 +3619,8 @@ procedure sk4d_pixmap_set_colorspace;  external LibraryName name 'sk4d_pixmap_se
   sk4d_refcnt_ref   := GetProcAddress(LibraryHandle, PChar('sk4d_refcnt_ref'));
   sk4d_refcnt_unref := GetProcAddress(LibraryHandle, PChar('sk4d_refcnt_unref'));
 {$ELSE}
-procedure sk4d_refcnt_ref;   external LibraryName name 'sk4d_refcnt_ref'  {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_refcnt_unref; external LibraryName name 'sk4d_refcnt_unref'{$IFDEF IOS} dependency 'c++'{$ENDIF};
+procedure sk4d_refcnt_ref(const self: sk_refcnt_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_refcnt_ref'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_refcnt_unref(const self: sk_refcnt_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_refcnt_unref'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
 {$ENDIF}
 
 
@@ -3648,41 +3663,41 @@ procedure sk4d_refcnt_unref; external LibraryName name 'sk4d_refcnt_unref'{$IFDE
   sk4d_regionspanerator_destroy     := GetProcAddress(LibraryHandle, PChar('sk4d_regionspanerator_destroy'));
   sk4d_regionspanerator_next        := GetProcAddress(LibraryHandle, PChar('sk4d_regionspanerator_next'));
 {$ELSE}
-function  sk4d_region_contains;              external LibraryName name 'sk4d_region_contains'             {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_region_contains2;             external LibraryName name 'sk4d_region_contains2'            {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_region_contains3;             external LibraryName name 'sk4d_region_contains3'            {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_region_create;                external LibraryName name 'sk4d_region_create'               {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_region_create2;               external LibraryName name 'sk4d_region_create2'              {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_region_destroy;               external LibraryName name 'sk4d_region_destroy'              {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_region_get_boundary_path;     external LibraryName name 'sk4d_region_get_boundary_path'    {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_region_get_bounds;            external LibraryName name 'sk4d_region_get_bounds'           {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_region_intersects;            external LibraryName name 'sk4d_region_intersects'           {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_region_intersects2;           external LibraryName name 'sk4d_region_intersects2'          {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_region_is_complex;            external LibraryName name 'sk4d_region_is_complex'           {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_region_is_empty;              external LibraryName name 'sk4d_region_is_empty'             {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_region_is_equal;              external LibraryName name 'sk4d_region_is_equal'             {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_region_is_rect;               external LibraryName name 'sk4d_region_is_rect'              {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_region_op;                    external LibraryName name 'sk4d_region_op'                   {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_region_op2;                   external LibraryName name 'sk4d_region_op2'                  {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_region_quick_contains;        external LibraryName name 'sk4d_region_quick_contains'       {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_region_quick_reject;          external LibraryName name 'sk4d_region_quick_reject'         {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_region_quick_reject2;         external LibraryName name 'sk4d_region_quick_reject2'        {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_region_set_empty;             external LibraryName name 'sk4d_region_set_empty'            {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_region_set_path;              external LibraryName name 'sk4d_region_set_path'             {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_region_set_rect;              external LibraryName name 'sk4d_region_set_rect'             {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_region_set_rects;             external LibraryName name 'sk4d_region_set_rects'            {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_region_translate;             external LibraryName name 'sk4d_region_translate'            {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_regioncliperator_create;      external LibraryName name 'sk4d_regioncliperator_create'     {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_regioncliperator_destroy;     external LibraryName name 'sk4d_regioncliperator_destroy'    {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_regioncliperator_get_current; external LibraryName name 'sk4d_regioncliperator_get_current'{$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_regioncliperator_move_next;   external LibraryName name 'sk4d_regioncliperator_move_next'  {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_regioniterator_create;        external LibraryName name 'sk4d_regioniterator_create'       {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_regioniterator_destroy;       external LibraryName name 'sk4d_regioniterator_destroy'      {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_regioniterator_get_current;   external LibraryName name 'sk4d_regioniterator_get_current'  {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_regioniterator_move_next;     external LibraryName name 'sk4d_regioniterator_move_next'    {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_regionspanerator_create;      external LibraryName name 'sk4d_regionspanerator_create'     {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_regionspanerator_destroy;     external LibraryName name 'sk4d_regionspanerator_destroy'    {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_regionspanerator_next;        external LibraryName name 'sk4d_regionspanerator_next'       {$IFDEF IOS} dependency 'c++'{$ENDIF};
+function  sk4d_region_contains(const self, region: sk_region_t): _bool; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_region_contains'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_region_contains2(const self: sk_region_t; const rect: psk_irect_t): _bool; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_region_contains2'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_region_contains3(const self: sk_region_t; x, y: int32_t): _bool; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_region_contains3'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_region_create(): sk_region_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_region_create'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_region_create2(const region: sk_region_t): sk_region_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_region_create2'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_region_destroy(self: sk_region_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_region_destroy'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_region_get_boundary_path(const self: sk_region_t): sk_path_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_region_get_boundary_path'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_region_get_bounds(const self: sk_region_t; out result: sk_irect_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_region_get_bounds'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_region_intersects(const self, region: sk_region_t): _bool; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_region_intersects'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_region_intersects2(const self: sk_region_t; const rect: psk_irect_t): _bool; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_region_intersects2'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_region_is_complex(const self: sk_region_t): _bool; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_region_is_complex'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_region_is_empty(const self: sk_region_t): _bool; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_region_is_empty'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_region_is_equal(const self, region: sk_region_t): _bool; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_region_is_equal'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_region_is_rect(const self: sk_region_t): _bool; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_region_is_rect'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_region_op(self: sk_region_t; const region: sk_region_t; op: sk_regionop_t): _bool; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_region_op'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_region_op2(self: sk_region_t; const rect: psk_irect_t; op: sk_regionop_t): _bool; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_region_op2'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_region_quick_contains(const self: sk_region_t; const rect: psk_irect_t): _bool; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_region_quick_contains'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_region_quick_reject(const self, region: sk_region_t): _bool; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_region_quick_reject'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_region_quick_reject2(const self: sk_region_t; const rect: psk_irect_t): _bool; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_region_quick_reject2'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_region_set_empty(self: sk_region_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_region_set_empty'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_region_set_path(self: sk_region_t; const path: sk_path_t; const clip: sk_region_t): _bool; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_region_set_path'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_region_set_rect(self: sk_region_t; const rect: psk_irect_t): _bool; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_region_set_rect'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_region_set_rects(self: sk_region_t; const rects: psk_irect_t; count: int32_t): _bool; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_region_set_rects'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_region_translate(self: sk_region_t; x, y: int32_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_region_translate'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_regioncliperator_create(const region: sk_region_t; const clip: psk_irect_t): sk_regioncliperator_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_regioncliperator_create'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_regioncliperator_destroy(self: sk_regioncliperator_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_regioncliperator_destroy'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_regioncliperator_get_current(const self: sk_regioncliperator_t; out result: sk_irect_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_regioncliperator_get_current'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_regioncliperator_move_next(self: sk_regioncliperator_t): _bool; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_regioncliperator_move_next'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_regioniterator_create(const region: sk_region_t): sk_regioniterator_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_regioniterator_create'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_regioniterator_destroy(self: sk_regioniterator_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_regioniterator_destroy'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_regioniterator_get_current(const self: sk_regioniterator_t; out result: sk_irect_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_regioniterator_get_current'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_regioniterator_move_next(self: sk_regioniterator_t): _bool; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_regioniterator_move_next'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_regionspanerator_create(const region: sk_region_t; y, left, right: int32_t): sk_regionspanerator_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_regionspanerator_create'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_regionspanerator_destroy(self: sk_regionspanerator_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_regionspanerator_destroy'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_regionspanerator_next(self: sk_regionspanerator_t; out elem: sk_ipoint_t): _bool; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_regionspanerator_next'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
 {$ENDIF}
 
 
@@ -3717,33 +3732,33 @@ function  sk4d_regionspanerator_next;        external LibraryName name 'sk4d_reg
   sk4d_rrect_set_rect3        := GetProcAddress(LibraryHandle, PChar('sk4d_rrect_set_rect3'));
   sk4d_rrect_transform        := GetProcAddress(LibraryHandle, PChar('sk4d_rrect_transform'));
 {$ELSE}
-function  sk4d_rrect_contains;         external LibraryName name 'sk4d_rrect_contains'        {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_rrect_create;           external LibraryName name 'sk4d_rrect_create'          {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_rrect_create2;          external LibraryName name 'sk4d_rrect_create2'         {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_rrect_deflate;          external LibraryName name 'sk4d_rrect_deflate'         {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_rrect_destroy;          external LibraryName name 'sk4d_rrect_destroy'         {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_rrect_get_height;       external LibraryName name 'sk4d_rrect_get_height'      {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_rrect_get_radii;        external LibraryName name 'sk4d_rrect_get_radii'       {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_rrect_get_rect;         external LibraryName name 'sk4d_rrect_get_rect'        {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_rrect_get_simple_radii; external LibraryName name 'sk4d_rrect_get_simple_radii'{$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_rrect_get_width;        external LibraryName name 'sk4d_rrect_get_width'       {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_rrect_inflate;          external LibraryName name 'sk4d_rrect_inflate'         {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_rrect_is_complex;       external LibraryName name 'sk4d_rrect_is_complex'      {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_rrect_is_empty;         external LibraryName name 'sk4d_rrect_is_empty'        {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_rrect_is_equal;         external LibraryName name 'sk4d_rrect_is_equal'        {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_rrect_is_nine_patch;    external LibraryName name 'sk4d_rrect_is_nine_patch'   {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_rrect_is_oval;          external LibraryName name 'sk4d_rrect_is_oval'         {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_rrect_is_rect;          external LibraryName name 'sk4d_rrect_is_rect'         {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_rrect_is_simple;        external LibraryName name 'sk4d_rrect_is_simple'       {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_rrect_is_valid;         external LibraryName name 'sk4d_rrect_is_valid'        {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_rrect_offset;           external LibraryName name 'sk4d_rrect_offset'          {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_rrect_set_empty;        external LibraryName name 'sk4d_rrect_set_empty'       {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_rrect_set_nine_patch;   external LibraryName name 'sk4d_rrect_set_nine_patch'  {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_rrect_set_oval;         external LibraryName name 'sk4d_rrect_set_oval'        {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_rrect_set_rect;         external LibraryName name 'sk4d_rrect_set_rect'        {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_rrect_set_rect2;        external LibraryName name 'sk4d_rrect_set_rect2'       {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_rrect_set_rect3;        external LibraryName name 'sk4d_rrect_set_rect3'       {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_rrect_transform;        external LibraryName name 'sk4d_rrect_transform'       {$IFDEF IOS} dependency 'c++'{$ENDIF};
+function  sk4d_rrect_contains(const self: sk_rrect_t; const rect: psk_rect_t): _bool; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_rrect_contains'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_rrect_create(): sk_rrect_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_rrect_create'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_rrect_create2(const rrect: sk_rrect_t): sk_rrect_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_rrect_create2'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_rrect_deflate(self: sk_rrect_t; dx, dy: float); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_rrect_deflate'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_rrect_destroy(self: sk_rrect_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_rrect_destroy'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_rrect_get_height(const self: sk_rrect_t): float; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_rrect_get_height'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_rrect_get_radii(const self: sk_rrect_t; corner: sk_rrectcorner_t; out result: sk_vector_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_rrect_get_radii'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_rrect_get_rect(const self: sk_rrect_t; out result: sk_rect_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_rrect_get_rect'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_rrect_get_simple_radii(const self: sk_rrect_t; out result: sk_vector_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_rrect_get_simple_radii'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_rrect_get_width(const self: sk_rrect_t): float; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_rrect_get_width'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_rrect_inflate(self: sk_rrect_t; dx, dy: float); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_rrect_inflate'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_rrect_is_complex(const self: sk_rrect_t): _bool; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_rrect_is_complex'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_rrect_is_empty(const self: sk_rrect_t): _bool; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_rrect_is_empty'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_rrect_is_equal(const self, rrect: sk_rrect_t): _bool; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_rrect_is_equal'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_rrect_is_nine_patch(const self: sk_rrect_t): _bool; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_rrect_is_nine_patch'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_rrect_is_oval(const self: sk_rrect_t): _bool; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_rrect_is_oval'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_rrect_is_rect(const self: sk_rrect_t): _bool; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_rrect_is_rect'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_rrect_is_simple(const self: sk_rrect_t): _bool; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_rrect_is_simple'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_rrect_is_valid(const self: sk_rrect_t): _bool; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_rrect_is_valid'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_rrect_offset(self: sk_rrect_t; dx, dy: float); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_rrect_offset'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_rrect_set_empty(self: sk_rrect_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_rrect_set_empty'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_rrect_set_nine_patch(self: sk_rrect_t; const rect: psk_rect_t; radius_left, radius_top, radius_right, radius_bottom: float); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_rrect_set_nine_patch'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_rrect_set_oval(self: sk_rrect_t; const rect: psk_rect_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_rrect_set_oval'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_rrect_set_rect(self: sk_rrect_t; const rect: psk_rect_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_rrect_set_rect'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_rrect_set_rect2(self: sk_rrect_t; const rect: psk_rect_t; const radii: psk_vector_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_rrect_set_rect2'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_rrect_set_rect3(self: sk_rrect_t; const rect: psk_rect_t; radius_x, radius_y: float); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_rrect_set_rect3'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_rrect_transform(const self: sk_rrect_t; const matrix: psk_matrix_t): sk_rrect_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_rrect_transform'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
 {$ENDIF}
 
 
@@ -3781,36 +3796,36 @@ function  sk4d_rrect_transform;        external LibraryName name 'sk4d_rrect_tra
   sk4d_runtimeshaderbuilder_make_image      := GetProcAddress(LibraryHandle, PChar('sk4d_runtimeshaderbuilder_make_image'));
   sk4d_runtimeshaderbuilder_make_shader     := GetProcAddress(LibraryHandle, PChar('sk4d_runtimeshaderbuilder_make_shader'));
 {$ELSE}
-function  sk4d_runtimeblendbuilder_create;           external LibraryName name 'sk4d_runtimeblendbuilder_create'          {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_runtimeblendbuilder_destroy;          external LibraryName name 'sk4d_runtimeblendbuilder_destroy'         {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_runtimeblendbuilder_make_blender;     external LibraryName name 'sk4d_runtimeblendbuilder_make_blender'    {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_runtimeeffect_get_child_count;        external LibraryName name 'sk4d_runtimeeffect_get_child_count'       {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_runtimeeffect_get_child_name;         external LibraryName name 'sk4d_runtimeeffect_get_child_name'        {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_runtimeeffect_get_child_type;         external LibraryName name 'sk4d_runtimeeffect_get_child_type'        {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_runtimeeffect_get_uniform_count;      external LibraryName name 'sk4d_runtimeeffect_get_uniform_count'     {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_runtimeeffect_get_uniform_data_size;  external LibraryName name 'sk4d_runtimeeffect_get_uniform_data_size' {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_runtimeeffect_get_uniform_name;       external LibraryName name 'sk4d_runtimeeffect_get_uniform_name'      {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_runtimeeffect_get_uniform_offset;     external LibraryName name 'sk4d_runtimeeffect_get_uniform_offset'    {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_runtimeeffect_get_uniform_type;       external LibraryName name 'sk4d_runtimeeffect_get_uniform_type'      {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_runtimeeffect_get_uniform_type_count; external LibraryName name 'sk4d_runtimeeffect_get_uniform_type_count'{$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_runtimeeffect_index_of_child;         external LibraryName name 'sk4d_runtimeeffect_index_of_child'        {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_runtimeeffect_index_of_uniform;       external LibraryName name 'sk4d_runtimeeffect_index_of_uniform'      {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_runtimeeffect_make_blender;           external LibraryName name 'sk4d_runtimeeffect_make_blender'          {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_runtimeeffect_make_color_filter;      external LibraryName name 'sk4d_runtimeeffect_make_color_filter'     {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_runtimeeffect_make_for_blender;       external LibraryName name 'sk4d_runtimeeffect_make_for_blender'      {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_runtimeeffect_make_for_color_filter;  external LibraryName name 'sk4d_runtimeeffect_make_for_color_filter' {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_runtimeeffect_make_for_shader;        external LibraryName name 'sk4d_runtimeeffect_make_for_shader'       {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_runtimeeffect_make_image;             external LibraryName name 'sk4d_runtimeeffect_make_image'            {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_runtimeeffect_make_shader;            external LibraryName name 'sk4d_runtimeeffect_make_shader'           {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_runtimeeffectbuilder_set_child;       external LibraryName name 'sk4d_runtimeeffectbuilder_set_child'      {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_runtimeeffectbuilder_set_child2;      external LibraryName name 'sk4d_runtimeeffectbuilder_set_child2'     {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_runtimeeffectbuilder_set_child3;      external LibraryName name 'sk4d_runtimeeffectbuilder_set_child3'     {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_runtimeeffectbuilder_set_uniform;     external LibraryName name 'sk4d_runtimeeffectbuilder_set_uniform'    {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_runtimeeffectbuilder_get_effect;      external LibraryName name 'sk4d_runtimeeffectbuilder_get_effect'     {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_runtimeshaderbuilder_create;          external LibraryName name 'sk4d_runtimeshaderbuilder_create'         {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_runtimeshaderbuilder_destroy;         external LibraryName name 'sk4d_runtimeshaderbuilder_destroy'        {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_runtimeshaderbuilder_make_image;      external LibraryName name 'sk4d_runtimeshaderbuilder_make_image'     {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_runtimeshaderbuilder_make_shader;     external LibraryName name 'sk4d_runtimeshaderbuilder_make_shader'    {$IFDEF IOS} dependency 'c++'{$ENDIF};
+function  sk4d_runtimeblendbuilder_create(effect: sk_runtimeeffect_t): sk_runtimeblendbuilder_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_runtimeblendbuilder_create'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_runtimeblendbuilder_destroy(self: sk_runtimeblendbuilder_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_runtimeblendbuilder_destroy'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_runtimeblendbuilder_make_blender(self: sk_runtimeblendbuilder_t): sk_blender_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_runtimeblendbuilder_make_blender'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_runtimeeffect_get_child_count(const self: sk_runtimeeffect_t): int32_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_runtimeeffect_get_child_count'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_runtimeeffect_get_child_name(const self: sk_runtimeeffect_t; index: int32_t): sk_string_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_runtimeeffect_get_child_name'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_runtimeeffect_get_child_type(const self: sk_runtimeeffect_t; index: int32_t): sk_runtimeeffectchildtype_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_runtimeeffect_get_child_type'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_runtimeeffect_get_uniform_count(const self: sk_runtimeeffect_t): int32_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_runtimeeffect_get_uniform_count'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_runtimeeffect_get_uniform_data_size(const self: sk_runtimeeffect_t): size_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_runtimeeffect_get_uniform_data_size'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_runtimeeffect_get_uniform_name(const self: sk_runtimeeffect_t; index: int32_t): sk_string_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_runtimeeffect_get_uniform_name'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_runtimeeffect_get_uniform_offset(const self: sk_runtimeeffect_t; index: int32_t): size_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_runtimeeffect_get_uniform_offset'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_runtimeeffect_get_uniform_type(const self: sk_runtimeeffect_t; index: int32_t): sk_runtimeeffectuniformtype_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_runtimeeffect_get_uniform_type'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_runtimeeffect_get_uniform_type_count(const self: sk_runtimeeffect_t; index: int32_t): int32_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_runtimeeffect_get_uniform_type_count'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_runtimeeffect_index_of_child(const self: sk_runtimeeffect_t; const name: MarshaledAString): int32_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_runtimeeffect_index_of_child'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_runtimeeffect_index_of_uniform(const self: sk_runtimeeffect_t; const name: MarshaledAString): int32_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_runtimeeffect_index_of_uniform'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_runtimeeffect_make_blender(const self: sk_runtimeeffect_t; const uniforms: Pointer; children: psk_flattenable_t): sk_blender_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_runtimeeffect_make_blender'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_runtimeeffect_make_color_filter(const self: sk_runtimeeffect_t; const uniforms: Pointer; children: psk_flattenable_t): sk_colorfilter_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_runtimeeffect_make_color_filter'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_runtimeeffect_make_for_blender(const sksl: MarshaledAString; error_text: sk_string_t): sk_runtimeeffect_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_runtimeeffect_make_for_blender'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_runtimeeffect_make_for_color_filter(const sksl: MarshaledAString; error_text: sk_string_t): sk_runtimeeffect_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_runtimeeffect_make_for_color_filter'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_runtimeeffect_make_for_shader(const sksl: MarshaledAString; error_text: sk_string_t): sk_runtimeeffect_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_runtimeeffect_make_for_shader'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_runtimeeffect_make_image(const self: sk_runtimeeffect_t; context: gr_directcontext_t; const uniforms: Pointer; children: psk_flattenable_t; const local_matrix: psk_matrix_t; const image_info: psk_imageinfo_t; mipmapped: _bool): sk_image_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_runtimeeffect_make_image'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_runtimeeffect_make_shader(const self: sk_runtimeeffect_t; const uniforms: Pointer; children: psk_flattenable_t; const local_matrix: psk_matrix_t): sk_shader_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_runtimeeffect_make_shader'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_runtimeeffectbuilder_set_child(self: sk_runtimeeffectbuilder_t; const name: MarshaledAString; shader: sk_shader_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_runtimeeffectbuilder_set_child'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_runtimeeffectbuilder_set_child2(self: sk_runtimeeffectbuilder_t; const name: MarshaledAString; color_filter: sk_colorfilter_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_runtimeeffectbuilder_set_child2'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_runtimeeffectbuilder_set_child3(self: sk_runtimeeffectbuilder_t; const name: MarshaledAString; blender: sk_blender_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_runtimeeffectbuilder_set_child3'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_runtimeeffectbuilder_set_uniform(self: sk_runtimeeffectbuilder_t; const name: MarshaledAString; const data: Pointer); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_runtimeeffectbuilder_set_uniform'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_runtimeeffectbuilder_get_effect(const self: sk_runtimeeffectbuilder_t): sk_runtimeeffect_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_runtimeeffectbuilder_get_effect'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_runtimeshaderbuilder_create(effect: sk_runtimeeffect_t): sk_runtimeshaderbuilder_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_runtimeshaderbuilder_create'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_runtimeshaderbuilder_destroy(self: sk_runtimeshaderbuilder_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_runtimeshaderbuilder_destroy'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_runtimeshaderbuilder_make_image(self: sk_runtimeshaderbuilder_t; context: gr_directcontext_t; const local_matrix: psk_matrix_t; const image_info: psk_imageinfo_t; mipmapped: _bool): sk_image_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_runtimeshaderbuilder_make_image'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_runtimeshaderbuilder_make_shader(self: sk_runtimeshaderbuilder_t; const local_matrix: psk_matrix_t): sk_shader_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_runtimeshaderbuilder_make_shader'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
 {$ENDIF}
 
 
@@ -3834,22 +3849,22 @@ function  sk4d_runtimeshaderbuilder_make_shader;     external LibraryName name '
   sk4d_shader_make_with_color_filter           := GetProcAddress(LibraryHandle, PChar('sk4d_shader_make_with_color_filter'));
   sk4d_shader_make_with_local_matrix           := GetProcAddress(LibraryHandle, PChar('sk4d_shader_make_with_local_matrix'));
 {$ELSE}
-function sk4d_shader_make_blend;                       external LibraryName name 'sk4d_shader_make_blend'                      {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function sk4d_shader_make_color;                       external LibraryName name 'sk4d_shader_make_color'                      {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function sk4d_shader_make_color2;                      external LibraryName name 'sk4d_shader_make_color2'                     {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function sk4d_shader_make_empty;                       external LibraryName name 'sk4d_shader_make_empty'                      {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function sk4d_shader_make_gradient_linear;             external LibraryName name 'sk4d_shader_make_gradient_linear'            {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function sk4d_shader_make_gradient_linear2;            external LibraryName name 'sk4d_shader_make_gradient_linear2'           {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function sk4d_shader_make_gradient_radial;             external LibraryName name 'sk4d_shader_make_gradient_radial'            {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function sk4d_shader_make_gradient_radial2;            external LibraryName name 'sk4d_shader_make_gradient_radial2'           {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function sk4d_shader_make_gradient_sweep;              external LibraryName name 'sk4d_shader_make_gradient_sweep'             {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function sk4d_shader_make_gradient_sweep2;             external LibraryName name 'sk4d_shader_make_gradient_sweep2'            {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function sk4d_shader_make_gradient_two_point_conical;  external LibraryName name 'sk4d_shader_make_gradient_two_point_conical' {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function sk4d_shader_make_gradient_two_point_conical2; external LibraryName name 'sk4d_shader_make_gradient_two_point_conical2'{$IFDEF IOS} dependency 'c++'{$ENDIF};
-function sk4d_shader_make_perlin_noise_fractal_noise;  external LibraryName name 'sk4d_shader_make_perlin_noise_fractal_noise' {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function sk4d_shader_make_perlin_noise_turbulence;     external LibraryName name 'sk4d_shader_make_perlin_noise_turbulence'    {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function sk4d_shader_make_with_color_filter;           external LibraryName name 'sk4d_shader_make_with_color_filter'          {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function sk4d_shader_make_with_local_matrix;           external LibraryName name 'sk4d_shader_make_with_local_matrix'          {$IFDEF IOS} dependency 'c++'{$ENDIF};
+function sk4d_shader_make_blend(mode: sk_blendmode_t; dest, src: sk_shader_t): sk_shader_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_shader_make_blend'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function sk4d_shader_make_color(color: sk_color_t): sk_shader_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_shader_make_color'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function sk4d_shader_make_color2(const color: psk_color4f_t; color_space: sk_colorspace_t): sk_shader_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_shader_make_color2'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function sk4d_shader_make_empty(): sk_shader_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_shader_make_empty'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function sk4d_shader_make_gradient_linear(const points: psk_point_t; const colors: psk_color_t; const positions: pfloat; count: int32_t; tile_mode: sk_tilemode_t; const local_matrix: psk_matrix_t): sk_shader_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_shader_make_gradient_linear'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function sk4d_shader_make_gradient_linear2(const points: psk_point_t; const colors: psk_color4f_t; color_space: sk_colorspace_t; const positions: pfloat; count: int32_t; tile_mode: sk_tilemode_t; const local_matrix: psk_matrix_t): sk_shader_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_shader_make_gradient_linear2'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function sk4d_shader_make_gradient_radial(const center: psk_point_t; radius: float; const colors: psk_color_t; const positions: pfloat; count: int32_t; tile_mode: sk_tilemode_t; const local_matrix: psk_matrix_t): sk_shader_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_shader_make_gradient_radial'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function sk4d_shader_make_gradient_radial2(const center: psk_point_t; radius: float; const colors: psk_color4f_t; color_space: sk_colorspace_t; const positions: pfloat; count: int32_t; tile_mode: sk_tilemode_t; const local_matrix: psk_matrix_t): sk_shader_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_shader_make_gradient_radial2'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function sk4d_shader_make_gradient_sweep(center_x, center_y: float; const colors: psk_color_t; const positions: pfloat; count: int32_t; tile_mode: sk_tilemode_t; start_angle, end_angle: float; const local_matrix: psk_matrix_t): sk_shader_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_shader_make_gradient_sweep'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function sk4d_shader_make_gradient_sweep2(center_x, center_y: float; const colors: psk_color4f_t; color_space: sk_colorspace_t; const positions: pfloat; count: int32_t; tile_mode: sk_tilemode_t; start_angle, end_angle: float; const local_matrix: psk_matrix_t): sk_shader_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_shader_make_gradient_sweep2'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function sk4d_shader_make_gradient_two_point_conical(const start: psk_point_t; start_radius: float; const &end: psk_point_t; end_radius: float; const colors: psk_color_t; const positions: pfloat; count: int32_t; tile_mode: sk_tilemode_t; const local_matrix: psk_matrix_t): sk_shader_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_shader_make_gradient_two_point_conical'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function sk4d_shader_make_gradient_two_point_conical2(const start: psk_point_t; start_radius: float; const &end: psk_point_t; end_radius: float; const colors: psk_color4f_t; color_space: sk_colorspace_t; const positions: pfloat; count: int32_t; tile_mode: sk_tilemode_t; const local_matrix: psk_matrix_t): sk_shader_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_shader_make_gradient_two_point_conical2'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function sk4d_shader_make_perlin_noise_fractal_noise(base_frequency_x, base_frequency_y: float; num_octaves: int32_t; seed: float; const tile_size: psk_isize_t): sk_shader_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_shader_make_perlin_noise_fractal_noise'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function sk4d_shader_make_perlin_noise_turbulence(base_frequency_x, base_frequency_y: float; num_octaves: int32_t; seed: float; const tile_size: psk_isize_t): sk_shader_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_shader_make_perlin_noise_turbulence'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function sk4d_shader_make_with_color_filter(const self: sk_shader_t; color_filter: sk_colorfilter_t): sk_shader_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_shader_make_with_color_filter'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function sk4d_shader_make_with_local_matrix(const self: sk_shader_t; const local_matrix: psk_matrix_t): sk_shader_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_shader_make_with_local_matrix'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
 {$ENDIF}
 
 
@@ -3863,12 +3878,12 @@ function sk4d_shader_make_with_local_matrix;           external LibraryName name
   sk4d_wstreamadapter_destroy   := GetProcAddress(LibraryHandle, PChar('sk4d_wstreamadapter_destroy'));
   sk4d_wstreamadapter_set_procs := GetProcAddress(LibraryHandle, PChar('sk4d_wstreamadapter_set_procs'));
 {$ELSE}
-function  sk4d_streamadapter_create;     external LibraryName name 'sk4d_streamadapter_create'    {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_streamadapter_destroy;    external LibraryName name 'sk4d_streamadapter_destroy'   {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_streamadapter_set_procs;  external LibraryName name 'sk4d_streamadapter_set_procs' {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_wstreamadapter_create;    external LibraryName name 'sk4d_wstreamadapter_create'   {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_wstreamadapter_destroy;   external LibraryName name 'sk4d_wstreamadapter_destroy'  {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_wstreamadapter_set_procs; external LibraryName name 'sk4d_wstreamadapter_set_procs'{$IFDEF IOS} dependency 'c++'{$ENDIF};
+function  sk4d_streamadapter_create(context: Pointer): sk_streamadapter_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_streamadapter_create'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_streamadapter_destroy(self: sk_streamadapter_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_streamadapter_destroy'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_streamadapter_set_procs(const procs: psk_streamadapter_procs_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_streamadapter_set_procs'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_wstreamadapter_create(context: Pointer): sk_wstreamadapter_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_wstreamadapter_create'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_wstreamadapter_destroy(self: sk_wstreamadapter_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_wstreamadapter_destroy'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_wstreamadapter_set_procs(const procs: psk_wstreamadapter_procs_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_wstreamadapter_set_procs'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
 {$ENDIF}
 
 
@@ -3879,9 +3894,9 @@ procedure sk4d_wstreamadapter_set_procs; external LibraryName name 'sk4d_wstream
   sk4d_string_destroy  := GetProcAddress(LibraryHandle, PChar('sk4d_string_destroy'));
   sk4d_string_get_text := GetProcAddress(LibraryHandle, PChar('sk4d_string_get_text'));
 {$ELSE}
-function  sk4d_string_create;   external LibraryName name 'sk4d_string_create'  {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_string_destroy;  external LibraryName name 'sk4d_string_destroy' {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_string_get_text; external LibraryName name 'sk4d_string_get_text'{$IFDEF IOS} dependency 'c++'{$ENDIF};
+function  sk4d_string_create(): sk_string_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_string_create'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_string_destroy(self: sk_string_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_string_destroy'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_string_get_text(const self: sk_string_t): MarshaledAString; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_string_get_text'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
 {$ENDIF}
 
 
@@ -3906,23 +3921,23 @@ function  sk4d_string_get_text; external LibraryName name 'sk4d_string_get_text'
   sk4d_surface_wait                    := GetProcAddress(LibraryHandle, PChar('sk4d_surface_wait'));
   sk4d_surface_write_pixels            := GetProcAddress(LibraryHandle, PChar('sk4d_surface_write_pixels'));
 {$ELSE}
-procedure sk4d_surface_draw;                    external LibraryName name 'sk4d_surface_draw'                   {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_surface_flush;                   external LibraryName name 'sk4d_surface_flush'                  {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_surface_flush_and_submit;        external LibraryName name 'sk4d_surface_flush_and_submit'       {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_surface_get_canvas;              external LibraryName name 'sk4d_surface_get_canvas'             {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_surface_get_props;               external LibraryName name 'sk4d_surface_get_props'              {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_surface_make_from_mtk_view;      external LibraryName name 'sk4d_surface_make_from_mtk_view'     {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_surface_make_from_render_target; external LibraryName name 'sk4d_surface_make_from_render_target'{$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_surface_make_from_texture;       external LibraryName name 'sk4d_surface_make_from_texture'      {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_surface_make_image_snapshot;     external LibraryName name 'sk4d_surface_make_image_snapshot'    {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_surface_make_image_snapshot2;    external LibraryName name 'sk4d_surface_make_image_snapshot2'   {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_surface_make_raster;             external LibraryName name 'sk4d_surface_make_raster'            {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_surface_make_raster_direct;      external LibraryName name 'sk4d_surface_make_raster_direct'     {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_surface_make_render_target;      external LibraryName name 'sk4d_surface_make_render_target'     {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_surface_peek_pixels;             external LibraryName name 'sk4d_surface_peek_pixels'            {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_surface_read_pixels;             external LibraryName name 'sk4d_surface_read_pixels'            {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_surface_wait;                    external LibraryName name 'sk4d_surface_wait'                   {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_surface_write_pixels;            external LibraryName name 'sk4d_surface_write_pixels'           {$IFDEF IOS} dependency 'c++'{$ENDIF};
+procedure sk4d_surface_draw(self: sk_surface_t; canvas: sk_canvas_t; x, y: float; paint: sk_paint_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_surface_draw'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_surface_flush(self: sk_surface_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_surface_flush'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_surface_flush_and_submit(self: sk_surface_t; semaphores: pgr_backendsemaphore_t; count: int32_t; const new_state: gr_backendsurfacemutablestate_t; sync_cpu: _bool); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_surface_flush_and_submit'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_surface_get_canvas(self: sk_surface_t): sk_canvas_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_surface_get_canvas'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_surface_get_props(const self: sk_surface_t; out result: sk_surfaceprops_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_surface_get_props'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_surface_make_from_mtk_view(context: gr_directcontext_t; layer: gr_mtl_handle_t; origin: gr_surfaceorigin_t; sample_count: int32_t; color_type: sk_colortype_t; color_space: sk_colorspace_t; const props: psk_surfaceprops_t): sk_surface_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_surface_make_from_mtk_view'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_surface_make_from_render_target(context: gr_directcontext_t; const render_target: gr_backendrendertarget_t; origin: gr_surfaceorigin_t; color_type: sk_colortype_t; color_space: sk_colorspace_t; const props: psk_surfaceprops_t): sk_surface_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_surface_make_from_render_target'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_surface_make_from_texture(context: gr_directcontext_t; const texture: gr_backendtexture_t; origin: gr_surfaceorigin_t; sample_count: int32_t; color_type: sk_colortype_t; color_space: sk_colorspace_t; const props: psk_surfaceprops_t): sk_surface_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_surface_make_from_texture'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_surface_make_image_snapshot(self: sk_surface_t): sk_image_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_surface_make_image_snapshot'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_surface_make_image_snapshot2(self: sk_surface_t; const bounds: psk_irect_t): sk_image_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_surface_make_image_snapshot2'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_surface_make_raster(const image_info: psk_imageinfo_t; row_bytes: size_t; const props: psk_surfaceprops_t): sk_surface_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_surface_make_raster'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_surface_make_raster_direct(const pixmap: sk_pixmap_t; proc: sk_surface_raster_release_proc; proc_context: Pointer; const props: psk_surfaceprops_t): sk_surface_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_surface_make_raster_direct'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_surface_make_render_target(context: gr_directcontext_t; is_budgeted: _bool; const image_info: psk_imageinfo_t; sample_count: int32_t; origin: gr_surfaceorigin_t; const props: psk_surfaceprops_t; should_create_with_mips: _bool): sk_surface_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_surface_make_render_target'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_surface_peek_pixels(self: sk_surface_t): sk_pixmap_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_surface_peek_pixels'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_surface_read_pixels(self: sk_surface_t; const dest: sk_pixmap_t; src_x, src_y: int32_t): _bool; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_surface_read_pixels'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_surface_wait(self: sk_surface_t; const semaphores: pgr_backendsemaphore_t; count: int32_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_surface_wait'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_surface_write_pixels(self: sk_surface_t; const src: sk_pixmap_t; dest_x, dest_y: int32_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_surface_write_pixels'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
 {$ENDIF}
 
 
@@ -3931,7 +3946,7 @@ procedure sk4d_surface_write_pixels;            external LibraryName name 'sk4d_
 {$IFNDEF SK_STATIC_LIBRARY}
   sk4d_svgcanvas_make := GetProcAddress(LibraryHandle, PChar('sk4d_svgcanvas_make'));
 {$ELSE}
-function sk4d_svgcanvas_make; external LibraryName name 'sk4d_svgcanvas_make'{$IFDEF IOS} dependency 'c++'{$ENDIF};
+function sk4d_svgcanvas_make(const bounds: psk_rect_t; w_stream: sk_wstream_t; flags: uint32_t): sk_canvas_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_svgcanvas_make'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
 {$ENDIF}
 
 
@@ -3946,13 +3961,13 @@ function sk4d_svgcanvas_make; external LibraryName name 'sk4d_svgcanvas_make'{$I
   sk4d_textblob_ref                                    := GetProcAddress(LibraryHandle, PChar('sk4d_textblob_ref'));
   sk4d_textblob_unref                                  := GetProcAddress(LibraryHandle, PChar('sk4d_textblob_unref'));
 {$ELSE}
-function  sk4d_textblob_get_intercepts;                         external LibraryName name 'sk4d_textblob_get_intercepts'                        {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_textblob_make_from_text;                         external LibraryName name 'sk4d_textblob_make_from_text'                        {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_textblob_make_from_text_horizontally_positioned; external LibraryName name 'sk4d_textblob_make_from_text_horizontally_positioned'{$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_textblob_make_from_text_positioned;              external LibraryName name 'sk4d_textblob_make_from_text_positioned'             {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_textblob_make_from_text_transform;               external LibraryName name 'sk4d_textblob_make_from_text_transform'              {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_textblob_ref;                                    external LibraryName name 'sk4d_textblob_ref'                                   {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_textblob_unref;                                  external LibraryName name 'sk4d_textblob_unref'                                 {$IFDEF IOS} dependency 'c++'{$ENDIF};
+function  sk4d_textblob_get_intercepts(const self: sk_textblob_t; const bounds: pfloat; result: pfloat; const paint: sk_paint_t): int32_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_textblob_get_intercepts'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_textblob_make_from_text(const text: Pointer; size: size_t; const font: sk_font_t; encoding: sk_textencoding_t): sk_textblob_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_textblob_make_from_text'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_textblob_make_from_text_horizontally_positioned(const text: Pointer; size: size_t; const x_positions: pfloat; y: float; const font: sk_font_t; encoding: sk_textencoding_t): sk_textblob_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_textblob_make_from_text_horizontally_positioned'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_textblob_make_from_text_positioned(const text: Pointer; size: size_t; const positions: psk_point_t; const font: sk_font_t; encoding: sk_textencoding_t): sk_textblob_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_textblob_make_from_text_positioned'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_textblob_make_from_text_transform(const text: Pointer; size: size_t; const matrices: psk_rotationscalematrix_t; const font: sk_font_t; encoding: sk_textencoding_t): sk_textblob_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_textblob_make_from_text_transform'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_textblob_ref(const self: sk_textblob_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_textblob_ref'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_textblob_unref(const self: sk_textblob_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_textblob_unref'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
 {$ENDIF}
 
 
@@ -3963,9 +3978,9 @@ procedure sk4d_textblob_unref;                                  external Library
   sk4d_tracememorydumpbaseclass_destroy   := GetProcAddress(LibraryHandle, PChar('sk4d_tracememorydumpbaseclass_destroy'));
   sk4d_tracememorydumpbaseclass_set_procs := GetProcAddress(LibraryHandle, PChar('sk4d_tracememorydumpbaseclass_set_procs'));
 {$ELSE}
-function  sk4d_tracememorydumpbaseclass_create;    external LibraryName name 'sk4d_tracememorydumpbaseclass_create'   {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_tracememorydumpbaseclass_destroy;   external LibraryName name 'sk4d_tracememorydumpbaseclass_destroy'  {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_tracememorydumpbaseclass_set_procs; external LibraryName name 'sk4d_tracememorydumpbaseclass_set_procs'{$IFDEF IOS} dependency 'c++'{$ENDIF};
+function  sk4d_tracememorydumpbaseclass_create(detailed_dump, dump_wrapped_objects: _bool; context: Pointer): sk_tracememorydumpbaseclass_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_tracememorydumpbaseclass_create'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_tracememorydumpbaseclass_destroy(self: sk_tracememorydumpbaseclass_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_tracememorydumpbaseclass_destroy'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_tracememorydumpbaseclass_set_procs(const procs: psk_tracememorydumpbaseclass_procs_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_tracememorydumpbaseclass_set_procs'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
 {$ENDIF}
 
 
@@ -3982,15 +3997,15 @@ procedure sk4d_tracememorydumpbaseclass_set_procs; external LibraryName name 'sk
   sk4d_typeface_make_from_stream := GetProcAddress(LibraryHandle, PChar('sk4d_typeface_make_from_stream'));
   sk4d_typeface_make_from_name   := GetProcAddress(LibraryHandle, PChar('sk4d_typeface_make_from_name'));
 {$ELSE}
-function  sk4d_typeface_get_family_name;  external LibraryName name 'sk4d_typeface_get_family_name' {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_typeface_get_slant;        external LibraryName name 'sk4d_typeface_get_slant'       {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_typeface_get_style;        external LibraryName name 'sk4d_typeface_get_style'       {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_typeface_get_weight;       external LibraryName name 'sk4d_typeface_get_weight'      {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_typeface_get_width;        external LibraryName name 'sk4d_typeface_get_width'       {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_typeface_make_default;     external LibraryName name 'sk4d_typeface_make_default'    {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_typeface_make_from_file;   external LibraryName name 'sk4d_typeface_make_from_file'  {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_typeface_make_from_stream; external LibraryName name 'sk4d_typeface_make_from_stream'{$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_typeface_make_from_name;   external LibraryName name 'sk4d_typeface_make_from_name'  {$IFDEF IOS} dependency 'c++'{$ENDIF};
+function  sk4d_typeface_get_family_name(const self: sk_typeface_t): sk_string_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_typeface_get_family_name'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_typeface_get_slant(const self: sk_typeface_t): sk_fontslant_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_typeface_get_slant'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_typeface_get_style(const self: sk_typeface_t; out result: sk_fontstyle_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_typeface_get_style'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_typeface_get_weight(const self: sk_typeface_t): int32_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_typeface_get_weight'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_typeface_get_width(const self: sk_typeface_t): int32_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_typeface_get_width'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_typeface_make_default(): sk_typeface_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_typeface_make_default'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_typeface_make_from_file(const file_name: MarshaledAString; ttc_index: int32_t): sk_typeface_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_typeface_make_from_file'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_typeface_make_from_stream(stream: sk_stream_t; ttc_index: int32_t): sk_typeface_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_typeface_make_from_stream'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_typeface_make_from_name(const family_name: MarshaledAString; const style: psk_fontstyle_t): sk_typeface_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_typeface_make_from_name'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
 {$ENDIF}
 
 
@@ -4001,9 +4016,9 @@ function  sk4d_typeface_make_from_name;   external LibraryName name 'sk4d_typefa
   sk4d_vertices_ref       := GetProcAddress(LibraryHandle, PChar('sk4d_vertices_ref'));
   sk4d_vertices_unref     := GetProcAddress(LibraryHandle, PChar('sk4d_vertices_unref'));
 {$ELSE}
-function  sk4d_vertices_make_copy; external LibraryName name 'sk4d_vertices_make_copy'{$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_vertices_ref;       external LibraryName name 'sk4d_vertices_ref'      {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_vertices_unref;     external LibraryName name 'sk4d_vertices_unref'    {$IFDEF IOS} dependency 'c++'{$ENDIF};
+function  sk4d_vertices_make_copy(vertex_mode: sk_vertexmode_t; vertex_count: int32_t; const positions, textures: psk_point_t; const colors: psk_color_t; index_count: int32_t; const indices: puint16_t): sk_vertices_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_vertices_make_copy'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_vertices_ref(const self: sk_vertices_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_vertices_ref'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_vertices_unref(const self: sk_vertices_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_vertices_unref'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
 {$ENDIF}
 
 
@@ -4027,22 +4042,22 @@ procedure sk4d_vertices_unref;     external LibraryName name 'sk4d_vertices_unre
   sk4d_particleeffect_start                  := GetProcAddress(LibraryHandle, PChar('sk4d_particleeffect_start'));
   sk4d_particleeffect_update                 := GetProcAddress(LibraryHandle, PChar('sk4d_particleeffect_update'));
 {$ELSE}
-procedure sk4d_particleeffect_get_position;           external LibraryName name 'sk4d_particleeffect_get_position'          {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_particleeffect_get_rate;               external LibraryName name 'sk4d_particleeffect_get_rate'              {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_particleeffect_get_uniform;            external LibraryName name 'sk4d_particleeffect_get_uniform'           {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_particleeffect_get_uniform_count;      external LibraryName name 'sk4d_particleeffect_get_uniform_count'     {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_particleeffect_get_uniform_data;       external LibraryName name 'sk4d_particleeffect_get_uniform_data'      {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_particleeffect_get_uniform_data_count; external LibraryName name 'sk4d_particleeffect_get_uniform_data_count'{$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_particleeffect_get_uniform_name;       external LibraryName name 'sk4d_particleeffect_get_uniform_name'      {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_particleeffect_init;                   external LibraryName name 'sk4d_particleeffect_init'                  {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_particleeffect_make_from_file;         external LibraryName name 'sk4d_particleeffect_make_from_file'        {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_particleeffect_make_from_stream;       external LibraryName name 'sk4d_particleeffect_make_from_stream'      {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_particleeffect_render;                 external LibraryName name 'sk4d_particleeffect_render'                {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_particleeffect_set_position;           external LibraryName name 'sk4d_particleeffect_set_position'          {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_particleeffect_set_rate;               external LibraryName name 'sk4d_particleeffect_set_rate'              {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_particleeffect_set_uniform;            external LibraryName name 'sk4d_particleeffect_set_uniform'           {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_particleeffect_start;                  external LibraryName name 'sk4d_particleeffect_start'                 {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_particleeffect_update;                 external LibraryName name 'sk4d_particleeffect_update'                {$IFDEF IOS} dependency 'c++'{$ENDIF};
+procedure sk4d_particleeffect_get_position(const self: sk_particleeffect_t; out result: sk_point_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_particleeffect_get_position'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_particleeffect_get_rate(const self: sk_particleeffect_t): float; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_particleeffect_get_rate'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_particleeffect_get_uniform(const self: sk_particleeffect_t; index: size_t; out result: sk_particleuniform_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_particleeffect_get_uniform'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_particleeffect_get_uniform_count(const self: sk_particleeffect_t): size_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_particleeffect_get_uniform_count'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_particleeffect_get_uniform_data(self: sk_particleeffect_t): pfloat; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_particleeffect_get_uniform_data'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_particleeffect_get_uniform_data_count(const self: sk_particleeffect_t): int32_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_particleeffect_get_uniform_data_count'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_particleeffect_get_uniform_name(const self: sk_particleeffect_t; index: size_t): sk_string_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_particleeffect_get_uniform_name'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_particleeffect_init(); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_particleeffect_init'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_particleeffect_make_from_file(const file_name: MarshaledAString): sk_particleeffect_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_particleeffect_make_from_file'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_particleeffect_make_from_stream(stream: sk_stream_t; resource_provider: sk_resourceprovider_t): sk_particleeffect_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_particleeffect_make_from_stream'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_particleeffect_render(self: sk_particleeffect_t; canvas: sk_canvas_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_particleeffect_render'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_particleeffect_set_position(self: sk_particleeffect_t; const value: psk_point_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_particleeffect_set_position'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_particleeffect_set_rate(self: sk_particleeffect_t; value: float); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_particleeffect_set_rate'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_particleeffect_set_uniform(self: sk_particleeffect_t; const name: MarshaledAString; const data: pfloat; count: int32_t): _bool; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_particleeffect_set_uniform'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_particleeffect_start(self: sk_particleeffect_t; now: _double; looping: _bool); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_particleeffect_start'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_particleeffect_update(self: sk_particleeffect_t; now: _double); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_particleeffect_update'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
 {$ENDIF}
 
 
@@ -4063,19 +4078,19 @@ procedure sk4d_particleeffect_update;                 external LibraryName name 
   sk4d_skottieanimation_seek_frame_time  := GetProcAddress(LibraryHandle, PChar('sk4d_skottieanimation_seek_frame_time'));
   sk4d_skottieanimation_unref            := GetProcAddress(LibraryHandle, PChar('sk4d_skottieanimation_unref'));
 {$ELSE}
-function  sk4d_skottieanimation_get_duration;     external LibraryName name 'sk4d_skottieanimation_get_duration'     {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_skottieanimation_get_fps;          external LibraryName name 'sk4d_skottieanimation_get_fps'          {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_skottieanimation_get_in_point;     external LibraryName name 'sk4d_skottieanimation_get_in_point'     {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_skottieanimation_get_out_point;    external LibraryName name 'sk4d_skottieanimation_get_out_point'    {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_skottieanimation_get_size;         external LibraryName name 'sk4d_skottieanimation_get_size'         {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_skottieanimation_get_version;      external LibraryName name 'sk4d_skottieanimation_get_version'      {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_skottieanimation_make_from_file;   external LibraryName name 'sk4d_skottieanimation_make_from_file'   {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_skottieanimation_make_from_stream; external LibraryName name 'sk4d_skottieanimation_make_from_stream' {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_skottieanimation_ref;              external LibraryName name 'sk4d_skottieanimation_ref'              {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_skottieanimation_render;           external LibraryName name 'sk4d_skottieanimation_render'           {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_skottieanimation_seek_frame;       external LibraryName name 'sk4d_skottieanimation_seek_frame'       {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_skottieanimation_seek_frame_time;  external LibraryName name 'sk4d_skottieanimation_seek_frame_time'  {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_skottieanimation_unref;            external LibraryName name 'sk4d_skottieanimation_unref'            {$IFDEF IOS} dependency 'c++'{$ENDIF};
+function  sk4d_skottieanimation_get_duration(const self: sk_skottieanimation_t): _double; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_skottieanimation_get_duration'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_skottieanimation_get_fps(const self: sk_skottieanimation_t): _double; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_skottieanimation_get_fps'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_skottieanimation_get_in_point(const self: sk_skottieanimation_t): _double; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_skottieanimation_get_in_point'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_skottieanimation_get_out_point(const self: sk_skottieanimation_t): _double; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_skottieanimation_get_out_point'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_skottieanimation_get_size(const self: sk_skottieanimation_t; out result: sk_size_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_skottieanimation_get_size'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_skottieanimation_get_version(const self: sk_skottieanimation_t): MarshaledAString; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_skottieanimation_get_version'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_skottieanimation_make_from_file(const file_name: MarshaledAString; font_provider: sk_fontmgr_t): sk_skottieanimation_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_skottieanimation_make_from_file'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_skottieanimation_make_from_stream(stream: sk_stream_t; resource_provider: sk_resourceprovider_t; font_provider: sk_fontmgr_t): sk_skottieanimation_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_skottieanimation_make_from_stream'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_skottieanimation_ref(const self: sk_skottieanimation_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_skottieanimation_ref'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_skottieanimation_render(const self: sk_skottieanimation_t; canvas: sk_canvas_t; const dest: psk_rect_t; render_flags: uint32_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_skottieanimation_render'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_skottieanimation_seek_frame(self: sk_skottieanimation_t; tick: _double); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_skottieanimation_seek_frame'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_skottieanimation_seek_frame_time(self: sk_skottieanimation_t; tick: _double); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_skottieanimation_seek_frame_time'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_skottieanimation_unref(const self: sk_skottieanimation_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_skottieanimation_unref'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
 {$ENDIF}
 
 
@@ -4101,24 +4116,24 @@ procedure sk4d_skottieanimation_unref;            external LibraryName name 'sk4
   sk4d_paragraph_to_path                          := GetProcAddress(LibraryHandle, PChar('sk4d_paragraph_to_path'));
   sk4d_paragraph_visit                            := GetProcAddress(LibraryHandle, PChar('sk4d_paragraph_visit'));
 {$ELSE}
-procedure sk4d_paragraph_destroy;                          external LibraryName name 'sk4d_paragraph_destroy'                         {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_paragraph_did_exceed_max_lines;             external LibraryName name 'sk4d_paragraph_did_exceed_max_lines'            {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_paragraph_get_alphabetic_baseline;          external LibraryName name 'sk4d_paragraph_get_alphabetic_baseline'         {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_paragraph_get_glyph_position_at_coordinate; external LibraryName name 'sk4d_paragraph_get_glyph_position_at_coordinate'{$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_paragraph_get_height;                       external LibraryName name 'sk4d_paragraph_get_height'                      {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_paragraph_get_ideographic_baseline;         external LibraryName name 'sk4d_paragraph_get_ideographic_baseline'        {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_paragraph_get_line_metrics;                 external LibraryName name 'sk4d_paragraph_get_line_metrics'                {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_paragraph_get_longest_line;                 external LibraryName name 'sk4d_paragraph_get_longest_line'                {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_paragraph_get_max_intrinsic_width;          external LibraryName name 'sk4d_paragraph_get_max_intrinsic_width'         {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_paragraph_get_max_width;                    external LibraryName name 'sk4d_paragraph_get_max_width'                   {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_paragraph_get_min_intrinsic_width;          external LibraryName name 'sk4d_paragraph_get_min_intrinsic_width'         {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_paragraph_get_rects_for_placeholders;       external LibraryName name 'sk4d_paragraph_get_rects_for_placeholders'      {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_paragraph_get_rects_for_range;              external LibraryName name 'sk4d_paragraph_get_rects_for_range'             {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_paragraph_get_word_boundary;                external LibraryName name 'sk4d_paragraph_get_word_boundary'               {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_paragraph_layout;                           external LibraryName name 'sk4d_paragraph_layout'                          {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_paragraph_paint;                            external LibraryName name 'sk4d_paragraph_paint'                           {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_paragraph_to_path;                          external LibraryName name 'sk4d_paragraph_to_path'                         {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_paragraph_visit;                            external LibraryName name 'sk4d_paragraph_visit'                           {$IFDEF IOS} dependency 'c++'{$ENDIF};
+procedure sk4d_paragraph_destroy(self: sk_paragraph_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_paragraph_destroy'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_paragraph_did_exceed_max_lines(self: sk_paragraph_t): _bool; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_paragraph_did_exceed_max_lines'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_paragraph_get_alphabetic_baseline(self: sk_paragraph_t): float; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_paragraph_get_alphabetic_baseline'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_paragraph_get_glyph_position_at_coordinate(self: sk_paragraph_t; dx, dy: float; out result: sk_positionaffinity_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_paragraph_get_glyph_position_at_coordinate'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_paragraph_get_height(self: sk_paragraph_t): float; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_paragraph_get_height'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_paragraph_get_ideographic_baseline(self: sk_paragraph_t): float; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_paragraph_get_ideographic_baseline'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_paragraph_get_line_metrics(self: sk_paragraph_t; result: psk_metrics_t): size_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_paragraph_get_line_metrics'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_paragraph_get_longest_line(self: sk_paragraph_t): float; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_paragraph_get_longest_line'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_paragraph_get_max_intrinsic_width(self: sk_paragraph_t): float; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_paragraph_get_max_intrinsic_width'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_paragraph_get_max_width(self: sk_paragraph_t): float; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_paragraph_get_max_width'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_paragraph_get_min_intrinsic_width(self: sk_paragraph_t): float; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_paragraph_get_min_intrinsic_width'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_paragraph_get_rects_for_placeholders(self: sk_paragraph_t; result: psk_textbox_t): size_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_paragraph_get_rects_for_placeholders'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_paragraph_get_rects_for_range(self: sk_paragraph_t; start, &end: uint32_t; rect_height_style: sk_rectheightstyle_t; rect_width_style: sk_rectwidthstyle_t; result: psk_textbox_t): size_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_paragraph_get_rects_for_range'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_paragraph_get_word_boundary(self: sk_paragraph_t; offset: uint32_t; out start, &end: uint32_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_paragraph_get_word_boundary'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_paragraph_layout(self: sk_paragraph_t; width: float); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_paragraph_layout'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_paragraph_paint(self: sk_paragraph_t; canvas: sk_canvas_t; x, y: float); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_paragraph_paint'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_paragraph_to_path(self: sk_paragraph_t): sk_path_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_paragraph_to_path'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_paragraph_visit(self: sk_paragraph_t; proc: sk_paragraph_visit_proc; proc_context: Pointer); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_paragraph_visit'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
 {$ENDIF}
 
 
@@ -4134,14 +4149,14 @@ procedure sk4d_paragraph_visit;                            external LibraryName 
   sk4d_paragraphbuilder_pop             := GetProcAddress(LibraryHandle, PChar('sk4d_paragraphbuilder_pop'));
   sk4d_paragraphbuilder_push_style      := GetProcAddress(LibraryHandle, PChar('sk4d_paragraphbuilder_push_style'));
 {$ELSE}
-procedure sk4d_paragraphbuilder_add_placeholder; external LibraryName name 'sk4d_paragraphbuilder_add_placeholder'{$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_paragraphbuilder_add_text;        external LibraryName name 'sk4d_paragraphbuilder_add_text'       {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_paragraphbuilder_build;           external LibraryName name 'sk4d_paragraphbuilder_build'          {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_paragraphbuilder_create;          external LibraryName name 'sk4d_paragraphbuilder_create'         {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_paragraphbuilder_create2;         external LibraryName name 'sk4d_paragraphbuilder_create2'        {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_paragraphbuilder_destroy;         external LibraryName name 'sk4d_paragraphbuilder_destroy'        {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_paragraphbuilder_pop;             external LibraryName name 'sk4d_paragraphbuilder_pop'            {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_paragraphbuilder_push_style;      external LibraryName name 'sk4d_paragraphbuilder_push_style'     {$IFDEF IOS} dependency 'c++'{$ENDIF};
+procedure sk4d_paragraphbuilder_add_placeholder(self: sk_paragraphbuilder_t; const placeholder: psk_placeholderstyle_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_paragraphbuilder_add_placeholder'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_paragraphbuilder_add_text(self: sk_paragraphbuilder_t; const text: MarshaledAString); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_paragraphbuilder_add_text'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_paragraphbuilder_build(self: sk_paragraphbuilder_t): sk_paragraph_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_paragraphbuilder_build'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_paragraphbuilder_create(const paragraph_style: sk_paragraphstyle_t): sk_paragraphbuilder_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_paragraphbuilder_create'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_paragraphbuilder_create2(const paragraph_style: sk_paragraphstyle_t; font_provider: sk_fontmgr_t; enable_font_fallback: _bool): sk_paragraphbuilder_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_paragraphbuilder_create2'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_paragraphbuilder_destroy(self: sk_paragraphbuilder_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_paragraphbuilder_destroy'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_paragraphbuilder_pop(self: sk_paragraphbuilder_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_paragraphbuilder_pop'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_paragraphbuilder_push_style(self: sk_paragraphbuilder_t; const text_style: sk_textstyle_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_paragraphbuilder_push_style'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
 {$ENDIF}
 
 
@@ -4187,44 +4202,44 @@ procedure sk4d_paragraphbuilder_push_style;      external LibraryName name 'sk4d
   sk4d_strutstyle_set_height_multiplier         := GetProcAddress(LibraryHandle, PChar('sk4d_strutstyle_set_height_multiplier'));
   sk4d_strutstyle_set_leading                   := GetProcAddress(LibraryHandle, PChar('sk4d_strutstyle_set_leading'));
 {$ELSE}
-function  sk4d_paragraphstyle_create;                    external LibraryName name 'sk4d_paragraphstyle_create'                   {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_paragraphstyle_destroy;                   external LibraryName name 'sk4d_paragraphstyle_destroy'                  {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_paragraphstyle_disable_hinting;           external LibraryName name 'sk4d_paragraphstyle_disable_hinting'          {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_paragraphstyle_get_ellipsis;              external LibraryName name 'sk4d_paragraphstyle_get_ellipsis'             {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_paragraphstyle_get_height;                external LibraryName name 'sk4d_paragraphstyle_get_height'               {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_paragraphstyle_get_max_lines;             external LibraryName name 'sk4d_paragraphstyle_get_max_lines'            {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_paragraphstyle_get_strut_style;           external LibraryName name 'sk4d_paragraphstyle_get_strut_style'          {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_paragraphstyle_get_text_align;            external LibraryName name 'sk4d_paragraphstyle_get_text_align'           {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_paragraphstyle_get_text_direction;        external LibraryName name 'sk4d_paragraphstyle_get_text_direction'       {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_paragraphstyle_get_text_height_behaviors; external LibraryName name 'sk4d_paragraphstyle_get_text_height_behaviors'{$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_paragraphstyle_get_text_style;            external LibraryName name 'sk4d_paragraphstyle_get_text_style'           {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_paragraphstyle_set_ellipsis;              external LibraryName name 'sk4d_paragraphstyle_set_ellipsis'             {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_paragraphstyle_set_height;                external LibraryName name 'sk4d_paragraphstyle_set_height'               {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_paragraphstyle_set_max_lines;             external LibraryName name 'sk4d_paragraphstyle_set_max_lines'            {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_paragraphstyle_set_strut_style;           external LibraryName name 'sk4d_paragraphstyle_set_strut_style'          {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_paragraphstyle_set_text_align;            external LibraryName name 'sk4d_paragraphstyle_set_text_align'           {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_paragraphstyle_set_text_direction;        external LibraryName name 'sk4d_paragraphstyle_set_text_direction'       {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_paragraphstyle_set_text_height_behaviors; external LibraryName name 'sk4d_paragraphstyle_set_text_height_behaviors'{$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_paragraphstyle_set_text_style;            external LibraryName name 'sk4d_paragraphstyle_set_text_style'           {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_strutstyle_create;                        external LibraryName name 'sk4d_strutstyle_create'                       {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_strutstyle_destroy;                       external LibraryName name 'sk4d_strutstyle_destroy'                      {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_strutstyle_get_enabled;                   external LibraryName name 'sk4d_strutstyle_get_enabled'                  {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_strutstyle_get_font_families;             external LibraryName name 'sk4d_strutstyle_get_font_families'            {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_strutstyle_get_font_size;                 external LibraryName name 'sk4d_strutstyle_get_font_size'                {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_strutstyle_get_font_style;                external LibraryName name 'sk4d_strutstyle_get_font_style'               {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_strutstyle_get_force_height;              external LibraryName name 'sk4d_strutstyle_get_force_height'             {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_strutstyle_get_half_leading;              external LibraryName name 'sk4d_strutstyle_get_half_leading'             {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_strutstyle_get_height_multiplier;         external LibraryName name 'sk4d_strutstyle_get_height_multiplier'        {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_strutstyle_get_leading;                   external LibraryName name 'sk4d_strutstyle_get_leading'                  {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_strutstyle_is_equal;                      external LibraryName name 'sk4d_strutstyle_is_equal'                     {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_strutstyle_set_enabled;                   external LibraryName name 'sk4d_strutstyle_set_enabled'                  {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_strutstyle_set_font_families;             external LibraryName name 'sk4d_strutstyle_set_font_families'            {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_strutstyle_set_font_size;                 external LibraryName name 'sk4d_strutstyle_set_font_size'                {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_strutstyle_set_font_style;                external LibraryName name 'sk4d_strutstyle_set_font_style'               {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_strutstyle_set_force_height;              external LibraryName name 'sk4d_strutstyle_set_force_height'             {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_strutstyle_set_half_leading;              external LibraryName name 'sk4d_strutstyle_set_half_leading'             {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_strutstyle_set_height_multiplier;         external LibraryName name 'sk4d_strutstyle_set_height_multiplier'        {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_strutstyle_set_leading;                   external LibraryName name 'sk4d_strutstyle_set_leading'                  {$IFDEF IOS} dependency 'c++'{$ENDIF};
+function  sk4d_paragraphstyle_create(): sk_paragraphstyle_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_paragraphstyle_create'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_paragraphstyle_destroy(self: sk_paragraphstyle_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_paragraphstyle_destroy'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_paragraphstyle_disable_hinting(self: sk_paragraphstyle_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_paragraphstyle_disable_hinting'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_paragraphstyle_get_ellipsis(const self: sk_paragraphstyle_t): sk_string_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_paragraphstyle_get_ellipsis'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_paragraphstyle_get_height(const self: sk_paragraphstyle_t): float; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_paragraphstyle_get_height'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_paragraphstyle_get_max_lines(const self: sk_paragraphstyle_t): size_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_paragraphstyle_get_max_lines'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_paragraphstyle_get_strut_style(const self: sk_paragraphstyle_t): sk_strutstyle_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_paragraphstyle_get_strut_style'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_paragraphstyle_get_text_align(const self: sk_paragraphstyle_t): sk_textalign_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_paragraphstyle_get_text_align'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_paragraphstyle_get_text_direction(const self: sk_paragraphstyle_t): sk_textdirection_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_paragraphstyle_get_text_direction'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_paragraphstyle_get_text_height_behaviors(const self: sk_paragraphstyle_t): uint32_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_paragraphstyle_get_text_height_behaviors'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_paragraphstyle_get_text_style(const self: sk_paragraphstyle_t): sk_textstyle_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_paragraphstyle_get_text_style'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_paragraphstyle_set_ellipsis(self: sk_paragraphstyle_t; const value: MarshaledAString); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_paragraphstyle_set_ellipsis'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_paragraphstyle_set_height(self: sk_paragraphstyle_t; value: float); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_paragraphstyle_set_height'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_paragraphstyle_set_max_lines(self: sk_paragraphstyle_t; value: size_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_paragraphstyle_set_max_lines'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_paragraphstyle_set_strut_style(self: sk_paragraphstyle_t; const value: sk_strutstyle_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_paragraphstyle_set_strut_style'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_paragraphstyle_set_text_align(self: sk_paragraphstyle_t; value: sk_textalign_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_paragraphstyle_set_text_align'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_paragraphstyle_set_text_direction(self: sk_paragraphstyle_t; value: sk_textdirection_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_paragraphstyle_set_text_direction'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_paragraphstyle_set_text_height_behaviors(self: sk_paragraphstyle_t; value: uint32_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_paragraphstyle_set_text_height_behaviors'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_paragraphstyle_set_text_style(self: sk_paragraphstyle_t; value: sk_textstyle_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_paragraphstyle_set_text_style'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_strutstyle_create(): sk_strutstyle_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_strutstyle_create'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_strutstyle_destroy(self: sk_strutstyle_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_strutstyle_destroy'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_strutstyle_get_enabled(const self: sk_strutstyle_t): _bool; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_strutstyle_get_enabled'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_strutstyle_get_font_families(const self: sk_strutstyle_t; const result: PMarshaledAString): size_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_strutstyle_get_font_families'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_strutstyle_get_font_size(const self: sk_strutstyle_t): float; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_strutstyle_get_font_size'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_strutstyle_get_font_style(const self: sk_strutstyle_t; out result: sk_fontstyle_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_strutstyle_get_font_style'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_strutstyle_get_force_height(const self: sk_strutstyle_t): _bool; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_strutstyle_get_force_height'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_strutstyle_get_half_leading(const self: sk_strutstyle_t): _bool; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_strutstyle_get_half_leading'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_strutstyle_get_height_multiplier(const self: sk_strutstyle_t): float; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_strutstyle_get_height_multiplier'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_strutstyle_get_leading(const self: sk_strutstyle_t): float; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_strutstyle_get_leading'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_strutstyle_is_equal(const self: sk_strutstyle_t; const strut_style: sk_strutstyle_t): _bool; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_strutstyle_is_equal'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_strutstyle_set_enabled(self: sk_strutstyle_t; value: _bool); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_strutstyle_set_enabled'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_strutstyle_set_font_families(self: sk_strutstyle_t; const values: PMarshaledAString; count: size_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_strutstyle_set_font_families'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_strutstyle_set_font_size(self: sk_strutstyle_t; value: float); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_strutstyle_set_font_size'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_strutstyle_set_font_style(self: sk_strutstyle_t; value: psk_fontstyle_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_strutstyle_set_font_style'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_strutstyle_set_force_height(self: sk_strutstyle_t; value: _bool); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_strutstyle_set_force_height'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_strutstyle_set_half_leading(self: sk_strutstyle_t; value: _bool); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_strutstyle_set_half_leading'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_strutstyle_set_height_multiplier(self: sk_strutstyle_t; value: float); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_strutstyle_set_height_multiplier'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_strutstyle_set_leading(self: sk_strutstyle_t; value: float); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_strutstyle_set_leading'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
 {$ENDIF}
 
 
@@ -4272,46 +4287,46 @@ procedure sk4d_strutstyle_set_leading;                   external LibraryName na
   sk4d_textstyle_set_locale               := GetProcAddress(LibraryHandle, PChar('sk4d_textstyle_set_locale'));
   sk4d_textstyle_set_word_spacing         := GetProcAddress(LibraryHandle, PChar('sk4d_textstyle_set_word_spacing'));
 {$ELSE}
-procedure sk4d_textstyle_add_font_feature;         external LibraryName name 'sk4d_textstyle_add_font_feature'        {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_textstyle_add_shadow;               external LibraryName name 'sk4d_textstyle_add_shadow'              {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_textstyle_clear_background_color;   external LibraryName name 'sk4d_textstyle_clear_background_color'  {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_textstyle_clear_foreground_color;   external LibraryName name 'sk4d_textstyle_clear_foreground_color'  {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_textstyle_create;                   external LibraryName name 'sk4d_textstyle_create'                  {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_textstyle_destroy;                  external LibraryName name 'sk4d_textstyle_destroy'                 {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_textstyle_get_background;           external LibraryName name 'sk4d_textstyle_get_background'          {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_textstyle_get_color;                external LibraryName name 'sk4d_textstyle_get_color'               {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_textstyle_get_decoration_color;     external LibraryName name 'sk4d_textstyle_get_decoration_color'    {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_textstyle_get_decoration_style;     external LibraryName name 'sk4d_textstyle_get_decoration_style'    {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_textstyle_get_decoration_thickness; external LibraryName name 'sk4d_textstyle_get_decoration_thickness'{$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_textstyle_get_decorations;          external LibraryName name 'sk4d_textstyle_get_decorations'         {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_textstyle_get_font_families;        external LibraryName name 'sk4d_textstyle_get_font_families'       {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_textstyle_get_font_metrics;         external LibraryName name 'sk4d_textstyle_get_font_metrics'        {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_textstyle_get_font_size;            external LibraryName name 'sk4d_textstyle_get_font_size'           {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_textstyle_get_font_style;           external LibraryName name 'sk4d_textstyle_get_font_style'          {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_textstyle_get_foreground;           external LibraryName name 'sk4d_textstyle_get_foreground'          {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_textstyle_get_half_leading;         external LibraryName name 'sk4d_textstyle_get_half_leading'        {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_textstyle_get_height_multiplier;    external LibraryName name 'sk4d_textstyle_get_height_multiplier'   {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_textstyle_get_letter_spacing;       external LibraryName name 'sk4d_textstyle_get_letter_spacing'      {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_textstyle_get_locale;               external LibraryName name 'sk4d_textstyle_get_locale'              {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_textstyle_get_word_spacing;         external LibraryName name 'sk4d_textstyle_get_word_spacing'        {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_textstyle_is_equal;                 external LibraryName name 'sk4d_textstyle_is_equal'                {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_textstyle_reset_font_features;      external LibraryName name 'sk4d_textstyle_reset_font_features'     {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_textstyle_reset_shadows;            external LibraryName name 'sk4d_textstyle_reset_shadows'           {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_textstyle_set_background_color;     external LibraryName name 'sk4d_textstyle_set_background_color'    {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_textstyle_set_color;                external LibraryName name 'sk4d_textstyle_set_color'               {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_textstyle_set_decoration_color;     external LibraryName name 'sk4d_textstyle_set_decoration_color'    {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_textstyle_set_decoration_style;     external LibraryName name 'sk4d_textstyle_set_decoration_style'    {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_textstyle_set_decoration_thickness; external LibraryName name 'sk4d_textstyle_set_decoration_thickness'{$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_textstyle_set_decorations;          external LibraryName name 'sk4d_textstyle_set_decorations'         {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_textstyle_set_font_families;        external LibraryName name 'sk4d_textstyle_set_font_families'       {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_textstyle_set_font_size;            external LibraryName name 'sk4d_textstyle_set_font_size'           {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_textstyle_set_font_style;           external LibraryName name 'sk4d_textstyle_set_font_style'          {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_textstyle_set_foreground_color;     external LibraryName name 'sk4d_textstyle_set_foreground_color'    {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_textstyle_set_half_leading;         external LibraryName name 'sk4d_textstyle_set_half_leading'        {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_textstyle_set_height_multiplier;    external LibraryName name 'sk4d_textstyle_set_height_multiplier'   {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_textstyle_set_letter_spacing;       external LibraryName name 'sk4d_textstyle_set_letter_spacing'      {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_textstyle_set_locale;               external LibraryName name 'sk4d_textstyle_set_locale'              {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_textstyle_set_word_spacing;         external LibraryName name 'sk4d_textstyle_set_word_spacing'        {$IFDEF IOS} dependency 'c++'{$ENDIF};
+procedure sk4d_textstyle_add_font_feature(self: sk_textstyle_t; const feature: MarshaledAString; value: int32_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_textstyle_add_font_feature'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_textstyle_add_shadow(self: sk_textstyle_t; const shadow: psk_textshadow_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_textstyle_add_shadow'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_textstyle_clear_background_color(self: sk_textstyle_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_textstyle_clear_background_color'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_textstyle_clear_foreground_color(self: sk_textstyle_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_textstyle_clear_foreground_color'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_textstyle_create(): sk_textstyle_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_textstyle_create'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_textstyle_destroy(self: sk_textstyle_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_textstyle_destroy'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_textstyle_get_background(const self: sk_textstyle_t): sk_paint_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_textstyle_get_background'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_textstyle_get_color(const self: sk_textstyle_t): sk_color_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_textstyle_get_color'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_textstyle_get_decoration_color(const self: sk_textstyle_t): sk_color_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_textstyle_get_decoration_color'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_textstyle_get_decoration_style(const self: sk_textstyle_t): sk_textdecorationstyle_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_textstyle_get_decoration_style'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_textstyle_get_decoration_thickness(const self: sk_textstyle_t): float; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_textstyle_get_decoration_thickness'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_textstyle_get_decorations(const self: sk_textstyle_t): uint32_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_textstyle_get_decorations'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_textstyle_get_font_families(const self: sk_textstyle_t; const result: PMarshaledAString): size_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_textstyle_get_font_families'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_textstyle_get_font_metrics(const self: sk_textstyle_t; out result: sk_fontmetrics_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_textstyle_get_font_metrics'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_textstyle_get_font_size(const self: sk_textstyle_t): float; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_textstyle_get_font_size'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_textstyle_get_font_style(const self: sk_textstyle_t; out result: sk_fontstyle_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_textstyle_get_font_style'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_textstyle_get_foreground(const self: sk_textstyle_t): sk_paint_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_textstyle_get_foreground'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_textstyle_get_half_leading(const self: sk_textstyle_t): _bool; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_textstyle_get_half_leading'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_textstyle_get_height_multiplier(const self: sk_textstyle_t): float; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_textstyle_get_height_multiplier'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_textstyle_get_letter_spacing(const self: sk_textstyle_t): float; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_textstyle_get_letter_spacing'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_textstyle_get_locale(const self: sk_textstyle_t): sk_string_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_textstyle_get_locale'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_textstyle_get_word_spacing(const self: sk_textstyle_t): float; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_textstyle_get_word_spacing'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_textstyle_is_equal(const self, text_style: sk_textstyle_t): _bool; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_textstyle_is_equal'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_textstyle_reset_font_features(self: sk_textstyle_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_textstyle_reset_font_features'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_textstyle_reset_shadows(self: sk_textstyle_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_textstyle_reset_shadows'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_textstyle_set_background_color(self: sk_textstyle_t; paint: sk_paint_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_textstyle_set_background_color'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_textstyle_set_color(self: sk_textstyle_t; value: sk_color_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_textstyle_set_color'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_textstyle_set_decoration_color(self: sk_textstyle_t; value: sk_color_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_textstyle_set_decoration_color'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_textstyle_set_decoration_style(self: sk_textstyle_t; value: sk_textdecorationstyle_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_textstyle_set_decoration_style'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_textstyle_set_decoration_thickness(self: sk_textstyle_t; value: float); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_textstyle_set_decoration_thickness'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_textstyle_set_decorations(self: sk_textstyle_t; value: uint32_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_textstyle_set_decorations'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_textstyle_set_font_families(self: sk_textstyle_t; const values: PMarshaledAString; count: size_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_textstyle_set_font_families'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_textstyle_set_font_size(self: sk_textstyle_t; value: float); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_textstyle_set_font_size'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_textstyle_set_font_style(self: sk_textstyle_t; const value: psk_fontstyle_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_textstyle_set_font_style'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_textstyle_set_foreground_color(self: sk_textstyle_t; paint: sk_paint_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_textstyle_set_foreground_color'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_textstyle_set_half_leading(self: sk_textstyle_t; value: _bool); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_textstyle_set_half_leading'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_textstyle_set_height_multiplier(self: sk_textstyle_t; value: float); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_textstyle_set_height_multiplier'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_textstyle_set_letter_spacing(self: sk_textstyle_t; value: float); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_textstyle_set_letter_spacing'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_textstyle_set_locale(self: sk_textstyle_t; const value: MarshaledAString); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_textstyle_set_locale'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_textstyle_set_word_spacing(self: sk_textstyle_t; value: float); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_textstyle_set_word_spacing'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
 {$ENDIF}
 
 
@@ -4322,9 +4337,9 @@ procedure sk4d_textstyle_set_word_spacing;         external LibraryName name 'sk
   sk4d_typefacefontprovider_register_typeface  := GetProcAddress(LibraryHandle, PChar('sk4d_typefacefontprovider_register_typeface'));
   sk4d_typefacefontprovider_register_typeface2 := GetProcAddress(LibraryHandle, PChar('sk4d_typefacefontprovider_register_typeface2'));
 {$ELSE}
-function  sk4d_typefacefontprovider_create;             external LibraryName name 'sk4d_typefacefontprovider_create'            {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_typefacefontprovider_register_typeface;  external LibraryName name 'sk4d_typefacefontprovider_register_typeface' {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_typefacefontprovider_register_typeface2; external LibraryName name 'sk4d_typefacefontprovider_register_typeface2'{$IFDEF IOS} dependency 'c++'{$ENDIF};
+function  sk4d_typefacefontprovider_create(): sk_typefacefontprovider_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_typefacefontprovider_create'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_typefacefontprovider_register_typeface(self: sk_typefacefontprovider_t; typeface: sk_typeface_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_typefacefontprovider_register_typeface'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_typefacefontprovider_register_typeface2(self: sk_typefacefontprovider_t; typeface: sk_typeface_t; const family_name: MarshaledAString); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_typefacefontprovider_register_typeface2'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
 {$ENDIF}
 
 
@@ -4334,8 +4349,8 @@ procedure sk4d_typefacefontprovider_register_typeface2; external LibraryName nam
   sk4d_resourceproviderbaseclass_create    := GetProcAddress(LibraryHandle, PChar('sk4d_resourceproviderbaseclass_create'));
   sk4d_resourceproviderbaseclass_set_procs := GetProcAddress(LibraryHandle, PChar('sk4d_resourceproviderbaseclass_set_procs'));
 {$ELSE}
-function  sk4d_resourceproviderbaseclass_create;    external LibraryName name 'sk4d_resourceproviderbaseclass_create'   {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_resourceproviderbaseclass_set_procs; external LibraryName name 'sk4d_resourceproviderbaseclass_set_procs'{$IFDEF IOS} dependency 'c++'{$ENDIF};
+function  sk4d_resourceproviderbaseclass_create(predecode: _bool; context: Pointer): sk_resourceproviderbaseclass_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_resourceproviderbaseclass_create'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_resourceproviderbaseclass_set_procs(const procs: psk_resourceproviderbaseclass_procs_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_resourceproviderbaseclass_set_procs'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
 {$ENDIF}
 
 
@@ -4346,9 +4361,9 @@ procedure sk4d_resourceproviderbaseclass_set_procs; external LibraryName name 's
   sk4d_shaper_destroy := GetProcAddress(LibraryHandle, PChar('sk4d_shaper_destroy'));
   sk4d_shaper_shape   := GetProcAddress(LibraryHandle, PChar('sk4d_shaper_shape'));
 {$ELSE}
-function  sk4d_shaper_create;  external LibraryName name 'sk4d_shaper_create' {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_shaper_destroy; external LibraryName name 'sk4d_shaper_destroy'{$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_shaper_shape;   external LibraryName name 'sk4d_shaper_shape'  {$IFDEF IOS} dependency 'c++'{$ENDIF};
+function  sk4d_shaper_create(): sk_shaper_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_shaper_create'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_shaper_destroy(self: sk_shaper_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_shaper_destroy'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_shaper_shape(const self: sk_shaper_t; const text: MarshaledAString; const font: sk_font_t; left_to_right: _bool; width: float; const offset: psk_point_t; end_point: psk_point_t): sk_textblob_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_shaper_shape'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
 {$ENDIF}
 
 
@@ -4365,15 +4380,15 @@ function  sk4d_shaper_shape;   external LibraryName name 'sk4d_shaper_shape'  {$
   sk4d_unicodebreakiterator_destroy := GetProcAddress(LibraryHandle, PChar('sk4d_unicodebreakiterator_destroy'));
   sk4d_unicodebreakiterator_next    := GetProcAddress(LibraryHandle, PChar('sk4d_unicodebreakiterator_next'));
 {$ELSE}
-function  sk4d_unicode_create;               external LibraryName name 'sk4d_unicode_create'              {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_unicode_destroy;              external LibraryName name 'sk4d_unicode_destroy'             {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_unicode_for_each_bidi_region; external LibraryName name 'sk4d_unicode_for_each_bidi_region'{$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_unicode_for_each_break;       external LibraryName name 'sk4d_unicode_for_each_break'      {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_unicode_for_each_codepoint;   external LibraryName name 'sk4d_unicode_for_each_codepoint'  {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_unicodebreakiterator_create;  external LibraryName name 'sk4d_unicodebreakiterator_create' {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_unicodebreakiterator_create2; external LibraryName name 'sk4d_unicodebreakiterator_create2'{$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_unicodebreakiterator_destroy; external LibraryName name 'sk4d_unicodebreakiterator_destroy'{$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_unicodebreakiterator_next;    external LibraryName name 'sk4d_unicodebreakiterator_next'   {$IFDEF IOS} dependency 'c++'{$ENDIF};
+function  sk4d_unicode_create(): sk_unicode_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_unicode_create'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_unicode_destroy(self: sk_unicode_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_unicode_destroy'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_unicode_for_each_bidi_region(self: sk_unicode_t; const utf16_text: puint16_t; utf16_units: int32_t; direction: sk_direction_t; proc: sk_unicode_bidi_region_proc; context: Pointer); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_unicode_for_each_bidi_region'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_unicode_for_each_break(self: sk_unicode_t; const utf16_text: pchar16_t; utf16_units: int32_t; &type: sk_breaktype_t; proc: sk_unicode_break_proc; context: Pointer); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_unicode_for_each_break'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_unicode_for_each_codepoint(self: sk_unicode_t; const utf16_text: pchar16_t; utf16_units: int32_t; proc: sk_unicode_codepoint_proc; context: Pointer); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_unicode_for_each_codepoint'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_unicodebreakiterator_create(unicode: sk_unicode_t; &type: sk_breaktype_t; const text: _pchar; units: int32_t): sk_unicodebreakiterator_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_unicodebreakiterator_create'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_unicodebreakiterator_create2(unicode: sk_unicode_t; &type: sk_breaktype_t; const utf16_text: pchar16_t; utf16_units: int32_t): sk_unicodebreakiterator_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_unicodebreakiterator_create2'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_unicodebreakiterator_destroy(self: sk_unicodebreakiterator_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_unicodebreakiterator_destroy'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_unicodebreakiterator_next(self: sk_unicodebreakiterator_t; out elem: sk_unicodebreakiteratorelem_t): _bool; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_unicodebreakiterator_next'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
 {$ENDIF}
 
 
@@ -4387,12 +4402,12 @@ function  sk4d_unicodebreakiterator_next;    external LibraryName name 'sk4d_uni
   sk4d_svgdom_render             := GetProcAddress(LibraryHandle, PChar('sk4d_svgdom_render'));
   sk4d_svgdom_set_container_size := GetProcAddress(LibraryHandle, PChar('sk4d_svgdom_set_container_size'));
 {$ELSE}
-function  sk4d_svgdom_find_node_by_id;    external LibraryName name 'sk4d_svgdom_find_node_by_id'   {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_svgdom_get_root;           external LibraryName name 'sk4d_svgdom_get_root'          {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_svgdom_make_from_file;     external LibraryName name 'sk4d_svgdom_make_from_file'    {$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_svgdom_make_from_stream;   external LibraryName name 'sk4d_svgdom_make_from_stream'  {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_svgdom_render;             external LibraryName name 'sk4d_svgdom_render'            {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_svgdom_set_container_size; external LibraryName name 'sk4d_svgdom_set_container_size'{$IFDEF IOS} dependency 'c++'{$ENDIF};
+function  sk4d_svgdom_find_node_by_id(self: sk_svgdom_t; const id: MarshaledAString): sk_svgnode_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_svgdom_find_node_by_id'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_svgdom_get_root(const self: sk_svgdom_t): sk_svgsvg_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_svgdom_get_root'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_svgdom_make_from_file(const file_name: MarshaledAString; font_provider: sk_fontmgr_t): sk_svgdom_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_svgdom_make_from_file'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_svgdom_make_from_stream(stream: sk_stream_t; resource_provider: sk_resourceprovider_t; font_provider: sk_fontmgr_t): sk_svgdom_t; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_svgdom_make_from_stream'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_svgdom_render(const self: sk_svgdom_t; canvas: sk_canvas_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_svgdom_render'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_svgdom_set_container_size(self: sk_svgdom_t; const size: psk_size_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_svgdom_set_container_size'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
 {$ENDIF}
 
 
@@ -4401,7 +4416,7 @@ procedure sk4d_svgdom_set_container_size; external LibraryName name 'sk4d_svgdom
 {$IFNDEF SK_STATIC_LIBRARY}
   sk4d_svgnode_set_attribute := GetProcAddress(LibraryHandle, PChar('sk4d_svgnode_set_attribute'));
 {$ELSE}
-function sk4d_svgnode_set_attribute; external LibraryName name 'sk4d_svgnode_set_attribute'{$IFDEF IOS} dependency 'c++'{$ENDIF};
+function sk4d_svgnode_set_attribute(self: sk_svgnode_t; const name, value: MarshaledAString): _bool; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_svgnode_set_attribute'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
 {$ENDIF}
 
 
@@ -4422,19 +4437,19 @@ function sk4d_svgnode_set_attribute; external LibraryName name 'sk4d_svgnode_set
   sk4d_svgsvg_set_x                     := GetProcAddress(LibraryHandle, PChar('sk4d_svgsvg_set_x'));
   sk4d_svgsvg_set_y                     := GetProcAddress(LibraryHandle, PChar('sk4d_svgsvg_set_y'));
 {$ELSE}
-procedure sk4d_svgsvg_get_height;                external LibraryName name 'sk4d_svgsvg_get_height'               {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_svgsvg_get_intrinsic_size;        external LibraryName name 'sk4d_svgsvg_get_intrinsic_size'       {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_svgsvg_get_preserve_aspect_ratio; external LibraryName name 'sk4d_svgsvg_get_preserve_aspect_ratio'{$IFDEF IOS} dependency 'c++'{$ENDIF};
-function  sk4d_svgsvg_get_view_box;              external LibraryName name 'sk4d_svgsvg_get_view_box'             {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_svgsvg_get_width;                 external LibraryName name 'sk4d_svgsvg_get_width'                {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_svgsvg_get_x;                     external LibraryName name 'sk4d_svgsvg_get_x'                    {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_svgsvg_get_y;                     external LibraryName name 'sk4d_svgsvg_get_y'                    {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_svgsvg_set_height;                external LibraryName name 'sk4d_svgsvg_set_height'               {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_svgsvg_set_preserve_aspect_ratio; external LibraryName name 'sk4d_svgsvg_set_preserve_aspect_ratio'{$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_svgsvg_set_view_box;              external LibraryName name 'sk4d_svgsvg_set_view_box'             {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_svgsvg_set_width;                 external LibraryName name 'sk4d_svgsvg_set_width'                {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_svgsvg_set_x;                     external LibraryName name 'sk4d_svgsvg_set_x'                    {$IFDEF IOS} dependency 'c++'{$ENDIF};
-procedure sk4d_svgsvg_set_y;                     external LibraryName name 'sk4d_svgsvg_set_y'                    {$IFDEF IOS} dependency 'c++'{$ENDIF};
+procedure sk4d_svgsvg_get_height(const self: sk_svgsvg_t; out result: sk_svglength_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_svgsvg_get_height'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_svgsvg_get_intrinsic_size(const self: sk_svgsvg_t; const view_port: psk_size_t; dpi: float; out result: sk_size_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_svgsvg_get_intrinsic_size'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_svgsvg_get_preserve_aspect_ratio(const self: sk_svgsvg_t; out result: sk_svgpreserveaspectratio_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_svgsvg_get_preserve_aspect_ratio'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+function  sk4d_svgsvg_get_view_box(const self: sk_svgsvg_t; out result: sk_rect_t): _bool; cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_svgsvg_get_view_box'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_svgsvg_get_width(const self: sk_svgsvg_t; out result: sk_svglength_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_svgsvg_get_width'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_svgsvg_get_x(const self: sk_svgsvg_t; out result: sk_svglength_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_svgsvg_get_x'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_svgsvg_get_y(const self: sk_svgsvg_t; out result: sk_svglength_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_svgsvg_get_y'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_svgsvg_set_height(self: sk_svgsvg_t; value: psk_svglength_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_svgsvg_set_height'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_svgsvg_set_preserve_aspect_ratio(self: sk_svgsvg_t; value: psk_svgpreserveaspectratio_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_svgsvg_set_preserve_aspect_ratio'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_svgsvg_set_view_box(self: sk_svgsvg_t; view_box: psk_rect_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_svgsvg_set_view_box'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_svgsvg_set_width(self: sk_svgsvg_t; value: psk_svglength_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_svgsvg_set_width'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_svgsvg_set_x(self: sk_svgsvg_t; value: psk_svglength_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_svgsvg_set_x'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
+procedure sk4d_svgsvg_set_y(self: sk_svgsvg_t; value: psk_svglength_t); cdecl; external{$IFNDEF SK_EXTERNAL_LINK} LibraryName name 'sk4d_svgsvg_set_y'{$IFDEF IOS} dependency 'c++'{$ENDIF}{$ENDIF};
 {$ENDIF}
 
 {$IFNDEF SK_STATIC_LIBRARY}
@@ -4448,7 +4463,7 @@ end;
 {$IFNDEF SK_STATIC_LIBRARY}
 procedure SkFinalize;
 begin
-  if {$IFDEF FPC}InterlockedDecrement{$ELSE}AtomicDecrement{$ENDIF}(InitCount) = 0 then
+  if AtomicDecrement(InitCount) = 0 then
     FreeLibrary(LibraryHandle);
 end;
 {$ELSE}

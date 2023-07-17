@@ -231,8 +231,36 @@ jobs:
           path: Toolchain/logs.txt
           retention-days: 10
 
+  test-fpc-331:
+    name: Running Tests on FPC 3.3.1
+    runs-on: windows-2022
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Checkout Toolchain
+        uses: actions/checkout@v3
+        with:
+          repository: skia4delphibot/toolchainfpc331
+          token: ${{ secrets.GH_SK_PAT }}
+          path: Toolchain
+
+      - name: Build and Test
+        run: |
+          Toolchain/Run.ps1
+        shell: pwsh
+        timeout-minutes: 30
+
+      - name: Upload Logs on Failure
+        uses: actions/upload-artifact@v3
+        if: failure()
+        with:
+          name: FPC 3.3.1 Logs
+          path: Toolchain/logs.txt
+          retention-days: 10
+
   make:
-    needs: [test-bds-22, test-bds-21, test-bds-20, test-bds-19, test-bds-18, test-bds-17, test-bds-16, test-bds-15]
+    needs: [test-bds-22, test-bds-21, test-bds-20, test-bds-19, test-bds-18, test-bds-17, test-bds-16, test-bds-15, test-fpc-331]
     name: Building Installer
     runs-on: windows-2022
     steps:
