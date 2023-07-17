@@ -737,7 +737,9 @@ begin
     TTestResultType.Error: FPanel.StyleLookup := 'Panel3Style_error';
     TTestResultType.Ignored: FPanel.StyleLookup := 'Panel3Style_ignored';
     TTestResultType.MemoryLeak: FPanel.StyleLookup := 'Panel3Style_leak';
+    {$IF CompilerVersion >= 32}
     TTestResultType.Warning: FPanel.StyleLookup := 'Panel3Style_warning';
+    {$ENDIF}
   end;
   FPanel.Visible := True;
 end;

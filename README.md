@@ -75,6 +75,9 @@ Using the **Skia4Delphi** library it is possible to override Firemonkey's graphi
   - [TSkSvg](#tsksvg)
     - [Limitations](Documents/SVG.md#limitations)
 - [Compatibility](#compatibility)
+- [Known issues](#known-issues)
+  - [Universal macOS Binary](#universal-macos-binary)
+  - [Submit your app to the Mac App Store](#submit-your-app-to-the-mac-app-store)
 - [Documentation](#documentation)
 - [Version](#version)
 
@@ -300,7 +303,7 @@ As a result, any Delphi control, such as a TImage, can normally load these new f
 
 ## **FMX Render**
 
-It is possible to replace the default Canvas from FMX to Skia based Canvas. Once this feature is enabled, all FMX controls will be painted internally using Skia4Delphi automatically. With that it is possible to improve the quality and performance of the drawings throughout the FMX app, as well as generating better integration with other library features.
+It is possible to replace the default Canvas from FMX to Skia based Canvas. Once this feature is enabled, all FMX controls will be painted internally using **Skia4Delphi** automatically. With that it is possible to improve the quality and performance of the drawings throughout the FMX app, as well as generating better integration with other library features.
 
 ### Enable Skia Render
 
@@ -569,13 +572,40 @@ The example above results in the output below:
 
 For the platforms supported by **Skia4Delphi** (listed above), the OS versions supported by the library are the same [OS versions that RAD Studio supports.](https://docwiki.embarcadero.com/PlatformStatus/en/Main_Page)
 
+# Known issues
+
+Due to certain constraints within the IDE, there are specific limitations and workarounds.
+*This topic will be updated as soon as these limitations no longer exist*
+
+## Universal macOS Binary
+
+When the project settings are configured to generate a universal binary for macOS (also known as fat library), the internal process executed by MSBuild only applies the "lipo" tool to the application, without an option to merge files present in the deployment configurations. As a result, the binary for macOS ARM64 targets (known in the IDE as "OSXARM64") is universal, containing both x64 and ARM64 versions, even when the option to generate a universal project binary is disabled.
+
+## Submit your app to the Mac App Store
+
+To submit a macOS application to the Apple Mac Store, it is necessary to sign all shared library files, and the deployment settings do not provide a method to sign files within them. In this case, follow the steps below for manual signing:
+
+1. Transfer the **Skia4Delphi** shared library file to your macOS `Desktop` (if the target is OSXARM64, use `Binary\Shared\OSXARM64\libsk4d.dylib`. If it is OSX64, use `Binary\Shared\OSX64\libsk4d.dylib`);
+
+2. Access your macOS `Desktop` via Terminal and run the following command:
+   ```bash
+   security find-identity -v -p codesigning
+   ```
+
+3. The output will present information formatted roughly like **XXXXX "Apple Development: YYYYY (ZZZZZ)"**. Use this information to execute the command below and sign the library:
+   ```bash
+   codesign --force --timestamp --sign "Apple Development: YYYYY (ZZZZZ)" libsk4d.dylib
+   ```
+
+4. Replace the original **Skia4Delphi** file with the signed file, then perform the "Clean" and "Build" operation on your project.
+
 # Documentation
 
 The APIs are very similar to Skia's, few methods and functions have been renamed for readability, so the [Skia documentation](https://skia.org/docs) can be used.
 
 # Version
 
-**[Skia4Delphi 6.0.0-beta1](/../../releases/latest)**
+**[Skia4Delphi 6.0.0-beta3](/../../releases/latest)**
 
 Skia Version used: [chrome/m107](https://github.com/google/skia/tree/chrome/m107)
 

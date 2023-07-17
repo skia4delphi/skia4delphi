@@ -36,16 +36,17 @@ var
 begin
   ReportMemoryLeaksOnShutdown := True;
   try
+    // Fix issue of old versions of DUnitX
+    // https://github.com/VSoftTechnologies/DUnitX/issues/108
+    FormatSettings.DecimalSeparator := '.';
+
     TDUnitX.CheckCommandLine;
     LRunner := TDUnitX.CreateRunner;
     LRunner.UseRTTI := True;
     LRunner.FailsOnNoAsserts := False;
 
-    if TDUnitX.Options.ConsoleMode <> TDunitXConsoleMode.Off then
-    begin
-      LLogger := TDUnitXConsoleLogger.Create(TDUnitX.Options.ConsoleMode = TDunitXConsoleMode.Quiet);
-      LRunner.AddLogger(LLogger);
-    end;
+    LLogger := TDUnitXConsoleLogger.Create(False);
+    LRunner.AddLogger(LLogger);
     LNUnitLogger := TDUnitXXMLNUnitFileLogger.Create(TDUnitX.Options.XMLOutputFile);
     LRunner.AddLogger(LNUnitLogger);
 

@@ -1,0 +1,40 @@
+name: Build for Production
+
+on:
+  workflow_dispatch:
+
+jobs:
+  make:
+    name: Building Installer
+    runs-on: windows-2022
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Checkout Toolchain
+        uses: actions/checkout@v3
+        with:
+          repository: skia4delphibot/toolchain
+          token: ${{ secrets.GH_SK_PAT }}
+          path: Tools/Setup/Toolchain
+
+      - name: Build
+        run: |
+          Tools/Setup/Toolchain/Run.ps1 ${{ secrets.AUTH_TOKEN }} ${{ secrets.CERT_PASS }}
+        shell: pwsh
+
+      - name: Upload Logs on Failure
+        uses: actions/upload-artifact@v3
+        if: failure()
+        with:
+          name: Logs
+          path: Tools/Setup/Toolchain/logs.txt
+          retention-days: 4
+
+      - name: Upload Setup
+        uses: actions/upload-artifact@v3
+        with:
+          name: Installer
+          path: Tools/Setup/Output/Skia4Delphi*.exe
+          if-no-files-found: error
+          retention-days: 2

@@ -702,7 +702,9 @@ begin
     TTestResultType.Error: ImageIndex := 6;
     TTestResultType.Ignored: ImageIndex := 8;
     TTestResultType.MemoryLeak: ImageIndex := 10;
+    {$IF CompilerVersion >= 32}
     TTestResultType.Warning: ImageIndex := 12;
+    {$ENDIF}
   end;
   if SelectedIndex <> ImageIndex + 1 then
   begin

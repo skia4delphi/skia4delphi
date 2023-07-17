@@ -12,13 +12,38 @@ unit System.Skia;
 
 interface
 
-{$ALIGN ON}
+{$IFDEF FPC}
+  {$IF DEFINED(FPC_FULLVERSION) and (FPC_FULLVERSION < 30301)}
+    {$ERROR Requires at least FPC 3.3.1}
+  {$ENDIF}
+  {$MODE DELPHI}
+  {$MODESWITCH ANONYMOUSFUNCTIONS}
+  {$MODESWITCH FUNCTIONREFERENCES}
+  {$MODESWITCH UNICODESTRINGS}
+  {$IFDEF STANDALONE}
+    {$WARN 4105 off : Implicit string type conversion with potential data loss from "$1" to "$2"}
+    {$WARN 5024 off : Parameter "$1" not used}
+    {$WARN 5026 off : Value parameter "$1" is assigned but never used}
+    {$WARN 5091 off : Local variable "$1" of a managed type does not seem to be initialized}
+    {$WARN 5092 off : Variable "$1" of a managed type does not seem to be initialized}
+    {$WARN 5093 off : Function result variable of a managed type does not seem to be initialized}
+    {$WARN 6058 off : Call to subroutine "$1" marked as inline is not inlined}
+  {$ENDIF}
+{$ENDIF}
 
+{$ALIGN ON}
 {$MINENUMSIZE 4}
 {$RANGECHECKS OFF}
 {$SCOPEDENUMS ON}
 
 uses
+  {$IFDEF FPC}
+  { FPC }
+  Classes,
+  System.UITypes,
+  SysUtils,
+  Types,
+  {$ELSE}
   { Delphi }
   System.Classes,
   System.DateUtils,
@@ -26,12 +51,84 @@ uses
   System.SysUtils,
   System.Types,
   System.UITypes,
+  {$ENDIF}
 
   { Skia }
   System.Skia.API;
 
 const
-  SkVersion = '6.0.0-beta1';
+  SkVersion = '6.0.0-beta3';
+
+{$REGION 'FPC Compatibility'}
+{$IFDEF FPC}
+
+type
+  TPolygon = array of TPointF;
+
+  TVector3DType = array [0..3] of Single;
+
+  TVectorArray = array [0..2] of Single;
+
+  TVector = record
+    case Integer of
+      0: (V: TVectorArray);
+      1: (X: Single;
+          Y: Single;
+          W: Single);
+  end;
+
+  TMatrixArray = array [0..2] of TVector;
+
+  TMatrix = record
+    class function CreateScaling(const AScaleX, AScaleY: Single): TMatrix; static;
+    class function CreateTranslation(const ADeltaX, ADeltaY: Single): TMatrix; static;
+    class operator Multiply(const AMatrix1, AMatrix2: TMatrix): TMatrix;
+    case Integer of
+      0: (M: TMatrixArray);
+      1: (m11, m12, m13: Single;
+          m21, m22, m23: Single;
+          m31, m32, m33: Single);
+  end;
+
+  TMatrixConstants = record helper for TMatrix
+    const
+      Identity: TMatrix = (m11: 1; m12: 0; m13: 0;
+                           m21: 0; m22: 1; m23: 0;
+                           m31: 0; m32: 0; m33: 1);
+  end;
+
+  TVector3D = record
+    case Integer of
+      0: (V: TVector3DType);
+      1: (X: Single;
+          Y: Single;
+          Z: Single;
+          W: Single);
+  end;
+
+  TMatrix3DType = array [0..3] of TVector3D;
+
+  TMatrix3D = record
+    class function CreateScaling(const AScale: TPoint3D): TMatrix3D; static;
+    class function CreateTranslation(const ATranslation: TPoint3D): TMatrix3D; static;
+    case Integer of
+      0: (M: TMatrix3DType);
+      1: (m11, m12, m13, m14: Single;
+          m21, m22, m23, m24: Single;
+          m31, m32, m33, m34: Single;
+          m41, m42, m43, m44: Single);
+  end;
+
+  TMatrix3DConstants = record helper for TMatrix3D
+    const
+      Identity: TMatrix3D = (m11: 1; m12: 0; m13: 0; m14: 0;
+                             m21: 0; m22: 1; m23: 0; m24: 0;
+                             m31: 0; m32: 0; m33: 1; m34: 0;
+                             m41: 0; m42: 0; m43: 0; m44: 1);
+  end;
+
+{$ENDIF}
+{$ENDREGION}
 
 type
   TGrBackendAPI                   = (OpenGl, Vulkan, Metal);
@@ -242,7 +339,7 @@ type
     Offset: GrVkDeviceSize;
     Size: GrVkDeviceSize;
     Flags: TGrVkAllocFlags;
-    Memory: THandle;
+    Memory: sk_handle_t;
   end;
 
   { TGrVkBackendContext }
@@ -477,7 +574,7 @@ type
     constructor Create(const AWidth, AHeight: Integer); overload;
     constructor Create(const AWidth, AHeight: Integer; const AColorType: TSkColorType; const AAlphaType: TSkAlphaType = TSkAlphaType.Premul; AColorSpace: ISkColorSpace = nil); overload;
     function ByteSize(const ARowBytes: NativeUInt): NativeUInt;
-    function BytesPerPixel: Integer; inline;
+    function BytesPerPixel: Integer;
     function IsEmpty: Boolean;
     function IsOpaque: Boolean;
     function IsValid: Boolean;
@@ -488,7 +585,7 @@ type
     function MakeDimensions(const AWidth, AHeight: Integer): TSkImageInfo;
     function MinByteSize: NativeUInt;
     function MinRowBytes: NativeUInt;
-    function ShiftPerPixel: Integer; inline;
+    function ShiftPerPixel: Integer;
     class operator Equal(const AImageInfo1, AImageInfo2: TSkImageInfo): Boolean;
     class operator NotEqual(const AImageInfo1, AImageInfo2: TSkImageInfo): Boolean;
   end;
@@ -514,13 +611,13 @@ type
 
   TSkImageEncoder = record
     class function Encode(const ASrc: ISkPixmap; const AEncodedImageFormat: TSkEncodedImageFormat = TSkEncodedImageFormat.PNG; const AQuality: Integer = 80): TBytes; overload; static;
-    class function Encode(const ASrcImageInfo: TSkImageInfo; const ASrcPixels: Pointer; const ASrcRowBytes: NativeUInt; const AEncodedImageFormat: TSkEncodedImageFormat = TSkEncodedImageFormat.PNG; const AQuality: Integer = 80): TBytes; overload; static; inline;
+    class function Encode(const ASrcImageInfo: TSkImageInfo; const ASrcPixels: Pointer; const ASrcRowBytes: NativeUInt; const AEncodedImageFormat: TSkEncodedImageFormat = TSkEncodedImageFormat.PNG; const AQuality: Integer = 80): TBytes; overload; static;
     class function EncodeToFile(const AFileName: string; const ASrc: ISkPixmap; const AQuality: Integer = 80): Boolean; overload; static;
     class function EncodeToFile(const AFileName: string; const ASrc: ISkPixmap; const AEncodedImageFormat: TSkEncodedImageFormat; const AQuality: Integer = 80): Boolean; overload; static;
     class function EncodeToFile(const AFileName: string; const ASrcImageInfo: TSkImageInfo; const ASrcPixels: Pointer; const ASrcRowBytes: NativeUInt; const AQuality: Integer = 80): Boolean; overload; static;
-    class function EncodeToFile(const AFileName: string; const ASrcImageInfo: TSkImageInfo; const ASrcPixels: Pointer; const ASrcRowBytes: NativeUInt; const AEncodedImageFormat: TSkEncodedImageFormat; const AQuality: Integer = 80): Boolean; overload; static; inline;
+    class function EncodeToFile(const AFileName: string; const ASrcImageInfo: TSkImageInfo; const ASrcPixels: Pointer; const ASrcRowBytes: NativeUInt; const AEncodedImageFormat: TSkEncodedImageFormat; const AQuality: Integer = 80): Boolean; overload; static;
     class function EncodeToStream(const AStream: TStream; const ASrc: ISkPixmap; const AEncodedImageFormat: TSkEncodedImageFormat = TSkEncodedImageFormat.PNG; const AQuality: Integer = 80): Boolean; overload; static;
-    class function EncodeToStream(const AStream: TStream; const ASrcImageInfo: TSkImageInfo; const ASrcPixels: Pointer; const ASrcRowBytes: NativeUInt; const AEncodedImageFormat: TSkEncodedImageFormat = TSkEncodedImageFormat.PNG; const AQuality: Integer = 80): Boolean; overload; static; inline;
+    class function EncodeToStream(const AStream: TStream; const ASrcImageInfo: TSkImageInfo; const ASrcPixels: Pointer; const ASrcRowBytes: NativeUInt; const AEncodedImageFormat: TSkEncodedImageFormat = TSkEncodedImageFormat.PNG; const AQuality: Integer = 80): Boolean; overload; static;
   end;
 
   { TSkLattice }
@@ -816,8 +913,8 @@ type
   { ISkObject }
 
   ISkObject = interface
-    function GetHandle: THandle;
-    property Handle: THandle read GetHandle;
+    function GetHandle: sk_handle_t;
+    property Handle: sk_handle_t read GetHandle;
   end;
 
   { TSkObject }
@@ -828,41 +925,41 @@ type
     objDestroyingFlag = Integer($80000000);
   {$ENDIF}
   strict private
-    FHandle: THandle;
+    FHandle: sk_handle_t;
     FOwnsHandle: Boolean;
     {$IFNDEF AUTOREFCOUNT}
-    [Volatile] FRefCount: Integer;
+    {$IFNDEF FPC}[Volatile]{$ENDIF} FRefCount: Integer;
     {$ENDIF}
-    function GetHandle: THandle;
     {$IFNDEF AUTOREFCOUNT}
     function GetRefCount: Integer; inline;
     {$ENDIF}
     class constructor Create;
     class destructor Destroy;
   strict protected
-    function QueryInterface(const IID: TGUID; out Obj): HResult; stdcall;
-    function _AddRef: Integer; stdcall;
-    function _Release: Integer; stdcall;
-    class procedure __DestroyHandle(const AHandle: THandle); virtual;
+    function GetHandle: sk_handle_t;
+    function QueryInterface({$IFDEF FPC_HAS_CONSTREF}constref{$ELSE}const{$ENDIF} IID: TGUID; out Obj): {$IFDEF FPC}Longint{$ELSE}HRESULT{$ENDIF}; {$IF DEFINED(FPC) and NOT DEFINED(WINDOWS)}cdecl{$ELSE}stdcall{$ENDIF};
+    function _AddRef: {$IFDEF FPC}Longint{$ELSE}Integer{$ENDIF}; {$IF DEFINED(FPC) and NOT DEFINED(WINDOWS)}cdecl{$ELSE}stdcall{$ENDIF};
+    function _Release: {$IFDEF FPC}Longint{$ELSE}Integer{$ENDIF}; {$IF DEFINED(FPC) and NOT DEFINED(WINDOWS)}cdecl{$ELSE}stdcall{$ENDIF};
+    class procedure __DestroyHandle(const AHandle: sk_handle_t); virtual;
     {$IFNDEF AUTOREFCOUNT}
-    class procedure __MarkDestroying(const Obj); static; inline;
+    class procedure __MarkDestroying(const Obj); static;
     {$ENDIF}
-    class procedure __RefHandle(const AHandle: THandle); virtual;
-    class procedure __UnrefHandle(const AHandle: THandle); virtual;
+    class procedure __RefHandle(const {%H-}AHandle: sk_handle_t); virtual;
+    class procedure __UnrefHandle(const {%H-}AHandle: sk_handle_t); virtual;
   public
-    constructor Create(const AHandle: THandle);
-    constructor Wrap(const AHandle: THandle; const AOwnsHandle: Boolean = True);
+    constructor Create(const AHandle: sk_handle_t);
+    constructor Wrap(const AHandle: sk_handle_t; const AOwnsHandle: Boolean = True);
     destructor Destroy; override;
     {$IFNDEF AUTOREFCOUNT}
     procedure AfterConstruction; override;
     procedure BeforeDestruction; override;
     {$ENDIF}
-    property Handle: THandle read FHandle;
+    property Handle: sk_handle_t read FHandle;
     {$IFNDEF AUTOREFCOUNT}
     property RefCount: Integer read GetRefCount;
     class function NewInstance: TObject; override;
     {$ENDIF}
-    class function __ReleaseHandle(const AObject: ISkObject): THandle;
+    class function __ReleaseHandle(const AObject: ISkObject): sk_handle_t;
   end;
 
   { ISkReferenceCounted }
@@ -874,8 +971,8 @@ type
 
   TSkReferenceCounted = class abstract(TSkObject, ISkReferenceCounted)
   public
-    class procedure __RefHandle(const AHandle: THandle); override; final;
-    class procedure __UnrefHandle(const AHandle: THandle); override; final;
+    class procedure __RefHandle(const AHandle: sk_handle_t); override; final;
+    class procedure __UnrefHandle(const AHandle: sk_handle_t); override; final;
   end;
 
   { ISkNonVirtualReferenceCounted }
@@ -887,20 +984,6 @@ type
 
   TSkNonVirtualReferenceCounted = class abstract(TSkObject, ISkNonVirtualReferenceCounted);
 
-  TSkEnumerable<T> = class;
-
-  { TSkEnumerator<T> }
-
-  TSkEnumerator<T> = class
-  strict private
-    FEnumerable: TSkEnumerable<T>;
-  public
-    constructor Create(const AEnumerable: TSkEnumerable<T>);
-    function GetCurrent: T;
-    function MoveNext: Boolean;
-    property Current: T read GetCurrent;
-  end;
-
   { ISkEnumerable }
 
   ISkEnumerable = interface(ISkObject)
@@ -910,9 +993,19 @@ type
   { TSkEnumerable<T> }
 
   TSkEnumerable<T> = class abstract(TSkObject, ISkEnumerable)
-  public
+  public type
+      TEnumerator = class
+      strict private
+        FEnumerable: TSkEnumerable<T>;
+      public
+        constructor Create(const AEnumerable: TSkEnumerable<T>);
+        function GetCurrent: T;
+        function MoveNext: Boolean;
+        property Current: T read GetCurrent;
+      end;
+
     function GetCurrent: T; virtual; abstract;
-    function GetEnumerator: TSkEnumerator<T>;
+    function GetEnumerator: TEnumerator;
     function MoveNext: Boolean; virtual; abstract;
   end;
 
@@ -947,7 +1040,7 @@ type
     constructor CreateGl(const AWidth, AHeight, ASampleCount, AStencilBits: Integer; const AFramebufferInfo: TGrGlFramebufferInfo);
     constructor CreateMetal(const AWidth, AHeight: Integer; const ATextureInfo: TGrMtlTextureInfo);
     constructor CreateVulkan(const AWidth, AHeight: Integer; const AImageInfo: TGrVkImageInfo);
-    class procedure __DestroyHandle(const AHandle: THandle); override;
+    class procedure __DestroyHandle(const AHandle: sk_handle_t); override;
   end;
 
   {$HPPEMIT END '#define GrBackendRenderTarget(...) __SkCreate(TGrBackendRenderTarget, IGrBackendRenderTarget, __VA_ARGS__)'}
@@ -966,7 +1059,7 @@ type
     procedure InitVulkan(const ASemaphore: GrVkSemaphore);
   public
     constructor Create;
-    class procedure __DestroyHandle(const AHandle: THandle); override;
+    class procedure __DestroyHandle(const AHandle: sk_handle_t); override;
   end;
 
   {$HPPEMIT END '#define GrBackendRenderTarget(...) __SkCreate(TGrBackendSemaphore, IGrBackendSemaphore, __VA_ARGS__)'}
@@ -980,7 +1073,7 @@ type
   TGrBackendSurfaceMutableState = class(TSkObject, IGrBackendSurfaceMutableState)
   public
     constructor Create(const AImageLayout: GrVkImageLayout; const AQueueFamilyIndex: Cardinal);
-    class procedure __DestroyHandle(const AHandle: THandle); override;
+    class procedure __DestroyHandle(const AHandle: sk_handle_t); override;
   end;
 
   {$HPPEMIT END '#define GrBackendRenderTarget(...) __SkCreate(TGrBackendSurfaceMutableState, IGrBackendSurfaceMutableState, __VA_ARGS__)'}
@@ -1014,7 +1107,7 @@ type
     constructor CreateGl(const AWidth, AHeight: Integer; const AIsMipmapped: Boolean; const ATextureInfo: TGrGlTextureInfo);
     constructor CreateMetal(const AWidth, AHeight: Integer; const AIsMipmapped: Boolean; const ATextureInfo: TGrMtlTextureInfo);
     constructor CreateVulkan(const AWidth, AHeight: Integer; const AImageInfo: TGrVkImageInfo);
-    class procedure __DestroyHandle(const AHandle: THandle); override;
+    class procedure __DestroyHandle(const AHandle: sk_handle_t); override;
   end;
 
   {$HPPEMIT END '#define GrBackendTexture(...) __SkCreate(TGrBackendTexture, IGrBackendTexture, __VA_ARGS__)'}
@@ -1126,7 +1219,7 @@ type
     procedure Store(const AKey, AData: TBytes); virtual; abstract;
   public
     constructor Create;
-    class procedure __DestroyHandle(const AHandle: THandle); override;
+    class procedure __DestroyHandle(const AHandle: sk_handle_t); override;
   end;
 
   { IGrShaderErrorHandler }
@@ -1145,7 +1238,7 @@ type
     procedure CompileError(const AShader, AErrors: string); virtual; abstract;
   public
     constructor Create;
-    class procedure __DestroyHandle(const AHandle: THandle); override;
+    class procedure __DestroyHandle(const AHandle: sk_handle_t); override;
   end;
 
   { IGrVkExtensions }
@@ -1164,7 +1257,7 @@ type
     procedure Init(const AProc: TGrVkGetProc; const AInstance: GrVkInstance; const APhysicalDevice: GrVkPhysicalDevice; const AInstanceExtensions, ADeviceExtensions: TArray<MarshaledAString>);
   public
     constructor Create;
-    class procedure __DestroyHandle(const AHandle: THandle); override;
+    class procedure __DestroyHandle(const AHandle: sk_handle_t); override;
   end;
 
   {$HPPEMIT END '#define GrVkExtensions(...) __SkCreate(TGrVkExtensions, IGrVkExtensions, __VA_ARGS__)'}
@@ -1358,7 +1451,7 @@ type
     procedure Skew(const ASkewX, ASkewY: Single);
     procedure Translate(const ADeltaX, ADeltaY: Single);
   public
-    class procedure __DestroyHandle(const AHandle: THandle); override;
+    class procedure __DestroyHandle(const AHandle: sk_handle_t); override;
   end;
 
   { ISkCodec }
@@ -1392,7 +1485,7 @@ type
     class function MakeFromStream(const AStream: TStream): ISkCodec; static;
     class function MakeWithCopy(const AData: Pointer; const ASize: NativeUInt): ISkCodec; static;
     class function MakeWithoutCopy(const AData: Pointer; const ASize: NativeUInt): ISkCodec; static;
-    class procedure __DestroyHandle(const AHandle: THandle); override;
+    class procedure __DestroyHandle(const AHandle: sk_handle_t); override;
   end;
 
   { ISkAnimationCodecPlayer }
@@ -1425,7 +1518,7 @@ type
   public
     class function MakeFromFile(const AFileName: string): ISkAnimationCodecPlayer; static;
     class function MakeFromStream(const AStream: TStream): ISkAnimationCodecPlayer; static;
-    class procedure __DestroyHandle(const AHandle: THandle); override;
+    class procedure __DestroyHandle(const AHandle: sk_handle_t); override;
   end;
 
   { ISkColorFilter }
@@ -1484,8 +1577,8 @@ type
     class function MakeRGB(const ATransferFunction: TSkColorSpaceTransferFunction; const AToXyzD50: TSkColorSpaceXyz): ISkColorSpace; static;
     class function MakeSRGB: ISkColorSpace; static;
     class function MakeSRGBLinear: ISkColorSpace; static;
-    class procedure __RefHandle(const AHandle: THandle); override;
-    class procedure __UnrefHandle(const AHandle: THandle); override;
+    class procedure __RefHandle(const AHandle: sk_handle_t); override;
+    class procedure __UnrefHandle(const AHandle: sk_handle_t); override;
   end;
 
   { ISkColorSpaceICCProfile }
@@ -1504,7 +1597,7 @@ type
     function ToXyz(out ADest: TSkColorSpaceXyz): Boolean;
   public
     class function MakeFromBytes(const ABytes: TBytes): ISkColorSpaceICCProfile; static;
-    class procedure __DestroyHandle(const AHandle: THandle); override;
+    class procedure __DestroyHandle(const AHandle: sk_handle_t); override;
   end;
 
   { ISkDocument }
@@ -1651,7 +1744,7 @@ type
   public
     constructor Create(ATypeface: ISkTypeface = nil; const ASize: Single = 12; const AScaleX: Single = 1; const ASkewX: Single = 0); overload;
     constructor Create(const AFont: ISkFont); overload;
-    class procedure __DestroyHandle(const AHandle: THandle); override;
+    class procedure __DestroyHandle(const AHandle: sk_handle_t); override;
   end;
 
   {$HPPEMIT END '#define SkFont(...) __SkCreate(TSkFont, ISkFont, __VA_ARGS__)'}
@@ -1756,7 +1849,7 @@ type
     property UniqueId: NativeUInt read GetUniqueId;
     property Width: Integer read GetWidth;
     class function MakeCrossContext(const AContext: IGrDirectContext; const APixmap: ISkPixmap; const ABuildMips: Boolean; const ALimitToMaxTextureSize: Boolean = False): ISkImage; overload; static;
-    class function MakeCrossContext(const AContext: IGrDirectContext; const AImageInfo: TSkImageInfo; const APixels: Pointer; const ARowBytes: NativeUInt; const ABuildMips: Boolean; const ALimitToMaxTextureSize: Boolean = False): ISkImage; overload; static; inline;
+    class function MakeCrossContext(const AContext: IGrDirectContext; const AImageInfo: TSkImageInfo; const APixels: Pointer; const ARowBytes: NativeUInt; const ABuildMips: Boolean; const ALimitToMaxTextureSize: Boolean = False): ISkImage; overload; static;
     class function MakeFromAdoptedTexture(const AContext: IGrDirectContext; const ATexture: IGrBackendTexture; const AOrigin: TGrSurfaceOrigin; AColorType: TSkColorType; const AAlphaType: TSkAlphaType = TSkAlphaType.Premul; AColorSpace: ISkColorSpace = nil): ISkImage; static;
     class function MakeFromEncoded(const ABytes: TBytes): ISkImage; overload; static;
     class function MakeFromEncodedFile(const AFileName: string): ISkImage; overload; static;
@@ -1766,10 +1859,10 @@ type
     class function MakeFromPicture(const APicture: ISkPicture; const ADimensions: TSize; const AProperties: TSkSurfaceProperties; const APaint: ISkPaint = nil; AColorSpace: ISkColorSpace = nil): ISkImage; overload; static;
     class function MakeFromPicture(const APicture: ISkPicture; const ADimensions: TSize; const AMatrix: TMatrix; const AProperties: TSkSurfaceProperties; const APaint: ISkPaint = nil; AColorSpace: ISkColorSpace = nil): ISkImage; overload; static;
     class function MakeFromRaster(const APixmap: ISkPixmap; const ARasterReleaseProc: TSkImageRasterReleaseProc = nil): ISkImage; overload; static;
-    class function MakeFromRaster(const AImageInfo: TSkImageInfo; const APixels: Pointer; const ARowBytes: NativeUInt; const ARasterReleaseProc: TSkImageRasterReleaseProc = nil): ISkImage; overload; static; inline;
+    class function MakeFromRaster(const AImageInfo: TSkImageInfo; const APixels: Pointer; const ARowBytes: NativeUInt; const ARasterReleaseProc: TSkImageRasterReleaseProc = nil): ISkImage; overload; static;
     class function MakeFromTexture(const AContext: IGrDirectContext; const ATexture: IGrBackendTexture; const AOrigin: TGrSurfaceOrigin; AColorType: TSkColorType; const AAlphaType: TSkAlphaType = TSkAlphaType.Premul; AColorSpace: ISkColorSpace = nil; const ATextureReleaseProc: TSkImageTextureReleaseProc = nil): ISkImage; static;
     class function MakeRasterCopy(const APixmap: ISkPixmap): ISkImage; overload; static;
-    class function MakeRasterCopy(const AImageInfo: TSkImageInfo; const APixels: Pointer; const ARowBytes: NativeUInt): ISkImage; overload; static; inline;
+    class function MakeRasterCopy(const AImageInfo: TSkImageInfo; const APixels: Pointer; const ARowBytes: NativeUInt): ISkImage; overload; static;
   end;
 
   { ISkImageFilter }
@@ -1788,7 +1881,7 @@ type
     function CanComputeFastBounds: Boolean;
     function ComputeFastBounds(const ABounds: TRectF): TRectF;
     function MakeWithLocalMatrix(const AMatrix: TMatrix): ISkImageFilter;
-    class function MakeAlphaThreshold(const ARegion: TRect; const AInnerMin, AOuterMax: Single; AInput: ISkImageFilter = nil): ISkImageFilter; overload; static; inline;
+    class function MakeAlphaThreshold(const ARegion: TRect; const AInnerMin, AOuterMax: Single; AInput: ISkImageFilter = nil): ISkImageFilter; overload; static;
     class function MakeAlphaThreshold(const ARegion: ISkRegion; const AInnerMin, AOuterMax: Single; AInput: ISkImageFilter = nil): ISkImageFilter; overload; static;
     class function MakeArithmetic(const AK1, AK2, AK3, AK4: Single; const AEnforcePremultipliedColor: Boolean; const ABackground: ISkImageFilter; AForeground: ISkImageFilter = nil): ISkImageFilter; overload; static;
     class function MakeArithmetic(const AK1, AK2, AK3, AK4: Single; const AEnforcePremultipliedColor: Boolean; const ABackground: ISkImageFilter; const ACropRect: TRectF; AForeground: ISkImageFilter = nil): ISkImageFilter; overload; static;
@@ -1813,18 +1906,18 @@ type
     class function MakeDropShadowOnly(const ADeltaX, ADeltaY, ASigmaX, ASigmaY: Single; const AColor: TAlphaColor; const ACropRect: TRectF; AInput: ISkImageFilter = nil): ISkImageFilter; overload; static;
     class function MakeErode(const ARadiusX, ARadiusY: Single; AInput: ISkImageFilter = nil): ISkImageFilter; overload; static;
     class function MakeErode(const ARadiusX, ARadiusY: Single; const ACropRect: TRectF; AInput: ISkImageFilter = nil): ISkImageFilter; overload; static;
-    class function MakeImage(const AImage: ISkImage): ISkImageFilter; overload; static; inline;
-    class function MakeImage(const AImage: ISkImage; const ASampling: TSkSamplingOptions): ISkImageFilter; overload; static; inline;
-    class function MakeImage(const AImage: ISkImage; const ASrc, ADest: TRectF): ISkImageFilter; overload; static; inline;
+    class function MakeImage(const AImage: ISkImage): ISkImageFilter; overload; static;
+    class function MakeImage(const AImage: ISkImage; const ASampling: TSkSamplingOptions): ISkImageFilter; overload; static;
+    class function MakeImage(const AImage: ISkImage; const ASrc, ADest: TRectF): ISkImageFilter; overload; static;
     class function MakeImage(const AImage: ISkImage; const ASrc, ADest: TRectF; const ASampling: TSkSamplingOptions): ISkImageFilter; overload; static;
     class function MakeMagnifier(const ASrc: TRectF; const AInset: Single; AInput: ISkImageFilter = nil): ISkImageFilter; overload; static;
     class function MakeMagnifier(const ASrc: TRectF; const AInset: Single; const ACropRect: TRectF; AInput: ISkImageFilter = nil): ISkImageFilter; overload; static;
     class function MakeMatrixConvolution(const AKernelSize: TSize; const AKernel: TArray<Single>; const AGain, ABias: Single; const AKernelOffset: TPoint; const ATileMode: TSkTileMode; const AConvolveAlpha: Boolean; AInput: ISkImageFilter = nil): ISkImageFilter; overload; static;
     class function MakeMatrixConvolution(const AKernelSize: TSize; const AKernel: TArray<Single>; const AGain, ABias: Single; const AKernelOffset: TPoint; const ATileMode: TSkTileMode; const AConvolveAlpha: Boolean; const ACropRect: TRectF; AInput: ISkImageFilter = nil): ISkImageFilter; overload; static;
-    class function MakeMatrixTransform(const AMatrix: TMatrix; AInput: ISkImageFilter = nil): ISkImageFilter; overload; static; inline;
+    class function MakeMatrixTransform(const AMatrix: TMatrix; AInput: ISkImageFilter = nil): ISkImageFilter; overload; static;
     class function MakeMatrixTransform(const AMatrix: TMatrix; const ASampling: TSkSamplingOptions; AInput: ISkImageFilter = nil): ISkImageFilter; overload; static;
-    class function MakeMerge(const AFilter1, AFilter2: ISkImageFilter): ISkImageFilter; overload; static; inline;
-    class function MakeMerge(const AFilter1, AFilter2: ISkImageFilter; const ACropRect: TRectF): ISkImageFilter; overload; static; inline;
+    class function MakeMerge(const AFilter1, AFilter2: ISkImageFilter): ISkImageFilter; overload; static;
+    class function MakeMerge(const AFilter1, AFilter2: ISkImageFilter; const ACropRect: TRectF): ISkImageFilter; overload; static;
     class function MakeMerge(const AFilters: TArray<ISkImageFilter>): ISkImageFilter; overload; static;
     class function MakeMerge(const AFilters: TArray<ISkImageFilter>; const ACropRect: TRectF): ISkImageFilter; overload; static;
     class function MakeOffset(const ADeltaX, ADeltaY: Single; AInput: ISkImageFilter = nil): ISkImageFilter; overload; static;
@@ -1969,7 +2062,7 @@ type
     constructor Create; overload;
     constructor Create(const APaint: ISkPaint); overload;
     constructor Create(const AStyle: TSkPaintStyle); overload;
-    class procedure __DestroyHandle(const AHandle: THandle); override;
+    class procedure __DestroyHandle(const AHandle: sk_handle_t); override;
   end;
 
   {$HPPEMIT END '#define SkPaint(...) __SkCreate(TSkPaint, ISkPaint, __VA_ARGS__)'}
@@ -1990,17 +2083,20 @@ type
     function Detach: ISkPath;
   public
     constructor Create;
-    class procedure __DestroyHandle(const AHandle: THandle); override;
+    class procedure __DestroyHandle(const AHandle: sk_handle_t); override;
   end;
 
   {$HPPEMIT END '#define SkOpBuilder(...) __SkCreate(TSkOpBuilder, ISkOpBuilder, __VA_ARGS__)'}
+
+
+  TSkPathIteratorElemEnumerator = TSkEnumerable<TSkPathIteratorElem>.TEnumerator;
 
   { ISkPathIterator }
 
   ISkPathIterator = interface(ISkEnumerable)
     ['{AD3EC8F2-01C0-4685-B098-6850AEA6D8A6}']
     function GetCurrent: TSkPathIteratorElem;
-    function GetEnumerator: TSkEnumerator<TSkPathIteratorElem>;
+    function GetEnumerator: TSkPathIteratorElemEnumerator;
   end;
 
   { ISkPath }
@@ -2021,7 +2117,7 @@ type
     function IsInterpolatable(const APath: ISkPath): Boolean;
     function IsLastContourClosed: Boolean;
     function IsLine: Boolean; overload;
-    function IsLine(out APoint1, APoint2: TPointF): Boolean; overload;
+    function IsLine(const APoint1, APoint2: TPointF): Boolean; overload;
     function IsOval: Boolean; overload;
     function IsOval(out ARect: TRectF): Boolean; overload;
     function IsRect: Boolean; overload;
@@ -2051,7 +2147,7 @@ type
       constructor Create(const APath: ISkPath; const AForceClose: Boolean);
       function GetCurrent: TSkPathIteratorElem; override;
       function MoveNext: Boolean; override;
-      class procedure __DestroyHandle(const AHandle: THandle); override;
+      class procedure __DestroyHandle(const AHandle: sk_handle_t); override;
     end;
 
   strict private
@@ -2069,7 +2165,7 @@ type
     function IsInterpolatable(const APath: ISkPath): Boolean;
     function IsLastContourClosed: Boolean;
     function IsLine: Boolean; overload;
-    function IsLine(out APoint1, APoint2: TPointF): Boolean; overload;
+    function IsLine(const APoint1, APoint2: TPointF): Boolean; overload;
     function IsOval: Boolean; overload;
     function IsOval(out ARect: TRectF): Boolean; overload;
     function IsRect: Boolean; overload;
@@ -2086,7 +2182,7 @@ type
     constructor Create(const ABytes: TBytes); overload;
     constructor Create(const AStream: TStream); overload;
     class function ConvertConicToQuads(const APoint1, APoint2, APoint3: TPointF; const AWeight: Single; const APower2: Integer): TArray<TPointF>; static;
-    class procedure __DestroyHandle(const AHandle: THandle); override;
+    class procedure __DestroyHandle(const AHandle: sk_handle_t); override;
   end;
 
   {$HPPEMIT END '#define SkPath(...) __SkCreate(TSkPath, ISkPath, __VA_ARGS__)'}
@@ -2195,7 +2291,7 @@ type
     constructor Create; overload;
     constructor Create(const APathBuilder: ISkPathBuilder); overload;
     constructor Create(const AFillType: TSkPathFillType); overload;
-    class procedure __DestroyHandle(const AHandle: THandle); override;
+    class procedure __DestroyHandle(const AHandle: sk_handle_t); override;
   end;
 
   {$HPPEMIT END '#define SkPathBuilder(...) __SkCreate(TSkPathBuilder, ISkPathBuilder, __VA_ARGS__)'}
@@ -2251,7 +2347,7 @@ type
     function NextContour: Boolean;
   public
     constructor Create(const APath: ISkPath; const AForceClosed: Boolean = False; const AResScale: Single = 1);
-    class procedure __DestroyHandle(const AHandle: THandle); override;
+    class procedure __DestroyHandle(const AHandle: sk_handle_t); override;
   end;
 
   {$HPPEMIT END '#define SkPathMeasure(...) __SkCreate(TSkPathMeasure, ISkPathMeasure, __VA_ARGS__)'}
@@ -2313,7 +2409,7 @@ type
     function FinishRecording(const ACullRect: TRectF): ISkPicture; overload;
   public
     constructor Create;
-    class procedure __DestroyHandle(const AHandle: THandle); override;
+    class procedure __DestroyHandle(const AHandle: sk_handle_t); override;
   end;
 
   {$HPPEMIT END '#define SkPictureRecorder(...) __SkCreate(TSkPictureRecorder, ISkPictureRecorder, __VA_ARGS__)'}
@@ -2390,17 +2486,19 @@ type
     procedure SetColorSpace(AValue: ISkColorSpace);
   public
     constructor Create(const AImageInfo: TSkImageInfo; const APixels: Pointer; const ARowBytes: NativeUInt);
-    class procedure __DestroyHandle(const AHandle: THandle); override;
+    class procedure __DestroyHandle(const AHandle: sk_handle_t); override;
   end;
 
   {$HPPEMIT END '#define SkPixmap(...) __SkCreate(TSkPixmap, ISkPixmap, __VA_ARGS__)'}
+
+  TSkRectEnumerator = TSkEnumerable<TRect>.TEnumerator;
 
   { ISkRegionCliperator }
 
   ISkRegionCliperator = interface(ISkEnumerable)
     ['{2A8DA4E7-1B52-4311-9398-E3A93BACDB02}']
     function GetCurrent: TRect;
-    function GetEnumerator: TSkEnumerator<TRect>;
+    function GetEnumerator: TSkRectEnumerator;
   end;
 
   { ISkRegionIterator }
@@ -2408,15 +2506,17 @@ type
   ISkRegionIterator = interface(ISkEnumerable)
     ['{2A0AC6C3-6101-4A9C-83BE-8F56B67F4239}']
     function GetCurrent: TRect;
-    function GetEnumerator: TSkEnumerator<TRect>;
+    function GetEnumerator: TSkRectEnumerator;
   end;
+
+  TSkPointEnumerator = TSkEnumerable<TPoint>.TEnumerator;
 
   { ISkRegionSpanerator }
 
   ISkRegionSpanerator = interface(ISkEnumerable)
     ['{E6980A05-9F49-4B3E-BD03-7A305C69B9AE}']
     function GetCurrent: TPoint;
-    function GetEnumerator: TSkEnumerator<TPoint>;
+    function GetEnumerator: TSkPointEnumerator;
   end;
 
   { ISkRegion }
@@ -2459,7 +2559,7 @@ type
       constructor Create(const ARegion: ISkRegion; const AClip: TRect);
       function GetCurrent: TRect; override;
       function MoveNext: Boolean; override;
-      class procedure __DestroyHandle(const AHandle: THandle); override;
+      class procedure __DestroyHandle(const AHandle: sk_handle_t); override;
     end;
 
     TRegionIterator = class(TSkEnumerable<TRect>, ISkRegionIterator)
@@ -2467,7 +2567,7 @@ type
       constructor Create(const ARegion: ISkRegion);
       function GetCurrent: TRect; override;
       function MoveNext: Boolean; override;
-      class procedure __DestroyHandle(const AHandle: THandle); override;
+      class procedure __DestroyHandle(const AHandle: sk_handle_t); override;
     end;
 
     TRegionSpanerator = class(TSkEnumerable<TPoint>, ISkRegionSpanerator)
@@ -2477,7 +2577,7 @@ type
       constructor Create(const ARegion: ISkRegion; const AY, ALeft, ARight: Integer);
       function GetCurrent: TPoint; override;
       function MoveNext: Boolean; override;
-      class procedure __DestroyHandle(const AHandle: THandle); override;
+      class procedure __DestroyHandle(const AHandle: sk_handle_t); override;
     end;
 
   strict private
@@ -2509,7 +2609,7 @@ type
     constructor Create; overload;
     constructor Create(const ARegion: ISkRegion); overload;
     constructor Create(const ARect: TRect); overload;
-    class procedure __DestroyHandle(const AHandle: THandle); override;
+    class procedure __DestroyHandle(const AHandle: sk_handle_t); override;
   end;
 
   {$HPPEMIT END '#define SkRegion(...) __SkCreate(TSkRegion, ISkRegion, __VA_ARGS__)'}
@@ -2582,7 +2682,7 @@ type
     constructor Create(const ARoundRect: ISkRoundRect); overload;
     constructor Create(const ARect: TRectF; const ARadiusX, ARadiusY: Single); overload;
     constructor Create(const ARect: TRectF; const ARadii: TSkRoundRectRadii); overload;
-    class procedure __DestroyHandle(const AHandle: THandle); override;
+    class procedure __DestroyHandle(const AHandle: sk_handle_t); override;
   end;
 
   {$HPPEMIT END '#define SkRoundRect(...) __SkCreate(TSkRoundRect, ISkRoundRect, __VA_ARGS__)'}
@@ -2720,7 +2820,7 @@ type
   { TSkRuntimeEffectBuilder }
 
   TSkRuntimeEffectBuilder = class abstract(TSkObject, ISkRuntimeEffectBuilder)
-  strict private
+  private
     FEffect: ISkRuntimeEffect;
     function GetEffect: TSkRuntimeEffect;
     procedure SetChild(const AName: string; const AChild: ISkShader); overload;
@@ -2733,17 +2833,17 @@ type
     procedure SetUniform(const AName: string; const AValue: TSkRuntimeEffectInt2); overload;
     procedure SetUniform(const AName: string; const AValue: TSkRuntimeEffectInt3); overload;
     procedure SetUniform(const AName: string; const AValue: TSkRuntimeEffectInt4); overload;
-    procedure SetUniform(const AName: string; const AValue: Single); overload;
+    procedure SetUniform(const AName: string; const {%H-}AValue: Single); overload;
     procedure SetUniform(const AName: string; const AValue: TArray<Single>); overload;
-    procedure SetUniform(const AName: string; const AValue: TPointF); overload;
-    procedure SetUniform(const AName: string; const AValue: TAlphaColorF); overload;
-    procedure SetUniform(const AName: string; const AValue: TSkRuntimeEffectFloat2); overload;
-    procedure SetUniform(const AName: string; const AValue: TSkRuntimeEffectFloat3); overload;
-    procedure SetUniform(const AName: string; const AValue: TSkRuntimeEffectFloat4); overload;
-    procedure SetUniform(const AName: string; const AValue: TSkRuntimeEffectFloat2x2); overload;
-    procedure SetUniform(const AName: string; const AValue: TSkRuntimeEffectFloat3x3); overload;
-    procedure SetUniform(const AName: string; const AValue: TSkRuntimeEffectFloat4x4); overload;
-    procedure SetUniform(const AName: string; const AValue: TMatrix); overload;
+    procedure SetUniform(const AName: string; const {%H-}AValue: TPointF); overload;
+    procedure SetUniform(const AName: string; const {%H-}AValue: TAlphaColorF); overload;
+    procedure SetUniform(const AName: string; const {%H-}AValue: TSkRuntimeEffectFloat2); overload;
+    procedure SetUniform(const AName: string; const {%H-}AValue: TSkRuntimeEffectFloat3); overload;
+    procedure SetUniform(const AName: string; const {%H-}AValue: TSkRuntimeEffectFloat4); overload;
+    procedure SetUniform(const AName: string; const {%H-}AValue: TSkRuntimeEffectFloat2x2); overload;
+    procedure SetUniform(const AName: string; const {%H-}AValue: TSkRuntimeEffectFloat3x3); overload;
+    procedure SetUniform(const AName: string; const {%H-}AValue: TSkRuntimeEffectFloat4x4); overload;
+    procedure SetUniform(const AName: string; const {%H-}AValue: TMatrix); overload;
   public
     procedure AfterConstruction; override;
   end;
@@ -2762,7 +2862,7 @@ type
     function MakeBlender: ISkBlender;
   public
     constructor Create(const AEffect: ISkRuntimeEffect);
-    class procedure __DestroyHandle(const AHandle: THandle); override;
+    class procedure __DestroyHandle(const AHandle: sk_handle_t); override;
   end;
 
   {$HPPEMIT END '#define SkRuntimeBlenderBuilder(...) __SkCreate(TSkRuntimeBlenderBuilder, ISkRuntimeBlenderBuilder, __VA_ARGS__)'}
@@ -2787,7 +2887,7 @@ type
     function MakeShader(const ALocalMatrix: TMatrix): ISkShader; overload;
   public
     constructor Create(const AEffect: ISkRuntimeEffect);
-    class procedure __DestroyHandle(const AHandle: THandle); override;
+    class procedure __DestroyHandle(const AHandle: sk_handle_t); override;
   end;
 
   {$HPPEMIT END '#define SkRuntimeShaderBuilder(...) __SkCreate(TSkRuntimeShaderBuilder, ISkRuntimeShaderBuilder, __VA_ARGS__)'}
@@ -2810,34 +2910,34 @@ type
     class function MakeColor(const AColor: TAlphaColor): ISkShader; overload; static;
     class function MakeColor(const AColor: TAlphaColorF; AColorSpace: ISkColorSpace = nil): ISkShader; overload; static;
     class function MakeEmpty: ISkShader; static;
-    class function MakeGradientLinear(const AStart, AEnd: TPointF; const AColor1, AColor2: TAlphaColor; const ATileMode: TSkTileMode = TSkTileMode.Clamp): ISkShader; overload; static; inline;
-    class function MakeGradientLinear(const AStart, AEnd: TPointF; const AColor1, AColor2: TAlphaColor; const ALocalMatrix: TMatrix; const ATileMode: TSkTileMode = TSkTileMode.Clamp): ISkShader; overload; static; inline;
-    class function MakeGradientLinear(const AStart, AEnd: TPointF; const AColor1, AColor2: TAlphaColorF; const ATileMode: TSkTileMode = TSkTileMode.Clamp; AColorSpace: ISkColorSpace = nil): ISkShader; overload; static; inline;
-    class function MakeGradientLinear(const AStart, AEnd: TPointF; const AColor1, AColor2: TAlphaColorF; const ALocalMatrix: TMatrix; const ATileMode: TSkTileMode = TSkTileMode.Clamp; AColorSpace: ISkColorSpace = nil): ISkShader; overload; static; inline;
+    class function MakeGradientLinear(const AStart, AEnd: TPointF; const AColor1, AColor2: TAlphaColor; const ATileMode: TSkTileMode = TSkTileMode.Clamp): ISkShader; overload; static;
+    class function MakeGradientLinear(const AStart, AEnd: TPointF; const AColor1, AColor2: TAlphaColor; const ALocalMatrix: TMatrix; const ATileMode: TSkTileMode = TSkTileMode.Clamp): ISkShader; overload; static;
+    class function MakeGradientLinear(const AStart, AEnd: TPointF; const AColor1, AColor2: TAlphaColorF; const ATileMode: TSkTileMode = TSkTileMode.Clamp; AColorSpace: ISkColorSpace = nil): ISkShader; overload; static;
+    class function MakeGradientLinear(const AStart, AEnd: TPointF; const AColor1, AColor2: TAlphaColorF; const ALocalMatrix: TMatrix; const ATileMode: TSkTileMode = TSkTileMode.Clamp; AColorSpace: ISkColorSpace = nil): ISkShader; overload; static;
     class function MakeGradientLinear(const AStart, AEnd: TPointF; const AColors: TArray<TAlphaColor>; const APositions: TArray<Single> = nil; const ATileMode: TSkTileMode = TSkTileMode.Clamp): ISkShader; overload; static;
     class function MakeGradientLinear(const AStart, AEnd: TPointF; const AColors: TArray<TAlphaColor>; const ALocalMatrix: TMatrix; const APositions: TArray<Single> = nil; const ATileMode: TSkTileMode = TSkTileMode.Clamp): ISkShader; overload; static;
     class function MakeGradientLinear(const AStart, AEnd: TPointF; const AColors: TArray<TAlphaColorF>; const APositions: TArray<Single> = nil; const ATileMode: TSkTileMode = TSkTileMode.Clamp; AColorSpace: ISkColorSpace = nil): ISkShader; overload; static;
     class function MakeGradientLinear(const AStart, AEnd: TPointF; const AColors: TArray<TAlphaColorF>; const ALocalMatrix: TMatrix; const APositions: TArray<Single> = nil; const ATileMode: TSkTileMode = TSkTileMode.Clamp; AColorSpace: ISkColorSpace = nil): ISkShader; overload; static;
-    class function MakeGradientRadial(const ACenter: TPointF; const ARadius: Single; const ACenterColor, AEdgeColor: TAlphaColor; const ATileMode: TSkTileMode = TSkTileMode.Clamp): ISkShader; overload; static; inline;
-    class function MakeGradientRadial(const ACenter: TPointF; const ARadius: Single; const ACenterColor, AEdgeColor: TAlphaColor; const ALocalMatrix: TMatrix; const ATileMode: TSkTileMode = TSkTileMode.Clamp): ISkShader; overload; static; inline;
-    class function MakeGradientRadial(const ACenter: TPointF; const ARadius: Single; const ACenterColor, AEdgeColor: TAlphaColorF; const ATileMode: TSkTileMode = TSkTileMode.Clamp; AColorSpace: ISkColorSpace = nil): ISkShader; overload; static; inline;
-    class function MakeGradientRadial(const ACenter: TPointF; const ARadius: Single; const ACenterColor, AEdgeColor: TAlphaColorF; const ALocalMatrix: TMatrix; const ATileMode: TSkTileMode = TSkTileMode.Clamp; AColorSpace: ISkColorSpace = nil): ISkShader; overload; static; inline;
+    class function MakeGradientRadial(const ACenter: TPointF; const ARadius: Single; const ACenterColor, AEdgeColor: TAlphaColor; const ATileMode: TSkTileMode = TSkTileMode.Clamp): ISkShader; overload; static;
+    class function MakeGradientRadial(const ACenter: TPointF; const ARadius: Single; const ACenterColor, AEdgeColor: TAlphaColor; const ALocalMatrix: TMatrix; const ATileMode: TSkTileMode = TSkTileMode.Clamp): ISkShader; overload; static;
+    class function MakeGradientRadial(const ACenter: TPointF; const ARadius: Single; const ACenterColor, AEdgeColor: TAlphaColorF; const ATileMode: TSkTileMode = TSkTileMode.Clamp; AColorSpace: ISkColorSpace = nil): ISkShader; overload; static;
+    class function MakeGradientRadial(const ACenter: TPointF; const ARadius: Single; const ACenterColor, AEdgeColor: TAlphaColorF; const ALocalMatrix: TMatrix; const ATileMode: TSkTileMode = TSkTileMode.Clamp; AColorSpace: ISkColorSpace = nil): ISkShader; overload; static;
     class function MakeGradientRadial(const ACenter: TPointF; const ARadius: Single; const AColors: TArray<TAlphaColor>; const APositions: TArray<Single> = nil; const ATileMode: TSkTileMode = TSkTileMode.Clamp): ISkShader; overload; static;
     class function MakeGradientRadial(const ACenter: TPointF; const ARadius: Single; const AColors: TArray<TAlphaColor>; const ALocalMatrix: TMatrix; const APositions: TArray<Single> = nil; const ATileMode: TSkTileMode = TSkTileMode.Clamp): ISkShader; overload; static;
     class function MakeGradientRadial(const ACenter: TPointF; const ARadius: Single; const AColors: TArray<TAlphaColorF>; const APositions: TArray<Single> = nil; const ATileMode: TSkTileMode = TSkTileMode.Clamp; AColorSpace: ISkColorSpace = nil): ISkShader; overload; static;
     class function MakeGradientRadial(const ACenter: TPointF; const ARadius: Single; const AColors: TArray<TAlphaColorF>; const ALocalMatrix: TMatrix; const APositions: TArray<Single> = nil; const ATileMode: TSkTileMode = TSkTileMode.Clamp; AColorSpace: ISkColorSpace = nil): ISkShader; overload; static;
-    class function MakeGradientSweep(const ACenter: TPointF; const AColor1, AColor2: TAlphaColor; const ATileMode: TSkTileMode = TSkTileMode.Clamp; const AStartAngle: Single = 0; const AEndAngle: Single = 360): ISkShader; overload; static; inline;
-    class function MakeGradientSweep(const ACenter: TPointF; const AColor1, AColor2: TAlphaColor; const ALocalMatrix: TMatrix; const ATileMode: TSkTileMode = TSkTileMode.Clamp; const AStartAngle: Single = 0; const AEndAngle: Single = 360): ISkShader; overload; static; inline;
-    class function MakeGradientSweep(const ACenter: TPointF; const AColor1, AColor2: TAlphaColorF; const ATileMode: TSkTileMode = TSkTileMode.Clamp; const AStartAngle: Single = 0; const AEndAngle: Single = 360; AColorSpace: ISkColorSpace = nil): ISkShader; overload; static; inline;
-    class function MakeGradientSweep(const ACenter: TPointF; const AColor1, AColor2: TAlphaColorF; const ALocalMatrix: TMatrix; const ATileMode: TSkTileMode = TSkTileMode.Clamp; const AStartAngle: Single = 0; const AEndAngle: Single = 360; AColorSpace: ISkColorSpace = nil): ISkShader; overload; static; inline;
+    class function MakeGradientSweep(const ACenter: TPointF; const AColor1, AColor2: TAlphaColor; const ATileMode: TSkTileMode = TSkTileMode.Clamp; const AStartAngle: Single = 0; const AEndAngle: Single = 360): ISkShader; overload; static;
+    class function MakeGradientSweep(const ACenter: TPointF; const AColor1, AColor2: TAlphaColor; const ALocalMatrix: TMatrix; const ATileMode: TSkTileMode = TSkTileMode.Clamp; const AStartAngle: Single = 0; const AEndAngle: Single = 360): ISkShader; overload; static;
+    class function MakeGradientSweep(const ACenter: TPointF; const AColor1, AColor2: TAlphaColorF; const ATileMode: TSkTileMode = TSkTileMode.Clamp; const AStartAngle: Single = 0; const AEndAngle: Single = 360; AColorSpace: ISkColorSpace = nil): ISkShader; overload; static;
+    class function MakeGradientSweep(const ACenter: TPointF; const AColor1, AColor2: TAlphaColorF; const ALocalMatrix: TMatrix; const ATileMode: TSkTileMode = TSkTileMode.Clamp; const AStartAngle: Single = 0; const AEndAngle: Single = 360; AColorSpace: ISkColorSpace = nil): ISkShader; overload; static;
     class function MakeGradientSweep(const ACenter: TPointF; const AColors: TArray<TAlphaColor>; const APositions: TArray<Single> = nil; const ATileMode: TSkTileMode = TSkTileMode.Clamp; const AStartAngle: Single = 0; const AEndAngle: Single = 360): ISkShader; overload; static;
     class function MakeGradientSweep(const ACenter: TPointF; const AColors: TArray<TAlphaColor>; const ALocalMatrix: TMatrix; const APositions: TArray<Single> = nil; const ATileMode: TSkTileMode = TSkTileMode.Clamp; const AStartAngle: Single = 0; const AEndAngle: Single = 360): ISkShader; overload; static;
     class function MakeGradientSweep(const ACenter: TPointF; const AColors: TArray<TAlphaColorF>; const APositions: TArray<Single> = nil; const ATileMode: TSkTileMode = TSkTileMode.Clamp; const AStartAngle: Single = 0; const AEndAngle: Single = 360; AColorSpace: ISkColorSpace = nil): ISkShader; overload; static;
     class function MakeGradientSweep(const ACenter: TPointF; const AColors: TArray<TAlphaColorF>; const ALocalMatrix: TMatrix; const APositions: TArray<Single> = nil; const ATileMode: TSkTileMode = TSkTileMode.Clamp; const AStartAngle: Single = 0; const AEndAngle: Single = 360; AColorSpace: ISkColorSpace = nil): ISkShader; overload; static;
-    class function MakeGradientTwoPointConical(const AStart: TPointF; const AStartRadius: Single; AEnd: TPointF; const AEndRadius: Single; const AColor1, AColor2: TAlphaColor; const ATileMode: TSkTileMode = TSkTileMode.Clamp): ISkShader; overload; static; inline;
-    class function MakeGradientTwoPointConical(const AStart: TPointF; const AStartRadius: Single; AEnd: TPointF; const AEndRadius: Single; const AColor1, AColor2: TAlphaColor; const ALocalMatrix: TMatrix; const ATileMode: TSkTileMode = TSkTileMode.Clamp): ISkShader; overload; static; inline;
-    class function MakeGradientTwoPointConical(const AStart: TPointF; const AStartRadius: Single; AEnd: TPointF; const AEndRadius: Single; const AColor1, AColor2: TAlphaColorF; const ATileMode: TSkTileMode = TSkTileMode.Clamp; AColorSpace: ISkColorSpace = nil): ISkShader; overload; static; inline;
-    class function MakeGradientTwoPointConical(const AStart: TPointF; const AStartRadius: Single; AEnd: TPointF; const AEndRadius: Single; const AColor1, AColor2: TAlphaColorF; const ALocalMatrix: TMatrix; const ATileMode: TSkTileMode = TSkTileMode.Clamp; AColorSpace: ISkColorSpace = nil): ISkShader; overload; static; inline;
+    class function MakeGradientTwoPointConical(const AStart: TPointF; const AStartRadius: Single; AEnd: TPointF; const AEndRadius: Single; const AColor1, AColor2: TAlphaColor; const ATileMode: TSkTileMode = TSkTileMode.Clamp): ISkShader; overload; static;
+    class function MakeGradientTwoPointConical(const AStart: TPointF; const AStartRadius: Single; AEnd: TPointF; const AEndRadius: Single; const AColor1, AColor2: TAlphaColor; const ALocalMatrix: TMatrix; const ATileMode: TSkTileMode = TSkTileMode.Clamp): ISkShader; overload; static;
+    class function MakeGradientTwoPointConical(const AStart: TPointF; const AStartRadius: Single; AEnd: TPointF; const AEndRadius: Single; const AColor1, AColor2: TAlphaColorF; const ATileMode: TSkTileMode = TSkTileMode.Clamp; AColorSpace: ISkColorSpace = nil): ISkShader; overload; static;
+    class function MakeGradientTwoPointConical(const AStart: TPointF; const AStartRadius: Single; AEnd: TPointF; const AEndRadius: Single; const AColor1, AColor2: TAlphaColorF; const ALocalMatrix: TMatrix; const ATileMode: TSkTileMode = TSkTileMode.Clamp; AColorSpace: ISkColorSpace = nil): ISkShader; overload; static;
     class function MakeGradientTwoPointConical(const AStart: TPointF; const AStartRadius: Single; AEnd: TPointF; const AEndRadius: Single; const AColors: TArray<TAlphaColor>; const APositions: TArray<Single> = nil; const ATileMode: TSkTileMode = TSkTileMode.Clamp): ISkShader; overload; static;
     class function MakeGradientTwoPointConical(const AStart: TPointF; const AStartRadius: Single; AEnd: TPointF; const AEndRadius: Single; const AColors: TArray<TAlphaColor>; const ALocalMatrix: TMatrix; const APositions: TArray<Single> = nil; const ATileMode: TSkTileMode = TSkTileMode.Clamp): ISkShader; overload; static;
     class function MakeGradientTwoPointConical(const AStart: TPointF; const AStartRadius: Single; AEnd: TPointF; const AEndRadius: Single; const AColors: TArray<TAlphaColorF>; const APositions: TArray<Single> = nil; const ATileMode: TSkTileMode = TSkTileMode.Clamp; AColorSpace: ISkColorSpace = nil): ISkShader; overload; static;
@@ -2907,10 +3007,10 @@ type
     class function MakeFromRenderTarget(const AContext: IGrDirectContext; const ARenderTarget: IGrBackendRenderTarget; const AOrigin: TGrSurfaceOrigin; const AColorType: TSkColorType; const AProperties: TSkSurfaceProperties; AColorSpace: ISkColorSpace = nil): ISkSurface; overload; static;
     class function MakeFromTexture(const AContext: IGrDirectContext; const ATexture: IGrBackendTexture; const AOrigin: TGrSurfaceOrigin; const ASampleCount: Integer; const AColorType: TSkColorType; AColorSpace: ISkColorSpace = nil): ISkSurface; overload; static;
     class function MakeFromTexture(const AContext: IGrDirectContext; const ATexture: IGrBackendTexture; const AOrigin: TGrSurfaceOrigin; const ASampleCount: Integer; const AColorType: TSkColorType; const AProperties: TSkSurfaceProperties; AColorSpace: ISkColorSpace = nil): ISkSurface; overload; static;
-    class function MakeRaster(const AWidth, AHeight: Integer; const AColorType: TSkColorType = {$IFDEF BIGENDIAN}TSkColorType.RGBA8888{$ELSE}TSkColorType.BGRA8888{$ENDIF}; const AAlphaType: TSkAlphaType = TSkAlphaType.Premul; AColorSpace: ISkColorSpace = nil): ISkSurface; overload; static; inline;
-    class function MakeRaster(const AWidth, AHeight: Integer; const AProperties: TSkSurfaceProperties; const AColorType: TSkColorType = {$IFDEF BIGENDIAN}TSkColorType.RGBA8888{$ELSE}TSkColorType.BGRA8888{$ENDIF}; const AAlphaType: TSkAlphaType = TSkAlphaType.Premul; AColorSpace: ISkColorSpace = nil): ISkSurface; overload; static; inline;
-    class function MakeRaster(const AImageInfo: TSkImageInfo): ISkSurface; overload; static; inline;
-    class function MakeRaster(const AImageInfo: TSkImageInfo; const AProperties: TSkSurfaceProperties): ISkSurface; overload; static; inline;
+    class function MakeRaster(const AWidth, AHeight: Integer; const AColorType: TSkColorType = {$IFDEF BIGENDIAN}TSkColorType.RGBA8888{$ELSE}TSkColorType.BGRA8888{$ENDIF}; const AAlphaType: TSkAlphaType = TSkAlphaType.Premul; AColorSpace: ISkColorSpace = nil): ISkSurface; overload; static;
+    class function MakeRaster(const AWidth, AHeight: Integer; const AProperties: TSkSurfaceProperties; const AColorType: TSkColorType = {$IFDEF BIGENDIAN}TSkColorType.RGBA8888{$ELSE}TSkColorType.BGRA8888{$ENDIF}; const AAlphaType: TSkAlphaType = TSkAlphaType.Premul; AColorSpace: ISkColorSpace = nil): ISkSurface; overload; static;
+    class function MakeRaster(const AImageInfo: TSkImageInfo): ISkSurface; overload; static;
+    class function MakeRaster(const AImageInfo: TSkImageInfo; const AProperties: TSkSurfaceProperties): ISkSurface; overload; static;
     class function MakeRaster(const AImageInfo: TSkImageInfo; const ARowBytes: NativeUInt): ISkSurface; overload; static;
     class function MakeRaster(const AImageInfo: TSkImageInfo; const ARowBytes: NativeUInt; const AProperties: TSkSurfaceProperties): ISkSurface; overload; static;
     class function MakeRasterDirect(const APixmap: ISkPixmap; const ARasterReleaseProc: TSkSurfaceRasterReleaseProc = nil): ISkSurface; overload; static;
@@ -2937,8 +3037,8 @@ type
     class function MakeFromTextHorizontallyPositioned(const AText: string; const AXPositions: TArray<Single>; const AY: Single; const AFont: ISkFont): ISkTextBlob; static;
     class function MakeFromTextPositioned(const AText: string; const APositions: TArray<TPointF>; const AFont: ISkFont): ISkTextBlob; static;
     class function MakeFromTextTransform(const AText: string; const AMatrices: TArray<TSkRotationScaleMatrix>; const AFont: ISkFont): ISkTextBlob; static;
-    class procedure __RefHandle(const AHandle: THandle); override;
-    class procedure __UnrefHandle(const AHandle: THandle); override;
+    class procedure __RefHandle(const AHandle: sk_handle_t); override;
+    class procedure __UnrefHandle(const AHandle: sk_handle_t); override;
   end;
 
   { ISkTraceMemoryDump }
@@ -2959,7 +3059,7 @@ type
     procedure DumpStringValue(const ADumpName, AValueName, AValue: string); virtual; abstract;
   public
     constructor Create(const ADetailedDump, ADumpWrappedObjects: Boolean);
-    class procedure __DestroyHandle(const AHandle: THandle); override;
+    class procedure __DestroyHandle(const AHandle: sk_handle_t); override;
   end;
 
   { ISkTypeface }
@@ -3014,8 +3114,8 @@ type
   TSkVertices = class(TSkNonVirtualReferenceCounted, ISkVertices)
   public
     class function MakeCopy(const AVertexMode: TSkVertexMode; const APositions, ATextures: TArray<TPointF>; const AColors: TArray<TAlphaColor>; const AIndices: TArray<Word> = nil): ISkVertices; static;
-    class procedure __RefHandle(const AHandle: THandle); override;
-    class procedure __UnrefHandle(const AHandle: THandle); override;
+    class procedure __RefHandle(const AHandle: sk_handle_t); override;
+    class procedure __UnrefHandle(const AHandle: sk_handle_t); override;
   end;
 
   { ISkParticleEffect }
@@ -3121,8 +3221,8 @@ type
     class function Make(const AData: string; const AResourceProvider: ISkResourceProvider = nil; const AFontProvider: ISkTypefaceFontProvider = nil): ISkottieAnimation; static;
     class function MakeFromFile(const AFileName: string; const AFontProvider: ISkTypefaceFontProvider = nil): ISkottieAnimation; static;
     class function MakeFromStream(const AStream: TStream; const AResourceProvider: ISkResourceProvider = nil; const AFontProvider: ISkTypefaceFontProvider = nil): ISkottieAnimation; static;
-    class procedure __RefHandle(const AHandle: THandle); override;
-    class procedure __UnrefHandle(const AHandle: THandle); override;
+    class procedure __RefHandle(const AHandle: sk_handle_t); override;
+    class procedure __UnrefHandle(const AHandle: sk_handle_t); override;
   end;
 
   { ISkParagraph }
@@ -3180,7 +3280,7 @@ type
     class procedure visit_proc(line_number: int32_t; const info: psk_paragraphvisitorinfo_t; context: Pointer); cdecl;  static;
   public
 
-    class procedure __DestroyHandle(const AHandle: THandle); override;
+    class procedure __DestroyHandle(const AHandle: sk_handle_t); override;
   end;
 
   {$HPPEMIT END '#define SkParagraph(...) __SkCreate(TSkParagraph, ISkParagraph, __VA_ARGS__)'}
@@ -3208,7 +3308,7 @@ type
   public
     constructor Create(const AParagraphStyle: ISkParagraphStyle); overload;
     constructor Create(const AParagraphStyle: ISkParagraphStyle; const AFontProvider: ISkTypefaceFontProvider; const AEnableFontFallback: Boolean = True); overload;
-    class procedure __DestroyHandle(const AHandle: THandle); override;
+    class procedure __DestroyHandle(const AHandle: sk_handle_t); override;
   end;
 
   {$HPPEMIT END '#define SkParagraphBuilder(...) __SkCreate(TSkParagraphBuilder, ISkParagraphBuilder, __VA_ARGS__)'}
@@ -3267,7 +3367,7 @@ type
     procedure SetLeading(const AValue: Single);
   public
     constructor Create;
-    class procedure __DestroyHandle(const AHandle: THandle); override;
+    class procedure __DestroyHandle(const AHandle: sk_handle_t); override;
   end;
 
   {$HPPEMIT END '#define SkStrutStyle(...) __SkCreate(TSkStrutStyle, ISkStrutStyle, __VA_ARGS__)'}
@@ -3326,7 +3426,7 @@ type
     procedure SetTextStyle(AValue: ISkTextStyle);
   public
     constructor Create;
-    class procedure __DestroyHandle(const AHandle: THandle); override;
+    class procedure __DestroyHandle(const AHandle: sk_handle_t); override;
   end;
 
   {$HPPEMIT END '#define SkParagraphStyle(...) __SkCreate(TSkParagraphStyle, ISkParagraphStyle, __VA_ARGS__)'}
@@ -3433,7 +3533,7 @@ type
     procedure SetWordSpacing(const AValue: Single);
   public
     constructor Create;
-    class procedure __DestroyHandle(const AHandle: THandle); override;
+    class procedure __DestroyHandle(const AHandle: sk_handle_t); override;
   end;
 
   {$HPPEMIT END '#define SkTextStyle(...) __SkCreate(TSkTextStyle, ISkTextStyle, __VA_ARGS__)'}
@@ -3490,8 +3590,7 @@ type
   strict protected
     function Load(const APath, AName: string): TBytes; override;
   public
-    constructor Create(const APredecode: Boolean = False); overload;
-    constructor Create(const ABaseDir: string; const APredecode: Boolean = False); overload;
+    constructor Create(const ABaseDir: string; const APredecode: Boolean = False);
   end;
 
   {$HPPEMIT END '#define SkFileResourceProvider(...) __SkCreate(TSkFileResourceProvider, ISkResourceProvider, __VA_ARGS__)'}
@@ -3512,7 +3611,7 @@ type
     function Shape(const AText: string; const AFont: ISkFont; const ALeftToRight: Boolean; const AWidth: Single; const AOffset: TPointF; out AEndPoint: TPointF): ISkTextBlob; overload;
   public
     constructor Create;
-    class procedure __DestroyHandle(const AHandle: THandle); override;
+    class procedure __DestroyHandle(const AHandle: sk_handle_t); override;
   end;
 
   {$HPPEMIT END '#define SkShaper(...) __SkCreate(TSkShaper, ISkShaper, __VA_ARGS__)'}
@@ -3610,12 +3709,14 @@ type
     function TryGetViewBox(out AViewBox: TRectF): Boolean;
   end;
 
+  TSkUnicodeBreakIteratorElemEnumerator = TSkEnumerable<TSkUnicodeBreakIteratorElem>.TEnumerator;
+
   { ISkUnicodeBreakIterator }
 
   ISkUnicodeBreakIterator = interface(ISkEnumerable)
     ['{A21F8622-2A3B-413D-BF03-18D393DEF49A}']
     function GetCurrent: TSkUnicodeBreakIteratorElem;
-    function GetEnumerator: TSkEnumerator<TSkUnicodeBreakIteratorElem>;
+    function GetEnumerator: TSkUnicodeBreakIteratorElemEnumerator;
   end;
 
   { ISkUnicode }
@@ -3642,7 +3743,7 @@ type
       constructor Create(const AUnicode: ISkUnicode; const AType: TSkBreakType; const AText: UTF8String); overload;
       function GetCurrent: TSkUnicodeBreakIteratorElem; override;
       function MoveNext: Boolean; override;
-      class procedure __DestroyHandle(const AHandle: THandle); override;
+      class procedure __DestroyHandle(const AHandle: sk_handle_t); override;
     end;
 
   strict private
@@ -3657,12 +3758,12 @@ type
     class procedure codepoint_proc(unichar: sk_unichar_t; start, &end: int32_t; context: Pointer); cdecl; static;
   public
     constructor Create;
-    class procedure __DestroyHandle(const AHandle: THandle); override;
+    class procedure __DestroyHandle(const AHandle: sk_handle_t); override;
   end;
 
   {$HPPEMIT END '#define SkUnicode(...) __SkCreate(TSkUnicode, ISkUnicode, __VA_ARGS__)'}
 
-function ExtensionToEncodedImageFormat(const AValue: string): TSkEncodedImageFormat; inline;
+function ExtensionToEncodedImageFormat(const AValue: string): TSkEncodedImageFormat;
 
 const
   SkBytesPerPixel: array[TSkColorType] of Integer = (
@@ -3748,9 +3849,9 @@ const
   SkRotationScaleMatrixIdentity: TSkRotationScaleMatrix = (SCosinus   : 1; SSinus     : 0;
                                                            TranslateX : 0; TranslateY : 0);
 
-  SkSamplingOptionsHigh  : TSkSamplingOptions = (UseCubic: True; Cubic: (B: 1 / 3; C: 1 / 3); Filter: TSkFilterMode.Nearest; Mipmap: TSkMipmapMode.None);
-  SkSamplingOptionsLow   : TSkSamplingOptions = (UseCubic: False; Cubic: (B: 0; C: 0); Filter: TSkFilterMode.Nearest; Mipmap: TSkMipmapMode.Nearest);
-  SkSamplingOptionsMedium: TSkSamplingOptions = (UseCubic: False; Cubic: (B: 0; C: 0); Filter: TSkFilterMode.Linear; Mipmap: TSkMipmapMode.Nearest);
+  SkSamplingOptionsHigh  : TSkSamplingOptions = (MaxAnisotropic: 0; UseCubic: True; Cubic: (B: 1 / 3; C: 1 / 3); Filter: TSkFilterMode.Nearest; Mipmap: TSkMipmapMode.None);
+  SkSamplingOptionsLow   : TSkSamplingOptions = (MaxAnisotropic: 0; UseCubic: False; Cubic: (B: 0; C: 0); Filter: TSkFilterMode.Nearest; Mipmap: TSkMipmapMode.Nearest);
+  SkSamplingOptionsMedium: TSkSamplingOptions = (MaxAnisotropic: 0; UseCubic: False; Cubic: (B: 0; C: 0); Filter: TSkFilterMode.Linear; Mipmap: TSkMipmapMode.Nearest);
 
   SkShiftPerPixel: array[TSkColorType] of Integer = (
     { Unknown           } 0,
@@ -3790,43 +3891,40 @@ const
 implementation
 
 uses
+  {$IFDEF FPC}
+  { FPC }
+  DateUtils,
+  Generics.Collections,
+  Math;
+  {$ELSE}
   { Delphi }
-  {$IFDEF MSWINDOWS}
-  Winapi.Windows,
-  {$ENDIF}
   System.Generics.Collections,
-  System.IOUtils,
   System.Math,
-  System.RTLConsts,
   System.TimeSpan;
+  {$ENDIF}
 
 type
-  ISkWStream                              = interface;
-
-  TSkDelegateInitializeFunc<I: ISkObject> = reference to function  (const AContextProc: Pointer): I;
-  TSkDelegateInvokeProc<T>                = reference to procedure (const AProc: T);
-
   { TSkBindings }
 
   TSkBindings = record
-    class function SafeCreate<T: TSkObject, constructor>(const AHandle: THandle; const AOwnsHandle: Boolean = True): T; static; inline;
-    class function SafeHandle(const AObject: ISkObject): THandle; static; inline;
+    class function SafeCreate<T: TSkObject, constructor>(const AHandle: sk_handle_t; const AOwnsHandle: Boolean = True): T; static;
+    class function SafeHandle(const AObject: ISkObject): sk_handle_t; static;
   end;
 
-  { TSkDelegate<T> }
+  { TSkProcWrapper<T> }
 
-  TSkDelegate<T> = record
-  strict private type
-    TProcWrapper = record
-      Proc: T;
-    end;
-    PProcWrapper = ^TProcWrapper;
-
-  public
-    class function Initialize<I: ISkObject>(const AProc: T; const AInitializeFunc: TSkDelegateInitializeFunc<I>): I; static; inline;
-    class procedure Finalize(const AContextProc: Pointer); static; inline;
-    class procedure Invoke(const AContextProc: Pointer; const AInvokeProc: TSkDelegateInvokeProc<T>); static; inline;
+  TSkProcWrapper<T> = record
+    Proc: T;
   end;
+
+  TSkImageRasterReleaseProcWrapper = TSkProcWrapper<TSkImageRasterReleaseProc>;
+  PSkImageRasterReleaseProcWrapper = ^TSkImageRasterReleaseProcWrapper;
+
+  TSkImageTextureReleaseProcWrapper = TSkProcWrapper<TSkImageTextureReleaseProc>;
+  PSkImageTextureReleaseProcWrapper = ^TSkImageTextureReleaseProcWrapper;
+
+  TSkSurfaceRasterReleaseProcWrapper = TSkProcWrapper<TSkSurfaceRasterReleaseProc>;
+  PSkSurfaceRasterReleaseProcWrapper = ^TSkSurfaceRasterReleaseProcWrapper;
 
   { ISkData }
 
@@ -3839,8 +3937,8 @@ type
   TSkData = class(TSkNonVirtualReferenceCounted, ISkData)
   public
     class function MakeFromBytes(const ABytes: TBytes): ISkData; static;
-    class procedure __RefHandle(const AHandle: THandle); override;
-    class procedure __UnrefHandle(const AHandle: THandle); override;
+    class procedure __RefHandle(const AHandle: sk_handle_t); override;
+    class procedure __UnrefHandle(const AHandle: sk_handle_t); override;
   end;
 
   { ISkStream }
@@ -3860,7 +3958,7 @@ type
     class function seek_proc(context: Pointer; position: size_t): _bool; cdecl; static;
   public
     constructor Create(const AStream: TStream);
-    class procedure __DestroyHandle(const AHandle: THandle); override;
+    class procedure __DestroyHandle(const AHandle: sk_handle_t); override;
   end;
 
   { ISkWStream }
@@ -3877,7 +3975,7 @@ type
     class function write_proc(context: Pointer; const buffer: Pointer; size: size_t): _bool; cdecl; static;
   public
     constructor Create(const AStream: TStream);
-    class procedure __DestroyHandle(const AHandle: THandle); override;
+    class procedure __DestroyHandle(const AHandle: sk_handle_t); override;
   end;
 
   { ISkString }
@@ -3895,8 +3993,63 @@ type
     function GetText: string;
   public
     constructor Create;
-    class procedure __DestroyHandle(const AHandle: THandle); override;
+    class procedure __DestroyHandle(const AHandle: sk_handle_t); override;
   end;
+
+{$REGION 'FPC Compatibility'}
+{$IFDEF FPC}
+
+{ TMatrix }
+
+class function TMatrix.CreateScaling(const AScaleX, AScaleY: Single): TMatrix;
+begin
+  Result := TMatrix.Identity;
+  Result.m11 := AScaleX;
+  Result.m22 := AScaleY;
+end;
+
+class function TMatrix.CreateTranslation(const ADeltaX,
+  ADeltaY: Single): TMatrix;
+begin
+  Result := TMatrix.Identity;
+  Result.m31 := ADeltaX;
+  Result.m32 := ADeltaY;
+end;
+
+class operator TMatrix.Multiply(const AMatrix1, AMatrix2: TMatrix): TMatrix;
+begin
+  Result.m11 := AMatrix1.m11 * AMatrix2.m11 + AMatrix1.m12 * AMatrix2.m21 + AMatrix1.m13 * AMatrix2.m31;
+  Result.m12 := AMatrix1.m11 * AMatrix2.m12 + AMatrix1.m12 * AMatrix2.m22 + AMatrix1.m13 * AMatrix2.m32;
+  Result.m13 := AMatrix1.m11 * AMatrix2.m13 + AMatrix1.m12 * AMatrix2.m23 + AMatrix1.m13 * AMatrix2.m33;
+  Result.m21 := AMatrix1.m21 * AMatrix2.m11 + AMatrix1.m22 * AMatrix2.m21 + AMatrix1.m23 * AMatrix2.m31;
+  Result.m22 := AMatrix1.m21 * AMatrix2.m12 + AMatrix1.m22 * AMatrix2.m22 + AMatrix1.m23 * AMatrix2.m32;
+  Result.m23 := AMatrix1.m21 * AMatrix2.m13 + AMatrix1.m22 * AMatrix2.m23 + AMatrix1.m23 * AMatrix2.m33;
+  Result.m31 := AMatrix1.m31 * AMatrix2.m11 + AMatrix1.m32 * AMatrix2.m21 + AMatrix1.m33 * AMatrix2.m31;
+  Result.m32 := AMatrix1.m31 * AMatrix2.m12 + AMatrix1.m32 * AMatrix2.m22 + AMatrix1.m33 * AMatrix2.m32;
+  Result.m33 := AMatrix1.m31 * AMatrix2.m13 + AMatrix1.m32 * AMatrix2.m23 + AMatrix1.m33 * AMatrix2.m33;
+end;
+
+{ TMatrix3D }
+
+class function TMatrix3D.CreateScaling(const AScale: TPoint3D): TMatrix3D;
+begin
+  Result := TMatrix3D.Identity;
+  Result.m11 := AScale.X;
+  Result.m22 := AScale.Y;
+  Result.m33 := AScale.Z;
+end;
+
+class function TMatrix3D.CreateTranslation(
+  const ATranslation: TPoint3D): TMatrix3D;
+begin
+  Result := TMatrix3D.Identity;
+  Result.m41 := ATranslation.X;
+  Result.m42 := ATranslation.Y;
+  Result.m43 := ATranslation.Z;
+end;
+
+{$ENDIF}
+{$ENDREGION}
 
 function DateTimeToSkDateTime(const AValue: TDateTime): sk_datetime_t; inline;
 var
@@ -3909,7 +4062,7 @@ var
   LYear: Word;
 begin
   DecodeDateTime(AValue, LYear, LMonth, LDay, LHour, LMinute, LSecond, LMilliSecond);
-  Result.time_zone_minutes := Round(TTimeZone.Local.UtcOffset.TotalMinutes);
+  Result.time_zone_minutes := {$IFDEF FPC}GetLocalTimeOffset{$ELSE}Round(TTimeZone.Local.UtcOffset.TotalMinutes){$ENDIF};
   Result.year              := LYear;
   Result.month             := LMonth;
   Result.day_of_week       := DayOfWeek(AValue) - 1;
@@ -3968,7 +4121,7 @@ end;
 
 procedure TSkObject.BeforeDestruction;
 begin
-  if RefCount <> 0 then
+  if {%H-}RefCount <> 0 then
     System.Error(reInvalidPtr);
   inherited;
 end;
@@ -3980,7 +4133,7 @@ begin
   SkInitialize;
 end;
 
-constructor TSkObject.Create(const AHandle: THandle);
+constructor TSkObject.Create(const AHandle: sk_handle_t);
 begin
   Wrap(AHandle);
 end;
@@ -3997,7 +4150,7 @@ begin
   SkFinalize;
 end;
 
-function TSkObject.GetHandle: THandle;
+function TSkObject.GetHandle: sk_handle_t;
 begin
   Result := FHandle;
 end;
@@ -4017,7 +4170,7 @@ end;
 
 {$ENDIF}
 
-function TSkObject.QueryInterface(const IID: TGUID; out Obj): HResult;
+function TSkObject.QueryInterface({$IFDEF FPC_HAS_CONSTREF}constref{$ELSE}const{$ENDIF} IID: TGUID; out Obj): {$IFDEF FPC}Longint{$ELSE}HRESULT{$ENDIF};
 begin
   if GetInterface(IID, Obj) then
     Result := 0
@@ -4025,14 +4178,14 @@ begin
     Result := E_NOINTERFACE;
 end;
 
-constructor TSkObject.Wrap(const AHandle: THandle; const AOwnsHandle: Boolean);
+constructor TSkObject.Wrap(const AHandle: sk_handle_t; const AOwnsHandle: Boolean);
 begin
   inherited Create;
   FHandle     := AHandle;
   FOwnsHandle := AOwnsHandle;
 end;
 
-function TSkObject._AddRef: Integer;
+function TSkObject._AddRef: {$IFDEF FPC}Longint{$ELSE}Integer{$ENDIF};
 begin
   {$IFNDEF AUTOREFCOUNT}
   Result := AtomicIncrement(FRefCount);
@@ -4043,7 +4196,7 @@ begin
     __RefHandle(FHandle);
 end;
 
-function TSkObject._Release: Integer;
+function TSkObject._Release: {$IFDEF FPC}Longint{$ELSE}Integer{$ENDIF};
 begin
   {$IFNDEF AUTOREFCOUNT}
   Result := AtomicDecrement(FRefCount);
@@ -4059,7 +4212,7 @@ begin
     __UnrefHandle(FHandle);
 end;
 
-class procedure TSkObject.__DestroyHandle(const AHandle: THandle);
+class procedure TSkObject.__DestroyHandle(const AHandle: sk_handle_t);
 begin
   __UnrefHandle(AHandle);
 end;
@@ -4077,11 +4230,11 @@ end;
 
 {$ENDIF}
 
-class procedure TSkObject.__RefHandle(const AHandle: THandle);
+class procedure TSkObject.__RefHandle(const AHandle: sk_handle_t);
 begin
 end;
 
-class function TSkObject.__ReleaseHandle(const AObject: ISkObject): THandle;
+class function TSkObject.__ReleaseHandle(const AObject: ISkObject): sk_handle_t;
 var
   LObject: TSkObject;
 begin
@@ -4094,45 +4247,45 @@ begin
   LObject.FOwnsHandle := False;
 end;
 
-class procedure TSkObject.__UnrefHandle(const AHandle: THandle);
+class procedure TSkObject.__UnrefHandle(const AHandle: sk_handle_t);
 begin
 end;
 
 { TSkReferenceCounted }
 
-class procedure TSkReferenceCounted.__RefHandle(const AHandle: THandle);
+class procedure TSkReferenceCounted.__RefHandle(const AHandle: sk_handle_t);
 begin
   sk4d_refcnt_ref(AHandle);
 end;
 
-class procedure TSkReferenceCounted.__UnrefHandle(const AHandle: THandle);
+class procedure TSkReferenceCounted.__UnrefHandle(const AHandle: sk_handle_t);
 begin
   sk4d_refcnt_unref(AHandle);
 end;
 
-{ TSkEnumerator<T> }
+{ TSkEnumerable<T>.TEnumerator }
 
-constructor TSkEnumerator<T>.Create(const AEnumerable: TSkEnumerable<T>);
+constructor TSkEnumerable<T>.TEnumerator.Create(const AEnumerable: TSkEnumerable<T>);
 begin
   inherited Create;
   FEnumerable := AEnumerable;
 end;
 
-function TSkEnumerator<T>.GetCurrent: T;
+function TSkEnumerable<T>.TEnumerator.GetCurrent: T;
 begin
   Result := FEnumerable.GetCurrent;
 end;
 
-function TSkEnumerator<T>.MoveNext: Boolean;
+function TSkEnumerable<T>.TEnumerator.MoveNext: Boolean;
 begin
   Result := FEnumerable.MoveNext;
 end;
 
 { TSkEnumerable<T> }
 
-function TSkEnumerable<T>.GetEnumerator: TSkEnumerator<T>;
+function TSkEnumerable<T>.GetEnumerator: TEnumerator;
 begin
-  Result := TSkEnumerator<T>.Create(Self);
+  Result := TEnumerator.Create(Self);
 end;
 
 { TSkColorMatrix }
@@ -4227,26 +4380,26 @@ end;
 class operator TSkColorMatrix.Equal(const AColorMatrix1,
   AColorMatrix2: TSkColorMatrix): Boolean;
 begin
-  Result := (SameValue(AColorMatrix1.M11, AColorMatrix2.M11, Epsilon)) and
-            (SameValue(AColorMatrix1.M12, AColorMatrix2.M12, Epsilon)) and
-            (SameValue(AColorMatrix1.M13, AColorMatrix2.M13, Epsilon)) and
-            (SameValue(AColorMatrix1.M14, AColorMatrix2.M14, Epsilon)) and
-            (SameValue(AColorMatrix1.M15, AColorMatrix2.M15, Epsilon)) and
-            (SameValue(AColorMatrix1.M21, AColorMatrix2.M21, Epsilon)) and
-            (SameValue(AColorMatrix1.M22, AColorMatrix2.M22, Epsilon)) and
-            (SameValue(AColorMatrix1.M23, AColorMatrix2.M23, Epsilon)) and
-            (SameValue(AColorMatrix1.M24, AColorMatrix2.M24, Epsilon)) and
-            (SameValue(AColorMatrix1.M25, AColorMatrix2.M25, Epsilon)) and
-            (SameValue(AColorMatrix1.M31, AColorMatrix2.M31, Epsilon)) and
-            (SameValue(AColorMatrix1.M32, AColorMatrix2.M32, Epsilon)) and
-            (SameValue(AColorMatrix1.M33, AColorMatrix2.M33, Epsilon)) and
-            (SameValue(AColorMatrix1.M34, AColorMatrix2.M34, Epsilon)) and
-            (SameValue(AColorMatrix1.M35, AColorMatrix2.M35, Epsilon)) and
-            (SameValue(AColorMatrix1.M41, AColorMatrix2.M41, Epsilon)) and
-            (SameValue(AColorMatrix1.M42, AColorMatrix2.M42, Epsilon)) and
-            (SameValue(AColorMatrix1.M43, AColorMatrix2.M43, Epsilon)) and
-            (SameValue(AColorMatrix1.M44, AColorMatrix2.M44, Epsilon)) and
-            (SameValue(AColorMatrix1.M45, AColorMatrix2.M45, Epsilon));
+  Result := (SameValue(AColorMatrix1.M11, AColorMatrix2.M11)) and
+            (SameValue(AColorMatrix1.M12, AColorMatrix2.M12)) and
+            (SameValue(AColorMatrix1.M13, AColorMatrix2.M13)) and
+            (SameValue(AColorMatrix1.M14, AColorMatrix2.M14)) and
+            (SameValue(AColorMatrix1.M15, AColorMatrix2.M15)) and
+            (SameValue(AColorMatrix1.M21, AColorMatrix2.M21)) and
+            (SameValue(AColorMatrix1.M22, AColorMatrix2.M22)) and
+            (SameValue(AColorMatrix1.M23, AColorMatrix2.M23)) and
+            (SameValue(AColorMatrix1.M24, AColorMatrix2.M24)) and
+            (SameValue(AColorMatrix1.M25, AColorMatrix2.M25)) and
+            (SameValue(AColorMatrix1.M31, AColorMatrix2.M31)) and
+            (SameValue(AColorMatrix1.M32, AColorMatrix2.M32)) and
+            (SameValue(AColorMatrix1.M33, AColorMatrix2.M33)) and
+            (SameValue(AColorMatrix1.M34, AColorMatrix2.M34)) and
+            (SameValue(AColorMatrix1.M35, AColorMatrix2.M35)) and
+            (SameValue(AColorMatrix1.M41, AColorMatrix2.M41)) and
+            (SameValue(AColorMatrix1.M42, AColorMatrix2.M42)) and
+            (SameValue(AColorMatrix1.M43, AColorMatrix2.M43)) and
+            (SameValue(AColorMatrix1.M44, AColorMatrix2.M44)) and
+            (SameValue(AColorMatrix1.M45, AColorMatrix2.M45));
 end;
 
 class function TSkColorMatrix.Identity: TSkColorMatrix;
@@ -4334,15 +4487,15 @@ end;
 class operator TSkColorSpaceXyz.Equal(const AColorSpaceXyz1,
   AColorSpaceXyz2: TSkColorSpaceXyz): Boolean;
 begin
-  Result := (SameValue(AColorSpaceXyz1.M11, AColorSpaceXyz2.M11, Epsilon)) and
-            (SameValue(AColorSpaceXyz1.M12, AColorSpaceXyz2.M12, Epsilon)) and
-            (SameValue(AColorSpaceXyz1.M13, AColorSpaceXyz2.M13, Epsilon)) and
-            (SameValue(AColorSpaceXyz1.M21, AColorSpaceXyz2.M21, Epsilon)) and
-            (SameValue(AColorSpaceXyz1.M22, AColorSpaceXyz2.M22, Epsilon)) and
-            (SameValue(AColorSpaceXyz1.M23, AColorSpaceXyz2.M23, Epsilon)) and
-            (SameValue(AColorSpaceXyz1.M31, AColorSpaceXyz2.M31, Epsilon)) and
-            (SameValue(AColorSpaceXyz1.M32, AColorSpaceXyz2.M32, Epsilon)) and
-            (SameValue(AColorSpaceXyz1.M33, AColorSpaceXyz2.M33, Epsilon));
+  Result := (SameValue(AColorSpaceXyz1.M11, AColorSpaceXyz2.M11)) and
+            (SameValue(AColorSpaceXyz1.M12, AColorSpaceXyz2.M12)) and
+            (SameValue(AColorSpaceXyz1.M13, AColorSpaceXyz2.M13)) and
+            (SameValue(AColorSpaceXyz1.M21, AColorSpaceXyz2.M21)) and
+            (SameValue(AColorSpaceXyz1.M22, AColorSpaceXyz2.M22)) and
+            (SameValue(AColorSpaceXyz1.M23, AColorSpaceXyz2.M23)) and
+            (SameValue(AColorSpaceXyz1.M31, AColorSpaceXyz2.M31)) and
+            (SameValue(AColorSpaceXyz1.M32, AColorSpaceXyz2.M32)) and
+            (SameValue(AColorSpaceXyz1.M33, AColorSpaceXyz2.M33));
 end;
 
 class function TSkColorSpaceXyz.Identity: TSkColorSpaceXyz;
@@ -4418,14 +4571,14 @@ end;
 class operator TSkColorSpacePrimaries.Equal(const AColorSpacePrimaries1,
   AColorSpacePrimaries2: TSkColorSpacePrimaries): Boolean;
 begin
-  Result := (SameValue(AColorSpacePrimaries1.RX, AColorSpacePrimaries2.RX, Epsilon)) and
-            (SameValue(AColorSpacePrimaries1.RY, AColorSpacePrimaries2.RY, Epsilon)) and
-            (SameValue(AColorSpacePrimaries1.GX, AColorSpacePrimaries2.GX, Epsilon)) and
-            (SameValue(AColorSpacePrimaries1.GY, AColorSpacePrimaries2.GY, Epsilon)) and
-            (SameValue(AColorSpacePrimaries1.BX, AColorSpacePrimaries2.BX, Epsilon)) and
-            (SameValue(AColorSpacePrimaries1.BY, AColorSpacePrimaries2.BY, Epsilon)) and
-            (SameValue(AColorSpacePrimaries1.WX, AColorSpacePrimaries2.WX, Epsilon)) and
-            (SameValue(AColorSpacePrimaries1.WY, AColorSpacePrimaries2.WY, Epsilon));
+  Result := (SameValue(AColorSpacePrimaries1.RX, AColorSpacePrimaries2.RX)) and
+            (SameValue(AColorSpacePrimaries1.RY, AColorSpacePrimaries2.RY)) and
+            (SameValue(AColorSpacePrimaries1.GX, AColorSpacePrimaries2.GX)) and
+            (SameValue(AColorSpacePrimaries1.GY, AColorSpacePrimaries2.GY)) and
+            (SameValue(AColorSpacePrimaries1.BX, AColorSpacePrimaries2.BX)) and
+            (SameValue(AColorSpacePrimaries1.BY, AColorSpacePrimaries2.BY)) and
+            (SameValue(AColorSpacePrimaries1.WX, AColorSpacePrimaries2.WX)) and
+            (SameValue(AColorSpacePrimaries1.WY, AColorSpacePrimaries2.WY));
 end;
 
 class operator TSkColorSpacePrimaries.NotEqual(const AColorSpacePrimaries1,
@@ -4458,13 +4611,13 @@ class operator TSkColorSpaceTransferFunction.Equal(
   const AColorSpaceTransferFunction1,
   AColorSpaceTransferFunction2: TSkColorSpaceTransferFunction): Boolean;
 begin
-  Result := (SameValue(AColorSpaceTransferFunction1.G, AColorSpaceTransferFunction2.G, Epsilon)) and
-            (SameValue(AColorSpaceTransferFunction1.A, AColorSpaceTransferFunction2.A, Epsilon)) and
-            (SameValue(AColorSpaceTransferFunction1.B, AColorSpaceTransferFunction2.B, Epsilon)) and
-            (SameValue(AColorSpaceTransferFunction1.C, AColorSpaceTransferFunction2.C, Epsilon)) and
-            (SameValue(AColorSpaceTransferFunction1.D, AColorSpaceTransferFunction2.D, Epsilon)) and
-            (SameValue(AColorSpaceTransferFunction1.E, AColorSpaceTransferFunction2.E, Epsilon)) and
-            (SameValue(AColorSpaceTransferFunction1.F, AColorSpaceTransferFunction2.F, Epsilon));
+  Result := (SameValue(AColorSpaceTransferFunction1.G, AColorSpaceTransferFunction2.G)) and
+            (SameValue(AColorSpaceTransferFunction1.A, AColorSpaceTransferFunction2.A)) and
+            (SameValue(AColorSpaceTransferFunction1.B, AColorSpaceTransferFunction2.B)) and
+            (SameValue(AColorSpaceTransferFunction1.C, AColorSpaceTransferFunction2.C)) and
+            (SameValue(AColorSpaceTransferFunction1.D, AColorSpaceTransferFunction2.D)) and
+            (SameValue(AColorSpaceTransferFunction1.E, AColorSpaceTransferFunction2.E)) and
+            (SameValue(AColorSpaceTransferFunction1.F, AColorSpaceTransferFunction2.F));
 end;
 
 class function TSkColorSpaceTransferFunction.HLG: TSkColorSpaceTransferFunction;
@@ -4531,8 +4684,8 @@ end;
 class operator TSkCubicResampler.Equal(const ACubicResampler1,
   ACubicResampler2: TSkCubicResampler): Boolean;
 begin
-  Result := (SameValue(ACubicResampler1.B, ACubicResampler2.B, Epsilon)) and
-            (SameValue(ACubicResampler1.C, ACubicResampler2.C, Epsilon));
+  Result := (SameValue(ACubicResampler1.B, ACubicResampler2.B)) and
+            (SameValue(ACubicResampler1.C, ACubicResampler2.C));
 end;
 
 class function TSkCubicResampler.Mitchell: TSkCubicResampler;
@@ -4551,22 +4704,22 @@ end;
 class operator TSkFontMetrics.Equal(const AFontMetrics1,
   AFontMetrics2: TSkFontMetrics): Boolean;
 begin
-  Result := (AFontMetrics1.Flags = AFontMetrics2.Flags) and
-            (SameValue(AFontMetrics1.Top,                AFontMetrics2.Top,                Epsilon)) and
-            (SameValue(AFontMetrics1.Ascent,             AFontMetrics2.Ascent,             Epsilon)) and
-            (SameValue(AFontMetrics1.Descent,            AFontMetrics2.Descent,            Epsilon)) and
-            (SameValue(AFontMetrics1.Bottom,             AFontMetrics2.Bottom,             Epsilon)) and
-            (SameValue(AFontMetrics1.Leading,            AFontMetrics2.Leading,            Epsilon)) and
-            (SameValue(AFontMetrics1.AvgCharWidth,       AFontMetrics2.AvgCharWidth,       Epsilon)) and
-            (SameValue(AFontMetrics1.MaxCharWidth,       AFontMetrics2.MaxCharWidth,       Epsilon)) and
-            (SameValue(AFontMetrics1.XMin,               AFontMetrics2.XMin,               Epsilon)) and
-            (SameValue(AFontMetrics1.XMax,               AFontMetrics2.XMax,               Epsilon)) and
-            (SameValue(AFontMetrics1.XMax,               AFontMetrics2.XMax,               Epsilon)) and
-            (SameValue(AFontMetrics1.XHeight,            AFontMetrics2.XHeight,            Epsilon)) and
-            (SameValue(AFontMetrics1.UnderlineThickness, AFontMetrics2.UnderlineThickness, Epsilon)) and
-            (SameValue(AFontMetrics1.UnderlinePosition,  AFontMetrics2.UnderlinePosition,  Epsilon)) and
-            (SameValue(AFontMetrics1.StrikeoutThickness, AFontMetrics2.StrikeoutThickness, Epsilon)) and
-            (SameValue(AFontMetrics1.StrikeoutPosition,  AFontMetrics2.StrikeoutPosition,  Epsilon));
+  Result := (AFontMetrics1.Flags = AFontMetrics2.Flags                                    ) and
+            (SameValue(AFontMetrics1.Top,                AFontMetrics2.Top)               ) and
+            (SameValue(AFontMetrics1.Ascent,             AFontMetrics2.Ascent)            ) and
+            (SameValue(AFontMetrics1.Descent,            AFontMetrics2.Descent)           ) and
+            (SameValue(AFontMetrics1.Bottom,             AFontMetrics2.Bottom)            ) and
+            (SameValue(AFontMetrics1.Leading,            AFontMetrics2.Leading)           ) and
+            (SameValue(AFontMetrics1.AvgCharWidth,       AFontMetrics2.AvgCharWidth)      ) and
+            (SameValue(AFontMetrics1.MaxCharWidth,       AFontMetrics2.MaxCharWidth)      ) and
+            (SameValue(AFontMetrics1.XMin,               AFontMetrics2.XMin)              ) and
+            (SameValue(AFontMetrics1.XMax,               AFontMetrics2.XMax)              ) and
+            (SameValue(AFontMetrics1.XMax,               AFontMetrics2.XMax)              ) and
+            (SameValue(AFontMetrics1.XHeight,            AFontMetrics2.XHeight)           ) and
+            (SameValue(AFontMetrics1.UnderlineThickness, AFontMetrics2.UnderlineThickness)) and
+            (SameValue(AFontMetrics1.UnderlinePosition,  AFontMetrics2.UnderlinePosition) ) and
+            (SameValue(AFontMetrics1.StrikeoutThickness, AFontMetrics2.StrikeoutThickness)) and
+            (SameValue(AFontMetrics1.StrikeoutPosition,  AFontMetrics2.StrikeoutPosition) );
 end;
 
 class operator TSkFontMetrics.NotEqual(const AFontMetrics1,
@@ -4732,9 +4885,9 @@ end;
 class operator TSkHighContrastConfig.Equal(const AHighContrastConfig1,
   AHighContrastConfig2: TSkHighContrastConfig): Boolean;
 begin
-  Result := (AHighContrastConfig1.Grayscale   = AHighContrastConfig2.Grayscale  ) and
-            (AHighContrastConfig1.InvertStyle = AHighContrastConfig2.InvertStyle) and
-            (SameValue(AHighContrastConfig1.Contrast, AHighContrastConfig2.Contrast, Epsilon));
+  Result := (AHighContrastConfig1.Grayscale   = AHighContrastConfig2.Grayscale      ) and
+            (AHighContrastConfig1.InvertStyle = AHighContrastConfig2.InvertStyle    ) and
+            (SameValue(AHighContrastConfig1.Contrast, AHighContrastConfig2.Contrast));
 end;
 
 class operator TSkHighContrastConfig.NotEqual(const AHighContrastConfig1,
@@ -4778,11 +4931,12 @@ end;
 class operator TSkImageInfo.Equal(const AImageInfo1,
   AImageInfo2: TSkImageInfo): Boolean;
 begin
-  Result := (AImageInfo1.Width     = AImageInfo2.Width    ) and
-            (AImageInfo1.Height    = AImageInfo2.Height   ) and
-            (AImageInfo1.ColorType = AImageInfo2.ColorType) and
-            (AImageInfo1.AlphaType = AImageInfo2.AlphaType) and
-            (Assigned(AImageInfo1.ColorSpace) = Assigned(AImageInfo1.ColorSpace)) and ((not Assigned(AImageInfo1.ColorSpace)) or (AImageInfo1.ColorSpace.IsEqual(AImageInfo2.ColorSpace)));
+  Result := (AImageInfo1.Width                = AImageInfo2.Width               ) and
+            (AImageInfo1.Height               = AImageInfo2.Height              ) and
+            (AImageInfo1.ColorType            = AImageInfo2.ColorType           ) and
+            (AImageInfo1.AlphaType            = AImageInfo2.AlphaType           ) and
+            (Assigned(AImageInfo1.ColorSpace) = Assigned(AImageInfo1.ColorSpace)) and
+            ((not Assigned(AImageInfo1.ColorSpace)) or (AImageInfo1.ColorSpace.IsEqual(AImageInfo2.ColorSpace)));
 end;
 
 function TSkImageInfo.IsEmpty: Boolean;
@@ -4799,15 +4953,16 @@ function TSkImageInfo.IsValid: Boolean;
 const
   MaxDimension = MaxInt shr 2;
 begin
+  Result := False;
   if (IsEmpty) or (Width > MaxDimension) or (Height > MaxDimension) or (ColorType = TSkColorType.Unknown) or (AlphaType = TSkAlphaType.Unknown) then
-    Exit(False);
+    Exit;
   case ColorType of
     TSkColorType.Alpha8,
     TSkColorType.AlphaF16,
     TSkColorType.Alpha16:
       begin
         if (AlphaType <> TSkAlphaType.Opaque) and (AlphaType <> TSkAlphaType.Premul) then
-          Exit(False);
+          Exit;
       end;
     TSkColorType.RGB565,
     TSkColorType.RGB888X,
@@ -4819,10 +4974,11 @@ begin
     TSkColorType.RG1616:
       begin
         if AlphaType <> TSkAlphaType.Opaque then
-          Exit(False);
+          Exit;
       end;
+  else
+    Result := True;
   end;
-  Result := True;
 end;
 
 function TSkImageInfo.IsValidRowBytes(const ARowBytes: NativeUInt): Boolean;
@@ -4928,21 +5084,20 @@ class function TSkAnimatedWebPEncoder.EncodeToFile(const AFileName: string;
   const ASrc: TArray<TSkFrame>; const AQuality: Integer): Boolean;
 var
   I: Integer;
-  LMarshaller: TMarshaller;
   LSrc: TArray<sk_frame_t>;
 begin
-  if AFileName.IsEmpty then
+  if Length(AFileName) = 0 then
     raise ESkException.Create(SFileNameIsEmpty);
   if Length(ASrc) < 1 then
     raise ESkArgumentException.CreateFmt(SParamIsEmpty, ['ASrc']);
-  SetLength(LSrc, Length(ASrc));
+  SetLength(LSrc{%H-}, Length(ASrc));
   for I := 0 to Length(ASrc) - 1 do
   begin
     if not Assigned(ASrc[I].Pixmap) then
       raise ESkException.Create(SInvalidOperation);
     MapFrame(ASrc[I], LSrc[I]);
   end;
-  Result := sk4d_animatedwebpencoder_encode_to_file(LMarshaller.AsUtf8(AFileName).ToPointer, @LSrc[0], Length(ASrc), AQuality);
+  Result := sk4d_animatedwebpencoder_encode_to_file(MarshaledAString(UTF8String(AFileName)), @LSrc[0], Length(ASrc), AQuality);
 end;
 
 class function TSkAnimatedWebPEncoder.EncodeToStream(const AStream: TStream;
@@ -4954,7 +5109,7 @@ var
 begin
   if Length(ASrc) < 1 then
     raise ESkArgumentException.CreateFmt(SParamIsEmpty, ['ASrc']);
-  SetLength(LSrc, Length(ASrc));
+  SetLength(LSrc{%H-}, Length(ASrc));
   for I := 0 to Length(ASrc) - 1 do
   begin
     if not Assigned(ASrc[I].Pixmap) then
@@ -4997,26 +5152,24 @@ class function TSkImageEncoder.EncodeToFile(const AFileName: string;
   const ASrcImageInfo: TSkImageInfo; const ASrcPixels: Pointer;
   const ASrcRowBytes: NativeUInt; const AQuality: Integer): Boolean;
 begin
-  Result := EncodeToFile(AFileName, ASrcImageInfo, ASrcPixels, ASrcRowBytes, ExtensionToEncodedImageFormat(TPath.GetExtension(AFileName)), AQuality);
+  Result := EncodeToFile(AFileName, ASrcImageInfo, ASrcPixels, ASrcRowBytes, ExtensionToEncodedImageFormat(ExtractFileExt(AFileName)), AQuality);
 end;
 
 class function TSkImageEncoder.EncodeToFile(const AFileName: string;
   const ASrc: ISkPixmap; const AEncodedImageFormat: TSkEncodedImageFormat;
   const AQuality: Integer): Boolean;
-var
-  LMarshaller: TMarshaller;
 begin
-  if AFileName.IsEmpty then
+  if Length(AFileName) = 0 then
     raise ESkException.Create(SFileNameIsEmpty);
   if not Assigned(ASrc) then
     raise ESkArgumentException.CreateFmt(SParamIsNil, ['ASrc']);
-  Result := sk4d_imageencoder_encode_to_file(LMarshaller.AsUtf8(AFileName).ToPointer, ASrc.Handle, sk_encodedimageformat_t(AEncodedImageFormat), AQuality);
+  Result := sk4d_imageencoder_encode_to_file(MarshaledAString(UTF8String(AFileName)), ASrc.Handle, sk_encodedimageformat_t(AEncodedImageFormat), AQuality);
 end;
 
 class function TSkImageEncoder.EncodeToFile(const AFileName: string;
   const ASrc: ISkPixmap; const AQuality: Integer): Boolean;
 begin
-  Result := EncodeToFile(AFileName, ASrc, ExtensionToEncodedImageFormat(TPath.GetExtension(AFileName)), AQuality);
+  Result := EncodeToFile(AFileName, ASrc, ExtensionToEncodedImageFormat(ExtractFileExt(AFileName)), AQuality);
 end;
 
 class function TSkImageEncoder.EncodeToFile(const AFileName: string;
@@ -5113,12 +5266,12 @@ begin
             (AMetrics1.EndIncludingNewline     = AMetrics2.EndIncludingNewline    ) and
             (AMetrics1.IsHardBreak             = AMetrics2.IsHardBreak            ) and
             (AMetrics1.LineNumber              = AMetrics2.LineNumber             ) and
-            (SameValue(AMetrics1.Ascent,   AMetrics2.Ascent,   Epsilon)) and
-            (SameValue(AMetrics1.Descent,  AMetrics2.Descent,  Epsilon)) and
-            (SameValue(AMetrics1.Height,   AMetrics2.Height,   Epsilon)) and
-            (SameValue(AMetrics1.Width,    AMetrics2.Width,    Epsilon)) and
-            (SameValue(AMetrics1.Left,     AMetrics2.Left,     Epsilon)) and
-            (SameValue(AMetrics1.Baseline, AMetrics2.Baseline, Epsilon));
+            (SameValue(AMetrics1.Ascent,   AMetrics2.Ascent)                      ) and
+            (SameValue(AMetrics1.Descent,  AMetrics2.Descent)                     ) and
+            (SameValue(AMetrics1.Height,   AMetrics2.Height)                      ) and
+            (SameValue(AMetrics1.Width,    AMetrics2.Width)                       ) and
+            (SameValue(AMetrics1.Left,     AMetrics2.Left)                        ) and
+            (SameValue(AMetrics1.Baseline, AMetrics2.Baseline)                    );
 end;
 
 class operator TSkMetrics.NotEqual(const AMetrics1,
@@ -5177,7 +5330,7 @@ begin
             (APDFMetadata1.Modified        = APDFMetadata2.Modified       ) and
             (APDFMetadata1.PDFA            = APDFMetadata2.PDFA           ) and
             (APDFMetadata1.EncodingQuality = APDFMetadata2.EncodingQuality) and
-            (SameValue(APDFMetadata1.RasterDPI, APDFMetadata2.RasterDPI, Epsilon));
+            (SameValue(APDFMetadata1.RasterDPI, APDFMetadata2.RasterDPI)  );
 end;
 
 class operator TSkPDFMetadata.NotEqual(const APDFMetadata1,
@@ -5202,11 +5355,11 @@ end;
 class operator TSkPlaceholderStyle.Equal(const APlaceholderStyle1,
   APlaceholderStyle2: TSkPlaceholderStyle): Boolean;
 begin
-  Result := (APlaceholderStyle1.Alignment = APlaceholderStyle2.Alignment) and
-            (APlaceholderStyle1.Baseline  = APlaceholderStyle2.Baseline ) and
-            (SameValue(APlaceholderStyle1.Width,  APlaceholderStyle2.Width,  Epsilon)) and
-            (SameValue(APlaceholderStyle1.Height, APlaceholderStyle2.Height, Epsilon)) and
-            ((APlaceholderStyle1.Alignment <> TSkPlaceholderAlignment.Baseline) or (SameValue(APlaceholderStyle1.BaselineOffset, APlaceholderStyle2.BaselineOffset, Epsilon)));
+  Result := (APlaceholderStyle1.Alignment = APlaceholderStyle2.Alignment    ) and
+            (APlaceholderStyle1.Baseline  = APlaceholderStyle2.Baseline     ) and
+            (SameValue(APlaceholderStyle1.Width,  APlaceholderStyle2.Width) ) and
+            (SameValue(APlaceholderStyle1.Height, APlaceholderStyle2.Height)) and
+            ((APlaceholderStyle1.Alignment <> TSkPlaceholderAlignment.Baseline) or (SameValue(APlaceholderStyle1.BaselineOffset, APlaceholderStyle2.BaselineOffset)));
 end;
 
 class operator TSkPlaceholderStyle.NotEqual(const APlaceholderStyle1,
@@ -5264,10 +5417,10 @@ end;
 class operator TSkRotationScaleMatrix.Equal(const ARotationScaleMatrix1,
   ARotationScaleMatrix2: TSkRotationScaleMatrix): Boolean;
 begin
-  Result := (SameValue(ARotationScaleMatrix1.SCosinus,   ARotationScaleMatrix2.SCosinus,   Epsilon)) and
-            (SameValue(ARotationScaleMatrix1.SSinus,     ARotationScaleMatrix2.SSinus,     Epsilon)) and
-            (SameValue(ARotationScaleMatrix1.TranslateX, ARotationScaleMatrix2.TranslateX, Epsilon)) and
-            (SameValue(ARotationScaleMatrix1.TranslateY, ARotationScaleMatrix2.TranslateY, Epsilon));
+  Result := (SameValue(ARotationScaleMatrix1.SCosinus,   ARotationScaleMatrix2.SCosinus)  ) and
+            (SameValue(ARotationScaleMatrix1.SSinus,     ARotationScaleMatrix2.SSinus)    ) and
+            (SameValue(ARotationScaleMatrix1.TranslateX, ARotationScaleMatrix2.TranslateX)) and
+            (SameValue(ARotationScaleMatrix1.TranslateY, ARotationScaleMatrix2.TranslateY));
 end;
 
 class function TSkRotationScaleMatrix.Identity: TSkRotationScaleMatrix;
@@ -5493,8 +5646,8 @@ end;
 class operator TSkSVGLength.Equal(const ASVGLength1,
   ASVGLength2: TSkSVGLength): Boolean;
 begin
-  Result := (ASVGLength1.&Unit = ASVGLength2.&Unit) and
-            (SameValue(ASVGLength1.Value, ASVGLength2.Value, Epsilon));
+  Result := (ASVGLength1.&Unit = ASVGLength2.&Unit          ) and
+            (SameValue(ASVGLength1.Value, ASVGLength2.Value));
 end;
 
 class operator TSkSVGLength.NotEqual(const ASVGLength1,
@@ -5554,9 +5707,9 @@ end;
 class operator TSkTextShadow.Equal(const ATextShadow1,
   ATextShadow2: TSkTextShadow): Boolean;
 begin
-  Result := (ATextShadow1.Color  = ATextShadow2.Color ) and
-            (ATextShadow1.Offset = ATextShadow2.Offset) and
-            (SameValue(ATextShadow1.BlurRadius, ATextShadow2.BlurRadius, Epsilon));
+  Result := (ATextShadow1.Color  = ATextShadow2.Color                   ) and
+            (ATextShadow1.Offset = ATextShadow2.Offset                  ) and
+            (SameValue(ATextShadow1.BlurRadius, ATextShadow2.BlurRadius));
 end;
 
 class operator TSkTextShadow.NotEqual(const ATextShadow1,
@@ -5633,7 +5786,7 @@ begin
   Result := gr4d_backendrendertarget_is_valid(Handle);
 end;
 
-class procedure TGrBackendRenderTarget.__DestroyHandle(const AHandle: THandle);
+class procedure TGrBackendRenderTarget.__DestroyHandle(const AHandle: sk_handle_t);
 begin
   gr4d_backendrendertarget_destroy(AHandle);
 end;
@@ -5650,7 +5803,7 @@ begin
   gr4d_backendsemaphore_init_vulkan(Handle, ASemaphore);
 end;
 
-class procedure TGrBackendSemaphore.__DestroyHandle(const AHandle: THandle);
+class procedure TGrBackendSemaphore.__DestroyHandle(const AHandle: sk_handle_t);
 begin
   gr4d_backendsemaphore_destroy(AHandle);
 end;
@@ -5664,7 +5817,7 @@ begin
 end;
 
 class procedure TGrBackendSurfaceMutableState.__DestroyHandle(
-  const AHandle: THandle);
+  const AHandle: sk_handle_t);
 begin
   gr4d_backendsurfacemutablestate_destroy(AHandle);
 end;
@@ -5738,7 +5891,7 @@ begin
   Result := gr4d_backendtexture_is_valid(Handle);
 end;
 
-class procedure TGrBackendTexture.__DestroyHandle(const AHandle: THandle);
+class procedure TGrBackendTexture.__DestroyHandle(const AHandle: sk_handle_t);
 begin
   gr4d_backendtexture_destroy(AHandle);
 end;
@@ -6022,7 +6175,7 @@ class function TGrPersistentCacheBaseClass.load_proc(context: Pointer;
 var
   LKey: TBytes;
 begin
-  SetLength(LKey, key_size);
+  SetLength(LKey{%H-}, key_size);
   Move(key_data^, LKey[0], Length(LKey));
   Result := TSkObject.__ReleaseHandle(TSkData.MakeFromBytes(TGrPersistentCacheBaseClass(context).Load(LKey)));
 end;
@@ -6033,15 +6186,15 @@ var
   LData: TBytes;
   LKey: TBytes;
 begin
-  SetLength(LKey, key_size);
+  SetLength(LKey{%H-}, key_size);
   Move(key_data^, LKey[0], Length(LKey));
-  SetLength(LData, size);
+  SetLength(LData{%H-}, size);
   Move(data^, LData[0], Length(LData));
   TGrPersistentCacheBaseClass(context).Store(LKey, LData);
 end;
 
 class procedure TGrPersistentCacheBaseClass.__DestroyHandle(
-  const AHandle: THandle);
+  const AHandle: sk_handle_t);
 begin
   gr4d_persistentcachebaseclass_destroy(AHandle);
 end;
@@ -6068,7 +6221,7 @@ begin
 end;
 
 class procedure TGrShaderErrorHandlerBaseClass.__DestroyHandle(
-  const AHandle: THandle);
+  const AHandle: sk_handle_t);
 begin
   gr4d_shadererrorhandlerbaseclass_destroy(AHandle);
 end;
@@ -6095,7 +6248,7 @@ begin
   gr4d_vk_extensions_init(Handle, @AProc, TGrDirectContext.gr_vk_get_proc, AInstance, APhysicalDevice, Length(AInstanceExtensions), @AInstanceExtensions[0], Length(ADeviceExtensions), @ADeviceExtensions[0]);
 end;
 
-class procedure TGrVkExtensions.__DestroyHandle(const AHandle: THandle);
+class procedure TGrVkExtensions.__DestroyHandle(const AHandle: sk_handle_t);
 begin
   gr4d_vk_extensions_destroy(AHandle);
 end;
@@ -6178,17 +6331,13 @@ end;
 
 procedure TSkCanvas.DrawAnnotation(const ARect: TRectF; const AKey: string;
   const AValue; const ASize: NativeUInt);
-var
-  LMarshaller: TMarshaller;
 begin
-  sk4d_canvas_draw_annotation(Handle, @ARect, LMarshaller.AsUtf8(AKey).ToPointer, @AValue, ASize);
+  sk4d_canvas_draw_annotation(Handle, @ARect, MarshaledAString(UTF8String(AKey)), @AValue, ASize);
 end;
 
 procedure TSkCanvas.DrawAnnotation(const ARect: TRectF; const AKey: string);
-var
-  LMarshaller: TMarshaller;
 begin
-  sk4d_canvas_draw_annotation(Handle, @ARect, LMarshaller.AsUtf8(AKey).ToPointer, nil, 0);
+  sk4d_canvas_draw_annotation(Handle, @ARect, MarshaledAString(UTF8String(AKey)), nil, 0);
 end;
 
 procedure TSkCanvas.DrawArc(const AOval: TRectF; const AStartAngle,
@@ -6703,7 +6852,7 @@ begin
   sk4d_canvas_translate(Handle, ADeltaX, ADeltaY);
 end;
 
-class procedure TSkCanvas.__DestroyHandle(const AHandle: THandle);
+class procedure TSkCanvas.__DestroyHandle(const AHandle: sk_handle_t);
 begin
   sk4d_canvas_destroy(AHandle);
 end;
@@ -6744,12 +6893,10 @@ begin
 end;
 
 class function TSkCodec.MakeFromFile(const AFileName: string): ISkCodec;
-var
-  LMarshaller: TMarshaller;
 begin
-  if AFileName.IsEmpty then
+  if Length(AFileName) = 0 then
     raise ESkException.Create(SFileNameIsEmpty);
-  Result := TSkBindings.SafeCreate<TSkCodec>(sk4d_codec_make_from_file(LMarshaller.AsUtf8(AFileName).ToPointer));
+  Result := TSkBindings.SafeCreate<TSkCodec>(sk4d_codec_make_from_file(MarshaledAString(UTF8String(AFileName))));
 end;
 
 class function TSkCodec.MakeFromStream(const AStream: TStream): ISkCodec;
@@ -6776,7 +6923,7 @@ begin
   Result := TSkBindings.SafeCreate<TSkCodec>(sk4d_codec_make_without_copy(AData, ASize));
 end;
 
-class procedure TSkCodec.__DestroyHandle(const AHandle: THandle);
+class procedure TSkCodec.__DestroyHandle(const AHandle: sk_handle_t);
 begin
   sk4d_codec_destroy(AHandle);
 end;
@@ -6810,12 +6957,10 @@ end;
 
 class function TSkAnimationCodecPlayer.MakeFromFile(
   const AFileName: string): ISkAnimationCodecPlayer;
-var
-  LMarshaller: TMarshaller;
 begin
-  if AFileName.IsEmpty then
+  if Length(AFileName) = 0 then
     raise ESkException.Create(SFileNameIsEmpty);
-  Result := TSkBindings.SafeCreate<TSkAnimationCodecPlayer>(sk4d_animcodecplayer_make_from_file(LMarshaller.AsUtf8(AFileName).ToPointer));
+  Result := TSkBindings.SafeCreate<TSkAnimationCodecPlayer>(sk4d_animcodecplayer_make_from_file(MarshaledAString(UTF8String(AFileName))));
 end;
 
 class function TSkAnimationCodecPlayer.MakeFromStream(
@@ -6832,7 +6977,7 @@ begin
   Result := sk4d_animcodecplayer_seek(Handle, AMilliseconds);
 end;
 
-class procedure TSkAnimationCodecPlayer.__DestroyHandle(const AHandle: THandle);
+class procedure TSkAnimationCodecPlayer.__DestroyHandle(const AHandle: sk_handle_t);
 begin
   sk4d_animcodecplayer_destroy(AHandle);
 end;
@@ -6988,12 +7133,12 @@ begin
   Result := sk4d_colorspace_to_xyz(Handle, sk_colorspacexyz_t(ADest));
 end;
 
-class procedure TSkColorSpace.__RefHandle(const AHandle: THandle);
+class procedure TSkColorSpace.__RefHandle(const AHandle: sk_handle_t);
 begin
   sk4d_colorspace_ref(AHandle);
 end;
 
-class procedure TSkColorSpace.__UnrefHandle(const AHandle: THandle);
+class procedure TSkColorSpace.__UnrefHandle(const AHandle: sk_handle_t);
 begin
   sk4d_colorspace_unref(AHandle);
 end;
@@ -7012,7 +7157,7 @@ var
   LSize: Cardinal;
 begin
   LBuffer := sk4d_colorspaceiccprofile_get_buffer(Handle, @LSize);
-  SetLength(Result, LSize);
+  SetLength(Result{%H-}, LSize);
   Move(LBuffer^, Result[0], Length(Result));
 end;
 
@@ -7021,7 +7166,7 @@ begin
   Result := sk4d_colorspaceiccprofile_to_xyz(Handle, sk_colorspacexyz_t(ADest));
 end;
 
-class procedure TSkColorSpaceICCProfile.__DestroyHandle(const AHandle: THandle);
+class procedure TSkColorSpaceICCProfile.__DestroyHandle(const AHandle: sk_handle_t);
 begin
   sk4d_colorspaceiccprofile_destroy(AHandle);
 end;
@@ -7052,7 +7197,7 @@ end;
 class function TSkDocument.MakePDF(const AStream: TStream): ISkDocument;
 var
   LDocument: TSkDocument;
-  LHandle: THandle;
+  LHandle: sk_handle_t;
   LWStream: ISkWStream;
 begin
   LWStream := TSkWStreamAdapter.Create(AStream);
@@ -7068,18 +7213,17 @@ class function TSkDocument.MakePDF(const AStream: TStream;
   const AMetadata: TSkPDFMetadata): ISkDocument;
 var
   LDocument: TSkDocument;
-  LHandle: THandle;
-  LMarshaller: TMarshaller;
+  LHandle: sk_handle_t;
   LMetadata: sk_pdfmetadata_t;
   LWStream: ISkWStream;
 begin
   LWStream := TSkWStreamAdapter.Create(AStream);
-  LMetadata.title            := LMarshaller.AsUtf8(AMetadata.Title).ToPointer;
-  LMetadata.author           := LMarshaller.AsUtf8(AMetadata.Author).ToPointer;
-  LMetadata.subject          := LMarshaller.AsUtf8(AMetadata.Subject).ToPointer;
-  LMetadata.keywords         := LMarshaller.AsUtf8(AMetadata.Keywords).ToPointer;
-  LMetadata.creator          := LMarshaller.AsUtf8(AMetadata.Creator).ToPointer;
-  LMetadata.producer         := LMarshaller.AsUtf8(AMetadata.Producer).ToPointer;
+  LMetadata.title            := MarshaledAString(UTF8String(AMetadata.Title));
+  LMetadata.author           := MarshaledAString(UTF8String(AMetadata.Author));
+  LMetadata.subject          := MarshaledAString(UTF8String(AMetadata.Subject));
+  LMetadata.keywords         := MarshaledAString(UTF8String(AMetadata.Keywords));
+  LMetadata.creator          := MarshaledAString(UTF8String(AMetadata.Creator));
+  LMetadata.producer         := MarshaledAString(UTF8String(AMetadata.Producer));
   LMetadata.creation         := DateTimeToSkDateTime(AMetadata.Creation);
   LMetadata.modified         := DateTimeToSkDateTime(AMetadata.Modified);
   LMetadata.raster_dpi       := AMetadata.RasterDPI;
@@ -7097,7 +7241,7 @@ class function TSkDocument.MakeXPS(const AStream: TStream;
   const ADPI: Single): ISkDocument;
 var
   LDocument: TSkDocument;
-  LHandle: THandle;
+  LHandle: sk_handle_t;
   LWStream: ISkWStream;
 begin
   LWStream := TSkWStreamAdapter.Create(AStream);
@@ -7137,7 +7281,7 @@ end;
 function TSkFont.GetBounds(const AGlyphs: TArray<Word>;
   const APaint: ISkPaint): TArray<TRectF>;
 begin
-  SetLength(Result, Length(AGlyphs));
+  SetLength(Result{%H-}, Length(AGlyphs));
   sk4d_font_get_widths_bounds(Handle, @AGlyphs[0], Length(AGlyphs), nil, @Result[0], TSkBindings.SafeHandle(APaint));
 end;
 
@@ -7163,7 +7307,7 @@ end;
 
 function TSkFont.GetGlyphs(const AText: string): TArray<Word>;
 begin
-  SetLength(Result, sk4d_font_get_glyphs_count(Handle, @AText[Low(AText)], Length(AText) * 2, sk_textencoding_t.UTF16_SK_TEXTENCODING));
+  SetLength(Result{%H-}, sk4d_font_get_glyphs_count(Handle, @AText[Low(AText)], Length(AText) * 2, sk_textencoding_t.UTF16_SK_TEXTENCODING));
   sk4d_font_get_glyphs(Handle, @AText[Low(AText)], Length(AText) * 2, sk_textencoding_t.UTF16_SK_TEXTENCODING, @Result[0], Length(Result));
 end;
 
@@ -7175,7 +7319,7 @@ end;
 function TSkFont.GetHorizontalPositions(const AGlyphs: TArray<Word>;
   const AOrigin: Single): TArray<Single>;
 begin
-  SetLength(Result, Length(AGlyphs));
+  SetLength(Result{%H-}, Length(AGlyphs));
   sk4d_font_get_horizontal_positions(Handle, @AGlyphs[0], Length(AGlyphs), @Result[0], AOrigin);
 end;
 
@@ -7189,7 +7333,7 @@ begin
     raise ESkArgumentException.CreateFmt(SParamSizeMismatch, ['APositions']);
   LBounds[0] := AUpperBounds;
   LBounds[1] := ALowerBounds;
-  SetLength(Result, sk4d_font_get_intercepts(Handle, @AGlyphs[0], Length(AGlyphs), @APositions[0], @LBounds[0], nil, TSkBindings.SafeHandle(APaint)));
+  SetLength(Result{%H-}, sk4d_font_get_intercepts(Handle, @AGlyphs[0], Length(AGlyphs), @APositions[0], @LBounds[0], nil, TSkBindings.SafeHandle(APaint)));
   sk4d_font_get_intercepts(Handle, @AGlyphs[0], Length(AGlyphs), @APositions[0], @LBounds[0], @Result[0], TSkBindings.SafeHandle(APaint));
 end;
 
@@ -7241,7 +7385,7 @@ end;
 function TSkFont.GetPositions(const AGlyphs: TArray<Word>;
   const AOrigin: TPointF): TArray<TPointF>;
 begin
-  SetLength(Result, Length(AGlyphs));
+  SetLength(Result{%H-}, Length(AGlyphs));
   sk4d_font_get_positions(Handle, @AGlyphs[0], Length(AGlyphs), @Result[0], @AOrigin);
 end;
 
@@ -7283,7 +7427,7 @@ end;
 function TSkFont.GetWidths(const AGlyphs: TArray<Word>;
   const APaint: ISkPaint): TArray<Single>;
 begin
-  SetLength(Result, Length(AGlyphs));
+  SetLength(Result{%H-}, Length(AGlyphs));
   sk4d_font_get_widths_bounds(Handle, @AGlyphs[0], Length(AGlyphs), @Result[0], nil, TSkBindings.SafeHandle(APaint));
 end;
 
@@ -7291,8 +7435,8 @@ procedure TSkFont.GetWidthsAndBounds(const AGlyphs: TArray<Word>;
   out AWidths: TArray<Single>; out ABounds: TArray<TRectF>;
   const APaint: ISkPaint);
 begin
-  SetLength(AWidths, Length(AGlyphs));
-  SetLength(ABounds, Length(AGlyphs));
+  SetLength(AWidths{%H-}, Length(AGlyphs));
+  SetLength(ABounds{%H-}, Length(AGlyphs));
   sk4d_font_get_widths_bounds(Handle, @AGlyphs[0], Length(AGlyphs), @AWidths[0], @ABounds[0], TSkBindings.SafeHandle(APaint));
 end;
 
@@ -7412,7 +7556,7 @@ end;
 function TSkFont.UnicharsToGlyphs(
   const AUnichars: TArray<Integer>): TArray<Word>;
 begin
-  SetLength(Result, Length(AUnichars));
+  SetLength(Result{%H-}, Length(AUnichars));
   sk4d_font_unichars_to_glyphs(Handle, @AUnichars[0], Length(AUnichars), @Result[0]);
 end;
 
@@ -7421,7 +7565,7 @@ begin
   Result := sk4d_font_unichar_to_glyph(Handle, AUnichar);
 end;
 
-class procedure TSkFont.__DestroyHandle(const AHandle: THandle);
+class procedure TSkFont.__DestroyHandle(const AHandle: sk_handle_t);
 begin
   sk4d_font_destroy(AHandle);
 end;
@@ -7445,18 +7589,16 @@ end;
 function TSkImage.EncodeToFile(const AFileName: string;
   const AQuality: Integer): Boolean;
 begin
-  Result := EncodeToFile(AFileName, ExtensionToEncodedImageFormat(TPath.GetExtension(AFileName)), AQuality);
+  Result := EncodeToFile(AFileName, ExtensionToEncodedImageFormat(ExtractFileExt(AFileName)), AQuality);
 end;
 
 function TSkImage.EncodeToFile(const AFileName: string;
   const AEncodedImageFormat: TSkEncodedImageFormat;
   const AQuality: Integer): Boolean;
-var
-  LMarshaller: TMarshaller;
 begin
-  if AFileName.IsEmpty then
+  if Length(AFileName) = 0 then
     raise ESkException.Create(SFileNameIsEmpty);
-  Result := sk4d_image_encode_to_file(Handle, LMarshaller.AsUtf8(AFileName).ToPointer, sk_encodedimageformat_t(AEncodedImageFormat), AQuality);
+  Result := sk4d_image_encode_to_file(Handle, MarshaledAString(UTF8String(AFileName)), sk_encodedimageformat_t(AEncodedImageFormat), AQuality);
 end;
 
 function TSkImage.EncodeToStream(const AStream: TStream;
@@ -7591,12 +7733,10 @@ begin
 end;
 
 class function TSkImage.MakeFromEncodedFile(const AFileName: string): ISkImage;
-var
-  LMarshaller: TMarshaller;
 begin
-  if AFileName.IsEmpty then
+  if Length(AFileName) = 0 then
     raise ESkException.Create(SFileNameIsEmpty);
-  Result := TSkBindings.SafeCreate<TSkImage>(sk4d_image_make_from_encoded_file(LMarshaller.AsUtf8(AFileName).ToPointer));
+  Result := TSkBindings.SafeCreate<TSkImage>(sk4d_image_make_from_encoded_file(MarshaledAString(UTF8String(AFileName))));
 end;
 
 class function TSkImage.MakeFromEncodedStream(const AStream: TStream): ISkImage;
@@ -7652,16 +7792,15 @@ end;
 
 class function TSkImage.MakeFromRaster(const APixmap: ISkPixmap;
   const ARasterReleaseProc: TSkImageRasterReleaseProc): ISkImage;
+var
+  LProcWrapper: PSkImageRasterReleaseProcWrapper;
 begin
   if not Assigned(APixmap) then
     raise ESkArgumentException.CreateFmt(SParamIsNil, ['APixmap']);
   if Assigned(ARasterReleaseProc) then
   begin
-    Result := TSkDelegate<TSkImageRasterReleaseProc>.Initialize<ISkImage>(ARasterReleaseProc,
-      function (const AContextProc: Pointer): ISkImage
-      begin
-        Result := TSkBindings.SafeCreate<TSkImage>(sk4d_image_make_from_raster(APixmap.Handle, raster_release_proc, AContextProc));
-      end);
+    New(LProcWrapper);
+    Result := TSkBindings.SafeCreate<TSkImage>(sk4d_image_make_from_raster(APixmap.Handle, raster_release_proc, LProcWrapper));
   end
   else
     Result := TSkBindings.SafeCreate<TSkImage>(sk4d_image_make_from_raster(APixmap.Handle, nil, nil));
@@ -7682,6 +7821,8 @@ class function TSkImage.MakeFromTexture(const AContext: IGrDirectContext;
   AColorType: TSkColorType; const AAlphaType: TSkAlphaType;
   AColorSpace: ISkColorSpace;
   const ATextureReleaseProc: TSkImageTextureReleaseProc): ISkImage;
+var
+  LProcWrapper: PSkImageTextureReleaseProcWrapper;
 begin
   if not Assigned(AContext) then
     raise ESkArgumentException.CreateFmt(SParamIsNil, ['AContext']);
@@ -7689,11 +7830,8 @@ begin
     raise ESkArgumentException.CreateFmt(SParamIsNil, ['ATexture']);
   if Assigned(ATextureReleaseProc) then
   begin
-    Result := TSkDelegate<TSkImageTextureReleaseProc>.Initialize<ISkImage>(ATextureReleaseProc,
-      function (const AContextProc: Pointer): ISkImage
-      begin
-        Result := TSkBindings.SafeCreate<TSkImage>(sk4d_image_make_from_texture(AContext.Handle, ATexture.Handle, gr_surfaceorigin_t(AOrigin), sk_colortype_t(AColorType), sk_alphatype_t(AAlphaType), TSkBindings.SafeHandle(AColorSpace), texture_release_proc, AContextProc));
-      end);
+    New(LProcWrapper);
+    Result := TSkBindings.SafeCreate<TSkImage>(sk4d_image_make_from_texture(AContext.Handle, ATexture.Handle, gr_surfaceorigin_t(AOrigin), sk_colortype_t(AColorType), sk_alphatype_t(AAlphaType), TSkBindings.SafeHandle(AColorSpace), texture_release_proc, LProcWrapper));
   end
   else
     Result := TSkBindings.SafeCreate<TSkImage>(sk4d_image_make_from_texture(AContext.Handle, ATexture.Handle, gr_surfaceorigin_t(AOrigin), sk_colortype_t(AColorType), sk_alphatype_t(AAlphaType), TSkBindings.SafeHandle(AColorSpace), nil, nil));
@@ -7806,12 +7944,8 @@ end;
 class procedure TSkImage.raster_release_proc(const pixels: Pointer;
   context: Pointer);
 begin
-  TSkDelegate<TSkImageRasterReleaseProc>.Invoke(context,
-    procedure (const AProc: TSkImageRasterReleaseProc)
-    begin
-      AProc(pixels);
-    end);
-  TSkDelegate<TSkImageRasterReleaseProc>.Finalize(context);
+  PSkImageRasterReleaseProcWrapper(context)^.Proc(pixels);
+  Dispose(PSkImageRasterReleaseProcWrapper(context));
 end;
 
 function TSkImage.ReadPixels(const ADest: ISkPixmap; const ASrcX,
@@ -7872,12 +8006,8 @@ end;
 
 class procedure TSkImage.texture_release_proc(context: Pointer);
 begin
-  TSkDelegate<TSkImageTextureReleaseProc>.Invoke(context,
-    procedure (const AProc: TSkImageTextureReleaseProc)
-    begin
-      AProc();
-    end);
-  TSkDelegate<TSkImageTextureReleaseProc>.Finalize(context);
+  PSkImageTextureReleaseProcWrapper(context)^.Proc();
+  Dispose(PSkImageTextureReleaseProcWrapper(context));
 end;
 
 { TSkImageFilter }
@@ -8172,7 +8302,7 @@ var
   I: Integer;
   LFilters: TArray<sk_imagefilter_t>;
 begin
-  SetLength(LFilters, Length(AFilters));
+  SetLength(LFilters{%H-}, Length(AFilters));
   for I := 0 to Length(AFilters) - 1 do
     LFilters[I] := TSkBindings.SafeHandle(AFilters[I]);
   Result := TSkBindings.SafeCreate<TSkImageFilter>(sk4d_imagefilter_make_merge(@LFilters[0], Length(LFilters), @ACropRect));
@@ -8190,7 +8320,7 @@ var
   I: Integer;
   LFilters: TArray<sk_imagefilter_t>;
 begin
-  SetLength(LFilters, Length(AFilters));
+  SetLength(LFilters{%H-}, Length(AFilters));
   for I := 0 to Length(AFilters) - 1 do
     LFilters[I] := TSkBindings.SafeHandle(AFilters[I]);
   Result := TSkBindings.SafeCreate<TSkImageFilter>(sk4d_imagefilter_make_merge(@LFilters[0], Length(LFilters), nil));
@@ -8259,19 +8389,21 @@ class function TSkImageFilter.MakeRuntimeShader(
 var
   I: Integer;
   LChildren: TArray<MarshaledAString>;
+  LChildrenStr: TArray<UTF8String>;
   LInputs: TArray<sk_imagefilter_t>;
-  LMarshaller: TMarshaller;
 begin
   if not Assigned(AEffectBuilder) then
     raise ESkArgumentException.CreateFmt(SParamIsNil, ['AEffectBuilder']);
   if Length(AChildren) <> Length(AInputs) then
     raise ESkArgumentException.CreateFmt(SParamSizeMismatch, ['AInputs']);
-  SetLength(LChildren, Length(AChildren));
-  SetLength(LInputs, Length(AInputs));
+  SetLength(LChildren{%H-}, Length(AChildren));
+  SetLength(LChildrenStr{%H-}, Length(AChildren));
+  SetLength(LInputs{%H-}, Length(AInputs));
   for I := 0 to Length(AChildren) - 1 do
   begin
-    LChildren[I] := LMarshaller.AsUtf8(AChildren[I]).ToPointer;
-    LInputs[I]   := TSkBindings.SafeHandle(AInputs[I]);
+    LChildrenStr[I] := UTF8String(AChildren[I]);
+    LChildren[I]    := MarshaledAString(LChildrenStr[I]);
+    LInputs[I]      := TSkBindings.SafeHandle(AInputs[I]);
   end;
   Result := TSkBindings.SafeCreate<TSkImageFilter>(sk4d_imagefilter_make_runtime_shader2(AEffectBuilder.Handle, @LChildren[0], @LInputs[0], Length(AChildren)));
 end;
@@ -8279,12 +8411,10 @@ end;
 class function TSkImageFilter.MakeRuntimeShader(
   const AEffectBuilder: ISkRuntimeShaderBuilder; const AChild: string;
   const AInput: ISkImageFilter): ISkImageFilter;
-var
-  LMarshaller: TMarshaller;
 begin
   if not Assigned(AEffectBuilder) then
     raise ESkArgumentException.CreateFmt(SParamIsNil, ['AEffectBuilder']);
-  Result := TSkBindings.SafeCreate<TSkImageFilter>(sk4d_imagefilter_make_runtime_shader(AEffectBuilder.Handle, LMarshaller.AsUtf8(AChild).ToPointer, TSkBindings.SafeHandle(AInput)));
+  Result := TSkBindings.SafeCreate<TSkImageFilter>(sk4d_imagefilter_make_runtime_shader(AEffectBuilder.Handle, MarshaledAString(UTF8String(AChild)), TSkBindings.SafeHandle(AInput)));
 end;
 
 class function TSkImageFilter.MakeShader(const AShader: ISkShader;
@@ -8597,7 +8727,7 @@ begin
   sk4d_paint_set_style(Handle, sk_paintstyle_t(AValue));
 end;
 
-class procedure TSkPaint.__DestroyHandle(const AHandle: THandle);
+class procedure TSkPaint.__DestroyHandle(const AHandle: sk_handle_t);
 begin
   sk4d_paint_destroy(AHandle);
 end;
@@ -8621,7 +8751,7 @@ begin
   Result := TSkBindings.SafeCreate<TSkPath>(sk4d_opbuilder_detach(Handle));
 end;
 
-class procedure TSkOpBuilder.__DestroyHandle(const AHandle: THandle);
+class procedure TSkOpBuilder.__DestroyHandle(const AHandle: sk_handle_t);
 begin
   sk4d_opbuilder_destroy(AHandle);
 end;
@@ -8637,15 +8767,13 @@ class function TSkPath.ConvertConicToQuads(const APoint1, APoint2,
   APoint3: TPointF; const AWeight: Single;
   const APower2: Integer): TArray<TPointF>;
 begin
-  SetLength(Result, 1 + 2 * (1 shl APower2));
+  SetLength(Result{%H-}, 1 + 2 * (1 shl APower2));
   sk4d_path_convert_conic_to_quads(@APoint1, @APoint2, @APoint3, AWeight, @Result[0], APower2);
 end;
 
 constructor TSkPath.Create(const ASVG: string);
-var
-  LMarshaller: TMarshaller;
 begin
-  inherited Create(sk4d_path_create(MarshaledAString(LMarshaller.AsUtf8(ASVG).ToPointer)));
+  inherited Create(sk4d_path_create(MarshaledAString(MarshaledAString(UTF8String(ASVG)))));
 end;
 
 constructor TSkPath.Create(const ABytes: TBytes);
@@ -8739,7 +8867,7 @@ begin
   Result := sk4d_path_is_line(Handle, nil);
 end;
 
-function TSkPath.IsLine(out APoint1, APoint2: TPointF): Boolean;
+function TSkPath.IsLine(const APoint1, APoint2: TPointF): Boolean;
 var
   LLines: array[0..1] of TPointF;
 begin
@@ -8824,7 +8952,7 @@ begin
   Result := TSkPath.Wrap(sk4d_path_transform(Handle, @AMatrix));
 end;
 
-class procedure TSkPath.__DestroyHandle(const AHandle: THandle);
+class procedure TSkPath.__DestroyHandle(const AHandle: sk_handle_t);
 begin
   sk4d_path_destroy(AHandle);
 end;
@@ -8847,7 +8975,7 @@ begin
   Result := sk4d_pathiterator_next(Handle, sk_pathiteratorelem_t(FCurrent));
 end;
 
-class procedure TSkPath.TPathIterator.__DestroyHandle(const AHandle: THandle);
+class procedure TSkPath.TPathIterator.__DestroyHandle(const AHandle: sk_handle_t);
 begin
   sk4d_pathiterator_destroy(AHandle);
 end;
@@ -9115,7 +9243,7 @@ begin
   sk4d_pathbuilder_toggle_inverse_filltype(Handle);
 end;
 
-class procedure TSkPathBuilder.__DestroyHandle(const AHandle: THandle);
+class procedure TSkPathBuilder.__DestroyHandle(const AHandle: sk_handle_t);
 begin
   sk4d_pathbuilder_destroy(AHandle);
 end;
@@ -9267,7 +9395,7 @@ begin
   Result := sk4d_pathmeasure_next_contour(Handle);
 end;
 
-class procedure TSkPathMeasure.__DestroyHandle(const AHandle: THandle);
+class procedure TSkPathMeasure.__DestroyHandle(const AHandle: sk_handle_t);
 begin
   sk4d_pathmeasure_destroy(AHandle);
 end;
@@ -9391,7 +9519,7 @@ begin
   Result := TSkBindings.SafeCreate<TSkPicture>(sk4d_picturerecorder_finish_recording2(Handle, @ACullRect));
 end;
 
-class procedure TSkPictureRecorder.__DestroyHandle(const AHandle: THandle);
+class procedure TSkPictureRecorder.__DestroyHandle(const AHandle: sk_handle_t);
 begin
   sk4d_picturerecorder_destroy(AHandle);
 end;
@@ -9560,7 +9688,7 @@ begin
   sk4d_pixmap_set_colorspace(Handle, TSkBindings.SafeHandle(AValue));
 end;
 
-class procedure TSkPixmap.__DestroyHandle(const AHandle: THandle);
+class procedure TSkPixmap.__DestroyHandle(const AHandle: sk_handle_t);
 begin
   sk4d_pixmap_destroy(AHandle);
 end;
@@ -9724,7 +9852,7 @@ begin
   sk4d_region_translate(Handle, ADeltaX, ADeltaY);
 end;
 
-class procedure TSkRegion.__DestroyHandle(const AHandle: THandle);
+class procedure TSkRegion.__DestroyHandle(const AHandle: sk_handle_t);
 begin
   sk4d_region_destroy(AHandle);
 end;
@@ -9748,7 +9876,7 @@ begin
 end;
 
 class procedure TSkRegion.TRegionCliperator.__DestroyHandle(
-  const AHandle: THandle);
+  const AHandle: sk_handle_t);
 begin
   sk4d_regioncliperator_destroy(AHandle);
 end;
@@ -9771,7 +9899,7 @@ begin
 end;
 
 class procedure TSkRegion.TRegionIterator.__DestroyHandle(
-  const AHandle: THandle);
+  const AHandle: sk_handle_t);
 begin
   sk4d_regioniterator_destroy(AHandle);
 end;
@@ -9795,7 +9923,7 @@ begin
 end;
 
 class procedure TSkRegion.TRegionSpanerator.__DestroyHandle(
-  const AHandle: THandle);
+  const AHandle: sk_handle_t);
 begin
   sk4d_regionspanerator_destroy(AHandle);
 end;
@@ -9953,7 +10081,7 @@ begin
   Result := TSkBindings.SafeCreate<TSkRoundRect>(sk4d_rrect_transform(Handle, @AMatrix));
 end;
 
-class procedure TSkRoundRect.__DestroyHandle(const AHandle: THandle);
+class procedure TSkRoundRect.__DestroyHandle(const AHandle: sk_handle_t);
 begin
   sk4d_rrect_destroy(AHandle);
 end;
@@ -10055,17 +10183,13 @@ begin
 end;
 
 function TSkRuntimeEffect.IndexOfChild(const AName: string): Integer;
-var
-  LMarshaller: TMarshaller;
 begin
-  Result := sk4d_runtimeeffect_index_of_child(Handle, LMarshaller.AsUtf8(AName).ToPointer);
+  Result := sk4d_runtimeeffect_index_of_child(Handle, MarshaledAString(UTF8String(AName)));
 end;
 
 function TSkRuntimeEffect.IndexOfUniform(const AName: string): Integer;
-var
-  LMarshaller: TMarshaller;
 begin
-  Result := sk4d_runtimeeffect_index_of_uniform(Handle, LMarshaller.AsUtf8(AName).ToPointer);
+  Result := sk4d_runtimeeffect_index_of_uniform(Handle, MarshaledAString(UTF8String(AName)));
 end;
 
 function TSkRuntimeEffect.IsUniformTypeOrdinal(const AIndex: Integer): Boolean;
@@ -10083,9 +10207,9 @@ function TSkRuntimeEffect.MakeBlender(const AUniforms;
   const AChildren: TArray<ISkFlattenable>): ISkBlender;
 var
   I: Integer;
-  LChildren: TArray<THandle>;
+  LChildren: TArray<sk_handle_t>;
 begin
-  SetLength(LChildren, Length(AChildren));
+  SetLength(LChildren{%H-}, Length(AChildren));
   for I := 0 to Length(AChildren) - 1 do
     LChildren[I] := TSkBindings.SafeHandle(AChildren[I]);
   Result := TSkBindings.SafeCreate<TSkBlender>(sk4d_runtimeeffect_make_blender(Handle, @AUniforms, @LChildren[0]));
@@ -10095,9 +10219,9 @@ function TSkRuntimeEffect.MakeColorFilter(const AUniforms;
   const AChildren: TArray<ISkFlattenable>): ISkColorFilter;
 var
   I: Integer;
-  LChildren: TArray<THandle>;
+  LChildren: TArray<sk_handle_t>;
 begin
-  SetLength(LChildren, Length(AChildren));
+  SetLength(LChildren{%H-}, Length(AChildren));
   for I := 0 to Length(AChildren) - 1 do
     LChildren[I] := TSkBindings.SafeHandle(AChildren[I]);
   Result := TSkBindings.SafeCreate<TSkColorFilter>(sk4d_runtimeeffect_make_color_filter(Handle, @AUniforms, @LChildren[0]));
@@ -10113,10 +10237,8 @@ end;
 
 class function TSkRuntimeEffect.MakeForBlender(const ASkSL: string;
   out AErrorText: string): ISkRuntimeEffect;
-var
-  LMarshaller: TMarshaller;
 begin
-  Result := MakeForBlender(LMarshaller.AsUtf8(ASkSL).ToPointer, AErrorText);
+  Result := MakeForBlender(MarshaledAString(UTF8String(ASkSL)), AErrorText);
 end;
 
 class function TSkRuntimeEffect.MakeForBlender(const ASkSL: MarshaledAString;
@@ -10133,18 +10255,14 @@ end;
 
 class function TSkRuntimeEffect.MakeForBlender(
   const ASkSL: string): ISkRuntimeEffect;
-var
-  LMarshaller: TMarshaller;
 begin
-  Result := MakeForBlender(LMarshaller.AsUtf8(ASkSL).ToPointer);
+  Result := MakeForBlender(MarshaledAString(UTF8String(ASkSL)));
 end;
 
 class function TSkRuntimeEffect.MakeForColorFilter(
   const ASkSL: string): ISkRuntimeEffect;
-var
-  LMarshaller: TMarshaller;
 begin
-  Result := MakeForColorFilter(LMarshaller.AsUtf8(ASkSL).ToPointer);
+  Result := MakeForColorFilter(MarshaledAString(UTF8String(ASkSL)));
 end;
 
 class function TSkRuntimeEffect.MakeForColorFilter(
@@ -10169,26 +10287,20 @@ end;
 
 class function TSkRuntimeEffect.MakeForColorFilter(const ASkSL: string;
   out AErrorText: string): ISkRuntimeEffect;
-var
-  LMarshaller: TMarshaller;
 begin
-  Result := MakeForColorFilter(LMarshaller.AsUtf8(ASkSL).ToPointer, AErrorText);
+  Result := MakeForColorFilter(MarshaledAString(UTF8String(ASkSL)), AErrorText);
 end;
 
 class function TSkRuntimeEffect.MakeForShader(
   const ASkSL: string): ISkRuntimeEffect;
-var
-  LMarshaller: TMarshaller;
 begin
-  Result := MakeForShader(LMarshaller.AsUtf8(ASkSL).ToPointer);
+  Result := MakeForShader(MarshaledAString(UTF8String(ASkSL)));
 end;
 
 class function TSkRuntimeEffect.MakeForShader(const ASkSL: string;
   out AErrorText: string): ISkRuntimeEffect;
-var
-  LMarshaller: TMarshaller;
 begin
-  Result := MakeForShader(LMarshaller.AsUtf8(ASkSL).ToPointer, AErrorText);
+  Result := MakeForShader(MarshaledAString(UTF8String(ASkSL)), AErrorText);
 end;
 
 class function TSkRuntimeEffect.MakeForShader(const ASkSL: MarshaledAString;
@@ -10216,10 +10328,10 @@ function TSkRuntimeEffect.MakeImage(const AUniforms;
   const AMipmapped: Boolean; const AContext: IGrDirectContext): ISkImage;
 var
   I: Integer;
-  LChildren: TArray<THandle>;
+  LChildren: TArray<sk_handle_t>;
   LImageInfo: sk_imageinfo_t;
 begin
-  SetLength(LChildren, Length(AChildren));
+  SetLength(LChildren{%H-}, Length(AChildren));
   for I := 0 to Length(AChildren) - 1 do
     LChildren[I] := TSkBindings.SafeHandle(AChildren[I]);
   MapImageInfo(AImageInfo, LImageInfo);
@@ -10232,10 +10344,10 @@ function TSkRuntimeEffect.MakeImage(const AUniforms;
   const AContext: IGrDirectContext): ISkImage;
 var
   I: Integer;
-  LChildren: TArray<THandle>;
+  LChildren: TArray<sk_handle_t>;
   LImageInfo: sk_imageinfo_t;
 begin
-  SetLength(LChildren, Length(AChildren));
+  SetLength(LChildren{%H-}, Length(AChildren));
   for I := 0 to Length(AChildren) - 1 do
     LChildren[I] := TSkBindings.SafeHandle(AChildren[I]);
   MapImageInfo(AImageInfo, LImageInfo);
@@ -10246,9 +10358,9 @@ function TSkRuntimeEffect.MakeShader(const AUniforms;
   const AChildren: TArray<ISkFlattenable>): ISkShader;
 var
   I: Integer;
-  LChildren: TArray<THandle>;
+  LChildren: TArray<sk_handle_t>;
 begin
-  SetLength(LChildren, Length(AChildren));
+  SetLength(LChildren{%H-}, Length(AChildren));
   for I := 0 to Length(AChildren) - 1 do
     LChildren[I] := TSkBindings.SafeHandle(AChildren[I]);
   Result := TSkBindings.SafeCreate<TSkShader>(sk4d_runtimeeffect_make_shader(Handle, @AUniforms, @LChildren[0], nil));
@@ -10259,9 +10371,9 @@ function TSkRuntimeEffect.MakeShader(const AUniforms;
   const ALocalMatrix: TMatrix): ISkShader;
 var
   I: Integer;
-  LChildren: TArray<THandle>;
+  LChildren: TArray<sk_handle_t>;
 begin
-  SetLength(LChildren, Length(AChildren));
+  SetLength(LChildren{%H-}, Length(AChildren));
   for I := 0 to Length(AChildren) - 1 do
     LChildren[I] := TSkBindings.SafeHandle(AChildren[I]);
   Result := TSkBindings.SafeCreate<TSkShader>(sk4d_runtimeeffect_make_shader(Handle, @AUniforms, @LChildren[0], @ALocalMatrix));
@@ -10282,37 +10394,31 @@ end;
 
 function TSkRuntimeEffectBuilder.GetEffect: TSkRuntimeEffect;
 begin
-  Result := TSkRuntimeEffect(FEffect);
+  Result := FEffect as TSkRuntimeEffect;
 end;
 
 procedure TSkRuntimeEffectBuilder.SetChild(const AName: string;
   const AChild: ISkBlender);
-var
-  LMarshaller: TMarshaller;
 begin
   if FEffect.GetChildTypeByName(AName) <> TSkRuntimeEffectChildType.Blender then
     raise ESkException.Create(SInvalidOperation);
-  sk4d_runtimeeffectbuilder_set_child3(Handle, LMarshaller.AsUtf8(AName).ToPointer, TSkBindings.SafeHandle(AChild));
+  sk4d_runtimeeffectbuilder_set_child3(Handle, MarshaledAString(UTF8String(AName)), TSkBindings.SafeHandle(AChild));
 end;
 
 procedure TSkRuntimeEffectBuilder.SetChild(const AName: string;
   const AChild: ISkShader);
-var
-  LMarshaller: TMarshaller;
 begin
   if FEffect.GetChildTypeByName(AName) <> TSkRuntimeEffectChildType.Shader then
     raise ESkException.Create(SInvalidOperation);
-  sk4d_runtimeeffectbuilder_set_child(Handle, LMarshaller.AsUtf8(AName).ToPointer, TSkBindings.SafeHandle(AChild));
+  sk4d_runtimeeffectbuilder_set_child(Handle, MarshaledAString(UTF8String(AName)), TSkBindings.SafeHandle(AChild));
 end;
 
 procedure TSkRuntimeEffectBuilder.SetChild(const AName: string;
   const AChild: ISkColorFilter);
-var
-  LMarshaller: TMarshaller;
 begin
   if FEffect.GetChildTypeByName(AName) <> TSkRuntimeEffectChildType.ColorFilter then
     raise ESkException.Create(SInvalidOperation);
-  sk4d_runtimeeffectbuilder_set_child2(Handle, LMarshaller.AsUtf8(AName).ToPointer, TSkBindings.SafeHandle(AChild));
+  sk4d_runtimeeffectbuilder_set_child2(Handle, MarshaledAString(UTF8String(AName)), TSkBindings.SafeHandle(AChild));
 end;
 
 procedure TSkRuntimeEffectBuilder.SetUniform(const AName: string;
@@ -10374,7 +10480,6 @@ procedure TSkRuntimeEffectBuilder.SetUniform(const AName: string; const AData;
 const
   UniformCount: array[TSkRuntimeEffectUniformType] of Integer = (1, 2, 3, 4, 4, 9, 16, 1, 2, 3, 4);
 var
-  LMarshaller: TMarshaller;
   LSize: NativeUInt;
 begin
   if FEffect.IsUniformTypeOrdinalByName(AName) then
@@ -10383,7 +10488,7 @@ begin
     LSize := UniformCount[FEffect.GetUniformTypeByName(AName)] * FEffect.GetUniformTypeCountByName(AName) * SizeOf(Single);
   if ASize <> LSize then
     raise ESkException.Create(SInvalidOperation);
-  sk4d_runtimeeffectbuilder_set_uniform(Handle, LMarshaller.AsUtf8(AName).ToPointer, @AData);
+  sk4d_runtimeeffectbuilder_set_uniform(Handle, MarshaledAString(UTF8String(AName)), @AData);
 end;
 
 procedure TSkRuntimeEffectBuilder.SetUniform(const AName: string;
@@ -10408,7 +10513,7 @@ var
 begin
   if not FEffect.IsUniformTypeOrdinalByName(AName) then
   begin
-    SetLength(LValue, Length(AValue));
+    SetLength(LValue{%H-}, Length(AValue));
     for I := 0 to Length(AValue) - 1 do
       LValue[I] := AValue[I];
     SetUniform(AName, LValue);
@@ -10500,7 +10605,7 @@ begin
 end;
 
 class procedure TSkRuntimeBlenderBuilder.__DestroyHandle(
-  const AHandle: THandle);
+  const AHandle: sk_handle_t);
 begin
   sk4d_runtimeblendbuilder_destroy(AHandle);
 end;
@@ -10544,7 +10649,7 @@ begin
   Result := TSkBindings.SafeCreate<TSkShader>(sk4d_runtimeshaderbuilder_make_shader(Handle, nil));
 end;
 
-class procedure TSkRuntimeShaderBuilder.__DestroyHandle(const AHandle: THandle);
+class procedure TSkRuntimeShaderBuilder.__DestroyHandle(const AHandle: sk_handle_t);
 begin
   sk4d_runtimeshaderbuilder_destroy(AHandle);
 end;
@@ -11038,7 +11143,7 @@ var
   I: Integer;
   LSemaphores: TArray<gr_backendsemaphore_t>;
 begin
-  SetLength(LSemaphores, Length(ASemaphores));
+  SetLength(LSemaphores{%H-}, Length(ASemaphores));
   for I := 0 to Length(ASemaphores) - 1 do
   begin
     if not Assigned(ASemaphores[I]) then
@@ -11203,6 +11308,7 @@ class function TSkSurface.MakeRasterDirect(const APixmap: ISkPixmap;
   const AProperties: TSkSurfaceProperties;
   const ARasterReleaseProc: TSkSurfaceRasterReleaseProc): ISkSurface;
 var
+  LProcWrapper: PSkSurfaceRasterReleaseProcWrapper;
   LProperties: sk_surfaceprops_t;
 begin
   if not Assigned(APixmap) then
@@ -11210,11 +11316,8 @@ begin
   MapSurfaceProperties(AProperties, LProperties);
   if Assigned(ARasterReleaseProc) then
   begin
-    Result := TSkDelegate<TSkSurfaceRasterReleaseProc>.Initialize<ISkSurface>(ARasterReleaseProc,
-      function (const AContextProc: Pointer): ISkSurface
-      begin
-        Result := TSkBindings.SafeCreate<TSkSurface>(sk4d_surface_make_raster_direct(APixmap.Handle, raster_release_proc, AContextProc, @LProperties));
-      end);
+    New(LProcWrapper);
+    Result := TSkBindings.SafeCreate<TSkSurface>(sk4d_surface_make_raster_direct(APixmap.Handle, raster_release_proc, LProcWrapper, @LProperties));
   end
   else
     Result := TSkBindings.SafeCreate<TSkSurface>(sk4d_surface_make_raster_direct(APixmap.Handle, nil, nil, @LProperties));
@@ -11243,16 +11346,15 @@ end;
 
 class function TSkSurface.MakeRasterDirect(const APixmap: ISkPixmap;
   const ARasterReleaseProc: TSkSurfaceRasterReleaseProc): ISkSurface;
+var
+  LProcWrapper: PSkSurfaceRasterReleaseProcWrapper;
 begin
   if not Assigned(APixmap) then
     raise ESkArgumentException.CreateFmt(SParamIsNil, ['APixmap']);
   if Assigned(ARasterReleaseProc) then
   begin
-    Result := TSkDelegate<TSkSurfaceRasterReleaseProc>.Initialize<ISkSurface>(ARasterReleaseProc,
-      function (const AContextProc: Pointer): ISkSurface
-      begin
-        Result := TSkBindings.SafeCreate<TSkSurface>(sk4d_surface_make_raster_direct(APixmap.Handle, raster_release_proc, AContextProc, nil));
-      end);
+    New(LProcWrapper);
+    Result := TSkBindings.SafeCreate<TSkSurface>(sk4d_surface_make_raster_direct(APixmap.Handle, raster_release_proc, LProcWrapper, nil));
   end
   else
     Result := TSkBindings.SafeCreate<TSkSurface>(sk4d_surface_make_raster_direct(APixmap.Handle, nil, nil, nil));
@@ -11294,12 +11396,8 @@ end;
 
 class procedure TSkSurface.raster_release_proc(pixels, context: Pointer);
 begin
-  TSkDelegate<TSkSurfaceRasterReleaseProc>.Invoke(context,
-    procedure (const AProc: TSkSurfaceRasterReleaseProc)
-    begin
-      AProc(pixels);
-    end);
-  TSkDelegate<TSkSurfaceRasterReleaseProc>.Finalize(context);
+  PSkSurfaceRasterReleaseProcWrapper(context)^.Proc(pixels);
+  Dispose(PSkSurfaceRasterReleaseProcWrapper(context));
 end;
 
 function TSkSurface.ReadPixels(const ADestImageInfo: TSkImageInfo;
@@ -11325,7 +11423,7 @@ var
   I: Integer;
   LSemaphores: TArray<gr_backendsemaphore_t>;
 begin
-  SetLength(LSemaphores, Length(ASemaphores));
+  SetLength(LSemaphores{%H-}, Length(ASemaphores));
   for I := 0 to Length(ASemaphores) - 1 do
   begin
     if not Assigned(ASemaphores[I]) then
@@ -11362,7 +11460,7 @@ var
 begin
   LBounds[0] := AUpperBounds;
   LBounds[1] := ALowerBounds;
-  SetLength(Result, sk4d_textblob_get_intercepts(Handle, @LBounds[0], nil, TSkBindings.SafeHandle(APaint)));
+  SetLength(Result{%H-}, sk4d_textblob_get_intercepts(Handle, @LBounds[0], nil, TSkBindings.SafeHandle(APaint)));
   sk4d_textblob_get_intercepts(Handle, @LBounds[0], @Result[0], TSkBindings.SafeHandle(APaint));
 end;
 
@@ -11406,12 +11504,12 @@ begin
   Result := TSkBindings.SafeCreate<TSkTextBlob>(sk4d_textblob_make_from_text_transform(@AText[Low(AText)], Length(AText) * 2, @AMatrices[0], AFont.Handle, sk_textencoding_t.UTF16_SK_TEXTENCODING));
 end;
 
-class procedure TSkTextBlob.__RefHandle(const AHandle: THandle);
+class procedure TSkTextBlob.__RefHandle(const AHandle: sk_handle_t);
 begin
   sk4d_textblob_ref(AHandle);
 end;
 
-class procedure TSkTextBlob.__UnrefHandle(const AHandle: THandle);
+class procedure TSkTextBlob.__UnrefHandle(const AHandle: sk_handle_t);
 begin
   sk4d_textblob_unref(AHandle);
 end;
@@ -11447,7 +11545,7 @@ begin
 end;
 
 class procedure TSkTraceMemoryDumpBaseClass.__DestroyHandle(
-  const AHandle: THandle);
+  const AHandle: sk_handle_t);
 begin
   sk4d_tracememorydumpbaseclass_destroy(AHandle);
 end;
@@ -11499,23 +11597,19 @@ end;
 
 class function TSkTypeface.MakeFromFile(const AFileName: string;
   const ATTCIndex: Integer): ISkTypeface;
-var
-  LMarshaller: TMarshaller;
 begin
-  if AFileName.IsEmpty then
+  if Length(AFileName) = 0 then
     raise ESkException.Create(SFileNameIsEmpty);
-  Result := TSkBindings.SafeCreate<TSkTypeFace>(sk4d_typeface_make_from_file(LMarshaller.AsUtf8(AFileName).ToPointer, ATTCIndex));
+  Result := TSkBindings.SafeCreate<TSkTypeFace>(sk4d_typeface_make_from_file(MarshaledAString(UTF8String(AFileName)), ATTCIndex));
 end;
 
 class function TSkTypeface.MakeFromName(const AFamilyName: string;
   const AStyle: TSkFontStyle): ISkTypeface;
-var
-  LMarshaller: TMarshaller;
 begin
-  if AFamilyName.IsEmpty then
+  if Length(AFamilyName) = 0 then
     Result := TSkBindings.SafeCreate<TSkTypeFace>(sk4d_typeface_make_from_name(nil, @AStyle))
   else
-    Result := TSkBindings.SafeCreate<TSkTypeFace>(sk4d_typeface_make_from_name(LMarshaller.AsUtf8(AFamilyName).ToPointer, @AStyle));
+    Result := TSkBindings.SafeCreate<TSkTypeFace>(sk4d_typeface_make_from_name(MarshaledAString(UTF8String(AFamilyName)), @AStyle));
 end;
 
 class function TSkTypeface.MakeFromStream(const AStream: TStream;
@@ -11543,12 +11637,12 @@ begin
   Result := TSkBindings.SafeCreate<TSkVertices>(sk4d_vertices_make_copy(sk_vertexmode_t(AVerTexMode), Length(APositions), @APositions[0], @ATextures[0], @AColors[0], Length(AIndices), @AIndices[0]));
 end;
 
-class procedure TSkVertices.__RefHandle(const AHandle: THandle);
+class procedure TSkVertices.__RefHandle(const AHandle: sk_handle_t);
 begin
   sk4d_vertices_ref(AHandle);
 end;
 
-class procedure TSkVertices.__UnrefHandle(const AHandle: THandle);
+class procedure TSkVertices.__UnrefHandle(const AHandle: sk_handle_t);
 begin
   sk4d_vertices_unref(AHandle);
 end;
@@ -11616,12 +11710,10 @@ end;
 
 class function TSkParticleEffect.MakeFromFile(
   const AFileName: string): ISkParticleEffect;
-var
-  LMarshaller: TMarshaller;
 begin
-  if AFileName.IsEmpty then
+  if Length(AFileName) = 0 then
     raise ESkException.Create(SFileNameIsEmpty);
-  Result := TSkBindings.SafeCreate<TSkParticleEffect>(sk4d_particleeffect_make_from_file(LMarshaller.AsUtf8(AFileName).ToPointer));
+  Result := TSkBindings.SafeCreate<TSkParticleEffect>(sk4d_particleeffect_make_from_file(MarshaledAString(UTF8String(AFileName))));
 end;
 
 class function TSkParticleEffect.MakeFromStream(const AStream: TStream;
@@ -11652,12 +11744,10 @@ end;
 
 function TSkParticleEffect.SetUniform(const AName: string;
   const AData: TArray<Single>): Boolean;
-var
-  LMarshaller: TMarshaller;
 begin
   if Length(AData) < 1 then
     raise ESkArgumentException.CreateFmt(SParamIsEmpty, ['AData']);
-  Result := sk4d_particleeffect_set_uniform(Handle, LMarshaller.AsUtf8(AName).ToPointer, @AData[0], Length(AData));
+  Result := sk4d_particleeffect_set_uniform(Handle, MarshaledAString(UTF8String(AName)), @AData[0], Length(AData));
 end;
 
 procedure TSkParticleEffect.Start(const ANow: Double; const ALooping: Boolean);
@@ -11718,12 +11808,10 @@ end;
 
 class function TSkottieAnimation.MakeFromFile(const AFileName: string;
   const AFontProvider: ISkTypefaceFontProvider): ISkottieAnimation;
-var
-  LMarshaller: TMarshaller;
 begin
-  if AFileName.IsEmpty then
+  if Length(AFileName) = 0 then
     raise ESkException.Create(SFileNameIsEmpty);
-  Result := TSkBindings.SafeCreate<TSkottieAnimation>(sk4d_skottieanimation_make_from_file(LMarshaller.AsUtf8(AFileName).ToPointer, TSkBindings.SafeHandle(AFontProvider)));
+  Result := TSkBindings.SafeCreate<TSkottieAnimation>(sk4d_skottieanimation_make_from_file(MarshaledAString(UTF8String(AFileName)), TSkBindings.SafeHandle(AFontProvider)));
 end;
 
 class function TSkottieAnimation.MakeFromStream(const AStream: TStream;
@@ -11762,12 +11850,12 @@ begin
   sk4d_skottieanimation_seek_frame_time(Handle, ATick);
 end;
 
-class procedure TSkottieAnimation.__RefHandle(const AHandle: THandle);
+class procedure TSkottieAnimation.__RefHandle(const AHandle: sk_handle_t);
 begin
   sk4d_skottieanimation_ref(AHandle);
 end;
 
-class procedure TSkottieAnimation.__UnrefHandle(const AHandle: THandle);
+class procedure TSkottieAnimation.__UnrefHandle(const AHandle: sk_handle_t);
 begin
   sk4d_skottieanimation_unref(AHandle);
 end;
@@ -11802,7 +11890,7 @@ end;
 
 function TSkParagraph.GetLineMetrics: TArray<TSkMetrics>;
 begin
-  SetLength(Result, sk4d_paragraph_get_line_metrics(Handle, nil));
+  SetLength(Result{%H-}, sk4d_paragraph_get_line_metrics(Handle, nil));
   sk4d_paragraph_get_line_metrics(Handle, @Result[0]);
 end;
 
@@ -11828,7 +11916,7 @@ end;
 
 function TSkParagraph.GetRectsForPlaceholders: TArray<TSkTextBox>;
 begin
-  SetLength(Result, sk4d_paragraph_get_rects_for_placeholders(Handle, nil));
+  SetLength(Result{%H-}, sk4d_paragraph_get_rects_for_placeholders(Handle, nil));
   sk4d_paragraph_get_rects_for_placeholders(Handle, @Result[0]);
 end;
 
@@ -11836,7 +11924,7 @@ function TSkParagraph.GetRectsForRange(const AStart, AEnd: Cardinal;
   const ARectHeightStyle: TSkRectHeightStyle;
   const ARectWidthStyle: TSkRectWidthStyle): TArray<TSkTextBox>;
 begin
-  SetLength(Result, sk4d_paragraph_get_rects_for_range(Handle, AStart, AEnd, sk_rectheightstyle_t(ARectHeightStyle), sk_rectwidthstyle_t(ARectWidthStyle), nil));
+  SetLength(Result{%H-}, sk4d_paragraph_get_rects_for_range(Handle, AStart, AEnd, sk_rectheightstyle_t(ARectHeightStyle), sk_rectwidthstyle_t(ARectWidthStyle), nil));
   sk4d_paragraph_get_rects_for_range(Handle, AStart, AEnd, sk_rectheightstyle_t(ARectHeightStyle), sk_rectwidthstyle_t(ARectWidthStyle), @Result[0]);
 end;
 
@@ -11887,7 +11975,7 @@ begin
   end;
 end;
 
-class procedure TSkParagraph.__DestroyHandle(const AHandle: THandle);
+class procedure TSkParagraph.__DestroyHandle(const AHandle: sk_handle_t);
 begin
   sk4d_paragraph_destroy(AHandle);
 end;
@@ -11901,10 +11989,8 @@ begin
 end;
 
 procedure TSkParagraphBuilder.AddText(const AText: string);
-var
-  LMarshaller: TMarshaller;
 begin
-  sk4d_paragraphbuilder_add_text(Handle, LMarshaller.AsUtf8(AText).ToPointer);
+  sk4d_paragraphbuilder_add_text(Handle, MarshaledAString(UTF8String(AText)));
 end;
 
 function TSkParagraphBuilder.Build: ISkParagraph;
@@ -11943,7 +12029,7 @@ begin
   sk4d_paragraphbuilder_push_style(Handle, ATextStyle.Handle);
 end;
 
-class procedure TSkParagraphBuilder.__DestroyHandle(const AHandle: THandle);
+class procedure TSkParagraphBuilder.__DestroyHandle(const AHandle: sk_handle_t);
 begin
   sk4d_paragraphbuilder_destroy(AHandle);
 end;
@@ -11965,9 +12051,9 @@ var
   I: Integer;
   LFontFamilies: TArray<MarshaledAString>;
 begin
-  SetLength(LFontFamilies, sk4d_strutstyle_get_font_families(Handle, nil));
+  SetLength(LFontFamilies{%H-}, sk4d_strutstyle_get_font_families(Handle, nil));
   sk4d_strutstyle_get_font_families(Handle, @LFontFamilies[0]);
-  SetLength(Result, Length(LFontFamilies));
+  SetLength(Result{%H-}, Length(LFontFamilies));
   for I := 0 to Length(LFontFamilies) - 1 do
     Result[I] := string(LFontFamilies[I]);
 end;
@@ -12018,11 +12104,15 @@ procedure TSkStrutStyle.SetFontFamilies(const AValue: TArray<string>);
 var
   I: Integer;
   LFontFamilies: TArray<MarshaledAString>;
-  LMarshaller: TMarshaller;
+  LFontFamiliesStr: TArray<UTF8String>;
 begin
-  SetLength(LFontFamilies, Length(AValue));
+  SetLength(LFontFamilies{%H-}, Length(AValue));
+  SetLength(LFontFamiliesStr{%H-}, Length(AValue));
   for I := 0 to Length(AValue) - 1 do
-    LFontFamilies[I] := LMarshaller.AsUtf8(AValue[I]).ToPointer;
+  begin
+    LFontFamiliesStr[I] := UTF8String(AValue[I]);
+    LFontFamilies[I]    := MarshaledAString(LFontFamiliesStr[I]);
+  end;
   sk4d_strutstyle_set_font_families(Handle, @LFontFamilies[0], Length(AValue));
 end;
 
@@ -12056,7 +12146,7 @@ begin
   sk4d_strutstyle_set_leading(Handle, AValue);
 end;
 
-class procedure TSkStrutStyle.__DestroyHandle(const AHandle: THandle);
+class procedure TSkStrutStyle.__DestroyHandle(const AHandle: sk_handle_t);
 begin
   sk4d_strutstyle_destroy(AHandle);
 end;
@@ -12117,12 +12207,10 @@ begin
 end;
 
 procedure TSkParagraphStyle.SetEllipsis(const AValue: string);
-var
-  LMarshaller: TMarshaller;
 begin
-  if AValue.IsEmpty then
+  if Length(AValue) = 0 then
     raise ESkArgumentException.CreateFmt(SParamIsEmpty, ['AValue']);
-  sk4d_paragraphstyle_set_ellipsis(Handle, LMarshaller.AsUtf8(AValue).ToPointer);
+  sk4d_paragraphstyle_set_ellipsis(Handle, MarshaledAString(UTF8String(AValue)));
 end;
 
 procedure TSkParagraphStyle.SetHeight(const AValue: Single);
@@ -12161,7 +12249,7 @@ begin
   sk4d_paragraphstyle_set_text_style(Handle, TSkBindings.SafeHandle(AValue));
 end;
 
-class procedure TSkParagraphStyle.__DestroyHandle(const AHandle: THandle);
+class procedure TSkParagraphStyle.__DestroyHandle(const AHandle: sk_handle_t);
 begin
   sk4d_paragraphstyle_destroy(AHandle);
 end;
@@ -12170,12 +12258,10 @@ end;
 
 procedure TSkTextStyle.AddFontFeature(const AFeature: string;
   const AValue: Integer);
-var
-  LMarshaller: TMarshaller;
 begin
-  if AFeature.IsEmpty then
+  if Length(AFeature) = 0 then
     raise ESkArgumentException.CreateFmt(SParamIsEmpty, ['AFeature']);
-  sk4d_textstyle_add_font_feature(Handle, LMarshaller.AsUtf8(AFeature).ToPointer, AValue);
+  sk4d_textstyle_add_font_feature(Handle, MarshaledAString(UTF8String(AFeature)), AValue);
 end;
 
 procedure TSkTextStyle.AddShadow(const AShadow: TSkTextShadow);
@@ -12234,9 +12320,9 @@ var
   I: Integer;
   LFontFamilies: TArray<MarshaledAString>;
 begin
-  SetLength(LFontFamilies, sk4d_textstyle_get_font_families(Handle, nil));
+  SetLength(LFontFamilies{%H-}, sk4d_textstyle_get_font_families(Handle, nil));
   sk4d_textstyle_get_font_families(Handle, @LFontFamilies[0]);
-  SetLength(Result, Length(LFontFamilies));
+  SetLength(Result{%H-}, Length(LFontFamilies));
   for I := 0 to Length(LFontFamilies) - 1 do
     Result[I] := string(LFontFamilies[I]);
 end;
@@ -12360,11 +12446,15 @@ procedure TSkTextStyle.SetFontFamilies(const AValue: TArray<string>);
 var
   I: Integer;
   LFontFamilies: TArray<MarshaledAString>;
-  LMarshaller: TMarshaller;
+  LFontFamiliesStr: TArray<UTF8String>;
 begin
-  SetLength(LFontFamilies, Length(AValue));
+  SetLength(LFontFamilies{%H-}, Length(AValue));
+  SetLength(LFontFamiliesStr{%H-}, Length(AValue));
   for I := 0 to Length(AValue) - 1 do
-    LFontFamilies[I] := LMarshaller.AsUtf8(AValue[I]).ToPointer;
+  begin
+    LFontFamiliesStr[I] := UTF8String(AValue[I]);
+    LFontFamilies[I]    := MarshaledAString(LFontFamiliesStr[I]);
+  end;
   sk4d_textstyle_set_font_families(Handle, @LFontFamilies[0], Length(AValue));
 end;
 
@@ -12401,12 +12491,10 @@ begin
 end;
 
 procedure TSkTextStyle.SetLocale(const AValue: string);
-var
-  LMarshaller: TMarshaller;
 begin
-  if AValue.IsEmpty then
+  if Length(AValue) = 0 then
     raise ESkArgumentException.CreateFmt(SParamIsEmpty, ['AValue']);
-  sk4d_textstyle_set_locale(Handle, LMarshaller.AsUtf8(AValue).ToPointer);
+  sk4d_textstyle_set_locale(Handle, MarshaledAString(UTF8String(AValue)));
 end;
 
 procedure TSkTextStyle.SetWordSpacing(const AValue: Single);
@@ -12414,7 +12502,7 @@ begin
   sk4d_textstyle_set_word_spacing(Handle, AValue);
 end;
 
-class procedure TSkTextStyle.__DestroyHandle(const AHandle: THandle);
+class procedure TSkTextStyle.__DestroyHandle(const AHandle: sk_handle_t);
 begin
   sk4d_textstyle_destroy(AHandle);
 end;
@@ -12436,14 +12524,12 @@ end;
 
 procedure TSkTypefaceFontProvider.RegisterTypeface(const ATypeface: ISkTypeface;
   const AFamilyName: string);
-var
-  LMarshaller: TMarshaller;
 begin
   if not Assigned(ATypeface) then
     raise ESkArgumentException.CreateFmt(SParamIsNil, ['ATypeface']);
-  if AFamilyName.IsEmpty then
+  if Length(AFamilyName) = 0 then
     raise ESkArgumentException.CreateFmt(SParamIsEmpty, ['AFamilyName']);
-  sk4d_typefacefontprovider_register_typeface2(Handle, ATypeface.Handle, LMarshaller.AsUtf8(AFamilyName).ToPointer);
+  sk4d_typefacefontprovider_register_typeface2(Handle, ATypeface.Handle, MarshaledAString(UTF8String(AFamilyName)));
 end;
 
 { TSkResourceProviderBaseClass }
@@ -12469,11 +12555,6 @@ end;
 
 { TSkFileResourceProvider }
 
-constructor TSkFileResourceProvider.Create(const APredecode: Boolean);
-begin
-  Create(TPath.GetDocumentsPath, APredecode);
-end;
-
 constructor TSkFileResourceProvider.Create(const ABaseDir: string;
   const APredecode: Boolean);
 begin
@@ -12484,10 +12565,19 @@ end;
 function TSkFileResourceProvider.Load(const APath, AName: string): TBytes;
 var
   LFileName: string;
+  LFileStream: TFileStream;
 begin
-  LFileName := TPath.Combine(TPath.Combine(FBaseDir, APath), AName);
-  if TFile.Exists(LFileName) then
-    Result := TFile.ReadAllBytes(LFileName)
+  LFileName := IncludeTrailingPathDelimiter(IncludeTrailingPathDelimiter(FBaseDir) + APath) + AName;
+  if FileExists(LFileName) then
+  begin
+    LFileStream := TFileStream.Create(LFileName{%H-}, fmOpenRead or fmShareDenyNone);
+    try
+      SetLength(Result{%H-}, LFileStream.Size);
+      LFileStream.Read(Result[0], Length(Result));
+    finally
+      LFileStream.Free;
+    end;
+  end
   else
     Result := nil;
 end;
@@ -12501,26 +12591,22 @@ end;
 
 function TSkShaper.Shape(const AText: string; const AFont: ISkFont;
   const ALeftToRight: Boolean; const AWidth: Single): ISkTextBlob;
-var
-  LMarshaller: TMarshaller;
 begin
   if not Assigned(AFont) then
     raise ESkArgumentException.CreateFmt(SParamIsNil, ['AFont']);
-  Result := TSkBindings.SafeCreate<TSkTextBlob>(sk4d_shaper_shape(Handle, LMarshaller.AsUtf8(AText).ToPointer, AFont.Handle, ALeftToRight, AWidth, nil, nil));
+  Result := TSkBindings.SafeCreate<TSkTextBlob>(sk4d_shaper_shape(Handle, MarshaledAString(UTF8String(AText)), AFont.Handle, ALeftToRight, AWidth, nil, nil));
 end;
 
 function TSkShaper.Shape(const AText: string; const AFont: ISkFont;
   const ALeftToRight: Boolean; const AWidth: Single; const AOffset: TPointF;
   out AEndPoint: TPointF): ISkTextBlob;
-var
-  LMarshaller: TMarshaller;
 begin
   if not Assigned(AFont) then
     raise ESkArgumentException.CreateFmt(SParamIsNil, ['AFont']);
-  Result := TSkBindings.SafeCreate<TSkTextBlob>(sk4d_shaper_shape(Handle, LMarshaller.AsUtf8(AText).ToPointer, AFont.Handle, ALeftToRight, AWidth, @AOffset, @AEndPoint));
+  Result := TSkBindings.SafeCreate<TSkTextBlob>(sk4d_shaper_shape(Handle, MarshaledAString(UTF8String(AText)), AFont.Handle, ALeftToRight, AWidth, @AOffset, @AEndPoint));
 end;
 
-class procedure TSkShaper.__DestroyHandle(const AHandle: THandle);
+class procedure TSkShaper.__DestroyHandle(const AHandle: sk_handle_t);
 begin
   sk4d_shaper_destroy(AHandle);
 end;
@@ -12531,7 +12617,7 @@ class function TSkSVGCanvas.Make(const ABounds: TRectF; const AStream: TStream;
   const AFlags: TSkSVGCanvasFlags): ISkCanvas;
 var
   LCanvas: TSkSVGCanvas;
-  LHandle: THandle;
+  LHandle: sk_handle_t;
   LWStream: ISkWStream;
 begin
   LWStream := TSkWStreamAdapter.Create(AStream);
@@ -12546,10 +12632,8 @@ end;
 { TSkSVGDOM }
 
 function TSkSVGDOM.FindNodeById(const AId: string): ISkSVGNode;
-var
-  LMarshaller: TMarshaller;
 begin
-  Result := TSkBindings.SafeCreate<TSkSVGNode>(sk4d_svgdom_find_node_by_id(Handle, LMarshaller.AsUtf8(AId).ToPointer), False);
+  Result := TSkBindings.SafeCreate<TSkSVGNode>(sk4d_svgdom_find_node_by_id(Handle, MarshaledAString(UTF8String(AId))), False);
 end;
 
 function TSkSVGDOM.GetRoot: ISkSVGSVG;
@@ -12575,12 +12659,10 @@ end;
 
 class function TSkSVGDOM.MakeFromFile(const AFileName: string;
   const AFontProvider: ISkTypefaceFontProvider): ISkSVGDOM;
-var
-  LMarshaller: TMarshaller;
 begin
-  if AFileName.IsEmpty then
+  if Length(AFileName) = 0 then
     raise ESkException.Create(SFileNameIsEmpty);
-  Result := TSkBindings.SafeCreate<TSkSVGDOM>(sk4d_svgdom_make_from_file(LMarshaller.AsUtf8(AFileName).ToPointer, TSkBindings.SafeHandle(AFontProvider)));
+  Result := TSkBindings.SafeCreate<TSkSVGDOM>(sk4d_svgdom_make_from_file(MarshaledAString(UTF8String(AFileName)), TSkBindings.SafeHandle(AFontProvider)));
 end;
 
 class function TSkSVGDOM.MakeFromStream(const AStream: TStream;
@@ -12608,10 +12690,8 @@ end;
 { TSkSVGNode }
 
 function TSkSVGNode.TrySetAttribute(const AName, AValue: string): Boolean;
-var
-  LMarshaller: TMarshaller;
 begin
-  Result := sk4d_svgnode_set_attribute(Handle, LMarshaller.AsUtf8(AName).ToPointer, LMarshaller.AsUtf8(AValue).ToPointer);
+  Result := sk4d_svgnode_set_attribute(Handle, MarshaledAString(UTF8String(AName)), MarshaledAString(UTF8String(AValue)));
 end;
 
 { TSkSVGSVG }
@@ -12752,12 +12832,12 @@ begin
   LPStartIndex := @LStartIndex;
   LResult := TList<string>.Create;
   try
-    ForEachBreak(AText, TSkBreakType.Graphemes,
-      procedure (const APosition, AStatus: Integer)
+    ForEachBreak(AText, AType,
+      procedure (const APosition, {%H-}AStatus: Integer)
       begin
         if APosition = 0 then
           Exit;
-        LResult.Add(AText.Substring(LPStartIndex^, APosition - LPStartIndex^));
+        LResult.Add(Copy(AText, LPStartIndex^ + 1, APosition - LPStartIndex^));
         LPStartIndex^ := APosition;
       end);
     Result := LResult.ToArray;
@@ -12766,7 +12846,7 @@ begin
   end;
 end;
 
-class procedure TSkUnicode.__DestroyHandle(const AHandle: THandle);
+class procedure TSkUnicode.__DestroyHandle(const AHandle: sk_handle_t);
 begin
   sk4d_unicode_destroy(AHandle);
 end;
@@ -12808,7 +12888,7 @@ begin
 end;
 
 class procedure TSkUnicode.TUnicodeBreakIterator.__DestroyHandle(
-  const AHandle: THandle);
+  const AHandle: sk_handle_t);
 begin
   sk4d_unicodebreakiterator_destroy(AHandle);
 end;
@@ -12816,11 +12896,11 @@ end;
 function ExtensionToEncodedImageFormat(
   const AValue: string): TSkEncodedImageFormat;
 begin
-  if SameText('.jpg', AValue) or SameText('.jpeg', AValue) then
+  if SameText('.jpg', AValue{%H-}) or SameText('.jpeg', AValue{%H-}) then
     Result := TSkEncodedImageFormat.JPEG
-  else if SameText('.webp', AValue) then
+  else if SameText('.webp', AValue{%H-}) then
     Result := TSkEncodedImageFormat.WEBP
-  else if SameText('.png', AValue) then
+  else if SameText('.png', AValue{%H-}) then
     Result := TSkEncodedImageFormat.PNG
   else
     raise ESkArgumentException.Create('Invalid extension');
@@ -12828,7 +12908,7 @@ end;
 
 { TSkBindings }
 
-class function TSkBindings.SafeCreate<T>(const AHandle: THandle;
+class function TSkBindings.SafeCreate<T>(const AHandle: sk_handle_t;
   const AOwnsHandle: Boolean): T;
 begin
   if AHandle = 0 then
@@ -12836,41 +12916,11 @@ begin
   Result := T.Wrap(AHandle, AOwnsHandle);
 end;
 
-class function TSkBindings.SafeHandle(const AObject: ISkObject): THandle;
+class function TSkBindings.SafeHandle(const AObject: ISkObject): sk_handle_t;
 begin
   if not Assigned(AObject) then
     Exit(0);
   Result := AObject.Handle;
-end;
-
-{ TSkDelegate<T> }
-
-class procedure TSkDelegate<T>.Finalize(const AContextProc: Pointer);
-begin
-  Dispose(PProcWrapper(AContextProc));
-end;
-
-class function TSkDelegate<T>.Initialize<I>(const AProc: T;
-  const AInitializeFunc: TSkDelegateInitializeFunc<I>): I;
-var
-  LProcWrapper: PProcWrapper;
-begin
-  New(LProcWrapper);
-  try
-    LProcWrapper.Proc := AProc;
-    Result := AInitializeFunc(LProcWrapper);
-    if not Assigned(Result) then
-      Dispose(LProcWrapper);
-  except
-    Dispose(LProcWrapper);
-    raise;
-  end;
-end;
-
-class procedure TSkDelegate<T>.Invoke(const AContextProc: Pointer;
-  const AInvokeProc: TSkDelegateInvokeProc<T>);
-begin
-  AInvokeProc(PProcWrapper(AContextProc).Proc)
 end;
 
 { TSkData }
@@ -12880,12 +12930,12 @@ begin
   Result := TSkBindings.SafeCreate<TSkData>(sk4d_data_make_with_copy(@ABytes[0], Length(ABytes)));
 end;
 
-class procedure TSkData.__RefHandle(const AHandle: THandle);
+class procedure TSkData.__RefHandle(const AHandle: sk_handle_t);
 begin
   sk4d_data_ref(AHandle);
 end;
 
-class procedure TSkData.__UnrefHandle(const AHandle: THandle);
+class procedure TSkData.__UnrefHandle(const AHandle: sk_handle_t);
 begin
   sk4d_data_unref(AHandle);
 end;
@@ -12931,7 +12981,7 @@ begin
   Result := True;
 end;
 
-class procedure TSkStreamAdapter.__DestroyHandle(const AHandle: THandle);
+class procedure TSkStreamAdapter.__DestroyHandle(const AHandle: sk_handle_t);
 begin
   sk4d_streamadapter_destroy(AHandle);
 end;
@@ -12958,7 +13008,7 @@ begin
   Result := True;
 end;
 
-class procedure TSkWStreamAdapter.__DestroyHandle(const AHandle: THandle);
+class procedure TSkWStreamAdapter.__DestroyHandle(const AHandle: sk_handle_t);
 begin
   sk4d_wstreamadapter_destroy(AHandle);
 end;
@@ -12975,7 +13025,7 @@ begin
   Result := string(sk4d_string_get_text(Handle));
 end;
 
-class procedure TSkString.__DestroyHandle(const AHandle: THandle);
+class procedure TSkString.__DestroyHandle(const AHandle: sk_handle_t);
 begin
   sk4d_string_destroy(AHandle);
 end;
@@ -13264,6 +13314,7 @@ end;
 {$HPPEMIT END '    using ::System::Skia::TSkPathEffectTrimMode;'}
 {$HPPEMIT END '    using ::System::Skia::TSkPathFillType;'}
 {$HPPEMIT END '    using ::System::Skia::TSkPathIteratorElem;'}
+{$HPPEMIT END '    using ::System::Skia::TSkPathIteratorElemEnumerator;'}
 {$HPPEMIT END '    using ::System::Skia::TSkPathMeasure;'}
 {$HPPEMIT END '    using ::System::Skia::TSkPathMeasureMatrixFlag;'}
 {$HPPEMIT END '    using ::System::Skia::TSkPathMeasureMatrixFlags;'}
@@ -13277,7 +13328,9 @@ end;
 {$HPPEMIT END '    using ::System::Skia::TSkPixmap;'}
 {$HPPEMIT END '    using ::System::Skia::TSkPlaceholderAlignment;'}
 {$HPPEMIT END '    using ::System::Skia::TSkPlaceholderStyle;'}
+{$HPPEMIT END '    using ::System::Skia::TSkPointEnumerator;'}
 {$HPPEMIT END '    using ::System::Skia::TSkPositionAffinity;'}
+{$HPPEMIT END '    using ::System::Skia::TSkRectEnumerator;'}
 {$HPPEMIT END '    using ::System::Skia::TSkRectHeightStyle;'}
 {$HPPEMIT END '    using ::System::Skia::TSkRectWidthStyle;'}
 {$HPPEMIT END '    using ::System::Skia::TSkReferenceCounted;'}
@@ -13350,6 +13403,7 @@ end;
 {$HPPEMIT END '    using ::System::Skia::TSkUnicode;'}
 {$HPPEMIT END '    using ::System::Skia::TSkUnicodeBidiRegionProc;'}
 {$HPPEMIT END '    using ::System::Skia::TSkUnicodeBreakIteratorElem;'}
+{$HPPEMIT END '    using ::System::Skia::TSkUnicodeBreakIteratorElemEnumerator;'}
 {$HPPEMIT END '    using ::System::Skia::TSkUnicodeBreakProc;'}
 {$HPPEMIT END '    using ::System::Skia::TSkUnicodeCodepointProc;'}
 {$HPPEMIT END '    using ::System::Skia::TSkVertexMode;'}

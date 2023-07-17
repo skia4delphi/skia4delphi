@@ -166,7 +166,9 @@ uses
   { Delphi }
   System.ZLib,
   System.UITypes,
+  {$IF CompilerVersion >= 30}
   DUnitX.ResStrs,
+  {$ENDIF}
 
   { Tests }
   Skia.Tests.Foundation.ImageHash;
@@ -181,6 +183,12 @@ type
     class function FromStream(const AStream: TStream): Cardinal; static;
     class function FromString(const AString: string): Cardinal; static;
   end;
+
+{$IF CompilerVersion < 30}
+resourcestring
+  SUnexpectedErrorExt = 'Expected %g but got %g %s';
+  SUnexpectedErrorStr = 'Expected %s but got %s %s';
+{$ENDIF}
 
 function BytesToHex(const ABytes: TBytes): string;
 var
@@ -412,7 +420,9 @@ end;
 class procedure TAssertHelper.AreEqualArray<T>(const AExpected,
   AActual: TArray<T>; const AMessage: string);
 begin
+  {$IF CompilerVersion >= 32}
   DoAssert;
+  {$ENDIF}
   if not AreSameArray<T>(AExpected, AActual) then
     Fail(SArrayValuesNotEqual + AMessage, ReturnAddress);
 end;
@@ -420,7 +430,9 @@ end;
 class procedure TAssertHelper.AreEqualBytes(const AExpected, AActual: TBytes;
   const AMessage: string);
 begin
+  {$IF CompilerVersion >= 32}
   DoAssert;
+  {$ENDIF}
   if not AreSameArray<Byte>(AExpected, AActual) then
     Fail(SBytesValuesNotEqual + AMessage, ReturnAddress);
 end;
@@ -430,7 +442,9 @@ class procedure TAssertHelper.AreEqualCRC32(const AExpected: Cardinal;
 var
   LActualHash: Cardinal;
 begin
+  {$IF CompilerVersion >= 32}
   DoAssert;
+  {$ENDIF}
   LActualHash := THashCRC32.FromBytes(AActual);
   if LActualHash <> AExpected then
     FailFmt(SBytesHashNotEqual, [AExpected, LActualHash, AMessage], ReturnAddress);
@@ -441,7 +455,9 @@ class procedure TAssertHelper.AreEqualCRC32(const AExpected: Cardinal;
 var
   LActualHash: Cardinal;
 begin
+  {$IF CompilerVersion >= 32}
   DoAssert;
+  {$ENDIF}
   AActual.Position := 0;
   LActualHash := THashCRC32.FromStream(AActual);
   if LActualHash <> AExpected then
@@ -453,7 +469,9 @@ class procedure TAssertHelper.AreEqualCRC32(const AExpected: Cardinal;
 var
   LActualHash: Cardinal;
 begin
+  {$IF CompilerVersion >= 32}
   DoAssert;
+  {$ENDIF}
   LActualHash := THashCRC32.FromString(AActual);
   if LActualHash <> AExpected then
     FailFmt(SStringHashNotEqual, [AExpected, LActualHash, AMessage], ReturnAddress);
@@ -510,7 +528,9 @@ end;
 class procedure TAssertHelper.AreEqualPixels(const AExpected,
   AActual: ISkPixmap; const AMessage: string);
 begin
+  {$IF CompilerVersion >= 32}
   DoAssert;
+  {$ENDIF}
   if not AreSameArray<Byte>(GetPixmapBytes(AExpected), GetPixmapBytes(AActual)) then
     Fail(SPixelsNotEqual + AMessage, ReturnAddress);
 end;
@@ -518,7 +538,9 @@ end;
 class procedure TAssertHelper.AreEqualPixels(const AExpectedEncodedImage,
   AActualEncodedImage: TBytes; const AMessage: string);
 begin
+  {$IF CompilerVersion >= 32}
   DoAssert;
+  {$ENDIF}
   if not AreSamePixels(AExpectedEncodedImage, AActualEncodedImage) then
     Fail(SImagesPixelsNotEqual + AMessage, ReturnAddress);
 end;
@@ -526,7 +548,9 @@ end;
 class procedure TAssertHelper.AreNotEqualArray<T>(const AExpected,
   AActual: TArray<T>; const AMessage: string);
 begin
+  {$IF CompilerVersion >= 32}
   DoAssert;
+  {$ENDIF}
   if AreSameArray<T>(AExpected, AActual) then
     Fail(SArrayValuesEqual + AMessage, ReturnAddress);
 end;
@@ -534,7 +558,9 @@ end;
 class procedure TAssertHelper.AreNotEqualBytes(const AExpected, AActual: TBytes;
   const AMessage: string);
 begin
+  {$IF CompilerVersion >= 32}
   DoAssert;
+  {$ENDIF}
   if AreSameArray<Byte>(AExpected, AActual) then
     Fail(SBytesValuesEqual + AMessage, ReturnAddress);
 end;
@@ -580,7 +606,9 @@ end;
 class procedure TAssertHelper.AreSameRect(const AExpected, AActual: TRectF;
   const AEpsilon: Single; const AMessage: string);
 begin
+  {$IF CompilerVersion >= 32}
   DoAssert;
+  {$ENDIF}
   if not System.Math.SameValue(AExpected.Left, AActual.Left, AEpsilon) or
     not System.Math.SameValue(AExpected.Top, AActual.Top, AEpsilon) or
     not System.Math.SameValue(AExpected.Right, AActual.Right, AEpsilon) or
@@ -593,7 +621,9 @@ end;
 class procedure TAssertHelper.AreSameValue(const AExpected, AActual,
   AEpsilon: Double; const AMessage: string);
 begin
+  {$IF CompilerVersion >= 32}
   DoAssert;
+  {$ENDIF}
   if not System.Math.SameValue(AExpected, AActual, AEpsilon) then
     FailFmt(SUnexpectedErrorExt, [AExpected, AActual, AMessage], ReturnAddress);
 end;
@@ -601,7 +631,9 @@ end;
 class procedure TAssertHelper.AreSameValue(const AExpected, AActual,
   AEpsilon: Single; const AMessage: string);
 begin
+  {$IF CompilerVersion >= 32}
   DoAssert;
+  {$ENDIF}
   if not System.Math.SameValue(AExpected, AActual, AEpsilon) then
     FailFmt(SUnexpectedErrorExt, [AExpected, AActual, AMessage], ReturnAddress);
 end;
@@ -614,7 +646,9 @@ var
   LSimilarity: Double;
 begin
   Assert.IsNotNull(AActual, 'Invalid SkPixmap (nil)');
+  {$IF CompilerVersion >= 32}
   DoAssert;
+  {$ENDIF}
   LActualImage := TSkImage.MakeRasterCopy(AActual);
   DoImageChecking(LActualImage);
   LActualHash := TImageHashing.Hash(LActualImage);
@@ -631,7 +665,9 @@ var
   LSimilarity: Double;
 begin
   Assert.IsNotNull(AActual, 'Invalid SkCodec (nil)');
+  {$IF CompilerVersion >= 32}
   DoAssert;
+  {$ENDIF}
   LActualImage := AActual.GetImage(TSkColorType.BGRA8888, TSkAlphaType.Premul, TSkColorSpace.MakeSRGB);
   DoImageChecking(LActualImage);
   LActualHash := TImageHashing.Hash(LActualImage);
@@ -647,7 +683,9 @@ var
   LSimilarity: Double;
 begin
   Assert.IsNotNull(AActual, 'Invalid SkImage (nil)');
+  {$IF CompilerVersion >= 32}
   DoAssert;
+  {$ENDIF}
   DoImageChecking(AActual);
   LActualHash := TImageHashing.Hash(AActual);
   LSimilarity := TImageHashing.Similarity(AExpectedHash, LActualHash);
@@ -661,7 +699,9 @@ var
   LActualHash: string;
   LSimilarity: Double;
 begin
+  {$IF CompilerVersion >= 32}
   DoAssert;
+  {$ENDIF}
   DoImageChecking(AActual);
   if AExpected <> AActual then
   begin
