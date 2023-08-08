@@ -1548,6 +1548,8 @@ begin
     Result := TPixelFormat.RGBA;
   {$ELSEIF DEFINED(MACOS)}
   Result := TPixelFormat.BGRA;
+  {$ELSEIF DEFINED(LINUX)}
+  Result := TPixelFormat.BGRA;
   {$ELSE}
   Result := TPixelFormat.RGBA;
   {$ENDIF}
@@ -3685,7 +3687,7 @@ begin
       FBitmap := FmuxBitmapCreate(LWidth, LHeight, FBitmapBits);
     end;
     FmuxGetBitmapInfo(FBitmap, LWidth, LHeight, LData);
-    FBackBufferSurface := TSkSurface.MakeRasterDirect(TSkImageInfo.Create(LWidth, LHeight, TSkColorType.RGBA8888), LData, LWidth * 4);
+    FBackBufferSurface := TSkSurface.MakeRasterDirect(TSkImageInfo.Create(LWidth, LHeight, TSkColorType.BGRA8888), LData, LWidth * 4);
     {$ELSEIF DEFINED(MACOS) and NOT DEFINED(IOS)}
     if FBitmap = nil then
     begin
