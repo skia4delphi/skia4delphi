@@ -1291,6 +1291,10 @@ var
   GlobalUseSkiaRasterWhenAvailable: Boolean = True;
   /// <summary> Disables registration of Skia image codecs </summary>
   GlobalDisableSkiaCodecsReplacement: Boolean;
+  {$IF CompilerVersion >= 36}
+  /// <summary> Enables TBitmaps to be drawn in true parallel to UI and other bitmaps, when drawing in a thread (only takes effect when GlobalUseSkia is True) [Experimental] </summary>
+  GlobalSkiaBitmapsInParallel: Boolean;
+  {$ENDIF}
 
 implementation
 

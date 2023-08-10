@@ -2053,6 +2053,10 @@ end;
 class function TSkCanvasCustom.GetCanvasStyle: TCanvasStyles;
 begin
   Result := [];
+  {$IF CompilerVersion >= 36}
+  if GlobalSkiaBitmapsInParallel then
+    Result := Result + [TCanvasStyle.DisableGlobalLock];
+  {$ENDIF}
 end;
 
 {$IFDEF MODULATE_CANVAS}
