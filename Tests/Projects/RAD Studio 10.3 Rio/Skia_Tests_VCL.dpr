@@ -23,6 +23,7 @@ uses
   Skia.Tests.Svg in '..\..\Source\Skia.Tests.Svg.pas',
   Skia.Tests.TextBlob in '..\..\Source\Skia.Tests.TextBlob.pas',
   Skia.Tests.Unicode in '..\..\Source\Skia.Tests.Unicode.pas',
+  Skia.Tests.Vcl.Bitmap in '..\..\Source\VCL\Skia.Tests.Vcl.Bitmap.pas',
   Skia.Tests.Vcl.Runner in '..\..\Source\VCL\Skia.Tests.Vcl.Runner.pas' {frmVclRunner},
   Skia.Tests.Vcl.Svg in '..\..\Source\VCL\Skia.Tests.Vcl.Svg.pas',
   Skia.Tests.Vcl.TSkLabel in '..\..\Source\VCL\Skia.Tests.Vcl.TSkLabel.pas';
