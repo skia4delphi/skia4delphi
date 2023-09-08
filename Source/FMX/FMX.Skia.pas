@@ -1064,6 +1064,7 @@ type
     FHasCustomBackground: Boolean;
     FHasCustomCursor: Boolean;
     FLastFillTextFlags: TFillTextFlags;
+    FLastMousePosition: TPointF;
     FObjectState: IObjectState;
     FParagraph: ISkParagraph;
     FParagraphBounds: TRectF;
@@ -1087,7 +1088,6 @@ type
     procedure SetAutoSize(const AValue: Boolean);
     procedure SetText(const AValue: string);
     procedure SetWords(const AValue: TWordsCollection);
-    procedure SetWordsMouseOver(const AValue: TCustomWordsItem);
     {$IF CompilerVersion >= 29}
     { ICaption }
     function TextStored: Boolean;
@@ -1100,10 +1100,12 @@ type
     function GetTextSettings: TSkTextSettings;
     procedure SetStyledSettings(const AValue: TStyledSettings);
     procedure SetTextSettings(const AValue: TSkTextSettings);
+    procedure UpdateWordsMouseOver;
   strict protected
     procedure ApplyStyle; override;
     procedure Click; override;
     procedure DoEndUpdate; override;
+    procedure DoMouseEnter; override;
     procedure DoMouseLeave; override;
     function DoSetSize(const ASize: TControlSize; const ANewPlatformDefault: Boolean; ANewWidth, ANewHeight: Single;
       var ALastWidth, ALastHeight: Single): Boolean; override;
@@ -5244,7 +5246,7 @@ begin
   begin
     TMessageManager.DefaultManager.SendMessage(Self, TItemClickedMessage.Create(LClickedItem));
     if Assigned(LClickedItem.OnClick) then
-      LClickedItem.OnClick(FWordsMouseOver)
+      LClickedItem.OnClick(LClickedItem)
     else
       inherited;
   end
@@ -5296,10 +5298,16 @@ begin
     inherited;
 end;
 
+procedure TSkLabel.DoMouseEnter;
+begin
+  FLastMousePosition := PointF(-1, -1);
+  inherited;
+end;
+
 procedure TSkLabel.DoMouseLeave;
 begin
   inherited;
-  SetWordsMouseOver(nil);
+  UpdateWordsMouseOver;
 end;
 
 function TSkLabel.DoSetSize(const ASize: TControlSize;
@@ -5881,7 +5889,9 @@ procedure TSkLabel.MouseClick(AButton: TMouseButton; AShift: TShiftState; AX,
   AY: Single);
 begin
   FClickedPosition := PointF(AX, AY);
+  FLastMousePosition := FClickedPosition;
   inherited;
+  UpdateWordsMouseOver;
 end;
 
 {$IF CompilerVersion < 30}
@@ -5895,8 +5905,9 @@ end;
 
 procedure TSkLabel.MouseMove(AShift: TShiftState; AX, AY: Single);
 begin
+  FLastMousePosition := PointF(AX, AY);
   if FHasCustomCursor then
-    SetWordsMouseOver(GetWordsItemAtPosition(AX, AY));
+    UpdateWordsMouseOver;
   inherited;
 end;
 
@@ -5998,25 +6009,6 @@ begin
   FWords.Assign(AValue);
 end;
 
-procedure TSkLabel.SetWordsMouseOver(const AValue: TCustomWordsItem);
-begin
-  if FWordsMouseOver <> AValue then
-  begin
-    FWordsMouseOver := AValue;
-    if not (csDesigning in ComponentState) and IsMouseOver then
-    begin
-      if Assigned(FWordsMouseOver) and (FWordsMouseOver.Cursor <> crDefault) then
-        Cursor := FWordsMouseOver.Cursor
-      else
-        Cursor := crDefault;
-    end;
-  end
-  else if Assigned(FWordsMouseOver) and (FWordsMouseOver.Cursor <> crDefault) then
-    Cursor := FWordsMouseOver.Cursor
-  else
-    Cursor := crDefault;
-end;
-
 procedure TSkLabel.TextSettingsChanged(AValue: TObject);
 begin
   DeleteParagraph;
@@ -6027,6 +6019,35 @@ begin
     else
       Redraw;
   end;
+  UpdateWordsMouseOver;
+end;
+
+procedure TSkLabel.UpdateWordsMouseOver;
+
+  procedure SetWordsMouseOver(const AValue: TCustomWordsItem);
+  begin
+    if FWordsMouseOver <> AValue then
+    begin
+      FWordsMouseOver := AValue;
+      if not (csDesigning in ComponentState) and IsMouseOver then
+      begin
+        if Assigned(FWordsMouseOver) and (FWordsMouseOver.Cursor <> crDefault) then
+          Cursor := FWordsMouseOver.Cursor
+        else
+          Cursor := crDefault;
+      end;
+    end
+    else if Assigned(FWordsMouseOver) and (FWordsMouseOver.Cursor <> crDefault) then
+      Cursor := FWordsMouseOver.Cursor
+    else
+      Cursor := crDefault;
+  end;
+
+begin
+  if FHasCustomCursor and IsMouseOver then
+    SetWordsMouseOver(GetWordsItemAtPosition(FLastMousePosition.X, FLastMousePosition.Y))
+  else
+    SetWordsMouseOver(nil);
 end;
 
 {$IF CompilerVersion >= 29}

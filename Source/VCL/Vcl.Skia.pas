@@ -1099,6 +1099,7 @@ type
     FHasCustomCursor: Boolean;
     FIgnoreCursorChange: Boolean;
     FIsMouseOver: Boolean;
+    FLastMousePosition: TPoint;
     FParagraph: ISkParagraph;
     FParagraphBounds: TRectF;
     FParagraphLayoutWidth: Single;
@@ -1124,8 +1125,8 @@ type
     procedure ParagraphLayout(const AWidth: Single);
     procedure SetCaption(const AValue: string);
     procedure SetWords(const AValue: TWordsCollection);
-    procedure SetWordsMouseOver(const AValue: TCustomWordsItem);
     procedure UpdateCursor; inline;
+    procedure UpdateWordsMouseOver;
     procedure WMLButtonUp(var AMessage: TWMLButtonUp); message WM_LBUTTONUP;
     procedure WMMouseMove(var AMessage: TWMMouseMove); message WM_MOUSEMOVE;
   strict private
@@ -5411,7 +5412,7 @@ begin
   begin
     TMessageManager.DefaultManager.SendMessage(Self, TItemClickedMessage.Create(LClickedItem));
     if Assigned(LClickedItem.OnClick) then
-      LClickedItem.OnClick(FWordsMouseOver)
+      LClickedItem.OnClick(LClickedItem)
     else
       inherited;
   end
@@ -5449,6 +5450,7 @@ end;
 procedure TSkLabel.CMMouseEnter(var AMessage: TMessage);
 begin
   FIsMouseOver := True;
+  FLastMousePosition := Point(-1, -1);
   inherited;
 end;
 
@@ -5456,7 +5458,7 @@ procedure TSkLabel.CMMouseLeave(var AMessage: TMessage);
 begin
   FIsMouseOver := False;
   inherited;
-  SetWordsMouseOver(nil);
+  UpdateWordsMouseOver;
 end;
 
 procedure TSkLabel.CMParentBiDiModeChanged(var AMessage: TMessage);
@@ -6008,18 +6010,6 @@ begin
   FWords.Assign(AValue);
 end;
 
-procedure TSkLabel.SetWordsMouseOver(const AValue: TCustomWordsItem);
-begin
-  if FWordsMouseOver <> AValue then
-  begin
-    FWordsMouseOver := AValue;
-    if not (csDesigning in ComponentState) and IsMouseOver then
-      UpdateCursor;
-  end
-  else
-    UpdateCursor;
-end;
-
 procedure TSkLabel.TextSettingsChanged(AValue: TObject);
 begin
   DeleteParagraph;
@@ -6047,6 +6037,27 @@ begin
   end;
 end;
 
+procedure TSkLabel.UpdateWordsMouseOver;
+
+  procedure SetWordsMouseOver(const AValue: TCustomWordsItem);
+  begin
+    if FWordsMouseOver <> AValue then
+    begin
+      FWordsMouseOver := AValue;
+      if not (csDesigning in ComponentState) and IsMouseOver then
+        UpdateCursor;
+    end
+    else
+      UpdateCursor;
+  end;
+
+begin
+  if FHasCustomCursor and IsMouseOver then
+    SetWordsMouseOver(GetWordsItemAtPosition(FLastMousePosition.X, FLastMousePosition.Y))
+  else
+    SetWordsMouseOver(nil);
+end;
+
 type
   TControlAccess = class(TControl);
 
@@ -6072,13 +6083,16 @@ end;
 procedure TSkLabel.WMLButtonUp(var AMessage: TWMLButtonUp);
 begin
   FClickedPosition := Point(AMessage.XPos, AMessage.YPos);
+  FLastMousePosition := FClickedPosition;
   inherited;
+  UpdateWordsMouseOver;
 end;
 
 procedure TSkLabel.WMMouseMove(var AMessage: TWMMouseMove);
 begin
+  FLastMousePosition := Point(AMessage.XPos, AMessage.YPos);
   if FHasCustomCursor then
-    SetWordsMouseOver(GetWordsItemAtPosition(AMessage.XPos, AMessage.YPos));
+    UpdateWordsMouseOver;
   inherited;
 end;
 
