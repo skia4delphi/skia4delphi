@@ -304,7 +304,7 @@ type
       FAniProcessingList: TList<Pointer>;
       [unsafe] FAniRoot: TSkCustomAnimation;
       FAnimation: TFmxObject;
-      FMainFormChangedMessageId: Integer;
+      FMainFormChangedMessageId: {$IF CompilerVersion >= 36}TMessageSubscriptionId{$ELSE}Integer{$ENDIF};
       FTime: Double;
       FTimerService: IFMXTimerService;
       procedure DoAdd(const AAnimation: TSkCustomAnimation);

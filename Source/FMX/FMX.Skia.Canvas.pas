@@ -3871,7 +3871,7 @@ type
   strict private
     FCurrent: IFMXCanvasService;
     {$IF DEFINED(DEBUG) and (CompilerVersion >= 31)}
-    FFormBeforeShownMessageId: Integer;
+    FFormBeforeShownMessageId: {$IF CompilerVersion >= 36}TMessageSubscriptionId{$ELSE}Integer{$ENDIF};
     FGlobalUseSkiaInRegistration: Boolean;
     procedure FormBeforeShownHandler(const ASender: TObject; const AMessage: System.Messaging.TMessage);
     {$ENDIF}
