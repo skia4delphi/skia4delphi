@@ -123,11 +123,11 @@ type
         function CanShowModal: Boolean;
       end;
   strict private
-    FAfterCreateFormHandleMessageId: Integer;
-    FBeforeDestroyFormHandleMessageId: Integer;
+    FAfterCreateFormHandleMessageId: {$IF CompilerVersion >= 36}TMessageSubscriptionId{$ELSE}Integer{$ENDIF};
+    FBeforeDestroyFormHandleMessageId: {$IF CompilerVersion >= 36}TMessageSubscriptionId{$ELSE}Integer{$ENDIF};
     FDefaultFullScreenService: IFMXFullScreenWindowService;
-    FFormActivateMessageId: Integer;
-    FFormReleasedMessageId: Integer;
+    FFormActivateMessageId: {$IF CompilerVersion >= 36}TMessageSubscriptionId{$ELSE}Integer{$ENDIF};
+    FFormReleasedMessageId: {$IF CompilerVersion >= 36}TMessageSubscriptionId{$ELSE}Integer{$ENDIF};
     FDefaultFormVisibility: TDictionary<TCommonCustomForm, TFormMobileBars.TVisibilityMode>;
     FOnApplyWindowInsetsListener: TOnApplyWindowInsetsListener;
     FOnAttachStateChangeListener: TOnAttachStateChangeListener;
@@ -136,7 +136,7 @@ type
     FRegisteredBarsService: Boolean;
     FRegisteredStatusBarService: Boolean;
     FVirtualKeyboardBounds: TRect;
-    FVirtualKeyboardMessageId: Integer;
+    FVirtualKeyboardMessageId: {$IF CompilerVersion >= 36}TMessageSubscriptionId{$ELSE}Integer{$ENDIF};
     FWindowServiceFix: IFMXWindowService;
     class function AbsoluteRectToScreenScaled(const AAbsoluteRect: TRect): TRectF; static;
     procedure AfterCreateFormHandle(const ASender: TObject; const AMessage: TMessage);

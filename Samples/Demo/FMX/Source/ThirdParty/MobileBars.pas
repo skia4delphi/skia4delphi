@@ -66,7 +66,7 @@ type
     end;
   strict private
     [Weak] FForm: TCommonCustomForm;
-    FFormInsetsChangeMessageId: Integer;
+    FFormInsetsChangeMessageId: {$IF CompilerVersion >= 36}TMessageSubscriptionId{$ELSE}Integer{$ENDIF};
     FInsets: TRectF;
     FNavigationBarBackgroundColor: TAlphaColor;
     FOnInsetsChange: TNotifyEvent;
@@ -107,9 +107,9 @@ type
   // made this helper for the forms
   strict private
     class var
-      FAfterCreateFormHandleMessageId: Integer;
+      FAfterCreateFormHandleMessageId: {$IF CompilerVersion >= 36}TMessageSubscriptionId{$ELSE}Integer{$ENDIF};
       FDictionary: TObjectDictionary<TCommonCustomForm, TFormMobileBars>;
-      FFormReleasedMessageId: Integer;
+      FFormReleasedMessageId: {$IF CompilerVersion >= 36}TMessageSubscriptionId{$ELSE}Integer{$ENDIF};
     class procedure AfterCreateFormHandle(const ASender: TObject; const AMessage: TMessage); static;
     class constructor Create;
     class destructor Destroy;

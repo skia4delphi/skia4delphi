@@ -18,6 +18,10 @@ procedure Register;
 
 implementation
 
+{$IF CompilerVersion >= 36} // RAD Studio 12 and newer
+  {$DEFINE SKIAEMB}
+{$ENDIF}
+
 uses
   { Delphi }
   Winapi.Windows,

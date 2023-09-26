@@ -43,14 +43,14 @@ type
 
   TMobileBarsServiceiOS = class(TInterfacedObject, TFormMobileBars.IFMXWindowMobileBarsService, IFMXWindowSystemStatusBarService)
   private
-    FAfterCreateFormHandleMessageId: Integer;
-    FFormActivateMessageId: Integer;
+    FAfterCreateFormHandleMessageId: {$IF CompilerVersion >= 36}TMessageSubscriptionId{$ELSE}Integer{$ENDIF};
+    FFormActivateMessageId: {$IF CompilerVersion >= 36}TMessageSubscriptionId{$ELSE}Integer{$ENDIF};
     FDefaultStatusBarService: IFMXWindowSystemStatusBarService;
     FGestureBarChecked: Boolean;
     FGestureBarOffset: Single;
     FRegisteredBarsService: Boolean;
     FVirtualKeyboardBounds: TRect;
-    FVirtualKeyboardMessageId: Integer;
+    FVirtualKeyboardMessageId: {$IF CompilerVersion >= 36}TMessageSubscriptionId{$ELSE}Integer{$ENDIF};
     procedure AfterCreateFormHandle(const ASender: TObject; const AMessage: TMessage);
     procedure CheckInsetsChanges(const AForm: TCommonCustomForm);
     procedure FormActivate(const ASender: TObject; const AMessage: TMessage);

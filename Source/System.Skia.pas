@@ -7800,6 +7800,7 @@ begin
   if Assigned(ARasterReleaseProc) then
   begin
     New(LProcWrapper);
+    LProcWrapper.Proc := ARasterReleaseProc;
     Result := TSkBindings.SafeCreate<TSkImage>(sk4d_image_make_from_raster(APixmap.Handle, raster_release_proc, LProcWrapper));
   end
   else
@@ -7831,6 +7832,7 @@ begin
   if Assigned(ATextureReleaseProc) then
   begin
     New(LProcWrapper);
+    LProcWrapper.Proc := ATextureReleaseProc;
     Result := TSkBindings.SafeCreate<TSkImage>(sk4d_image_make_from_texture(AContext.Handle, ATexture.Handle, gr_surfaceorigin_t(AOrigin), sk_colortype_t(AColorType), sk_alphatype_t(AAlphaType), TSkBindings.SafeHandle(AColorSpace), texture_release_proc, LProcWrapper));
   end
   else
@@ -11317,6 +11319,7 @@ begin
   if Assigned(ARasterReleaseProc) then
   begin
     New(LProcWrapper);
+    LProcWrapper.Proc := ARasterReleaseProc;
     Result := TSkBindings.SafeCreate<TSkSurface>(sk4d_surface_make_raster_direct(APixmap.Handle, raster_release_proc, LProcWrapper, @LProperties));
   end
   else
@@ -11354,6 +11357,7 @@ begin
   if Assigned(ARasterReleaseProc) then
   begin
     New(LProcWrapper);
+    LProcWrapper.Proc := ARasterReleaseProc;
     Result := TSkBindings.SafeCreate<TSkSurface>(sk4d_surface_make_raster_direct(APixmap.Handle, raster_release_proc, LProcWrapper, nil));
   end
   else

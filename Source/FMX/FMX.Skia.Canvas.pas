@@ -90,6 +90,7 @@ type
     FContextHandle: THandle;
     procedure BeginPaint(const ARect: TRectF; const AOpacity: Single; var ABrushData: TBrushData);
   strict protected
+    FAntiAlias: Boolean;
     FWrapper: ISkCanvasWrapper;
     constructor CreateFromPrinter(const APrinter: TAbstractPrinter); override;
     // Since FMX effects use TContext3D, on systems using OpenGLES it makes the
@@ -1533,6 +1534,7 @@ type
     procedure SwapBuffers(const AContextHandle: THandle); override;
   public
     destructor Destroy; override;
+    procedure AfterConstruction; override;
   end;
 
 {$ENDIF}
@@ -1548,6 +1550,8 @@ begin
     Result := TPixelFormat.RGBA;
   {$ELSEIF DEFINED(MACOS)}
   Result := TPixelFormat.BGRA;
+  {$ELSEIF DEFINED(LINUX)}
+  Result := TPixelFormat.BGRA;
   {$ELSE}
   Result := TPixelFormat.RGBA;
   {$ENDIF}
@@ -1557,6 +1561,7 @@ end;
 
 procedure TSkCanvasCustom.AfterConstruction;
 begin
+  FAntiAlias := Quality <> TCanvasQuality.HighPerformance;
   SkInitialize;
   inherited;
 end;
@@ -1589,7 +1594,7 @@ var
   LRadiusX: Single;
   LRadiusY: Single;
 begin
-  ABrushData.Paint.AntiAlias := Quality <> TCanvasQuality.HighPerformance;
+  ABrushData.Paint.AntiAlias := FAntiAlias;
   case ABrushData.Brush.Kind of
     TBrushKind.Solid: ABrushData.Paint.Color := MakeColor(ABrushData.Brush.Color, AOpacity);
     TBrushKind.Gradient:
@@ -2051,6 +2056,10 @@ end;
 class function TSkCanvasCustom.GetCanvasStyle: TCanvasStyles;
 begin
   Result := [];
+  {$IF CompilerVersion >= 36}
+  if GlobalSkiaBitmapsInParallel then
+    Result := Result + [TCanvasStyle.DisableGlobalLock];
+  {$ENDIF}
 end;
 
 {$IFDEF MODULATE_CANVAS}
@@ -2972,8 +2981,11 @@ end;
 // mandatory to cut in the middle of the word. To fix this we will readjust the
 // MaxWidth, align horizontally manually and cut with ClipRect.
 function TSkTextLayout.NeedHorizontalAlignment: Boolean;
+var
+  LShouldHaveSingleLine: Boolean;
 begin
-  Result := (not WordWrap) and (Trimming = TTextTrimming.None);
+  LShouldHaveSingleLine := (not WordWrap) and (not Text.Contains(#13)) and (not Text.Contains(#10));
+  Result := LShouldHaveSingleLine and (Trimming = TTextTrimming.None);
 end;
 
 procedure TSkTextLayout.RenderLayout(const ACanvas: ISkCanvas);
@@ -3648,6 +3660,14 @@ end;
 
 { TSkRasterCanvas }
 
+procedure TSkRasterCanvas.AfterConstruction;
+begin
+  inherited;
+  // For some reason that is still unclear, the CPU (raster) backend on the m107 performs worse when we disable
+  // AntiAlias. So let's leave it always enabled for now.
+  FAntiAlias := True;
+end;
+
 destructor TSkRasterCanvas.Destroy;
 begin
   if Parent <> nil then
@@ -3685,7 +3705,7 @@ begin
       FBitmap := FmuxBitmapCreate(LWidth, LHeight, FBitmapBits);
     end;
     FmuxGetBitmapInfo(FBitmap, LWidth, LHeight, LData);
-    FBackBufferSurface := TSkSurface.MakeRasterDirect(TSkImageInfo.Create(LWidth, LHeight, TSkColorType.RGBA8888), LData, LWidth * 4);
+    FBackBufferSurface := TSkSurface.MakeRasterDirect(TSkImageInfo.Create(LWidth, LHeight, TSkColorType.BGRA8888), LData, LWidth * 4);
     {$ELSEIF DEFINED(MACOS) and NOT DEFINED(IOS)}
     if FBitmap = nil then
     begin
@@ -3851,7 +3871,7 @@ type
   strict private
     FCurrent: IFMXCanvasService;
     {$IF DEFINED(DEBUG) and (CompilerVersion >= 31)}
-    FFormBeforeShownMessageId: Integer;
+    FFormBeforeShownMessageId: {$IF CompilerVersion >= 36}TMessageSubscriptionId{$ELSE}Integer{$ENDIF};
     FGlobalUseSkiaInRegistration: Boolean;
     procedure FormBeforeShownHandler(const ASender: TObject; const AMessage: System.Messaging.TMessage);
     {$ENDIF}

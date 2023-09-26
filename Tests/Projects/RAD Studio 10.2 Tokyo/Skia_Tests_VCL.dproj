@@ -150,6 +150,7 @@
         <DCCReference Include="..\..\Source\Skia.Tests.Surface.pas"/>
         <DCCReference Include="..\..\Source\Skia.Tests.Svg.pas"/>
         <DCCReference Include="..\..\Source\Skia.Tests.Unicode.pas"/>
+        <DCCReference Include="..\..\Source\VCL\Skia.Tests.Vcl.Bitmap.pas"/>
         <DCCReference Include="..\..\Source\VCL\Skia.Tests.Vcl.Runner.pas">
             <Form>frmVclRunner</Form>
             <FormType>dfm</FormType>
