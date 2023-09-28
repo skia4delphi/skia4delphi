@@ -1208,6 +1208,7 @@ uses
   Winapi.OpenGL,
   Winapi.OpenGLext,
   Winapi.MMSystem,
+  System.AnsiStrings,
   System.Math.Vectors,
   System.ZLib,
   System.IOUtils,
@@ -2403,6 +2404,7 @@ type
   public
     constructor Create(const ATarget: ISkControlRenderTarget);
     destructor Destroy; override;
+    class function IsSupported: Boolean; static;
     procedure Redraw;
     procedure Resized;
     function TryRender(const ABackgroundBuffer: TBitmap; const AOpacity: Byte): Boolean;
@@ -2500,6 +2502,93 @@ begin
     Result := wglMakeCurrent(FDC, FGLRC);
 end;
 
+class function TSkGlControlRender.IsSupported: Boolean;
+type
+  PFNWGLGETEXTENSIONSSTRINGARBPROC = function (hdc: HDC): MarshaledAString; stdcall;
+const
+  WGLARBPixelFormatExtName = 'WGL_ARB_pixel_format';
+var
+  LClass: TWndClass;
+  LDC: HDC;
+  LEnd: MarshaledAString;
+  LExtensions: MarshaledAString;
+  LGetExtensionsStringARB: PFNWGLGETEXTENSIONSSTRINGARBPROC;
+  LGLRC: HGLRC;
+  LPixelFormat: Integer;
+  LPixelFormatDescriptor: TPixelFormatDescriptor;
+  LWindow: HWND;
+begin
+  FillChar(LClass, SizeOf(TWndClass), 0);
+  LClass.lpfnWndProc   := @DefWindowProc;
+  LClass.hInstance     := HInstance;
+  LClass.lpszClassName := '_temp';
+  if Winapi.Windows.RegisterClass(LClass) = 0 then
+    Exit(False);
+  try
+    LWindow := CreateWindowEx(WS_EX_TOOLWINDOW, '_temp', nil, WS_POPUP, 0, 0, 0, 0, 0, 0, HInstance, nil);
+    if LWindow = 0 then
+      Exit(False);
+    try
+      LDC := GetDC(LWindow);
+      if LDC = 0 then
+        Exit(False);
+      try
+        FillChar(LPixelFormatDescriptor, SizeOf(TPixelFormatDescriptor), 0);
+        LPixelFormatDescriptor.nSize        := SizeOf(TPixelFormatDescriptor);
+        LPixelFormatDescriptor.nVersion     := 1;
+        LPixelFormatDescriptor.dwFlags      := PFD_DRAW_TO_WINDOW or PFD_SUPPORT_OPENGL or PFD_DOUBLEBUFFER;
+        LPixelFormatDescriptor.iPixelType   := PFD_TYPE_RGBA;
+        LPixelFormatDescriptor.cColorBits   := 24;
+        LPixelFormatDescriptor.cAlphaBits   := 8;
+        LPixelFormatDescriptor.cStencilBits := 8;
+        LPixelFormatDescriptor.iLayerType   := PFD_MAIN_PLANE;
+        LPixelFormat := ChoosePixelFormat(LDC, @LPixelFormatDescriptor);
+        if (LPixelFormat = 0) or (not SetPixelFormat(LDC, LPixelFormat, @LPixelFormatDescriptor)) then
+          Exit(False);
+        LGLRC := wglCreateContext(LDC);
+        if LGLRC = 0 then
+          Exit(False);
+        try
+          if not wglMakeCurrent(LDC, LGLRC) then
+            Exit(False);
+          try
+            LGetExtensionsStringARB := GetProcAddress(GetModuleHandle(opengl32), 'wglGetExtensionsStringARB');
+            if not Assigned(LGetExtensionsStringARB) then
+            begin
+              LGetExtensionsStringARB := wglGetProcAddress('wglGetExtensionsStringARB');
+              if not Assigned(LGetExtensionsStringARB) then
+                Exit(False);
+            end;
+            LExtensions := LGetExtensionsStringARB(LDC);
+            while LExtensions^ <> #0 do
+            begin
+              LEnd := LExtensions;
+              while (LEnd^ <> ' ') and (LEnd^ <> #0) do
+                Inc(LEnd);
+              if (LEnd - LExtensions = Length(WGLARBPixelFormatExtName)) and (System.AnsiStrings.StrLIComp(LExtensions, WGLARBPixelFormatExtName, LEnd - LExtensions) = 0) then
+                Exit(True);
+              if LEnd^ = #0 then
+                Break;
+              LExtensions := LEnd + 1;
+            end;
+            Result := False;
+          finally
+            wglMakeCurrent(0, 0);
+          end;
+        finally
+          wglDeleteContext(LGLRC);
+        end;
+      finally
+        ReleaseDC(LWindow, LDC);
+      end;
+    finally
+      DestroyWindow(LWindow);
+    end;
+  finally
+    Winapi.Windows.UnregisterClass('_temp', HInstance);
+  end;
+end;
+
 procedure TSkGlControlRender.Redraw;
 begin
   FCachedImage := nil;
@@ -2588,7 +2677,13 @@ begin
   case ABackend of
     TSkControlRenderBackend.Default,
     TSkControlRenderBackend.Raster: Result := TSkRasterControlRender.Create(ATarget);
-    TSkControlRenderBackend.HardwareAcceleration: Result := TSkGlControlRender.Create(ATarget);
+    TSkControlRenderBackend.HardwareAcceleration:
+      begin
+        if TSkGlControlRender.IsSupported then
+          Result := TSkGlControlRender.Create(ATarget)
+        else
+          Result := TSkRasterControlRender.Create(ATarget);;
+      end;
   else
     Result := nil;
   end;
