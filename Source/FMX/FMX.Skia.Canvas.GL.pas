@@ -112,6 +112,7 @@ type
     procedure SwapBuffers(const AContextHandle: THandle); override;
   public
     destructor Destroy; override;
+    class function IsSupported: Boolean;
   end;
 
 {$IF DEFINED(MSWINDOWS)}
@@ -432,6 +433,97 @@ begin
     if Result = nil then
       RestoreCurrent;
   end;
+end;
+
+class function TGlCanvas.IsSupported: Boolean;
+{$IFDEF MSWINDOWS}
+const
+  WGLARBPixelFormatExtName = 'WGL_ARB_pixel_format';
+var
+  LClass: TWndClass;
+  LDC: HDC;
+  LEnd: MarshaledAString;
+  LExtensions: MarshaledAString;
+  LGetExtensionsStringARB: PFNWGLGETEXTENSIONSSTRINGARBPROC;
+  LGLRC: HGLRC;
+  LPixelFormat: Integer;
+  LPixelFormatDescriptor: TPixelFormatDescriptor;
+  LWindow: HWND;
+{$ENDIF}
+begin
+{$IF DEFINED(MSWINDOWS)}
+  FillChar(LClass, SizeOf(TWndClass), 0);
+  LClass.lpfnWndProc   := @DefWindowProc;
+  LClass.hInstance     := HInstance;
+  LClass.lpszClassName := '_temp';
+  if Winapi.Windows.RegisterClass(LClass) = 0 then
+    Exit(False);
+  try
+    LWindow := CreateWindowEx(WS_EX_TOOLWINDOW, '_temp', nil, WS_POPUP, 0, 0, 0, 0, 0, 0, HInstance, nil);
+    if LWindow = 0 then
+      Exit(False);
+    try
+      LDC := GetDC(LWindow);
+      if LDC = 0 then
+        Exit(False);
+      try
+        FillChar(LPixelFormatDescriptor, SizeOf(TPixelFormatDescriptor), 0);
+        LPixelFormatDescriptor.nSize        := SizeOf(TPixelFormatDescriptor);
+        LPixelFormatDescriptor.nVersion     := 1;
+        LPixelFormatDescriptor.dwFlags      := PFD_DRAW_TO_WINDOW or PFD_SUPPORT_OPENGL or PFD_DOUBLEBUFFER;
+        LPixelFormatDescriptor.iPixelType   := PFD_TYPE_RGBA;
+        LPixelFormatDescriptor.cColorBits   := 24;
+        LPixelFormatDescriptor.cAlphaBits   := 8;
+        LPixelFormatDescriptor.cStencilBits := 8;
+        LPixelFormatDescriptor.iLayerType   := PFD_MAIN_PLANE;
+        LPixelFormat := ChoosePixelFormat(LDC, @LPixelFormatDescriptor);
+        if (LPixelFormat = 0) or (not SetPixelFormat(LDC, LPixelFormat, @LPixelFormatDescriptor)) then
+          Exit(False);
+        LGLRC := wglCreateContext(LDC);
+        if LGLRC = 0 then
+          Exit(False);
+        try
+          if not wglMakeCurrent(LDC, LGLRC) then
+            Exit(False);
+          try
+            LGetExtensionsStringARB := GetProcAddress(GetModuleHandle(opengl32), 'wglGetExtensionsStringARB');
+            if not Assigned(LGetExtensionsStringARB) then
+            begin
+              LGetExtensionsStringARB := wglGetProcAddress('wglGetExtensionsStringARB');
+              if not Assigned(LGetExtensionsStringARB) then
+                Exit(False);
+            end;
+            LExtensions := LGetExtensionsStringARB(LDC);
+            while LExtensions^ <> #0 do
+            begin
+              LEnd := LExtensions;
+              while (LEnd^ <> ' ') and (LEnd^ <> #0) do
+                Inc(LEnd);
+              if (LEnd - LExtensions = Length(WGLARBPixelFormatExtName)) and (System.AnsiStrings.StrLIComp(LExtensions, WGLARBPixelFormatExtName, LEnd - LExtensions) = 0) then
+                Exit(True);
+              if LEnd^ = #0 then
+                Break;
+              LExtensions := LEnd + 1;
+            end;
+            Result := False;
+          finally
+            wglMakeCurrent(0, 0);
+          end;
+        finally
+          wglDeleteContext(LGLRC);
+        end;
+      finally
+        ReleaseDC(LWindow, LDC);
+      end;
+    finally
+      DestroyWindow(LWindow);
+    end;
+  finally
+    Winapi.Windows.UnregisterClass('_temp', HInstance);
+  end;
+{$ELSE}
+  Result := True;
+{$ENDIF}
 end;
 
 procedure TGlCanvas.MakeCurrent;
@@ -852,8 +944,6 @@ begin
         if FDC = 0 then
           raise EGrCanvas.Create('Could not get shared device context.');
         try
-          if not FGlInterface.HasExtension(FDC, 'WGL_ARB_pixel_format') then
-            raise EGlError.Create('"Unsupported required extension: WGL_ARB_pixel_format".');
           LPixelFormatAttributes := [
             WGL_DRAW_TO_WINDOW_ARB , 1                         ,
             WGL_ACCELERATION_ARB   , WGL_FULL_ACCELERATION_ARB ,
@@ -1053,7 +1143,11 @@ end;
 {$HPPEMIT END '#endif'}
 
 initialization
-  RegisterSkiaRenderCanvas(TGlCanvas, False);
+  RegisterSkiaRenderCanvas(TGlCanvas, False,
+    function: Boolean
+    begin
+      Result := TGlCanvas.IsSupported;
+    end);
 {$ELSE}
 implementation
 {$ENDIF}
