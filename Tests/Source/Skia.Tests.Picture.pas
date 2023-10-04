@@ -37,8 +37,7 @@ type
     procedure TestCullRect(const AMinSimilarity: Double; const AExpectedImageHash: string);
     [TestCase('1', '0.99,Pz/Pz/Pz//9/f+/P8/f//3//7+/7/////////////////////P/4////////z//P//////////8')]
     procedure TestDraw(const AMinSimilarity: Double; const AExpectedImageHash: string);
-    // To-Do: Temporarily disabled for future crash analysis
-    //[TestCase('1', '0.99,AXl5eXkBA/8BeXl7fw8P/0V9fX9/Tw//RX99f39PD/8ADwAPAA8ADwAPAA8ADwAP//////////8')]
+    [TestCase('1', '0.99,AXl5eXkBA/8BeXl7fw8P/0V9fX9/Tw//RX99f39PD/8ADwAPAA8ADwAPAA8ADwAP//////////8')]
     procedure TestImageFromPicture(const AMinSimilarity: Double; const AExpectedImageHash: string);
     [TestCase('1', 'simple-picture.skp')]
     procedure TestSerialize(const AExpectedSerializedOutputFileName: string);
@@ -167,7 +166,7 @@ begin
   LPictureCanvas.DrawRect(RectF(20, 20, 180, 180), LPaint);
   LPicture := LRecorder.FinishRecording;
 
-  LImage := TSkImage.MakeFromPicture(LPicture, TSize.Create(256, 256));
+  LImage := TSkImage.MakeFromPicture(LPicture, TSize.Create(256, 256), TSkColorSpace.MakeSRGB);
   Assert.AreSimilar(AExpectedImageHash, LImage, AMinSimilarity);
 end;
 
