@@ -38,12 +38,14 @@ type
     [TestCase('gorilla.svg', 'gorilla.svg,0,0')]
     [TestCase('lion.svg',    'lion.svg,888,746.66669')]
     [TestCase('tesla.svg',   'tesla.svg,40,40')]
+    [TestCase('youtube.svg', 'youtube.svg,0,0')]
     procedure TestGetIntrinsicSize(const ASvgFileName: string; const AWidth, AHeight: Single);
     [TestCase('android.svg', 'android.svg,true,0,0,96,105')]
     [TestCase('delphi.svg',  'delphi.svg,true,0,0,10666.667,10666.667')]
     [TestCase('gorilla.svg', 'gorilla.svg,true,0,0,944.880,944.880')]
     [TestCase('lion.svg',    'lion.svg,true,0,0,888,746.66669')]
     [TestCase('tesla.svg',   'tesla.svg,false,0,0,0,0')]
+    [TestCase('youtube.svg', 'youtube.svg,true,0,0,24,24')]
     procedure TestTryGetViewBox(const ASvgFileName: string; const AExpectedResult: Boolean; const AX, AY, AWidth, AHeight: Single);
   end;
 

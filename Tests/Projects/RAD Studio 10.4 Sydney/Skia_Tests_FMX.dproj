@@ -1474,6 +1474,30 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
+                <DeployFile LocalName="..\..\Assets\Svg\youtube.svg" Configuration="Debug" Class="File">
+                    <Platform Name="Android">
+                        <RemoteDir>assets\internal\Svg</RemoteDir>
+                        <RemoteName>youtube.svg</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="Android64">
+                        <RemoteDir>assets\internal\Svg</RemoteDir>
+                        <RemoteName>youtube.svg</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="..\..\Assets\Svg\youtube.svg" Configuration="Release" Class="File">
+                    <Platform Name="Android">
+                        <RemoteDir>assets\internal\Svg</RemoteDir>
+                        <RemoteName>youtube.svg</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="Android64">
+                        <RemoteDir>assets\internal\Svg</RemoteDir>
+                        <RemoteName>youtube.svg</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
                 <DeployFile LocalName="..\..\Binary\Win32\Release\Skia_Tests_FMX.exe" Configuration="Release" Class="ProjectOutput">
                     <Platform Name="Win32">
                         <RemoteName>Skia_Tests_FMX.exe</RemoteName>
