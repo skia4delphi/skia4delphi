@@ -74,7 +74,7 @@ var
   LBytesWebP: TBytes;
   LBytesJpeg: TBytes;
 begin
-  LImage := TSkImage.MakeFromEncodedFile(AssetsPath + 'kung-fu-panda.png');
+  LImage := TSkImage.MakeFromEncodedFile(AssetsPath + 'golden-pheasant.png');
   LBytesWebP := LImage.Encode(TSkEncodedImageFormat.WEBP, Quality);
   LBytesJpeg := LImage.Encode(TSkEncodedImageFormat.JPEG, Quality);
 
@@ -101,10 +101,11 @@ end;
 
 procedure TfrmImage.pnlWebpInImageClick(Sender: TObject);
 begin
-  ChildForm<TfrmTImageViewer>.Show('Loading .WebP in TImage', 'Skia4Delphi adds support for new formats to TPicture: .svg, .webp, .wbmp and raw images (.arw, .cr2, .dng, .nef, .nrw, .orf, .raf, .rw2, .pef and .srw)',
+  ChildForm<TfrmTImageViewer>.Show('Loading .WebP in TImage', 'Skia4Delphi adds support for new formats to TPicture: ' +
+    '.svg, .webp, .wbmp and raw images (.arw, .cr2, .dng, .nef, .nrw, .orf, .raf, .rw2, .pef and .srw)',
     procedure(const AImage: TImage)
     begin
-      AImage.Picture.LoadFromFile(AssetsPath + 'kung-fu-panda.webp');
+      AImage.Picture.LoadFromFile(AssetsPath + 'golden-pheasant.webp');
     end);
 end;
 

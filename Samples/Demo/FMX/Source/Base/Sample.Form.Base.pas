@@ -155,7 +155,7 @@ begin
   // -   https://quality.embarcadero.com/browse/RSP-36959
   // -
   // - -------------------------------------------------------------------------
-  {$IF CompilerVersion > 35.0}
+  {$IF CompilerVersion > 36.0}
     {$MESSAGE WARN 'Check if the issue has been fixed'}
   {$ENDIF}
   // - -------------------------------------------------------------------------

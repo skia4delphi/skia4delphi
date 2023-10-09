@@ -77,7 +77,7 @@ inherited frmRuntimeEffects: TfrmRuntimeEffects
             end>
         end
       end
-      object btnShaderAnimation: TSpeedButton
+      object btnStarNestShaderAnimation: TSpeedButton
         Align = Top
         ClipChildren = True
         Cursor = crHandPoint
@@ -92,8 +92,8 @@ inherited frmRuntimeEffects: TfrmRuntimeEffects
         Size.Height = 50.000000000000000000
         Size.PlatformDefault = False
         StyleLookup = 'speedbuttonstyle_menu'
-        OnClick = btnShaderAnimationClick
-        object lblShaderAnimationTitle: TSkLabel
+        OnClick = btnStarNestShaderAnimationClick
+        object lblStarNestShaderAnimationTitle: TSkLabel
           Align = MostTop
           Position.X = 5.000000000000000000
           Position.Y = 6.000000000000000000
@@ -104,10 +104,10 @@ inherited frmRuntimeEffects: TfrmRuntimeEffects
           StyleLookup = 'sklabelstyle_menu_title'
           Words = <
             item
-              Text = 'Animation using Shader'
+              Text = 'Star Nest Shader Animation'
             end>
         end
-        object lblShaderAnimationDescription: TSkLabel
+        object lblStarNestShaderAnimationDescription: TSkLabel
           Align = Top
           Position.X = 5.000000000000000000
           Position.Y = 386.000000000000000000
@@ -122,7 +122,7 @@ inherited frmRuntimeEffects: TfrmRuntimeEffects
             end>
         end
       end
-      object btnWavesShaderAnimation: TSpeedButton
+      object btnTimeVaryingShader: TSpeedButton
         Align = Top
         ClipChildren = True
         Cursor = crHandPoint
@@ -137,8 +137,8 @@ inherited frmRuntimeEffects: TfrmRuntimeEffects
         Size.Height = 50.000000000000000000
         Size.PlatformDefault = False
         StyleLookup = 'speedbuttonstyle_menu'
-        OnClick = btnWavesShaderAnimationClick
-        object lblWavesShaderAnimationTitle: TSkLabel
+        OnClick = btnTimeVaryingShaderClick
+        object lblTimeVaryingShaderTitle: TSkLabel
           Align = MostTop
           Position.X = 5.000000000000000000
           Position.Y = 6.000000000000000000
@@ -149,10 +149,10 @@ inherited frmRuntimeEffects: TfrmRuntimeEffects
           StyleLookup = 'sklabelstyle_menu_title'
           Words = <
             item
-              Text = 'Waves Shader Animation'
+              Text = 'Time-varying Shader'
             end>
         end
-        object lblWavesShaderAnimationDescription: TSkLabel
+        object lblTimeVaryingShaderDescription: TSkLabel
           Align = Top
           Position.X = 5.000000000000000000
           Position.Y = 386.000000000000000000
@@ -163,7 +163,7 @@ inherited frmRuntimeEffects: TfrmRuntimeEffects
           StyleLookup = 'sklabelstyle_menu_description'
           Words = <
             item
-              Text = 'Example of waves shader animation using Runtime Effects'
+              Text = 'Simple shader varying the color according to time'
             end>
         end
       end
