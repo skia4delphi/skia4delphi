@@ -2295,7 +2295,8 @@ end;
 procedure TSkSvgBrush.Render(const ACanvas: ISkCanvas; const ADestRect: TRectF;
   const AOpacity: Single);
 
-  function GetWrappedDest(const ADOM: ISkSVGDOM; const ASvgRect, ADestRect: TRectF; const AIntrinsicSize: TSizeF): TRectF;
+  function GetWrappedDest(const ADOM: ISkSVGDOM; const ASvgRect, ADestRect: TRectF;
+    const AIntrinsicSize: TSizeF): TRectF;
   var
     LRatio: Single;
   begin
@@ -2355,8 +2356,9 @@ procedure TSkSvgBrush.Render(const ACanvas: ISkCanvas; const ADestRect: TRectF;
     begin
       if AWrapMode <> TSkSvgWrapMode.Default then
       begin
-        ADOM.Root.Width  := TSkSVGLength.Create(AWrappedDest.Width,  TSkSVGLengthUnit.Pixel);
-        ADOM.Root.Height := TSkSVGLength.Create(AWrappedDest.Height, TSkSVGLengthUnit.Pixel);
+        LCanvas.Scale(AWrappedDest.Width / ASvgRect.Width, AWrappedDest.Height / ASvgRect.Height);
+        ADOM.Root.Width  := TSkSVGLength.Create(ASvgRect.Width,  TSkSVGLengthUnit.Pixel);
+        ADOM.Root.Height := TSkSVGLength.Create(ASvgRect.Height, TSkSVGLengthUnit.Pixel);
       end;
     end
     else
@@ -2412,8 +2414,9 @@ begin
           begin
             if FWrapMode <> TSkSvgWrapMode.Default then
             begin
-              LDOM.Root.Width  := TSkSVGLength.Create(LWrappedDest.Width,  TSkSVGLengthUnit.Pixel);
-              LDOM.Root.Height := TSkSVGLength.Create(LWrappedDest.Height, TSkSVGLengthUnit.Pixel);
+              ACanvas.Scale(LWrappedDest.Width / LSvgRect.Width, LWrappedDest.Height / LSvgRect.Height);
+              LDOM.Root.Width  := TSkSVGLength.Create(LSvgRect.Width,  TSkSVGLengthUnit.Pixel);
+              LDOM.Root.Height := TSkSVGLength.Create(LSvgRect.Height, TSkSVGLengthUnit.Pixel);
             end;
           end
           else
