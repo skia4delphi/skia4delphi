@@ -191,14 +191,18 @@ begin
 end;
 
 procedure TMtlCanvas.SwapBuffers(const AContextHandle: THandle);
+{$IF (CompilerVersion < 36) or DEFINED(IOS)}
 var
   LCommandBuffer: MTLCommandBuffer;
+{$ENDIF}
 begin
   inherited;
   FBackBufferSurface := nil;
+  {$IF (CompilerVersion < 36) or DEFINED(IOS)}
   LCommandBuffer := TMtlSharedContext(SharedContext).CommandQueue.commandBuffer;
   LCommandBuffer.presentDrawable(FCurrentDrawable);
   LCommandBuffer.commit;
+  {$ENDIF}
   FCurrentDrawable.release;
   SharedContext.EndContext;
 end;
