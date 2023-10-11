@@ -1122,7 +1122,7 @@ type
     function GetParagraph: ISkParagraph;
     function GetParagraphBounds: TRectF;
     function HasFitSizeChanged: Boolean;
-    procedure ParagraphLayout(const AWidth: Single);
+    procedure ParagraphLayout(AMaxWidth: Single);
     procedure SetCaption(const AValue: string);
     procedure SetWords(const AValue: TWordsCollection);
     procedure UpdateCursor; inline;
@@ -5495,8 +5495,8 @@ begin
     LNewWidth := ANewWidth;
     LNewHeight := ANewHeight;
     GetFitSize(LNewWidth, LNewHeight);
-    ANewWidth := Ceil(LNewWidth);
-    ANewHeight := Ceil(LNewHeight);
+    ANewWidth := Round(LNewWidth);
+    ANewHeight := Round(LNewHeight);
   end;
   Result := True;
 end;
@@ -5925,7 +5925,7 @@ function TSkLabel.GetParagraphBounds: TRectF;
   begin
     LParagraph := Paragraph;
     if Assigned(LParagraph) then
-      Result := RectF(0, 0, Ceil(LParagraph.MaxIntrinsicWidth), Ceil(LParagraph.Height))
+      Result := RectF(0, 0, LParagraph.MaxIntrinsicWidth, LParagraph.Height)
     else
       Result := TRectF.Empty;
   end;
@@ -6057,19 +6057,32 @@ begin
   Result := Result.Replace(#13#10, #8203#10).Replace(#13, #10);
 end;
 
-procedure TSkLabel.ParagraphLayout(const AWidth: Single);
+procedure TSkLabel.ParagraphLayout(AMaxWidth: Single);
+
+  function DoParagraphLayout(const AParagraph: ISkParagraph; AMaxWidth: Single): Single;
+  begin
+    if SameValue(AMaxWidth, 0, TEpsilon.Position) then
+      Result := AMaxWidth
+    else
+      // The SkParagraph.Layout calls a floor for the MaxWidth, so we should ceil it to force the original AMaxWidth
+      Result := Ceil(AMaxWidth + TEpsilon.Position);
+    AParagraph.Layout(Result);
+  end;
+
 var
+  LMaxWidthUsed: Single;
   LParagraph: ISkParagraph;
 begin
-  if not SameValue(FParagraphLayoutWidth, AWidth, TEpsilon.Position) then
+  AMaxWidth := Max(AMaxWidth, 0);
+  if not SameValue(FParagraphLayoutWidth, AMaxWidth, TEpsilon.Position) then
   begin
     LParagraph := Paragraph;
     if Assigned(LParagraph) then
     begin
-      LParagraph.Layout(AWidth);
+      LMaxWidthUsed := DoParagraphLayout(LParagraph, AMaxWidth);
       if Assigned(FParagraphStroked) then
-        FParagraphStroked.Layout(AWidth);
-      FParagraphLayoutWidth := AWidth;
+        FParagraphStroked.Layout(LMaxWidthUsed);
+      FParagraphLayoutWidth := AMaxWidth;
       FParagraphBounds := TRectF.Empty;
       FBackgroundPicture := nil;
     end;
