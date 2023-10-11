@@ -6041,12 +6041,20 @@ begin
 end;
 
 function TSkLabel.NormalizeParagraphText(const AText: string): string;
+const
+  // Ideographic space is similar to tab character as it has the size of two white spaces usually
+  IdeographicSpace = Char($3000);
 begin
+  // Temporary solution for version m107, that have a know issue with tab character that are rendering as a square.
+  // https://github.com/skia4delphi/skia4delphi/issues/270
+  // https://issues.skia.org/issues/40043415
+  Result := AText.Replace(#09, IdeographicSpace);
+
   // Temporary solution to fix an issue with Skia:
   // https://bugs.chromium.org/p/skia/issues/detail?id=13117
   // SkParagraph has several issues with the #13 line break, so the best thing
   // to do is replace it with #10 or a zero-widh character (#8203)
-  Result := AText.Replace(#13#10, #8203#10).Replace(#13, #10);
+  Result := Result.Replace(#13#10, #8203#10).Replace(#13, #10);
 end;
 
 procedure TSkLabel.ParagraphLayout(const AWidth: Single);
