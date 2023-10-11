@@ -179,7 +179,6 @@ begin
     if FCurrentDrawable = nil then
       Exit;
     LTexture := FCurrentDrawable.texture;
-    LTexture.retain;
     LGrMtlTextureInfo.Texture := (LTexture as ILocalObject).GetObjectID;
     LGrBackendRenderTarget := TGrBackendRenderTarget.CreateMetal(Round(Width * Scale), Round(Height * Scale), LGrMtlTextureInfo);
     FBackBufferSurface     := TSkSurface.MakeFromRenderTarget(FGrDirectContext, LGrBackendRenderTarget, TGrSurfaceOrigin.TopLeft, TSkColorType.BGRA8888);
