@@ -221,7 +221,7 @@ begin
     for I := FCreatedFormsList.Count - 1 downto LFormIndex do
     begin
       FShowingFormsList.Remove(FCreatedFormsList[I]);
-      FCreatedFormsList[I].DisposeOf;
+      FCreatedFormsList[I].{$IF CompilerVersion <= 33}DisposeOf{$ELSE}Free{$ENDIF};
       FCreatedFormsList.Delete(I);
     end;
     FShowingFormsList.Last.rctContent.Enabled := True;

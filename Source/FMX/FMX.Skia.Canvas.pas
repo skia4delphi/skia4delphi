@@ -3256,7 +3256,7 @@ const
       end;
     finally
       for LAttribute in LAttributes do
-        LAttribute.DisposeOf;
+        LAttribute.{$IF CompilerVersion <= 33}DisposeOf{$ELSE}Free{$ENDIF};
     end;
     Result := LBuilder.Build;
   end;
