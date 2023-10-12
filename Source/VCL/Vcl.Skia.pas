@@ -6065,7 +6065,7 @@ procedure TSkLabel.ParagraphLayout(AMaxWidth: Single);
       Result := AMaxWidth
     else
       // The SkParagraph.Layout calls a floor for the MaxWidth, so we should ceil it to force the original AMaxWidth
-      Result := Ceil(AMaxWidth + TEpsilon.Position);
+      Result := Ceil(AMaxWidth + TEpsilon.Matrix);
     AParagraph.Layout(Result);
   end;
 

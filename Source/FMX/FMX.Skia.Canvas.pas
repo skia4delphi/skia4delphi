@@ -3262,21 +3262,14 @@ const
   end;
 
   procedure ParagraphLayout(const AParagraph: ISkParagraph; AMaxWidth: Single);
-  var
-    LMetrics: TSkMetrics;
   begin
-    AMaxWidth := Max(AMaxWidth, 0);
-    if not SameValue(AMaxWidth, 0, TEpsilon.Position) then
+    if CompareValue(AMaxWidth, 0, TEpsilon.Position) = GreaterThanValue then
     begin
-      // Try to add extra value to avoid trimming when put the same value (or near) to the MaxIntrinsicWidth
-      AParagraph.Layout(AMaxWidth + 1);
-      for LMetrics in AParagraph.LineMetrics do
-      begin
-        if InRange(AMaxWidth, LMetrics.Width - TEpsilon.Position, LMetrics.Width + 1) then
-          Exit;
-      end;
-    end;
-    AParagraph.Layout(AMaxWidth);
+      // The SkParagraph.Layout calls a floor for the MaxWidth, so we should ceil it to force the original AMaxWidth
+      AParagraph.Layout(Ceil(AMaxWidth + TEpsilon.Matrix));
+    end
+    else
+      AParagraph.Layout(0);
   end;
 
   procedure DoUpdateParagraph(var AParagraph: TParagraph;

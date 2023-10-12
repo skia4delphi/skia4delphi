@@ -2092,7 +2092,8 @@ begin
     else
       LSceneScale := 1;
     LAbsoluteScale := AbsoluteScale;
-    LAbsoluteSize := TSize.Create(Ceil(Width * LAbsoluteScale.X * LSceneScale), Ceil(Height * LAbsoluteScale.Y * LSceneScale));
+    LAbsoluteSize := TSize.Create(Round(Width * LAbsoluteScale.X * LSceneScale),
+      Round(Height * LAbsoluteScale.Y * LSceneScale));
 
     LMaxBitmapSize := Canvas.GetAttribute(TCanvasAttribute.MaxBitmapSize);
     if (LAbsoluteSize.Width > LMaxBitmapSize) or (LAbsoluteSize.Height > LMaxBitmapSize) then
@@ -5908,7 +5909,7 @@ procedure TSkLabel.ParagraphLayout(AMaxWidth: Single);
       Result := AMaxWidth
     else
       // The SkParagraph.Layout calls a floor for the MaxWidth, so we should ceil it to force the original AMaxWidth
-      Result := Ceil(AMaxWidth + TEpsilon.Position);
+      Result := Ceil(AMaxWidth + TEpsilon.Matrix);
     AParagraph.Layout(Result);
   end;
 
