@@ -362,7 +362,7 @@ begin
     FVkCtrlPressed := False;
 
     if memFailTestMessage.Lines.Text.Contains(' (hash: ') then
-      Clipboard.AsText := memFailTestMessage.Lines.Text.Split([' (hash: '], TStringSplitOptions.None)[1].Split(['). '], TStringSplitOptions.None)[0]
+      Clipboard.AsText := memFailTestMessage.Lines.Text.Split([' (hash: '], TStringSplitOptions.None)[1].Split([').'], TStringSplitOptions.None)[0]
     // Copy rect
     else if TRegEx.IsMatch(memFailTestMessage.Lines.Text, ' but got \([+-]?([0-9]*[.])?[0-9]+,[+-]?([0-9]*[.])?[0-9]+,[+-]?([0-9]*[.])?[0-9]+,[+-]?([0-9]*[.])?[0-9]+\)') then
     begin

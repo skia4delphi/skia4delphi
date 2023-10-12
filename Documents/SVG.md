@@ -8,7 +8,7 @@ The code below shows how to load and render a SVG file into an ISkCanvas:
 
 ```pascal
 uses
-  Skia, Skia.FMX; // or Skia.Vcl
+  System.Skia, FMX.Skia; // or Vcl.Skia
 
 var
   LBitmap: TBitmap;
@@ -22,7 +22,7 @@ begin
       begin
         LSvgBrush := TSkSvgBrush.Create;
         try
-          LSvgBrush.Source := TFile.ReadAllText('Samples\Demo\Assets\gorilla.svg');
+          LSvgBrush.Source := TFile.ReadAllText('Samples\Demo\Assets\panda.svg');
           LSvgBrush.Render(ACanvas, RectF(0, 0, LBitmap.Width, LBitmap.Height), 1);
         finally
           LSvgBrush.Free;
@@ -36,7 +36,7 @@ It is possible to create any type of SVG file using **Skia4Delphi** in an extrem
 
 ```pascal
 uses
-  Skia;
+  System.Skia;
 
 type
   TSkDrawProc = reference to procedure(const ACanvas: ISkCanvas; const ADest: TRectF);
@@ -94,14 +94,14 @@ var
   LSvg: TSkSvg;
 begin
   LSvg := TSkSvg.Create(Self);
-  LSvg.Svg.Source := TFile.ReadAllText('Samples\Demo\Assets\gorilla.svg');
+  LSvg.Svg.Source := TFile.ReadAllText('Samples\Demo\Assets\panda.svg');
   LSvg.Parent := Self;
 end;
 ```
 
 The example above results in the output below:
 
-<p><img src="../Samples/Demo/Assets/gorilla.svg" width="200" height="200" alt="Gorilla" /></p>
+<p><img src="../Samples/Demo/Assets/panda.svg" width="200" height="200" alt="Panda" /></p>
 
   
 

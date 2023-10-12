@@ -97,7 +97,7 @@ type
 // -   https://quality.embarcadero.com/browse/RSP-36958
 // -
 // - ---------------------------------------------------------------------------
-{$IF CompilerVersion > 35}
+{$IF CompilerVersion > 36}
   {$MESSAGE WARN 'Check if the issue has been fixed'}
 {$ENDIF}
 // - ---------------------------------------------------------------------------
@@ -221,9 +221,9 @@ begin
       LRatio: Single;
     begin
       if Sign(Cos(DegToRad(LOptions['X-Axis Rotation'])) * Cos(DegToRad(LOptions['Y-Axis Rotation']))) = NegativeValue then
-        LImage := TSkImage.MakeFromEncodedFile(AssetsPath + 'deck-card-back.png')
+        LImage := TSkImage.MakeFromEncodedFile(AssetsPath + 'deck-card-back.webp')
       else
-        LImage := TSkImage.MakeFromEncodedFile(AssetsPath + 'deck-card-front.png');
+        LImage := TSkImage.MakeFromEncodedFile(AssetsPath + 'deck-card-front.webp');
       RectF(0, 0, LImage.Width, LImage.Height).FitInto(ADest, LRatio);
       LRatio := LRatio * (1 + MarginProportion);
 
@@ -346,7 +346,7 @@ begin
       LPaint: ISkPaint;
       I: Integer;
     begin
-      LImage := TSkImage.MakeFromEncodedFile(AssetsPath + 'toy-story.jpg');
+      LImage := TSkImage.MakeFromEncodedFile(AssetsPath + 'wolf.webp');
       LDest := ADest;
       LDest.Inflate(-50, -50);
       if LOptions['IsFirstDraw'] then
@@ -397,7 +397,7 @@ begin
       LMatrix: TMatrix;
       LImage: ISkImage;
     begin
-      LImage := TSkImage.MakeFromEncodedFile(AssetsPath + 'simpsons.webp');
+      LImage := TSkImage.MakeFromEncodedFile(AssetsPath + 'prehistoric.webp');
       LDest := ADest;
       LDest.Inflate(-50, -50);
 

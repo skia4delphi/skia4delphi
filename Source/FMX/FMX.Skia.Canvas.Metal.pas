@@ -179,7 +179,6 @@ begin
     if FCurrentDrawable = nil then
       Exit;
     LTexture := FCurrentDrawable.texture;
-    LTexture.retain;
     LGrMtlTextureInfo.Texture := (LTexture as ILocalObject).GetObjectID;
     LGrBackendRenderTarget := TGrBackendRenderTarget.CreateMetal(Round(Width * Scale), Round(Height * Scale), LGrMtlTextureInfo);
     FBackBufferSurface     := TSkSurface.MakeFromRenderTarget(FGrDirectContext, LGrBackendRenderTarget, TGrSurfaceOrigin.TopLeft, TSkColorType.BGRA8888);
@@ -192,14 +191,18 @@ begin
 end;
 
 procedure TMtlCanvas.SwapBuffers(const AContextHandle: THandle);
+{$IF (CompilerVersion < 36) or DEFINED(IOS)}
 var
   LCommandBuffer: MTLCommandBuffer;
+{$ENDIF}
 begin
   inherited;
   FBackBufferSurface := nil;
+  {$IF (CompilerVersion < 36) or DEFINED(IOS)}
   LCommandBuffer := TMtlSharedContext(SharedContext).CommandQueue.commandBuffer;
   LCommandBuffer.presentDrawable(FCurrentDrawable);
   LCommandBuffer.commit;
+  {$ENDIF}
   FCurrentDrawable.release;
   SharedContext.EndContext;
 end;

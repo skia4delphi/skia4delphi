@@ -3198,14 +3198,23 @@ const
     end;
   end;
 
-  // Temporary solution to fix an issue with Skia
-  // https://bugs.chromium.org/p/skia/issues/detail?id=13117
-  //
-  // SkParagraph has several issues with the #13 line break, so the best thing
-  // to do is replace it with #10 or a zero-widh character (#8203)
-  function NormalizeParagraphText(const AText: string): string; inline;
+  function NormalizeParagraphText(const AText: string; APushedStyle: Boolean): string; inline;
+  const
+    // Ideographic space is similar to tab character as it has the size of two white spaces usually
+    IdeographicSpace = Char($3000);
   begin
-    Result := AText.Replace(#13#10, ZeroWidthChar + #10).Replace(#13, #10);
+    // Temporary solution for version m107, that have a know issue with tab character that are rendering as a square.
+    // https://github.com/skia4delphi/skia4delphi/issues/270
+    // https://issues.skia.org/issues/40043415
+    Result := AText.Replace(#09, IdeographicSpace);
+
+    // Temporary solution to fix an issue with Skia
+    // https://bugs.chromium.org/p/skia/issues/detail?id=13117
+    //
+    // SkParagraph has several issues with the #13 line break, so the best thing
+    // to do is replace it with #10 or a zero-widh character (#8203)
+    if APushedStyle then
+      Result := Result.Replace(#13#10, ZeroWidthChar + #10).Replace(#13, #10);
   end;
 
   function CreateParagraph(const AMaxLines: Integer; const ASubText: string;
@@ -3221,13 +3230,17 @@ const
     FOpacity    := Opacity;
     LAttributes := GetNormalizedAttributes(ASubText, ASubTextPosition);
     try
-      LBuilder := TSkParagraphBuilder.Create(CreateParagraphStyle(LAttributes, AMaxLines), TSkDefaultProviders.TypefaceFont);
+      LBuilder := TSkParagraphBuilder.Create(CreateParagraphStyle(LAttributes, AMaxLines),
+        TSkDefaultProviders.TypefaceFont);
       LLastAttributeEndIndex := 0;
       for LAttribute in LAttributes do
       begin
         if LLastAttributeEndIndex < LAttribute.Range.Pos then
-          LBuilder.AddText(ASubText.Substring(LLastAttributeEndIndex, LAttribute.Range.Pos - LLastAttributeEndIndex));
-        LText := NormalizeParagraphText(ASubText.Substring(LAttribute.Range.Pos, LAttribute.Range.Length));
+        begin
+          LBuilder.AddText(NormalizeParagraphText(ASubText.Substring(LLastAttributeEndIndex, LAttribute.Range.Pos -
+            LLastAttributeEndIndex), False));
+        end;
+        LText := NormalizeParagraphText(ASubText.Substring(LAttribute.Range.Pos, LAttribute.Range.Length), True);
         if not LText.IsEmpty then
         begin
           LBuilder.PushStyle(CreateTextStyle(LAttribute.Attribute));
@@ -3237,30 +3250,26 @@ const
         LLastAttributeEndIndex := LAttribute.Range.Pos + LAttribute.Range.Length;
       end;
       if LLastAttributeEndIndex < ASubText.Length then
-        LBuilder.AddText(ASubText.Substring(LLastAttributeEndIndex, ASubText.Length - LLastAttributeEndIndex));
+      begin
+        LBuilder.AddText(NormalizeParagraphText(ASubText.Substring(LLastAttributeEndIndex, ASubText.Length -
+          LLastAttributeEndIndex), False));
+      end;
     finally
       for LAttribute in LAttributes do
-        LAttribute.DisposeOf;
+        LAttribute.{$IF CompilerVersion <= 33}DisposeOf{$ELSE}Free{$ENDIF};
     end;
     Result := LBuilder.Build;
   end;
 
   procedure ParagraphLayout(const AParagraph: ISkParagraph; AMaxWidth: Single);
-  var
-    LMetrics: TSkMetrics;
   begin
-    AMaxWidth := Max(AMaxWidth, 0);
-    if not SameValue(AMaxWidth, 0, TEpsilon.Position) then
+    if CompareValue(AMaxWidth, 0, TEpsilon.Position) = GreaterThanValue then
     begin
-      // Try to add extra value to avoid trimming when put the same value (or near) to the MaxIntrinsicWidth
-      AParagraph.Layout(AMaxWidth + 1);
-      for LMetrics in AParagraph.LineMetrics do
-      begin
-        if InRange(AMaxWidth, LMetrics.Width - TEpsilon.Position, LMetrics.Width + 1) then
-          Exit;
-      end;
-    end;
-    AParagraph.Layout(AMaxWidth);
+      // The SkParagraph.Layout calls a floor for the MaxWidth, so we should ceil it to force the original AMaxWidth
+      AParagraph.Layout(Ceil(AMaxWidth + TEpsilon.Matrix));
+    end
+    else
+      AParagraph.Layout(0);
   end;
 
   procedure DoUpdateParagraph(var AParagraph: TParagraph;

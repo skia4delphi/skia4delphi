@@ -54,7 +54,7 @@ program Project1;
 uses
   System.StartUpCopy,
   FMX.Forms,
-  Skia.FMX,
+  FMX.Skia,
   Unit1 in 'Unit1.pas' {Form1};
 
 {$R *.res}
@@ -74,7 +74,7 @@ program Project1;
 
 uses
   Vcl.Forms,
-  Skia.Vcl,
+  Vcl.Skia,
   Unit1 in 'Unit1.pas' {Form1};
 
 {$R *.res}

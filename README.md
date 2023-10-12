@@ -129,7 +129,7 @@ The code below is common code among all the examples in this section:
 
 ```pascal
 uses
-  Skia;
+  System.Skia;
 
 type
   TSkDrawExampleProc = reference to procedure(const ACanvas: ISkCanvas; const ADest: TRectF);
@@ -278,7 +278,7 @@ It is possible to edit TBitmap (**VCL** or **FMX**) with Skia's canvas using the
 
 ```pascal
 uses
-  Skia, Skia.FMX {or Skia.Vcl};
+  System.Skia, FMX.Skia {or Vcl.Skia};
 
 ...
 
@@ -307,13 +307,13 @@ It is possible to replace the default Canvas from FMX to Skia based Canvas. Once
 
 ### Enable Skia Render
 
-Open the source of your Delphi Application Project _(.dpr)_, include the `Skia.FMX` unit right **after** the `FMX.Forms` unit, and set the `GlobalUseSkia` to **True**, as in the example below:
+Open the source of your Delphi Application Project _(.dpr)_, include the `FMX.Skia` unit right **after** the `FMX.Forms` unit, and set the `GlobalUseSkia` to **True**, as in the example below:
 
 ```pascal
 uses
   System.StartUpCopy,
   FMX.Forms,
-  Skia.FMX,
+  FMX.Skia,
   Unit1 in 'Unit1.pas' {Form1};
 
 {$R *.res}
@@ -326,7 +326,7 @@ begin
 
 #### Remarks
 
-1. `Skia.FMX` unit must be included right after the `FMX.Forms`;
+1. `FMX.Skia` unit must be included right after the `FMX.Forms`;
 2. The **Skia Metal** render can be used by including the `FMX.Types` unit right **after** the `FMX.Forms` unit, and setting `GlobalUseMetal` to **True** together with `GlobalUseSkia` to improve the speed in iOS and macOS;
 3. `GlobalUseSkia` has no effect on Linux. (although not supported, all [controls](#controls-vclfmx) work perfectly, just like the rest of the library)
 4. This declaration of `GlobalUseSkia := True;`, as well as other variables of FMX itself, such as `GlobalUseMetal`, can also be made in the initialization of some unit instead of .dpr. Sometimes this is really necessary because if in the initialization or in the class constructor of some unit, bitmaps are used, the GlobalUseXXX declarations of the .dpr will have no effect. In this case, just create a unit in the project like "Project.Startup.pas", place the GlobalUseXXX declarations in the initialization of this new unit, and declare this new unit before any other unit of yours in the .dpr, that is, right after FMX.Forms.
@@ -378,7 +378,7 @@ Using Skia's Render, during the Scene of a Bitmap, Control or Form, it is possib
 
 ```pascal
 uses
-  Skia, Skia.FMX.Graphics;
+  System.Skia, FMX.Skia.Canvas;
 
 begin
   var LBitmap := TBitmap.Create(300, 300);
@@ -408,7 +408,7 @@ type
 implementation
 
 uses
-  Skia, Skia.FMX.Graphics;
+  System.Skia, FMX.Skia.Canvas;
 
 procedure TMyControl.Paint;
 begin
@@ -435,7 +435,7 @@ uses
   System.StartUpCopy,
   FMX.Forms,
   System.Classes,
-  Skia.FMX,
+  FMX.Skia,
   Unit1 in 'Unit1.pas' {Form1};
 
 {$R *.res}
@@ -462,7 +462,7 @@ program Project1;
 uses
   System.StartUpCopy,
   FMX.Forms,
-  Skia.FMX,
+  FMX.Skia,
   Unit1 in 'Unit1.pas' {Form1};
 
 {$R *.res}
@@ -552,13 +552,13 @@ _Note: The TSkPaintBox has a drawing caching system. To force a drawing refresh,
 
 ```pascal
   var LSvg := TSkSvg.Create(Self);
-  LSvg.Svg.Source := TFile.ReadAllText('Samples\Demo\Assets\gorilla.svg');
+  LSvg.Svg.Source := TFile.ReadAllText('Samples\Demo\Assets\panda.svg');
   LSvg.Parent := Self;
 ```
 
 The example above results in the output below:
 
-<p><img src="Samples/Demo/Assets/gorilla.svg" width="200" height="200" alt="Gorilla" /></p>
+<p><img src="Samples/Demo/Assets/panda.svg" width="200" height="200" alt="Panda" /></p>
 
 [Learn more...](Documents/SVG.md)
 
@@ -605,7 +605,7 @@ The APIs are very similar to Skia's, few methods and functions have been renamed
 
 # Version
 
-**[Skia4Delphi 6.0.0-beta4](/../../releases/latest)**
+**[Skia4Delphi 6.0.0-beta5](/../../releases/latest)**
 
 Skia Version used: [chrome/m107](https://github.com/google/skia/tree/chrome/m107)
 

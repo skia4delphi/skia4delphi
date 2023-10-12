@@ -1,3 +1,5 @@
+// Original source: https://shaders.skia.org/?id=@iMouse
+
 uniform float2 iResolution;
 uniform float2 iMouse;
 

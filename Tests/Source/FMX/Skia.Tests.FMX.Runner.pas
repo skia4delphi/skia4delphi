@@ -387,7 +387,7 @@ begin
     // Copy similarity hash
     if memFailTestMessage.Text.Contains(' (hash: ') then
     begin
-      LText := memFailTestMessage.Text.Split([' (hash: '], TStringSplitOptions.None)[1].Split(['). '], TStringSplitOptions.None)[0];
+      LText := memFailTestMessage.Text.Split([' (hash: '], TStringSplitOptions.None)[1].Split([').'], TStringSplitOptions.None)[0];
       LClipboardService.SetClipboard(LText);
       FMX.Types.Log.d('Similarity hash obtained: "%s"', [LText]);
     end

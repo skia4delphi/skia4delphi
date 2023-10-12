@@ -1,0 +1,12 @@
+// From: https://shaders.skia.org/?id=@iTime
+
+// The iTime uniform is always present and reports the
+// time that the shader has been running in milliseconds.
+
+uniform float iTime;
+uniform float4 iColor1;
+uniform float4 iColor2;
+
+half4 main(float2 fragCoord) {
+  return half4(mix(iColor1, iColor2, sin(iTime)).rgb, 1);
+}

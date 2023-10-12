@@ -16,8 +16,8 @@ interface
 
 uses
   { Delphi }
-  System.SysUtils, System.Types, System.Classes, FMX.Types, FMX.Controls,
-  FMX.Forms, FMX.StdCtrls, FMX.Layouts, FMX.Objects, System.IOUtils,
+  System.SysUtils, System.Types, System.UITypes, System.Classes, FMX.Types,
+  FMX.Controls, FMX.Forms, FMX.StdCtrls, FMX.Layouts, FMX.Objects, System.IOUtils,
   FMX.Controls.Presentation,
 
   { Skia }
@@ -31,16 +31,16 @@ type
     btnShaderWithMouse: TSpeedButton;
     lblShaderWithMouseTitle: TSkLabel;
     lblShaderWithMouseDescription: TSkLabel;
-    btnShaderAnimation: TSpeedButton;
-    lblShaderAnimationTitle: TSkLabel;
-    lblShaderAnimationDescription: TSkLabel;
-    btnWavesShaderAnimation: TSpeedButton;
-    lblWavesShaderAnimationTitle: TSkLabel;
-    lblWavesShaderAnimationDescription: TSkLabel;
+    btnStarNestShaderAnimation: TSpeedButton;
+    lblStarNestShaderAnimationTitle: TSkLabel;
+    lblStarNestShaderAnimationDescription: TSkLabel;
+    btnTimeVaryingShader: TSpeedButton;
+    lblTimeVaryingShaderTitle: TSkLabel;
+    lblTimeVaryingShaderDescription: TSkLabel;
     lytContentTopOffset: TLayout;
-    procedure btnShaderAnimationClick(Sender: TObject);
     procedure btnShaderWithMouseClick(Sender: TObject);
-    procedure btnWavesShaderAnimationClick(Sender: TObject);
+    procedure btnStarNestShaderAnimationClick(Sender: TObject);
+    procedure btnTimeVaryingShaderClick(Sender: TObject);
   public
     { Public declarations }
   end;
@@ -53,14 +53,51 @@ uses
 
 {$R *.fmx}
 
-procedure TfrmRuntimeEffects.btnShaderAnimationClick(Sender: TObject);
+procedure TfrmRuntimeEffects.btnShaderWithMouseClick(Sender: TObject);
 var
   LEffect: ISkRuntimeEffect;
   LEffectBuilder: ISkRuntimeShaderBuilder;
 begin
-  LEffect := TSkRuntimeEffect.MakeForShader(TFile.ReadAllText(AssetsPath + TPath.Combine('RuntimeEffects Shaders', 'rainbow-twister.sksl')));
+  LEffect := TSkRuntimeEffect.MakeForShader(TFile.ReadAllText(AssetsPath + TPath.Combine('RuntimeEffects Shaders',
+    'mouse.sksl')));
   LEffectBuilder := TSkRuntimeShaderBuilder.Create(LEffect);
-  ChildForm<TfrmAnimatedPaintBoxViewer>.Show('Shader Animation', 'Shader that varies with time (iTime uniform)',
+
+  ChildForm<TfrmAnimatedPaintBoxViewer>.OnMouseMove :=
+    procedure (const AX, AY: Single)
+    begin
+      LEffectBuilder.SetUniform('iMouse', PointF(AX, AY));
+    end;
+
+  ChildForm<TfrmAnimatedPaintBoxViewer>.Show('Shader with Mouse', 'Shader that varies with mouse position (iMouse ' +
+    'uniform)',
+    procedure (const ACanvas: ISkCanvas; const ADest: TRectF; const ASeconds: Double)
+    var
+      LPaint: ISkPaint;
+    begin
+      LEffectBuilder.SetUniform('iResolution', PointF(ADest.Width, ADest.Height));
+      LPaint := TSkPaint.Create;
+      LPaint.Shader := LEffectBuilder.MakeShader;
+      ACanvas.DrawPaint(LPaint);
+    end);
+end;
+
+procedure TfrmRuntimeEffects.btnStarNestShaderAnimationClick(Sender: TObject);
+var
+  LEffect: ISkRuntimeEffect;
+  LEffectBuilder: ISkRuntimeShaderBuilder;
+begin
+  LEffect := TSkRuntimeEffect.MakeForShader(TFile.ReadAllText(AssetsPath + TPath.Combine('RuntimeEffects Shaders',
+    'star-nest.sksl')));
+  LEffectBuilder := TSkRuntimeShaderBuilder.Create(LEffect);
+
+  ChildForm<TfrmAnimatedPaintBoxViewer>.OnMouseMove :=
+    procedure (const AX, AY: Single)
+    begin
+      LEffectBuilder.SetUniform('iMouse', PointF(AX, AY));
+    end;
+
+  ChildForm<TfrmAnimatedPaintBoxViewer>.Show('Star Nest Shader Animation', 'Shader that varies with time (iTime ' +
+    'uniform) and mouse position (iMouse uniform)',
     procedure (const ACanvas: ISkCanvas; const ADest: TRectF; const ASeconds: Double)
     var
       LPaint: ISkPaint;
@@ -73,45 +110,22 @@ begin
     end);
 end;
 
-procedure TfrmRuntimeEffects.btnShaderWithMouseClick(Sender: TObject);
+procedure TfrmRuntimeEffects.btnTimeVaryingShaderClick(Sender: TObject);
 var
   LEffect: ISkRuntimeEffect;
   LEffectBuilder: ISkRuntimeShaderBuilder;
 begin
-  LEffect := TSkRuntimeEffect.MakeForShader(TFile.ReadAllText(AssetsPath + TPath.Combine('RuntimeEffects Shaders', 'mouse.sksl')));
+  LEffect := TSkRuntimeEffect.MakeForShader(TFile.ReadAllText(AssetsPath + TPath.Combine('RuntimeEffects Shaders',
+    'time.sksl')));
   LEffectBuilder := TSkRuntimeShaderBuilder.Create(LEffect);
-
-  ChildForm<TfrmAnimatedPaintBoxViewer>.OnMouseMove :=
-    procedure (const AX, AY: Single)
-    begin
-      LEffectBuilder.SetUniform('iMouse', PointF(AX, AY));
-    end;
-
-  ChildForm<TfrmAnimatedPaintBoxViewer>.Show('Shader with Mouse', 'Shader that varies with mouse position (iMouse uniform)',
+  LEffectBuilder.SetUniform('iColor1', TAlphaColorF.Create($FFA22A2A));
+  LEffectBuilder.SetUniform('iColor2', TAlphaColorF.Create($FF187735));
+  ChildForm<TfrmAnimatedPaintBoxViewer>.Show('Time-varying Shader', 'Example of a simple shader varying the color ' +
+    'according to time (iTime uniform)',
     procedure (const ACanvas: ISkCanvas; const ADest: TRectF; const ASeconds: Double)
     var
       LPaint: ISkPaint;
     begin
-      LEffectBuilder.SetUniform('iResolution', PointF(ADest.Width, ADest.Height));
-      LPaint := TSkPaint.Create;
-      LPaint.Shader := LEffectBuilder.MakeShader;
-      ACanvas.DrawPaint(LPaint);
-    end);
-end;
-
-procedure TfrmRuntimeEffects.btnWavesShaderAnimationClick(Sender: TObject);
-var
-  LEffect: ISkRuntimeEffect;
-  LEffectBuilder: ISkRuntimeShaderBuilder;
-begin
-  LEffect := TSkRuntimeEffect.MakeForShader(TFile.ReadAllText(AssetsPath + TPath.Combine('RuntimeEffects Shaders', 'waves.sksl')));
-  LEffectBuilder := TSkRuntimeShaderBuilder.Create(LEffect);
-  ChildForm<TfrmAnimatedPaintBoxViewer>.Show('Waves Shader Animation', 'Shader that varies with time (iTime uniform)',
-    procedure (const ACanvas: ISkCanvas; const ADest: TRectF; const ASeconds: Double)
-    var
-      LPaint: ISkPaint;
-    begin
-      LEffectBuilder.SetUniform('iResolution', PointF(ADest.Width, ADest.Height));
       LEffectBuilder.SetUniform('iTime', ASeconds);
       LPaint := TSkPaint.Create;
       LPaint.Shader := LEffectBuilder.MakeShader;

@@ -1084,7 +1084,7 @@ type
     function GetParagraphBounds: TRectF;
     function GetText: string;
     function HasFitSizeChanged: Boolean;
-    procedure ParagraphLayout(const AWidth: Single);
+    procedure ParagraphLayout(AMaxWidth: Single);
     procedure SetAutoSize(const AValue: Boolean);
     procedure SetText(const AValue: string);
     procedure SetWords(const AValue: TWordsCollection);
@@ -1395,15 +1395,6 @@ type
   end;
   {$ENDIF}
 
-  {$IF CompilerVersion < 31}
-  { TSkCanvasHelper }
-
-  TSkCanvasHelper = class helper for TCanvas
-  public
-    function AlignToPixel(const ARect: TRectF): TRectF;
-  end;
-  {$ENDIF}
-
   {$IF CompilerVersion < 33}
   { TSkEpsilonHelper }
 
@@ -1495,18 +1486,6 @@ function SkPathToPathData(const ASkPath: ISkPath): TPathData;
 begin
   Result := TPathData.CreateFromSkPath(ASkPath);
 end;
-
-{$IF CompilerVersion < 31}
-{ TSkCanvasHelper }
-
-function TSkCanvasHelper.AlignToPixel(const ARect: TRectF): TRectF;
-begin
-  Result.Left := AlignToPixelHorizontally(ARect.Left);
-  Result.Top := AlignToPixelVertically(ARect.Top);
-  Result.Right := Result.Left + Round(ARect.Width * Scale) / Scale; // keep ratio horizontally
-  Result.Bottom := Result.Top + Round(ARect.Height * Scale) / Scale; // keep ratio vertically
-end;
-{$ENDIF}
 
 {$IF CompilerVersion < 32}
 { TSkRectFHelper }
@@ -1978,17 +1957,15 @@ var
   LAbsoluteBimapSize: TSize;
   LAbsoluteScale: TPointF;
   LAbsoluteSize: TSize;
-  LDestRect: TRectF;
   LExceededRatio: Single;
   LMaxBitmapSize: Integer;
   LSceneScale: Single;
 begin
   if (FDrawCacheKind <> TSkDrawCacheKind.Always) and (Canvas is TSkCanvasCustom) then
   begin
-    LDestRect := Canvas.AlignToPixel(LocalRect);
-    Draw(TSkCanvasCustom(Canvas).Canvas, LDestRect, AbsoluteOpacity);
+    Draw(TSkCanvasCustom(Canvas).Canvas, LocalRect, AbsoluteOpacity);
     if Assigned(FOnDraw) then
-      FOnDraw(Self, TSkCanvasCustom(Canvas).Canvas, LDestRect, AbsoluteOpacity);
+      FOnDraw(Self, TSkCanvasCustom(Canvas).Canvas, LocalRect, AbsoluteOpacity);
     FreeAndNil(FBuffer);
   end
   else
@@ -2024,19 +2001,19 @@ begin
         procedure(const ACanvas: ISkCanvas)
         var
           LAbsoluteScale: TPointF;
-          LDestRect: TRectF;
         begin
           ACanvas.Clear(TAlphaColors.Null);
           LAbsoluteScale := AbsoluteScale * LSceneScale / LExceededRatio;
           ACanvas.Concat(TMatrix.CreateScaling(LAbsoluteScale.X, LAbsoluteScale.Y));
-          LDestRect := RectF(0, 0, LAbsoluteBimapSize.Width / LAbsoluteScale.X, LAbsoluteBimapSize.Height / LAbsoluteScale.Y);
-          Draw(ACanvas, LDestRect, 1);
+          Draw(ACanvas, LocalRect, 1);
           if Assigned(FOnDraw) then
-            FOnDraw(Self, ACanvas, LDestRect, 1);
+            FOnDraw(Self, ACanvas, LocalRect, 1);
         end, False);
       FDrawCached := True;
     end;
-    Canvas.DrawBitmap(FBuffer, RectF(0, 0, FBuffer.Width, FBuffer.Height), Canvas.AlignToPixel(LocalRect), AbsoluteOpacity);
+    Canvas.DrawBitmap(FBuffer, RectF(0, 0, FBuffer.Width, FBuffer.Height),
+      RectF(0, 0, FBuffer.Width / (LAbsoluteScale.X * LSceneScale / LExceededRatio),
+      FBuffer.Height / (LAbsoluteScale.Y * LSceneScale / LExceededRatio)), AbsoluteOpacity);
   end;
 end;
 
@@ -2097,17 +2074,15 @@ var
   LAbsoluteBimapSize: TSize;
   LAbsoluteScale: TPointF;
   LAbsoluteSize: TSize;
-  LDestRect: TRectF;
   LExceededRatio: Single;
   LMaxBitmapSize: Integer;
   LSceneScale: Single;
 begin
   if (FDrawCacheKind <> TSkDrawCacheKind.Always) and (Canvas is TSkCanvasCustom) then
   begin
-    LDestRect := Canvas.AlignToPixel(LocalRect);
-    Draw(TSkCanvasCustom(Canvas).Canvas, LDestRect, AbsoluteOpacity);
+    Draw(TSkCanvasCustom(Canvas).Canvas, LocalRect, AbsoluteOpacity);
     if Assigned(FOnDraw) then
-      FOnDraw(Self, TSkCanvasCustom(Canvas).Canvas, LDestRect, AbsoluteOpacity);
+      FOnDraw(Self, TSkCanvasCustom(Canvas).Canvas, LocalRect, AbsoluteOpacity);
     FreeAndNil(FBuffer);
   end
   else
@@ -2117,7 +2092,8 @@ begin
     else
       LSceneScale := 1;
     LAbsoluteScale := AbsoluteScale;
-    LAbsoluteSize := TSize.Create(Ceil(Width * LAbsoluteScale.X * LSceneScale), Ceil(Height * LAbsoluteScale.Y * LSceneScale));
+    LAbsoluteSize := TSize.Create(Round(Width * LAbsoluteScale.X * LSceneScale),
+      Round(Height * LAbsoluteScale.Y * LSceneScale));
 
     LMaxBitmapSize := Canvas.GetAttribute(TCanvasAttribute.MaxBitmapSize);
     if (LAbsoluteSize.Width > LMaxBitmapSize) or (LAbsoluteSize.Height > LMaxBitmapSize) then
@@ -2143,19 +2119,19 @@ begin
         procedure(const ACanvas: ISkCanvas)
         var
           LAbsoluteScale: TPointF;
-          LDestRect: TRectF;
         begin
           ACanvas.Clear(TAlphaColors.Null);
           LAbsoluteScale := AbsoluteScale * LSceneScale / LExceededRatio;
           ACanvas.Concat(TMatrix.CreateScaling(LAbsoluteScale.X, LAbsoluteScale.Y));
-          LDestRect := RectF(0, 0, LAbsoluteBimapSize.Width / LAbsoluteScale.X, LAbsoluteBimapSize.Height / LAbsoluteScale.Y);
-          Draw(ACanvas, LDestRect, 1);
+          Draw(ACanvas, LocalRect, 1);
           if Assigned(FOnDraw) then
-            FOnDraw(Self, ACanvas, LDestRect, 1);
+            FOnDraw(Self, ACanvas, LocalRect, 1);
         end, False);
       FDrawCached := True;
     end;
-    Canvas.DrawBitmap(FBuffer, RectF(0, 0, FBuffer.Width, FBuffer.Height), Canvas.AlignToPixel(LocalRect), AbsoluteOpacity);
+    Canvas.DrawBitmap(FBuffer, RectF(0, 0, FBuffer.Width, FBuffer.Height),
+      RectF(0, 0, FBuffer.Width / (LAbsoluteScale.X * LSceneScale / LExceededRatio),
+      FBuffer.Height / (LAbsoluteScale.Y * LSceneScale / LExceededRatio)), AbsoluteOpacity);
   end;
 end;
 
@@ -2295,7 +2271,8 @@ end;
 procedure TSkSvgBrush.Render(const ACanvas: ISkCanvas; const ADestRect: TRectF;
   const AOpacity: Single);
 
-  function GetWrappedDest(const ADOM: ISkSVGDOM; const ASvgRect, ADestRect: TRectF; const AIntrinsicSize: TSizeF): TRectF;
+  function GetWrappedDest(const ADOM: ISkSVGDOM; const ASvgRect, ADestRect: TRectF;
+    const AIntrinsicSize: TSizeF): TRectF;
   var
     LRatio: Single;
   begin
@@ -2355,8 +2332,9 @@ procedure TSkSvgBrush.Render(const ACanvas: ISkCanvas; const ADestRect: TRectF;
     begin
       if AWrapMode <> TSkSvgWrapMode.Default then
       begin
-        ADOM.Root.Width  := TSkSVGLength.Create(AWrappedDest.Width,  TSkSVGLengthUnit.Pixel);
-        ADOM.Root.Height := TSkSVGLength.Create(AWrappedDest.Height, TSkSVGLengthUnit.Pixel);
+        LCanvas.Scale(AWrappedDest.Width / ASvgRect.Width, AWrappedDest.Height / ASvgRect.Height);
+        ADOM.Root.Width  := TSkSVGLength.Create(ASvgRect.Width,  TSkSVGLengthUnit.Pixel);
+        ADOM.Root.Height := TSkSVGLength.Create(ASvgRect.Height, TSkSVGLengthUnit.Pixel);
       end;
     end
     else
@@ -2412,8 +2390,9 @@ begin
           begin
             if FWrapMode <> TSkSvgWrapMode.Default then
             begin
-              LDOM.Root.Width  := TSkSVGLength.Create(LWrappedDest.Width,  TSkSVGLengthUnit.Pixel);
-              LDOM.Root.Height := TSkSVGLength.Create(LWrappedDest.Height, TSkSVGLengthUnit.Pixel);
+              ACanvas.Scale(LWrappedDest.Width / LSvgRect.Width, LWrappedDest.Height / LSvgRect.Height);
+              LDOM.Root.Width  := TSkSVGLength.Create(LSvgRect.Width,  TSkSVGLengthUnit.Pixel);
+              LDOM.Root.Height := TSkSVGLength.Create(LSvgRect.Height, TSkSVGLengthUnit.Pixel);
             end;
           end
           else
@@ -5392,7 +5371,7 @@ procedure TSkLabel.Draw(const ACanvas: ISkCanvas; const ADest: TRectF;
     for I := 0 to Length(LRects) - 1 do
     begin
       LPaint.Color := LRectsColor[I];
-      LCanvas.DrawRoundRect(Canvas.AlignToPixel(LRects[I]), 2, 2, LPaint);
+      LCanvas.DrawRoundRect(LRects[I], 2, 2, LPaint);
     end;
     Result := LPictureRecorder.FinishRecording;
   end;
@@ -5482,8 +5461,6 @@ begin
 end;
 
 procedure TSkLabel.GetFitSize(var AWidth, AHeight: Single);
-var
-  LFinalScale: TPointF;
 
   function GetFitHeight: Single;
   begin
@@ -5499,7 +5476,7 @@ var
       TAlignLayout.HorzCenter,
       TAlignLayout.Vertical: Result := AHeight;
     else
-      Result := Ceil(ParagraphBounds.Height * LFinalScale.Y) / LFinalScale.Y;
+      Result := ParagraphBounds.Height;
     end;
   end;
 
@@ -5515,23 +5492,14 @@ var
       TAlignLayout.VertCenter,
       TAlignLayout.Horizontal: Result := AWidth;
     else
-      Result := Ceil(ParagraphBounds.Width * LFinalScale.X) / LFinalScale.X;
+      Result := ParagraphBounds.Width;
     end;
-  end;
-
-  function GetFinalScale: TPointF;
-  begin
-    if Assigned(Scene) then
-      Result := AbsoluteScale * Scene.GetSceneScale
-    else
-      Result := AbsoluteScale;
   end;
 
 var
   LParagraph: ISkParagraph;
 begin
   LParagraph := Paragraph;
-  LFinalScale := GetFinalScale;
   if Assigned(LParagraph) then
   begin
     if Align in [TAlignLayout.Top, TAlignLayout.MostTop, TAlignLayout.Bottom,
@@ -5759,7 +5727,7 @@ function TSkLabel.GetParagraphBounds: TRectF;
   begin
     LParagraph := Paragraph;
     if Assigned(LParagraph) then
-      Result := RectF(0, 0, Ceil(LParagraph.MaxIntrinsicWidth), Ceil(LParagraph.Height))
+      Result := RectF(0, 0, LParagraph.MaxIntrinsicWidth, LParagraph.Height)
     else
       Result := TRectF.Empty;
   end;
@@ -5917,27 +5885,48 @@ begin
 end;
 
 function TSkLabel.NormalizeParagraphText(const AText: string): string;
+const
+  // Ideographic space is similar to tab character as it has the size of two white spaces usually
+  IdeographicSpace = Char($3000);
 begin
+  // Temporary solution for version m107, that have a know issue with tab character that are rendering as a square.
+  // https://github.com/skia4delphi/skia4delphi/issues/270
+  // https://issues.skia.org/issues/40043415
+  Result := AText.Replace(#09, IdeographicSpace);
+
   // Temporary solution to fix an issue with Skia:
   // https://bugs.chromium.org/p/skia/issues/detail?id=13117
   // SkParagraph has several issues with the #13 line break, so the best thing
   // to do is replace it with #10 or a zero-widh character (#8203)
-  Result := AText.Replace(#13#10, #8203#10).Replace(#13, #10);
+  Result := Result.Replace(#13#10, #8203#10).Replace(#13, #10);
 end;
 
-procedure TSkLabel.ParagraphLayout(const AWidth: Single);
+procedure TSkLabel.ParagraphLayout(AMaxWidth: Single);
+
+  function DoParagraphLayout(const AParagraph: ISkParagraph; AMaxWidth: Single): Single;
+  begin
+    if SameValue(AMaxWidth, 0, TEpsilon.Position) then
+      Result := AMaxWidth
+    else
+      // The SkParagraph.Layout calls a floor for the MaxWidth, so we should ceil it to force the original AMaxWidth
+      Result := Ceil(AMaxWidth + TEpsilon.Matrix);
+    AParagraph.Layout(Result);
+  end;
+
 var
+  LMaxWidthUsed: Single;
   LParagraph: ISkParagraph;
 begin
-  if not SameValue(FParagraphLayoutWidth, AWidth, TEpsilon.Position) then
+  AMaxWidth := Max(AMaxWidth, 0);
+  if not SameValue(FParagraphLayoutWidth, AMaxWidth, TEpsilon.Position) then
   begin
     LParagraph := Paragraph;
     if Assigned(LParagraph) then
     begin
-      LParagraph.Layout(AWidth);
+      LMaxWidthUsed := DoParagraphLayout(LParagraph, AMaxWidth);
       if Assigned(FParagraphStroked) then
-        FParagraphStroked.Layout(AWidth);
-      FParagraphLayoutWidth := AWidth;
+        FParagraphStroked.Layout(LMaxWidthUsed);
+      FParagraphLayoutWidth := AMaxWidth;
       FParagraphBounds := TRectF.Empty;
       FBackgroundPicture := nil;
     end;

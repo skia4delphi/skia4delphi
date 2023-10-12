@@ -40,14 +40,14 @@ type
     btnDelphi: TSpeedButton;
     lblDelphiTitle: TSkLabel;
     lblDelphiDescription: TSkLabel;
-    btnGorilla: TSpeedButton;
-    lblGorillaTitle: TSkLabel;
-    lblGorillaDescription: TSkLabel;
+    btnPanda: TSpeedButton;
+    lblPandaTitle: TSkLabel;
+    lblPandaDescription: TSkLabel;
     lytContentTopOffset: TLayout;
     procedure btnCustomColorClick(Sender: TObject);
     procedure btnDelphiClick(Sender: TObject);
     procedure btnEditingElementClick(Sender: TObject);
-    procedure btnGorillaClick(Sender: TObject);
+    procedure btnPandaClick(Sender: TObject);
     procedure btnTileWrapModeClick(Sender: TObject);
   public
     { Public declarations }
@@ -78,7 +78,7 @@ begin
       LSvgControl.Align := TAlignLayout.Client;
       if LOptions['Show original'] = False then
         LSvgControl.Svg.OverrideColor := TAlphaColors.Blueviolet;
-      LSvgControl.Svg.Source := TFile.ReadAllText(AssetsPath + 'tesla.svg');
+      LSvgControl.Svg.Source := TFile.ReadAllText(AssetsPath + 'bat.svg');
     end, TBackgroundKind.Chess, LOptions);
 end;
 
@@ -102,29 +102,29 @@ begin
   LOptions := TViewerOptions.Create;
   LOptions.AddBoolean('Show original', False);
 
-  ChildForm<TfrmControlViewer>.Show('Editing an SVG Element', 'Editing the eyes of the android svg to red color',
+  ChildForm<TfrmControlViewer>.Show('Editing an SVG Element', 'Editing the eyes of the lamb svg to red color',
     function (): TControl
     var
       LSvgControl: TSkSvg absolute Result;
     begin
       LSvgControl := TSkSvg.Create(nil);
       LSvgControl.Align := TAlignLayout.Client;
-      LSvgControl.Svg.Source := TFile.ReadAllText(AssetsPath + 'android.svg');
+      LSvgControl.Svg.Source := TFile.ReadAllText(AssetsPath + 'lamb.svg');
       if LOptions['Show original'] = False then
         LSvgControl.Svg.DOM.FindNodeById('eyes').TrySetAttribute('fill', 'red');
     end, TBackgroundKind.Chess, LOptions);
 end;
 
-procedure TfrmTSkSVG.btnGorillaClick(Sender: TObject);
+procedure TfrmTSkSVG.btnPandaClick(Sender: TObject);
 begin
-  ChildForm<TfrmControlViewer>.Show('gorilla.svg', '',
+  ChildForm<TfrmControlViewer>.Show('panda.svg', '',
     function (): TControl
     var
       LSvgControl: TSkSvg absolute Result;
     begin
       LSvgControl := TSkSvg.Create(nil);
       LSvgControl.Align := TAlignLayout.Client;
-      LSvgControl.Svg.Source := TFile.ReadAllText(AssetsPath + 'gorilla.svg');
+      LSvgControl.Svg.Source := TFile.ReadAllText(AssetsPath + 'panda.svg');
     end);
 end;
 
@@ -138,7 +138,7 @@ begin
       LSvgControl := TSkSvg.Create(nil);
       LSvgControl.Align := TAlignLayout.Client;
       LSvgControl.Svg.WrapMode := TSkSvgWrapMode.Tile;
-      LSvgControl.Svg.Source := TFile.ReadAllText(AssetsPath + 'anchors-away.svg');
+      LSvgControl.Svg.Source := TFile.ReadAllText(AssetsPath + 'carrots.svg');
     end, TBackgroundKind.Solid);
 end;
 

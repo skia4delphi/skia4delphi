@@ -57,7 +57,7 @@ uses
   System.Skia.API;
 
 const
-  SkVersion = '6.0.0-beta4';
+  SkVersion = '6.0.0-beta5';
 
 {$REGION 'FPC Compatibility'}
 {$IFDEF FPC}
@@ -1854,10 +1854,10 @@ type
     class function MakeFromEncoded(const ABytes: TBytes): ISkImage; overload; static;
     class function MakeFromEncodedFile(const AFileName: string): ISkImage; overload; static;
     class function MakeFromEncodedStream(const AStream: TStream): ISkImage; overload; static;
-    class function MakeFromPicture(const APicture: ISkPicture; const ADimensions: TSize; const APaint: ISkPaint = nil; AColorSpace: ISkColorSpace = nil): ISkImage; overload; static;
-    class function MakeFromPicture(const APicture: ISkPicture; const ADimensions: TSize; const AMatrix: TMatrix; const APaint: ISkPaint = nil; AColorSpace: ISkColorSpace = nil): ISkImage; overload; static;
-    class function MakeFromPicture(const APicture: ISkPicture; const ADimensions: TSize; const AProperties: TSkSurfaceProperties; const APaint: ISkPaint = nil; AColorSpace: ISkColorSpace = nil): ISkImage; overload; static;
-    class function MakeFromPicture(const APicture: ISkPicture; const ADimensions: TSize; const AMatrix: TMatrix; const AProperties: TSkSurfaceProperties; const APaint: ISkPaint = nil; AColorSpace: ISkColorSpace = nil): ISkImage; overload; static;
+    class function MakeFromPicture(const APicture: ISkPicture; const ADimensions: TSize; AColorSpace: ISkColorSpace; const APaint: ISkPaint = nil): ISkImage; overload; static;
+    class function MakeFromPicture(const APicture: ISkPicture; const ADimensions: TSize; AColorSpace: ISkColorSpace; const AMatrix: TMatrix; const APaint: ISkPaint = nil): ISkImage; overload; static;
+    class function MakeFromPicture(const APicture: ISkPicture; const ADimensions: TSize; AColorSpace: ISkColorSpace; const AProperties: TSkSurfaceProperties; const APaint: ISkPaint = nil): ISkImage; overload; static;
+    class function MakeFromPicture(const APicture: ISkPicture; const ADimensions: TSize; AColorSpace: ISkColorSpace; const AMatrix: TMatrix; const AProperties: TSkSurfaceProperties; const APaint: ISkPaint = nil): ISkImage; overload; static;
     class function MakeFromRaster(const APixmap: ISkPixmap; const ARasterReleaseProc: TSkImageRasterReleaseProc = nil): ISkImage; overload; static;
     class function MakeFromRaster(const AImageInfo: TSkImageInfo; const APixels: Pointer; const ARowBytes: NativeUInt; const ARasterReleaseProc: TSkImageRasterReleaseProc = nil): ISkImage; overload; static;
     class function MakeFromTexture(const AContext: IGrDirectContext; const ATexture: IGrBackendTexture; const AOrigin: TGrSurfaceOrigin; AColorType: TSkColorType; const AAlphaType: TSkAlphaType = TSkAlphaType.Premul; AColorSpace: ISkColorSpace = nil; const ATextureReleaseProc: TSkImageTextureReleaseProc = nil): ISkImage; static;
@@ -7748,45 +7748,50 @@ begin
 end;
 
 class function TSkImage.MakeFromPicture(const APicture: ISkPicture;
-  const ADimensions: TSize; const AMatrix: TMatrix;
-  const AProperties: TSkSurfaceProperties; const APaint: ISkPaint;
-  AColorSpace: ISkColorSpace): ISkImage;
+  const ADimensions: TSize; AColorSpace: ISkColorSpace; const AMatrix: TMatrix;
+  const AProperties: TSkSurfaceProperties; const APaint: ISkPaint): ISkImage;
 var
   LProperties: sk_surfaceprops_t;
 begin
   if not Assigned(APicture) then
     raise ESkArgumentException.CreateFmt(SParamIsNil, ['APicture']);
+  if not Assigned(AColorSpace) then
+    raise ESkArgumentException.CreateFmt(SParamIsNil, ['AColorSpace']);
   MapSurfaceProperties(AProperties, LProperties);
   Result := TSkBindings.SafeCreate<TSkImage>(sk4d_image_make_from_picture(APicture.Handle, @ADimensions, @AMatrix, TSkBindings.SafeHandle(APaint), TSkBindings.SafeHandle(AColorSpace), @LProperties));
 end;
 
 class function TSkImage.MakeFromPicture(const APicture: ISkPicture;
-  const ADimensions: TSize; const AProperties: TSkSurfaceProperties;
-  const APaint: ISkPaint; AColorSpace: ISkColorSpace): ISkImage;
+  const ADimensions: TSize; AColorSpace: ISkColorSpace; const AProperties: TSkSurfaceProperties;
+  const APaint: ISkPaint): ISkImage;
 var
   LProperties: sk_surfaceprops_t;
 begin
   if not Assigned(APicture) then
     raise ESkArgumentException.CreateFmt(SParamIsNil, ['APicture']);
+  if not Assigned(AColorSpace) then
+    raise ESkArgumentException.CreateFmt(SParamIsNil, ['AColorSpace']);
   MapSurfaceProperties(AProperties, LProperties);
   Result := TSkBindings.SafeCreate<TSkImage>(sk4d_image_make_from_picture(APicture.Handle, @ADimensions, nil, TSkBindings.SafeHandle(APaint), TSkBindings.SafeHandle(AColorSpace), @LProperties));
 end;
 
 class function TSkImage.MakeFromPicture(const APicture: ISkPicture;
-  const ADimensions: TSize; const APaint: ISkPaint;
-  AColorSpace: ISkColorSpace): ISkImage;
+  const ADimensions: TSize; AColorSpace: ISkColorSpace; const APaint: ISkPaint): ISkImage;
 begin
   if not Assigned(APicture) then
     raise ESkArgumentException.CreateFmt(SParamIsNil, ['APicture']);
+  if not Assigned(AColorSpace) then
+    raise ESkArgumentException.CreateFmt(SParamIsNil, ['AColorSpace']);
   Result := TSkBindings.SafeCreate<TSkImage>(sk4d_image_make_from_picture(APicture.Handle, @ADimensions, nil, TSkBindings.SafeHandle(APaint), TSkBindings.SafeHandle(AColorSpace), nil));
 end;
 
 class function TSkImage.MakeFromPicture(const APicture: ISkPicture;
-  const ADimensions: TSize; const AMatrix: TMatrix; const APaint: ISkPaint;
-  AColorSpace: ISkColorSpace): ISkImage;
+  const ADimensions: TSize; AColorSpace: ISkColorSpace; const AMatrix: TMatrix; const APaint: ISkPaint): ISkImage;
 begin
   if not Assigned(APicture) then
     raise ESkArgumentException.CreateFmt(SParamIsNil, ['APicture']);
+  if not Assigned(AColorSpace) then
+    raise ESkArgumentException.CreateFmt(SParamIsNil, ['AColorSpace']);
   Result := TSkBindings.SafeCreate<TSkImage>(sk4d_image_make_from_picture(APicture.Handle, @ADimensions, @AMatrix, TSkBindings.SafeHandle(APaint), TSkBindings.SafeHandle(AColorSpace), nil));
 end;
 

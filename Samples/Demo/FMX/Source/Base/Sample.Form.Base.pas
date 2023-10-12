@@ -155,7 +155,7 @@ begin
   // -   https://quality.embarcadero.com/browse/RSP-36959
   // -
   // - -------------------------------------------------------------------------
-  {$IF CompilerVersion > 35.0}
+  {$IF CompilerVersion > 36.0}
     {$MESSAGE WARN 'Check if the issue has been fixed'}
   {$ENDIF}
   // - -------------------------------------------------------------------------
@@ -221,7 +221,7 @@ begin
     for I := FCreatedFormsList.Count - 1 downto LFormIndex do
     begin
       FShowingFormsList.Remove(FCreatedFormsList[I]);
-      FCreatedFormsList[I].DisposeOf;
+      FCreatedFormsList[I].{$IF CompilerVersion <= 33}DisposeOf{$ELSE}Free{$ENDIF};
       FCreatedFormsList.Delete(I);
     end;
     FShowingFormsList.Last.rctContent.Enabled := True;

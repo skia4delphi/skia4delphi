@@ -1094,295 +1094,295 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\Assets\RuntimeEffects Shaders\rainbow-twister.sksl" Configuration="Debug" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\RuntimeEffects Shaders\star-nest.sksl" Configuration="Debug" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\RuntimeEffects Shaders</RemoteDir>
-                        <RemoteName>rainbow-twister.sksl</RemoteName>
+                        <RemoteName>star-nest.sksl</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="Android64">
                         <RemoteDir>assets\internal\RuntimeEffects Shaders</RemoteDir>
-                        <RemoteName>rainbow-twister.sksl</RemoteName>
+                        <RemoteName>star-nest.sksl</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="iOSDevice64">
                         <RemoteDir>StartUp\Documents\RuntimeEffects Shaders</RemoteDir>
-                        <RemoteName>rainbow-twister.sksl</RemoteName>
+                        <RemoteName>star-nest.sksl</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="iOSSimARM64">
                         <RemoteDir>StartUp\Documents\RuntimeEffects Shaders</RemoteDir>
-                        <RemoteName>rainbow-twister.sksl</RemoteName>
+                        <RemoteName>star-nest.sksl</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="Linux64">
                         <RemoteDir>.\RuntimeEffects Shaders</RemoteDir>
-                        <RemoteName>rainbow-twister.sksl</RemoteName>
+                        <RemoteName>star-nest.sksl</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="OSX64">
                         <RemoteDir>Contents\Resources\RuntimeEffects Shaders</RemoteDir>
-                        <RemoteName>rainbow-twister.sksl</RemoteName>
+                        <RemoteName>star-nest.sksl</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="OSXARM64">
                         <RemoteDir>Contents\Resources\RuntimeEffects Shaders</RemoteDir>
-                        <RemoteName>rainbow-twister.sksl</RemoteName>
+                        <RemoteName>star-nest.sksl</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\Assets\RuntimeEffects Shaders\rainbow-twister.sksl" Configuration="Release" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\RuntimeEffects Shaders\star-nest.sksl" Configuration="Release" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\RuntimeEffects Shaders</RemoteDir>
-                        <RemoteName>rainbow-twister.sksl</RemoteName>
+                        <RemoteName>star-nest.sksl</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="Android64">
                         <RemoteDir>assets\internal\RuntimeEffects Shaders</RemoteDir>
-                        <RemoteName>rainbow-twister.sksl</RemoteName>
+                        <RemoteName>star-nest.sksl</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="iOSDevice64">
                         <RemoteDir>StartUp\Documents\RuntimeEffects Shaders</RemoteDir>
-                        <RemoteName>rainbow-twister.sksl</RemoteName>
+                        <RemoteName>star-nest.sksl</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="iOSSimARM64">
                         <RemoteDir>StartUp\Documents\RuntimeEffects Shaders</RemoteDir>
-                        <RemoteName>rainbow-twister.sksl</RemoteName>
+                        <RemoteName>star-nest.sksl</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="Linux64">
                         <RemoteDir>.\RuntimeEffects Shaders</RemoteDir>
-                        <RemoteName>rainbow-twister.sksl</RemoteName>
+                        <RemoteName>star-nest.sksl</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="OSX64">
                         <RemoteDir>Contents\Resources\RuntimeEffects Shaders</RemoteDir>
-                        <RemoteName>rainbow-twister.sksl</RemoteName>
+                        <RemoteName>star-nest.sksl</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="OSXARM64">
                         <RemoteDir>Contents\Resources\RuntimeEffects Shaders</RemoteDir>
-                        <RemoteName>rainbow-twister.sksl</RemoteName>
+                        <RemoteName>star-nest.sksl</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\Assets\RuntimeEffects Shaders\waves.sksl" Configuration="Debug" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\RuntimeEffects Shaders\time.sksl" Configuration="Debug" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\RuntimeEffects Shaders</RemoteDir>
-                        <RemoteName>waves.sksl</RemoteName>
+                        <RemoteName>time.sksl</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="Android64">
                         <RemoteDir>assets\internal\RuntimeEffects Shaders</RemoteDir>
-                        <RemoteName>waves.sksl</RemoteName>
+                        <RemoteName>time.sksl</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="iOSDevice64">
                         <RemoteDir>StartUp\Documents\RuntimeEffects Shaders</RemoteDir>
-                        <RemoteName>waves.sksl</RemoteName>
+                        <RemoteName>time.sksl</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="iOSSimARM64">
                         <RemoteDir>StartUp\Documents\RuntimeEffects Shaders</RemoteDir>
-                        <RemoteName>waves.sksl</RemoteName>
+                        <RemoteName>time.sksl</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="Linux64">
                         <RemoteDir>.\RuntimeEffects Shaders</RemoteDir>
-                        <RemoteName>waves.sksl</RemoteName>
+                        <RemoteName>time.sksl</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="OSX64">
                         <RemoteDir>Contents\Resources\RuntimeEffects Shaders</RemoteDir>
-                        <RemoteName>waves.sksl</RemoteName>
+                        <RemoteName>time.sksl</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="OSXARM64">
                         <RemoteDir>Contents\Resources\RuntimeEffects Shaders</RemoteDir>
-                        <RemoteName>waves.sksl</RemoteName>
+                        <RemoteName>time.sksl</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\Assets\RuntimeEffects Shaders\waves.sksl" Configuration="Release" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\RuntimeEffects Shaders\time.sksl" Configuration="Release" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\RuntimeEffects Shaders</RemoteDir>
-                        <RemoteName>waves.sksl</RemoteName>
+                        <RemoteName>time.sksl</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="Android64">
                         <RemoteDir>assets\internal\RuntimeEffects Shaders</RemoteDir>
-                        <RemoteName>waves.sksl</RemoteName>
+                        <RemoteName>time.sksl</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="iOSDevice64">
                         <RemoteDir>StartUp\Documents\RuntimeEffects Shaders</RemoteDir>
-                        <RemoteName>waves.sksl</RemoteName>
+                        <RemoteName>time.sksl</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="iOSSimARM64">
                         <RemoteDir>StartUp\Documents\RuntimeEffects Shaders</RemoteDir>
-                        <RemoteName>waves.sksl</RemoteName>
+                        <RemoteName>time.sksl</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="Linux64">
                         <RemoteDir>.\RuntimeEffects Shaders</RemoteDir>
-                        <RemoteName>waves.sksl</RemoteName>
+                        <RemoteName>time.sksl</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="OSX64">
                         <RemoteDir>Contents\Resources\RuntimeEffects Shaders</RemoteDir>
-                        <RemoteName>waves.sksl</RemoteName>
+                        <RemoteName>time.sksl</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="OSXARM64">
                         <RemoteDir>Contents\Resources\RuntimeEffects Shaders</RemoteDir>
-                        <RemoteName>waves.sksl</RemoteName>
+                        <RemoteName>time.sksl</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\Assets\anchors-away.svg" Configuration="Debug" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\carrots.svg" Configuration="Debug" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\</RemoteDir>
-                        <RemoteName>anchors-away.svg</RemoteName>
+                        <RemoteName>carrots.svg</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="Android64">
                         <RemoteDir>assets\internal\</RemoteDir>
-                        <RemoteName>anchors-away.svg</RemoteName>
+                        <RemoteName>carrots.svg</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="iOSDevice64">
                         <RemoteDir>StartUp\Documents\</RemoteDir>
-                        <RemoteName>anchors-away.svg</RemoteName>
+                        <RemoteName>carrots.svg</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="iOSSimARM64">
                         <RemoteDir>StartUp\Documents\</RemoteDir>
-                        <RemoteName>anchors-away.svg</RemoteName>
+                        <RemoteName>carrots.svg</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="Linux64">
-                        <RemoteName>anchors-away.svg</RemoteName>
+                        <RemoteName>carrots.svg</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="OSX64">
                         <RemoteDir>Contents\Resources\</RemoteDir>
-                        <RemoteName>anchors-away.svg</RemoteName>
+                        <RemoteName>carrots.svg</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="OSXARM64">
                         <RemoteDir>Contents\Resources\</RemoteDir>
-                        <RemoteName>anchors-away.svg</RemoteName>
+                        <RemoteName>carrots.svg</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\Assets\anchors-away.svg" Configuration="Release" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\carrots.svg" Configuration="Release" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\</RemoteDir>
-                        <RemoteName>anchors-away.svg</RemoteName>
+                        <RemoteName>carrots.svg</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="Android64">
                         <RemoteDir>assets\internal\</RemoteDir>
-                        <RemoteName>anchors-away.svg</RemoteName>
+                        <RemoteName>carrots.svg</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="iOSDevice64">
                         <RemoteDir>StartUp\Documents\</RemoteDir>
-                        <RemoteName>anchors-away.svg</RemoteName>
+                        <RemoteName>carrots.svg</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="iOSSimARM64">
                         <RemoteDir>StartUp\Documents\</RemoteDir>
-                        <RemoteName>anchors-away.svg</RemoteName>
+                        <RemoteName>carrots.svg</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="Linux64">
-                        <RemoteName>anchors-away.svg</RemoteName>
+                        <RemoteName>carrots.svg</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="OSX64">
                         <RemoteDir>Contents\Resources\</RemoteDir>
-                        <RemoteName>anchors-away.svg</RemoteName>
+                        <RemoteName>carrots.svg</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="OSXARM64">
                         <RemoteDir>Contents\Resources\</RemoteDir>
-                        <RemoteName>anchors-away.svg</RemoteName>
+                        <RemoteName>carrots.svg</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\Assets\android.svg" Configuration="Debug" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\lamb.svg" Configuration="Debug" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\</RemoteDir>
-                        <RemoteName>android.svg</RemoteName>
+                        <RemoteName>lamb.svg</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="Android64">
                         <RemoteDir>assets\internal\</RemoteDir>
-                        <RemoteName>android.svg</RemoteName>
+                        <RemoteName>lamb.svg</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="iOSDevice64">
                         <RemoteDir>StartUp\Documents\</RemoteDir>
-                        <RemoteName>android.svg</RemoteName>
+                        <RemoteName>lamb.svg</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="iOSSimARM64">
                         <RemoteDir>StartUp\Documents\</RemoteDir>
-                        <RemoteName>android.svg</RemoteName>
+                        <RemoteName>lamb.svg</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="Linux64">
-                        <RemoteName>android.svg</RemoteName>
+                        <RemoteName>lamb.svg</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="OSX64">
                         <RemoteDir>Contents\Resources\</RemoteDir>
-                        <RemoteName>android.svg</RemoteName>
+                        <RemoteName>lamb.svg</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="OSXARM64">
                         <RemoteDir>Contents\Resources\</RemoteDir>
-                        <RemoteName>android.svg</RemoteName>
+                        <RemoteName>lamb.svg</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\Assets\android.svg" Configuration="Release" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\lamb.svg" Configuration="Release" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\</RemoteDir>
-                        <RemoteName>android.svg</RemoteName>
+                        <RemoteName>lamb.svg</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="Android64">
                         <RemoteDir>assets\internal\</RemoteDir>
-                        <RemoteName>android.svg</RemoteName>
+                        <RemoteName>lamb.svg</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="iOSDevice64">
                         <RemoteDir>StartUp\Documents\</RemoteDir>
-                        <RemoteName>android.svg</RemoteName>
+                        <RemoteName>lamb.svg</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="iOSSimARM64">
                         <RemoteDir>StartUp\Documents\</RemoteDir>
-                        <RemoteName>android.svg</RemoteName>
+                        <RemoteName>lamb.svg</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="Linux64">
-                        <RemoteName>android.svg</RemoteName>
+                        <RemoteName>lamb.svg</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="OSX64">
                         <RemoteDir>Contents\Resources\</RemoteDir>
-                        <RemoteName>android.svg</RemoteName>
+                        <RemoteName>lamb.svg</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="OSXARM64">
                         <RemoteDir>Contents\Resources\</RemoteDir>
-                        <RemoteName>android.svg</RemoteName>
+                        <RemoteName>lamb.svg</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
@@ -1674,147 +1674,147 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\Assets\deck-card-back.png" Configuration="Debug" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\deck-card-back.webp" Configuration="Debug" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\</RemoteDir>
-                        <RemoteName>deck-card-back.png</RemoteName>
+                        <RemoteName>deck-card-back.webp</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="Android64">
                         <RemoteDir>assets\internal\</RemoteDir>
-                        <RemoteName>deck-card-back.png</RemoteName>
+                        <RemoteName>deck-card-back.webp</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="iOSDevice64">
                         <RemoteDir>StartUp\Documents\</RemoteDir>
-                        <RemoteName>deck-card-back.png</RemoteName>
+                        <RemoteName>deck-card-back.webp</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="iOSSimARM64">
                         <RemoteDir>StartUp\Documents\</RemoteDir>
-                        <RemoteName>deck-card-back.png</RemoteName>
+                        <RemoteName>deck-card-back.webp</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="Linux64">
-                        <RemoteName>deck-card-back.png</RemoteName>
+                        <RemoteName>deck-card-back.webp</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="OSX64">
                         <RemoteDir>Contents\Resources\</RemoteDir>
-                        <RemoteName>deck-card-back.png</RemoteName>
+                        <RemoteName>deck-card-back.webp</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="OSXARM64">
                         <RemoteDir>Contents\Resources\</RemoteDir>
-                        <RemoteName>deck-card-back.png</RemoteName>
+                        <RemoteName>deck-card-back.webp</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\Assets\deck-card-back.png" Configuration="Release" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\deck-card-back.webp" Configuration="Release" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\</RemoteDir>
-                        <RemoteName>deck-card-back.png</RemoteName>
+                        <RemoteName>deck-card-back.webp</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="Android64">
                         <RemoteDir>assets\internal\</RemoteDir>
-                        <RemoteName>deck-card-back.png</RemoteName>
+                        <RemoteName>deck-card-back.webp</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="iOSDevice64">
                         <RemoteDir>StartUp\Documents\</RemoteDir>
-                        <RemoteName>deck-card-back.png</RemoteName>
+                        <RemoteName>deck-card-back.webp</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="iOSSimARM64">
                         <RemoteDir>StartUp\Documents\</RemoteDir>
-                        <RemoteName>deck-card-back.png</RemoteName>
+                        <RemoteName>deck-card-back.webp</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="Linux64">
-                        <RemoteName>deck-card-back.png</RemoteName>
+                        <RemoteName>deck-card-back.webp</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="OSX64">
                         <RemoteDir>Contents\Resources\</RemoteDir>
-                        <RemoteName>deck-card-back.png</RemoteName>
+                        <RemoteName>deck-card-back.webp</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="OSXARM64">
                         <RemoteDir>Contents\Resources\</RemoteDir>
-                        <RemoteName>deck-card-back.png</RemoteName>
+                        <RemoteName>deck-card-back.webp</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\Assets\deck-card-front.png" Configuration="Debug" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\deck-card-front.webp" Configuration="Debug" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\</RemoteDir>
-                        <RemoteName>deck-card-front.png</RemoteName>
+                        <RemoteName>deck-card-front.webp</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="Android64">
                         <RemoteDir>assets\internal\</RemoteDir>
-                        <RemoteName>deck-card-front.png</RemoteName>
+                        <RemoteName>deck-card-front.webp</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="iOSDevice64">
                         <RemoteDir>StartUp\Documents\</RemoteDir>
-                        <RemoteName>deck-card-front.png</RemoteName>
+                        <RemoteName>deck-card-front.webp</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="iOSSimARM64">
                         <RemoteDir>StartUp\Documents\</RemoteDir>
-                        <RemoteName>deck-card-front.png</RemoteName>
+                        <RemoteName>deck-card-front.webp</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="Linux64">
-                        <RemoteName>deck-card-front.png</RemoteName>
+                        <RemoteName>deck-card-front.webp</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="OSX64">
                         <RemoteDir>Contents\Resources\</RemoteDir>
-                        <RemoteName>deck-card-front.png</RemoteName>
+                        <RemoteName>deck-card-front.webp</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="OSXARM64">
                         <RemoteDir>Contents\Resources\</RemoteDir>
-                        <RemoteName>deck-card-front.png</RemoteName>
+                        <RemoteName>deck-card-front.webp</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\Assets\deck-card-front.png" Configuration="Release" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\deck-card-front.webp" Configuration="Release" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\</RemoteDir>
-                        <RemoteName>deck-card-front.png</RemoteName>
+                        <RemoteName>deck-card-front.webp</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="Android64">
                         <RemoteDir>assets\internal\</RemoteDir>
-                        <RemoteName>deck-card-front.png</RemoteName>
+                        <RemoteName>deck-card-front.webp</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="iOSDevice64">
                         <RemoteDir>StartUp\Documents\</RemoteDir>
-                        <RemoteName>deck-card-front.png</RemoteName>
+                        <RemoteName>deck-card-front.webp</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="iOSSimARM64">
                         <RemoteDir>StartUp\Documents\</RemoteDir>
-                        <RemoteName>deck-card-front.png</RemoteName>
+                        <RemoteName>deck-card-front.webp</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="Linux64">
-                        <RemoteName>deck-card-front.png</RemoteName>
+                        <RemoteName>deck-card-front.webp</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="OSX64">
                         <RemoteDir>Contents\Resources\</RemoteDir>
-                        <RemoteName>deck-card-front.png</RemoteName>
+                        <RemoteName>deck-card-front.webp</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="OSXARM64">
                         <RemoteDir>Contents\Resources\</RemoteDir>
-                        <RemoteName>deck-card-front.png</RemoteName>
+                        <RemoteName>deck-card-front.webp</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
@@ -1890,291 +1890,291 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\Assets\gorilla.svg" Configuration="Debug" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\panda.svg" Configuration="Debug" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\</RemoteDir>
-                        <RemoteName>gorilla.svg</RemoteName>
+                        <RemoteName>panda.svg</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="Android64">
                         <RemoteDir>assets\internal\</RemoteDir>
-                        <RemoteName>gorilla.svg</RemoteName>
+                        <RemoteName>panda.svg</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="iOSDevice64">
                         <RemoteDir>StartUp\Documents\</RemoteDir>
-                        <RemoteName>gorilla.svg</RemoteName>
+                        <RemoteName>panda.svg</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="iOSSimARM64">
                         <RemoteDir>StartUp\Documents\</RemoteDir>
-                        <RemoteName>gorilla.svg</RemoteName>
+                        <RemoteName>panda.svg</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="Linux64">
-                        <RemoteName>gorilla.svg</RemoteName>
+                        <RemoteName>panda.svg</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="OSX64">
                         <RemoteDir>Contents\Resources\</RemoteDir>
-                        <RemoteName>gorilla.svg</RemoteName>
+                        <RemoteName>panda.svg</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="OSXARM64">
                         <RemoteDir>Contents\Resources\</RemoteDir>
-                        <RemoteName>gorilla.svg</RemoteName>
+                        <RemoteName>panda.svg</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\Assets\gorilla.svg" Configuration="Release" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\panda.svg" Configuration="Release" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\</RemoteDir>
-                        <RemoteName>gorilla.svg</RemoteName>
+                        <RemoteName>panda.svg</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="Android64">
                         <RemoteDir>assets\internal\</RemoteDir>
-                        <RemoteName>gorilla.svg</RemoteName>
+                        <RemoteName>panda.svg</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="iOSDevice64">
                         <RemoteDir>StartUp\Documents\</RemoteDir>
-                        <RemoteName>gorilla.svg</RemoteName>
+                        <RemoteName>panda.svg</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="iOSSimARM64">
                         <RemoteDir>StartUp\Documents\</RemoteDir>
-                        <RemoteName>gorilla.svg</RemoteName>
+                        <RemoteName>panda.svg</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="Linux64">
-                        <RemoteName>gorilla.svg</RemoteName>
+                        <RemoteName>panda.svg</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="OSX64">
                         <RemoteDir>Contents\Resources\</RemoteDir>
-                        <RemoteName>gorilla.svg</RemoteName>
+                        <RemoteName>panda.svg</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="OSXARM64">
                         <RemoteDir>Contents\Resources\</RemoteDir>
-                        <RemoteName>gorilla.svg</RemoteName>
+                        <RemoteName>panda.svg</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\Assets\kung-fu-panda.png" Configuration="Debug" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\golden-pheasant.png" Configuration="Debug" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\</RemoteDir>
-                        <RemoteName>kung-fu-panda.png</RemoteName>
+                        <RemoteName>golden-pheasant.png</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="Android64">
                         <RemoteDir>assets\internal\</RemoteDir>
-                        <RemoteName>kung-fu-panda.png</RemoteName>
+                        <RemoteName>golden-pheasant.png</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="iOSDevice64">
                         <RemoteDir>StartUp\Documents\</RemoteDir>
-                        <RemoteName>kung-fu-panda.png</RemoteName>
+                        <RemoteName>golden-pheasant.png</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="iOSSimARM64">
                         <RemoteDir>StartUp\Documents\</RemoteDir>
-                        <RemoteName>kung-fu-panda.png</RemoteName>
+                        <RemoteName>golden-pheasant.png</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="Linux64">
-                        <RemoteName>kung-fu-panda.png</RemoteName>
+                        <RemoteName>golden-pheasant.png</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="OSX64">
                         <RemoteDir>Contents\Resources\</RemoteDir>
-                        <RemoteName>kung-fu-panda.png</RemoteName>
+                        <RemoteName>golden-pheasant.png</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="OSXARM64">
                         <RemoteDir>Contents\Resources\</RemoteDir>
-                        <RemoteName>kung-fu-panda.png</RemoteName>
+                        <RemoteName>golden-pheasant.png</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\Assets\kung-fu-panda.png" Configuration="Release" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\golden-pheasant.png" Configuration="Release" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\</RemoteDir>
-                        <RemoteName>kung-fu-panda.png</RemoteName>
+                        <RemoteName>golden-pheasant.png</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="Android64">
                         <RemoteDir>assets\internal\</RemoteDir>
-                        <RemoteName>kung-fu-panda.png</RemoteName>
+                        <RemoteName>golden-pheasant.png</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="iOSDevice64">
                         <RemoteDir>StartUp\Documents\</RemoteDir>
-                        <RemoteName>kung-fu-panda.png</RemoteName>
+                        <RemoteName>golden-pheasant.png</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="iOSSimARM64">
                         <RemoteDir>StartUp\Documents\</RemoteDir>
-                        <RemoteName>kung-fu-panda.png</RemoteName>
+                        <RemoteName>golden-pheasant.png</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="Linux64">
-                        <RemoteName>kung-fu-panda.png</RemoteName>
+                        <RemoteName>golden-pheasant.png</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="OSX64">
                         <RemoteDir>Contents\Resources\</RemoteDir>
-                        <RemoteName>kung-fu-panda.png</RemoteName>
+                        <RemoteName>golden-pheasant.png</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="OSXARM64">
                         <RemoteDir>Contents\Resources\</RemoteDir>
-                        <RemoteName>kung-fu-panda.png</RemoteName>
+                        <RemoteName>golden-pheasant.png</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\Assets\kung-fu-panda.webp" Configuration="Debug" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\golden-pheasant.webp" Configuration="Debug" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\</RemoteDir>
-                        <RemoteName>kung-fu-panda.webp</RemoteName>
+                        <RemoteName>golden-pheasant.webp</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="Android64">
                         <RemoteDir>assets\internal\</RemoteDir>
-                        <RemoteName>kung-fu-panda.webp</RemoteName>
+                        <RemoteName>golden-pheasant.webp</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="iOSDevice64">
                         <RemoteDir>StartUp\Documents\</RemoteDir>
-                        <RemoteName>kung-fu-panda.webp</RemoteName>
+                        <RemoteName>golden-pheasant.webp</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="iOSSimARM64">
                         <RemoteDir>StartUp\Documents\</RemoteDir>
-                        <RemoteName>kung-fu-panda.webp</RemoteName>
+                        <RemoteName>golden-pheasant.webp</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="Linux64">
-                        <RemoteName>kung-fu-panda.webp</RemoteName>
+                        <RemoteName>golden-pheasant.webp</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="OSX64">
                         <RemoteDir>Contents\Resources\</RemoteDir>
-                        <RemoteName>kung-fu-panda.webp</RemoteName>
+                        <RemoteName>golden-pheasant.webp</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="OSXARM64">
                         <RemoteDir>Contents\Resources\</RemoteDir>
-                        <RemoteName>kung-fu-panda.webp</RemoteName>
+                        <RemoteName>golden-pheasant.webp</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\Assets\kung-fu-panda.webp" Configuration="Release" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\golden-pheasant.webp" Configuration="Release" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\</RemoteDir>
-                        <RemoteName>kung-fu-panda.webp</RemoteName>
+                        <RemoteName>golden-pheasant.webp</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="Android64">
                         <RemoteDir>assets\internal\</RemoteDir>
-                        <RemoteName>kung-fu-panda.webp</RemoteName>
+                        <RemoteName>golden-pheasant.webp</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="iOSDevice64">
                         <RemoteDir>StartUp\Documents\</RemoteDir>
-                        <RemoteName>kung-fu-panda.webp</RemoteName>
+                        <RemoteName>golden-pheasant.webp</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="iOSSimARM64">
                         <RemoteDir>StartUp\Documents\</RemoteDir>
-                        <RemoteName>kung-fu-panda.webp</RemoteName>
+                        <RemoteName>golden-pheasant.webp</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="Linux64">
-                        <RemoteName>kung-fu-panda.webp</RemoteName>
+                        <RemoteName>golden-pheasant.webp</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="OSX64">
                         <RemoteDir>Contents\Resources\</RemoteDir>
-                        <RemoteName>kung-fu-panda.webp</RemoteName>
+                        <RemoteName>golden-pheasant.webp</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="OSXARM64">
                         <RemoteDir>Contents\Resources\</RemoteDir>
-                        <RemoteName>kung-fu-panda.webp</RemoteName>
+                        <RemoteName>golden-pheasant.webp</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\Assets\lion.svg" Configuration="Debug" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\knight.svg" Configuration="Debug" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\</RemoteDir>
-                        <RemoteName>lion.svg</RemoteName>
+                        <RemoteName>knight.svg</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="Android64">
                         <RemoteDir>assets\internal\</RemoteDir>
-                        <RemoteName>lion.svg</RemoteName>
+                        <RemoteName>knight.svg</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="iOSDevice64">
                         <RemoteDir>StartUp\Documents\</RemoteDir>
-                        <RemoteName>lion.svg</RemoteName>
+                        <RemoteName>knight.svg</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="iOSSimARM64">
                         <RemoteDir>StartUp\Documents\</RemoteDir>
-                        <RemoteName>lion.svg</RemoteName>
+                        <RemoteName>knight.svg</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="Linux64">
-                        <RemoteName>lion.svg</RemoteName>
+                        <RemoteName>knight.svg</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="OSX64">
                         <RemoteDir>Contents\Resources\</RemoteDir>
-                        <RemoteName>lion.svg</RemoteName>
+                        <RemoteName>knight.svg</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="OSXARM64">
                         <RemoteDir>Contents\Resources\</RemoteDir>
-                        <RemoteName>lion.svg</RemoteName>
+                        <RemoteName>knight.svg</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\Assets\lion.svg" Configuration="Release" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\knight.svg" Configuration="Release" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\</RemoteDir>
-                        <RemoteName>lion.svg</RemoteName>
+                        <RemoteName>knight.svg</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="Android64">
                         <RemoteDir>assets\internal\</RemoteDir>
-                        <RemoteName>lion.svg</RemoteName>
+                        <RemoteName>knight.svg</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="iOSDevice64">
                         <RemoteDir>StartUp\Documents\</RemoteDir>
-                        <RemoteName>lion.svg</RemoteName>
+                        <RemoteName>knight.svg</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="iOSSimARM64">
                         <RemoteDir>StartUp\Documents\</RemoteDir>
-                        <RemoteName>lion.svg</RemoteName>
+                        <RemoteName>knight.svg</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="Linux64">
-                        <RemoteName>lion.svg</RemoteName>
+                        <RemoteName>knight.svg</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="OSX64">
                         <RemoteDir>Contents\Resources\</RemoteDir>
-                        <RemoteName>lion.svg</RemoteName>
+                        <RemoteName>knight.svg</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="OSXARM64">
                         <RemoteDir>Contents\Resources\</RemoteDir>
-                        <RemoteName>lion.svg</RemoteName>
+                        <RemoteName>knight.svg</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
@@ -3042,75 +3042,75 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\Assets\simpsons.webp" Configuration="Debug" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\prehistoric.webp" Configuration="Debug" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\</RemoteDir>
-                        <RemoteName>simpsons.webp</RemoteName>
+                        <RemoteName>prehistoric.webp</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="Android64">
                         <RemoteDir>assets\internal\</RemoteDir>
-                        <RemoteName>simpsons.webp</RemoteName>
+                        <RemoteName>prehistoric.webp</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="iOSDevice64">
                         <RemoteDir>StartUp\Documents\</RemoteDir>
-                        <RemoteName>simpsons.webp</RemoteName>
+                        <RemoteName>prehistoric.webp</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="iOSSimARM64">
                         <RemoteDir>StartUp\Documents\</RemoteDir>
-                        <RemoteName>simpsons.webp</RemoteName>
+                        <RemoteName>prehistoric.webp</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="Linux64">
-                        <RemoteName>simpsons.webp</RemoteName>
+                        <RemoteName>prehistoric.webp</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="OSX64">
                         <RemoteDir>Contents\Resources\</RemoteDir>
-                        <RemoteName>simpsons.webp</RemoteName>
+                        <RemoteName>prehistoric.webp</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="OSXARM64">
                         <RemoteDir>Contents\Resources\</RemoteDir>
-                        <RemoteName>simpsons.webp</RemoteName>
+                        <RemoteName>prehistoric.webp</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\Assets\simpsons.webp" Configuration="Release" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\prehistoric.webp" Configuration="Release" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\</RemoteDir>
-                        <RemoteName>simpsons.webp</RemoteName>
+                        <RemoteName>prehistoric.webp</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="Android64">
                         <RemoteDir>assets\internal\</RemoteDir>
-                        <RemoteName>simpsons.webp</RemoteName>
+                        <RemoteName>prehistoric.webp</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="iOSDevice64">
                         <RemoteDir>StartUp\Documents\</RemoteDir>
-                        <RemoteName>simpsons.webp</RemoteName>
+                        <RemoteName>prehistoric.webp</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="iOSSimARM64">
                         <RemoteDir>StartUp\Documents\</RemoteDir>
-                        <RemoteName>simpsons.webp</RemoteName>
+                        <RemoteName>prehistoric.webp</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="Linux64">
-                        <RemoteName>simpsons.webp</RemoteName>
+                        <RemoteName>prehistoric.webp</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="OSX64">
                         <RemoteDir>Contents\Resources\</RemoteDir>
-                        <RemoteName>simpsons.webp</RemoteName>
+                        <RemoteName>prehistoric.webp</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="OSXARM64">
                         <RemoteDir>Contents\Resources\</RemoteDir>
-                        <RemoteName>simpsons.webp</RemoteName>
+                        <RemoteName>prehistoric.webp</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
@@ -3186,147 +3186,147 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\Assets\tesla.svg" Configuration="Debug" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\bat.svg" Configuration="Debug" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\</RemoteDir>
-                        <RemoteName>tesla.svg</RemoteName>
+                        <RemoteName>bat.svg</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="Android64">
                         <RemoteDir>assets\internal\</RemoteDir>
-                        <RemoteName>tesla.svg</RemoteName>
+                        <RemoteName>bat.svg</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="iOSDevice64">
                         <RemoteDir>StartUp\Documents\</RemoteDir>
-                        <RemoteName>tesla.svg</RemoteName>
+                        <RemoteName>bat.svg</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="iOSSimARM64">
                         <RemoteDir>StartUp\Documents\</RemoteDir>
-                        <RemoteName>tesla.svg</RemoteName>
+                        <RemoteName>bat.svg</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="Linux64">
-                        <RemoteName>tesla.svg</RemoteName>
+                        <RemoteName>bat.svg</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="OSX64">
                         <RemoteDir>Contents\Resources\</RemoteDir>
-                        <RemoteName>tesla.svg</RemoteName>
+                        <RemoteName>bat.svg</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="OSXARM64">
                         <RemoteDir>Contents\Resources\</RemoteDir>
-                        <RemoteName>tesla.svg</RemoteName>
+                        <RemoteName>bat.svg</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\Assets\tesla.svg" Configuration="Release" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\bat.svg" Configuration="Release" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\</RemoteDir>
-                        <RemoteName>tesla.svg</RemoteName>
+                        <RemoteName>bat.svg</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="Android64">
                         <RemoteDir>assets\internal\</RemoteDir>
-                        <RemoteName>tesla.svg</RemoteName>
+                        <RemoteName>bat.svg</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="iOSDevice64">
                         <RemoteDir>StartUp\Documents\</RemoteDir>
-                        <RemoteName>tesla.svg</RemoteName>
+                        <RemoteName>bat.svg</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="iOSSimARM64">
                         <RemoteDir>StartUp\Documents\</RemoteDir>
-                        <RemoteName>tesla.svg</RemoteName>
+                        <RemoteName>bat.svg</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="Linux64">
-                        <RemoteName>tesla.svg</RemoteName>
+                        <RemoteName>bat.svg</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="OSX64">
                         <RemoteDir>Contents\Resources\</RemoteDir>
-                        <RemoteName>tesla.svg</RemoteName>
+                        <RemoteName>bat.svg</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="OSXARM64">
                         <RemoteDir>Contents\Resources\</RemoteDir>
-                        <RemoteName>tesla.svg</RemoteName>
+                        <RemoteName>bat.svg</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\Assets\toy-story.jpg" Configuration="Debug" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\wolf.webp" Configuration="Debug" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\</RemoteDir>
-                        <RemoteName>toy-story.jpg</RemoteName>
+                        <RemoteName>wolf.webp</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="Android64">
                         <RemoteDir>assets\internal\</RemoteDir>
-                        <RemoteName>toy-story.jpg</RemoteName>
+                        <RemoteName>wolf.webp</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="iOSDevice64">
                         <RemoteDir>StartUp\Documents\</RemoteDir>
-                        <RemoteName>toy-story.jpg</RemoteName>
+                        <RemoteName>wolf.webp</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="iOSSimARM64">
                         <RemoteDir>StartUp\Documents\</RemoteDir>
-                        <RemoteName>toy-story.jpg</RemoteName>
+                        <RemoteName>wolf.webp</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="Linux64">
-                        <RemoteName>toy-story.jpg</RemoteName>
+                        <RemoteName>wolf.webp</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="OSX64">
                         <RemoteDir>Contents\Resources\</RemoteDir>
-                        <RemoteName>toy-story.jpg</RemoteName>
+                        <RemoteName>wolf.webp</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="OSXARM64">
                         <RemoteDir>Contents\Resources\</RemoteDir>
-                        <RemoteName>toy-story.jpg</RemoteName>
+                        <RemoteName>wolf.webp</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\Assets\toy-story.jpg" Configuration="Release" Class="File">
+                <DeployFile LocalName="..\..\..\Assets\wolf.webp" Configuration="Release" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>assets\internal\</RemoteDir>
-                        <RemoteName>toy-story.jpg</RemoteName>
+                        <RemoteName>wolf.webp</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="Android64">
                         <RemoteDir>assets\internal\</RemoteDir>
-                        <RemoteName>toy-story.jpg</RemoteName>
+                        <RemoteName>wolf.webp</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="iOSDevice64">
                         <RemoteDir>StartUp\Documents\</RemoteDir>
-                        <RemoteName>toy-story.jpg</RemoteName>
+                        <RemoteName>wolf.webp</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="iOSSimARM64">
                         <RemoteDir>StartUp\Documents\</RemoteDir>
-                        <RemoteName>toy-story.jpg</RemoteName>
+                        <RemoteName>wolf.webp</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="Linux64">
-                        <RemoteName>toy-story.jpg</RemoteName>
+                        <RemoteName>wolf.webp</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="OSX64">
                         <RemoteDir>Contents\Resources\</RemoteDir>
-                        <RemoteName>toy-story.jpg</RemoteName>
+                        <RemoteName>wolf.webp</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="OSXARM64">
                         <RemoteDir>Contents\Resources\</RemoteDir>
-                        <RemoteName>toy-story.jpg</RemoteName>
+                        <RemoteName>wolf.webp</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>

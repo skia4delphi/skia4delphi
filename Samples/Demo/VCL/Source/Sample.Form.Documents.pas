@@ -59,7 +59,7 @@ var
   LSVGDOM: ISkSVGDOM;
   LSize: TSizeF;
 begin
-  LSVGDOM := TSkSVGDOM.MakeFromFile(AssetsPath + 'lion.svg');
+  LSVGDOM := TSkSVGDOM.MakeFromFile(AssetsPath + 'knight.svg');
   LSize := TSizeF.Create(600, 600);
   LSVGDOM.SetContainerSize(LSize);
 
@@ -92,7 +92,7 @@ var
   LSVGDOM: ISkSVGDOM;
   LSize: TSizeF;
 begin
-  LSVGDOM := TSkSVGDOM.MakeFromFile(AssetsPath + 'lion.svg');
+  LSVGDOM := TSkSVGDOM.MakeFromFile(AssetsPath + 'knight.svg');
   LSize := TSizeF.Create(600, 600);
   LSVGDOM.SetContainerSize(LSize);
 

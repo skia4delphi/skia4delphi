@@ -63,7 +63,9 @@ type
     procedure SetStrings(const AValue: TStrings); override;
   public
     procedure Edit; override;
+    function GetAttributes: TPropertyAttributes; override;
     function GetValue: string; override;
+    procedure SetValue(const AValue: string); override;
   end;
 
   { TSkSvgSourcePropertyEditor }
@@ -159,6 +161,11 @@ begin
   FreeAndNil(FStrings);
 end;
 
+function TSkLabelTextPropertyEditor.GetAttributes: TPropertyAttributes;
+begin
+  Result := [paDialog, paMultiSelect, paAutoUpdate];
+end;
+
 function TSkLabelTextPropertyEditor.GetStrings: TStrings;
 begin
   if FStrings = nil then
@@ -183,6 +190,11 @@ begin
     SetStrValue(AValue.Text.Substring(0, Length(AValue.Text) - Length(AValue.LineBreak)))
   else
     SetStrValue(AValue.Text);
+end;
+
+procedure TSkLabelTextPropertyEditor.SetValue(const AValue: string);
+begin
+  SetStrValue(AValue);
 end;
 
 { TSkSvgSourcePropertyEditor }
@@ -257,6 +269,7 @@ begin
   RegisterComponents('Skia', [TSkAnimatedImage, TSkAnimatedPaintBox, TSkLabel, TSkPaintBox, TSkSvg]);
   RegisterPropertyEditor(TypeInfo(TSkAnimatedImage.TSource), TSkAnimatedImage, 'Source', TSkAnimatedImageSourcePropertyEditor);
   RegisterComponentEditor(TSkAnimatedImage, TSkAnimatedImageComponentEditor);
+  RegisterPropertyEditor(TypeInfo(string), TSkLabel, 'Text', TSkLabelTextPropertyEditor);
   RegisterPropertyEditor(TypeInfo(string), TSkLabel.TCustomWordsItem, 'Text', TSkLabelTextPropertyEditor);
   RegisterPropertyEditor(TypeInfo(TSkSvgSource), nil, '', TSkSvgSourcePropertyEditor);
   RegisterComponentEditor(TSkSvg, TSkSvgComponentEditor);

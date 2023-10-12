@@ -6,7 +6,7 @@ The code below is common code among all the examples in this document:
 
 ```pascal
 uses
-  Skia;
+  System.Skia;
 
 type
   TSkDrawExampleProc = reference to procedure(const ACanvas: ISkCanvas; const ADest: TRectF);
