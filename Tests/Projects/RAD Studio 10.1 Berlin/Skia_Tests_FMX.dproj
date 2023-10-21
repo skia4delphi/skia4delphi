@@ -159,6 +159,7 @@
         <DCCReference Include="..\..\Source\Skia.Tests.Skottie.pas"/>
         <DCCReference Include="..\..\Source\Skia.Tests.Surface.pas"/>
         <DCCReference Include="..\..\Source\Skia.Tests.Svg.pas"/>
+        <DCCReference Include="..\..\Source\Skia.Tests.TextBlob.pas"/>
         <DCCReference Include="..\..\Source\Skia.Tests.Unicode.pas"/>
         <DCCReference Include="..\..\Source\FMX\Skia.Tests.FMX.Codec.pas"/>
         <DCCReference Include="..\..\Source\FMX\Skia.Tests.FMX.Runner.pas">
