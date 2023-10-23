@@ -5913,11 +5913,13 @@ procedure TSkLabel.ParagraphLayout(AMaxWidth: Single);
     AParagraph.Layout(Result);
   end;
 
+const
+  MaxLayoutWidth = High(Integer) - High(Word);
 var
   LMaxWidthUsed: Single;
   LParagraph: ISkParagraph;
 begin
-  AMaxWidth := Max(AMaxWidth, 0);
+  AMaxWidth := EnsureRange(AMaxWidth, 0, MaxLayoutWidth);
   if not SameValue(FParagraphLayoutWidth, AMaxWidth, TEpsilon.Position) then
   begin
     LParagraph := Paragraph;
