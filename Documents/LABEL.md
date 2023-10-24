@@ -29,7 +29,7 @@ In Firemonkey, the TSkLabel supports FMX styles too. It is very recommended, bec
 2. Add a TSkStyleTextObject by copying the code below and pasting it into the StyleContainer (in the Style Designer form)
    ```pascal
    object TSkStyleTextObject
-     StyleName = 'sklabelstyle'
+     StyleName = 'text'
    end
    ```
 3. Edit this component (TSkStyleTextObject) any way you want, like setting Color Red
