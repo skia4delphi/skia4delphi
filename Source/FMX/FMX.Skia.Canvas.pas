@@ -3262,13 +3262,11 @@ const
   end;
 
   procedure ParagraphLayout(const AParagraph: ISkParagraph; AMaxWidth: Single);
-  const
-    MaxLayoutWidth = High(Integer) - High(Word);
   begin
     if CompareValue(AMaxWidth, 0, TEpsilon.Position) = GreaterThanValue then
     begin
       // The SkParagraph.Layout calls a floor for the MaxWidth, so we should ceil it to force the original AMaxWidth
-      AParagraph.Layout(Min(Ceil(AMaxWidth + TEpsilon.Matrix), MaxLayoutWidth));
+      AParagraph.Layout(Ceil(AMaxWidth + TEpsilon.Matrix));
     end
     else
       AParagraph.Layout(0);
