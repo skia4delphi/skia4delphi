@@ -7,6 +7,34 @@ on:
       - v6-lts
 
 jobs:
+  test-bds-23:
+    name: Running Tests on BDS 23.0
+    runs-on: windows-2022
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Checkout Toolchain
+        uses: actions/checkout@v3
+        with:
+          repository: skia4delphibot/toolchain23
+          token: ${{ secrets.GH_SK_PAT }}
+          path: Toolchain
+
+      - name: Build and Test
+        run: |
+          Toolchain/Run.ps1
+        shell: pwsh
+        timeout-minutes: 30
+
+      - name: Upload Logs on Failure
+        uses: actions/upload-artifact@v3
+        if: failure()
+        with:
+          name: BDS 23.0 Logs
+          path: Toolchain/logs.txt
+          retention-days: 10
+
   test-bds-22:
     name: Running Tests on BDS 22.0
     runs-on: windows-2022
@@ -259,8 +287,36 @@ jobs:
           path: Toolchain/logs.txt
           retention-days: 10
 
+  test-fpc-trunk:
+    name: Running Tests on FPC Trunk 2023-11-08
+    runs-on: windows-2022
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Checkout Toolchain
+        uses: actions/checkout@v3
+        with:
+          repository: skia4delphibot/toolchainfpc20231108
+          token: ${{ secrets.GH_SK_PAT }}
+          path: Toolchain
+
+      - name: Build and Test
+        run: |
+          Toolchain/Run.ps1
+        shell: pwsh
+        timeout-minutes: 30
+
+      - name: Upload Logs on Failure
+        uses: actions/upload-artifact@v3
+        if: failure()
+        with:
+          name: FPC Trunk Logs
+          path: Toolchain/logs.txt
+          retention-days: 10
+
   make:
-    needs: [test-bds-22, test-bds-21, test-bds-20, test-bds-19, test-bds-18, test-bds-17, test-bds-16, test-bds-15, test-fpc-331]
+    needs: [test-bds-23, test-bds-22, test-bds-21, test-bds-20, test-bds-19, test-bds-18, test-bds-17, test-bds-16, test-bds-15, test-fpc-331, test-fpc-trunk]
     name: Building Installer
     runs-on: windows-2022
     steps:
