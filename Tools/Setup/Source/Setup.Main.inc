@@ -268,8 +268,8 @@ begin
                 Exit;
               end;
               if (not LProject.IsDesignOnly) and (pfWin64 in LProject.Platforms) and (GetRADStudioCommonBplDir(LInfo, pfWin64) <> '') then
-                CopyFileToDir(ExpandProjectPath(LBplFileName, LVersion.BuildConfig, pfWin64), GetRADStudioCommonBplDir(LInfo, pfWin64));
-              LBplFileName := ExpandProjectPath(LBplFileName, LVersion.BuildConfig, pfWin32);
+                CopyFileToDir(ExpandProjectPath(LBplFileName, LInfo.BuildConfig, pfWin64), GetRADStudioCommonBplDir(LInfo, pfWin64));
+              LBplFileName := ExpandProjectPath(LBplFileName, LInfo.BuildConfig, pfWin32);
               if not FileExists(LBplFileName) then
               begin
                 TryShowErrorFmt(CustomMessage('SetupMainFailedToInstallPackage'), [ExtractFileName(LProject.FileName), LVersion.Name, '2']);
@@ -312,14 +312,14 @@ begin
                 end;
                 if (LPlatform in GetPlatformsAllowedToBuild(LInfo)) then
                 begin
-                  LDcpFileName := ExpandProjectPath(GetRADStudioProjectDcpOutputFileName(LProject), LVersion.BuildConfig, LPlatform);
+                  LDcpFileName := ExpandProjectPath(GetRADStudioProjectDcpOutputFileName(LProject), LInfo.BuildConfig, LPlatform);
                   if not FileExists(LDcpFileName) then
                   begin
                     TryShowErrorFmt(CustomMessage('SetupMainFailedToInstallPackage'), [ExtractFileName(LProject.FileName), LVersion.Name + ' - ' + GetProjectPlatformName(LPlatform), '6']);
                     Result := False;
                     Exit;
                   end;
-                  if not TryAddRADStudioLibrarySearchPath(LVersion, LPlatform, ExpandProjectPath(LProject.DCUOutputPath, LVersion.BuildConfig, LPlatform)) then
+                  if not TryAddRADStudioLibrarySearchPath(LVersion, LPlatform, ExpandProjectPath(LProject.DCUOutputPath, LInfo.BuildConfig, LPlatform)) then
                   begin
                     TryShowErrorFmt(CustomMessage('SetupMainFailedToInstallPackage'), [ExtractFileName(LProject.FileName), LVersion.Name + ' - ' + GetProjectPlatformName(LPlatform), '7']);
                     Result := False;
@@ -460,6 +460,15 @@ begin
               begin
                 Log(FmtMessage(CustomMessage('SetupMainFailedToUninstallPackage'), [ExtractFileName(LProject.FileName), LVersion.Name, '2']));
                 Result := False;
+              end;
+              // Check if exist a native bpl to restore it
+              if LProject.IsInstallable and FileExists(CombinePath(ExtractFilePath(LInfo.AppFileName), ExtractFileName(LBplFileName))) then
+              begin
+                if not TryRegisterRADStudioBpl(LVersion, '$(BDSBIN)\' + ExtractFileName(LBplFileName), LProject.Description) then
+                begin
+                  Log(FmtMessage(CustomMessage('SetupMainFailedToUninstallPackage'), [ExtractFileName(LProject.FileName), LVersion.Name, '2.1']));
+                  Result := False;
+                end;
               end;
             end;
           end

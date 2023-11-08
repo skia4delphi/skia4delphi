@@ -120,7 +120,7 @@ begin
             Log(Format('RADStudio.Build.TryBuildRADStudioPackages: Trying to build the package "%s" to %s platform for %s', [ExtractFileName(LProject.FileName), GetProjectPlatformName(LPlatform), LInfo.Version.Name]));
             WizardForm.StatusLabel.Caption := FmtMessage(CustomMessage('RADStudioBuildBuildingFor'), [LInfo.Version.Name, GetProjectPlatformName(LPlatform)]);
             WizardForm.FilenameLabel.Caption := ExtractFileName(LProject.FileName);
-            if (LInfo.Status = riToolchainNotSupported) or (not _TryBuildRADStudioProject(LInfo, LInfo.Version.BuildConfig, LPlatform, LProject, ACustomParameter, ExpandConstant(_BuilLogsFileName), ABeforeProjectBuild, LResultCode)) then
+            if (LInfo.Status = riToolchainNotSupported) or (not _TryBuildRADStudioProject(LInfo, LInfo.BuildConfig, LPlatform, LProject, ACustomParameter, ExpandConstant(_BuilLogsFileName), ABeforeProjectBuild, LResultCode)) then
             begin
               Log(Format('RADStudio.Build.TryBuildRADStudioPackages: Failed to build the package "%s" to %s platform for %s', [ExtractFileName(LProject.FileName), GetProjectPlatformName(LPlatform), LInfo.Version.Name]));
               if (ATryExtractPreBuildObjects <> nil) and ATryExtractPreBuildObjects(LInfo) then

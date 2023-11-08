@@ -23,7 +23,7 @@
       - Android 64-bit
 
 
-### RAD Studio 11 Alexandria
+### RAD Studio 11 Alexandria or newer
 
   - Console aplication platforms:
       - Windows 32-bit
@@ -94,6 +94,7 @@ Installation can be done automatically or manually.
    - RAD Studio 10.3 Rio
    - RAD Studio 10.4 Sydney
    - RAD Studio 11 Alexandria
+   - RAD Studio 12 Athens
 
    For `[rad_package_suffix]`:
 
@@ -105,6 +106,7 @@ Installation can be done automatically or manually.
    - RAD Studio 10.3 Rio: 260
    - RAD Studio 10.4 Sydney: 270
    - RAD Studio 11 Alexandria: 280
+   - RAD Studio 12 Athens: 290
 
    For `[platform_name]`:
    - Win32
@@ -131,13 +133,13 @@ Installation can be done automatically or manually.
    - `[skia4delphi_root]\Binary\Win32\Release;`
      *eg C:\skia4delphi\Binary\Win32\Release;*
    - `[skia4delphi_root]\Library\[rad_version_name]\Win32\Release\Bpl;`
-     *eg C:\skia4delphi\Library\RAD Studio 11 Alexandria\Win32\Release\Bpl;*
+     *eg C:\skia4delphi\Library\RAD Studio 12 Athens\Win32\Release\Bpl;*
    - `[skia4delphi_root]\Library\[rad_version_name]\Win64\Release\Bpl;`
-     *eg C:\skia4delphi\Library\RAD Studio 11 Alexandria\Win64\Release\Bpl;*
+     *eg C:\skia4delphi\Library\RAD Studio 12 Athens\Win64\Release\Bpl;*
    
    5.3. Click *OK* and *Save*;
    
-6. Open the project group of your RAD Studio version, file `[skia4delphi_root]\Packages\[rad_version_name]\Skia4Delphi.groupproj`; *(eg C:\skia4delphi\Packages\RAD Studio 11 Alexandria\Skia4Delphi.groupproj)*
+6. Open the project group of your RAD Studio version, file `[skia4delphi_root]\Packages\[rad_version_name]\Skia4Delphi.groupproj`; *(eg C:\skia4delphi\Packages\RAD Studio 12 Athens\Skia4Delphi.groupproj)*
 7. Click *Show Build Groups Panel*;
 8. All platforms are selected by default in `Skia.Package.RTL` and `Skia.Package.FMX`, but you should select just the platforms that you want.;
 9. Click *Build the current build group*;
@@ -146,7 +148,7 @@ Installation can be done automatically or manually.
     
     11.1. Library path:
     - `$(SKIADIR)\Library\[rad_version_name]\[platform_name]\Release`
-      *eg $(SKIADIR)\Library\RAD Studio 11 Alexandria\Win32\Release*
+      *eg $(SKIADIR)\Library\RAD Studio 12 Athens\Win32\Release*
     
     11.2. Browsing path:
     - `$(SKIADIR)\Source`
@@ -155,7 +157,7 @@ Installation can be done automatically or manually.
     
     11.3. Debug DCU path:
     - `$(SKIADIR)\Library\[rad_version_name]\[platform_name]\Debug`
-      *eg $(SKIADIR)\Library\RAD Studio 11 Alexandria\Win32\Debug*
+      *eg $(SKIADIR)\Library\RAD Studio 12 Athens\Win32\Debug*
     
     11.4. Just in **iOSDevice64** (if you has compiled for it), add an extra path to the *Library path*:
     - `$(SKIADIR)\Binary\iOSDevice64\Release`
