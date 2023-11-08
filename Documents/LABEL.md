@@ -26,13 +26,20 @@
 In Firemonkey, the TSkLabel supports FMX styles too. It is very recommended, because with that, you'll be able to automatically change the properties of your label, and create, for example, themes light and dark for your application, as in FMX's TLabel. To use styles in TSkLabel, follow the steps:
 
 1. Open the Style Designer form (double click in the TStyleBook of your form)
-2. Add a TSkStyleTextObject by copying the code below and pasting it into the StyleContainer (in the Style Designer form)
+2. Add the follow style object by copying the code below and pasting it into the StyleContainer (in the Style Designer form)
    ```pascal
-   object TSkStyleTextObject
-     StyleName = 'sklabelstyle'
+   object TLayout
+     StyleName = 'SkLabel1Style1'
+     Align = Center
+     Size.Width = 0.000000000000000000
+     Size.Height = 0.000000000000000000
+     Size.PlatformDefault = False
+     object TSkStyleTextObject
+      StyleName = 'text'
+     end
    end
    ```
-3. Edit this component (TSkStyleTextObject) any way you want, like setting Color Red
+3. Edit the text object (TSkStyleTextObject) any way you want, like setting color to Red
 4. Close the Style Designer form, will show a prompt asking to Apply, press Yes
 5. Now, the style for TSkLabel that you created, will be available to select in TSkLabel.StyleLookup property
 

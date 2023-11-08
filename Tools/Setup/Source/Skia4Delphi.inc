@@ -79,6 +79,8 @@ begin
       StringChangeEx(LSourcePath, LibraryDirDefine, '{app}', True);
       LSourcePath := ExpandConstant(LSourcePath);
       LNativeSkiaUnits := GetFiles(CombinePath(AInfo.RootDir, 'Source\FMX\'), 'FMX.Skia.*.pas', soTopDirectoryOnly);
+      if GetArrayLength(LNativeSkiaUnits) = 0 then
+        LNativeSkiaUnits := GetFiles(CombinePath(AInfo.RootDir, 'runtime\Skia4Delphi\Source\FMX\'), 'FMX.Skia.*.pas', soTopDirectoryOnly);
       Log(Format('Skia4Delphi._OnBeforeProjectBuild: copying exclusive files to "%s"', [LSourcePath]));
       for I := 0 to GetArrayLength(LNativeSkiaUnits) - 1 do
       begin

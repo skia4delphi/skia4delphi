@@ -231,7 +231,7 @@ function TMobileBarsServiceiOS.GetStatusBarOffset(const AForm: TCommonCustomForm
     LRttiProperty: TRttiProperty;
     LCocoaTouchWindowManager: TObject;
   begin
-    {$IF CompilerVersion > 35} // RAD Studio 11 Alexandria
+    {$IF CompilerVersion > 36} // RAD Studio 12 Athens
       {$MESSAGE WARN 'Check in file FMX.Platform.iOS.pas if the class TCocoaTouchWindowManager have already the property "StatusBarOffset: Single" and adjust the IFDEF'}
     {$ENDIF}
     LCocoaTouchWindowManager := TObject(FDefaultStatusBarService);

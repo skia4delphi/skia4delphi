@@ -564,11 +564,11 @@ The example above results in the output below:
 
 # Compatibility
 
-| RAD Studio                   | Platforms        |
-| ---------------------------- | ---------------- |
-| RAD Studio 11 Alexandria     | All Platforms    |
-| RAD Studio 10.3 Rio or newer | Windows, Android |
-| RAD Studio XE7 or newer      | Windows          |
+| RAD Studio                        | Platforms        |
+| --------------------------------- | ---------------- |
+| RAD Studio 11 Alexandria or newer | All Platforms    |
+| RAD Studio 10.3 Rio or newer      | Windows, Android |
+| RAD Studio XE7 or newer           | Windows          |
 
 For the platforms supported by **Skia4Delphi** (listed above), the OS versions supported by the library are the same [OS versions that RAD Studio supports.](https://docwiki.embarcadero.com/PlatformStatus/en/Main_Page)
 
@@ -605,7 +605,7 @@ The APIs are very similar to Skia's, few methods and functions have been renamed
 
 # Version
 
-**[Skia4Delphi 6.0.0-beta5](/../../releases/latest)**
+**[Skia4Delphi 6.0.0](/../../releases/latest)**
 
 Skia Version used: [chrome/m107](https://github.com/google/skia/tree/chrome/m107)
 
