@@ -93,7 +93,7 @@ You can install **Skia4Delphi** in 3 ways:
 
   Download the setup of [latest release](../../releases/latest) and install it.
 
-  ![Skia4Delphi Installation](Assets/Documents/installation.png)
+  <p><img src="Assets/Documents/installation.png" width="511" alt="Skia4Delphi Installation" /></p>
 
 - Embarcadero's GetIt _(RAD Studio > Tools > GetIt Package Manager...)_
 
