@@ -1,24 +1,21 @@
-program FmxFPS;
+program BricksGame;
 
 uses
   System.StartUpCopy,
   FMX.Forms,
   FMX.Types,
-  {$IFDEF SKIA}
   FMX.Skia,
-  {$ENDIF}
-  FmxFPS.Main in '..\..\Source\FmxFPS.Main.pas' {frmMain};
+  Sample.Form.Main in '..\..\Source\Sample.Form.Main.pas' {frmMain};
 
 {$R *.res}
 
 begin
   GlobalUseMetal := True;
   GlobalUseVulkan := True;
-  {$IFDEF SKIA}
-  GlobalUseSkiaRasterWhenAvailable := False;
   GlobalUseSkia := True;
-  {$ENDIF}
+  GlobalUseSkiaRasterWhenAvailable := False;
   Application.Initialize;
   Application.CreateForm(TfrmMain, frmMain);
+  Application.FormFactor.Orientations := [TFormOrientation.Landscape, TFormOrientation.InvertedLandscape];
   Application.Run;
 end.

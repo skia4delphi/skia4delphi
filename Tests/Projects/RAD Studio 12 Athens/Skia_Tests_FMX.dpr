@@ -38,6 +38,8 @@ uses
 
 begin
   //GlobalUseMetal := True;
+  GlobalUseVulkan := True;
+  GlobalUseSkiaRasterWhenAvailable := False;
   GlobalUseSkia := True;
   ReportMemoryLeaksOnShutdown := True;
   Application.Initialize;

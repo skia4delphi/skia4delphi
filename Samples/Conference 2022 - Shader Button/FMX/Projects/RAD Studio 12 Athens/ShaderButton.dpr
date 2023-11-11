@@ -1,23 +1,20 @@
-program FmxFPS;
+program ShaderButton;
 
 uses
   System.StartUpCopy,
   FMX.Forms,
   FMX.Types,
-  {$IFDEF SKIA}
   FMX.Skia,
-  {$ENDIF}
-  FmxFPS.Main in '..\..\Source\FmxFPS.Main.pas' {frmMain};
+  Sample.Main in '..\..\Source\Sample.Main.pas' {frmMain},
+  Sample.ShaderButton in '..\..\Source\Sample.ShaderButton.pas' {frmShaderButton: TFrame};
 
 {$R *.res}
 
 begin
   GlobalUseMetal := True;
   GlobalUseVulkan := True;
-  {$IFDEF SKIA}
-  GlobalUseSkiaRasterWhenAvailable := False;
   GlobalUseSkia := True;
-  {$ENDIF}
+  GlobalUseSkiaRasterWhenAvailable := False;
   Application.Initialize;
   Application.CreateForm(TfrmMain, frmMain);
   Application.Run;

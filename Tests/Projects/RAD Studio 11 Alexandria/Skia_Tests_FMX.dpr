@@ -27,7 +27,6 @@ uses
   Skia.Tests.TextBlob in '..\..\Source\Skia.Tests.TextBlob.pas',
   Skia.Tests.Unicode in '..\..\Source\Skia.Tests.Unicode.pas',
   Skia.Tests.FMX.Codec in '..\..\Source\FMX\Skia.Tests.FMX.Codec.pas',
-  Skia.Tests.FMX.Effects in '..\..\Source\FMX\Skia.Tests.FMX.Effects.pas',
   Skia.Tests.FMX.Runner in '..\..\Source\FMX\Skia.Tests.FMX.Runner.pas' {frmFMXRunner},
   Skia.Tests.FMX.Svg in '..\..\Source\FMX\Skia.Tests.FMX.Svg.pas',
   Skia.Tests.FMX.TextLayout in '..\..\Source\FMX\Skia.Tests.FMX.TextLayout.pas',
