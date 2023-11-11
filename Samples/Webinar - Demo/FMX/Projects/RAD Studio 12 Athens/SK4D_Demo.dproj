@@ -151,6 +151,7 @@
         <Icns_MainIcns>$(BDS)\bin\delphi_PROJECTICNS.icns</Icns_MainIcns>
         <Icon_MainIcon>$(BDS)\bin\delphi_PROJECTICON.ico</Icon_MainIcon>
         <OrientationPortrait>true</OrientationPortrait>
+        <ProjectName>$(MSBuildProjectName)</ProjectName>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Android)'!=''">
         <Android_LauncherIcon144>$(ProjectName).Artwork\Android\FM_LauncherIcon_144x144.png</Android_LauncherIcon144>
