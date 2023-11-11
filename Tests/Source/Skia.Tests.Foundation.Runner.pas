@@ -93,6 +93,7 @@ type
     FEvent: TEvent;
     FExecuting: Boolean;
     FExecuteFinishedEvent: TEvent;
+    FExpectedImagesWereExtracted: Boolean;
     FGenerateExpectedImages: Boolean;
     FLastImageChecking: ISkImage;
     FLock: TCriticalSection;
@@ -265,6 +266,7 @@ begin
   begin
     TDirectory.Delete(FExpectedImagesPath, True);
     FExpectedImagesPathWasCreated := False;
+    FExpectedImagesWereExtracted := False;
   end;
   if FWrongImagesPathWasCreated and TDirectory.Exists(FWrongImagesPath) then
   begin
@@ -313,11 +315,14 @@ end;
 
 procedure TAsyncTestRunner.ExtractExpectedImages;
 begin
+  if FExpectedImagesWereExtracted then
+    Exit;
   if TDirectory.Exists(ExpectedImagesPath) then
     TDirectory.Delete(ExpectedImagesPath);
   TDirectory.CreateDirectory(ExpectedImagesPath);
   FExpectedImagesPathWasCreated := True;
   TZipFile.ExtractZipFile(ExpectedImagesZipFile, ExpectedImagesPath);
+  FExpectedImagesWereExtracted := True;
 end;
 
 function TAsyncTestRunner.GetExpectedImageFileName(

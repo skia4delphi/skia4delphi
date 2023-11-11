@@ -10,11 +10,11 @@
         <AppType>Application</AppType>
         <Config Condition="'$(Config)'==''">Release</Config>
         <FrameworkType>FMX</FrameworkType>
-        <MainSource>BricksGame.dpr</MainSource>
+        <MainSource>SK4D_Demo.dpr</MainSource>
         <Platform Condition="'$(Platform)'==''">Win32</Platform>
-        <ProjectGuid>{43299C94-06E4-4EF8-90E0-D114A75233A8}</ProjectGuid>
-        <ProjectVersion>19.5</ProjectVersion>
-        <TargetedPlatforms>693395</TargetedPlatforms>
+        <ProjectGuid>{DC01A0CF-63D7-4E74-8C15-84D4CBEA0B5E}</ProjectGuid>
+        <ProjectVersion>20.1</ProjectVersion>
+        <TargetedPlatforms>693267</TargetedPlatforms>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Config)'=='Base' or '$(Base)'!=''">
         <Base>true</Base>
@@ -31,6 +31,16 @@
     </PropertyGroup>
     <PropertyGroup Condition="('$(Platform)'=='Linux64' and '$(Base)'=='true') or '$(Base_Linux64)'!=''">
         <Base_Linux64>true</Base_Linux64>
+        <CfgParent>Base</CfgParent>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="('$(Platform)'=='iOSDevice64' and '$(Base)'=='true') or '$(Base_iOSDevice64)'!=''">
+        <Base_iOSDevice64>true</Base_iOSDevice64>
+        <CfgParent>Base</CfgParent>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="('$(Platform)'=='iOSSimARM64' and '$(Base)'=='true') or '$(Base_iOSSimARM64)'!=''">
+        <Base_iOSSimARM64>true</Base_iOSSimARM64>
         <CfgParent>Base</CfgParent>
         <Base>true</Base>
     </PropertyGroup>
@@ -54,19 +64,21 @@
         <CfgParent>Base</CfgParent>
         <Base>true</Base>
     </PropertyGroup>
-    <PropertyGroup Condition="('$(Platform)'=='iOSDevice64' and '$(Base)'=='true') or '$(Base_iOSDevice64)'!=''">
-        <Base_iOSDevice64>true</Base_iOSDevice64>
-        <CfgParent>Base</CfgParent>
-        <Base>true</Base>
-    </PropertyGroup>
-    <PropertyGroup Condition="('$(Platform)'=='iOSSimARM64' and '$(Base)'=='true') or '$(Base_iOSSimARM64)'!=''">
-        <Base_iOSSimARM64>true</Base_iOSSimARM64>
-        <CfgParent>Base</CfgParent>
-        <Base>true</Base>
-    </PropertyGroup>
     <PropertyGroup Condition="'$(Config)'=='Debug' or '$(Cfg_1)'!=''">
         <Cfg_1>true</Cfg_1>
         <CfgParent>Base</CfgParent>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="('$(Platform)'=='iOSDevice64' and '$(Cfg_1)'=='true') or '$(Cfg_1_iOSDevice64)'!=''">
+        <Cfg_1_iOSDevice64>true</Cfg_1_iOSDevice64>
+        <CfgParent>Cfg_1</CfgParent>
+        <Cfg_1>true</Cfg_1>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="('$(Platform)'=='iOSSimARM64' and '$(Cfg_1)'=='true') or '$(Cfg_1_iOSSimARM64)'!=''">
+        <Cfg_1_iOSSimARM64>true</Cfg_1_iOSSimARM64>
+        <CfgParent>Cfg_1</CfgParent>
+        <Cfg_1>true</Cfg_1>
         <Base>true</Base>
     </PropertyGroup>
     <PropertyGroup Condition="('$(Platform)'=='Win32' and '$(Cfg_1)'=='true') or '$(Cfg_1_Win32)'!=''">
@@ -86,8 +98,26 @@
         <CfgParent>Base</CfgParent>
         <Base>true</Base>
     </PropertyGroup>
+    <PropertyGroup Condition="('$(Platform)'=='Android' and '$(Cfg_2)'=='true') or '$(Cfg_2_Android)'!=''">
+        <Cfg_2_Android>true</Cfg_2_Android>
+        <CfgParent>Cfg_2</CfgParent>
+        <Cfg_2>true</Cfg_2>
+        <Base>true</Base>
+    </PropertyGroup>
     <PropertyGroup Condition="('$(Platform)'=='Android64' and '$(Cfg_2)'=='true') or '$(Cfg_2_Android64)'!=''">
         <Cfg_2_Android64>true</Cfg_2_Android64>
+        <CfgParent>Cfg_2</CfgParent>
+        <Cfg_2>true</Cfg_2>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="('$(Platform)'=='iOSDevice64' and '$(Cfg_2)'=='true') or '$(Cfg_2_iOSDevice64)'!=''">
+        <Cfg_2_iOSDevice64>true</Cfg_2_iOSDevice64>
+        <CfgParent>Cfg_2</CfgParent>
+        <Cfg_2>true</Cfg_2>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="('$(Platform)'=='iOSSimARM64' and '$(Cfg_2)'=='true') or '$(Cfg_2_iOSSimARM64)'!=''">
+        <Cfg_2_iOSSimARM64>true</Cfg_2_iOSSimARM64>
         <CfgParent>Cfg_2</CfgParent>
         <Cfg_2>true</Cfg_2>
         <Base>true</Base>
@@ -105,7 +135,7 @@
         <Base>true</Base>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base)'!=''">
-        <SanitizedProjectName>BricksGame</SanitizedProjectName>
+        <SanitizedProjectName>SK4D_Demo</SanitizedProjectName>
         <AUP_ACCESS_COARSE_LOCATION>true</AUP_ACCESS_COARSE_LOCATION>
         <AUP_ACCESS_FINE_LOCATION>true</AUP_ACCESS_FINE_LOCATION>
         <AUP_CALL_PHONE>true</AUP_CALL_PHONE>
@@ -120,65 +150,155 @@
         <DCC_Namespace>System;Xml;Data;Datasnap;Web;Soap;$(DCC_Namespace)</DCC_Namespace>
         <Icns_MainIcns>$(BDS)\bin\delphi_PROJECTICNS.icns</Icns_MainIcns>
         <Icon_MainIcon>$(BDS)\bin\delphi_PROJECTICON.ico</Icon_MainIcon>
-        <OrientationLandscapeLeft>true</OrientationLandscapeLeft>
-        <OrientationLandscapeRight>true</OrientationLandscapeRight>
+        <OrientationPortrait>true</OrientationPortrait>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Android)'!=''">
-        <Android_LauncherIcon144>$(BDS)\bin\Artwork\Android\FM_LauncherIcon_144x144.png</Android_LauncherIcon144>
-        <Android_LauncherIcon192>$(BDS)\bin\Artwork\Android\FM_LauncherIcon_192x192.png</Android_LauncherIcon192>
-        <Android_LauncherIcon36>$(BDS)\bin\Artwork\Android\FM_LauncherIcon_36x36.png</Android_LauncherIcon36>
-        <Android_LauncherIcon48>$(BDS)\bin\Artwork\Android\FM_LauncherIcon_48x48.png</Android_LauncherIcon48>
-        <Android_LauncherIcon72>$(BDS)\bin\Artwork\Android\FM_LauncherIcon_72x72.png</Android_LauncherIcon72>
-        <Android_LauncherIcon96>$(BDS)\bin\Artwork\Android\FM_LauncherIcon_96x96.png</Android_LauncherIcon96>
-        <Android_NotificationIcon24>$(BDS)\bin\Artwork\Android\FM_NotificationIcon_24x24.png</Android_NotificationIcon24>
-        <Android_NotificationIcon36>$(BDS)\bin\Artwork\Android\FM_NotificationIcon_36x36.png</Android_NotificationIcon36>
-        <Android_NotificationIcon48>$(BDS)\bin\Artwork\Android\FM_NotificationIcon_48x48.png</Android_NotificationIcon48>
-        <Android_NotificationIcon72>$(BDS)\bin\Artwork\Android\FM_NotificationIcon_72x72.png</Android_NotificationIcon72>
-        <Android_NotificationIcon96>$(BDS)\bin\Artwork\Android\FM_NotificationIcon_96x96.png</Android_NotificationIcon96>
-        <Android_SplashImage426>$(BDS)\bin\Artwork\Android\FM_SplashImage_426x320.png</Android_SplashImage426>
-        <Android_SplashImage470>$(BDS)\bin\Artwork\Android\FM_SplashImage_470x320.png</Android_SplashImage470>
-        <Android_SplashImage640>$(BDS)\bin\Artwork\Android\FM_SplashImage_640x480.png</Android_SplashImage640>
-        <Android_SplashImage960>$(BDS)\bin\Artwork\Android\FM_SplashImage_960x720.png</Android_SplashImage960>
+        <Android_LauncherIcon144>$(ProjectName).Artwork\Android\FM_LauncherIcon_144x144.png</Android_LauncherIcon144>
+        <Android_LauncherIcon192>$(ProjectName).Artwork\Android\FM_LauncherIcon_192x192.png</Android_LauncherIcon192>
+        <Android_LauncherIcon36>$(ProjectName).Artwork\Android\FM_LauncherIcon_36x36.png</Android_LauncherIcon36>
+        <Android_LauncherIcon48>$(ProjectName).Artwork\Android\FM_LauncherIcon_48x48.png</Android_LauncherIcon48>
+        <Android_LauncherIcon72>$(ProjectName).Artwork\Android\FM_LauncherIcon_72x72.png</Android_LauncherIcon72>
+        <Android_LauncherIcon96>$(ProjectName).Artwork\Android\FM_LauncherIcon_96x96.png</Android_LauncherIcon96>
+        <Android_NotificationAccentColor>#000000</Android_NotificationAccentColor>
+        <Android_NotificationIcon24>$(ProjectName).Artwork\Android\FM_NotificationIcon_24x24.png</Android_NotificationIcon24>
+        <Android_NotificationIcon36>$(ProjectName).Artwork\Android\FM_NotificationIcon_36x36.png</Android_NotificationIcon36>
+        <Android_NotificationIcon48>$(ProjectName).Artwork\Android\FM_NotificationIcon_48x48.png</Android_NotificationIcon48>
+        <Android_NotificationIcon72>$(ProjectName).Artwork\Android\FM_NotificationIcon_72x72.png</Android_NotificationIcon72>
+        <Android_NotificationIcon96>$(ProjectName).Artwork\Android\FM_NotificationIcon_96x96.png</Android_NotificationIcon96>
+        <Android_SplashImage426>$(ProjectName).Artwork\Android\FM_SplashImage_426x320.png</Android_SplashImage426>
+        <Android_SplashImage470>$(ProjectName).Artwork\Android\FM_SplashImage_470x320.png</Android_SplashImage470>
+        <Android_SplashImage640>$(ProjectName).Artwork\Android\FM_SplashImage_640x480.png</Android_SplashImage640>
+        <Android_SplashImage960>$(ProjectName).Artwork\Android\FM_SplashImage_960x720.png</Android_SplashImage960>
         <BT_BuildType>Debug</BT_BuildType>
         <DCC_UsePackage>fmx;DbxCommonDriver;bindengine;IndyIPCommon;emsclient;FireDACCommonDriver;IndyProtocols;PFFmpeg;IndyIPClient;dbxcds;Skia.Package.RTL;FmxTeeUI;bindcompfmx;FireDACSqliteDriver;DbxClientDriver;soapmidas;PZXing;fmxFireDAC;dbexpress;PBilsenGDIPlus;PipFMX;inet;DataSnapCommon;PipRTL;dbrtl;FireDACDBXDriver;Skia.Package.FMX;CustomIPTransport;DBXInterBaseDriver;IndySystem;PAlcinoeMin;bindcomp;FireDACCommon;IndyCore;RESTBackendComponents;PDelphiDX12;bindcompdbx;rtl;RESTComponents;DBXSqliteDriver;IndyIPServer;dsnapxml;DataSnapClient;DataSnapProviderClient;PVelthuisBigNumbers;DataSnapFireDAC;emsclientfiredac;FireDAC;FireDACDSDriver;xmlrtl;tethering;PDelphiCrossSocket;dsnap;CloudService;FMXTee;DataSnapNativeClient;soaprtl;soapserver;FireDACIBDriver;$(DCC_UsePackage)</DCC_UsePackage>
+        <EL_SecureFileSharing>true</EL_SecureFileSharing>
+        <IncludeAndroid_NotificationAccentColor>false</IncludeAndroid_NotificationAccentColor>
+        <IncludeAndroid_Splash>false</IncludeAndroid_Splash>
+        <VerInfo_Build>1</VerInfo_Build>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
-        <VerInfo_Keys>package=com.embarcadero.$(MSBuildProjectName);label=$(MSBuildProjectName);versionCode=1;versionName=1.0.0;persistent=False;restoreAnyVersion=False;installLocation=auto;largeHeap=False;theme=TitleBar;hardwareAccelerated=true;apiKey=</VerInfo_Keys>
+        <VerInfo_Keys>package=com.embarcadero.$(MSBuildProjectName);label=SK4D Demo;versionCode=1;versionName=1.0.0;persistent=False;restoreAnyVersion=False;installLocation=auto;largeHeap=False;theme=No TitleBar;hardwareAccelerated=true;apiKey=</VerInfo_Keys>
+        <Android_BackgroundColor>#372C7C</Android_BackgroundColor>
+        <Android_DarkBackgroundColor>#372C7C</Android_DarkBackgroundColor>
+        <IncludeAndroid_VectorizedNotificationIcon>True</IncludeAndroid_VectorizedNotificationIcon>
+        <Android_VectorizedNotificationIcon>$(ProjectName).Artwork\Android\FM_VectorizedNotificationIcon.xml</Android_VectorizedNotificationIcon>
+        <IncludeAndroid_AdaptiveIcon>True</IncludeAndroid_AdaptiveIcon>
+        <Android_AdaptiveIconBackground>$(ProjectName).Artwork\Android\FM_AdaptiveIcon_Background.xml</Android_AdaptiveIconBackground>
+        <Android_AdaptiveIconForeground>$(ProjectName).Artwork\Android\FM_AdaptiveIcon_Foreground.xml</Android_AdaptiveIconForeground>
+        <Android_AdaptiveIconMonochrome>$(ProjectName).Artwork\Android\FM_AdaptiveIcon_Monochrome.xml</Android_AdaptiveIconMonochrome>
+        <IncludeAndroid_VectorizedSplash>True</IncludeAndroid_VectorizedSplash>
+        <Android_VectorizedSplashV31>$(ProjectName).Artwork\Android\FM_VectorizedSplashV31.xml</Android_VectorizedSplashV31>
+        <Android_VectorizedSplashV31Dark>$(ProjectName).Artwork\Android\FM_VectorizedSplashV31Dark.xml</Android_VectorizedSplashV31Dark>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Android64)'!=''">
-        <Android_LauncherIcon144>$(BDS)\bin\Artwork\Android\FM_LauncherIcon_144x144.png</Android_LauncherIcon144>
-        <Android_LauncherIcon192>$(BDS)\bin\Artwork\Android\FM_LauncherIcon_192x192.png</Android_LauncherIcon192>
-        <Android_LauncherIcon36>$(BDS)\bin\Artwork\Android\FM_LauncherIcon_36x36.png</Android_LauncherIcon36>
-        <Android_LauncherIcon48>$(BDS)\bin\Artwork\Android\FM_LauncherIcon_48x48.png</Android_LauncherIcon48>
-        <Android_LauncherIcon72>$(BDS)\bin\Artwork\Android\FM_LauncherIcon_72x72.png</Android_LauncherIcon72>
-        <Android_LauncherIcon96>$(BDS)\bin\Artwork\Android\FM_LauncherIcon_96x96.png</Android_LauncherIcon96>
-        <Android_NotificationIcon24>$(BDS)\bin\Artwork\Android\FM_NotificationIcon_24x24.png</Android_NotificationIcon24>
-        <Android_NotificationIcon36>$(BDS)\bin\Artwork\Android\FM_NotificationIcon_36x36.png</Android_NotificationIcon36>
-        <Android_NotificationIcon48>$(BDS)\bin\Artwork\Android\FM_NotificationIcon_48x48.png</Android_NotificationIcon48>
-        <Android_NotificationIcon72>$(BDS)\bin\Artwork\Android\FM_NotificationIcon_72x72.png</Android_NotificationIcon72>
-        <Android_NotificationIcon96>$(BDS)\bin\Artwork\Android\FM_NotificationIcon_96x96.png</Android_NotificationIcon96>
-        <Android_SplashImage426>$(BDS)\bin\Artwork\Android\FM_SplashImage_426x320.png</Android_SplashImage426>
-        <Android_SplashImage470>$(BDS)\bin\Artwork\Android\FM_SplashImage_470x320.png</Android_SplashImage470>
-        <Android_SplashImage640>$(BDS)\bin\Artwork\Android\FM_SplashImage_640x480.png</Android_SplashImage640>
-        <Android_SplashImage960>$(BDS)\bin\Artwork\Android\FM_SplashImage_960x720.png</Android_SplashImage960>
+        <Android_LauncherIcon144>$(ProjectName).Artwork\Android\FM_LauncherIcon_144x144.png</Android_LauncherIcon144>
+        <Android_LauncherIcon192>$(ProjectName).Artwork\Android\FM_LauncherIcon_192x192.png</Android_LauncherIcon192>
+        <Android_LauncherIcon36>$(ProjectName).Artwork\Android\FM_LauncherIcon_36x36.png</Android_LauncherIcon36>
+        <Android_LauncherIcon48>$(ProjectName).Artwork\Android\FM_LauncherIcon_48x48.png</Android_LauncherIcon48>
+        <Android_LauncherIcon72>$(ProjectName).Artwork\Android\FM_LauncherIcon_72x72.png</Android_LauncherIcon72>
+        <Android_LauncherIcon96>$(ProjectName).Artwork\Android\FM_LauncherIcon_96x96.png</Android_LauncherIcon96>
+        <Android_NotificationAccentColor>#000000</Android_NotificationAccentColor>
+        <Android_NotificationIcon24>$(ProjectName).Artwork\Android\FM_NotificationIcon_24x24.png</Android_NotificationIcon24>
+        <Android_NotificationIcon36>$(ProjectName).Artwork\Android\FM_NotificationIcon_36x36.png</Android_NotificationIcon36>
+        <Android_NotificationIcon48>$(ProjectName).Artwork\Android\FM_NotificationIcon_48x48.png</Android_NotificationIcon48>
+        <Android_NotificationIcon72>$(ProjectName).Artwork\Android\FM_NotificationIcon_72x72.png</Android_NotificationIcon72>
+        <Android_NotificationIcon96>$(ProjectName).Artwork\Android\FM_NotificationIcon_96x96.png</Android_NotificationIcon96>
+        <Android_SplashImage426>$(ProjectName).Artwork\Android\FM_SplashImage_426x320.png</Android_SplashImage426>
+        <Android_SplashImage470>$(ProjectName).Artwork\Android\FM_SplashImage_470x320.png</Android_SplashImage470>
+        <Android_SplashImage640>$(ProjectName).Artwork\Android\FM_SplashImage_640x480.png</Android_SplashImage640>
+        <Android_SplashImage960>$(ProjectName).Artwork\Android\FM_SplashImage_960x720.png</Android_SplashImage960>
         <BT_BuildType>Debug</BT_BuildType>
         <DCC_UsePackage>fmx;DbxCommonDriver;bindengine;IndyIPCommon;emsclient;FireDACCommonDriver;IndyProtocols;PFFmpeg;IndyIPClient;dbxcds;Skia.Package.RTL;FmxTeeUI;bindcompfmx;FireDACSqliteDriver;DbxClientDriver;soapmidas;PZXing;fmxFireDAC;dbexpress;PBilsenGDIPlus;PipFMX;inet;DataSnapCommon;PipRTL;dbrtl;FireDACDBXDriver;Skia.Package.FMX;CustomIPTransport;DBXInterBaseDriver;IndySystem;PAlcinoeMin;bindcomp;FireDACCommon;IndyCore;RESTBackendComponents;PDelphiDX12;bindcompdbx;rtl;RESTComponents;DBXSqliteDriver;IndyIPServer;dsnapxml;DataSnapClient;DataSnapProviderClient;PVelthuisBigNumbers;DataSnapFireDAC;emsclientfiredac;FireDAC;FireDACDSDriver;xmlrtl;tethering;PDelphiCrossSocket;dsnap;CloudService;FMXTee;DataSnapNativeClient;soaprtl;soapserver;FireDACIBDriver;$(DCC_UsePackage)</DCC_UsePackage>
+        <EL_SecureFileSharing>true</EL_SecureFileSharing>
+        <IncludeAndroid_NotificationAccentColor>False</IncludeAndroid_NotificationAccentColor>
+        <IncludeAndroid_Splash>False</IncludeAndroid_Splash>
+        <VerInfo_Build>1</VerInfo_Build>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
-        <VerInfo_Keys>package=com.embarcadero.$(MSBuildProjectName);label=$(MSBuildProjectName);versionCode=1;versionName=1.0.0;persistent=False;restoreAnyVersion=False;installLocation=auto;largeHeap=False;theme=TitleBar;hardwareAccelerated=true;apiKey=</VerInfo_Keys>
+        <VerInfo_Keys>package=com.embarcadero.$(MSBuildProjectName);label=SK4D Demo;versionCode=1;versionName=1.0.0;persistent=False;restoreAnyVersion=False;installLocation=auto;largeHeap=False;theme=No TitleBar;hardwareAccelerated=true;apiKey=</VerInfo_Keys>
+        <IncludeAndroid_VectorizedNotificationIcon>True</IncludeAndroid_VectorizedNotificationIcon>
+        <Android_VectorizedNotificationIcon>$(ProjectName).Artwork\Android\FM_VectorizedNotificationIcon.xml</Android_VectorizedNotificationIcon>
+        <IncludeAndroid_AdaptiveIcon>True</IncludeAndroid_AdaptiveIcon>
+        <Android_AdaptiveIconBackground>$(ProjectName).Artwork\Android\FM_AdaptiveIcon_Background.xml</Android_AdaptiveIconBackground>
+        <Android_AdaptiveIconForeground>$(ProjectName).Artwork\Android\FM_AdaptiveIcon_Foreground.xml</Android_AdaptiveIconForeground>
+        <Android_AdaptiveIconMonochrome>$(ProjectName).Artwork\Android\FM_AdaptiveIcon_Monochrome.xml</Android_AdaptiveIconMonochrome>
+        <Android_BackgroundColor>#372C7C</Android_BackgroundColor>
+        <IncludeAndroid_VectorizedSplash>True</IncludeAndroid_VectorizedSplash>
+        <Android_VectorizedSplashV31>$(ProjectName).Artwork\Android\FM_VectorizedSplashV31.xml</Android_VectorizedSplashV31>
+        <Android_DarkBackgroundColor>#372C7C</Android_DarkBackgroundColor>
+        <Android_VectorizedSplashV31Dark>$(ProjectName).Artwork\Android\FM_VectorizedSplashV31Dark.xml</Android_VectorizedSplashV31Dark>
     </PropertyGroup>
-    <PropertyGroup Condition="'$(Base_Linux64)'!=''">
-        <DCC_UsePackage>DataSnapServer;fmx;emshosting;DbxCommonDriver;bindengine;FireDACCommonODBC;emsclient;FireDACCommonDriver;IndyProtocols;PFFmpeg;dbxcds;Skia.Package.RTL;emsedge;inetdb;FireDACSqliteDriver;DbxClientDriver;FireDACASADriver;soapmidas;dbexpress;PBilsenGDIPlus;FireDACInfxDriver;inet;DataSnapCommon;PipRTL;dbrtl;FireDACOracleDriver;Skia.Package.FMX;CustomIPTransport;FireDACMSSQLDriver;DataSnapIndy10ServerTransport;DataSnapConnectors;FireDACMongoDBDriver;IndySystem;FireDACTDataDriver;bindcomp;FireDACCommon;DataSnapServerMidas;FireDACODBCDriver;emsserverresource;IndyCore;RESTBackendComponents;rtl;FireDACMySQLDriver;FireDACADSDriver;RESTComponents;dsnapxml;DataSnapClient;DataSnapFireDAC;emsclientfiredac;FireDACPgDriver;FireDAC;xmlrtl;PDelphiCrossSocket;dsnap;CloudService;FireDACDb2Driver;DataSnapNativeClient;DatasnapConnectorsFreePascal;soaprtl;soapserver;FireDACIBDriver;$(DCC_UsePackage)</DCC_UsePackage>
+    <PropertyGroup Condition="'$(Base_iOSDevice64)'!=''">
+        <BT_BuildType>Debug</BT_BuildType>
+        <DCC_UsePackage>fmx;DbxCommonDriver;bindengine;IndyIPCommon;emsclient;FireDACCommonDriver;IndyProtocols;PFFmpeg;IndyIPClient;dbxcds;Skia.Package.RTL;FmxTeeUI;bindcompfmx;FireDACSqliteDriver;DbxClientDriver;soapmidas;PZXing;fmxFireDAC;dbexpress;PBilsenGDIPlus;PipFMX;inet;DataSnapCommon;fmxase;PipRTL;dbrtl;FireDACDBXDriver;Skia.Package.FMX;CustomIPTransport;DBXInterBaseDriver;IndySystem;PAlcinoeMin;bindcomp;FireDACCommon;IndyCore;RESTBackendComponents;PDelphiDX12;bindcompdbx;rtl;RESTComponents;DBXSqliteDriver;IndyIPServer;dsnapxml;DataSnapClient;DataSnapProviderClient;PVelthuisBigNumbers;DataSnapFireDAC;emsclientfiredac;FireDAC;FireDACDSDriver;xmlrtl;tethering;PDelphiCrossSocket;dsnap;CloudService;FMXTee;DataSnapNativeClient;soaprtl;soapserver;FireDACIBDriver;$(DCC_UsePackage)</DCC_UsePackage>
+        <VerInfo_BundleId>$(MSBuildProjectName)</VerInfo_BundleId>
+        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
+        <VerInfo_Keys>CFBundleName=$(MSBuildProjectName);CFBundleDevelopmentRegion=en;CFBundleDisplayName=SK4D Demo;CFBundleIdentifier=$(MSBuildProjectName);CFBundleInfoDictionaryVersion=7.1;CFBundleVersion=1.0.0;CFBundleShortVersionString=1.0.0;CFBundlePackageType=APPL;CFBundleSignature=????;LSRequiresIPhoneOS=true;CFBundleAllowMixedLocalizations=YES;CFBundleExecutable=$(MSBuildProjectName);UIDeviceFamily=iPhone &amp; iPad;NSLocationAlwaysUsageDescription=The reason for accessing the location information of the user;NSLocationWhenInUseUsageDescription=The reason for accessing the location information of the user;NSLocationAlwaysAndWhenInUseUsageDescription=The reason for accessing the location information of the user;UIBackgroundModes=;NSContactsUsageDescription=The reason for accessing the contacts;NSPhotoLibraryUsageDescription=The reason for accessing the photo library;NSPhotoLibraryAddUsageDescription=The reason for adding to the photo library;NSCameraUsageDescription=The reason for accessing the camera;NSFaceIDUsageDescription=The reason for accessing the face id;NSMicrophoneUsageDescription=The reason for accessing the microphone;NSSiriUsageDescription=The reason for accessing Siri;ITSAppUsesNonExemptEncryption=false;NSBluetoothAlwaysUsageDescription=The reason for accessing bluetooth;NSBluetoothPeripheralUsageDescription=The reason for accessing bluetooth peripherals;NSCalendarsUsageDescription=The reason for accessing the calendar data;NSRemindersUsageDescription=The reason for accessing the reminders;NSMotionUsageDescription=The reason for accessing the accelerometer;NSSpeechRecognitionUsageDescription=The reason for requesting to send user data to Apple&apos;s speech recognition servers;UIUserInterfaceStyle=UIUserInterfaceStyleLight</VerInfo_Keys>
+        <VerInfo_UIDeviceFamily>iPhoneAndiPad</VerInfo_UIDeviceFamily>
+        <iOS_AppStore1024>$(ProjectName).Artwork\iOS\iPhone\FM_ApplicationIcon_1024x1024.png</iOS_AppStore1024>
+        <iOS_BackgroundColor>FF372C7C</iOS_BackgroundColor>
+        <iOS_DarkBackgroundColor>FF372C7C</iOS_DarkBackgroundColor>
+        <iPad_AppIcon152>$(ProjectName).Artwork\iOS\iPad\FM_ApplicationIcon_152x152.png</iPad_AppIcon152>
+        <iPad_AppIcon167>$(ProjectName).Artwork\iOS\iPad\FM_ApplicationIcon_167x167.png</iPad_AppIcon167>
+        <iPad_Notification40>$(ProjectName).Artwork\iOS\iPad\FM_NotificationIcon_40x40.png</iPad_Notification40>
+        <iPad_Setting58>$(ProjectName).Artwork\iOS\iPad\FM_SettingIcon_58x58.png</iPad_Setting58>
+        <iPad_SpotLight80>$(ProjectName).Artwork\iOS\iPad\FM_SpotlightSearchIcon_80x80.png</iPad_SpotLight80>
+        <iPhone_AppIcon120>$(ProjectName).Artwork\iOS\iPhone\FM_ApplicationIcon_120x120.png</iPhone_AppIcon120>
+        <iPhone_AppIcon180>$(ProjectName).Artwork\iOS\iPhone\FM_ApplicationIcon_180x180.png</iPhone_AppIcon180>
+        <iPhone_Notification40>$(ProjectName).Artwork\iOS\iPhone\FM_NotificationIcon_40x40.png</iPhone_Notification40>
+        <iPhone_Notification60>$(ProjectName).Artwork\iOS\iPhone\FM_NotificationIcon_60x60.png</iPhone_Notification60>
+        <iPhone_Setting58>$(ProjectName).Artwork\iOS\iPhone\FM_SettingIcon_58x58.png</iPhone_Setting58>
+        <iPhone_Setting87>$(ProjectName).Artwork\iOS\iPhone\FM_SettingIcon_87x87.png</iPhone_Setting87>
+        <iPhone_Spotlight120>$(ProjectName).Artwork\iOS\iPhone\FM_SpotlightSearchIcon_120x120.png</iPhone_Spotlight120>
+        <iPhone_Spotlight80>$(ProjectName).Artwork\iOS\iPhone\FM_SpotlightSearchIcon_80x80.png</iPhone_Spotlight80>
+        <iPhone_Launch2x>$(ProjectName).Artwork\iOS\iPhone\FM_LaunchImage_2x.png</iPhone_Launch2x>
+        <iPhone_Launch3x>$(ProjectName).Artwork\iOS\iPhone\FM_LaunchImage_3x.png</iPhone_Launch3x>
+        <iPad_Launch2x>$(ProjectName).Artwork\iOS\iPad\FM_LaunchImage_2x.png</iPad_Launch2x>
+        <iPhone_LaunchDark2x>$(ProjectName).Artwork\iOS\iPhone\FM_LaunchImageDark_2x.png</iPhone_LaunchDark2x>
+        <iPhone_LaunchDark3x>$(ProjectName).Artwork\iOS\iPhone\FM_LaunchImageDark_3x.png</iPhone_LaunchDark3x>
+        <iPad_LaunchDark2x>$(ProjectName).Artwork\iOS\iPad\FM_LaunchImageDark_2x.png</iPad_LaunchDark2x>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Base_iOSSimARM64)'!=''">
+        <DCC_UsePackage>fmx;DbxCommonDriver;bindengine;IndyIPCommon;emsclient;FireDACCommonDriver;IndyProtocols;PFFmpeg;IndyIPClient;dbxcds;Skia.Package.RTL;FmxTeeUI;bindcompfmx;FireDACSqliteDriver;DbxClientDriver;soapmidas;PZXing;fmxFireDAC;dbexpress;PBilsenGDIPlus;PipFMX;inet;DataSnapCommon;fmxase;PipRTL;dbrtl;FireDACDBXDriver;Skia.Package.FMX;CustomIPTransport;DBXInterBaseDriver;IndySystem;PAlcinoeMin;bindcomp;FireDACCommon;IndyCore;RESTBackendComponents;PDelphiDX12;bindcompdbx;rtl;RESTComponents;DBXSqliteDriver;IndyIPServer;dsnapxml;DataSnapClient;DataSnapProviderClient;PVelthuisBigNumbers;DataSnapFireDAC;emsclientfiredac;FireDAC;FireDACDSDriver;xmlrtl;tethering;PDelphiCrossSocket;dsnap;CloudService;FMXTee;DataSnapNativeClient;soaprtl;soapserver;FireDACIBDriver;$(DCC_UsePackage);$(DCC_UsePackage)</DCC_UsePackage>
+        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
+        <VerInfo_Keys>CFBundleName=$(MSBuildProjectName);CFBundleDevelopmentRegion=en;CFBundleDisplayName=SK4D Demo;CFBundleIdentifier=$(MSBuildProjectName);CFBundleInfoDictionaryVersion=7.1;CFBundleVersion=1.0.0;CFBundleShortVersionString=1.0.0;CFBundlePackageType=APPL;CFBundleSignature=????;LSRequiresIPhoneOS=true;CFBundleAllowMixedLocalizations=YES;CFBundleExecutable=$(MSBuildProjectName);UIDeviceFamily=iPhone &amp; iPad;NSLocationAlwaysUsageDescription=The reason for accessing the location information of the user;NSLocationWhenInUseUsageDescription=The reason for accessing the location information of the user;NSLocationAlwaysAndWhenInUseUsageDescription=The reason for accessing the location information of the user;UIBackgroundModes=;NSContactsUsageDescription=The reason for accessing the contacts;NSPhotoLibraryUsageDescription=The reason for accessing the photo library;NSPhotoLibraryAddUsageDescription=The reason for adding to the photo library;NSCameraUsageDescription=The reason for accessing the camera;NSFaceIDUsageDescription=The reason for accessing the face id;NSMicrophoneUsageDescription=The reason for accessing the microphone;NSSiriUsageDescription=The reason for accessing Siri;ITSAppUsesNonExemptEncryption=false;NSBluetoothAlwaysUsageDescription=The reason for accessing bluetooth;NSBluetoothPeripheralUsageDescription=The reason for accessing bluetooth peripherals;NSCalendarsUsageDescription=The reason for accessing the calendar data;NSRemindersUsageDescription=The reason for accessing the reminders;NSMotionUsageDescription=The reason for accessing the accelerometer;NSSpeechRecognitionUsageDescription=The reason for requesting to send user data to Apple&apos;s speech recognition servers;UIUserInterfaceStyle=UIUserInterfaceStyleLight</VerInfo_Keys>
+        <VerInfo_UIDeviceFamily>iPhoneAndiPad</VerInfo_UIDeviceFamily>
+        <iOS_AppStore1024>$(ProjectName).Artwork\iOS\iPhone\FM_ApplicationIcon_1024x1024.png</iOS_AppStore1024>
+        <iOS_BackgroundColor>FF372C7C</iOS_BackgroundColor>
+        <iOS_DarkBackgroundColor>FF372C7C</iOS_DarkBackgroundColor>
+        <iPad_AppIcon152>$(ProjectName).Artwork\iOS\iPad\FM_ApplicationIcon_152x152.png</iPad_AppIcon152>
+        <iPad_AppIcon167>$(ProjectName).Artwork\iOS\iPad\FM_ApplicationIcon_167x167.png</iPad_AppIcon167>
+        <iPad_Notification40>$(ProjectName).Artwork\iOS\iPad\FM_NotificationIcon_40x40.png</iPad_Notification40>
+        <iPad_Setting58>$(ProjectName).Artwork\iOS\iPad\FM_SettingIcon_58x58.png</iPad_Setting58>
+        <iPad_SpotLight80>$(ProjectName).Artwork\iOS\iPad\FM_SpotlightSearchIcon_80x80.png</iPad_SpotLight80>
+        <iPhone_AppIcon120>$(ProjectName).Artwork\iOS\iPhone\FM_ApplicationIcon_120x120.png</iPhone_AppIcon120>
+        <iPhone_AppIcon180>$(ProjectName).Artwork\iOS\iPhone\FM_ApplicationIcon_180x180.png</iPhone_AppIcon180>
+        <iPhone_Notification40>$(ProjectName).Artwork\iOS\iPhone\FM_NotificationIcon_40x40.png</iPhone_Notification40>
+        <iPhone_Notification60>$(ProjectName).Artwork\iOS\iPhone\FM_NotificationIcon_60x60.png</iPhone_Notification60>
+        <iPhone_Setting58>$(ProjectName).Artwork\iOS\iPhone\FM_SettingIcon_58x58.png</iPhone_Setting58>
+        <iPhone_Setting87>$(ProjectName).Artwork\iOS\iPhone\FM_SettingIcon_87x87.png</iPhone_Setting87>
+        <iPhone_Spotlight120>$(ProjectName).Artwork\iOS\iPhone\FM_SpotlightSearchIcon_120x120.png</iPhone_Spotlight120>
+        <iPhone_Spotlight80>$(ProjectName).Artwork\iOS\iPhone\FM_SpotlightSearchIcon_80x80.png</iPhone_Spotlight80>
+        <iPhone_Launch2x>$(ProjectName).Artwork\iOS\iPhone\FM_LaunchImage_2x.png</iPhone_Launch2x>
+        <iPhone_Launch3x>$(ProjectName).Artwork\iOS\iPhone\FM_LaunchImage_3x.png</iPhone_Launch3x>
+        <iPad_Launch2x>$(ProjectName).Artwork\iOS\iPad\FM_LaunchImage_2x.png</iPad_Launch2x>
+        <iPhone_LaunchDark2x>$(ProjectName).Artwork\iOS\iPhone\FM_LaunchImageDark_2x.png</iPhone_LaunchDark2x>
+        <iPhone_LaunchDark3x>$(ProjectName).Artwork\iOS\iPhone\FM_LaunchImageDark_3x.png</iPhone_LaunchDark3x>
+        <iPad_LaunchDark2x>$(ProjectName).Artwork\iOS\iPad\FM_LaunchImageDark_2x.png</iPad_LaunchDark2x>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_OSX64)'!=''">
         <BT_BuildType>Debug</BT_BuildType>
         <DCC_UsePackage>DataSnapServer;fmx;DbxCommonDriver;bindengine;IndyIPCommon;FireDACCommonODBC;emsclient;FireDACCommonDriver;IndyProtocols;PFFmpeg;IndyIPClient;dbxcds;Skia.Package.RTL;FmxTeeUI;bindcompfmx;DBXFirebirdDriver;inetdb;FireDACSqliteDriver;DbxClientDriver;FireDACASADriver;soapmidas;fmxFireDAC;dbexpress;PBilsenGDIPlus;DBXMySQLDriver;inet;DataSnapCommon;fmxase;dbrtl;FireDACDBXDriver;FireDACOracleDriver;Skia.Package.FMX;fmxdae;CustomIPTransport;FireDACMSSQLDriver;DataSnapIndy10ServerTransport;DBXInterBaseDriver;FireDACMongoDBDriver;IndySystem;FireDACTDataDriver;bindcomp;FireDACCommon;DataSnapServerMidas;FireDACODBCDriver;IndyCore;RESTBackendComponents;bindcompdbx;rtl;FireDACMySQLDriver;RESTComponents;DBXSqliteDriver;IndyIPServer;dsnapxml;DataSnapClient;DataSnapProviderClient;DataSnapFireDAC;emsclientfiredac;FireDACPgDriver;FireDAC;FireDACDSDriver;inetdbxpress;xmlrtl;tethering;dsnap;CloudService;DBXSybaseASADriver;DBXOracleDriver;DBXInformixDriver;fmxobj;FMXTee;DataSnapNativeClient;soaprtl;soapserver;FireDACIBDriver;$(DCC_UsePackage)</DCC_UsePackage>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
-        <VerInfo_Keys>CFBundleName=$(MSBuildProjectName);CFBundleDisplayName=$(MSBuildProjectName);CFBundleIdentifier=$(MSBuildProjectName);CFBundleVersion=1.0.0;CFBundleShortVersionString=1.0.0;CFBundlePackageType=APPL;CFBundleSignature=????;CFBundleAllowMixedLocalizations=YES;CFBundleExecutable=$(MSBuildProjectName);NSHighResolutionCapable=true;LSApplicationCategoryType=public.app-category.utilities;NSLocationUsageDescription=The reason for accessing the location information of the user;NSContactsUsageDescription=The reason for accessing the contacts;NSCalendarsUsageDescription=The reason for accessing the calendar data;NSRemindersUsageDescription=The reason for accessing the reminders;NSCameraUsageDescription=The reason for accessing the camera;NSMicrophoneUsageDescription=The reason for accessing the microphone;NSMotionUsageDescription=The reason for accessing the accelerometer;NSDesktopFolderUsageDescription=The reason for accessing the Desktop folder;NSDocumentsFolderUsageDescription=The reason for accessing the Documents folder;NSDownloadsFolderUsageDescription=The reason for accessing the Downloads folder;NSNetworkVolumesUsageDescription=The reason for accessing files on a network volume;NSRemovableVolumesUsageDescription=The reason for accessing files on a removable volume;NSSpeechRecognitionUsageDescription=The reason for requesting to send user data to Apple&apos;s speech recognition servers</VerInfo_Keys>
+        <VerInfo_Keys>CFBundleName=$(MSBuildProjectName);CFBundleDisplayName=$(MSBuildProjectName);CFBundleIdentifier=$(MSBuildProjectName);CFBundleVersion=1.0.0;CFBundleShortVersionString=1.0.0;CFBundlePackageType=APPL;CFBundleSignature=????;CFBundleAllowMixedLocalizations=YES;CFBundleExecutable=$(MSBuildProjectName);NSHighResolutionCapable=true;LSApplicationCategoryType=public.app-category.utilities;NSLocationUsageDescription=The reason for accessing the location information of the user;NSContactsUsageDescription=The reason for accessing the contacts;NSCalendarsUsageDescription=The reason for accessing the calendar data;NSRemindersUsageDescription=The reason for accessing the reminders;NSCameraUsageDescription=The reason for accessing the camera;NSMicrophoneUsageDescription=The reason for accessing the microphone;NSMotionUsageDescription=The reason for accessing the accelerometer;NSDesktopFolderUsageDescription=The reason for accessing the Desktop folder;NSDocumentsFolderUsageDescription=The reason for accessing the Documents folder;NSDownloadsFolderUsageDescription=The reason for accessing the Downloads folder;NSNetworkVolumesUsageDescription=The reason for accessing files on a network volume;NSRemovableVolumesUsageDescription=The reason for accessing files on a removable volume;NSSpeechRecognitionUsageDescription=The reason for requesting to send user data to Apple&apos;s speech recognition servers;ITSAppUsesNonExemptEncryption=false;NSBluetoothAlwaysUsageDescription=The reason for accessing the Bluetooth interface</VerInfo_Keys>
+        <Icon_MainIcon>$(ProjectName).Artwork\macOS\AppIcon.ico</Icon_MainIcon>
+        <Icns_MainIcns>$(ProjectName).Artwork\macOS\AppIcon.icns</Icns_MainIcns>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_OSXARM64)'!=''">
         <BT_BuildType>Debug</BT_BuildType>
         <DCC_UsePackage>DataSnapServer;fmx;DbxCommonDriver;bindengine;IndyIPCommon;FireDACCommonODBC;emsclient;FireDACCommonDriver;IndyProtocols;IndyIPClient;dbxcds;FmxTeeUI;bindcompfmx;DBXFirebirdDriver;inetdb;FireDACSqliteDriver;DbxClientDriver;FireDACASADriver;soapmidas;fmxFireDAC;dbexpress;DBXMySQLDriver;inet;DataSnapCommon;fmxase;dbrtl;FireDACDBXDriver;FireDACOracleDriver;fmxdae;CustomIPTransport;FireDACMSSQLDriver;DataSnapIndy10ServerTransport;DBXInterBaseDriver;FireDACMongoDBDriver;IndySystem;FireDACTDataDriver;bindcomp;FireDACCommon;DataSnapServerMidas;FireDACODBCDriver;IndyCore;RESTBackendComponents;bindcompdbx;rtl;FireDACMySQLDriver;RESTComponents;DBXSqliteDriver;IndyIPServer;dsnapxml;DataSnapClient;DataSnapProviderClient;DataSnapFireDAC;emsclientfiredac;FireDACPgDriver;FireDAC;FireDACDSDriver;inetdbxpress;xmlrtl;tethering;dsnap;CloudService;DBXSybaseASADriver;DBXOracleDriver;DBXInformixDriver;fmxobj;FMXTee;DataSnapNativeClient;soaprtl;soapserver;FireDACIBDriver;$(DCC_UsePackage)</DCC_UsePackage>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
-        <VerInfo_Keys>CFBundleName=$(MSBuildProjectName);CFBundleDisplayName=$(MSBuildProjectName);CFBundleIdentifier=$(MSBuildProjectName);CFBundleVersion=1.0.0;CFBundleShortVersionString=1.0.0;CFBundlePackageType=APPL;CFBundleSignature=????;CFBundleAllowMixedLocalizations=YES;CFBundleExecutable=$(MSBuildProjectName);NSHighResolutionCapable=true;LSApplicationCategoryType=public.app-category.utilities;NSLocationUsageDescription=The reason for accessing the location information of the user;NSContactsUsageDescription=The reason for accessing the contacts;NSCalendarsUsageDescription=The reason for accessing the calendar data;NSRemindersUsageDescription=The reason for accessing the reminders;NSCameraUsageDescription=The reason for accessing the camera;NSMicrophoneUsageDescription=The reason for accessing the microphone;NSMotionUsageDescription=The reason for accessing the accelerometer;NSDesktopFolderUsageDescription=The reason for accessing the Desktop folder;NSDocumentsFolderUsageDescription=The reason for accessing the Documents folder;NSDownloadsFolderUsageDescription=The reason for accessing the Downloads folder;NSNetworkVolumesUsageDescription=The reason for accessing files on a network volume;NSRemovableVolumesUsageDescription=The reason for accessing files on a removable volume;NSSpeechRecognitionUsageDescription=The reason for requesting to send user data to Apple&apos;s speech recognition servers</VerInfo_Keys>
+        <VerInfo_Keys>CFBundleName=$(MSBuildProjectName);CFBundleDisplayName=$(MSBuildProjectName);CFBundleIdentifier=$(MSBuildProjectName);CFBundleVersion=1.0.0;CFBundleShortVersionString=1.0.0;CFBundlePackageType=APPL;CFBundleSignature=????;CFBundleAllowMixedLocalizations=YES;CFBundleExecutable=$(MSBuildProjectName);NSHighResolutionCapable=true;LSApplicationCategoryType=public.app-category.utilities;NSLocationUsageDescription=The reason for accessing the location information of the user;NSContactsUsageDescription=The reason for accessing the contacts;NSCalendarsUsageDescription=The reason for accessing the calendar data;NSRemindersUsageDescription=The reason for accessing the reminders;NSCameraUsageDescription=The reason for accessing the camera;NSMicrophoneUsageDescription=The reason for accessing the microphone;NSMotionUsageDescription=The reason for accessing the accelerometer;NSDesktopFolderUsageDescription=The reason for accessing the Desktop folder;NSDocumentsFolderUsageDescription=The reason for accessing the Documents folder;NSDownloadsFolderUsageDescription=The reason for accessing the Downloads folder;NSNetworkVolumesUsageDescription=The reason for accessing files on a network volume;NSRemovableVolumesUsageDescription=The reason for accessing files on a removable volume;NSSpeechRecognitionUsageDescription=The reason for requesting to send user data to Apple&apos;s speech recognition servers;ITSAppUsesNonExemptEncryption=false;NSBluetoothAlwaysUsageDescription=The reason for accessing the Bluetooth interface</VerInfo_Keys>
+        <Icon_MainIcon>$(ProjectName).Artwork\macOS\AppIcon.ico</Icon_MainIcon>
+        <Icns_MainIcns>$(ProjectName).Artwork\macOS\AppIcon.icns</Icns_MainIcns>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win32)'!=''">
         <BT_BuildType>Debug</BT_BuildType>
@@ -188,6 +308,10 @@
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
         <VerInfo_Locale>1033</VerInfo_Locale>
+        <Icon_MainIcon>$(ProjectName).Artwork\Windows\AppIcon.ico</Icon_MainIcon>
+        <Icns_MainIcns>$(ProjectName).Artwork\Windows\AppIcon.icns</Icns_MainIcns>
+        <UWP_DelphiLogo44>$(ProjectName).Artwork\Windows\Uwp_44.png</UWP_DelphiLogo44>
+        <UWP_DelphiLogo150>$(ProjectName).Artwork\Windows\Uwp_150.png</UWP_DelphiLogo150>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win64)'!=''">
         <BT_BuildType>Debug</BT_BuildType>
@@ -197,60 +321,10 @@
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
         <VerInfo_Locale>1033</VerInfo_Locale>
-    </PropertyGroup>
-    <PropertyGroup Condition="'$(Base_iOSDevice64)'!=''">
-        <BT_BuildType>Debug</BT_BuildType>
-        <DCC_UsePackage>fmx;DbxCommonDriver;bindengine;IndyIPCommon;emsclient;FireDACCommonDriver;IndyProtocols;PFFmpeg;IndyIPClient;dbxcds;Skia.Package.RTL;FmxTeeUI;bindcompfmx;FireDACSqliteDriver;DbxClientDriver;soapmidas;PZXing;fmxFireDAC;dbexpress;PBilsenGDIPlus;PipFMX;inet;DataSnapCommon;fmxase;PipRTL;dbrtl;FireDACDBXDriver;Skia.Package.FMX;CustomIPTransport;DBXInterBaseDriver;IndySystem;PAlcinoeMin;bindcomp;FireDACCommon;IndyCore;RESTBackendComponents;PDelphiDX12;bindcompdbx;rtl;RESTComponents;DBXSqliteDriver;IndyIPServer;dsnapxml;DataSnapClient;DataSnapProviderClient;PVelthuisBigNumbers;DataSnapFireDAC;emsclientfiredac;FireDAC;FireDACDSDriver;xmlrtl;tethering;PDelphiCrossSocket;dsnap;CloudService;FMXTee;DataSnapNativeClient;soaprtl;soapserver;FireDACIBDriver;$(DCC_UsePackage)</DCC_UsePackage>
-        <VerInfo_BundleId>$(MSBuildProjectName)</VerInfo_BundleId>
-        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
-        <VerInfo_Keys>CFBundleName=$(MSBuildProjectName);CFBundleDevelopmentRegion=en;CFBundleDisplayName=$(MSBuildProjectName);CFBundleIdentifier=$(MSBuildProjectName);CFBundleInfoDictionaryVersion=7.1;CFBundleVersion=1.0.0;CFBundleShortVersionString=1.0.0;CFBundlePackageType=APPL;CFBundleSignature=????;LSRequiresIPhoneOS=true;CFBundleAllowMixedLocalizations=YES;CFBundleExecutable=$(MSBuildProjectName);UIDeviceFamily=iPhone &amp; iPad;NSLocationAlwaysUsageDescription=The reason for accessing the location information of the user;NSLocationWhenInUseUsageDescription=The reason for accessing the location information of the user;NSLocationAlwaysAndWhenInUseUsageDescription=The reason for accessing the location information of the user;UIBackgroundModes=;NSContactsUsageDescription=The reason for accessing the contacts;NSPhotoLibraryUsageDescription=The reason for accessing the photo library;NSPhotoLibraryAddUsageDescription=The reason for adding to the photo library;NSCameraUsageDescription=The reason for accessing the camera;NSFaceIDUsageDescription=The reason for accessing the face id;NSMicrophoneUsageDescription=The reason for accessing the microphone;NSSiriUsageDescription=The reason for accessing Siri;ITSAppUsesNonExemptEncryption=false;NSBluetoothAlwaysUsageDescription=The reason for accessing bluetooth;NSBluetoothPeripheralUsageDescription=The reason for accessing bluetooth peripherals;NSCalendarsUsageDescription=The reason for accessing the calendar data;NSRemindersUsageDescription=The reason for accessing the reminders;NSMotionUsageDescription=The reason for accessing the accelerometer;NSSpeechRecognitionUsageDescription=The reason for requesting to send user data to Apple&apos;s speech recognition servers</VerInfo_Keys>
-        <VerInfo_UIDeviceFamily>iPhoneAndiPad</VerInfo_UIDeviceFamily>
-        <iOS_AppStore1024>$(BDS)\bin\Artwork\iOS\iPhone\FM_ApplicationIcon_1024x1024.png</iOS_AppStore1024>
-        <iPad_AppIcon152>$(BDS)\bin\Artwork\iOS\iPad\FM_ApplicationIcon_152x152.png</iPad_AppIcon152>
-        <iPad_AppIcon167>$(BDS)\bin\Artwork\iOS\iPad\FM_ApplicationIcon_167x167.png</iPad_AppIcon167>
-        <iPad_Launch2x>$(BDS)\bin\Artwork\iOS\iPad\FM_LaunchImage_2x.png</iPad_Launch2x>
-        <iPad_LaunchDark2x>$(BDS)\bin\Artwork\iOS\iPad\FM_LaunchImageDark_2x.png</iPad_LaunchDark2x>
-        <iPad_Notification40>$(BDS)\bin\Artwork\iOS\iPad\FM_NotificationIcon_40x40.png</iPad_Notification40>
-        <iPad_Setting58>$(BDS)\bin\Artwork\iOS\iPad\FM_SettingIcon_58x58.png</iPad_Setting58>
-        <iPad_SpotLight80>$(BDS)\bin\Artwork\iOS\iPad\FM_SpotlightSearchIcon_80x80.png</iPad_SpotLight80>
-        <iPhone_AppIcon120>$(BDS)\bin\Artwork\iOS\iPhone\FM_ApplicationIcon_120x120.png</iPhone_AppIcon120>
-        <iPhone_AppIcon180>$(BDS)\bin\Artwork\iOS\iPhone\FM_ApplicationIcon_180x180.png</iPhone_AppIcon180>
-        <iPhone_Launch2x>$(BDS)\bin\Artwork\iOS\iPhone\FM_LaunchImage_2x.png</iPhone_Launch2x>
-        <iPhone_Launch3x>$(BDS)\bin\Artwork\iOS\iPhone\FM_LaunchImage_3x.png</iPhone_Launch3x>
-        <iPhone_LaunchDark2x>$(BDS)\bin\Artwork\iOS\iPhone\FM_LaunchImageDark_2x.png</iPhone_LaunchDark2x>
-        <iPhone_LaunchDark3x>$(BDS)\bin\Artwork\iOS\iPhone\FM_LaunchImageDark_3x.png</iPhone_LaunchDark3x>
-        <iPhone_Notification40>$(BDS)\bin\Artwork\iOS\iPhone\FM_NotificationIcon_40x40.png</iPhone_Notification40>
-        <iPhone_Notification60>$(BDS)\bin\Artwork\iOS\iPhone\FM_NotificationIcon_60x60.png</iPhone_Notification60>
-        <iPhone_Setting58>$(BDS)\bin\Artwork\iOS\iPhone\FM_SettingIcon_58x58.png</iPhone_Setting58>
-        <iPhone_Setting87>$(BDS)\bin\Artwork\iOS\iPhone\FM_SettingIcon_87x87.png</iPhone_Setting87>
-        <iPhone_Spotlight120>$(BDS)\bin\Artwork\iOS\iPhone\FM_SpotlightSearchIcon_120x120.png</iPhone_Spotlight120>
-        <iPhone_Spotlight80>$(BDS)\bin\Artwork\iOS\iPhone\FM_SpotlightSearchIcon_80x80.png</iPhone_Spotlight80>
-    </PropertyGroup>
-    <PropertyGroup Condition="'$(Base_iOSSimARM64)'!=''">
-        <DCC_UsePackage>fmx;DbxCommonDriver;bindengine;IndyIPCommon;emsclient;FireDACCommonDriver;IndyProtocols;PFFmpeg;IndyIPClient;dbxcds;Skia.Package.RTL;FmxTeeUI;bindcompfmx;FireDACSqliteDriver;DbxClientDriver;soapmidas;PZXing;fmxFireDAC;dbexpress;PBilsenGDIPlus;PipFMX;inet;DataSnapCommon;fmxase;PipRTL;dbrtl;FireDACDBXDriver;Skia.Package.FMX;CustomIPTransport;DBXInterBaseDriver;IndySystem;PAlcinoeMin;bindcomp;FireDACCommon;IndyCore;RESTBackendComponents;PDelphiDX12;bindcompdbx;rtl;RESTComponents;DBXSqliteDriver;IndyIPServer;dsnapxml;DataSnapClient;DataSnapProviderClient;PVelthuisBigNumbers;DataSnapFireDAC;emsclientfiredac;FireDAC;FireDACDSDriver;xmlrtl;tethering;PDelphiCrossSocket;dsnap;CloudService;FMXTee;DataSnapNativeClient;soaprtl;soapserver;FireDACIBDriver;$(DCC_UsePackage);$(DCC_UsePackage)</DCC_UsePackage>
-        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
-        <VerInfo_Keys>CFBundleName=$(MSBuildProjectName);CFBundleDevelopmentRegion=en;CFBundleDisplayName=$(MSBuildProjectName);CFBundleIdentifier=$(MSBuildProjectName);CFBundleInfoDictionaryVersion=7.1;CFBundleVersion=1.0.0;CFBundleShortVersionString=1.0.0;CFBundlePackageType=APPL;CFBundleSignature=????;LSRequiresIPhoneOS=true;CFBundleAllowMixedLocalizations=YES;CFBundleExecutable=$(MSBuildProjectName);UIDeviceFamily=iPhone &amp; iPad;NSLocationAlwaysUsageDescription=The reason for accessing the location information of the user;NSLocationWhenInUseUsageDescription=The reason for accessing the location information of the user;NSLocationAlwaysAndWhenInUseUsageDescription=The reason for accessing the location information of the user;UIBackgroundModes=;NSContactsUsageDescription=The reason for accessing the contacts;NSPhotoLibraryUsageDescription=The reason for accessing the photo library;NSPhotoLibraryAddUsageDescription=The reason for adding to the photo library;NSCameraUsageDescription=The reason for accessing the camera;NSFaceIDUsageDescription=The reason for accessing the face id;NSMicrophoneUsageDescription=The reason for accessing the microphone;NSSiriUsageDescription=The reason for accessing Siri;ITSAppUsesNonExemptEncryption=false;NSBluetoothAlwaysUsageDescription=The reason for accessing bluetooth;NSBluetoothPeripheralUsageDescription=The reason for accessing bluetooth peripherals;NSCalendarsUsageDescription=The reason for accessing the calendar data;NSRemindersUsageDescription=The reason for accessing the reminders;NSMotionUsageDescription=The reason for accessing the accelerometer;NSSpeechRecognitionUsageDescription=The reason for requesting to send user data to Apple&apos;s speech recognition servers</VerInfo_Keys>
-        <VerInfo_UIDeviceFamily>iPhoneAndiPad</VerInfo_UIDeviceFamily>
-        <iOS_AppStore1024>$(BDS)\bin\Artwork\iOS\iPhone\FM_ApplicationIcon_1024x1024.png</iOS_AppStore1024>
-        <iPad_AppIcon152>$(BDS)\bin\Artwork\iOS\iPad\FM_ApplicationIcon_152x152.png</iPad_AppIcon152>
-        <iPad_AppIcon167>$(BDS)\bin\Artwork\iOS\iPad\FM_ApplicationIcon_167x167.png</iPad_AppIcon167>
-        <iPad_Launch2x>$(BDS)\bin\Artwork\iOS\iPad\FM_LaunchImage_2x.png</iPad_Launch2x>
-        <iPad_LaunchDark2x>$(BDS)\bin\Artwork\iOS\iPad\FM_LaunchImageDark_2x.png</iPad_LaunchDark2x>
-        <iPad_Notification40>$(BDS)\bin\Artwork\iOS\iPad\FM_NotificationIcon_40x40.png</iPad_Notification40>
-        <iPad_Setting58>$(BDS)\bin\Artwork\iOS\iPad\FM_SettingIcon_58x58.png</iPad_Setting58>
-        <iPad_SpotLight80>$(BDS)\bin\Artwork\iOS\iPad\FM_SpotlightSearchIcon_80x80.png</iPad_SpotLight80>
-        <iPhone_AppIcon120>$(BDS)\bin\Artwork\iOS\iPhone\FM_ApplicationIcon_120x120.png</iPhone_AppIcon120>
-        <iPhone_AppIcon180>$(BDS)\bin\Artwork\iOS\iPhone\FM_ApplicationIcon_180x180.png</iPhone_AppIcon180>
-        <iPhone_Launch2x>$(BDS)\bin\Artwork\iOS\iPhone\FM_LaunchImage_2x.png</iPhone_Launch2x>
-        <iPhone_Launch3x>$(BDS)\bin\Artwork\iOS\iPhone\FM_LaunchImage_3x.png</iPhone_Launch3x>
-        <iPhone_LaunchDark2x>$(BDS)\bin\Artwork\iOS\iPhone\FM_LaunchImageDark_2x.png</iPhone_LaunchDark2x>
-        <iPhone_LaunchDark3x>$(BDS)\bin\Artwork\iOS\iPhone\FM_LaunchImageDark_3x.png</iPhone_LaunchDark3x>
-        <iPhone_Notification40>$(BDS)\bin\Artwork\iOS\iPhone\FM_NotificationIcon_40x40.png</iPhone_Notification40>
-        <iPhone_Notification60>$(BDS)\bin\Artwork\iOS\iPhone\FM_NotificationIcon_60x60.png</iPhone_Notification60>
-        <iPhone_Setting58>$(BDS)\bin\Artwork\iOS\iPhone\FM_SettingIcon_58x58.png</iPhone_Setting58>
-        <iPhone_Setting87>$(BDS)\bin\Artwork\iOS\iPhone\FM_SettingIcon_87x87.png</iPhone_Setting87>
-        <iPhone_Spotlight120>$(BDS)\bin\Artwork\iOS\iPhone\FM_SpotlightSearchIcon_120x120.png</iPhone_Spotlight120>
-        <iPhone_Spotlight80>$(BDS)\bin\Artwork\iOS\iPhone\FM_SpotlightSearchIcon_80x80.png</iPhone_Spotlight80>
+        <Icon_MainIcon>$(ProjectName).Artwork\Windows\AppIcon.ico</Icon_MainIcon>
+        <Icns_MainIcns>$(ProjectName).Artwork\Windows\AppIcon.icns</Icns_MainIcns>
+        <UWP_DelphiLogo44>$(ProjectName).Artwork\Windows\Uwp_44.png</UWP_DelphiLogo44>
+        <UWP_DelphiLogo150>$(ProjectName).Artwork\Windows\Uwp_150.png</UWP_DelphiLogo150>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1)'!=''">
         <DCC_DebugDCUs>true</DCC_DebugDCUs>
@@ -262,10 +336,22 @@
         <DCC_RangeChecking>true</DCC_RangeChecking>
         <DCC_RemoteDebug>true</DCC_RemoteDebug>
     </PropertyGroup>
+    <PropertyGroup Condition="'$(Cfg_1_iOSDevice64)'!=''">
+        <VerInfo_BundleId>$(MSBuildProjectName)</VerInfo_BundleId>
+        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
+        <VerInfo_UIDeviceFamily>iPhoneAndiPad</VerInfo_UIDeviceFamily>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Cfg_1_iOSSimARM64)'!=''">
+        <Cfg_1>true</Cfg_1>
+        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
+        <VerInfo_UIDeviceFamily>iPhoneAndiPad</VerInfo_UIDeviceFamily>
+    </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1_Win32)'!=''">
         <AppDPIAwarenessMode>PerMonitorV2</AppDPIAwarenessMode>
         <AppEnableRuntimeThemes>true</AppEnableRuntimeThemes>
         <DCC_RemoteDebug>false</DCC_RemoteDebug>
+        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
+        <VerInfo_Locale>1033</VerInfo_Locale>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1_Win64)'!=''">
         <AppDPIAwarenessMode>PerMonitorV2</AppDPIAwarenessMode>
@@ -277,13 +363,25 @@
         <DCC_LocalDebugSymbols>false</DCC_LocalDebugSymbols>
         <DCC_SymbolReferenceInfo>0</DCC_SymbolReferenceInfo>
     </PropertyGroup>
-    <PropertyGroup Condition="'$(Cfg_2_Android64)'!=''">
-        <Android_NotificationAccentColor>#000000</Android_NotificationAccentColor>
+    <PropertyGroup Condition="'$(Cfg_2_Android)'!=''">
+        <IncludeAndroid_Splash>False</IncludeAndroid_Splash>
         <VerInfo_Build>1</VerInfo_Build>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Cfg_2_Android64)'!=''">
+        <VerInfo_Build>1</VerInfo_Build>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Cfg_2_iOSDevice64)'!=''">
+        <VerInfo_BundleId>$(MSBuildProjectName)</VerInfo_BundleId>
+        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
+        <VerInfo_UIDeviceFamily>iPhoneAndiPad</VerInfo_UIDeviceFamily>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Cfg_2_iOSSimARM64)'!=''">
+        <Cfg_2>true</Cfg_2>
+        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
+        <VerInfo_UIDeviceFamily>iPhoneAndiPad</VerInfo_UIDeviceFamily>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
         <AppDPIAwarenessMode>PerMonitorV2</AppDPIAwarenessMode>
-        <AppEnableRuntimeThemes>true</AppEnableRuntimeThemes>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_Locale>1033</VerInfo_Locale>
     </PropertyGroup>
@@ -299,6 +397,19 @@
             <Form>frmMain</Form>
             <FormType>fmx</FormType>
         </DCCReference>
+        <DCCReference Include="..\..\Source\Sample.Form.PDF.Creation.pas">
+            <Form>frmPDFCreation</Form>
+            <FormType>fmx</FormType>
+        </DCCReference>
+        <DCCReference Include="..\..\Source\Sample.Form.PDF.Viewer.pas">
+            <Form>frmPDFViewer</Form>
+            <FormType>fmx</FormType>
+        </DCCReference>
+        <DCCReference Include="..\..\Source\Sample.Form.QRCode.Render.pas">
+            <Form>frmQRCodeRender</Form>
+            <FormType>fmx</FormType>
+        </DCCReference>
+        <DCCReference Include="..\..\Source\Sample.QRCode.Render.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
@@ -317,24 +428,55 @@
         <BorlandProject>
             <Delphi.Personality>
                 <Source>
-                    <Source Name="MainSource">BricksGame.dpr</Source>
+                    <Source Name="MainSource">SK4D_Demo.dpr</Source>
                 </Source>
                 <Excluded_Packages/>
             </Delphi.Personality>
             <Deployment Version="4">
-                <DeployFile Condition="'$(SKIADIR)'==''" Required="true" LocalName="$(BDS)\binandroid64\libsk4d.so" Configuration="Debug" Class="Skia">
-                    <Platform Name="Android64">
-                        <RemoteDir>library\lib\arm64-v8a\</RemoteDir>
-                        <Operation>1</Operation>
-                        <RemoteName>libsk4d.so</RemoteName>
+                <DeployFile LocalName="$(BDS)\Redist\iossimulator\libcgunwind.1.0.dylib" Class="DependencyModule">
+                    <Platform Name="iOSSimulator">
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile Condition="'$(SKIADIR)'==''" Required="true" LocalName="$(BDS)\binandroid64\libsk4d.so" Configuration="Release" Class="Skia">
-                    <Platform Name="Android64">
-                        <RemoteDir>library\lib\arm64-v8a\</RemoteDir>
-                        <Operation>1</Operation>
-                        <RemoteName>libsk4d.so</RemoteName>
+                <DeployFile LocalName="$(BDS)\Redist\iossimulator\libpcre.dylib" Class="DependencyModule">
+                    <Platform Name="iOSSimulator">
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="$(BDS)\Redist\osx32\libcgunwind.1.0.dylib" Class="DependencyModule">
+                    <Platform Name="OSX32">
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile Condition="'$(SKIADIR)'==''" Required="true" LocalName="$(BDS)\bin64\sk4d.dll" Configuration="Debug" Class="Skia">
+                    <Platform Name="Win64">
+                        <RemoteDir>.\</RemoteDir>
+                        <Operation>0</Operation>
+                        <RemoteName>sk4d.dll</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile Condition="'$(SKIADIR)'==''" Required="true" LocalName="$(BDS)\bin64\sk4d.dll" Configuration="Release" Class="Skia">
+                    <Platform Name="Win64">
+                        <RemoteDir>.\</RemoteDir>
+                        <Operation>0</Operation>
+                        <RemoteName>sk4d.dll</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile Condition="'$(SKIADIR)'==''" Required="true" LocalName="$(BDS)\bin\sk4d.dll" Configuration="Debug" Class="Skia">
+                    <Platform Name="Win32">
+                        <RemoteDir>.\</RemoteDir>
+                        <Operation>0</Operation>
+                        <RemoteName>sk4d.dll</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile Condition="'$(SKIADIR)'==''" Required="true" LocalName="$(BDS)\bin\sk4d.dll" Configuration="Release" Class="Skia">
+                    <Platform Name="Win32">
+                        <RemoteDir>.\</RemoteDir>
+                        <Operation>0</Operation>
+                        <RemoteName>sk4d.dll</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
@@ -367,6 +509,38 @@
                         <RemoteDir>library\lib\armeabi-v7a\</RemoteDir>
                         <Operation>1</Operation>
                         <RemoteName>libsk4d.so</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile Condition="'$(SKIADIR)'==''" Required="true" LocalName="$(BDS)\binandroid64\libsk4d.so" Configuration="Debug" Class="Skia">
+                    <Platform Name="Android64">
+                        <RemoteDir>library\lib\arm64-v8a\</RemoteDir>
+                        <Operation>1</Operation>
+                        <RemoteName>libsk4d.so</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile Condition="'$(SKIADIR)'==''" Required="true" LocalName="$(BDS)\binandroid64\libsk4d.so" Configuration="Release" Class="Skia">
+                    <Platform Name="Android64">
+                        <RemoteDir>library\lib\arm64-v8a\</RemoteDir>
+                        <Operation>1</Operation>
+                        <RemoteName>libsk4d.so</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile Condition="'$(SKIADIR)'==''" Required="true" LocalName="$(BDS)\biniossimarm64\libsk4d.dylib" Configuration="Debug" Class="Skia">
+                    <Platform Name="iOSSimARM64">
+                        <RemoteDir>.\</RemoteDir>
+                        <Operation>1</Operation>
+                        <RemoteName>libsk4d.dylib</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile Condition="'$(SKIADIR)'==''" Required="true" LocalName="$(BDS)\biniossimarm64\libsk4d.dylib" Configuration="Release" Class="Skia">
+                    <Platform Name="iOSSimARM64">
+                        <RemoteDir>.\</RemoteDir>
+                        <Operation>1</Operation>
+                        <RemoteName>libsk4d.dylib</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
@@ -413,54 +587,6 @@
                 <DeployFile Condition="'$(SKIADIR)'==''" Required="true" LocalName="$(BDS)\binosxarm64\libsk4d.dylib" Configuration="Release" Class="Skia">
                     <Platform Name="OSXARM64">
                         <RemoteDir>Contents\MacOS\</RemoteDir>
-                        <Operation>1</Operation>
-                        <RemoteName>libsk4d.dylib</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile Condition="'$(SKIADIR)'==''" Required="true" LocalName="$(BDS)\bin\sk4d.dll" Configuration="Debug" Class="Skia">
-                    <Platform Name="Win32">
-                        <RemoteDir>.\</RemoteDir>
-                        <Operation>0</Operation>
-                        <RemoteName>sk4d.dll</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile Condition="'$(SKIADIR)'==''" Required="true" LocalName="$(BDS)\bin\sk4d.dll" Configuration="Release" Class="Skia">
-                    <Platform Name="Win32">
-                        <RemoteDir>.\</RemoteDir>
-                        <Operation>0</Operation>
-                        <RemoteName>sk4d.dll</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile Condition="'$(SKIADIR)'==''" Required="true" LocalName="$(BDS)\bin64\sk4d.dll" Configuration="Debug" Class="Skia">
-                    <Platform Name="Win64">
-                        <RemoteDir>.\</RemoteDir>
-                        <Operation>0</Operation>
-                        <RemoteName>sk4d.dll</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile Condition="'$(SKIADIR)'==''" Required="true" LocalName="$(BDS)\bin64\sk4d.dll" Configuration="Release" Class="Skia">
-                    <Platform Name="Win64">
-                        <RemoteDir>.\</RemoteDir>
-                        <Operation>0</Operation>
-                        <RemoteName>sk4d.dll</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile Condition="'$(SKIADIR)'==''" Required="true" LocalName="$(BDS)\biniossimarm64\libsk4d.dylib" Configuration="Debug" Class="Skia">
-                    <Platform Name="iOSSimARM64">
-                        <RemoteDir>.\</RemoteDir>
-                        <Operation>1</Operation>
-                        <RemoteName>libsk4d.dylib</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile Condition="'$(SKIADIR)'==''" Required="true" LocalName="$(BDS)\biniossimarm64\libsk4d.dylib" Configuration="Release" Class="Skia">
-                    <Platform Name="iOSSimARM64">
-                        <RemoteDir>.\</RemoteDir>
                         <Operation>1</Operation>
                         <RemoteName>libsk4d.dylib</RemoteName>
                         <Overwrite>true</Overwrite>
@@ -610,151 +736,14 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\Assets\BufferA.sksl" Configuration="Debug" Class="File">
-                    <Platform Name="Android">
-                        <RemoteDir>assets\internal\</RemoteDir>
-                        <RemoteName>BufferA.sksl</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                    <Platform Name="Android64">
-                        <RemoteDir>assets\internal\</RemoteDir>
-                        <RemoteName>BufferA.sksl</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                    <Platform Name="iOSDevice64">
-                        <RemoteDir>StartUp\Documents\</RemoteDir>
-                        <RemoteName>BufferA.sksl</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                    <Platform Name="iOSSimARM64">
-                        <RemoteDir>StartUp\Documents\</RemoteDir>
-                        <RemoteName>BufferA.sksl</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                    <Platform Name="Linux64">
-                        <RemoteName>BufferA.sksl</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                    <Platform Name="OSX64">
-                        <RemoteDir>Contents\Resources\</RemoteDir>
-                        <RemoteName>BufferA.sksl</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                    <Platform Name="OSXARM64">
-                        <RemoteDir>Contents\Resources\</RemoteDir>
-                        <RemoteName>BufferA.sksl</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="..\..\Assets\BufferA.sksl" Configuration="Release" Class="File">
-                    <Platform Name="Android">
-                        <RemoteDir>assets\internal\</RemoteDir>
-                        <RemoteName>BufferA.sksl</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                    <Platform Name="Android64">
-                        <RemoteDir>assets\internal\</RemoteDir>
-                        <RemoteName>BufferA.sksl</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                    <Platform Name="iOSDevice64">
-                        <RemoteDir>StartUp\Documents\</RemoteDir>
-                        <RemoteName>BufferA.sksl</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                    <Platform Name="iOSSimARM64">
-                        <RemoteDir>StartUp\Documents\</RemoteDir>
-                        <RemoteName>BufferA.sksl</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                    <Platform Name="Linux64">
-                        <RemoteName>BufferA.sksl</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                    <Platform Name="OSX64">
-                        <RemoteDir>Contents\Resources\</RemoteDir>
-                        <RemoteName>BufferA.sksl</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                    <Platform Name="OSXARM64">
-                        <RemoteDir>Contents\Resources\</RemoteDir>
-                        <RemoteName>BufferA.sksl</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="..\..\Assets\Image.sksl" Configuration="Debug" Class="File">
-                    <Platform Name="Android">
-                        <RemoteDir>assets\internal\</RemoteDir>
-                        <RemoteName>Image.sksl</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                    <Platform Name="Android64">
-                        <RemoteDir>assets\internal\</RemoteDir>
-                        <RemoteName>Image.sksl</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                    <Platform Name="iOSDevice64">
-                        <RemoteDir>StartUp\Documents\</RemoteDir>
-                        <RemoteName>Image.sksl</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                    <Platform Name="iOSSimARM64">
-                        <RemoteDir>StartUp\Documents\</RemoteDir>
-                        <RemoteName>Image.sksl</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                    <Platform Name="Linux64">
-                        <RemoteName>Image.sksl</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                    <Platform Name="OSX64">
-                        <RemoteDir>Contents\Resources\</RemoteDir>
-                        <RemoteName>Image.sksl</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                    <Platform Name="OSXARM64">
-                        <RemoteDir>Contents\Resources\</RemoteDir>
-                        <RemoteName>Image.sksl</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="..\..\Assets\Image.sksl" Configuration="Release" Class="File">
-                    <Platform Name="Android">
-                        <RemoteDir>assets\internal\</RemoteDir>
-                        <RemoteName>Image.sksl</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                    <Platform Name="Android64">
-                        <RemoteDir>assets\internal\</RemoteDir>
-                        <RemoteName>Image.sksl</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                    <Platform Name="iOSDevice64">
-                        <RemoteDir>StartUp\Documents\</RemoteDir>
-                        <RemoteName>Image.sksl</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                    <Platform Name="iOSSimARM64">
-                        <RemoteDir>StartUp\Documents\</RemoteDir>
-                        <RemoteName>Image.sksl</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                    <Platform Name="Linux64">
-                        <RemoteName>Image.sksl</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                    <Platform Name="OSX64">
-                        <RemoteDir>Contents\Resources\</RemoteDir>
-                        <RemoteName>Image.sksl</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                    <Platform Name="OSXARM64">
-                        <RemoteDir>Contents\Resources\</RemoteDir>
-                        <RemoteName>Image.sksl</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
                 <DeployClass Name="AdditionalDebugSymbols">
+                    <Platform Name="iOSSimulator">
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="OSX32">
+                        <RemoteDir>Contents\MacOS</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
                     <Platform Name="Win32">
                         <Operation>0</Operation>
                     </Platform>
@@ -837,6 +826,16 @@
                         <Operation>1</Operation>
                     </Platform>
                 </DeployClass>
+                <DeployClass Name="AndroidSplashImageDefV21">
+                    <Platform Name="Android">
+                        <RemoteDir>res\drawable-anydpi-v21</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="Android64">
+                        <RemoteDir>res\drawable-anydpi-v21</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
                 <DeployClass Name="AndroidSplashStyles">
                     <Platform Name="Android">
                         <RemoteDir>res\values</RemoteDir>
@@ -857,6 +856,66 @@
                         <Operation>1</Operation>
                     </Platform>
                 </DeployClass>
+                <DeployClass Name="AndroidSplashStylesV31">
+                    <Platform Name="Android">
+                        <RemoteDir>res\values-v31</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="Android64">
+                        <RemoteDir>res\values-v31</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="Android_AdaptiveIcon">
+                    <Platform Name="Android">
+                        <RemoteDir>res\drawable-anydpi-v26</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="Android64">
+                        <RemoteDir>res\drawable-anydpi-v26</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="Android_AdaptiveIconBackground">
+                    <Platform Name="Android">
+                        <RemoteDir>res\drawable</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="Android64">
+                        <RemoteDir>res\drawable</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="Android_AdaptiveIconForeground">
+                    <Platform Name="Android">
+                        <RemoteDir>res\drawable</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="Android64">
+                        <RemoteDir>res\drawable</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="Android_AdaptiveIconMonochrome">
+                    <Platform Name="Android">
+                        <RemoteDir>res\drawable</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="Android64">
+                        <RemoteDir>res\drawable</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="Android_AdaptiveIconV33">
+                    <Platform Name="Android">
+                        <RemoteDir>res\drawable-anydpi-v33</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="Android64">
+                        <RemoteDir>res\drawable-anydpi-v33</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
                 <DeployClass Name="Android_Colors">
                     <Platform Name="Android">
                         <RemoteDir>res\values</RemoteDir>
@@ -864,6 +923,16 @@
                     </Platform>
                     <Platform Name="Android64">
                         <RemoteDir>res\values</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="Android_ColorsDark">
+                    <Platform Name="Android">
+                        <RemoteDir>res\values-night-v21</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="Android64">
+                        <RemoteDir>res\values-night-v21</RemoteDir>
                         <Operation>1</Operation>
                     </Platform>
                 </DeployClass>
@@ -1037,12 +1106,74 @@
                         <Operation>1</Operation>
                     </Platform>
                 </DeployClass>
+                <DeployClass Name="Android_VectorizedNotificationIcon">
+                    <Platform Name="Android">
+                        <RemoteDir>res\drawable-anydpi-v24</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="Android64">
+                        <RemoteDir>res\drawable-anydpi-v24</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="Android_VectorizedSplash">
+                    <Platform Name="Android">
+                        <RemoteDir>res\drawable</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="Android64">
+                        <RemoteDir>res\drawable</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="Android_VectorizedSplashDark">
+                    <Platform Name="Android">
+                        <RemoteDir>res\drawable-night-anydpi-v21</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="Android64">
+                        <RemoteDir>res\drawable-night-anydpi-v21</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="Android_VectorizedSplashV31">
+                    <Platform Name="Android">
+                        <RemoteDir>res\drawable-anydpi-v31</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="Android64">
+                        <RemoteDir>res\drawable-anydpi-v31</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="Android_VectorizedSplashV31Dark">
+                    <Platform Name="Android">
+                        <RemoteDir>res\drawable-night-anydpi-v31</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="Android64">
+                        <RemoteDir>res\drawable-night-anydpi-v31</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
                 <DeployClass Name="DebugSymbols">
+                    <Platform Name="iOSSimulator">
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="OSX32">
+                        <RemoteDir>Contents\MacOS</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
                     <Platform Name="Win32">
                         <Operation>0</Operation>
                     </Platform>
                 </DeployClass>
                 <DeployClass Name="DependencyFramework">
+                    <Platform Name="OSX32">
+                        <RemoteDir>Contents\MacOS</RemoteDir>
+                        <Operation>1</Operation>
+                        <Extensions>.framework</Extensions>
+                    </Platform>
                     <Platform Name="OSX64">
                         <RemoteDir>Contents\MacOS</RemoteDir>
                         <Operation>1</Operation>
@@ -1058,11 +1189,20 @@
                     </Platform>
                 </DeployClass>
                 <DeployClass Name="DependencyModule">
+                    <Platform Name="iOSDevice32">
+                        <Operation>1</Operation>
+                        <Extensions>.dylib</Extensions>
+                    </Platform>
                     <Platform Name="iOSDevice64">
                         <Operation>1</Operation>
                         <Extensions>.dylib</Extensions>
                     </Platform>
                     <Platform Name="iOSSimARM64">
+                        <Operation>1</Operation>
+                        <Extensions>.dylib</Extensions>
+                    </Platform>
+                    <Platform Name="OSX32">
+                        <RemoteDir>Contents\MacOS</RemoteDir>
                         <Operation>1</Operation>
                         <Extensions>.dylib</Extensions>
                     </Platform>
@@ -1082,11 +1222,20 @@
                     </Platform>
                 </DeployClass>
                 <DeployClass Required="true" Name="DependencyPackage">
+                    <Platform Name="iOSDevice32">
+                        <Operation>1</Operation>
+                        <Extensions>.dylib</Extensions>
+                    </Platform>
                     <Platform Name="iOSDevice64">
                         <Operation>1</Operation>
                         <Extensions>.dylib</Extensions>
                     </Platform>
                     <Platform Name="iOSSimARM64">
+                        <Operation>1</Operation>
+                        <Extensions>.dylib</Extensions>
+                    </Platform>
+                    <Platform Name="OSX32">
+                        <RemoteDir>Contents\MacOS</RemoteDir>
                         <Operation>1</Operation>
                         <Extensions>.dylib</Extensions>
                     </Platform>
@@ -1112,10 +1261,17 @@
                     <Platform Name="Android64">
                         <Operation>0</Operation>
                     </Platform>
+                    <Platform Name="iOSDevice32">
+                        <Operation>0</Operation>
+                    </Platform>
                     <Platform Name="iOSDevice64">
                         <Operation>0</Operation>
                     </Platform>
                     <Platform Name="iOSSimARM64">
+                        <Operation>0</Operation>
+                    </Platform>
+                    <Platform Name="OSX32">
+                        <RemoteDir>Contents\Resources\StartUp\</RemoteDir>
                         <Operation>0</Operation>
                     </Platform>
                     <Platform Name="OSX64">
@@ -1149,6 +1305,10 @@
                     </Platform>
                 </DeployClass>
                 <DeployClass Name="ProjectOSXEntitlements">
+                    <Platform Name="OSX32">
+                        <RemoteDir>..\</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
                     <Platform Name="OSX64">
                         <RemoteDir>..\</RemoteDir>
                         <Operation>1</Operation>
@@ -1159,6 +1319,10 @@
                     </Platform>
                 </DeployClass>
                 <DeployClass Name="ProjectOSXInfoPList">
+                    <Platform Name="OSX32">
+                        <RemoteDir>Contents</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
                     <Platform Name="OSX64">
                         <RemoteDir>Contents</RemoteDir>
                         <Operation>1</Operation>
@@ -1169,6 +1333,10 @@
                     </Platform>
                 </DeployClass>
                 <DeployClass Name="ProjectOSXResource">
+                    <Platform Name="OSX32">
+                        <RemoteDir>Contents\Resources</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
                     <Platform Name="OSX64">
                         <RemoteDir>Contents\Resources</RemoteDir>
                         <Operation>1</Operation>
@@ -1187,6 +1355,9 @@
                         <RemoteDir>library\lib\arm64-v8a</RemoteDir>
                         <Operation>1</Operation>
                     </Platform>
+                    <Platform Name="iOSDevice32">
+                        <Operation>1</Operation>
+                    </Platform>
                     <Platform Name="iOSDevice64">
                         <Operation>1</Operation>
                     </Platform>
@@ -1194,6 +1365,10 @@
                         <Operation>1</Operation>
                     </Platform>
                     <Platform Name="Linux64">
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="OSX32">
+                        <RemoteDir>Contents\MacOS</RemoteDir>
                         <Operation>1</Operation>
                     </Platform>
                     <Platform Name="OSX64">
@@ -1223,6 +1398,10 @@
                     </Platform>
                 </DeployClass>
                 <DeployClass Name="ProjectiOSDeviceDebug">
+                    <Platform Name="iOSDevice32">
+                        <RemoteDir>..\$(PROJECTNAME).app.dSYM\Contents\Resources\DWARF</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
                     <Platform Name="iOSDevice64">
                         <RemoteDir>..\$(PROJECTNAME).app.dSYM\Contents\Resources\DWARF</RemoteDir>
                         <Operation>1</Operation>
@@ -1233,6 +1412,10 @@
                     </Platform>
                 </DeployClass>
                 <DeployClass Name="ProjectiOSEntitlements">
+                    <Platform Name="iOSDevice32">
+                        <RemoteDir>..\</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
                     <Platform Name="iOSDevice64">
                         <RemoteDir>..\</RemoteDir>
                         <Operation>1</Operation>
@@ -1243,6 +1426,9 @@
                     </Platform>
                 </DeployClass>
                 <DeployClass Name="ProjectiOSInfoPList">
+                    <Platform Name="iOSDevice32">
+                        <Operation>1</Operation>
+                    </Platform>
                     <Platform Name="iOSDevice64">
                         <Operation>1</Operation>
                     </Platform>
@@ -1261,6 +1447,9 @@
                     </Platform>
                 </DeployClass>
                 <DeployClass Name="ProjectiOSResource">
+                    <Platform Name="iOSDevice32">
+                        <Operation>1</Operation>
+                    </Platform>
                     <Platform Name="iOSDevice64">
                         <Operation>1</Operation>
                     </Platform>
@@ -1490,24 +1679,26 @@
                 </DeployClass>
                 <ProjectRoot Platform="Android" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="Android64" Name="$(PROJECTNAME)"/>
+                <ProjectRoot Platform="iOSDevice32" Name="$(PROJECTNAME).app"/>
+                <ProjectRoot Platform="iOSDevice64" Name="$(PROJECTNAME).app"/>
+                <ProjectRoot Platform="iOSSimARM64" Name="$(PROJECTNAME).app"/>
                 <ProjectRoot Platform="Linux64" Name="$(PROJECTNAME)"/>
+                <ProjectRoot Platform="OSX32" Name="$(PROJECTNAME).app"/>
                 <ProjectRoot Platform="OSX64" Name="$(PROJECTNAME).app"/>
                 <ProjectRoot Platform="OSXARM64" Name="$(PROJECTNAME).app"/>
                 <ProjectRoot Platform="Win32" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="Win64" Name="$(PROJECTNAME)"/>
-                <ProjectRoot Platform="iOSDevice64" Name="$(PROJECTNAME).app"/>
-                <ProjectRoot Platform="iOSSimARM64" Name="$(PROJECTNAME).app"/>
             </Deployment>
             <Platforms>
                 <Platform value="Android">True</Platform>
                 <Platform value="Android64">True</Platform>
+                <Platform value="iOSDevice64">True</Platform>
+                <Platform value="iOSSimARM64">True</Platform>
                 <Platform value="Linux64">True</Platform>
                 <Platform value="OSX64">True</Platform>
                 <Platform value="OSXARM64">True</Platform>
                 <Platform value="Win32">True</Platform>
                 <Platform value="Win64">True</Platform>
-                <Platform value="iOSDevice64">True</Platform>
-                <Platform value="iOSSimARM64">True</Platform>
             </Platforms>
         </BorlandProject>
         <ProjectFileVersion>12</ProjectFileVersion>

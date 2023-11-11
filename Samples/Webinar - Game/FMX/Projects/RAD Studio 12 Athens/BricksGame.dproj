@@ -1,4 +1,4 @@
-﻿<!--
+<!--
  Copyright (c) 2021-2023 Skia4Delphi Project.
 
  Use of this source code is governed by the MIT license that can be
@@ -13,8 +13,8 @@
         <MainSource>BricksGame.dpr</MainSource>
         <Platform Condition="'$(Platform)'==''">Win32</Platform>
         <ProjectGuid>{43299C94-06E4-4EF8-90E0-D114A75233A8}</ProjectGuid>
-        <ProjectVersion>19.5</ProjectVersion>
-        <TargetedPlatforms>693395</TargetedPlatforms>
+        <ProjectVersion>20.1</ProjectVersion>
+        <TargetedPlatforms>693267</TargetedPlatforms>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Config)'=='Base' or '$(Base)'!=''">
         <Base>true</Base>
@@ -172,13 +172,13 @@
         <BT_BuildType>Debug</BT_BuildType>
         <DCC_UsePackage>DataSnapServer;fmx;DbxCommonDriver;bindengine;IndyIPCommon;FireDACCommonODBC;emsclient;FireDACCommonDriver;IndyProtocols;PFFmpeg;IndyIPClient;dbxcds;Skia.Package.RTL;FmxTeeUI;bindcompfmx;DBXFirebirdDriver;inetdb;FireDACSqliteDriver;DbxClientDriver;FireDACASADriver;soapmidas;fmxFireDAC;dbexpress;PBilsenGDIPlus;DBXMySQLDriver;inet;DataSnapCommon;fmxase;dbrtl;FireDACDBXDriver;FireDACOracleDriver;Skia.Package.FMX;fmxdae;CustomIPTransport;FireDACMSSQLDriver;DataSnapIndy10ServerTransport;DBXInterBaseDriver;FireDACMongoDBDriver;IndySystem;FireDACTDataDriver;bindcomp;FireDACCommon;DataSnapServerMidas;FireDACODBCDriver;IndyCore;RESTBackendComponents;bindcompdbx;rtl;FireDACMySQLDriver;RESTComponents;DBXSqliteDriver;IndyIPServer;dsnapxml;DataSnapClient;DataSnapProviderClient;DataSnapFireDAC;emsclientfiredac;FireDACPgDriver;FireDAC;FireDACDSDriver;inetdbxpress;xmlrtl;tethering;dsnap;CloudService;DBXSybaseASADriver;DBXOracleDriver;DBXInformixDriver;fmxobj;FMXTee;DataSnapNativeClient;soaprtl;soapserver;FireDACIBDriver;$(DCC_UsePackage)</DCC_UsePackage>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
-        <VerInfo_Keys>CFBundleName=$(MSBuildProjectName);CFBundleDisplayName=$(MSBuildProjectName);CFBundleIdentifier=$(MSBuildProjectName);CFBundleVersion=1.0.0;CFBundleShortVersionString=1.0.0;CFBundlePackageType=APPL;CFBundleSignature=????;CFBundleAllowMixedLocalizations=YES;CFBundleExecutable=$(MSBuildProjectName);NSHighResolutionCapable=true;LSApplicationCategoryType=public.app-category.utilities;NSLocationUsageDescription=The reason for accessing the location information of the user;NSContactsUsageDescription=The reason for accessing the contacts;NSCalendarsUsageDescription=The reason for accessing the calendar data;NSRemindersUsageDescription=The reason for accessing the reminders;NSCameraUsageDescription=The reason for accessing the camera;NSMicrophoneUsageDescription=The reason for accessing the microphone;NSMotionUsageDescription=The reason for accessing the accelerometer;NSDesktopFolderUsageDescription=The reason for accessing the Desktop folder;NSDocumentsFolderUsageDescription=The reason for accessing the Documents folder;NSDownloadsFolderUsageDescription=The reason for accessing the Downloads folder;NSNetworkVolumesUsageDescription=The reason for accessing files on a network volume;NSRemovableVolumesUsageDescription=The reason for accessing files on a removable volume;NSSpeechRecognitionUsageDescription=The reason for requesting to send user data to Apple&apos;s speech recognition servers</VerInfo_Keys>
+        <VerInfo_Keys>CFBundleName=$(MSBuildProjectName);CFBundleDisplayName=$(MSBuildProjectName);CFBundleIdentifier=$(MSBuildProjectName);CFBundleVersion=1.0.0;CFBundleShortVersionString=1.0.0;CFBundlePackageType=APPL;CFBundleSignature=????;CFBundleAllowMixedLocalizations=YES;CFBundleExecutable=$(MSBuildProjectName);NSHighResolutionCapable=true;LSApplicationCategoryType=public.app-category.utilities;NSLocationUsageDescription=The reason for accessing the location information of the user;NSContactsUsageDescription=The reason for accessing the contacts;NSCalendarsUsageDescription=The reason for accessing the calendar data;NSRemindersUsageDescription=The reason for accessing the reminders;NSCameraUsageDescription=The reason for accessing the camera;NSMicrophoneUsageDescription=The reason for accessing the microphone;NSMotionUsageDescription=The reason for accessing the accelerometer;NSDesktopFolderUsageDescription=The reason for accessing the Desktop folder;NSDocumentsFolderUsageDescription=The reason for accessing the Documents folder;NSDownloadsFolderUsageDescription=The reason for accessing the Downloads folder;NSNetworkVolumesUsageDescription=The reason for accessing files on a network volume;NSRemovableVolumesUsageDescription=The reason for accessing files on a removable volume;NSSpeechRecognitionUsageDescription=The reason for requesting to send user data to Apple&apos;s speech recognition servers;ITSAppUsesNonExemptEncryption=false;NSBluetoothAlwaysUsageDescription=The reason for accessing the Bluetooth interface</VerInfo_Keys>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_OSXARM64)'!=''">
         <BT_BuildType>Debug</BT_BuildType>
         <DCC_UsePackage>DataSnapServer;fmx;DbxCommonDriver;bindengine;IndyIPCommon;FireDACCommonODBC;emsclient;FireDACCommonDriver;IndyProtocols;IndyIPClient;dbxcds;FmxTeeUI;bindcompfmx;DBXFirebirdDriver;inetdb;FireDACSqliteDriver;DbxClientDriver;FireDACASADriver;soapmidas;fmxFireDAC;dbexpress;DBXMySQLDriver;inet;DataSnapCommon;fmxase;dbrtl;FireDACDBXDriver;FireDACOracleDriver;fmxdae;CustomIPTransport;FireDACMSSQLDriver;DataSnapIndy10ServerTransport;DBXInterBaseDriver;FireDACMongoDBDriver;IndySystem;FireDACTDataDriver;bindcomp;FireDACCommon;DataSnapServerMidas;FireDACODBCDriver;IndyCore;RESTBackendComponents;bindcompdbx;rtl;FireDACMySQLDriver;RESTComponents;DBXSqliteDriver;IndyIPServer;dsnapxml;DataSnapClient;DataSnapProviderClient;DataSnapFireDAC;emsclientfiredac;FireDACPgDriver;FireDAC;FireDACDSDriver;inetdbxpress;xmlrtl;tethering;dsnap;CloudService;DBXSybaseASADriver;DBXOracleDriver;DBXInformixDriver;fmxobj;FMXTee;DataSnapNativeClient;soaprtl;soapserver;FireDACIBDriver;$(DCC_UsePackage)</DCC_UsePackage>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
-        <VerInfo_Keys>CFBundleName=$(MSBuildProjectName);CFBundleDisplayName=$(MSBuildProjectName);CFBundleIdentifier=$(MSBuildProjectName);CFBundleVersion=1.0.0;CFBundleShortVersionString=1.0.0;CFBundlePackageType=APPL;CFBundleSignature=????;CFBundleAllowMixedLocalizations=YES;CFBundleExecutable=$(MSBuildProjectName);NSHighResolutionCapable=true;LSApplicationCategoryType=public.app-category.utilities;NSLocationUsageDescription=The reason for accessing the location information of the user;NSContactsUsageDescription=The reason for accessing the contacts;NSCalendarsUsageDescription=The reason for accessing the calendar data;NSRemindersUsageDescription=The reason for accessing the reminders;NSCameraUsageDescription=The reason for accessing the camera;NSMicrophoneUsageDescription=The reason for accessing the microphone;NSMotionUsageDescription=The reason for accessing the accelerometer;NSDesktopFolderUsageDescription=The reason for accessing the Desktop folder;NSDocumentsFolderUsageDescription=The reason for accessing the Documents folder;NSDownloadsFolderUsageDescription=The reason for accessing the Downloads folder;NSNetworkVolumesUsageDescription=The reason for accessing files on a network volume;NSRemovableVolumesUsageDescription=The reason for accessing files on a removable volume;NSSpeechRecognitionUsageDescription=The reason for requesting to send user data to Apple&apos;s speech recognition servers</VerInfo_Keys>
+        <VerInfo_Keys>CFBundleName=$(MSBuildProjectName);CFBundleDisplayName=$(MSBuildProjectName);CFBundleIdentifier=$(MSBuildProjectName);CFBundleVersion=1.0.0;CFBundleShortVersionString=1.0.0;CFBundlePackageType=APPL;CFBundleSignature=????;CFBundleAllowMixedLocalizations=YES;CFBundleExecutable=$(MSBuildProjectName);NSHighResolutionCapable=true;LSApplicationCategoryType=public.app-category.utilities;NSLocationUsageDescription=The reason for accessing the location information of the user;NSContactsUsageDescription=The reason for accessing the contacts;NSCalendarsUsageDescription=The reason for accessing the calendar data;NSRemindersUsageDescription=The reason for accessing the reminders;NSCameraUsageDescription=The reason for accessing the camera;NSMicrophoneUsageDescription=The reason for accessing the microphone;NSMotionUsageDescription=The reason for accessing the accelerometer;NSDesktopFolderUsageDescription=The reason for accessing the Desktop folder;NSDocumentsFolderUsageDescription=The reason for accessing the Documents folder;NSDownloadsFolderUsageDescription=The reason for accessing the Downloads folder;NSNetworkVolumesUsageDescription=The reason for accessing files on a network volume;NSRemovableVolumesUsageDescription=The reason for accessing files on a removable volume;NSSpeechRecognitionUsageDescription=The reason for requesting to send user data to Apple&apos;s speech recognition servers;ITSAppUsesNonExemptEncryption=false;NSBluetoothAlwaysUsageDescription=The reason for accessing the Bluetooth interface</VerInfo_Keys>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win32)'!=''">
         <BT_BuildType>Debug</BT_BuildType>
@@ -322,19 +322,35 @@
                 <Excluded_Packages/>
             </Delphi.Personality>
             <Deployment Version="4">
-                <DeployFile Condition="'$(SKIADIR)'==''" Required="true" LocalName="$(BDS)\binandroid64\libsk4d.so" Configuration="Debug" Class="Skia">
-                    <Platform Name="Android64">
-                        <RemoteDir>library\lib\arm64-v8a\</RemoteDir>
-                        <Operation>1</Operation>
-                        <RemoteName>libsk4d.so</RemoteName>
+                <DeployFile Condition="'$(SKIADIR)'==''" Required="true" LocalName="$(BDS)\bin64\sk4d.dll" Configuration="Debug" Class="Skia">
+                    <Platform Name="Win64">
+                        <RemoteDir>.\</RemoteDir>
+                        <Operation>0</Operation>
+                        <RemoteName>sk4d.dll</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile Condition="'$(SKIADIR)'==''" Required="true" LocalName="$(BDS)\binandroid64\libsk4d.so" Configuration="Release" Class="Skia">
-                    <Platform Name="Android64">
-                        <RemoteDir>library\lib\arm64-v8a\</RemoteDir>
-                        <Operation>1</Operation>
-                        <RemoteName>libsk4d.so</RemoteName>
+                <DeployFile Condition="'$(SKIADIR)'==''" Required="true" LocalName="$(BDS)\bin64\sk4d.dll" Configuration="Release" Class="Skia">
+                    <Platform Name="Win64">
+                        <RemoteDir>.\</RemoteDir>
+                        <Operation>0</Operation>
+                        <RemoteName>sk4d.dll</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile Condition="'$(SKIADIR)'==''" Required="true" LocalName="$(BDS)\bin\sk4d.dll" Configuration="Debug" Class="Skia">
+                    <Platform Name="Win32">
+                        <RemoteDir>.\</RemoteDir>
+                        <Operation>0</Operation>
+                        <RemoteName>sk4d.dll</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile Condition="'$(SKIADIR)'==''" Required="true" LocalName="$(BDS)\bin\sk4d.dll" Configuration="Release" Class="Skia">
+                    <Platform Name="Win32">
+                        <RemoteDir>.\</RemoteDir>
+                        <Operation>0</Operation>
+                        <RemoteName>sk4d.dll</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
@@ -370,19 +386,35 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile Condition="'$(SKIADIR)'==''" Required="true" LocalName="$(BDS)\binlinux64\libsk4d.so" Configuration="Debug" Class="Skia">
-                    <Platform Name="Linux64">
-                        <RemoteDir>.\</RemoteDir>
+                <DeployFile Condition="'$(SKIADIR)'==''" Required="true" LocalName="$(BDS)\binandroid64\libsk4d.so" Configuration="Debug" Class="Skia">
+                    <Platform Name="Android64">
+                        <RemoteDir>library\lib\arm64-v8a\</RemoteDir>
                         <Operation>1</Operation>
                         <RemoteName>libsk4d.so</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile Condition="'$(SKIADIR)'==''" Required="true" LocalName="$(BDS)\binlinux64\libsk4d.so" Configuration="Release" Class="Skia">
-                    <Platform Name="Linux64">
-                        <RemoteDir>.\</RemoteDir>
+                <DeployFile Condition="'$(SKIADIR)'==''" Required="true" LocalName="$(BDS)\binandroid64\libsk4d.so" Configuration="Release" Class="Skia">
+                    <Platform Name="Android64">
+                        <RemoteDir>library\lib\arm64-v8a\</RemoteDir>
                         <Operation>1</Operation>
                         <RemoteName>libsk4d.so</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile Condition="'$(SKIADIR)'==''" Required="true" LocalName="$(BDS)\biniossimarm64\libsk4d.dylib" Configuration="Debug" Class="Skia">
+                    <Platform Name="iOSSimARM64">
+                        <RemoteDir>.\</RemoteDir>
+                        <Operation>1</Operation>
+                        <RemoteName>libsk4d.dylib</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile Condition="'$(SKIADIR)'==''" Required="true" LocalName="$(BDS)\biniossimarm64\libsk4d.dylib" Configuration="Release" Class="Skia">
+                    <Platform Name="iOSSimARM64">
+                        <RemoteDir>.\</RemoteDir>
+                        <Operation>1</Operation>
+                        <RemoteName>libsk4d.dylib</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
@@ -413,54 +445,6 @@
                 <DeployFile Condition="'$(SKIADIR)'==''" Required="true" LocalName="$(BDS)\binosxarm64\libsk4d.dylib" Configuration="Release" Class="Skia">
                     <Platform Name="OSXARM64">
                         <RemoteDir>Contents\MacOS\</RemoteDir>
-                        <Operation>1</Operation>
-                        <RemoteName>libsk4d.dylib</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile Condition="'$(SKIADIR)'==''" Required="true" LocalName="$(BDS)\bin\sk4d.dll" Configuration="Debug" Class="Skia">
-                    <Platform Name="Win32">
-                        <RemoteDir>.\</RemoteDir>
-                        <Operation>0</Operation>
-                        <RemoteName>sk4d.dll</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile Condition="'$(SKIADIR)'==''" Required="true" LocalName="$(BDS)\bin\sk4d.dll" Configuration="Release" Class="Skia">
-                    <Platform Name="Win32">
-                        <RemoteDir>.\</RemoteDir>
-                        <Operation>0</Operation>
-                        <RemoteName>sk4d.dll</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile Condition="'$(SKIADIR)'==''" Required="true" LocalName="$(BDS)\bin64\sk4d.dll" Configuration="Debug" Class="Skia">
-                    <Platform Name="Win64">
-                        <RemoteDir>.\</RemoteDir>
-                        <Operation>0</Operation>
-                        <RemoteName>sk4d.dll</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile Condition="'$(SKIADIR)'==''" Required="true" LocalName="$(BDS)\bin64\sk4d.dll" Configuration="Release" Class="Skia">
-                    <Platform Name="Win64">
-                        <RemoteDir>.\</RemoteDir>
-                        <Operation>0</Operation>
-                        <RemoteName>sk4d.dll</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile Condition="'$(SKIADIR)'==''" Required="true" LocalName="$(BDS)\biniossimarm64\libsk4d.dylib" Configuration="Debug" Class="Skia">
-                    <Platform Name="iOSSimARM64">
-                        <RemoteDir>.\</RemoteDir>
-                        <Operation>1</Operation>
-                        <RemoteName>libsk4d.dylib</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile Condition="'$(SKIADIR)'==''" Required="true" LocalName="$(BDS)\biniossimarm64\libsk4d.dylib" Configuration="Release" Class="Skia">
-                    <Platform Name="iOSSimARM64">
-                        <RemoteDir>.\</RemoteDir>
                         <Operation>1</Operation>
                         <RemoteName>libsk4d.dylib</RemoteName>
                         <Overwrite>true</Overwrite>
@@ -611,16 +595,6 @@
                     </Platform>
                 </DeployFile>
                 <DeployFile LocalName="..\..\Assets\BufferA.sksl" Configuration="Debug" Class="File">
-                    <Platform Name="Android">
-                        <RemoteDir>assets\internal\</RemoteDir>
-                        <RemoteName>BufferA.sksl</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                    <Platform Name="Android64">
-                        <RemoteDir>assets\internal\</RemoteDir>
-                        <RemoteName>BufferA.sksl</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
                     <Platform Name="iOSDevice64">
                         <RemoteDir>StartUp\Documents\</RemoteDir>
                         <RemoteName>BufferA.sksl</RemoteName>
@@ -632,6 +606,13 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="Linux64">
+                    <Platform Name="Android">
+                        <RemoteDir>assets\internal\</RemoteDir>
+                        <RemoteName>BufferA.sksl</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="Android64">
+                        <RemoteDir>assets\internal\</RemoteDir>
                         <RemoteName>BufferA.sksl</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
@@ -647,16 +628,6 @@
                     </Platform>
                 </DeployFile>
                 <DeployFile LocalName="..\..\Assets\BufferA.sksl" Configuration="Release" Class="File">
-                    <Platform Name="Android">
-                        <RemoteDir>assets\internal\</RemoteDir>
-                        <RemoteName>BufferA.sksl</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                    <Platform Name="Android64">
-                        <RemoteDir>assets\internal\</RemoteDir>
-                        <RemoteName>BufferA.sksl</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
                     <Platform Name="iOSDevice64">
                         <RemoteDir>StartUp\Documents\</RemoteDir>
                         <RemoteName>BufferA.sksl</RemoteName>
@@ -667,10 +638,17 @@
                         <RemoteName>BufferA.sksl</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
-                    <Platform Name="Linux64">
+                    <Platform Name="Android">
+                        <RemoteDir>assets\internal\</RemoteDir>
                         <RemoteName>BufferA.sksl</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
+                    <Platform Name="Android64">
+                        <RemoteDir>assets\internal\</RemoteDir>
+                        <RemoteName>BufferA.sksl</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="Linux64">
                     <Platform Name="OSX64">
                         <RemoteDir>Contents\Resources\</RemoteDir>
                         <RemoteName>BufferA.sksl</RemoteName>
@@ -683,16 +661,6 @@
                     </Platform>
                 </DeployFile>
                 <DeployFile LocalName="..\..\Assets\Image.sksl" Configuration="Debug" Class="File">
-                    <Platform Name="Android">
-                        <RemoteDir>assets\internal\</RemoteDir>
-                        <RemoteName>Image.sksl</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                    <Platform Name="Android64">
-                        <RemoteDir>assets\internal\</RemoteDir>
-                        <RemoteName>Image.sksl</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
                     <Platform Name="iOSDevice64">
                         <RemoteDir>StartUp\Documents\</RemoteDir>
                         <RemoteName>Image.sksl</RemoteName>
@@ -703,10 +671,17 @@
                         <RemoteName>Image.sksl</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
-                    <Platform Name="Linux64">
+                    <Platform Name="Android">
+                        <RemoteDir>assets\internal\</RemoteDir>
                         <RemoteName>Image.sksl</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
+                    <Platform Name="Android64">
+                        <RemoteDir>assets\internal\</RemoteDir>
+                        <RemoteName>Image.sksl</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="Linux64">
                     <Platform Name="OSX64">
                         <RemoteDir>Contents\Resources\</RemoteDir>
                         <RemoteName>Image.sksl</RemoteName>
@@ -719,16 +694,6 @@
                     </Platform>
                 </DeployFile>
                 <DeployFile LocalName="..\..\Assets\Image.sksl" Configuration="Release" Class="File">
-                    <Platform Name="Android">
-                        <RemoteDir>assets\internal\</RemoteDir>
-                        <RemoteName>Image.sksl</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                    <Platform Name="Android64">
-                        <RemoteDir>assets\internal\</RemoteDir>
-                        <RemoteName>Image.sksl</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
                     <Platform Name="iOSDevice64">
                         <RemoteDir>StartUp\Documents\</RemoteDir>
                         <RemoteName>Image.sksl</RemoteName>
@@ -739,10 +704,17 @@
                         <RemoteName>Image.sksl</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
-                    <Platform Name="Linux64">
+                    <Platform Name="Android">
+                        <RemoteDir>assets\internal\</RemoteDir>
                         <RemoteName>Image.sksl</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
+                    <Platform Name="Android64">
+                        <RemoteDir>assets\internal\</RemoteDir>
+                        <RemoteName>Image.sksl</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                    <Platform Name="Linux64">
                     <Platform Name="OSX64">
                         <RemoteDir>Contents\Resources\</RemoteDir>
                         <RemoteName>Image.sksl</RemoteName>
@@ -837,6 +809,16 @@
                         <Operation>1</Operation>
                     </Platform>
                 </DeployClass>
+                <DeployClass Name="AndroidSplashImageDefV21">
+                    <Platform Name="Android">
+                        <RemoteDir>res\drawable-anydpi-v21</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="Android64">
+                        <RemoteDir>res\drawable-anydpi-v21</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
                 <DeployClass Name="AndroidSplashStyles">
                     <Platform Name="Android">
                         <RemoteDir>res\values</RemoteDir>
@@ -857,6 +839,66 @@
                         <Operation>1</Operation>
                     </Platform>
                 </DeployClass>
+                <DeployClass Name="AndroidSplashStylesV31">
+                    <Platform Name="Android">
+                        <RemoteDir>res\values-v31</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="Android64">
+                        <RemoteDir>res\values-v31</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="Android_AdaptiveIcon">
+                    <Platform Name="Android">
+                        <RemoteDir>res\drawable-anydpi-v26</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="Android64">
+                        <RemoteDir>res\drawable-anydpi-v26</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="Android_AdaptiveIconBackground">
+                    <Platform Name="Android">
+                        <RemoteDir>res\drawable</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="Android64">
+                        <RemoteDir>res\drawable</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="Android_AdaptiveIconForeground">
+                    <Platform Name="Android">
+                        <RemoteDir>res\drawable</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="Android64">
+                        <RemoteDir>res\drawable</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="Android_AdaptiveIconMonochrome">
+                    <Platform Name="Android">
+                        <RemoteDir>res\drawable</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="Android64">
+                        <RemoteDir>res\drawable</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="Android_AdaptiveIconV33">
+                    <Platform Name="Android">
+                        <RemoteDir>res\drawable-anydpi-v33</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="Android64">
+                        <RemoteDir>res\drawable-anydpi-v33</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
                 <DeployClass Name="Android_Colors">
                     <Platform Name="Android">
                         <RemoteDir>res\values</RemoteDir>
@@ -864,6 +906,16 @@
                     </Platform>
                     <Platform Name="Android64">
                         <RemoteDir>res\values</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="Android_ColorsDark">
+                    <Platform Name="Android">
+                        <RemoteDir>res\values-night-v21</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="Android64">
+                        <RemoteDir>res\values-night-v21</RemoteDir>
                         <Operation>1</Operation>
                     </Platform>
                 </DeployClass>
@@ -1034,6 +1086,56 @@
                     </Platform>
                     <Platform Name="Android64">
                         <RemoteDir>res\values</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="Android_VectorizedNotificationIcon">
+                    <Platform Name="Android">
+                        <RemoteDir>res\drawable-anydpi-v24</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="Android64">
+                        <RemoteDir>res\drawable-anydpi-v24</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="Android_VectorizedSplash">
+                    <Platform Name="Android">
+                        <RemoteDir>res\drawable</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="Android64">
+                        <RemoteDir>res\drawable</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="Android_VectorizedSplashDark">
+                    <Platform Name="Android">
+                        <RemoteDir>res\drawable-night-anydpi-v21</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="Android64">
+                        <RemoteDir>res\drawable-night-anydpi-v21</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="Android_VectorizedSplashV31">
+                    <Platform Name="Android">
+                        <RemoteDir>res\drawable-anydpi-v31</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="Android64">
+                        <RemoteDir>res\drawable-anydpi-v31</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="Android_VectorizedSplashV31Dark">
+                    <Platform Name="Android">
+                        <RemoteDir>res\drawable-night-anydpi-v31</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="Android64">
+                        <RemoteDir>res\drawable-night-anydpi-v31</RemoteDir>
                         <Operation>1</Operation>
                     </Platform>
                 </DeployClass>

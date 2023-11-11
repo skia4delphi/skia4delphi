@@ -328,7 +328,7 @@ begin
 
 1. `FMX.Skia` unit must be included right after the `FMX.Forms`;
 2. The **Skia Metal** render can be used by including the `FMX.Types` unit right **after** the `FMX.Forms` unit, and setting `GlobalUseMetal` to **True** together with `GlobalUseSkia` to improve the speed in iOS and macOS;
-3. `GlobalUseSkia` has no effect on Linux. (although not supported, all [controls](#controls-vclfmx) work perfectly, just like the rest of the library)
+3. The **Skia Vulkan** render can be used on RAD Studio 12 Athens or newer by including the `FMX.Types` unit right **after** the `FMX.Forms` unit, and setting `GlobalUseVulkan` to **True** together with `GlobalUseSkia` to improve the speed on Android and Windows. On Windows, Vulkan will only be used if you also add `GlobalUseSkiaRasterWhenAvailable := False;`;
 4. This declaration of `GlobalUseSkia := True;`, as well as other variables of FMX itself, such as `GlobalUseMetal`, can also be made in the initialization of some unit instead of .dpr. Sometimes this is really necessary because if in the initialization or in the class constructor of some unit, bitmaps are used, the GlobalUseXXX declarations of the .dpr will have no effect. In this case, just create a unit in the project like "Project.Startup.pas", place the GlobalUseXXX declarations in the initialization of this new unit, and declare this new unit before any other unit of yours in the .dpr, that is, right after FMX.Forms.
 
 ### Benchmark

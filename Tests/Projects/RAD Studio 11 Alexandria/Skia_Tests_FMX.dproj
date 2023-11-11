@@ -384,7 +384,6 @@
         <DCCReference Include="..\..\Source\Skia.Tests.TextBlob.pas"/>
         <DCCReference Include="..\..\Source\Skia.Tests.Unicode.pas"/>
         <DCCReference Include="..\..\Source\FMX\Skia.Tests.FMX.Codec.pas"/>
-        <DCCReference Include="..\..\Source\FMX\Skia.Tests.FMX.Effects.pas"/>
         <DCCReference Include="..\..\Source\FMX\Skia.Tests.FMX.Runner.pas">
             <Form>frmFMXRunner</Form>
             <FormType>fmx</FormType>
