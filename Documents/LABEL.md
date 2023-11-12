@@ -74,6 +74,30 @@ begin
 end.
 ```
 
+On RAD Studio 12 Athens or newer it is recommended to use `IFMXFontManagerService`:
+
+```pascal
+program Project1;
+
+uses
+  System.StartUpCopy,
+  FMX.Forms,
+  FMX.Platform,
+  FMX.FontManager,
+  Unit1 in 'Unit1.pas' {Form1};
+
+{$R *.res}
+
+begin
+  var LFontManager: IFMXFontManagerService;
+  if TPlatformServices.Current.SupportsPlatformService(IFMXFontManagerService, LFontManager) then
+    LFontManager.AddCustomFontFromFile('Poppins.ttf');
+  Application.Initialize;
+  Application.CreateForm(TForm1, Form1);
+  Application.Run;
+end.
+```
+
 ## VCL
 
 ```pascal
