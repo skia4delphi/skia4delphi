@@ -1436,6 +1436,13 @@ begin
   Result := ABitmap.ToSkImage;
 end;
 
+function CeilFloat(const X: Single): Single;
+begin
+  Result := Int(X);
+  if Frac(X) > 0 then
+    Result := Result + 1;
+end;
+
 procedure DrawDesignBorder(const ACanvas: ISkCanvas; ADest: TRectF; const AOpacity: Single);
 const
   DesignBorderColor = $A0909090;
@@ -5508,7 +5515,7 @@ begin
       ParagraphLayout(AWidth);
     end
     else
-      ParagraphLayout(High(Integer));
+      ParagraphLayout(Infinity);
   end;
   try
     AWidth := GetFitWidth;
@@ -5666,8 +5673,8 @@ var
       Result.TextDirection := TSkTextDirection.RightToLeft;
     if ResultingTextSettings.Trimming in [TTextTrimming.Character, TTextTrimming.Word] then
       Result.Ellipsis := '...';
-    if ResultingTextSettings.MaxLines = 0 then
-      Result.MaxLines := High(Integer)
+    if ResultingTextSettings.MaxLines <= 0 then
+      Result.MaxLines := High(NativeUInt)
     else
       Result.MaxLines := ResultingTextSettings.MaxLines;
     Result.TextAlign := SkTextAlign[ResultingTextSettings.HorzAlign];
@@ -5903,13 +5910,18 @@ end;
 
 procedure TSkLabel.ParagraphLayout(AMaxWidth: Single);
 
-  function DoParagraphLayout(const AParagraph: ISkParagraph; AMaxWidth: Single): Single;
+  function DoParagraphLayout(const AParagraph: ISkParagraph; const AMaxWidth: Single): Single;
   begin
-    if SameValue(AMaxWidth, 0, TEpsilon.Position) then
-      Result := AMaxWidth
+    if CompareValue(AMaxWidth, 0, TEpsilon.Position) = GreaterThanValue then
+    begin
+      if IsInfinite(AMaxWidth) then
+        Result := AMaxWidth
+      else
+        // The SkParagraph.Layout calls a floor for the MaxWidth, so we should ceil it to force the original AMaxWidth
+        Result := CeilFloat(AMaxWidth + TEpsilon.Matrix);
+    end
     else
-      // The SkParagraph.Layout calls a floor for the MaxWidth, so we should ceil it to force the original AMaxWidth
-      Result := Ceil(AMaxWidth + TEpsilon.Matrix);
+      Result := 0;
     AParagraph.Layout(Result);
   end;
 

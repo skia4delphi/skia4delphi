@@ -1539,6 +1539,13 @@ type
 
 {$ENDIF}
 
+function CeilFloat(const X: Single): Single;
+begin
+  Result := Int(X);
+  if Frac(X) > 0 then
+    Result := Result + 1;
+end;
+
 function GetPixelFormat: TPixelFormat; inline;
 begin
   {$IF DEFINED(MSWINDOWS)}
@@ -3164,7 +3171,7 @@ const
     if WordWrap then
     begin
       if AMaxLines <= 0 then
-        Result.MaxLines := High(Integer)
+        Result.MaxLines := High(NativeUInt)
       else
         Result.MaxLines := AMaxLines;
     end
@@ -3180,7 +3187,7 @@ const
     else
       Result.TextAlign := SkTextAlign[HorizontalAlign];
     Result.TextStyle := CreateDefaultTextStyle;
-    if Result.MaxLines = NativeUInt(High(Integer)) then
+    if Result.MaxLines = High(NativeUInt) then
     begin
       LMinFontSize := Result.TextStyle.FontSize;
       for LAttribute in AAttributes do
@@ -3188,10 +3195,10 @@ const
       if LMinFontSize > 0.1 then
       begin
         // Avoid invalid float point operation
-        if MaxSize.Y > High(Integer) then
-          AMaxLines := High(Integer)
+        if MaxSize.Y >= High(NativeUInt) then
+          AMaxLines := High(NativeUInt)
         else
-          AMaxLines := Ceil(MaxSize.Y / LMinFontSize);
+          AMaxLines := Trunc(CeilFloat(MaxSize.Y / LMinFontSize));
         if AMaxLines > 0 then
           Result.MaxLines := AMaxLines;
       end;
@@ -3266,7 +3273,9 @@ const
     if CompareValue(AMaxWidth, 0, TEpsilon.Position) = GreaterThanValue then
     begin
       // The SkParagraph.Layout calls a floor for the MaxWidth, so we should ceil it to force the original AMaxWidth
-      AParagraph.Layout(Ceil(AMaxWidth + TEpsilon.Matrix));
+      if not IsInfinite(AMaxWidth) then
+        AMaxWidth := CeilFloat(AMaxWidth + TEpsilon.Matrix);
+      AParagraph.Layout(AMaxWidth);
     end
     else
       AParagraph.Layout(0);
