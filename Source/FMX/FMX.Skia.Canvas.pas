@@ -3187,6 +3187,7 @@ const
     else
       Result.TextAlign := SkTextAlign[HorizontalAlign];
     Result.TextStyle := CreateDefaultTextStyle;
+    // Try to limit max lines to optimize
     if Result.MaxLines = High(NativeUInt) then
     begin
       LMinFontSize := Result.TextStyle.FontSize;
@@ -3195,12 +3196,8 @@ const
       if LMinFontSize > 0.1 then
       begin
         // Avoid invalid float point operation
-        if MaxSize.Y >= High(NativeUInt) then
-          AMaxLines := High(NativeUInt)
-        else
-          AMaxLines := Trunc(CeilFloat(MaxSize.Y / LMinFontSize));
-        if AMaxLines > 0 then
-          Result.MaxLines := AMaxLines;
+        if MaxSize.Y < High(NativeInt) then
+          Result.MaxLines := Max(Trunc(CeilFloat(MaxSize.Y / LMinFontSize)), 0);
       end;
     end;
   end;
