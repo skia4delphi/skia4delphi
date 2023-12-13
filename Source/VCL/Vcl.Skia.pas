@@ -1354,6 +1354,13 @@ begin
   Result := ABitmap.ToSkImage;
 end;
 
+function CeilFloat(const X: Single): Single;
+begin
+  Result := Int(X);
+  if Frac(X) > 0 then
+    Result := Result + 1;
+end;
+
 procedure CreateBuffer(const AMemDC: HDC; const AWidth, AHeight: Integer;
   out ABuffer: HBITMAP; out AData: Pointer; out AStride: Integer);
 const
@@ -5720,7 +5727,7 @@ procedure TSkLabel.GetFitSize(var AWidth, AHeight: Single);
     if (akTop in Anchors) and (akBottom in Anchors) then
       Result := AHeight
     else
-      Result := Ceil(ParagraphBounds.Height * ScaleFactor);
+      Result := CeilFloat(ParagraphBounds.Height * ScaleFactor);
   end;
 
   function GetFitWidth: Single;
@@ -5728,7 +5735,7 @@ procedure TSkLabel.GetFitSize(var AWidth, AHeight: Single);
     if (akLeft in Anchors) and (akRight in Anchors) then
       Result := AWidth
     else
-      Result := Ceil(ParagraphBounds.Width * ScaleFactor);
+      Result := CeilFloat(ParagraphBounds.Width * ScaleFactor);
   end;
 
 var
@@ -5740,7 +5747,7 @@ begin
     if (akLeft in Anchors) and (akRight in Anchors) then
       ParagraphLayout(AWidth / ScaleFactor)
     else
-      ParagraphLayout(High(Integer));
+      ParagraphLayout(Infinity);
   end;
   try
     AWidth := GetFitWidth;
@@ -5864,8 +5871,8 @@ var
       Result.TextDirection := TSkTextDirection.RightToLeft;
     if ResultingTextSettings.Trimming in [TSkTextTrimming.Character, TSkTextTrimming.Word] then
       Result.Ellipsis := '...';
-    if ResultingTextSettings.MaxLines = 0 then
-      Result.MaxLines := High(Integer)
+    if ResultingTextSettings.MaxLines <= 0 then
+      Result.MaxLines := High(NativeUInt)
     else
       Result.MaxLines := ResultingTextSettings.MaxLines;
     Result.TextAlign := SkTextAlign[ResultingTextSettings.HorzAlign];
@@ -6059,13 +6066,18 @@ end;
 
 procedure TSkLabel.ParagraphLayout(AMaxWidth: Single);
 
-  function DoParagraphLayout(const AParagraph: ISkParagraph; AMaxWidth: Single): Single;
+  function DoParagraphLayout(const AParagraph: ISkParagraph; const AMaxWidth: Single): Single;
   begin
-    if SameValue(AMaxWidth, 0, TEpsilon.Position) then
-      Result := AMaxWidth
+    if CompareValue(AMaxWidth, 0, TEpsilon.Position) = GreaterThanValue then
+    begin
+      if IsInfinite(AMaxWidth) then
+        Result := AMaxWidth
+      else
+        // The SkParagraph.Layout calls a floor for the MaxWidth, so we should ceil it to force the original AMaxWidth
+        Result := CeilFloat(AMaxWidth + TEpsilon.Matrix);
+    end
     else
-      // The SkParagraph.Layout calls a floor for the MaxWidth, so we should ceil it to force the original AMaxWidth
-      Result := Ceil(AMaxWidth + TEpsilon.Matrix);
+      Result := 0;
     AParagraph.Layout(Result);
   end;
 
