@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - v6-lts
+      - v7-lts
 
 jobs:
   test-bds-23:
