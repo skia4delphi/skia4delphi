@@ -1319,6 +1319,9 @@ type
     constructor Create; override;
     destructor Destroy; override;
     procedure Assign(ASource: TPersistent); override;
+    {$IF CompilerVersion >= 32}
+    class function CanLoadFromStream(AStream: TStream): Boolean; override;
+    {$ENDIF}
     procedure LoadFromClipboardFormat(AFormat: Word; AData: THandle; APalette: HPALETTE); override;
     procedure LoadFromStream(AStream: TStream); override;
     procedure SaveToClipboardFormat(var AFormat: Word; var AData: THandle; var APalette: HPALETTE); override;
@@ -6508,6 +6511,33 @@ begin
   else
     inherited;
 end;
+
+{$IF CompilerVersion >= 32}
+class function TSkSvgGraphic.CanLoadFromStream(AStream: TStream): Boolean;
+var
+  LBytes: TBytes;
+  LSource: string;
+  LSavedPosition: Int64;
+begin
+  LSavedPosition := AStream.Position;
+  try
+    Result := False;
+    SetLength(LBytes, Min(256, AStream.Size - AStream.Position));
+    if Length(LBytes) > 0 then
+    begin
+      AStream.ReadBuffer(LBytes, Length(LBytes));
+      if TEncoding.UTF8.IsBufferValid(LBytes) then
+      begin
+        LSource := TEncoding.UTF8.GetString(LBytes).TrimLeft;
+        Result := (LSource.StartsWith('<?xml') and LSource.Contains('<svg')) or
+          LSource.StartsWith('<svg');
+      end;
+    end;
+  finally
+    AStream.Position := LSavedPosition;
+  end;
+end;
+{$ENDIF}
 
 procedure TSkSvgGraphic.Changed(ASender: TObject);
 begin
