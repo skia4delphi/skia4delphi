@@ -3994,6 +3994,7 @@ begin
         {$IFDEF SKIA_RASTER}
         if not LCanvasClass.InheritsFrom(TSkRasterCanvas) then
         {$ENDIF}
+        if GlobalUseSkiaFilters then
           RegisterSkiaFilterContextForCanvas(LCanvasClass);
         {$ENDIF}
         {$IFDEF SKIA_PRINTER}

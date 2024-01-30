@@ -1294,6 +1294,9 @@ var
   /// <summary> Disables registration of Skia image codecs </summary>
   GlobalDisableSkiaCodecsReplacement: Boolean;
   {$IF CompilerVersion >= 36}
+  /// <summary> Enables the execution of FMX filters/effects by Skia </summary>
+  /// <remarks> This option is only valid when the Canvas is Skia based and uses a GPU </remarks>
+  GlobalUseSkiaFilters: Boolean = True;
   /// <summary> Enables TBitmaps to be drawn in true parallel to UI and other bitmaps, when drawing in a thread (only takes effect when GlobalUseSkia is True) [Experimental] </summary>
   GlobalSkiaBitmapsInParallel: Boolean;
   {$ENDIF}
