@@ -3,7 +3,7 @@
 {                                                                        }
 {                              Skia4Delphi                               }
 {                                                                        }
-{ Copyright (c) 2021-2023 Skia4Delphi Project.                           }
+{ Copyright (c) 2021-2024 Skia4Delphi Project.                           }
 {                                                                        }
 { Use of this source code is governed by the MIT license that can be     }
 { found in the LICENSE file.                                             }
@@ -60,7 +60,7 @@
 #define LibraryName "Skia4Delphi"
 #define LibraryVersion "6.0.0"
 #define LibraryPublisher "Skia4Delphi Team"
-#define LibraryCopyright "Copyright (c) 2021-2023 Skia4Delphi Project"
+#define LibraryCopyright "Copyright (c) 2021-2024 Skia4Delphi Project"
 #define LibraryURL "https://skia4delphi.org"
 #define LibrarySamplesFolder "Samples"
 #define LibraryPackagesFolder "Packages"
