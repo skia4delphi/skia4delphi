@@ -1711,32 +1711,38 @@ var
   I: Integer;
   LCap: Single;
   LDash: TDashArray;
+  LFinalStrokeBrush: TStrokeBrush;
 begin
   ABrushData.Brush := ABrush;
+  LFinalStrokeBrush := ABrush;
   while (ABrushData.Brush <> nil) and (ABrushData.Brush.Kind = TBrushKind.Resource) do
+  begin
     ABrushData.Brush := ABrushData.Brush.Resource.Brush;
-  if (ABrushData.Brush = nil) or (ABrushData.Brush.Kind = TBrushKind.None) or (SameValue(TStrokeBrush(ABrushData.Brush).Thickness, 0, TEpsilon.Position)) then
+    if ABrushData.Brush is TStrokeBrush then
+      LFinalStrokeBrush := TStrokeBrush(ABrushData.Brush);
+  end;
+  if (ABrushData.Brush = nil) or (ABrushData.Brush.Kind = TBrushKind.None) or (SameValue(LFinalStrokeBrush.Thickness, 0, TEpsilon.Position)) then
     Exit(nil);
   ABrushData.Paint := TSkPaint.Create(TSkPaintStyle.Stroke);
   BeginPaint(ARect, AOpacity, ABrushData);
-  ABrushData.Paint.StrokeCap   := StrokeCap[TStrokeBrush(ABrushData.Brush).Cap];
-  ABrushData.Paint.StrokeJoin  := StrokeJoin[TStrokeBrush(ABrushData.Brush).Join];
-  ABrushData.Paint.StrokeWidth := TStrokeBrush(ABrushData.Brush).Thickness;
-  LDash := TStrokeBrush(ABrushData.Brush).DashArray;
+  ABrushData.Paint.StrokeCap   := StrokeCap[LFinalStrokeBrush.Cap];
+  ABrushData.Paint.StrokeJoin  := StrokeJoin[LFinalStrokeBrush.Join];
+  ABrushData.Paint.StrokeWidth := LFinalStrokeBrush.Thickness;
+  LDash := LFinalStrokeBrush.DashArray;
   if Length(LDash) > 0 then
   begin
-    if TStrokeBrush(ABrushData.Brush).Dash = TStrokeDash.Custom then
-      LCap := TStrokeBrush(ABrushData.Brush).Thickness
+    if LFinalStrokeBrush.Dash = TStrokeDash.Custom then
+      LCap := LFinalStrokeBrush.Thickness
     else
       LCap := 0;
     for I := 0 to Length(LDash) - 1 do
     begin
       if Odd(I) then
-        LDash[I] := (LDash[I]  + 1) * TStrokeBrush(ABrushData.Brush).Thickness - LCap
+        LDash[I] := (LDash[I]  + 1) * LFinalStrokeBrush.Thickness - LCap
       else
-        LDash[I] := (LDash[I] - 1) * TStrokeBrush(ABrushData.Brush).Thickness + LCap;
+        LDash[I] := (LDash[I] - 1) * LFinalStrokeBrush.Thickness + LCap;
     end;
-    ABrushData.Paint.PathEffect := TSkPathEffect.MakeDash(TArray<Single>(LDash), TStrokeBrush(ABrushData.Brush).DashOffset * TStrokeBrush(ABrushData.Brush).Thickness);
+    ABrushData.Paint.PathEffect := TSkPathEffect.MakeDash(TArray<Single>(LDash), LFinalStrokeBrush.DashOffset * LFinalStrokeBrush.Thickness);
   end;
   Result := TSkPaint(ABrushData.Paint);
 end;
