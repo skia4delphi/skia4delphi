@@ -5871,8 +5871,8 @@ var
       Result.TextDirection := TSkTextDirection.RightToLeft;
     if ResultingTextSettings.Trimming in [TSkTextTrimming.Character, TSkTextTrimming.Word] then
       Result.Ellipsis := '...';
-    if ResultingTextSettings.MaxLines <= 0 then
-      Result.MaxLines := High(NativeUInt)
+    if (ResultingTextSettings.MaxLines <= 0) or (ResultingTextSettings.MaxLines = High(NativeUInt)) then
+      Result.MaxLines := High(NativeUInt) - 1
     else
       Result.MaxLines := ResultingTextSettings.MaxLines;
     Result.TextAlign := SkTextAlign[ResultingTextSettings.HorzAlign];

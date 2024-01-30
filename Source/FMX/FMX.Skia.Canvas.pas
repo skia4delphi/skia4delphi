@@ -3171,7 +3171,7 @@ const
     if WordWrap then
     begin
       if AMaxLines <= 0 then
-        Result.MaxLines := High(NativeUInt)
+        Result.MaxLines := High(NativeUInt) - 1
       else
         Result.MaxLines := AMaxLines;
     end
@@ -3188,7 +3188,7 @@ const
       Result.TextAlign := SkTextAlign[HorizontalAlign];
     Result.TextStyle := CreateDefaultTextStyle;
     // Try to limit max lines to optimize
-    if Result.MaxLines = High(NativeUInt) then
+    if Result.MaxLines >= High(NativeUInt) - 1 then
     begin
       LMinFontSize := Result.TextStyle.FontSize;
       for LAttribute in AAttributes do
