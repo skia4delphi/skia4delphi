@@ -24,7 +24,7 @@ jobs:
         shell: pwsh
 
       - name: Upload Logs on Failure
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: Logs
@@ -32,7 +32,7 @@ jobs:
           retention-days: 4
 
       - name: Upload Setup
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: Installer
           path: Tools/Setup/Output/Skia4Delphi*.exe

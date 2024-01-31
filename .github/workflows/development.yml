@@ -29,7 +29,7 @@ jobs:
         timeout-minutes: 30
 
       - name: Upload Logs on Failure
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: BDS 23.0 Logs
@@ -57,7 +57,7 @@ jobs:
         timeout-minutes: 30
 
       - name: Upload Logs on Failure
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: BDS 22.0 Logs
@@ -85,7 +85,7 @@ jobs:
         timeout-minutes: 30
 
       - name: Upload Logs on Failure
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: BDS 21.0 Logs
@@ -113,7 +113,7 @@ jobs:
         timeout-minutes: 30
 
       - name: Upload Logs on Failure
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: BDS 20.0 Logs
@@ -141,7 +141,7 @@ jobs:
         timeout-minutes: 30
 
       - name: Upload Logs on Failure
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: BDS 19.0 Logs
@@ -169,7 +169,7 @@ jobs:
         timeout-minutes: 30
 
       - name: Upload Logs on Failure
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: BDS 18.0 Logs
@@ -197,7 +197,7 @@ jobs:
         timeout-minutes: 30
 
       - name: Upload Logs on Failure
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: BDS 17.0 Logs
@@ -225,7 +225,7 @@ jobs:
         timeout-minutes: 30
 
       - name: Upload Logs on Failure
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: BDS 16.0 Logs
@@ -253,7 +253,7 @@ jobs:
         timeout-minutes: 30
 
       - name: Upload Logs on Failure
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: BDS 15.0 Logs
@@ -281,7 +281,7 @@ jobs:
         timeout-minutes: 30
 
       - name: Upload Logs on Failure
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: FPC 3.3.1 Logs
@@ -309,7 +309,7 @@ jobs:
         timeout-minutes: 30
 
       - name: Upload Logs on Failure
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: FPC Trunk Logs
@@ -338,7 +338,7 @@ jobs:
         timeout-minutes: 20
 
       - name: Upload Logs on Failure
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: Logs
@@ -346,7 +346,7 @@ jobs:
           retention-days: 10
 
       - name: Upload Setup
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: Installer
           path: Tools/Setup/Output/Skia4Delphi*.exe
