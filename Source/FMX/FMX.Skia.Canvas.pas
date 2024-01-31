@@ -54,10 +54,10 @@ type
     procedure CanvasEnd;
     function GetCanvasHeight: Integer;
     function GetCanvasScale: Single;
-    function GetCanvasWidth: integer;
+    function GetCanvasWidth: Integer;
     property CanvasHeight: Integer read GetCanvasHeight;
     property CanvasScale: Single read GetCanvasScale;
-    property CanvasWidth: integer read GetCanvasWidth;
+    property CanvasWidth: Integer read GetCanvasWidth;
   end;
 
   { TSkCanvasCustom }

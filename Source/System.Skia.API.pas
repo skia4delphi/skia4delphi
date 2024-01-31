@@ -27,7 +27,11 @@ interface
   {$HPPEMIT '#elif defined(__WIN32__)'}
   {$HPPEMIT '  #pragma link "Skia.Package.RTL.lib"'}
   {$HPPEMIT '#elif defined(_WIN64)'}
-  {$HPPEMIT '  #pragma link "Skia.Package.RTL.a"'}
+  {$HPPEMIT '  #if (__clang_major__ >= 15)'}
+  {$HPPEMIT '    #pragma link "Skia.Package.RTL.lib"'}
+  {$HPPEMIT '  #else'}
+  {$HPPEMIT '    #pragma link "Skia.Package.RTL.a"'}
+  {$HPPEMIT '  #endif'}
   {$HPPEMIT '#endif'}
 {$ENDIF}
 

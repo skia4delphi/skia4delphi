@@ -6677,14 +6677,13 @@ end;
   {$HPPEMIT '#elif defined(__WIN32__)'}
   {$HPPEMIT '  #pragma link "Skia.Package.VCL.lib"'}
   {$HPPEMIT '#elif defined(_WIN64)'}
-  {$HPPEMIT '  #pragma link "Skia.Package.VCL.a"'}
+  {$HPPEMIT '  #if (__clang_major__ >= 15)'}
+  {$HPPEMIT '    #pragma link "Skia.Package.VCL.lib"'}
+  {$HPPEMIT '  #else'}
+  {$HPPEMIT '    #pragma link "Skia.Package.VCL.a"'}
+  {$HPPEMIT '  #endif'}
   {$HPPEMIT '#endif'}
-{$ENDIF}
-
-{$IF DEFINED(WIN32)}
-  {$HPPEMIT '#pragma link "Vcl.Skia.obj"'}
-{$ELSEIF DEFINED(WIN64)}
-  {$HPPEMIT '#pragma link "Vcl.Skia.o"'}
+  {$HPPEMIT '#pragma link "Vcl.Skia"'}
 {$ENDIF}
 
 {$HPPEMIT NOUSINGNAMESPACE}

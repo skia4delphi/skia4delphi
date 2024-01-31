@@ -6249,16 +6249,18 @@ end;
   {$HPPEMIT '#elif defined(__WIN32__)'}
   {$HPPEMIT '  #pragma link "Skia.Package.FMX.lib"'}
   {$HPPEMIT '#elif defined(_WIN64)'}
-  {$HPPEMIT '  #pragma link "Skia.Package.FMX.a"'}
+  {$HPPEMIT '  #if (__clang_major__ >= 15)'}
+  {$HPPEMIT '    #pragma link "Skia.Package.FMX.lib"'}
+  {$HPPEMIT '  #else'}
+  {$HPPEMIT '    #pragma link "Skia.Package.FMX.a"'}
+  {$HPPEMIT '  #endif'}
   {$HPPEMIT '#endif'}
 {$ENDIF}
 
 {$IF DEFINED(IOS) or DEFINED(ANDROID)}
   {$HPPEMIT LINKUNIT}
-{$ELSEIF DEFINED(WIN32)}
-  {$HPPEMIT '#pragma link "FMX.Skia.obj"'}
-{$ELSEIF DEFINED(WIN64)}
-  {$HPPEMIT '#pragma link "FMX.Skia.o"'}
+{$ELSEIF DEFINED(MSWINDOWS)}
+  {$HPPEMIT '#pragma link "FMX.Skia"'}
 {$ENDIF}
 
 {$HPPEMIT NOUSINGNAMESPACE}
@@ -6313,6 +6315,10 @@ end;
 {$HPPEMIT END '    static bool& GlobalDisableSkiaCodecsReplacement = ::Fmx::Skia::GlobalDisableSkiaCodecsReplacement;'}
 {$HPPEMIT END '    static bool& GlobalUseSkia = ::Fmx::Skia::GlobalUseSkia;'}
 {$HPPEMIT END '    static bool& GlobalUseSkiaRasterWhenAvailable = ::Fmx::Skia::GlobalUseSkiaRasterWhenAvailable;'}
+{$IF CompilerVersion >= 36}
+{$HPPEMIT END '    static bool& GlobalUseSkiaFilters = ::Fmx::Skia::GlobalUseSkiaFilters;'}
+{$HPPEMIT END '    static bool& GlobalSkiaBitmapsInParallel = ::Fmx::Skia::GlobalSkiaBitmapsInParallel;'}
+{$ENDIF}
 {$HPPEMIT END '    static ::System::StaticArray<System::Skia::TSkColorType, 24>& SkFmxColorType = ::Fmx::Skia::SkFmxColorType;'}
 {$HPPEMIT END '    static ::System::StaticArray<Fmx::Types::TPixelFormat, 23>& SkFmxPixelFormat = ::Fmx::Skia::SkFmxPixelFormat;'}
 {$HPPEMIT END '    static const TAddSkPathToPathDataProc AddSkPathToPathData = ::Fmx::Skia::AddSkPathToPathData;'}
