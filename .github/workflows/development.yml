@@ -13,10 +13,10 @@ jobs:
     runs-on: windows-2022
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Checkout Toolchain
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: skia4delphibot/toolchain23
           token: ${{ secrets.GH_SK_PAT }}
@@ -41,10 +41,10 @@ jobs:
     runs-on: windows-2022
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Checkout Toolchain
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: skia4delphibot/toolchain22
           token: ${{ secrets.GH_SK_PAT }}
@@ -69,10 +69,10 @@ jobs:
     runs-on: windows-2022
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Checkout Toolchain
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: skia4delphibot/toolchain21
           token: ${{ secrets.GH_SK_PAT }}
@@ -97,10 +97,10 @@ jobs:
     runs-on: windows-2022
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Checkout Toolchain
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: skia4delphibot/toolchain20
           token: ${{ secrets.GH_SK_PAT }}
@@ -125,10 +125,10 @@ jobs:
     runs-on: windows-2022
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Checkout Toolchain
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: skia4delphibot/toolchain19
           token: ${{ secrets.GH_SK_PAT }}
@@ -153,10 +153,10 @@ jobs:
     runs-on: windows-2022
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Checkout Toolchain
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: skia4delphibot/toolchain18
           token: ${{ secrets.GH_SK_PAT }}
@@ -181,10 +181,10 @@ jobs:
     runs-on: windows-2022
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Checkout Toolchain
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: skia4delphibot/toolchain17
           token: ${{ secrets.GH_SK_PAT }}
@@ -209,10 +209,10 @@ jobs:
     runs-on: windows-2022
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Checkout Toolchain
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: skia4delphibot/toolchain16
           token: ${{ secrets.GH_SK_PAT }}
@@ -237,10 +237,10 @@ jobs:
     runs-on: windows-2022
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Checkout Toolchain
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: skia4delphibot/toolchain15
           token: ${{ secrets.GH_SK_PAT }}
@@ -265,10 +265,10 @@ jobs:
     runs-on: windows-2022
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Checkout Toolchain
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: skia4delphibot/toolchainfpc331
           token: ${{ secrets.GH_SK_PAT }}
@@ -293,10 +293,10 @@ jobs:
     runs-on: windows-2022
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Checkout Toolchain
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: skia4delphibot/toolchainfpc20231108
           token: ${{ secrets.GH_SK_PAT }}
@@ -322,10 +322,10 @@ jobs:
     runs-on: windows-2022
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Checkout Toolchain
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: skia4delphibot/toolchain
           token: ${{ secrets.GH_SK_PAT }}
