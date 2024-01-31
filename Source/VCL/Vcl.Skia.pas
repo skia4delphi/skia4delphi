@@ -6526,7 +6526,11 @@ begin
     if Length(LBytes) > 0 then
     begin
       AStream.ReadBuffer(LBytes, Length(LBytes));
+      {$IF CompilerVersion >= 36}
       if TEncoding.UTF8.IsBufferValid(LBytes) then
+      {$ELSE}
+      if TEncoding.UTF8.GetCharCount(LBytes) > 0 then
+      {$ENDIF}
       begin
         LSource := TEncoding.UTF8.GetString(LBytes).TrimLeft;
         Result := (LSource.StartsWith('<?xml') and LSource.Contains('<svg')) or
