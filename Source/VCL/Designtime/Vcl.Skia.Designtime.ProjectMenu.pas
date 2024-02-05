@@ -42,7 +42,7 @@ uses
   DCCStrs;
 
 type
-  TSkProjectPlatform = (Unknown, Win32, Win64, Android, Android64, iOSDevice32, iOSDevice64, iOSSimARM64, iOSSimulator, OSX64, OSXARM64, Linux64);
+  TSkProjectPlatform = (Unknown, Win32, Win64, Win64x, Android, Android64, iOSDevice32, iOSDevice64, iOSSimARM64, iOSSimulator, OSX64, OSXARM64, Linux64);
   TSkProjectPlatforms = set of TSkProjectPlatform;
 
   { TSkDeployFile }
@@ -229,12 +229,18 @@ type
     CBuilderSupportedPlatforms = [TSkProjectPlatform.Win32, TSkProjectPlatform.Win64, TSkProjectPlatform.Android];
     DelphiSupportedPlatforms = [TSkProjectPlatform.Win32, TSkProjectPlatform.Win64, TSkProjectPlatform.Android,
       TSkProjectPlatform.Android64];
-    {$ELSE} // RAD Studio 11 Alexandria and newer
+    {$ELSEIF CompilerVersion < 36} // RAD Studio 11 Alexandria
     CBuilderSupportedPlatforms = [TSkProjectPlatform.Win32, TSkProjectPlatform.Win64, TSkProjectPlatform.Android,
       TSkProjectPlatform.iOSDevice64];
     DelphiSupportedPlatforms = [TSkProjectPlatform.Win32, TSkProjectPlatform.Win64, TSkProjectPlatform.Android,
       TSkProjectPlatform.Android64, TSkProjectPlatform.iOSDevice64, TSkProjectPlatform.iOSSimARM64,
       TSkProjectPlatform.OSX64, TSkProjectPlatform.OSXARM64, TSkProjectPlatform.Linux64];
+    {$ELSE} // RAD Studio 12 Athens and newer
+    CBuilderSupportedPlatforms = [TSkProjectPlatform.Win32, TSkProjectPlatform.Win64, TSkProjectPlatform.Win64x,
+      TSkProjectPlatform.Android, TSkProjectPlatform.iOSDevice64];
+    DelphiSupportedPlatforms = [TSkProjectPlatform.Win32, TSkProjectPlatform.Win64, TSkProjectPlatform.Win64x,
+      TSkProjectPlatform.Android, TSkProjectPlatform.Android64, TSkProjectPlatform.iOSDevice64,
+      TSkProjectPlatform.iOSSimARM64, TSkProjectPlatform.OSX64, TSkProjectPlatform.OSXARM64, TSkProjectPlatform.Linux64];
     {$ENDIF}
   strict private class var
     FBinariesChecked: Boolean;
@@ -276,9 +282,10 @@ const
   {$ENDIF}
 
   {$IF CompilerVersion >= 35}
-  SkiaDeployFiles: array[0..15] of TSkDeployFile = (
+  SkiaDeployFiles: array[0..17] of TSkDeployFile = (
     (&Platform: TSkProjectPlatform.Win32;       LocalFileName: '$(BDS)\bin\sk4d.dll';                                            RemotePath: '.\';                       CopyToOutput: True;  Required: True; Operation: TDeployOperation.doCopyOnly;   Condition: '''$('+SkiaDirVariable+')''=='''''), // Win32
     (&Platform: TSkProjectPlatform.Win64;       LocalFileName: '$(BDS)\bin64\sk4d.dll';                                          RemotePath: '.\';                       CopyToOutput: True;  Required: True; Operation: TDeployOperation.doCopyOnly;   Condition: '''$('+SkiaDirVariable+')''=='''''), // Win64
+    (&Platform: TSkProjectPlatform.Win64x;      LocalFileName: '$(BDS)\bin64\sk4d.dll';                                          RemotePath: '.\';                       CopyToOutput: True;  Required: True; Operation: TDeployOperation.doCopyOnly;   Condition: '''$('+SkiaDirVariable+')''=='''''), // Win64x
     (&Platform: TSkProjectPlatform.Android;     LocalFileName: '$(BDS)\binandroid32\libsk4d.so';                                 RemotePath: 'library\lib\armeabi-v7a\'; CopyToOutput: False; Required: True; Operation: TDeployOperation.doSetExecBit; Condition: '''$('+SkiaDirVariable+')''=='''''), // Android
     (&Platform: TSkProjectPlatform.Android64;   LocalFileName: '$(BDS)\binandroid64\libsk4d.so';                                 RemotePath: 'library\lib\arm64-v8a\';   CopyToOutput: False; Required: True; Operation: TDeployOperation.doSetExecBit; Condition: '''$('+SkiaDirVariable+')''=='''''), // Android64
     (&Platform: TSkProjectPlatform.Android64;   LocalFileName: '$(BDS)\binandroid32\libsk4d.so';                                 RemotePath: 'library\lib\armeabi-v7a\'; CopyToOutput: False; Required: True; Operation: TDeployOperation.doSetExecBit; Condition: '''$('+SkiaDirVariable+')''=='''' and ''$(AndroidAppBundle)''==''true'''), // Android64
@@ -286,10 +293,11 @@ const
     (&Platform: TSkProjectPlatform.OSXARM64;    LocalFileName: '$(BDS)\binosxarm64\libsk4d.dylib';                               RemotePath: 'Contents\MacOS\';          CopyToOutput: False; Required: True; Operation: TDeployOperation.doSetExecBit; Condition: '''$('+SkiaDirVariable+')''=='''''), // OSXARM64
     (&Platform: TSkProjectPlatform.Linux64;     LocalFileName: '$(BDS)\binlinux64\libsk4d.so';                                   RemotePath: '.\';                       CopyToOutput: False; Required: True; Operation: TDeployOperation.doSetExecBit; Condition: '''$('+SkiaDirVariable+')''=='''''), // Linux64
   {$ELSE}
-  SkiaDeployFiles: array[0..7] of TSkDeployFile = (
+  SkiaDeployFiles: array[0..8] of TSkDeployFile = (
   {$ENDIF}
     (&Platform: TSkProjectPlatform.Win32;       LocalFileName: '$('+SkiaDirVariable+')\Binary\Shared\Win32\sk4d.dll';            RemotePath: '.\';                       CopyToOutput: True;  Required: True; Operation: TDeployOperation.doCopyOnly;   Condition: '''$('+SkiaDirVariable+')''!='''''), // Win32
     (&Platform: TSkProjectPlatform.Win64;       LocalFileName: '$('+SkiaDirVariable+')\Binary\Shared\Win64\sk4d.dll';            RemotePath: '.\';                       CopyToOutput: True;  Required: True; Operation: TDeployOperation.doCopyOnly;   Condition: '''$('+SkiaDirVariable+')''!='''''), // Win64
+    (&Platform: TSkProjectPlatform.Win64x;      LocalFileName: '$('+SkiaDirVariable+')\Binary\Shared\Win64\sk4d.dll';            RemotePath: '.\';                       CopyToOutput: True;  Required: True; Operation: TDeployOperation.doCopyOnly;   Condition: '''$('+SkiaDirVariable+')''!='''''), // Win64x
     (&Platform: TSkProjectPlatform.Android;     LocalFileName: '$('+SkiaDirVariable+')\Binary\Shared\Android\libsk4d.so';        RemotePath: 'library\lib\armeabi-v7a\'; CopyToOutput: False; Required: True; Operation: TDeployOperation.doSetExecBit; Condition: '''$('+SkiaDirVariable+')''!='''''), // Android
     (&Platform: TSkProjectPlatform.Android64;   LocalFileName: '$('+SkiaDirVariable+')\Binary\Shared\Android64\libsk4d.so';      RemotePath: 'library\lib\arm64-v8a\';   CopyToOutput: False; Required: True; Operation: TDeployOperation.doSetExecBit; Condition: '''$('+SkiaDirVariable+')''!='''''), // Android64
     (&Platform: TSkProjectPlatform.Android64;   LocalFileName: '$('+SkiaDirVariable+')\Binary\Shared\Android\libsk4d.so';        RemotePath: 'library\lib\armeabi-v7a\'; CopyToOutput: False; Required: True; Operation: TDeployOperation.doSetExecBit; Condition: '''$('+SkiaDirVariable+')''!='''' and ''$(AndroidAppBundle)''==''true'''), // Android64
@@ -846,7 +854,7 @@ class procedure TSkDeployFilesHelper.AddDeployFiles(
   var
     LDeployFile: TSkDeployFile;
   begin
-    if (AProject.ApplicationType = sLibrary) and not (APlatform in [TSkProjectPlatform.Win32, TSkProjectPlatform.Win64]) then
+    if (AProject.ApplicationType = sLibrary) and not (APlatform in [TSkProjectPlatform.Win32, TSkProjectPlatform.Win64, TSkProjectPlatform.Win64x]) then
       Exit;
     for LDeployFile in GetSkiaDeployFiles(APlatform) do
       DoAddFile(AProjectDeployment, LDeployFile.Platform.ToString, AConfig, LDeployFile);
@@ -919,7 +927,7 @@ class procedure TSkDeployFilesHelper.EnsureDeployFiles(
     LSkiaFile: TSkDeployFile;
   begin
     LPlatformName := APlatform.ToString;
-    if (AProject.ApplicationType = sLibrary) and not (APlatform in [TSkProjectPlatform.Win32, TSkProjectPlatform.Win64]) then
+    if (AProject.ApplicationType = sLibrary) and not (APlatform in [TSkProjectPlatform.Win32, TSkProjectPlatform.Win64, TSkProjectPlatform.Win64x]) then
       LSkiaDeployFiles := []
     else
       LSkiaDeployFiles := GetSkiaDeployFiles(APlatform);
