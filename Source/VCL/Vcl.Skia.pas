@@ -2695,7 +2695,7 @@ begin
         if TSkGlControlRender.IsSupported then
           Result := TSkGlControlRender.Create(ATarget)
         else
-          Result := TSkRasterControlRender.Create(ATarget);;
+          Result := TSkRasterControlRender.Create(ATarget);
       end;
   else
     Result := nil;
