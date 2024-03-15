@@ -6311,7 +6311,7 @@ end;
 {$HPPEMIT END '    typedef void (__fastcall *TSkiaDrawProc)(::Fmx::Graphics::TBitmap* const ABitmap, const ::Fmx::Skia::_di_TSkDrawProc AProc, const bool AStartClean);'}
 {$HPPEMIT END '    typedef ::Fmx::Graphics::TBitmap* (__fastcall *TSkImageToBitmapFunc)(const ::System::Skia::_di_ISkImage AImage);'}
 {$HPPEMIT END '    typedef ::Fmx::Graphics::TPathData* (__fastcall *TSkPathToPathDataFunc)(const ::System::Skia::_di_ISkPath ASkPath);'}
-{$HPPEMIT END '    static const int SkSupportedPlatformsMask = ::Fmx::Skia::SkSupportedPlatformsMask;'}
+{$HPPEMIT END '    static _DELPHI_CONST int SkSupportedPlatformsMask = ::Fmx::Skia::SkSupportedPlatformsMask;'}
 {$HPPEMIT END '    static bool& GlobalDisableSkiaCodecsReplacement = ::Fmx::Skia::GlobalDisableSkiaCodecsReplacement;'}
 {$HPPEMIT END '    static bool& GlobalUseSkia = ::Fmx::Skia::GlobalUseSkia;'}
 {$HPPEMIT END '    static bool& GlobalUseSkiaRasterWhenAvailable = ::Fmx::Skia::GlobalUseSkiaRasterWhenAvailable;'}
