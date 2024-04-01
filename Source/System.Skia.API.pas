@@ -2,8 +2,8 @@
 {                                                                        }
 {                              Skia4Delphi                               }
 {                                                                        }
-{ Copyright (c) 2011-2023 Google LLC.                                    }
-{ Copyright (c) 2021-2023 Skia4Delphi Project.                           }
+{ Copyright (c) 2011-2024 Google LLC.                                    }
+{ Copyright (c) 2021-2024 Skia4Delphi Project.                           }
 {                                                                        }
 { Use of this source code is governed by a BSD-style license that can be }
 { found in the LICENSE file.                                             }
@@ -27,7 +27,11 @@ interface
   {$HPPEMIT '#elif defined(__WIN32__)'}
   {$HPPEMIT '  #pragma link "Skia.Package.RTL.lib"'}
   {$HPPEMIT '#elif defined(_WIN64)'}
-  {$HPPEMIT '  #pragma link "Skia.Package.RTL.a"'}
+  {$HPPEMIT '  #if (__clang_major__ >= 15)'}
+  {$HPPEMIT '    #pragma link "Skia.Package.RTL.lib"'}
+  {$HPPEMIT '  #else'}
+  {$HPPEMIT '    #pragma link "Skia.Package.RTL.a"'}
+  {$HPPEMIT '  #endif'}
   {$HPPEMIT '#endif'}
 {$ENDIF}
 

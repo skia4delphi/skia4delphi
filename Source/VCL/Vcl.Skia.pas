@@ -2,7 +2,7 @@
 {                                                                        }
 {                              Skia4Delphi                               }
 {                                                                        }
-{ Copyright (c) 2021-2023 Skia4Delphi Project.                           }
+{ Copyright (c) 2021-2024 Skia4Delphi Project.                           }
 {                                                                        }
 { Use of this source code is governed by the MIT license that can be     }
 { found in the LICENSE file.                                             }
@@ -1319,6 +1319,9 @@ type
     constructor Create; override;
     destructor Destroy; override;
     procedure Assign(ASource: TPersistent); override;
+    {$IF CompilerVersion >= 32}
+    class function CanLoadFromStream(AStream: TStream): Boolean; override;
+    {$ENDIF}
     procedure LoadFromClipboardFormat(AFormat: Word; AData: THandle; APalette: HPALETTE); override;
     procedure LoadFromStream(AStream: TStream); override;
     procedure SaveToClipboardFormat(var AFormat: Word; var AData: THandle; var APalette: HPALETTE); override;
@@ -2692,7 +2695,7 @@ begin
         if TSkGlControlRender.IsSupported then
           Result := TSkGlControlRender.Create(ATarget)
         else
-          Result := TSkRasterControlRender.Create(ATarget);;
+          Result := TSkRasterControlRender.Create(ATarget);
       end;
   else
     Result := nil;
@@ -5871,8 +5874,8 @@ var
       Result.TextDirection := TSkTextDirection.RightToLeft;
     if ResultingTextSettings.Trimming in [TSkTextTrimming.Character, TSkTextTrimming.Word] then
       Result.Ellipsis := '...';
-    if ResultingTextSettings.MaxLines <= 0 then
-      Result.MaxLines := High(NativeUInt)
+    if (ResultingTextSettings.MaxLines <= 0) or (ResultingTextSettings.MaxLines = High(NativeUInt)) then
+      Result.MaxLines := High(NativeUInt) - 1
     else
       Result.MaxLines := ResultingTextSettings.MaxLines;
     Result.TextAlign := SkTextAlign[ResultingTextSettings.HorzAlign];
@@ -6509,6 +6512,37 @@ begin
     inherited;
 end;
 
+{$IF CompilerVersion >= 32}
+class function TSkSvgGraphic.CanLoadFromStream(AStream: TStream): Boolean;
+var
+  LBytes: TBytes;
+  LSource: string;
+  LSavedPosition: Int64;
+begin
+  LSavedPosition := AStream.Position;
+  try
+    Result := False;
+    SetLength(LBytes, Min(256, AStream.Size - AStream.Position));
+    if Length(LBytes) > 0 then
+    begin
+      AStream.ReadBuffer(LBytes, Length(LBytes));
+      {$IF CompilerVersion >= 36}
+      if TEncoding.UTF8.IsBufferValid(LBytes) then
+      {$ELSE}
+      if TEncoding.UTF8.GetCharCount(LBytes) > 0 then
+      {$ENDIF}
+      begin
+        LSource := TEncoding.UTF8.GetString(LBytes).TrimLeft;
+        Result := (LSource.StartsWith('<?xml') and LSource.Contains('<svg')) or
+          LSource.StartsWith('<svg');
+      end;
+    end;
+  finally
+    AStream.Position := LSavedPosition;
+  end;
+end;
+{$ENDIF}
+
 procedure TSkSvgGraphic.Changed(ASender: TObject);
 begin
   FreeAndNil(FBuffer);
@@ -6647,14 +6681,13 @@ end;
   {$HPPEMIT '#elif defined(__WIN32__)'}
   {$HPPEMIT '  #pragma link "Skia.Package.VCL.lib"'}
   {$HPPEMIT '#elif defined(_WIN64)'}
-  {$HPPEMIT '  #pragma link "Skia.Package.VCL.a"'}
+  {$HPPEMIT '  #if (__clang_major__ >= 15)'}
+  {$HPPEMIT '    #pragma link "Skia.Package.VCL.lib"'}
+  {$HPPEMIT '  #else'}
+  {$HPPEMIT '    #pragma link "Skia.Package.VCL.a"'}
+  {$HPPEMIT '  #endif'}
   {$HPPEMIT '#endif'}
-{$ENDIF}
-
-{$IF DEFINED(WIN32)}
-  {$HPPEMIT '#pragma link "Vcl.Skia.obj"'}
-{$ELSEIF DEFINED(WIN64)}
-  {$HPPEMIT '#pragma link "Vcl.Skia.o"'}
+  {$HPPEMIT '#pragma link "Vcl.Skia"'}
 {$ENDIF}
 
 {$HPPEMIT NOUSINGNAMESPACE}

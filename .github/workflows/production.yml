@@ -9,10 +9,10 @@ jobs:
     runs-on: windows-2022
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Checkout Toolchain
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: skia4delphibot/toolchain
           token: ${{ secrets.GH_SK_PAT }}
@@ -20,11 +20,11 @@ jobs:
 
       - name: Build
         run: |
-          Tools/Setup/Toolchain/Run.ps1 ${{ secrets.AUTH_TOKEN }} ${{ secrets.CERT_PASS }}
+          Tools/Setup/Toolchain/Run.ps1
         shell: pwsh
 
       - name: Upload Logs on Failure
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: Logs
@@ -32,7 +32,7 @@ jobs:
           retention-days: 4
 
       - name: Upload Setup
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: Installer
           path: Tools/Setup/Output/Skia4Delphi*.exe

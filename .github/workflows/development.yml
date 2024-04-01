@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - v6-lts
+      - v7-lts
 
 jobs:
   test-bds-23:
@@ -12,10 +13,10 @@ jobs:
     runs-on: windows-2022
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Checkout Toolchain
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: skia4delphibot/toolchain23
           token: ${{ secrets.GH_SK_PAT }}
@@ -28,7 +29,7 @@ jobs:
         timeout-minutes: 30
 
       - name: Upload Logs on Failure
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: BDS 23.0 Logs
@@ -40,10 +41,10 @@ jobs:
     runs-on: windows-2022
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Checkout Toolchain
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: skia4delphibot/toolchain22
           token: ${{ secrets.GH_SK_PAT }}
@@ -56,7 +57,7 @@ jobs:
         timeout-minutes: 30
 
       - name: Upload Logs on Failure
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: BDS 22.0 Logs
@@ -68,10 +69,10 @@ jobs:
     runs-on: windows-2022
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Checkout Toolchain
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: skia4delphibot/toolchain21
           token: ${{ secrets.GH_SK_PAT }}
@@ -84,7 +85,7 @@ jobs:
         timeout-minutes: 30
 
       - name: Upload Logs on Failure
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: BDS 21.0 Logs
@@ -96,10 +97,10 @@ jobs:
     runs-on: windows-2022
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Checkout Toolchain
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: skia4delphibot/toolchain20
           token: ${{ secrets.GH_SK_PAT }}
@@ -112,7 +113,7 @@ jobs:
         timeout-minutes: 30
 
       - name: Upload Logs on Failure
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: BDS 20.0 Logs
@@ -124,10 +125,10 @@ jobs:
     runs-on: windows-2022
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Checkout Toolchain
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: skia4delphibot/toolchain19
           token: ${{ secrets.GH_SK_PAT }}
@@ -140,7 +141,7 @@ jobs:
         timeout-minutes: 30
 
       - name: Upload Logs on Failure
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: BDS 19.0 Logs
@@ -152,10 +153,10 @@ jobs:
     runs-on: windows-2022
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Checkout Toolchain
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: skia4delphibot/toolchain18
           token: ${{ secrets.GH_SK_PAT }}
@@ -168,7 +169,7 @@ jobs:
         timeout-minutes: 30
 
       - name: Upload Logs on Failure
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: BDS 18.0 Logs
@@ -180,10 +181,10 @@ jobs:
     runs-on: windows-2022
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Checkout Toolchain
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: skia4delphibot/toolchain17
           token: ${{ secrets.GH_SK_PAT }}
@@ -196,7 +197,7 @@ jobs:
         timeout-minutes: 30
 
       - name: Upload Logs on Failure
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: BDS 17.0 Logs
@@ -208,10 +209,10 @@ jobs:
     runs-on: windows-2022
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Checkout Toolchain
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: skia4delphibot/toolchain16
           token: ${{ secrets.GH_SK_PAT }}
@@ -224,7 +225,7 @@ jobs:
         timeout-minutes: 30
 
       - name: Upload Logs on Failure
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: BDS 16.0 Logs
@@ -236,10 +237,10 @@ jobs:
     runs-on: windows-2022
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Checkout Toolchain
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: skia4delphibot/toolchain15
           token: ${{ secrets.GH_SK_PAT }}
@@ -252,7 +253,7 @@ jobs:
         timeout-minutes: 30
 
       - name: Upload Logs on Failure
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: BDS 15.0 Logs
@@ -264,10 +265,10 @@ jobs:
     runs-on: windows-2022
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Checkout Toolchain
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: skia4delphibot/toolchainfpc331
           token: ${{ secrets.GH_SK_PAT }}
@@ -280,7 +281,7 @@ jobs:
         timeout-minutes: 30
 
       - name: Upload Logs on Failure
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: FPC 3.3.1 Logs
@@ -292,10 +293,10 @@ jobs:
     runs-on: windows-2022
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Checkout Toolchain
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: skia4delphibot/toolchainfpc20231108
           token: ${{ secrets.GH_SK_PAT }}
@@ -308,7 +309,7 @@ jobs:
         timeout-minutes: 30
 
       - name: Upload Logs on Failure
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: FPC Trunk Logs
@@ -321,10 +322,10 @@ jobs:
     runs-on: windows-2022
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Checkout Toolchain
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: skia4delphibot/toolchain
           token: ${{ secrets.GH_SK_PAT }}
@@ -337,7 +338,7 @@ jobs:
         timeout-minutes: 20
 
       - name: Upload Logs on Failure
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: Logs
@@ -345,7 +346,7 @@ jobs:
           retention-days: 10
 
       - name: Upload Setup
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: Installer
           path: Tools/Setup/Output/Skia4Delphi*.exe
