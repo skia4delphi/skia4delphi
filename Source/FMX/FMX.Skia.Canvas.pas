@@ -2,7 +2,7 @@
 {                                                                        }
 {                              Skia4Delphi                               }
 {                                                                        }
-{ Copyright (c) 2021-2023 Skia4Delphi Project.                           }
+{ Copyright (c) 2021-2024 Skia4Delphi Project.                           }
 {                                                                        }
 { Use of this source code is governed by the MIT license that can be     }
 { found in the LICENSE file.                                             }
@@ -54,10 +54,10 @@ type
     procedure CanvasEnd;
     function GetCanvasHeight: Integer;
     function GetCanvasScale: Single;
-    function GetCanvasWidth: integer;
+    function GetCanvasWidth: Integer;
     property CanvasHeight: Integer read GetCanvasHeight;
     property CanvasScale: Single read GetCanvasScale;
-    property CanvasWidth: integer read GetCanvasWidth;
+    property CanvasWidth: Integer read GetCanvasWidth;
   end;
 
   { TSkCanvasCustom }
@@ -1711,32 +1711,38 @@ var
   I: Integer;
   LCap: Single;
   LDash: TDashArray;
+  LFinalStrokeBrush: TStrokeBrush;
 begin
   ABrushData.Brush := ABrush;
+  LFinalStrokeBrush := ABrush;
   while (ABrushData.Brush <> nil) and (ABrushData.Brush.Kind = TBrushKind.Resource) do
+  begin
     ABrushData.Brush := ABrushData.Brush.Resource.Brush;
-  if (ABrushData.Brush = nil) or (ABrushData.Brush.Kind = TBrushKind.None) or (SameValue(TStrokeBrush(ABrushData.Brush).Thickness, 0, TEpsilon.Position)) then
+    if ABrushData.Brush is TStrokeBrush then
+      LFinalStrokeBrush := TStrokeBrush(ABrushData.Brush);
+  end;
+  if (ABrushData.Brush = nil) or (ABrushData.Brush.Kind = TBrushKind.None) or (SameValue(LFinalStrokeBrush.Thickness, 0, TEpsilon.Position)) then
     Exit(nil);
   ABrushData.Paint := TSkPaint.Create(TSkPaintStyle.Stroke);
   BeginPaint(ARect, AOpacity, ABrushData);
-  ABrushData.Paint.StrokeCap   := StrokeCap[TStrokeBrush(ABrushData.Brush).Cap];
-  ABrushData.Paint.StrokeJoin  := StrokeJoin[TStrokeBrush(ABrushData.Brush).Join];
-  ABrushData.Paint.StrokeWidth := TStrokeBrush(ABrushData.Brush).Thickness;
-  LDash := TStrokeBrush(ABrushData.Brush).DashArray;
+  ABrushData.Paint.StrokeCap   := StrokeCap[LFinalStrokeBrush.Cap];
+  ABrushData.Paint.StrokeJoin  := StrokeJoin[LFinalStrokeBrush.Join];
+  ABrushData.Paint.StrokeWidth := LFinalStrokeBrush.Thickness;
+  LDash := LFinalStrokeBrush.DashArray;
   if Length(LDash) > 0 then
   begin
-    if TStrokeBrush(ABrushData.Brush).Dash = TStrokeDash.Custom then
-      LCap := TStrokeBrush(ABrushData.Brush).Thickness
+    if LFinalStrokeBrush.Dash = TStrokeDash.Custom then
+      LCap := LFinalStrokeBrush.Thickness
     else
       LCap := 0;
     for I := 0 to Length(LDash) - 1 do
     begin
       if Odd(I) then
-        LDash[I] := (LDash[I]  + 1) * TStrokeBrush(ABrushData.Brush).Thickness - LCap
+        LDash[I] := (LDash[I]  + 1) * LFinalStrokeBrush.Thickness - LCap
       else
-        LDash[I] := (LDash[I] - 1) * TStrokeBrush(ABrushData.Brush).Thickness + LCap;
+        LDash[I] := (LDash[I] - 1) * LFinalStrokeBrush.Thickness + LCap;
     end;
-    ABrushData.Paint.PathEffect := TSkPathEffect.MakeDash(TArray<Single>(LDash), TStrokeBrush(ABrushData.Brush).DashOffset * TStrokeBrush(ABrushData.Brush).Thickness);
+    ABrushData.Paint.PathEffect := TSkPathEffect.MakeDash(TArray<Single>(LDash), LFinalStrokeBrush.DashOffset * LFinalStrokeBrush.Thickness);
   end;
   Result := TSkPaint(ABrushData.Paint);
 end;
@@ -3171,7 +3177,7 @@ const
     if WordWrap then
     begin
       if AMaxLines <= 0 then
-        Result.MaxLines := High(NativeUInt)
+        Result.MaxLines := High(NativeUInt) - 1
       else
         Result.MaxLines := AMaxLines;
     end
@@ -3188,7 +3194,7 @@ const
       Result.TextAlign := SkTextAlign[HorizontalAlign];
     Result.TextStyle := CreateDefaultTextStyle;
     // Try to limit max lines to optimize
-    if Result.MaxLines = High(NativeUInt) then
+    if Result.MaxLines >= High(NativeUInt) - 1 then
     begin
       LMinFontSize := Result.TextStyle.FontSize;
       for LAttribute in AAttributes do
@@ -3863,8 +3869,8 @@ end;
 {$HPPEMIT END '    using ::Fmx::Skia::Canvas::TSkCanvasCustomClass;'}
 {$HPPEMIT END '    using ::Fmx::Skia::Canvas::TSkTextLayout;'}
 {$HPPEMIT END '    typedef TSkCanvasBaseClass (__fastcall *TDefaultSkiaRenderCanvasClassFunc)(void);'}
-{$HPPEMIT END '    typedef void (__fastcall *TRegisterSkiaRenderCanvasProc)(const TSkCanvasBaseClass ACanvasClass, const bool APriority, '}
-{$HPPEMIT END '        const ::System::DelphiInterface<System::Sysutils::TFunc__1<bool> > AIsSupportedFunc = (::System::DelphiInterface<System::Sysutils::TFunc__1<bool> >)(0x0));'}
+{$HPPEMIT END '    typedef void (__fastcall *TRegisterSkiaRenderCanvasProc)(const ::Fmx::Skia::Canvas::TSkCanvasBaseClass ACanvasClass, const bool APriority, '}
+{$HPPEMIT END '        const ::System::DelphiInterface<System::Sysutils::TFunc__1<bool> > AIsSupportedFunc);'}
 {$HPPEMIT END '    static ::System::StaticArray<int, 3>& CanvasQualitySampleCount = ::Fmx::Skia::Canvas::CanvasQualitySampleCount;'}
 {$HPPEMIT END '    static const TDefaultSkiaRenderCanvasClassFunc DefaultSkiaRenderCanvasClass = ::Fmx::Skia::Canvas::DefaultSkiaRenderCanvasClass;'}
 {$HPPEMIT END '    static const TRegisterSkiaRenderCanvasProc RegisterSkiaRenderCanvas = ::Fmx::Skia::Canvas::RegisterSkiaRenderCanvas;'}
@@ -3994,6 +4000,7 @@ begin
         {$IFDEF SKIA_RASTER}
         if not LCanvasClass.InheritsFrom(TSkRasterCanvas) then
         {$ENDIF}
+        if GlobalUseSkiaFilters then
           RegisterSkiaFilterContextForCanvas(LCanvasClass);
         {$ENDIF}
         {$IFDEF SKIA_PRINTER}

@@ -2,7 +2,7 @@
 {                                                                        }
 {                              Skia4Delphi                               }
 {                                                                        }
-{ Copyright (c) 2021-2023 Skia4Delphi Project.                           }
+{ Copyright (c) 2021-2024 Skia4Delphi Project.                           }
 {                                                                        }
 { Use of this source code is governed by the MIT license that can be     }
 { found in the LICENSE file.                                             }
@@ -57,7 +57,7 @@ uses
   System.Skia.API;
 
 const
-  SkVersion = '6.0.0';
+  SkVersion = '6.1.0';
 
 {$REGION 'FPC Compatibility'}
 {$IFDEF FPC}
@@ -13418,15 +13418,15 @@ end;
 {$HPPEMIT END '    using ::System::Skia::TSkVertexMode;'}
 {$HPPEMIT END '    using ::System::Skia::TSkVertices;'}
 {$HPPEMIT END '    typedef TSkEncodedImageFormat (__fastcall *TExtensionToEncodedImageFormatFunc)(const ::System::UnicodeString AValue);'}
-{$HPPEMIT END '    static const TSkFontSlant SkFontSlantRegular = ::System::Skia::SkFontSlantRegular;'}
-{$HPPEMIT END '    static const TSkFontWeight SkFontWeightDemiBold = ::System::Skia::SkFontWeightDemiBold;'}
-{$HPPEMIT END '    static const TSkFontWeight SkFontWeightHairline = ::System::Skia::SkFontWeightHairline;'}
-{$HPPEMIT END '    static const TSkFontWeight SkFontWeightHeavy = ::System::Skia::SkFontWeightHeavy;'}
-{$HPPEMIT END '    static const TSkFontWeight SkFontWeightRegular = ::System::Skia::SkFontWeightRegular;'}
-{$HPPEMIT END '    static const TSkFontWeight SkFontWeightUltraBlack = ::System::Skia::SkFontWeightUltraBlack;'}
-{$HPPEMIT END '    static const TSkFontWeight SkFontWeightUltraBold = ::System::Skia::SkFontWeightUltraBold;'}
-{$HPPEMIT END '    static const TSkFontWeight SkFontWeightUltraLight = ::System::Skia::SkFontWeightUltraLight;'}
-{$HPPEMIT END '    static const TSkFontWidth SkFontWidthRegular = ::System::Skia::SkFontWidthRegular;'}
+{$HPPEMIT END '    static _DELPHI_CONST TSkFontSlant SkFontSlantRegular = ::System::Skia::SkFontSlantRegular;'}
+{$HPPEMIT END '    static _DELPHI_CONST TSkFontWeight SkFontWeightDemiBold = ::System::Skia::SkFontWeightDemiBold;'}
+{$HPPEMIT END '    static _DELPHI_CONST TSkFontWeight SkFontWeightHairline = ::System::Skia::SkFontWeightHairline;'}
+{$HPPEMIT END '    static _DELPHI_CONST TSkFontWeight SkFontWeightHeavy = ::System::Skia::SkFontWeightHeavy;'}
+{$HPPEMIT END '    static _DELPHI_CONST TSkFontWeight SkFontWeightRegular = ::System::Skia::SkFontWeightRegular;'}
+{$HPPEMIT END '    static _DELPHI_CONST TSkFontWeight SkFontWeightUltraBlack = ::System::Skia::SkFontWeightUltraBlack;'}
+{$HPPEMIT END '    static _DELPHI_CONST TSkFontWeight SkFontWeightUltraBold = ::System::Skia::SkFontWeightUltraBold;'}
+{$HPPEMIT END '    static _DELPHI_CONST TSkFontWeight SkFontWeightUltraLight = ::System::Skia::SkFontWeightUltraLight;'}
+{$HPPEMIT END '    static _DELPHI_CONST TSkFontWidth SkFontWidthRegular = ::System::Skia::SkFontWidthRegular;'}
 {$HPPEMIT END '    static ::System::StaticArray<int, 23>& SkBytesPerPixel = ::System::Skia::SkBytesPerPixel;'}
 {$HPPEMIT END '    static TSkColorMatrix& SkColorMatrixIdentity = ::System::Skia::SkColorMatrixIdentity;'}
 {$HPPEMIT END '    static TSkColorSpaceTransferFunction& SkColorSpaceTransferFunctionHLG = ::System::Skia::SkColorSpaceTransferFunctionHLG;'}
