@@ -64,6 +64,7 @@ type
     procedure btnClearClick(ASender: TObject);
     procedure btnOpenClick(ASender: TObject);
     procedure btnSaveClick(ASender: TObject);
+    procedure FormCreate(ASender: TObject);
     procedure FormKeyDown(ASender: TObject; var AKey: Word; var AKeyChar: Char; AShift: TShiftState);
     procedure lytContentDragDrop(ASender: TObject; const AData: TDragObject; const APoint: TPointF);
     procedure lytContentDragOver(ASender: TObject; const AData: TDragObject; const APoint: TPointF; var AOperation: TDragOperation);
@@ -137,7 +138,12 @@ end;
 procedure TSkSvgEditorForm.btnSaveClick(ASender: TObject);
 begin
   if sdgSaveDialog.Execute then
-    memSource.Lines.SaveToFile(sdgSaveDialog.FileName, TEncoding.UTF8);
+    memSource.Lines.SaveToFile(sdgSaveDialog.FileName);
+end;
+
+procedure TSkSvgEditorForm.FormCreate(ASender: TObject);
+begin
+  memSource.Lines.DefaultEncoding := TEncoding.UTF8;
 end;
 
 procedure TSkSvgEditorForm.FormKeyDown(ASender: TObject; var AKey: Word;
@@ -160,7 +166,7 @@ end;
 procedure TSkSvgEditorForm.LoadFromFile(const AFileName: string);
 begin
   if TFile.Exists(AFileName) then
-    memSource.Lines.LoadFromFile(AFileName, TEncoding.UTF8);
+    memSource.Lines.LoadFromFile(AFileName);
 end;
 
 procedure TSkSvgEditorForm.lytContentDragDrop(ASender: TObject;

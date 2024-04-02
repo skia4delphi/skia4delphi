@@ -8,6 +8,7 @@ object SkSvgEditorForm: TSkSvgEditorForm
   FormFactor.Width = 320
   FormFactor.Height = 480
   FormFactor.Devices = [Desktop]
+  OnCreate = FormCreate
   OnKeyDown = FormKeyDown
   DesignerMasterStyle = 0
   object sdgSaveDialog: TSaveDialog
