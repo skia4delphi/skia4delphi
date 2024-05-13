@@ -1269,6 +1269,8 @@ type
   strict private
     FBuffer: TBitmap;
     FBufferOpacity: Byte;
+    FData: TMemoryStream;
+    FFormat: TSkEncodedImageFormat;
     FImage: ISkImage;
     function GetBuffer(const ASize: TSize; const AOpacity: Byte): TBitmap;
   strict protected
@@ -1283,6 +1285,7 @@ type
     procedure SetHeight(AValue: Integer); override;
     procedure SetWidth(AValue: Integer); override;
   public
+    constructor Create; override;
     destructor Destroy; override;
     procedure Assign(ASource: TPersistent); override;
     {$IF CompilerVersion >= 32}
@@ -6286,12 +6289,18 @@ end;
 { TSkGraphic }
 
 procedure TSkGraphic.Assign(ASource: TPersistent);
+var
+  LGraphic: TSkGraphic absolute ASource;
 begin
   if ASource is TSkGraphic then
   begin
-    if TObject(FImage) <> TObject(TSkGraphic(ASource).FImage) then
+    if TObject(FImage) <> TObject(LGraphic.FImage) then
     begin
-      FImage := TSkGraphic(ASource).FImage;
+      FImage := LGraphic.FImage;
+      FFormat := LGraphic.FFormat;
+      FData.Clear;
+      LGraphic.FData.Position := 0;
+      FData.CopyFrom(LGraphic.FData);
       Changed(Self);
     end;
   end
@@ -6323,9 +6332,16 @@ begin
   inherited;
 end;
 
+constructor TSkGraphic.Create;
+begin
+  inherited;
+  FData := TMemoryStream.Create;
+end;
+
 destructor TSkGraphic.Destroy;
 begin
   FBuffer.Free;
+  FData.Free;
   inherited;
 end;
 
@@ -6445,8 +6461,20 @@ begin
 end;
 
 procedure TSkGraphic.LoadFromStream(AStream: TStream);
+var
+  LCodec: ISkCodec;
 begin
-  FImage := TSkImage.MakeFromEncodedStream(AStream);
+  FData.Clear;
+  FData.CopyFrom(AStream, AStream.Size - AStream.Position);
+  FData.Position := 0;
+  LCodec := TSkCodec.MakeFromStream(FData);
+  if LCodec <> nil then
+  begin
+    FFormat := LCodec.EncodedImageFormat;
+    FImage := LCodec.GetImage(SkNative32ColorType);
+  end
+  else
+    FImage := nil;
   Changed(Self);
 end;
 
@@ -6457,17 +6485,22 @@ end;
 
 procedure TSkGraphic.SaveToFile(const AFileName: string);
 begin
-  if AFilename.EndsText(AFileName, '.jpg') or AFilename.EndsText(AFileName, '.jpeg') then
-    FImage.EncodeToFile(AFileName, TSkEncodedImageFormat.JPEG)
-  else if AFilename.EndsText(AFileName, '.webp') then
-    FImage.EncodeToFile(AFileName, TSkEncodedImageFormat.WEBP)
-  else
-    FImage.EncodeToFile(AFileName);
+  if FImage <> nil then
+  begin
+    if ExtensionToEncodedImageFormat(AFileName) = FFormat then
+      FData.SaveToFile(AFileName)
+    else
+      FImage.EncodeToFile(AFileName);
+  end;
 end;
 
 procedure TSkGraphic.SaveToStream(AStream: TStream);
 begin
-  FImage.EncodeToStream(AStream);
+  if FImage <> nil then
+  begin
+    FData.Position := 0;
+    AStream.CopyFrom(FData);
+  end;
 end;
 
 procedure TSkGraphic.SetHeight(AValue: Integer);
