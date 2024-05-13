@@ -6300,7 +6300,7 @@ begin
       FFormat := LGraphic.FFormat;
       FData.Clear;
       LGraphic.FData.Position := 0;
-      FData.CopyFrom(LGraphic.FData);
+      FData.CopyFrom(LGraphic.FData, 0);
       Changed(Self);
     end;
   end
@@ -6499,7 +6499,7 @@ begin
   if FImage <> nil then
   begin
     FData.Position := 0;
-    AStream.CopyFrom(FData);
+    AStream.CopyFrom(FData, 0);
   end;
 end;
 
