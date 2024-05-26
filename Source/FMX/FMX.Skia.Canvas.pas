@@ -455,7 +455,7 @@ function DefaultSkiaRenderCanvasClass: TSkCanvasBaseClass;
 procedure RegisterSkiaRenderCanvas(const ACanvasClass: TSkCanvasBaseClass; const APriority: Boolean; const AIsSupportedFunc: TFunc<Boolean> = nil);
 
 const
-  CanvasQualitySampleCount: array[TCanvasQuality] of Integer = (2, 1, 4);
+  CanvasQualitySampleCount: array[TCanvasQuality] of Integer = (1, 1, 1);
 
 resourcestring
   SVWEBPImages   = 'WebP Images';
