@@ -3746,7 +3746,11 @@ end;
 
 function TSkDefaultAnimationCodec.GetFPS: Double;
 begin
+{$IF CompilerVersion >= 37}
+  Result := GlobalPreferredFramesPerSecond;
+{$ELSE}
   Result := TAnimation.DefaultAniFrameRate;
+{$ENDIF}
 end;
 
 function TSkDefaultAnimationCodec.GetIsStatic: Boolean;
