@@ -369,8 +369,11 @@ begin
             LNewGroupProject.FileName := ReplaceFolderNameInPath(LNewGroupProject.FileName, AMaxVersionOfficiallySupported.Name, ARADStudioInfos[I].Version.Name, False);
             for L := 0 to GetArrayLength(LNewGroupProject.Items) - 1 do
             begin
-              LNewGroupProject.Items[L].Project.ProjectVersion := ARADStudioInfos[I].Version.MaxDprojVersion;
               LNewGroupProject.Items[L].Project.FileName := ReplaceFolderNameInPath(LNewGroupProject.Items[L].Project.FileName, AMaxVersionOfficiallySupported.Name, ARADStudioInfos[I].Version.Name, False);
+              ReplaceStringInFile(LNewGroupProject.Items[L].Project.FileName,
+                Format('<ProjectVersion>%s</ProjectVersion>', [LNewGroupProject.Items[L].Project.ProjectVersion]),
+                Format('<ProjectVersion>%s</ProjectVersion>', [ARADStudioInfos[I].Version.MaxDprojVersion]), False);
+              LNewGroupProject.Items[L].Project.ProjectVersion := ARADStudioInfos[I].Version.MaxDprojVersion;
               LNewGroupProject.Items[L].Project.BplOutputPath := ReplaceFolderNameInPath(LNewGroupProject.Items[L].Project.BplOutputPath, AMaxVersionOfficiallySupported.Name, ARADStudioInfos[I].Version.Name, False);
               LNewGroupProject.Items[L].Project.DcpOutputPath := ReplaceFolderNameInPath(LNewGroupProject.Items[L].Project.DcpOutputPath, AMaxVersionOfficiallySupported.Name, ARADStudioInfos[I].Version.Name, False);
               LNewGroupProject.Items[L].Project.DCUOutputPath := ReplaceFolderNameInPath(LNewGroupProject.Items[L].Project.DCUOutputPath, AMaxVersionOfficiallySupported.Name, ARADStudioInfos[I].Version.Name, False);
