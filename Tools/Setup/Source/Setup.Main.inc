@@ -213,7 +213,7 @@ end;
 
 function InstallPackages(const ARADStudioInfos: TRADStudioInfos; const AGroupProjects: TRADStudioGroupProjects): Boolean;
 var
-  I, J, K, L: Integer;
+  I, J, K: Integer;
   LInfo: TRADStudioInfo;
   LProject: TRADStudioProject;
   LVersion: TRADStudioVersion;
