@@ -58,7 +58,7 @@ var
 
 function _GetLibraryStaticPlatforms: TProjectPlatforms;
 begin
-  Result := [pfiOSDevice64, pfiOSSimARM64];
+  Result := [pfAndroid, pfAndroid64, pfiOSDevice64, pfiOSSimARM64, pfOSX64, pfOSXARM64];
 end;
 
 procedure _OnBeforeProjectBuild(const AProject: TRADStudioProject; const APlatform: TProjectPlatform; const AInfo: TRADStudioInfo);
@@ -71,7 +71,7 @@ var
 begin
   // Check if it is newer than RAD Studio 11 Alexandria
   if CompareRADStudioVersion(AInfo.Version, '22.0') > 0 then
-  begin 
+  begin
     // Try copy exclusive units from RAD Studio source to recompile it
     if SameText(ExtractFileName(AProject.FileName), 'Skia.Package.FMX.dproj') and (APlatform = LowProjectPlatform) and (GetArrayLength(AProject.SourcePaths) > 0) then
     begin
