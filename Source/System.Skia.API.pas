@@ -2393,6 +2393,7 @@ uses
       {$LINKFRAMEWORK Foundation}
       {$LINKFRAMEWORK Metal}
       {$LINKLIB 'c++'}
+      {$LINKLIB 'c++abi'}
     {$ELSEIF DEFINED(ANDROID)}
       {$LINKLIB 'EGL'}
       {$LINKLIB 'GLESv2'}
@@ -2417,6 +2418,7 @@ uses
       procedure LINKFRAMEWORK_Foundation;            external '/System/Library/Frameworks/Foundation.framework/Foundation';
       procedure LINKFRAMEWORK_Metal;                 external '/System/Library/Frameworks/Metal.framework/Metal';
       procedure LINKLIB_cxx;                         external '/usr/lib/libc++.dylib';
+      procedure LINKLIB_cxxabi;                      external '/usr/lib/libc++abi.dylib';
     {$ELSEIF DEFINED(ANDROID)}
       procedure LINKLIB_EGL;                         external 'libEGL.so';
       procedure LINKLIB_GLESv2;                      external 'libGLESv2.so';
