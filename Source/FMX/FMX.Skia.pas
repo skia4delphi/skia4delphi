@@ -1300,11 +1300,17 @@ var
   /// <summary> Enables TBitmaps to be drawn in true parallel to UI and other bitmaps, when drawing in a thread (only takes effect when GlobalUseSkia is True) [Experimental] </summary>
   GlobalSkiaBitmapsInParallel: Boolean;
   {$ENDIF}
+  /// <summary> Specifies the locale to determine language-specific rules for texts rendered by Skia. </summary>
+  GlobalSkiaTextLocale: string;
 
 implementation
 
 uses
   { Delphi }
+  {$IFDEF ANDROID}
+  Androidapi.JNI.JavaTypes,
+  Androidapi.Helpers,
+  {$ENDIF}
   System.Math.Vectors,
   System.ZLib,
   System.IOUtils,
@@ -5658,6 +5664,7 @@ var
       SetTextStyleDecorations(Result, AWordsItem.Decorations, ADrawKind);
       Result.LetterSpacing := AWordsItem.LetterSpacing;
     end;
+    Result.Locale := GlobalSkiaTextLocale;
   end;
 
   function CreateDefaultTextStyle(const ADrawKind: TDrawKind): ISkTextStyle;
@@ -5670,6 +5677,7 @@ var
     Result.HeightMultiplier := ResultingTextSettings.HeightMultiplier;
     Result.LetterSpacing := ResultingTextSettings.LetterSpacing;
     SetTextStyleDecorations(Result, ResultingTextSettings.Decorations, ADrawKind);
+    Result.Locale := GlobalSkiaTextLocale;
   end;
 
   function CreateParagraphStyle(const ADefaultTextStyle: ISkTextStyle): ISkParagraphStyle;
@@ -6325,6 +6333,7 @@ end;
 {$HPPEMIT END '    static bool& GlobalUseSkiaFilters = ::Fmx::Skia::GlobalUseSkiaFilters;'}
 {$HPPEMIT END '    static bool& GlobalSkiaBitmapsInParallel = ::Fmx::Skia::GlobalSkiaBitmapsInParallel;'}
 {$ENDIF}
+{$HPPEMIT END '    static bool& GlobalSkiaTextLocale = ::Fmx::Skia::GlobalSkiaTextLocale;'}
 {$HPPEMIT END '    static ::System::StaticArray<System::Skia::TSkColorType, 24>& SkFmxColorType = ::Fmx::Skia::SkFmxColorType;'}
 {$HPPEMIT END '    static ::System::StaticArray<Fmx::Types::TPixelFormat, 23>& SkFmxPixelFormat = ::Fmx::Skia::SkFmxPixelFormat;'}
 {$HPPEMIT END '    static const TAddSkPathToPathDataProc AddSkPathToPathData = ::Fmx::Skia::AddSkPathToPathData;'}
@@ -6344,4 +6353,7 @@ initialization
     TSkLabel.TCustomWordsItem, TSkLabel.TWordsCollection]);
   TSkAnimatedImage.RegisterCodec(TSkLottieAnimationCodec);
   TSkAnimatedImage.RegisterCodec(TSkDefaultAnimationCodec);
+{$IFDEF ANDROID}
+  GlobalSkiaTextLocale := JStringToString(TJLocale.JavaClass.getDefault.getLanguage());
+{$ENDIF}
 end.

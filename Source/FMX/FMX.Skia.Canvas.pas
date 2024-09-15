@@ -3146,6 +3146,7 @@ const
       if TFontStyle.fsStrikeOut in AFont.Style then
         ATextStyle.Decorations := ATextStyle.Decorations + [TSkTextDecoration.LineThrough];
     end;
+    ATextStyle.Locale := GlobalSkiaTextLocale;
   end;
 
   function CreateTextStyle(const AAttribute: TTextAttribute): ISkTextStyle;
