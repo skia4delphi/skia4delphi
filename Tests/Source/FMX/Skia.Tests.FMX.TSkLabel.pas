@@ -1,4 +1,4 @@
-{************************************************************************}
+﻿{************************************************************************}
 {                                                                        }
 {                              Skia4Delphi                               }
 {                                                                        }
@@ -118,6 +118,10 @@ type
     [TestCase('59.Short low size horizontal trailing vertical center', ShortText + ',40,13,1,5,2,30,9,12,1,true,Leading,Center,None,claBlack,5,2,40,18,0.97,///h4cHBwcH///Hhw8fPwf//8/fT99/B//////////vve+977CPuQ+xD6EvqS/////////////8')]
     {$ENDIF}
     procedure GenericTest(const AText: string; const AControlWidth, AControlHeight: Integer; const AScale, ATextLeft, ATextTop, AMaxWidth, AMaxHeight, AFontSize: Single; const AMaxLines: Integer; const ARightToLeft: Boolean; const AHorizontalAlign: TSkTextHorzAlign; const AVerticalAlign: TTextAlign; const ATrimming: TTextTrimming; const AColor: string; const AExpectedTextLeft, AExpectedTextTop, AExpectedTextRight, AExpectedTextBottom: Single; const AMinSimilarity: Double; const AExpectedImageHash: string);
+    {$IFDEF TEXT_RENDER}
+    [Test]
+    {$ENDIF}
+    procedure TestJapaneseLocale;
     [Setup]
     procedure Setup; override;
   end;
@@ -242,6 +246,23 @@ begin
     Assert.AreSimilar(AExpectedImageHash, LBitmap.ToSkImage, AMinSimilarity);
   finally
     LBitmap.Free;
+  end;
+end;
+
+procedure TSkLabelTests.TestJapaneseLocale;
+var
+  OldTextLocale: string;
+begin
+  OldTextLocale := GlobalSkiaTextLocale;
+  GlobalSkiaTextLocale := 'ja';
+  try
+    Test('直', {BitmapSize} TSize.Create(100, 100), {AScale} 1, {FontSize} 72, {TextTopLeft} PointF(10, 3),
+      {MaxSize} PointF(1000, 1000), 1, {RightToLeft} False, {HorizontalAlign} TSkTextHorzAlign.Leading,
+      {VerticalAlign} TTextAlign.Leading, {Trimming} TTextTrimming.None, TAlphaColors.Black,
+      {ExpectedTextRect} TRectF.Create(0, 0, 0, 0), {CheckTextRect} False, {MinSimilarity} 0.98,
+      {ExpectedImageHash} '//+Dg4ODg/////Pjw8fP////9+vr78/////////////AD8AP6B/qX+gf6B/r3+gf4Afv//////8');
+  finally
+    GlobalSkiaTextLocale := OldTextLocale;
   end;
 end;
 

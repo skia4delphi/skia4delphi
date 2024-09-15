@@ -5664,7 +5664,8 @@ var
       SetTextStyleDecorations(Result, AWordsItem.Decorations, ADrawKind);
       Result.LetterSpacing := AWordsItem.LetterSpacing;
     end;
-    Result.Locale := GlobalSkiaTextLocale;
+    if GlobalSkiaTextLocale <> '' then
+      Result.Locale := GlobalSkiaTextLocale;
   end;
 
   function CreateDefaultTextStyle(const ADrawKind: TDrawKind): ISkTextStyle;
@@ -5677,7 +5678,8 @@ var
     Result.HeightMultiplier := ResultingTextSettings.HeightMultiplier;
     Result.LetterSpacing := ResultingTextSettings.LetterSpacing;
     SetTextStyleDecorations(Result, ResultingTextSettings.Decorations, ADrawKind);
-    Result.Locale := GlobalSkiaTextLocale;
+    if GlobalSkiaTextLocale <> '' then
+      Result.Locale := GlobalSkiaTextLocale;
   end;
 
   function CreateParagraphStyle(const ADefaultTextStyle: ISkTextStyle): ISkParagraphStyle;
