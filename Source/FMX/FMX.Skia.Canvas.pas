@@ -2318,10 +2318,13 @@ end;
 
 constructor TSkCanvasBase.CreateFromWindow(const AParent: TWindowHandle;
   const AWidth, AHeight: Integer; const AQuality: TCanvasQuality);
+var
+  LParentHandle: TWinWindowHandle;
 begin
   inherited;
-  if WindowHandleToPlatform(Parent){$IF CompilerVersion < 30}.Form{$ENDIF}.Transparency then
-    WindowHandleToPlatform(Parent).CreateBuffer({$IF CompilerVersion < 31}Width, Height{$ELSE}WindowHandleToPlatform(Parent).WndClientSize.Width, WindowHandleToPlatform(Parent).WndClientSize.Height{$ENDIF});
+  LParentHandle := WindowHandleToPlatform(Parent);
+  if LParentHandle{$IF CompilerVersion < 30}.Form{$ENDIF}.Transparency then
+    LParentHandle.CreateBuffer({$IF CompilerVersion < 31}Width, Height{$ELSE}LParentHandle.WndClientSize.Width, LParentHandle.WndClientSize.Height{$ENDIF});
 end;
 
 {$ENDIF}
@@ -2375,13 +2378,18 @@ begin
 end;
 
 procedure TSkCanvasBase.EndCanvas(const AContextHandle: THandle);
+{$IFDEF MSWINDOWS}
+var
+  LParentHandle: TWinWindowHandle;
+{$ENDIF}
 begin
   if Parent <> nil then
   begin
     FSurface.FlushAndSubmit;
     {$IFDEF MSWINDOWS}
-    if WindowHandleToPlatform(Parent){$IF CompilerVersion < 30}.Form{$ENDIF}.Transparency then
-      FSurface.ReadPixels(TSkImageInfo.Create({$IF CompilerVersion < 31}Width, Height{$ELSE}WindowHandleToPlatform(Parent).WndClientSize.Width, WindowHandleToPlatform(Parent).WndClientSize.Height{$ENDIF}, TSkColorType.BGRA8888), WindowHandleToPlatform(Parent).BufferBits, {$IF CompilerVersion < 31}Width{$ELSE}WindowHandleToPlatform(Parent).WndClientSize.Width{$ENDIF} * SkBytesPerPixel[TSkColorType.BGRA8888]);
+    LParentHandle := WindowHandleToPlatform(Parent);
+    if LParentHandle{$IF CompilerVersion < 30}.Form{$ENDIF}.Transparency then
+      FSurface.ReadPixels(TSkImageInfo.Create({$IF CompilerVersion < 31}Width, Height{$ELSE}LParentHandle.WndClientSize.Width, LParentHandle.WndClientSize.Height{$ENDIF}, TSkColorType.BGRA8888), LParentHandle.BufferBits, {$IF CompilerVersion < 31}Width{$ELSE}LParentHandle.WndClientSize.Width{$ENDIF} * SkBytesPerPixel[TSkColorType.BGRA8888]);
     {$ENDIF}
     FSurface := nil;
     SwapBuffers(AContextHandle);
@@ -2394,10 +2402,16 @@ end;
 {$IFDEF MSWINDOWS}
 
 procedure TSkCanvasBase.Resized;
+var
+  LParentHandle: TWinWindowHandle;
 begin
   inherited;
-  if (Parent <> nil) and (WindowHandleToPlatform(Parent){$IF CompilerVersion < 30}.Form{$ENDIF}.Transparency) then
-    WindowHandleToPlatform(Parent).ResizeBuffer({$IF CompilerVersion < 31}Width, Height{$ELSE}WindowHandleToPlatform(Parent).WndClientSize.Width, WindowHandleToPlatform(Parent).WndClientSize.Height{$ENDIF});
+  if Parent <> nil then
+  begin
+    LParentHandle := WindowHandleToPlatform(Parent);
+    if LParentHandle{$IF CompilerVersion < 30}.Form{$ENDIF}.Transparency then
+      LParentHandle.ResizeBuffer({$IF CompilerVersion < 31}Width, Height{$ELSE}LParentHandle.WndClientSize.Width, LParentHandle.WndClientSize.Height{$ENDIF});
+  end;
 end;
 
 {$ENDIF}
