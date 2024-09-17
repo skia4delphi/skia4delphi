@@ -505,7 +505,9 @@ uses
   System.UIConsts,
 
   { Workarounds }
-  {$IF DEFINED(MACOS)}
+  {$IF DEFINED(MSWINDOWS)}
+  FMX.Helpers.Win,
+  {$ELSEIF DEFINED(MACOS)}
   FMX.Context.Metal,
   FMX.Types3D,
   FMX.Utils,
@@ -1481,6 +1483,74 @@ begin
   TDoEndSceneProc(LOriginalMethod)();
   if FCommandBuffer <> nil then
     FCommandBuffer.waitUntilCompleted;
+end;
+
+{$ENDIF}
+{$ENDIF}
+// - ---------------------------------------------------------------------------
+{$ENDREGION}
+
+{$REGION ' - Workaround RS-97615'}
+// - ---------------------------------------------------------------------------
+// - WORKAROUND
+// - ---------------------------------------------------------------------------
+// -
+// - Description:
+// -   This code is a workaround intended to fix a bug involving HiDPI and non
+// -   TCanvasD2D render.
+// -
+// - Bug report:
+// -   https://embt.atlassian.net/browse/RS-97615
+// -
+// - ---------------------------------------------------------------------------
+{$IF (CompilerVersion <= 34)}
+{$IFDEF MSWINDOWS}
+
+type
+  { TRS97615Workaround }
+
+  TRS97615Workaround = record
+  private
+    class var FScale: Single;
+  private type
+    TOpenWinWindowHandle = class(TWinWindowHandle);
+  public
+    class procedure Apply; static;
+  end;
+
+{ TRS97615Workaround }
+
+class procedure TRS97615Workaround.Apply;
+
+  function HookCode(const ACodeAddress, AHookAddress: Pointer): Boolean;
+  const
+    JMP_RELATIVE = $E9;
+    SIZE_OF_JUMP = 5;
+  var
+    LDisplacement: Integer;
+    LOldProtect: DWORD;
+    P: PByte;
+  begin
+    Result := VirtualProtect(ACodeAddress, SIZE_OF_JUMP, PAGE_EXECUTE_READWRITE, LOldProtect);
+    if Result then
+    begin
+      P := ACodeAddress;
+      P^ := JMP_RELATIVE;
+      Inc(P);
+      LDisplacement := UIntPtr(AHookAddress) - (UIntPtr(ACodeAddress) + SIZE_OF_JUMP);
+      PInteger(P)^ := LDisplacement;
+      VirtualProtect(ACodeAddress, SIZE_OF_JUMP, LOldProtect, LOldProtect);
+    end;
+  end;
+
+  function HookedGetScale(const Self: TClass): Single;
+  begin
+    Result := TRS97615Workaround.FScale;
+  end;
+
+begin
+  FScale := GetWndScale(ApplicationHWND);
+  HookCode(@TOpenWinWindowHandle.GetScale, @HookedGetScale);
 end;
 
 {$ENDIF}
@@ -4021,6 +4091,9 @@ begin
         {$ENDIF}
         {$IF DECLARED(TRSP37829Workaround)}
         TRSP37829Workaround.Apply;
+        {$ENDIF}
+        {$IF DECLARED(TRS97615Workaround)}
+        TRS97615Workaround.Apply;
         {$ENDIF}
       end;
     end;
