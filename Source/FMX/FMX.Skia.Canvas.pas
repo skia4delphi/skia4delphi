@@ -1503,7 +1503,7 @@ end;
 // -   https://embt.atlassian.net/browse/RS-97615
 // -
 // - ---------------------------------------------------------------------------
-{$IF (CompilerVersion <= 34)}
+{$IF (CompilerVersion >= 31) and (CompilerVersion <= 34)}
 {$IFDEF MSWINDOWS}
 
 type
