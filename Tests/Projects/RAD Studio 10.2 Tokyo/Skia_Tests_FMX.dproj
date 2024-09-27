@@ -171,6 +171,7 @@
         <DCCReference Include="..\..\Source\FMX\Skia.Tests.FMX.TextLayout.pas"/>
         <DCCReference Include="..\..\Source\FMX\Skia.Tests.FMX.TImage.pas"/>
         <DCCReference Include="..\..\Source\FMX\Skia.Tests.FMX.TSkLabel.pas"/>
+        <DCCReference Include="..\..\Source\Issues\Skia.Tests.Issues.ZLib.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

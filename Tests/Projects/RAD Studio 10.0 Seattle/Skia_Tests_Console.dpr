@@ -26,7 +26,8 @@ uses
   Skia.Tests.Surface in '..\..\Source\Skia.Tests.Surface.pas',
   Skia.Tests.Svg in '..\..\Source\Skia.Tests.Svg.pas',
   Skia.Tests.TextBlob in '..\..\Source\Skia.Tests.TextBlob.pas',
-  Skia.Tests.Unicode in '..\..\Source\Skia.Tests.Unicode.pas';
+  Skia.Tests.Unicode in '..\..\Source\Skia.Tests.Unicode.pas',
+  Skia.Tests.Issues.ZLib in '..\..\Source\Issues\Skia.Tests.Issues.ZLib.pas';
 
 var
   LRunner: ITestRunner;
