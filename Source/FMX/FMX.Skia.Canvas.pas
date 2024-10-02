@@ -1844,9 +1844,9 @@ end;
 
 constructor TSkCanvasCustom.CreateFromPrinter(const APrinter: TAbstractPrinter);
 begin
-  inherited;
   if not Supports(APrinter, ISkCanvasWrapper, FWrapper) then
     raise EPrinter.CreateResFmt(@SInvalidPrinterClass, [APrinter.ClassName]);
+  inherited;
   FWidth  := FWrapper.CanvasWidth;
   FHeight := FWrapper.CanvasHeight;
 end;
@@ -2240,8 +2240,8 @@ end;
 
 constructor TSkCanvasCustom.Wrap(const AWrapper: ISkCanvasWrapper);
 begin
-  inherited Create;
   FWrapper := AWrapper;
+  inherited Create;
   FWidth   := FWrapper.CanvasWidth;
   FHeight  := FWrapper.CanvasHeight;
   Initialize;
