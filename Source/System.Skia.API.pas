@@ -2428,9 +2428,9 @@ uses
       procedure LINKLIB_cxx;                         external '/usr/lib/libc++.dylib';
       procedure LINKLIB_cxxabi;                      external '/usr/lib/libc++abi.dylib';
     {$ELSEIF DEFINED(ANDROID)}
-      procedure eglInitialize;                       external 'libEGL.so';
+      procedure eglGetProcAddress;                   external 'libEGL.so';
       procedure glCreateShader;                      external 'libGLESv2.so';
-      procedure __android_log_write;                 external 'liblog.so';
+      procedure __android_log_vprint;                external 'liblog.so';
       procedure _ZNSt6__ndk16locale7classicEv;       external 'libc++_static.a';
       procedure __cxa_guard_abort;                   external 'libc++abi.a';
     {$ENDIF}
