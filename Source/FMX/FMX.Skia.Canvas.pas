@@ -1903,14 +1903,14 @@ procedure TSkCanvasCustom.DoDrawBitmap(const ABitmap: FMX.Graphics.TBitmap;
   const ASrcRect, ADestRect: TRectF; const AOpacity: Single;
   const AHighSpeed: Boolean);
 
-  function SamplingOptions(const ASrcRect: TRectF; ADestRect: TRectF; AHighSpeed: Boolean): TSkSamplingOptions;
+  function SamplingOptions(const ASrcRect, ADestRect: TRectF; AHighSpeed: Boolean): TSkSamplingOptions;
   begin
     // Avoid high quality filter when there is no stretch or complex transformations to optimize performance
     if (not AHighSpeed) and (Quality <> TCanvasQuality.HighPerformance) and
       (MatrixMeaning in [TMatrixMeaning.Identity, TMatrixMeaning.Translate]) then
     begin
-      MultiplyRect(ADestRect, Scale, Scale);
-      AHighSpeed := ASrcRect.EqualsTo(ADestRect, TEpsilon.Position);
+      AHighSpeed := SameValue(ASrcRect.Width, ADestRect.Width * Scale, TEpsilon.Position) and
+        SameValue(ASrcRect.Height, ADestRect.Height * Scale, TEpsilon.Position);
     end;
     Result := GetSamplingOptions(AHighSpeed);
   end;
