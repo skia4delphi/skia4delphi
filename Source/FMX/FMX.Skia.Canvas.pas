@@ -1902,6 +1902,19 @@ end;
 procedure TSkCanvasCustom.DoDrawBitmap(const ABitmap: FMX.Graphics.TBitmap;
   const ASrcRect, ADestRect: TRectF; const AOpacity: Single;
   const AHighSpeed: Boolean);
+
+  function SamplingOptions(const ASrcRect: TRectF; ADestRect: TRectF; AHighSpeed: Boolean): TSkSamplingOptions;
+  begin
+    // Avoid high quality filter when there is no stretch or complex transformations to optimize performance
+    if (not AHighSpeed) and (Quality <> TCanvasQuality.HighPerformance) and
+      (MatrixMeaning in [TMatrixMeaning.Identity, TMatrixMeaning.Translate]) then
+    begin
+      MultiplyRect(ADestRect, Scale, Scale);
+      AHighSpeed := ASrcRect.EqualsTo(ADestRect, TEpsilon.Position);
+    end;
+    Result := GetSamplingOptions(AHighSpeed);
+  end;
+
 var
   LBitmapData: TBitmapData;
   LCache: TSkImage;
@@ -1923,7 +1936,7 @@ begin
     begin
       LCache := GetCachedImage(ABitmap);
       if LCache <> nil then
-        Canvas.DrawImageRect(LCache, LSrcRect, ADestRect, GetSamplingOptions(AHighSpeed), LPaint);
+        Canvas.DrawImageRect(LCache, LSrcRect, ADestRect, SamplingOptions(LSrcRect, ADestRect, AHighSpeed), LPaint);
     end;
     if LCache = nil then
     begin
@@ -1932,7 +1945,7 @@ begin
         try
           LImage := TSkImage.MakeFromRaster(TSkImageInfo.Create(LBitmapData.Width, LBitmapData.Height, SkFmxColorType[LBitmapData.PixelFormat]), LBitmapData.Data, LBitmapData.Pitch);
           if LImage <> nil then
-            Canvas.DrawImageRect(LImage, LSrcRect, ADestRect, GetSamplingOptions(AHighSpeed), LPaint);
+            Canvas.DrawImageRect(LImage, LSrcRect, ADestRect, SamplingOptions(LSrcRect, ADestRect, AHighSpeed), LPaint);
         finally
           ABitmap.Unmap(LBitmapData);
         end;
