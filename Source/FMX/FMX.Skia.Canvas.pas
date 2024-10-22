@@ -1581,6 +1581,13 @@ type
     class function IsValid(const AStream: TStream): Boolean; override;
   end;
 
+  { TSkCanvasCustomHelper }
+
+  TSkCanvasCustomHelper = class helper for TSkCanvasCustom
+  public
+    function GetSamplingOptions(const ASrcRect, ADestRect: TRectF; AHighSpeed: Boolean): TSkSamplingOptions; overload; inline;
+  end;
+
 {$IFDEF SKIA_RASTER}
 
   { TSkRasterCanvas }
@@ -1632,6 +1639,21 @@ begin
   {$ELSE}
   Result := TPixelFormat.RGBA;
   {$ENDIF}
+end;
+
+{ TSkCanvasCustomHelper }
+
+function TSkCanvasCustomHelper.GetSamplingOptions(const ASrcRect, ADestRect: TRectF;
+  AHighSpeed: Boolean): TSkSamplingOptions;
+begin
+  // Avoid high quality filter when there is no stretch or complex transformations to optimize performance
+  if (not AHighSpeed) and (Quality <> TCanvasQuality.HighPerformance) and
+    (MatrixMeaning in [TMatrixMeaning.Identity, TMatrixMeaning.Translate]) then
+  begin
+    AHighSpeed := SameValue(ASrcRect.Width, ADestRect.Width * Scale, TEpsilon.Position) and
+      SameValue(ASrcRect.Height, ADestRect.Height * Scale, TEpsilon.Position);
+  end;
+  Result := GetSamplingOptions(AHighSpeed);
 end;
 
 { TSkCanvasCustom }
@@ -1731,9 +1753,9 @@ begin
               ABrushData.BitmapMapped := False;
               ABrushData.Paint.AlphaF := AOpacity;
               if ABrushData.Brush.Bitmap.WrapMode = TWrapMode.TileStretch then
-                ABrushData.Paint.Shader := LCache.MakeShader(TMatrix.CreateScaling(ARect.Width / LCache.Width, ARect.Height / LCache.Height) * TMatrix.CreateTranslation(ARect.Left, ARect.Top), GetSamplingOptions)
+                ABrushData.Paint.Shader := LCache.MakeShader(TMatrix.CreateScaling(ARect.Width / LCache.Width, ARect.Height / LCache.Height) * TMatrix.CreateTranslation(ARect.Left, ARect.Top), GetSamplingOptions(RectF(0, 0, LCache.Width, LCache.Height), ARect, True))
               else
-                ABrushData.Paint.Shader := LCache.MakeShader(GetSamplingOptions, WrapMode[ABrushData.Brush.Bitmap.WrapMode], WrapMode[ABrushData.Brush.Bitmap.WrapMode]);
+                ABrushData.Paint.Shader := LCache.MakeShader(GetSamplingOptions(True), WrapMode[ABrushData.Brush.Bitmap.WrapMode], WrapMode[ABrushData.Brush.Bitmap.WrapMode]);
             end;
           end;
           if LCache = nil then
@@ -1746,9 +1768,9 @@ begin
               if LImage <> nil then
               begin
                 if ABrushData.Brush.Bitmap.WrapMode = TWrapMode.TileStretch then
-                  ABrushData.Paint.Shader := LImage.MakeShader(TMatrix.CreateScaling(ARect.Width / LImage.Width, ARect.Height / LImage.Height) * TMatrix.CreateTranslation(ARect.Left, ARect.Top), GetSamplingOptions)
+                  ABrushData.Paint.Shader := LImage.MakeShader(TMatrix.CreateScaling(ARect.Width / LImage.Width, ARect.Height / LImage.Height) * TMatrix.CreateTranslation(ARect.Left, ARect.Top), GetSamplingOptions(RectF(0, 0, LImage.Width, LImage.Height), ARect, True))
                 else
-                  ABrushData.Paint.Shader := LImage.MakeShader(GetSamplingOptions, WrapMode[ABrushData.Brush.Bitmap.WrapMode], WrapMode[ABrushData.Brush.Bitmap.WrapMode]);
+                  ABrushData.Paint.Shader := LImage.MakeShader(GetSamplingOptions(True), WrapMode[ABrushData.Brush.Bitmap.WrapMode], WrapMode[ABrushData.Brush.Bitmap.WrapMode]);
               end;
             end;
           end;
@@ -1902,19 +1924,6 @@ end;
 procedure TSkCanvasCustom.DoDrawBitmap(const ABitmap: FMX.Graphics.TBitmap;
   const ASrcRect, ADestRect: TRectF; const AOpacity: Single;
   const AHighSpeed: Boolean);
-
-  function SamplingOptions(const ASrcRect, ADestRect: TRectF; AHighSpeed: Boolean): TSkSamplingOptions;
-  begin
-    // Avoid high quality filter when there is no stretch or complex transformations to optimize performance
-    if (not AHighSpeed) and (Quality <> TCanvasQuality.HighPerformance) and
-      (MatrixMeaning in [TMatrixMeaning.Identity, TMatrixMeaning.Translate]) then
-    begin
-      AHighSpeed := SameValue(ASrcRect.Width, ADestRect.Width * Scale, TEpsilon.Position) and
-        SameValue(ASrcRect.Height, ADestRect.Height * Scale, TEpsilon.Position);
-    end;
-    Result := GetSamplingOptions(AHighSpeed);
-  end;
-
 var
   LBitmapData: TBitmapData;
   LCache: TSkImage;
@@ -1936,7 +1945,7 @@ begin
     begin
       LCache := GetCachedImage(ABitmap);
       if LCache <> nil then
-        Canvas.DrawImageRect(LCache, LSrcRect, ADestRect, SamplingOptions(LSrcRect, ADestRect, AHighSpeed), LPaint);
+        Canvas.DrawImageRect(LCache, LSrcRect, ADestRect, GetSamplingOptions(LSrcRect, ADestRect, AHighSpeed), LPaint);
     end;
     if LCache = nil then
     begin
@@ -1945,7 +1954,7 @@ begin
         try
           LImage := TSkImage.MakeFromRaster(TSkImageInfo.Create(LBitmapData.Width, LBitmapData.Height, SkFmxColorType[LBitmapData.PixelFormat]), LBitmapData.Data, LBitmapData.Pitch);
           if LImage <> nil then
-            Canvas.DrawImageRect(LImage, LSrcRect, ADestRect, SamplingOptions(LSrcRect, ADestRect, AHighSpeed), LPaint);
+            Canvas.DrawImageRect(LImage, LSrcRect, ADestRect, GetSamplingOptions(LSrcRect, ADestRect, AHighSpeed), LPaint);
         finally
           ABitmap.Unmap(LBitmapData);
         end;
