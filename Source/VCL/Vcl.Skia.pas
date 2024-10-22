@@ -1401,8 +1401,8 @@ var
   LPaint: ISkPaint;
 begin
   LPaint := TSkPaint.Create(TSkPaintStyle.Stroke);
-  LPaint.AlphaF := AOpacity;
   LPaint.Color := DesignBorderColor;
+  LPaint.AlphaF := AOpacity;
   LPaint.StrokeWidth := 1;
   LPaint.PathEffect := TSkPathEffect.MakeDash([3, 1], 0);
 
