@@ -1300,6 +1300,8 @@ var
   /// <summary> Enables TBitmaps to be drawn in true parallel to UI and other bitmaps, when drawing in a thread (only takes effect when GlobalUseSkia is True) [Experimental] </summary>
   GlobalSkiaBitmapsInParallel: Boolean;
   {$ENDIF}
+  /// <summary> Specifies the locale to determine language-specific rules for texts rendered by Skia. </summary>
+  GlobalSkiaTextLocale: string;
 
 implementation
 
@@ -1422,7 +1424,9 @@ type
   {$ENDIF}
 
 const
-  SkFontSlant: array[TFontSlant] of TSkFontSlant = (TSkFontSlant.Upright, TSkFontSlant.Italic, TSkFontSlant.Oblique);
+  SkFontSlant : array[TFontSlant] of TSkFontSlant = (TSkFontSlant.Upright, TSkFontSlant.Italic,
+    // SkParagraph does not support oblique fonts on macOS on m107
+    {$IFDEF MACOS}TSkFontSlant.Italic{$ELSE}TSkFontSlant.Oblique{$ENDIF});
   SkFontWeightValue: array[TFontWeight] of Integer = (100, 200, 300, 350, 400, 500, 600, 700, 800, 900, 950);
   SkFontWidthValue: array[TFontStretch] of Integer = (1, 2, 3, 4, 5, 6, 7, 8, 9);
 
@@ -1453,8 +1457,8 @@ var
   LPaint: ISkPaint;
 begin
   LPaint := TSkPaint.Create(TSkPaintStyle.Stroke);
-  LPaint.AlphaF := AOpacity;
   LPaint.Color := DesignBorderColor;
+  LPaint.AlphaF := AOpacity;
   LPaint.StrokeWidth := 1;
   LPaint.PathEffect := TSkPathEffect.MakeDash([3, 1], 0);
 
@@ -3746,7 +3750,11 @@ end;
 
 function TSkDefaultAnimationCodec.GetFPS: Double;
 begin
+{$IF CompilerVersion >= 37}
+  Result := GlobalPreferredFramesPerSecond;
+{$ELSE}
   Result := TAnimation.DefaultAniFrameRate;
+{$ENDIF}
 end;
 
 function TSkDefaultAnimationCodec.GetIsStatic: Boolean;
@@ -5652,6 +5660,8 @@ var
       SetTextStyleDecorations(Result, AWordsItem.Decorations, ADrawKind);
       Result.LetterSpacing := AWordsItem.LetterSpacing;
     end;
+    if GlobalSkiaTextLocale <> '' then
+      Result.Locale := GlobalSkiaTextLocale;
   end;
 
   function CreateDefaultTextStyle(const ADrawKind: TDrawKind): ISkTextStyle;
@@ -5664,6 +5674,8 @@ var
     Result.HeightMultiplier := ResultingTextSettings.HeightMultiplier;
     Result.LetterSpacing := ResultingTextSettings.LetterSpacing;
     SetTextStyleDecorations(Result, ResultingTextSettings.Decorations, ADrawKind);
+    if GlobalSkiaTextLocale <> '' then
+      Result.Locale := GlobalSkiaTextLocale;
   end;
 
   function CreateParagraphStyle(const ADefaultTextStyle: ISkTextStyle): ISkParagraphStyle;
@@ -6311,7 +6323,7 @@ end;
 {$HPPEMIT END '    typedef void (__fastcall *TSkiaDrawProc)(::Fmx::Graphics::TBitmap* const ABitmap, const ::Fmx::Skia::_di_TSkDrawProc AProc, const bool AStartClean);'}
 {$HPPEMIT END '    typedef ::Fmx::Graphics::TBitmap* (__fastcall *TSkImageToBitmapFunc)(const ::System::Skia::_di_ISkImage AImage);'}
 {$HPPEMIT END '    typedef ::Fmx::Graphics::TPathData* (__fastcall *TSkPathToPathDataFunc)(const ::System::Skia::_di_ISkPath ASkPath);'}
-{$HPPEMIT END '    static _DELPHI_CONST int SkSupportedPlatformsMask = ::Fmx::Skia::SkSupportedPlatformsMask;'}
+{$HPPEMIT END '    static const int SkSupportedPlatformsMask = ::Fmx::Skia::SkSupportedPlatformsMask;'}
 {$HPPEMIT END '    static bool& GlobalDisableSkiaCodecsReplacement = ::Fmx::Skia::GlobalDisableSkiaCodecsReplacement;'}
 {$HPPEMIT END '    static bool& GlobalUseSkia = ::Fmx::Skia::GlobalUseSkia;'}
 {$HPPEMIT END '    static bool& GlobalUseSkiaRasterWhenAvailable = ::Fmx::Skia::GlobalUseSkiaRasterWhenAvailable;'}
@@ -6319,6 +6331,7 @@ end;
 {$HPPEMIT END '    static bool& GlobalUseSkiaFilters = ::Fmx::Skia::GlobalUseSkiaFilters;'}
 {$HPPEMIT END '    static bool& GlobalSkiaBitmapsInParallel = ::Fmx::Skia::GlobalSkiaBitmapsInParallel;'}
 {$ENDIF}
+{$HPPEMIT END '    static bool& GlobalSkiaTextLocale = ::Fmx::Skia::GlobalSkiaTextLocale;'}
 {$HPPEMIT END '    static ::System::StaticArray<System::Skia::TSkColorType, 24>& SkFmxColorType = ::Fmx::Skia::SkFmxColorType;'}
 {$HPPEMIT END '    static ::System::StaticArray<Fmx::Types::TPixelFormat, 23>& SkFmxPixelFormat = ::Fmx::Skia::SkFmxPixelFormat;'}
 {$HPPEMIT END '    static const TAddSkPathToPathDataProc AddSkPathToPathData = ::Fmx::Skia::AddSkPathToPathData;'}

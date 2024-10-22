@@ -47,6 +47,7 @@ uses
   FMX.Graphics,
   FMX.Types,
   {$IFDEF IOS}
+  iOSapi.CoreGraphics,
   FMX.Platform.iOS,
   {$ELSE}
   FMX.Platform.Mac,
@@ -67,6 +68,8 @@ type
   private
     FBackBufferSurface: ISkSurface;
     FCurrentDrawable: CAMetalDrawable;
+    FHasCreatedAnySurface: Boolean;
+    procedure BeforeCreateFirstSurface;
   protected
     constructor CreateFromWindow(const AParent: TWindowHandle; const AWidth, AHeight: Integer; const AQuality: TCanvasQuality = TCanvasQuality.SystemDefault); override;
     function CreateSharedContext: IGrSharedContext; override;
@@ -137,6 +140,18 @@ end;
 
 { TMtlCanvas }
 
+procedure TMtlCanvas.BeforeCreateFirstSurface;
+begin
+{$IFDEF IOS}
+  // Adjust the drawable size to prevent issues with the "Display Zoom" option
+  {$IF CompilerVersion < 36}
+  MTKView(WindowHandleToPlatform(Parent).View).setDrawableSize(CGSizeMake(Width * Scale, Height * Scale));
+  {$ELSE}
+  WindowHandleToPlatform(Parent).MTView.setDrawableSize(CGSizeMake(Width * Scale, Height * Scale));
+  {$ENDIF}
+{$ENDIF}
+end;
+
 constructor TMtlCanvas.CreateFromWindow(const AParent: TWindowHandle;
   const AWidth, AHeight: Integer; const AQuality: TCanvasQuality);
 begin
@@ -178,6 +193,11 @@ begin
     {$ENDIF}
     if FCurrentDrawable = nil then
       Exit;
+    if not FHasCreatedAnySurface then
+    begin
+      FHasCreatedAnySurface := True;
+      BeforeCreateFirstSurface;
+    end;
     LTexture := FCurrentDrawable.texture;
     LGrMtlTextureInfo.Texture := (LTexture as ILocalObject).GetObjectID;
     LGrBackendRenderTarget := TGrBackendRenderTarget.CreateMetal(Round(Width * Scale), Round(Height * Scale), LGrMtlTextureInfo);

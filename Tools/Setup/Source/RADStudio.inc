@@ -151,25 +151,13 @@ begin
 end;
 
 function CompareRADStudioVersion(const ARADStudioVersion: TRADStudioVersion; const ARegVersion: string): Integer;
-var
-  LVersion1, LVersion2: Int64;
 begin
-  if not StrToVersion(ARADStudioVersion.RegVersion, LVersion1) then
-    RaiseException(FmtMessage('RADStudio.CompareRADStudioVersion: Invalid version "%1"', [ARADStudioVersion.RegVersion]));
-  if not StrToVersion(ARegVersion, LVersion2) then
-    RaiseException(FmtMessage('RADStudio.CompareRADStudioVersion: Invalid version "%1"', [ARegVersion]));
-  Result := ComparePackedVersion(LVersion1, LVersion2);
+  Result := CompareVersions(ARADStudioVersion.RegVersion, ARegVersion);
 end;
 
 function CompareRADStudioVersions(const AVersion1, AVersion2: TRADStudioVersion): Integer;
-var
-  LVersion1, LVersion2: Int64;
 begin
-  if not StrToVersion(AVersion1.RegVersion, LVersion1) then
-    RaiseException(FmtMessage('RADStudio.CompareRADStudioVersions: Invalid version "%1"', [AVersion1.RegVersion]));
-  if not StrToVersion(AVersion2.RegVersion, LVersion2) then
-    RaiseException(FmtMessage('RADStudio.CompareRADStudioVersions: Invalid version "%1"', [AVersion2.RegVersion]));
-  Result := ComparePackedVersion(LVersion1, LVersion2);
+  Result := CompareVersions(AVersion1.RegVersion, AVersion2.RegVersion);
 end;
 
 function _FilterAllowedRADStudioVersions(const ARADStudioVersions: _TRADStudioVersions): _TRADStudioVersions;
@@ -301,7 +289,7 @@ begin
       // Some beta / internal versions does not have release libs
       if _TryGetRADStudioEnvVar(ARADStudioVersion, 'BDSLIB', LBdsLib) then
       begin
-        if FileExists(CombinePath(LBdsLib, 'win32\debug\rtl.dcp')) and 
+        if FileExists(CombinePath(LBdsLib, 'win32\debug\rtl.dcp')) and
           not FileExists(CombinePath(LBdsLib, 'win32\release\rtl.dcp')) then
         begin
           Result.BuildConfig := pcDebug;
@@ -648,12 +636,12 @@ begin
     begin
       LPathsToInsert := SplitString(APath, ';');
       LCurrentPaths := SplitString(LNewValue, ';');
-      for I := 0 to GetArrayLength(LPathsToInsert) - 1 do
+      for I := GetArrayLength(LPathsToInsert) - 1 downto 0 do
       begin
         LNewValue := LPathsToInsert[I];
         LCurrentPaths := RemoveString(LCurrentPaths, LNewValue, False);
         LCurrentPaths := RemoveString(LCurrentPaths, LNewValue + '\', False);
-        LCurrentPaths := AppendString(LCurrentPaths, LNewValue, False);
+        LCurrentPaths := InsertString(0, LCurrentPaths, LNewValue, False);
       end;
       LNewValue := JoinStrings(LCurrentPaths, ';', False);
     end;
@@ -810,7 +798,7 @@ begin
     Result := False
   else
   begin
-    ARsvarsFileName := AddBackslash(ARADStudioInfo.RootDir) + 'bin\rsvars.bat';
+    ARsvarsFileName := CombinePath(ExtractFilePath(ARADStudioInfo.AppFileName), 'rsvars.bat');
     Result := FileExists(ARsvarsFileName);
   end;
   if not Result then

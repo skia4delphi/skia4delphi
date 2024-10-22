@@ -1,4 +1,4 @@
-{************************************************************************}
+﻿{************************************************************************}
 {                                                                        }
 {                              Skia4Delphi                               }
 {                                                                        }
@@ -247,6 +247,10 @@ type
     [TestCase('20.Short attr middle big bold with big textlayout size', ShortText + ',100,30,1,0,0,65535,65535,20,false,false,Leading,Leading,Character,claBlack,0,0.4,56.39,27,2,3,18,True,claRed,0.97,r6+PDw8PDw////9vT09PT////+/vb89P////7+9vz08TABIAEwAfAB8AHwAfAB4AHwAAAAAAAAA')]
     {$ENDIF}
     procedure TestAttributesUnderline(const AText: string; const ABitmapWidth, ABitmapHeight: Integer; const AScale, ATextLeft, ATextTop, AMaxWidth, AMaxHeight, AFontSize: Single; const AWordWrap, ARightToLeft: Boolean; const AHorizontalAlign, AVerticalAlign: TTextAlign; const ATrimming: TTextTrimming; const AColor: string; const AExpectedTextLeft, AExpectedTextTop, AExpectedTextRight, AExpectedTextBottom: Single; const AAttrRangePos, AAttrRangeLength: Integer; const AAttrFontSize: Single; const AAttrFontBold: Boolean; const AAttrColor: string; const AMinSimilarity: Double; const AExpectedImageHash: string);
+    {$IFDEF TEXT_RENDER}
+    [Test]
+    {$ENDIF}
+    procedure TestJapaneseLocale;
     {$IFDEF TEXT_RENDER}
     [TestCase('1', ShortText + ',9,false,false,Leading,Leading,Character,claBlack,0,0.03,25.84,12,0.97,///vAgMDA//////jw8PL//////vv88v/////////////+eSd9X3nHfV9BJ3///////////////8')]
     [TestCase('2', ShortText + ',10,false,false,Leading,Leading,Character,claBlack,0,-0.3,28.72,13,0.97,///+AAACA/////7hw8fP/////+nL78////////////9/9X/xZJV1pWeFdbUElf////////////8')]
@@ -592,6 +596,23 @@ begin
     {$IF CompilerVersion >= 32}
     LFont.Free;
     {$ENDIF}
+  end;
+end;
+
+procedure TSkTextLayoutTests.TestJapaneseLocale;
+var
+  OldTextLocale: string;
+begin
+  OldTextLocale := GlobalSkiaTextLocale;
+  GlobalSkiaTextLocale := 'ja';
+  try
+    Test('直', {BitmapSize} TSize.Create(100, 100), {Scale} 1, {FontSize} 72, {TopLeft} PointF(10, 3),
+      {MaxSize} PointF(1000, 1000), {WordWrap} False, {RightToLeft} False, {HorizontalAlign} TTextAlign.Leading,
+      {VerticalAlign} TTextAlign.Leading, {Trimming} TTextTrimming.None, TAlphaColors.Black,
+      {ExpectedTextRect} TRectF.Create(0, 0, 0, 0), {CheckTextRect} False, {Attributes} [], {MinSimilarity} 0.98,
+      {ExpectedImageHash} '//+Dg4ODg/////Pjw8fP////9+vr78/////////////AD8AP6B/qX+gf6B/r3+gf4Afv//////8');
+  finally
+    GlobalSkiaTextLocale := OldTextLocale;
   end;
 end;
 
