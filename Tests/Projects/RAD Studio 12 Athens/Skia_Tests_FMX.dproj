@@ -181,6 +181,7 @@
         <VerInfo_Build>1</VerInfo_Build>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_Keys>package=org.skia4delphi.tests.fmx;label=Skia4Delphi Tests;versionCode=1;versionName=1.0.0;persistent=False;restoreAnyVersion=False;installLocation=auto;largeHeap=False;theme=TitleBar;hardwareAccelerated=true;apiKey=</VerInfo_Keys>
+        <DCC_LinkerOptions>--version-script=goExports.vsr</DCC_LinkerOptions>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Android64)'!=''">
         <Android_LauncherIcon144>$(BDS)\bin\Artwork\Android\FM_LauncherIcon_144x144.png</Android_LauncherIcon144>
@@ -204,6 +205,7 @@
         <VerInfo_Build>1</VerInfo_Build>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_Keys>package=org.skia4delphi.tests.fmx;label=Skia4Delphi Tests;versionCode=1;versionName=1.0.0;persistent=False;restoreAnyVersion=False;installLocation=auto;largeHeap=False;theme=TitleBar;hardwareAccelerated=true;apiKey=</VerInfo_Keys>
+        <DCC_LinkerOptions>--version-script=goExports.vsr</DCC_LinkerOptions>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_OSX64)'!=''">
         <BT_BuildType>Debug</BT_BuildType>
@@ -393,6 +395,7 @@
         <DCCReference Include="..\..\Source\FMX\Skia.Tests.FMX.TextLayout.pas"/>
         <DCCReference Include="..\..\Source\FMX\Skia.Tests.FMX.TImage.pas"/>
         <DCCReference Include="..\..\Source\FMX\Skia.Tests.FMX.TSkLabel.pas"/>
+        <DCCReference Include="..\..\Source\Issues\Skia.Tests.Issues.ZLib.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

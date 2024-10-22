@@ -40,7 +40,7 @@ Contains the bytes of the animated image file. To load an animated image you can
 
 ### TSkAnimatedImage.Animation.Enabled property
 
-Defines if the animation will start run automatically when it becames visible in screen.
+Defines if the animation will run automatically when it becomes visible on screen.
 
 
 ### TSkAnimatedImage.Animation.Loop property
@@ -79,7 +79,7 @@ Lottie files are vector animations in json format exported from Adobe After Effe
 
 You can create your own animation in Adobe After Effects, and using the plugin Bodymovin you will be able to export it in json format (Lottie file).
 
-But if you have no design practice, there is no problem, there is a very large collection of free and paid animations (Lottie files) over the internet. The best website where you will find thousands of Lottie files is [lottiefiles.com](https://lottiefiles.com/). On this site, just choose the Lottie animation you want, click Download > Lottie JSON.
+But if you have no design experience, there is no problem, there is a very large collection of free and paid animations (Lottie files) over the internet. The best website where you will find thousands of Lottie files is [lottiefiles.com](https://lottiefiles.com/). On this site, just choose the Lottie animation you want, click Download > Lottie JSON.
 
 ### Rendering Lottie
 
@@ -105,7 +105,7 @@ The example above results in the output below:
 
 The Skia Lottie player *(Skottie)* does not support telegram stickers, but we added in **TSkAnimatedImage** support to telegram stickers *(tgs files)*. Tgs files are basically Lottie files compressed in GZIP format in max mode. That's why tgs files are usually 5x smaller than Lottie files.
 
-So, to load you can simple use the code:
+So, to load you can simply use the code:
 
 ```pascal
 var

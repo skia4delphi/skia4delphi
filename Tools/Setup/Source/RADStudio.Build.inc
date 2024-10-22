@@ -90,7 +90,7 @@ begin
   end;
 end;
 
-function TryBuildRADStudioPackages(const ARADStudioInfos: TRADStudioInfos; const AGroupProjects: TRADStudioGroupProjects; const ACustomParameter: string; 
+function TryBuildRADStudioPackages(const ARADStudioInfos: TRADStudioInfos; const AGroupProjects: TRADStudioGroupProjects; const ACustomParameter: string;
   const ABeforeProjectBuild: TBeforeProjectBuildProc; const ATryExtractPreBuildObjects: TTryExtractPreBuildObjectsProc): Boolean;
 var
   I, J, K: Integer;
@@ -151,7 +151,7 @@ begin
   Result := True;
 end;
 
-function _TryBuildRADStudioProject(const ARADStudioInfo: TRADStudioInfo; const AConfig: TProjectConfig; const APlatform: TProjectPlatform; 
+function _TryBuildRADStudioProject(const ARADStudioInfo: TRADStudioInfo; const AConfig: TProjectConfig; const APlatform: TProjectPlatform;
   const AProject: TRADStudioProject; const ACustomParameter, ALogFileName: string; const ABeforeProjectBuild: TBeforeProjectBuildProc; out AResultCode: Integer): Boolean;
 var
   LProjectDir: string;

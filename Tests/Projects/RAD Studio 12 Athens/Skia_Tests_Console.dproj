@@ -14,7 +14,7 @@
         <Platform Condition="'$(Platform)'==''">Win32</Platform>
         <ProjectGuid>{E2FB5E67-051D-4BE6-8DAF-954599D0BB24}</ProjectGuid>
         <ProjectVersion>20.1</ProjectVersion>
-        <TargetedPlatforms>135299</TargetedPlatforms>
+        <TargetedPlatforms>660611</TargetedPlatforms>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Config)'=='Base' or '$(Base)'!=''">
         <Base>true</Base>
@@ -156,6 +156,7 @@
         <DCCReference Include="..\..\Source\Skia.Tests.Svg.pas"/>
         <DCCReference Include="..\..\Source\Skia.Tests.TextBlob.pas"/>
         <DCCReference Include="..\..\Source\Skia.Tests.Unicode.pas"/>
+        <DCCReference Include="..\..\Source\Issues\Skia.Tests.Issues.ZLib.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
@@ -2139,8 +2140,8 @@
                 <Platform value="OSXARM64">True</Platform>
                 <Platform value="Win32">True</Platform>
                 <Platform value="Win64">True</Platform>
-                <Platform value="iOSDevice64">False</Platform>
-                <Platform value="iOSSimARM64">False</Platform>
+                <Platform value="iOSDevice64">True</Platform>
+                <Platform value="iOSSimARM64">True</Platform>
             </Platforms>
         </BorlandProject>
         <ProjectFileVersion>12</ProjectFileVersion>

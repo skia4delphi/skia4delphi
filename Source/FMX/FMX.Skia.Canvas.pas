@@ -455,7 +455,7 @@ function DefaultSkiaRenderCanvasClass: TSkCanvasBaseClass;
 procedure RegisterSkiaRenderCanvas(const ACanvasClass: TSkCanvasBaseClass; const APriority: Boolean; const AIsSupportedFunc: TFunc<Boolean> = nil);
 
 const
-  CanvasQualitySampleCount: array[TCanvasQuality] of Integer = (2, 1, 4);
+  CanvasQualitySampleCount: array[TCanvasQuality] of Integer = (1, 1, 1);
 
 resourcestring
   SVWEBPImages   = 'WebP Images';
@@ -505,7 +505,9 @@ uses
   System.UIConsts,
 
   { Workarounds }
-  {$IF DEFINED(MACOS)}
+  {$IF DEFINED(MSWINDOWS)}
+  FMX.Helpers.Win,
+  {$ELSEIF DEFINED(MACOS)}
   FMX.Context.Metal,
   FMX.Types3D,
   FMX.Utils,
@@ -534,6 +536,8 @@ uses
   FMX.Types3D,
   FMX.Utils,
   Androidapi.Gles2,
+  Androidapi.JNI.JavaTypes,
+  Androidapi.Helpers,
   Posix.SysMman,
   Posix.Unistd,
   System.Rtti,
@@ -1488,6 +1492,74 @@ end;
 // - ---------------------------------------------------------------------------
 {$ENDREGION}
 
+{$REGION ' - Workaround RS-97615'}
+// - ---------------------------------------------------------------------------
+// - WORKAROUND
+// - ---------------------------------------------------------------------------
+// -
+// - Description:
+// -   This code is a workaround intended to fix a bug involving HiDPI and non
+// -   TCanvasD2D render.
+// -
+// - Bug report:
+// -   https://embt.atlassian.net/browse/RS-97615
+// -
+// - ---------------------------------------------------------------------------
+{$IF (CompilerVersion >= 31) and (CompilerVersion <= 34)}
+{$IFDEF MSWINDOWS}
+
+type
+  { TRS97615Workaround }
+
+  TRS97615Workaround = record
+  private
+    class var FScale: Single;
+  private type
+    TOpenWinWindowHandle = class(TWinWindowHandle);
+  public
+    class procedure Apply; static;
+  end;
+
+{ TRS97615Workaround }
+
+class procedure TRS97615Workaround.Apply;
+
+  function HookCode(const ACodeAddress, AHookAddress: Pointer): Boolean;
+  const
+    JMP_RELATIVE = $E9;
+    SIZE_OF_JUMP = 5;
+  var
+    LDisplacement: Integer;
+    LOldProtect: DWORD;
+    P: PByte;
+  begin
+    Result := VirtualProtect(ACodeAddress, SIZE_OF_JUMP, PAGE_EXECUTE_READWRITE, LOldProtect);
+    if Result then
+    begin
+      P := ACodeAddress;
+      P^ := JMP_RELATIVE;
+      Inc(P);
+      LDisplacement := UIntPtr(AHookAddress) - (UIntPtr(ACodeAddress) + SIZE_OF_JUMP);
+      PInteger(P)^ := LDisplacement;
+      VirtualProtect(ACodeAddress, SIZE_OF_JUMP, LOldProtect, LOldProtect);
+    end;
+  end;
+
+  function HookedGetScale(const Self: TClass): Single;
+  begin
+    Result := TRS97615Workaround.FScale;
+  end;
+
+begin
+  FScale := GetWndScale(ApplicationHWND);
+  HookCode(@TOpenWinWindowHandle.GetScale, @HookedGetScale);
+end;
+
+{$ENDIF}
+{$ENDIF}
+// - ---------------------------------------------------------------------------
+{$ENDREGION}
+
 type
   { TSkBitmapCodec }
 
@@ -1509,6 +1581,13 @@ type
     function SaveToStream(const AStream: TStream; const ABitmapSurface: TBitmapSurface; const AExtension: string; const ASaveParams: PBitmapCodecSaveParams = nil): Boolean; override;
     class function GetImageSize(const AFileName: string): TPointF; override;
     class function IsValid(const AStream: TStream): Boolean; override;
+  end;
+
+  { TSkCanvasCustomHelper }
+
+  TSkCanvasCustomHelper = class helper for TSkCanvasCustom
+  public
+    function GetSamplingOptions(const ASrcRect, ADestRect: TRectF; AHighSpeed: Boolean): TSkSamplingOptions; overload; inline;
   end;
 
 {$IFDEF SKIA_RASTER}
@@ -1564,11 +1643,28 @@ begin
   {$ENDIF}
 end;
 
+{ TSkCanvasCustomHelper }
+
+function TSkCanvasCustomHelper.GetSamplingOptions(const ASrcRect, ADestRect: TRectF;
+  AHighSpeed: Boolean): TSkSamplingOptions;
+begin
+  // Avoid high quality filter when there is no stretch or complex transformations to optimize performance
+  if (not AHighSpeed) and (Quality <> TCanvasQuality.HighPerformance) and
+    (MatrixMeaning in [TMatrixMeaning.Identity, TMatrixMeaning.Translate]) then
+  begin
+    AHighSpeed := SameValue(ASrcRect.Width, ADestRect.Width * Scale, TEpsilon.Position) and
+      SameValue(ASrcRect.Height, ADestRect.Height * Scale, TEpsilon.Position);
+  end;
+  Result := GetSamplingOptions(AHighSpeed);
+end;
+
 { TSkCanvasCustom }
 
 procedure TSkCanvasCustom.AfterConstruction;
 begin
-  FAntiAlias := Quality <> TCanvasQuality.HighPerformance;
+  // Skia m107 shows better performance with anti-aliasing enabled. Therefore,
+  // we'll enforce it to always be true, regardless of the Quality property.
+  FAntiAlias := True;
   SkInitialize;
   inherited;
 end;
@@ -1661,9 +1757,9 @@ begin
               ABrushData.BitmapMapped := False;
               ABrushData.Paint.AlphaF := AOpacity;
               if ABrushData.Brush.Bitmap.WrapMode = TWrapMode.TileStretch then
-                ABrushData.Paint.Shader := LCache.MakeShader(TMatrix.CreateScaling(ARect.Width / LCache.Width, ARect.Height / LCache.Height) * TMatrix.CreateTranslation(ARect.Left, ARect.Top), GetSamplingOptions)
+                ABrushData.Paint.Shader := LCache.MakeShader(TMatrix.CreateScaling(ARect.Width / LCache.Width, ARect.Height / LCache.Height) * TMatrix.CreateTranslation(ARect.Left, ARect.Top), GetSamplingOptions(RectF(0, 0, LCache.Width, LCache.Height), ARect, True))
               else
-                ABrushData.Paint.Shader := LCache.MakeShader(GetSamplingOptions, WrapMode[ABrushData.Brush.Bitmap.WrapMode], WrapMode[ABrushData.Brush.Bitmap.WrapMode]);
+                ABrushData.Paint.Shader := LCache.MakeShader(GetSamplingOptions(True), WrapMode[ABrushData.Brush.Bitmap.WrapMode], WrapMode[ABrushData.Brush.Bitmap.WrapMode]);
             end;
           end;
           if LCache = nil then
@@ -1676,9 +1772,9 @@ begin
               if LImage <> nil then
               begin
                 if ABrushData.Brush.Bitmap.WrapMode = TWrapMode.TileStretch then
-                  ABrushData.Paint.Shader := LImage.MakeShader(TMatrix.CreateScaling(ARect.Width / LImage.Width, ARect.Height / LImage.Height) * TMatrix.CreateTranslation(ARect.Left, ARect.Top), GetSamplingOptions)
+                  ABrushData.Paint.Shader := LImage.MakeShader(TMatrix.CreateScaling(ARect.Width / LImage.Width, ARect.Height / LImage.Height) * TMatrix.CreateTranslation(ARect.Left, ARect.Top), GetSamplingOptions(RectF(0, 0, LImage.Width, LImage.Height), ARect, True))
                 else
-                  ABrushData.Paint.Shader := LImage.MakeShader(GetSamplingOptions, WrapMode[ABrushData.Brush.Bitmap.WrapMode], WrapMode[ABrushData.Brush.Bitmap.WrapMode]);
+                  ABrushData.Paint.Shader := LImage.MakeShader(GetSamplingOptions(True), WrapMode[ABrushData.Brush.Bitmap.WrapMode], WrapMode[ABrushData.Brush.Bitmap.WrapMode]);
               end;
             end;
           end;
@@ -1774,9 +1870,9 @@ end;
 
 constructor TSkCanvasCustom.CreateFromPrinter(const APrinter: TAbstractPrinter);
 begin
-  inherited;
   if not Supports(APrinter, ISkCanvasWrapper, FWrapper) then
     raise EPrinter.CreateResFmt(@SInvalidPrinterClass, [APrinter.ClassName]);
+  inherited;
   FWidth  := FWrapper.CanvasWidth;
   FHeight := FWrapper.CanvasHeight;
 end;
@@ -1853,7 +1949,7 @@ begin
     begin
       LCache := GetCachedImage(ABitmap);
       if LCache <> nil then
-        Canvas.DrawImageRect(LCache, LSrcRect, ADestRect, GetSamplingOptions(AHighSpeed), LPaint);
+        Canvas.DrawImageRect(LCache, LSrcRect, ADestRect, GetSamplingOptions(LSrcRect, ADestRect, AHighSpeed), LPaint);
     end;
     if LCache = nil then
     begin
@@ -1862,7 +1958,7 @@ begin
         try
           LImage := TSkImage.MakeFromRaster(TSkImageInfo.Create(LBitmapData.Width, LBitmapData.Height, SkFmxColorType[LBitmapData.PixelFormat]), LBitmapData.Data, LBitmapData.Pitch);
           if LImage <> nil then
-            Canvas.DrawImageRect(LImage, LSrcRect, ADestRect, GetSamplingOptions(AHighSpeed), LPaint);
+            Canvas.DrawImageRect(LImage, LSrcRect, ADestRect, GetSamplingOptions(LSrcRect, ADestRect, AHighSpeed), LPaint);
         finally
           ABitmap.Unmap(LBitmapData);
         end;
@@ -2170,8 +2266,8 @@ end;
 
 constructor TSkCanvasCustom.Wrap(const AWrapper: ISkCanvasWrapper);
 begin
-  inherited Create;
   FWrapper := AWrapper;
+  inherited Create;
   FWidth   := FWrapper.CanvasWidth;
   FHeight  := FWrapper.CanvasHeight;
   Initialize;
@@ -2248,10 +2344,13 @@ end;
 
 constructor TSkCanvasBase.CreateFromWindow(const AParent: TWindowHandle;
   const AWidth, AHeight: Integer; const AQuality: TCanvasQuality);
+var
+  LParentHandle: TWinWindowHandle;
 begin
   inherited;
-  if WindowHandleToPlatform(Parent){$IF CompilerVersion < 30}.Form{$ENDIF}.Transparency then
-    WindowHandleToPlatform(Parent).CreateBuffer({$IF CompilerVersion < 31}Width, Height{$ELSE}WindowHandleToPlatform(Parent).WndClientSize.Width, WindowHandleToPlatform(Parent).WndClientSize.Height{$ENDIF});
+  LParentHandle := WindowHandleToPlatform(Parent);
+  if LParentHandle{$IF CompilerVersion < 30}.Form{$ENDIF}.Transparency then
+    LParentHandle.CreateBuffer({$IF CompilerVersion < 31}Width, Height{$ELSE}LParentHandle.WndClientSize.Width, LParentHandle.WndClientSize.Height{$ENDIF});
 end;
 
 {$ENDIF}
@@ -2305,13 +2404,18 @@ begin
 end;
 
 procedure TSkCanvasBase.EndCanvas(const AContextHandle: THandle);
+{$IFDEF MSWINDOWS}
+var
+  LParentHandle: TWinWindowHandle;
+{$ENDIF}
 begin
   if Parent <> nil then
   begin
     FSurface.FlushAndSubmit;
     {$IFDEF MSWINDOWS}
-    if WindowHandleToPlatform(Parent){$IF CompilerVersion < 30}.Form{$ENDIF}.Transparency then
-      FSurface.ReadPixels(TSkImageInfo.Create({$IF CompilerVersion < 31}Width, Height{$ELSE}WindowHandleToPlatform(Parent).WndClientSize.Width, WindowHandleToPlatform(Parent).WndClientSize.Height{$ENDIF}, TSkColorType.BGRA8888), WindowHandleToPlatform(Parent).BufferBits, {$IF CompilerVersion < 31}Width{$ELSE}WindowHandleToPlatform(Parent).WndClientSize.Width{$ENDIF} * SkBytesPerPixel[TSkColorType.BGRA8888]);
+    LParentHandle := WindowHandleToPlatform(Parent);
+    if LParentHandle{$IF CompilerVersion < 30}.Form{$ENDIF}.Transparency then
+      FSurface.ReadPixels(TSkImageInfo.Create({$IF CompilerVersion < 31}Width, Height{$ELSE}LParentHandle.WndClientSize.Width, LParentHandle.WndClientSize.Height{$ENDIF}, TSkColorType.BGRA8888), LParentHandle.BufferBits, {$IF CompilerVersion < 31}Width{$ELSE}LParentHandle.WndClientSize.Width{$ENDIF} * SkBytesPerPixel[TSkColorType.BGRA8888]);
     {$ENDIF}
     FSurface := nil;
     SwapBuffers(AContextHandle);
@@ -2324,10 +2428,16 @@ end;
 {$IFDEF MSWINDOWS}
 
 procedure TSkCanvasBase.Resized;
+var
+  LParentHandle: TWinWindowHandle;
 begin
   inherited;
-  if (Parent <> nil) and (WindowHandleToPlatform(Parent){$IF CompilerVersion < 30}.Form{$ENDIF}.Transparency) then
-    WindowHandleToPlatform(Parent).ResizeBuffer({$IF CompilerVersion < 31}Width, Height{$ELSE}WindowHandleToPlatform(Parent).WndClientSize.Width, WindowHandleToPlatform(Parent).WndClientSize.Height{$ENDIF});
+  if Parent <> nil then
+  begin
+    LParentHandle := WindowHandleToPlatform(Parent);
+    if LParentHandle{$IF CompilerVersion < 30}.Form{$ENDIF}.Transparency then
+      LParentHandle.ResizeBuffer({$IF CompilerVersion < 31}Width, Height{$ELSE}LParentHandle.WndClientSize.Width, LParentHandle.WndClientSize.Height{$ENDIF});
+  end;
 end;
 
 {$ENDIF}
@@ -2976,6 +3086,18 @@ begin
 end;
 
 class procedure TSkTextLayout.Initialize;
+
+  function GetDefaultTextLocale: string;
+  var
+    LLocaleService: IFMXLocaleService;
+  begin
+    if TPlatformServices.Current.SupportsPlatformService(IFMXLocaleService, LLocaleService) then
+      Result := LLocaleService.GetCurrentLangID;
+    {$IF defined(ANDROID) and ((CompilerVersion < 36) or (CompilerVersion = 36) and not declared(RTLVersion123))}
+    Result := JStringToString(TJLocale.JavaClass.getDefault.getLanguage());
+    {$ENDIF}
+  end;
+
 {$IFDEF ANDROID}
 const
   FontFilesFilter = '*.ttf'; // Do not localize
@@ -2983,6 +3105,7 @@ var
   LFileName: string;
 {$ENDIF}
 begin
+  GlobalSkiaTextLocale := GetDefaultTextLocale;
   {$IFDEF ANDROID}
   for LFileName in TDirectory.GetFiles(TPath.GetDocumentsPath, FontFilesFilter) do
     TSkDefaultProviders.RegisterTypeface(LFileName);
@@ -3030,7 +3153,9 @@ end;
 procedure TSkTextLayout.UpdateParagraph;
 const
 {$IF CompilerVersion >= 31}
-  SkFontSlant : array[TFontSlant] of TSkFontSlant = (TSkFontSlant.Upright, TSkFontSlant.Italic, TSkFontSlant.Oblique);
+  SkFontSlant : array[TFontSlant] of TSkFontSlant = (TSkFontSlant.Upright, TSkFontSlant.Italic,
+    // SkParagraph does not support oblique fonts on macOS on m107
+    {$IFDEF MACOS}TSkFontSlant.Italic{$ELSE}TSkFontSlant.Oblique{$ENDIF});
   SkFontWeight: array[TFontWeight] of Integer = (100, 200, 300, 350, 400, 500, 600, 700, 800, 900, 950);
   SkFontWidth : array[TFontStretch] of Integer = (1, 2, 3, 4, 5, 6, 7, 8, 9);
 {$ENDIF}
@@ -3144,6 +3269,8 @@ const
       if TFontStyle.fsStrikeOut in AFont.Style then
         ATextStyle.Decorations := ATextStyle.Decorations + [TSkTextDecoration.LineThrough];
     end;
+    if GlobalSkiaTextLocale <> '' then
+      ATextStyle.Locale := GlobalSkiaTextLocale;
   end;
 
   function CreateTextStyle(const AAttribute: TTextAttribute): ISkTextStyle;
@@ -3684,9 +3811,6 @@ end;
 procedure TSkRasterCanvas.AfterConstruction;
 begin
   inherited;
-  // For some reason that is still unclear, the CPU (raster) backend on the m107 performs worse when we disable
-  // AntiAlias. So let's leave it always enabled for now.
-  FAntiAlias := True;
 end;
 
 destructor TSkRasterCanvas.Destroy;
@@ -4017,6 +4141,9 @@ begin
         {$ENDIF}
         {$IF DECLARED(TRSP37829Workaround)}
         TRSP37829Workaround.Apply;
+        {$ENDIF}
+        {$IF DECLARED(TRS97615Workaround)}
+        TRS97615Workaround.Apply;
         {$ENDIF}
       end;
     end;

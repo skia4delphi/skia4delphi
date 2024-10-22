@@ -26,7 +26,8 @@ uses
   Skia.Tests.Vcl.Bitmap in '..\..\Source\VCL\Skia.Tests.Vcl.Bitmap.pas',
   Skia.Tests.Vcl.Runner in '..\..\Source\VCL\Skia.Tests.Vcl.Runner.pas' {frmVclRunner},
   Skia.Tests.Vcl.Svg in '..\..\Source\VCL\Skia.Tests.Vcl.Svg.pas',
-  Skia.Tests.Vcl.TSkLabel in '..\..\Source\VCL\Skia.Tests.Vcl.TSkLabel.pas';
+  Skia.Tests.Vcl.TSkLabel in '..\..\Source\VCL\Skia.Tests.Vcl.TSkLabel.pas',
+  Skia.Tests.Issues.ZLib in '..\..\Source\Issues\Skia.Tests.Issues.ZLib.pas';
 
 {$R *.res}
 

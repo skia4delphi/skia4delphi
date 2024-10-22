@@ -121,6 +121,7 @@
         <DCCReference Include="..\..\Source\Skia.Tests.Svg.pas"/>
         <DCCReference Include="..\..\Source\Skia.Tests.TextBlob.pas"/>
         <DCCReference Include="..\..\Source\Skia.Tests.Unicode.pas"/>
+        <DCCReference Include="..\..\Source\Issues\Skia.Tests.Issues.ZLib.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

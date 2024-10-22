@@ -20,10 +20,14 @@
 function AppendString(const AStrings: TArrayOfString; const ANewString: string; const AAllowDuplicates: Boolean): TArrayOfString; forward;
 /// <summary> Convert booleans to string in word format (True or False) </summary>
 function BoolToStr(const AValue: Boolean): string; forward;
+/// <summary> Compare two versions that are in string format </summary>
+function CompareVersions(const AVersion1, AVersion2: string): Integer; forward;
 /// <summary> Check if a string contains in an array of strings </summary>
 function ContainsString(const AStrings: TArrayOfString; const AValue: string; const ACaseSensitive: Boolean): Boolean; forward;
 /// <summary> Check if one text ends with another text with case insentive comparison </summary>
 function EndsWithText(const AText, ASubText: string): Boolean; forward;
+/// <summary> Insert a string to the array </summary>
+function InsertString(AIndex: Integer; const AStrings: TArrayOfString; const ANewString: string; const AAllowDuplicates: Boolean): TArrayOfString; forward;
 /// <summary> Insert a string to the array at index 0 </summary>
 function InsertStringAtBeginning(const AStrings: TArrayOfString; const ANewString: string): TArrayOfString; forward;
 /// <summary> Concatenates strings into one, separating each string by a delimiter </summary>
@@ -43,11 +47,7 @@ function StrToBoolDef(const AValue: string; const ADefault: Boolean): Boolean; f
 
 function AppendString(const AStrings: TArrayOfString; const ANewString: string; const AAllowDuplicates: Boolean): TArrayOfString;
 begin
-  Result := AStrings;
-  if (not AAllowDuplicates) and ContainsString(AStrings, ANewString, False) then
-    Exit;
-  SetArrayLength(Result, GetArrayLength(Result) + 1);
-  Result[GetArrayLength(Result) - 1] := ANewString;
+  Result := InsertString(GetArrayLength(AStrings), AStrings, ANewString, AAllowDuplicates);
 end;
 
 function BoolToStr(const AValue: Boolean): string;
@@ -56,6 +56,17 @@ begin
     Result := 'True'
   else
     Result := 'False';
+end;
+
+function CompareVersions(const AVersion1, AVersion2: string): Integer;
+var
+  LVersion1, LVersion2: Int64;
+begin
+  if not StrToVersion(AVersion1, LVersion1) then
+    RaiseException(FmtMessage('String.Utils.CompareVersions: Invalid version "%1"', [AVersion1]));
+  if not StrToVersion(AVersion2, LVersion2) then
+    RaiseException(FmtMessage('String.Utils.CompareVersions: Invalid version "%1"', [AVersion2]));
+  Result := ComparePackedVersion(LVersion1, LVersion2);
 end;
 
 function ContainsString(const AStrings: TArrayOfString; const AValue: string; const ACaseSensitive: Boolean): Boolean;
@@ -92,6 +103,23 @@ begin
     else
       Result := False;
   end;
+end;
+
+function InsertString(AIndex: Integer; const AStrings: TArrayOfString; const ANewString: string; const AAllowDuplicates: Boolean): TArrayOfString;
+var
+  I: Integer;
+begin
+  if (not AAllowDuplicates) and ContainsString(AStrings, ANewString, False) then
+  begin
+    Result := AStrings;
+    Exit;
+  end;
+  SetArrayLength(Result, GetArrayLength(AStrings) + 1);
+  for I := 0 to AIndex - 1 do
+    Result[I] := AStrings[I];
+  Result[AIndex] := ANewString;
+  for I := AIndex to GetArrayLength(AStrings) - 1 do
+    Result[I + 1] := AStrings[I];
 end;
 
 function InsertStringAtBeginning(const AStrings: TArrayOfString; const ANewString: string): TArrayOfString;
@@ -174,7 +202,7 @@ begin
       begin
         LString := AStrings[I];
         LIndex := Pos(AOldValue, LString);
-        if LIndex > 0 then   
+        if LIndex > 0 then
           Result := AppendString(Result, Copy(LString, 1, LIndex - 1) + ANewValue + Copy(LString, LIndex + Length(AOldValue), Length(LString)), True)
         else
           Result := AppendString(Result, LString, True);
@@ -194,7 +222,7 @@ begin
       end;
     end
     else
-    begin   
+    begin
       for I := 0 to GetArrayLength(AStrings) - 1 do
       begin
         LString := AStrings[I];

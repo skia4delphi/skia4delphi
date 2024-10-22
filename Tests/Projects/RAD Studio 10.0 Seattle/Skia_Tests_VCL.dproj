@@ -155,6 +155,7 @@
         </DCCReference>
         <DCCReference Include="..\..\Source\VCL\Skia.Tests.Vcl.Svg.pas"/>
         <DCCReference Include="..\..\Source\VCL\Skia.Tests.Vcl.TSkLabel.pas"/>
+        <DCCReference Include="..\..\Source\Issues\Skia.Tests.Issues.ZLib.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

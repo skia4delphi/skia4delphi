@@ -213,7 +213,7 @@ end;
 
 function InstallPackages(const ARADStudioInfos: TRADStudioInfos; const AGroupProjects: TRADStudioGroupProjects): Boolean;
 var
-  I, J, K, L: Integer;
+  I, J, K: Integer;
   LInfo: TRADStudioInfo;
   LProject: TRADStudioProject;
   LVersion: TRADStudioVersion;
@@ -243,7 +243,7 @@ begin
         Log(Format('Setup.Main.InstallPackages: Starting installation in %s...', [LInfo.Version.Name]));
         for J := 0 to GetArrayLength(AGroupProjects) - 1 do
         begin
-          for K := 0 to GetArrayLength(AGroupProjects[J].Items) - 1 do
+          for K := GetArrayLength(AGroupProjects[J].Items) - 1 downto 0 do
           begin
             LProject := AGroupProjects[J].Items[K].Project;
             if TryGetRADStudioVersionOfProject(LProject, LVersion) and (CompareRADStudioVersions(LVersion, LInfo.Version) = 0) then
@@ -301,16 +301,13 @@ begin
               begin
                 if (not (LPlatform in LProject.Platforms)) or (not CheckIfRADStudioSupportsPlatform(LInfo, LPlatform)) then
                   Continue;
-                for L := 0 to GetArrayLength(LProject.SourcePaths) - 1 do
+                if not TryAddRADStudioLibrarySearchPath(LVersion, LPlatform, JoinStrings(LProject.SourcePaths, ';', False)) then
                 begin
-                  if not TryAddRADStudioLibrarySearchPath(LVersion, LPlatform, LProject.SourcePaths[L]) then
-                  begin
-                    TryShowErrorFmt(CustomMessage('SetupMainFailedToInstallPackage'), [ExtractFileName(LProject.FileName), LVersion.Name + ' - ' + GetProjectPlatformName(LPlatform), '5']);
-                    Result := False;
-                    Exit;
-                  end;
+                  TryShowErrorFmt(CustomMessage('SetupMainFailedToInstallPackage'), [ExtractFileName(LProject.FileName), LVersion.Name + ' - ' + GetProjectPlatformName(LPlatform), '5']);
+                  Result := False;
+                  Exit;
                 end;
-                if (LPlatform in GetPlatformsAllowedToBuild(LInfo)) then
+                if LPlatform in GetPlatformsAllowedToBuild(LInfo) then
                 begin
                   LDcpFileName := ExpandProjectPath(GetRADStudioProjectDcpOutputFileName(LProject), LInfo.BuildConfig, LPlatform);
                   if not FileExists(LDcpFileName) then
@@ -369,8 +366,11 @@ begin
             LNewGroupProject.FileName := ReplaceFolderNameInPath(LNewGroupProject.FileName, AMaxVersionOfficiallySupported.Name, ARADStudioInfos[I].Version.Name, False);
             for L := 0 to GetArrayLength(LNewGroupProject.Items) - 1 do
             begin
-              LNewGroupProject.Items[L].Project.ProjectVersion := ARADStudioInfos[I].Version.MaxDprojVersion;
               LNewGroupProject.Items[L].Project.FileName := ReplaceFolderNameInPath(LNewGroupProject.Items[L].Project.FileName, AMaxVersionOfficiallySupported.Name, ARADStudioInfos[I].Version.Name, False);
+              ReplaceStringInFile(LNewGroupProject.Items[L].Project.FileName,
+                Format('<ProjectVersion>%s</ProjectVersion>', [LNewGroupProject.Items[L].Project.ProjectVersion]),
+                Format('<ProjectVersion>%s</ProjectVersion>', [ARADStudioInfos[I].Version.MaxDprojVersion]), False);
+              LNewGroupProject.Items[L].Project.ProjectVersion := ARADStudioInfos[I].Version.MaxDprojVersion;
               LNewGroupProject.Items[L].Project.BplOutputPath := ReplaceFolderNameInPath(LNewGroupProject.Items[L].Project.BplOutputPath, AMaxVersionOfficiallySupported.Name, ARADStudioInfos[I].Version.Name, False);
               LNewGroupProject.Items[L].Project.DcpOutputPath := ReplaceFolderNameInPath(LNewGroupProject.Items[L].Project.DcpOutputPath, AMaxVersionOfficiallySupported.Name, ARADStudioInfos[I].Version.Name, False);
               LNewGroupProject.Items[L].Project.DCUOutputPath := ReplaceFolderNameInPath(LNewGroupProject.Items[L].Project.DCUOutputPath, AMaxVersionOfficiallySupported.Name, ARADStudioInfos[I].Version.Name, False);
@@ -484,7 +484,7 @@ begin
             Result := False;
           end;
           LProject := AGroupProjects[J].Items[K].Project;
-            
+
           // Removing search paths
           for LPlatform := LowProjectPlatform to HighProjectPlatform do
           begin
