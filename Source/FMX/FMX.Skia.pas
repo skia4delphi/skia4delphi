@@ -1307,10 +1307,6 @@ implementation
 
 uses
   { Delphi }
-  {$IFDEF ANDROID}
-  Androidapi.JNI.JavaTypes,
-  Androidapi.Helpers,
-  {$ENDIF}
   System.Math.Vectors,
   System.ZLib,
   System.IOUtils,
@@ -6355,7 +6351,4 @@ initialization
     TSkLabel.TCustomWordsItem, TSkLabel.TWordsCollection]);
   TSkAnimatedImage.RegisterCodec(TSkLottieAnimationCodec);
   TSkAnimatedImage.RegisterCodec(TSkDefaultAnimationCodec);
-{$IFDEF ANDROID}
-  GlobalSkiaTextLocale := JStringToString(TJLocale.JavaClass.getDefault.getLanguage());
-{$ENDIF}
 end.

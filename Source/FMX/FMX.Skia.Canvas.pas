@@ -536,6 +536,8 @@ uses
   FMX.Types3D,
   FMX.Utils,
   Androidapi.Gles2,
+  Androidapi.JNI.JavaTypes,
+  Androidapi.Helpers,
   Posix.SysMman,
   Posix.Unistd,
   System.Rtti,
@@ -3084,6 +3086,18 @@ begin
 end;
 
 class procedure TSkTextLayout.Initialize;
+
+  function GetDefaultTextLocale: string;
+  var
+    LLocaleService: IFMXLocaleService;
+  begin
+    if TPlatformServices.Current.SupportsPlatformService(IFMXLocaleService, LLocaleService) then
+      Result := LLocaleService.GetCurrentLangID;
+    {$IF defined(ANDROID) and ((CompilerVersion < 36) or (CompilerVersion = 36) and not declared(RTLVersion123))}
+    Result := JStringToString(TJLocale.JavaClass.getDefault.getLanguage());
+    {$ENDIF}
+  end;
+
 {$IFDEF ANDROID}
 const
   FontFilesFilter = '*.ttf'; // Do not localize
@@ -3091,6 +3105,7 @@ var
   LFileName: string;
 {$ENDIF}
 begin
+  GlobalSkiaTextLocale := GetDefaultTextLocale;
   {$IFDEF ANDROID}
   for LFileName in TDirectory.GetFiles(TPath.GetDocumentsPath, FontFilesFilter) do
     TSkDefaultProviders.RegisterTypeface(LFileName);
