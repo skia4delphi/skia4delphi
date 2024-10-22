@@ -1660,7 +1660,9 @@ end;
 
 procedure TSkCanvasCustom.AfterConstruction;
 begin
-  FAntiAlias := Quality <> TCanvasQuality.HighPerformance;
+  // Skia m107 shows better performance with anti-aliasing enabled. Therefore,
+  // we'll enforce it to always be true, regardless of the Quality property.
+  FAntiAlias := True;
   SkInitialize;
   inherited;
 end;
@@ -3794,9 +3796,6 @@ end;
 procedure TSkRasterCanvas.AfterConstruction;
 begin
   inherited;
-  // For some reason that is still unclear, the CPU (raster) backend on the m107 performs worse when we disable
-  // AntiAlias. So let's leave it always enabled for now.
-  FAntiAlias := True;
 end;
 
 destructor TSkRasterCanvas.Destroy;
