@@ -2084,6 +2084,7 @@ procedure TSkCanvasCustom.DoFillRoundRect(const ARect: TRectF; const XRadius, YR
 var
   LBrushData: TBrushData;
   LPaint: TSkPaint;
+  LRoundRect: ISkRoundRect;
   LRoundRectRadii: TSkRoundRectRadii;
 begin
   if ACornerType <> TCornerType.Round then
@@ -2106,7 +2107,8 @@ begin
           LRoundRectRadii[TSkRoundRectCorner.LowerLeft] := PointF(XRadius, YRadius);
         if TCorner.BottomRight in ACorners then
           LRoundRectRadii[TSkRoundRectCorner.LowerRight] := PointF(XRadius, YRadius);
-        Canvas.DrawRoundRect(TSkRoundRect.Create(ARect, LRoundRectRadii), LPaint);
+        LRoundRect := TSkRoundRect.Create(ARect, LRoundRectRadii);
+        Canvas.DrawRoundRect(LRoundRect, LPaint);
       end;
     finally
       EndPaint(LBrushData);
