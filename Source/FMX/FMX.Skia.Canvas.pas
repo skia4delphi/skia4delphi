@@ -126,7 +126,6 @@ type
     function GetCanvasScale: Single; override;
     function GetSamplingOptions(const AHighSpeed: Boolean = False): TSkSamplingOptions; overload; inline;
     function GetSamplingOptions(const ASrcRect, ADestRect: TRectF; AHighSpeed: Boolean): TSkSamplingOptions; overload; inline;
-    function QueryInterface(const IID: TGUID; out Obj): HResult; override; stdcall;
     procedure Resized; virtual;
     function SupportsCachedImage: Boolean; virtual;
     class procedure DoFinalizeBitmap(var ABitmapHandle: THandle); override;
@@ -145,6 +144,7 @@ type
     procedure IntersectClipRect(const ARect: TRectF); override;
     function LoadFontFromStream(const AStream: TStream): Boolean; override;
     function PtInPath(const APoint: TPointF; const APath: TPathData): Boolean; override;
+    function QueryInterface(const IID: TGUID; out Obj): HResult; override; stdcall;
     {$IF CompilerVersion < 30}
     procedure SetMatrix(const AMatrix: TMatrix); override;
     {$ENDIF}
@@ -299,12 +299,12 @@ type
     function CreateSharedContext: IGrSharedContext; virtual; abstract;
     procedure EndCanvas(const AContextHandle: THandle); override;
     function GetCachedImage(const ABitmap: TBitmap): TSkImage; override; final;
-    function QueryInterface(const IID: TGUID; out Obj): HResult; override; stdcall;
     function SupportsCachedImage: Boolean; override;
     class function CreateBitmap(const AWidth, AHeight: Integer; const APixelFormat: TPixelFormat): TSkBitmapHandle; override;
     class function DoMapBitmap(const ABitmapHandle: THandle; const AAccess: TMapAccess; var ABitmapData: TBitmapData): Boolean; override;
     class procedure DoFinalizeBitmap(var ABitmapHandle: THandle); override;
   public
+    function QueryInterface(const IID: TGUID; out Obj): HResult; override; stdcall;
     /// <summary>Direct access to the GPU context.</summary>
     /// <remarks>
     ///   This property can only be used between the <b>BeginScene</b> and
