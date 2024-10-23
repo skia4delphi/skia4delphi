@@ -115,6 +115,8 @@ type
     procedure DoFillEllipse(const ARect: TRectF; const AOpacity: Single; const ABrush: TBrush); override;
     procedure DoFillPath(const APath: TPathData; const AOpacity: Single; const ABrush: TBrush); override;
     procedure DoFillRect(const ARect: TRectF; const AOpacity: Single; const ABrush: TBrush); override;
+    procedure DoFillRoundRect(const ARect: TRectF; const XRadius, YRadius: Single; const ACorners: TCorners;
+      const AOpacity: Single; const ABrush: TBrush; const ACornerType: TCornerType); override;
     {$IF CompilerVersion >= 30}
     procedure DoSetMatrix(const AMatrix: TMatrix); override;
     {$ENDIF}
@@ -2093,6 +2095,41 @@ begin
     Canvas.DrawRect(ARect, LPaint);
   finally
     EndPaint(LBrushData);
+  end;
+end;
+
+procedure TSkCanvasCustom.DoFillRoundRect(const ARect: TRectF; const XRadius, YRadius: Single; const ACorners: TCorners;
+  const AOpacity: Single; const ABrush: TBrush; const ACornerType: TCornerType);
+var
+  LBrushData: TBrushData;
+  LPaint: TSkPaint;
+  LRoundRectRadii: TSkRoundRectRadii;
+begin
+  if ACornerType <> TCornerType.Round then
+    inherited
+  else
+  begin
+    LPaint := BeginPaintWithBrush(ABrush, ARect, AOpacity, LBrushData);
+    if LPaint <> nil then
+    try
+      if ACorners = AllCorners then
+        Canvas.DrawRoundRect(ARect, XRadius, YRadius, LPaint)
+      else
+      begin
+        FillChar(LRoundRectRadii, SizeOf(LRoundRectRadii), 0);
+        if TCorner.TopLeft in ACorners then
+          LRoundRectRadii[TSkRoundRectCorner.UpperLeft] := PointF(XRadius, YRadius);
+        if TCorner.TopRight in ACorners then
+          LRoundRectRadii[TSkRoundRectCorner.UpperRight] := PointF(XRadius, YRadius);
+        if TCorner.BottomLeft in ACorners then
+          LRoundRectRadii[TSkRoundRectCorner.LowerLeft] := PointF(XRadius, YRadius);
+        if TCorner.BottomRight in ACorners then
+          LRoundRectRadii[TSkRoundRectCorner.LowerRight] := PointF(XRadius, YRadius);
+        Canvas.DrawRoundRect(TSkRoundRect.Create(ARect, LRoundRectRadii), LPaint);
+      end;
+    finally
+      EndPaint(LBrushData);
+    end;
   end;
 end;
 
