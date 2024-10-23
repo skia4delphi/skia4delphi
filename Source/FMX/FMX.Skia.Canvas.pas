@@ -126,6 +126,7 @@ type
     function GetCanvasScale: Single; override;
     function GetSamplingOptions(const AHighSpeed: Boolean = False): TSkSamplingOptions; overload; inline;
     function GetSamplingOptions(const ASrcRect, ADestRect: TRectF; AHighSpeed: Boolean): TSkSamplingOptions; overload; inline;
+    function QueryInterface(const IID: TGUID; out Obj): HResult; override; stdcall;
     procedure Resized; virtual;
     function SupportsCachedImage: Boolean; virtual;
     class procedure DoFinalizeBitmap(var ABitmapHandle: THandle); override;
@@ -298,6 +299,7 @@ type
     function CreateSharedContext: IGrSharedContext; virtual; abstract;
     procedure EndCanvas(const AContextHandle: THandle); override;
     function GetCachedImage(const ABitmap: TBitmap): TSkImage; override; final;
+    function QueryInterface(const IID: TGUID; out Obj): HResult; override; stdcall;
     function SupportsCachedImage: Boolean; override;
     class function CreateBitmap(const AWidth, AHeight: Integer; const APixelFormat: TPixelFormat): TSkBitmapHandle; override;
     class function DoMapBitmap(const ABitmapHandle: THandle; const AAccess: TMapAccess; var ABitmapData: TBitmapData): Boolean; override;
@@ -2254,6 +2256,13 @@ begin
   end;
 end;
 
+function TSkCanvasCustom.QueryInterface(const IID: TGUID; out Obj): HResult;
+begin
+  Result := inherited QueryInterface(IID, Obj);
+  if (FCanvas <> nil) and (Result <> S_OK) then
+    Result := FCanvas.QueryInterface(IID, Obj);
+end;
+
 procedure TSkCanvasCustom.Resized;
 begin
 end;
@@ -2616,6 +2625,15 @@ begin
     TGrSharedContext(LBitmap.FSharedContext).InitializeTextureCache(LBitmap);
   end;
   Result := TSkImage(LBitmap.Cache);
+end;
+
+function TGrCanvas.QueryInterface(const IID: TGUID; out Obj): HResult;
+begin
+  Result := inherited QueryInterface(IID, Obj);
+  if (FGrDirectContext <> nil) and (Result <> S_OK) then
+    Result := FGrDirectContext.QueryInterface(IID, Obj);
+  if (FSharedContext <> nil) and (Result <> S_OK) then
+    Result := FSharedContext.QueryInterface(IID, Obj);
 end;
 
 function TGrCanvas.SupportsCachedImage: Boolean;
