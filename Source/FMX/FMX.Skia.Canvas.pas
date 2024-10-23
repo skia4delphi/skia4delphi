@@ -122,7 +122,8 @@ type
     procedure EndPaint(var ABrushData: TBrushData);
     function GetCachedImage(const ABitmap: TBitmap): TSkImage; virtual;
     function GetCanvasScale: Single; override;
-    function GetSamplingOptions(const AHighSpeed: Boolean = False): TSkSamplingOptions; inline;
+    function GetSamplingOptions(const AHighSpeed: Boolean = False): TSkSamplingOptions; overload; inline;
+    function GetSamplingOptions(const ASrcRect, ADestRect: TRectF; AHighSpeed: Boolean): TSkSamplingOptions; overload; inline;
     procedure Resized; virtual;
     function SupportsCachedImage: Boolean; virtual;
     class procedure DoFinalizeBitmap(var ABitmapHandle: THandle); override;
@@ -1583,13 +1584,6 @@ type
     class function IsValid(const AStream: TStream): Boolean; override;
   end;
 
-  { TSkCanvasCustomHelper }
-
-  TSkCanvasCustomHelper = class helper for TSkCanvasCustom
-  public
-    function GetSamplingOptions(const ASrcRect, ADestRect: TRectF; AHighSpeed: Boolean): TSkSamplingOptions; overload; inline;
-  end;
-
 {$IFDEF SKIA_RASTER}
 
   { TSkRasterCanvas }
@@ -1641,21 +1635,6 @@ begin
   {$ELSE}
   Result := TPixelFormat.RGBA;
   {$ENDIF}
-end;
-
-{ TSkCanvasCustomHelper }
-
-function TSkCanvasCustomHelper.GetSamplingOptions(const ASrcRect, ADestRect: TRectF;
-  AHighSpeed: Boolean): TSkSamplingOptions;
-begin
-  // Avoid high quality filter when there is no stretch or complex transformations to optimize performance
-  if (not AHighSpeed) and (Quality <> TCanvasQuality.HighPerformance) and
-    (MatrixMeaning in [TMatrixMeaning.Identity, TMatrixMeaning.Translate]) then
-  begin
-    AHighSpeed := SameValue(ASrcRect.Width, ADestRect.Width * Scale, TEpsilon.Position) and
-      SameValue(ASrcRect.Height, ADestRect.Height * Scale, TEpsilon.Position);
-  end;
-  Result := GetSamplingOptions(AHighSpeed);
 end;
 
 { TSkCanvasCustom }
@@ -2184,6 +2163,18 @@ function TSkCanvasCustom.GetSamplingOptions(
   const AHighSpeed: Boolean): TSkSamplingOptions;
 begin
   Result := QualityToSamplingOptions(Quality, AHighSpeed);
+end;
+
+function TSkCanvasCustom.GetSamplingOptions(const ASrcRect, ADestRect: TRectF; AHighSpeed: Boolean): TSkSamplingOptions;
+begin
+  // Avoid high quality filter when there is no stretch or complex transformations to optimize performance
+  if (not AHighSpeed) and (Quality <> TCanvasQuality.HighPerformance) and
+    (MatrixMeaning in [TMatrixMeaning.Identity, TMatrixMeaning.Translate]) then
+  begin
+    AHighSpeed := SameValue(ASrcRect.Width, ADestRect.Width * Scale, TEpsilon.Position) and
+      SameValue(ASrcRect.Height, ADestRect.Height * Scale, TEpsilon.Position);
+  end;
+  Result := GetSamplingOptions(AHighSpeed);
 end;
 
 procedure TSkCanvasCustom.IntersectClipRect(const ARect: TRectF);
