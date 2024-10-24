@@ -1972,18 +1972,13 @@ procedure TSkCanvasCustom.DoDrawEllipse(const ARect: TRectF;
 var
   LBrushData: TBrushData;
   LPaint: TSkPaint;
-  LPathBuilder: ISkPathBuilder;
 begin
   LPaint := BeginPaintWithStrokeBrush(ABrush, ARect, AOpacity, LBrushData);
   if LPaint <> nil then
-  begin
-    try
-      LPathBuilder := TSkPathBuilder.Create;
-      LPathBuilder.AddOval(ARect, TSkPathDirection.CW, 3);
-      Canvas.DrawPath(LPathBuilder.Detach, LPaint);
-    finally
-      EndPaint(LBrushData);
-    end;
+  try
+    Canvas.DrawOval(ARect, LPaint);
+  finally
+    EndPaint(LBrushData);
   end;
 end;
 
@@ -2049,18 +2044,13 @@ procedure TSkCanvasCustom.DoFillEllipse(const ARect: TRectF;
 var
   LBrushData: TBrushData;
   LPaint: TSkPaint;
-  LPathBuilder: ISkPathBuilder;
 begin
   LPaint := BeginPaintWithBrush(ABrush, ARect, AOpacity, LBrushData);
   if LPaint <> nil then
-  begin
-    try
-      LPathBuilder := TSkPathBuilder.Create;
-      LPathBuilder.AddOval(ARect, TSkPathDirection.CW, 3);
-      Canvas.DrawPath(LPathBuilder.Detach, LPaint);
-    finally
-      EndPaint(LBrushData);
-    end;
+  try
+    Canvas.DrawOval(ARect, LPaint);
+  finally
+    EndPaint(LBrushData);
   end;
 end;
 
