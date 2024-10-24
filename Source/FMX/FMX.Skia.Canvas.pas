@@ -1870,6 +1870,8 @@ end;
 
 destructor TSkCanvasCustom.Destroy;
 begin
+  FRoundRect := nil;
+  FWrapper := nil;
   SkFinalize;
   inherited;
 end;
