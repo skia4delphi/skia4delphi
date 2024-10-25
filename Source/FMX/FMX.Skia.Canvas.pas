@@ -2208,10 +2208,10 @@ begin
   else
   begin
     case AQuality of
-      TCanvasQuality.SystemDefault,
+      TCanvasQuality.SystemDefault: TSkSamplingOptions.Medium;
       TCanvasQuality.HighQuality: Result := TSkSamplingOptions.High;
     else
-      Result := TSkSamplingOptions.Create(TSkFilterMode.Nearest, TSkMipmapMode.Nearest);
+      Result := TSkSamplingOptions.Low;
     end;
   end;
 end;
