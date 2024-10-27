@@ -65,6 +65,7 @@
         <DCC_ExeOutput>.\$(Platform)\$(Config)</DCC_ExeOutput>
         <DCC_Namespace>System;Xml;Data;Datasnap;Web;Soap;$(DCC_Namespace)</DCC_Namespace>
         <DCC_OutputNeverBuildDcps>true</DCC_OutputNeverBuildDcps>
+        <DCC_UnitSearchPath>..\..\Binary\Static\$(Platform);$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
         <DllSuffix>270</DllSuffix>
         <GenDll>true</GenDll>
         <GenPackage>true</GenPackage>

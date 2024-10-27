@@ -40,6 +40,7 @@
       - Android 32-bit
       - Android 64-bit
       - iOS Device 64-bit
+      - iOS Simulator ARM 64-bit
       - MacOS 64-bit
       - MacOS ARM 64-bit
       - Linux 64-bit
@@ -49,7 +50,9 @@
 
 Installation can be done automatically or manually.
 
-**Remark: To use Skia after installation it is necessary to [enable](../README.md#enable-skia) it in your project.**
+**Remarks**:
+1. Embarcadero has integrated Skia4Delphi into RAD Studio in its new release [RAD Studio 12 Athens](https://docwiki.embarcadero.com/RADStudio/Athens/en/Skia4Delphi) introducing the version of Skia4Delphi v6.0.0 on RAD Studio 12.0 and v6.1.0 on RAD Studio 12.1, and adding some extra units with [exclusive Embarcadero features](https://docwiki.embarcadero.com/RADStudio/Athens/en/Skia4Delphi_Exclusive_Features).
+2. To use Skia after installation it is necessary to [enable](../README.md#enable-skia) it in your project.
 
   
 
@@ -114,6 +117,7 @@ Installation can be done automatically or manually.
    - Android
    - Android64
    - iOSDevice64
+   - iOSSimARM64
    - OSX64
    - OSXARM64
    - Linux64
@@ -130,8 +134,8 @@ Installation can be done automatically or manually.
    
    5.2. Still in the *Environment Variables* page, in the *User System Overrides* section, find the `PATH` variable and double click to change it. You need to add the these three folders (full path) at the beginning:
    
-   - `[skia4delphi_root]\Binary\Win32\Release;`
-     *eg C:\skia4delphi\Binary\Win32\Release;*
+   - `[skia4delphi_root]\Binary\Shared\Win32;`
+     *eg C:\skia4delphi\Binary\Shared\Win32;*
    - `[skia4delphi_root]\Library\[rad_version_name]\Win32\Release\Bpl;`
      *eg C:\skia4delphi\Library\RAD Studio 12 Athens\Win32\Release\Bpl;*
    - `[skia4delphi_root]\Library\[rad_version_name]\Win64\Release\Bpl;`
@@ -159,8 +163,8 @@ Installation can be done automatically or manually.
     - `$(SKIADIR)\Library\[rad_version_name]\[platform_name]\Debug`
       *eg $(SKIADIR)\Library\RAD Studio 12 Athens\Win32\Debug*
     
-    11.4. Just in **iOSDevice64** (if you has compiled for it), add an extra path to the *Library path*:
-    - `$(SKIADIR)\Binary\iOSDevice64\Release`
+    11.4. For the platforms **Android**, **Android64**, **iOSDevice64**, **iOSSimARM64**, **OSX64** and **OSX64ARM**, add an extra path to the *Library path* (if you had compiled for those platforms):
+    - `$(SKIADIR)\Binary\Static\[platform_name]`
     
 12. Click *Save*;
 13. After made all steps above and in the order (the order matter), you are able to play with **Skia4Delphi**, and you can run our sample in folder `[skia4delphi_root]\Samples`.
@@ -170,4 +174,3 @@ Installation can be done automatically or manually.
 ### Remarks
 
 1. The pre-built Skia binary for **Linux64** targets was compiled for Debian (eg Ubuntu) and Red Hat (eg CentOS) based systems. If you want another distro you will need to [rebuild;](BUILD.md)
-2. For Red Hat based systems you must replace the `Binary/Linux64/Release/libsk4d.so` file with the `Binary/Linux64/Release/Other Distributions/Red Hat/libsk4d.so` file.
