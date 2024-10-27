@@ -88,8 +88,6 @@ type
   strict private
     FCanvas: ISkCanvas;
     FContextHandle: THandle;
-    FRoundRect: ISkRoundRect;
-    FRoundRectRadii: TSkRoundRectRadii;
     procedure BeginPaint(const ARect: TRectF; const AOpacity: Single; var ABrushData: TBrushData);
   strict protected
     FAntiAlias: Boolean;
@@ -113,6 +111,8 @@ type
     procedure DoDrawLine(const APoint1, APoint2: TPointF; const AOpacity: Single; const ABrush: TStrokeBrush); override;
     procedure DoDrawPath(const APath: TPathData; const AOpacity: Single; const ABrush: TStrokeBrush); override;
     procedure DoDrawRect(const ARect: TRectF; const AOpacity: Single; const ABrush: TStrokeBrush); override;
+    procedure DoDrawRoundRect(const ARect: TRectF; const XRadius, YRadius: Single; const ACorners: TCorners;
+      const AOpacity: Single; const ABrush: TStrokeBrush; const ACornerType: TCornerType = TCornerType.Round); override;
     procedure DoEndScene; override; final;
     procedure DoFillEllipse(const ARect: TRectF; const AOpacity: Single; const ABrush: TBrush); override;
     procedure DoFillPath(const APath: TPathData; const AOpacity: Single; const ABrush: TBrush); override;
@@ -1650,7 +1650,6 @@ begin
   // Skia m107 shows better performance with anti-aliasing enabled. Therefore,
   // we'll enforce it to always be true, regardless of the Quality property.
   FAntiAlias := True;
-  FRoundRect := TSkRoundRect.Create;
   SkInitialize;
   inherited;
 end;
@@ -1870,7 +1869,6 @@ end;
 
 destructor TSkCanvasCustom.Destroy;
 begin
-  FRoundRect := nil;
   FWrapper := nil;
   SkFinalize;
   inherited;
@@ -2021,6 +2019,43 @@ begin
   end;
 end;
 
+procedure TSkCanvasCustom.DoDrawRoundRect(const ARect: TRectF; const XRadius, YRadius: Single; const ACorners: TCorners;
+  const AOpacity: Single; const ABrush: TStrokeBrush; const ACornerType: TCornerType);
+var
+  LBrushData: TBrushData;
+  LPaint: TSkPaint;
+  LRoundRect: ISkRoundRect;
+  LRoundRectRadii: TSkRoundRectRadii;
+begin
+  if ACornerType <> TCornerType.Round then
+    inherited
+  else
+  begin
+    LPaint := BeginPaintWithStrokeBrush(ABrush, ARect, AOpacity, LBrushData);
+    if LPaint <> nil then
+    try
+      if ACorners = AllCorners then
+        Canvas.DrawRoundRect(ARect, XRadius, YRadius, LPaint)
+      else
+      begin
+        FillChar(LRoundRectRadii, SizeOf(LRoundRectRadii), 0);
+        if TCorner.TopLeft in ACorners then
+          LRoundRectRadii[TSkRoundRectCorner.UpperLeft] := PointF(XRadius, YRadius);
+        if TCorner.TopRight in ACorners then
+          LRoundRectRadii[TSkRoundRectCorner.UpperRight] := PointF(XRadius, YRadius);
+        if TCorner.BottomLeft in ACorners then
+          LRoundRectRadii[TSkRoundRectCorner.LowerLeft] := PointF(XRadius, YRadius);
+        if TCorner.BottomRight in ACorners then
+          LRoundRectRadii[TSkRoundRectCorner.LowerRight] := PointF(XRadius, YRadius);
+        LRoundRect := TSkRoundRect.Create(ARect, LRoundRectRadii);
+        Canvas.DrawRoundRect(LRoundRect, LPaint);
+      end;
+    finally
+      EndPaint(LBrushData);
+    end;
+  end;
+end;
+
 procedure TSkCanvasCustom.DoEndScene;
 begin
   EndCanvas(FContextHandle);
@@ -2079,6 +2114,8 @@ procedure TSkCanvasCustom.DoFillRoundRect(const ARect: TRectF; const XRadius, YR
 var
   LBrushData: TBrushData;
   LPaint: TSkPaint;
+  LRoundRect: ISkRoundRect;
+  LRoundRectRadii: TSkRoundRectRadii;
 begin
   if ACornerType <> TCornerType.Round then
     inherited
@@ -2091,17 +2128,17 @@ begin
         Canvas.DrawRoundRect(ARect, XRadius, YRadius, LPaint)
       else
       begin
-        FillChar(FRoundRectRadii, SizeOf(FRoundRectRadii), 0);
+        FillChar(LRoundRectRadii, SizeOf(LRoundRectRadii), 0);
         if TCorner.TopLeft in ACorners then
-          FRoundRectRadii[TSkRoundRectCorner.UpperLeft] := PointF(XRadius, YRadius);
+          LRoundRectRadii[TSkRoundRectCorner.UpperLeft] := PointF(XRadius, YRadius);
         if TCorner.TopRight in ACorners then
-          FRoundRectRadii[TSkRoundRectCorner.UpperRight] := PointF(XRadius, YRadius);
+          LRoundRectRadii[TSkRoundRectCorner.UpperRight] := PointF(XRadius, YRadius);
         if TCorner.BottomLeft in ACorners then
-          FRoundRectRadii[TSkRoundRectCorner.LowerLeft] := PointF(XRadius, YRadius);
+          LRoundRectRadii[TSkRoundRectCorner.LowerLeft] := PointF(XRadius, YRadius);
         if TCorner.BottomRight in ACorners then
-          FRoundRectRadii[TSkRoundRectCorner.LowerRight] := PointF(XRadius, YRadius);
-        FRoundRect.SetRect(ARect, FRoundRectRadii);
-        Canvas.DrawRoundRect(FRoundRect, LPaint);
+          LRoundRectRadii[TSkRoundRectCorner.LowerRight] := PointF(XRadius, YRadius);
+        LRoundRect := TSkRoundRect.Create(ARect, LRoundRectRadii);
+        Canvas.DrawRoundRect(LRoundRect, LPaint);
       end;
     finally
       EndPaint(LBrushData);
