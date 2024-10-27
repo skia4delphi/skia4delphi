@@ -111,8 +111,10 @@ type
     procedure DoDrawLine(const APoint1, APoint2: TPointF; const AOpacity: Single; const ABrush: TStrokeBrush); override;
     procedure DoDrawPath(const APath: TPathData; const AOpacity: Single; const ABrush: TStrokeBrush); override;
     procedure DoDrawRect(const ARect: TRectF; const AOpacity: Single; const ABrush: TStrokeBrush); override;
+    {$IF CompilerVersion > 36}
     procedure DoDrawRoundRect(const ARect: TRectF; const XRadius, YRadius: Single; const ACorners: TCorners;
       const AOpacity: Single; const ABrush: TStrokeBrush; const ACornerType: TCornerType = TCornerType.Round); override;
+    {$ENDIF}
     procedure DoEndScene; override; final;
     procedure DoFillEllipse(const ARect: TRectF; const AOpacity: Single; const ABrush: TBrush); override;
     procedure DoFillPath(const APath: TPathData; const AOpacity: Single; const ABrush: TBrush); override;
@@ -2019,6 +2021,7 @@ begin
   end;
 end;
 
+{$IF CompilerVersion > 36}
 procedure TSkCanvasCustom.DoDrawRoundRect(const ARect: TRectF; const XRadius, YRadius: Single; const ACorners: TCorners;
   const AOpacity: Single; const ABrush: TStrokeBrush; const ACornerType: TCornerType);
 var
@@ -2055,6 +2058,7 @@ begin
     end;
   end;
 end;
+{$ENDIF}
 
 procedure TSkCanvasCustom.DoEndScene;
 begin
