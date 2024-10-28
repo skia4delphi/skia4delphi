@@ -1884,6 +1884,7 @@ end;
 
 destructor TSkCanvasCustom.Destroy;
 begin
+  FWrapper := nil;
   SkFinalize;
   inherited;
 end;
