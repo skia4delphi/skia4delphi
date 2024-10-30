@@ -49,7 +49,7 @@
         <DCC_ExeOutput>.\$(Platform)\$(Config)</DCC_ExeOutput>
         <DCC_Namespace>System;Xml;Data;Datasnap;Web;Soap;$(DCC_Namespace)</DCC_Namespace>
         <DCC_OutputNeverBuildDcps>true</DCC_OutputNeverBuildDcps>
-        <DCC_UnitSearchPath>..\..\Library\RAD Studio 10.0 Seattle\$(Platform)\$(Config);..\..\Source;..\..\Source\FMX;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+        <DCC_UnitSearchPath>..\..\Library\RAD Studio 10.0 Seattle\$(Platform)\$(Config);$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
         <DesignOnlyPackage>true</DesignOnlyPackage>
         <DllSuffix>230</DllSuffix>
         <GenDll>true</GenDll>
