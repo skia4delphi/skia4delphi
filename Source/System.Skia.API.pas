@@ -2454,7 +2454,7 @@ const
 // -
 // - Description:
 // -   This code is a workaround intended to fix a bug involving interface
-// -   breakage between RAD 11.1 and RAD 12.2 when the static library was
+// -   breakage between RAD Studio 12.1 and 12.2 when the static library was
 // -   implemented on Android and macOS.
 // -
 // - Bug report:
