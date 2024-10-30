@@ -47,11 +47,7 @@ uses
   System.SysUtils;
   {$ENDIF}
 
-{$IFDEF IOS}
-  {$DEFINE SK_STATIC_LIBRARY}
-{$ENDIF}
-
-{$IF DEFINED(ANDROID) or DEFINED(OSX)}
+{$IF DEFINED(IOS) or DEFINED(ANDROID) or DEFINED(OSX)}
   {$DEFINE SK_STATIC_LIBRARY}
 {$ENDIF}
 
@@ -2358,31 +2354,6 @@ var
 procedure SkInitialize;
 procedure SkFinalize;
 
-implementation
-
-{.$DEFINE SK_DEBUG}
-
-{$IF DEFINED(MSWINDOWS)}
-
-uses
-  {$IFDEF FPC}
-  { FPC }
-  Windows,
-  Math;
-  {$ELSE}
-  { Delphi }
-  Winapi.Windows,
-  System.Math;
-  {$ENDIF}
-
-{$ELSEIF NOT DEFINED(SK_STATIC_LIBRARY) and NOT DEFINED(FPC) and DEFINED(ANDROID)}
-
-uses
-  { Delphi }
-  System.IOUtils;
-
-{$ENDIF}
-
 {$IF DEFINED(SK_STATIC_LIBRARY)}
   {$IFDEF FPC}
     {$IF DEFINED(MACOS)}
@@ -2440,6 +2411,31 @@ const
   {$ELSE}
   LibraryName = 'libsk4d.so';
   {$ENDIF}
+{$ENDIF}
+
+implementation
+
+{.$DEFINE SK_DEBUG}
+
+{$IF DEFINED(MSWINDOWS)}
+
+uses
+  {$IFDEF FPC}
+  { FPC }
+  Windows,
+  Math;
+  {$ELSE}
+  { Delphi }
+  Winapi.Windows,
+  System.Math;
+  {$ENDIF}
+
+{$ELSEIF NOT DEFINED(SK_STATIC_LIBRARY) and NOT DEFINED(FPC) and DEFINED(ANDROID)}
+
+uses
+  { Delphi }
+  System.IOUtils;
+
 {$ENDIF}
 
 {$IFNDEF SK_STATIC_LIBRARY}
