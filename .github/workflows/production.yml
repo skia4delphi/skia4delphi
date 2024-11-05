@@ -29,7 +29,7 @@ jobs:
         with:
           name: Logs
           path: Tools/Setup/Toolchain/logs.txt
-          retention-days: 4
+          retention-days: 90
 
       - name: Upload Setup
         uses: actions/upload-artifact@v4
@@ -37,4 +37,4 @@ jobs:
           name: Installer
           path: Tools/Setup/Output/Skia4Delphi*.exe
           if-no-files-found: error
-          retention-days: 2
+          retention-days: 90
