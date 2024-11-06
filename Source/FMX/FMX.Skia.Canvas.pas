@@ -1684,7 +1684,7 @@ end;
 procedure TSkCanvasCustom.BeginPaint(const ARect: TRectF;
   const AOpacity: Single; var ABrushData: TBrushData);
 const
-  WrapMode: array[TWrapMode.Tile..TWrapMode.TileOriginal] of TSkTileMode = (TSkTileMode.Repeat, TSkTileMode.Clamp);
+  WrapMode: array[TWrapMode.Tile..TWrapMode.TileOriginal] of TSkTileMode = (TSkTileMode.Repeat, TSkTileMode.Decal);
 var
   I: Integer;
   LCache: TSkImage;
@@ -1759,7 +1759,7 @@ begin
               if ABrushData.Brush.Bitmap.WrapMode = TWrapMode.TileStretch then
                 ABrushData.Paint.Shader := LCache.MakeShader(TMatrix.CreateScaling(ARect.Width / LCache.Width, ARect.Height / LCache.Height) * TMatrix.CreateTranslation(ARect.Left, ARect.Top), GetSamplingOptions(RectF(0, 0, LCache.Width, LCache.Height), ARect, True))
               else
-                ABrushData.Paint.Shader := LCache.MakeShader(GetSamplingOptions(True), WrapMode[ABrushData.Brush.Bitmap.WrapMode], WrapMode[ABrushData.Brush.Bitmap.WrapMode]);
+                ABrushData.Paint.Shader := LCache.MakeShader(GetSamplingOptions(False), WrapMode[ABrushData.Brush.Bitmap.WrapMode], WrapMode[ABrushData.Brush.Bitmap.WrapMode]);
             end;
           end;
           if LCache = nil then
@@ -1774,7 +1774,7 @@ begin
                 if ABrushData.Brush.Bitmap.WrapMode = TWrapMode.TileStretch then
                   ABrushData.Paint.Shader := LImage.MakeShader(TMatrix.CreateScaling(ARect.Width / LImage.Width, ARect.Height / LImage.Height) * TMatrix.CreateTranslation(ARect.Left, ARect.Top), GetSamplingOptions(RectF(0, 0, LImage.Width, LImage.Height), ARect, True))
                 else
-                  ABrushData.Paint.Shader := LImage.MakeShader(GetSamplingOptions(True), WrapMode[ABrushData.Brush.Bitmap.WrapMode], WrapMode[ABrushData.Brush.Bitmap.WrapMode]);
+                  ABrushData.Paint.Shader := LImage.MakeShader(GetSamplingOptions(False), WrapMode[ABrushData.Brush.Bitmap.WrapMode], WrapMode[ABrushData.Brush.Bitmap.WrapMode]);
               end;
             end;
           end;
