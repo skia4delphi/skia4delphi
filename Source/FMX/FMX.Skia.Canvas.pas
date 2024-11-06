@@ -1684,7 +1684,7 @@ end;
 procedure TSkCanvasCustom.BeginPaint(const ARect: TRectF;
   const AOpacity: Single; var ABrushData: TBrushData);
 const
-  WrapMode: array[TWrapMode.Tile..TWrapMode.TileOriginal] of TSkTileMode = (TSkTileMode.Repeat, TSkTileMode.Clamp);
+  WrapMode: array[TWrapMode.Tile..TWrapMode.TileOriginal] of TSkTileMode = (TSkTileMode.Repeat, TSkTileMode.Decal);
 var
   I: Integer;
   LCache: TSkImage;
