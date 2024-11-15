@@ -203,7 +203,7 @@ begin
         LBitmap.SkiaDraw(
           procedure(const ACanvas: ISkCanvas)
           begin
-            LSvgBrush.Render(ACanvas, LBitmap.Bounds, 1);
+            LSvgBrush.Render(ACanvas, RectF(0, 0, LBitmap.Width, LBitmap.Height), 1);
           end, False);
       finally
         LSvgBrush.Free;
