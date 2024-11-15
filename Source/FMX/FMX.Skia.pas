@@ -1975,7 +1975,8 @@ var
   LMaxBitmapSize: Integer;
   LSceneScale: Single;
 begin
-  if (FDrawCacheKind <> TSkDrawCacheKind.Always) and (Canvas is TSkCanvasCustom) then
+  if ((FDrawCacheKind = TSkDrawCacheKind.Never) and (Canvas is TSkCanvasCustom)) or
+    ((FDrawCacheKind = TSkDrawCacheKind.Raster) and (Canvas is TGrCanvas)) then
   begin
     Draw(TSkCanvasCustom(Canvas).Canvas, LocalRect, AbsoluteOpacity);
     if Assigned(FOnDraw) then
@@ -2092,7 +2093,8 @@ var
   LMaxBitmapSize: Integer;
   LSceneScale: Single;
 begin
-  if (FDrawCacheKind <> TSkDrawCacheKind.Always) and (Canvas is TSkCanvasCustom) then
+  if ((FDrawCacheKind = TSkDrawCacheKind.Never) and (Canvas is TSkCanvasCustom)) or
+    ((FDrawCacheKind = TSkDrawCacheKind.Raster) and (Canvas is TGrCanvas)) then
   begin
     Draw(TSkCanvasCustom(Canvas).Canvas, LocalRect, AbsoluteOpacity);
     if Assigned(FOnDraw) then
