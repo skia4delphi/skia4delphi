@@ -165,7 +165,7 @@ type
     procedure SetResultType(AResultType: TTestResultType);
     procedure Reload;
     property FullName: string read FFullName;
-    property ResultType: TTestResultTYpe read FResultType write FResultType;
+    property ResultType: TTestResultType read FResultType write FResultType;
     property Test: ITest read FTest;
   end;
 

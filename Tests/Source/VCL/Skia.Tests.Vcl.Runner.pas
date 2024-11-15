@@ -154,7 +154,7 @@ type
     constructor Create(AOwner: TTreeNodes); override;
     procedure Reload;
     property FullName: string read FFullName write FFullName;
-    property ResultType: TTestResultTYpe read FResultType write SetResultType;
+    property ResultType: TTestResultType read FResultType write SetResultType;
     property Test: ITest read FTest write FTest;
   end;
 
