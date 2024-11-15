@@ -26,6 +26,7 @@ uses
   Skia.Tests.Svg in '..\..\Source\Skia.Tests.Svg.pas',
   Skia.Tests.TextBlob in '..\..\Source\Skia.Tests.TextBlob.pas',
   Skia.Tests.Unicode in '..\..\Source\Skia.Tests.Unicode.pas',
+  Skia.Tests.FMX.Canvas in '..\..\Source\FMX\Skia.Tests.FMX.Canvas.pas',
   Skia.Tests.FMX.Codec in '..\..\Source\FMX\Skia.Tests.FMX.Codec.pas',
   Skia.Tests.FMX.Runner in '..\..\Source\FMX\Skia.Tests.FMX.Runner.pas' {frmFMXRunner},
   Skia.Tests.FMX.Svg in '..\..\Source\FMX\Skia.Tests.FMX.Svg.pas',
