@@ -199,11 +199,11 @@ begin
       LSvgBrush := TSkSvgBrush.Create;
       try
         LSvgBrush.Source := TFile.ReadAllText(SvgAssetsPath + AImageFileName);
-        LBitmap.SetSize(LSvgBrush.OriginalSize.Round);
+        LBitmap.SetSize(Round(LSvgBrush.OriginalSize.Width), Round(LSvgBrush.OriginalSize.Height));
         LBitmap.SkiaDraw(
           procedure(const ACanvas: ISkCanvas)
           begin
-            LSvgBrush.Render(ACanvas, LBitmap.BoundsF, 1);
+            LSvgBrush.Render(ACanvas, LBitmap.Bounds, 1);
           end, False);
       finally
         LSvgBrush.Free;
@@ -229,7 +229,7 @@ begin
   for X := 0 to Ceil(ACanvas.Width / ASquareSize) do
     for Y := 0 to Ceil(ACanvas.Height / ASquareSize) do
       if Odd(X + Y) then
-        ACanvas.FillRect(TRectF.Create(PointF(X, Y) * ASquareSize, ASquareSize, ASquareSize), 1);
+        ACanvas.FillRect(TRectF.Create(PointF(X, Y) * ASquareSize, ASquareSize, ASquareSize), 0, 0, [], 1);
 end;
 
 procedure TSkFMXCanvasTests.TestDrawBitmap(const AImageFileName: string; ASurfaceWidth, ASurfaceHeight: Integer;
