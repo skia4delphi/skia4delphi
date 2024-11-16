@@ -2209,7 +2209,7 @@ begin
   else
   begin
     case AQuality of
-      TCanvasQuality.SystemDefault: TSkSamplingOptions.Medium;
+      TCanvasQuality.SystemDefault,
       TCanvasQuality.HighQuality: Result := TSkSamplingOptions.High;
     else
       Result := TSkSamplingOptions.Low;
