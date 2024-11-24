@@ -14,10 +14,6 @@ interface
 
 {$SCOPEDENUMS ON}
 
-{$IF (CompilerVersion < 35) or ((CompilerVersion = 35) and not DECLARED(RTLVersion111))}
-  {$DEFINE MODULATE_CANVAS}
-{$ENDIF}
-
 uses
   { Delphi }
   FMX.Graphics,
@@ -62,7 +58,7 @@ type
 
   { TSkCanvasCustom }
 
-  TSkCanvasCustom = class(TCanvas{$IFDEF MODULATE_CANVAS}, IModulateCanvas{$ENDIF})
+  TSkCanvasCustom = class(TCanvas, IModulateCanvas)
   strict private type
     TSaveState = class(TCanvasSaveState)
     strict protected
@@ -79,12 +75,10 @@ type
       BitmapData: TBitmapData;
     end;
 
-  {$IFDEF MODULATE_CANVAS}
   strict private
     FModulateColor: TAlphaColor;
     function GetModulateColor: TAlphaColor;
     procedure SetModulateColor(const AColor: TAlphaColor);
-  {$ENDIF}
   strict private
     FCanvas: ISkCanvas;
     FContextHandle: THandle;
@@ -1928,10 +1922,8 @@ begin
   begin
     LPaint := TSkPaint.Create;
     LPaint.AlphaF := AOpacity;
-    {$IFDEF MODULATE_CANVAS}
     if FModulateColor <> TAlphaColors.Null then
       LPaint.ColorFilter := TSkColorFilter.MakeBlend(FModulateColor, TSkBlendMode.SrcIn);
-    {$ENDIF}
     LCache := nil;
     if (ABitmap.CanvasClass.InheritsFrom(TSkCanvasCustom)) and (SupportsCachedImage) then
     begin
@@ -2225,14 +2217,10 @@ begin
   {$ENDIF}
 end;
 
-{$IFDEF MODULATE_CANVAS}
-
 function TSkCanvasCustom.GetModulateColor: TAlphaColor;
 begin
   Result := FModulateColor;
 end;
-
-{$ENDIF}
 
 function TSkCanvasCustom.GetSamplingOptions(
   const AHighSpeed: Boolean): TSkSamplingOptions;
@@ -2314,14 +2302,10 @@ end;
 
 {$ENDIF}
 
-{$IFDEF MODULATE_CANVAS}
-
 procedure TSkCanvasCustom.SetModulateColor(const AColor: TAlphaColor);
 begin
   FModulateColor := AColor;
 end;
-
-{$ENDIF}
 
 procedure TSkCanvasCustom.SetSize(const AWidth, AHeight: Integer);
 begin
