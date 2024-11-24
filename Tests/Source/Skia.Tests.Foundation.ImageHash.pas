@@ -567,7 +567,6 @@ class function TImageHashing.HashBytes(const AImage: ISkImage;
   const AHighSpeed: Boolean): TBytes;
 const
   BytesPerPixelsBGRA8888 = 4;
-  FatsAlgorithmsCount = 2;
 var
   I: Integer;
   LImage: ISkImage;
