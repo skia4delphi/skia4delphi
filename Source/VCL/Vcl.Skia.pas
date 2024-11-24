@@ -1274,6 +1274,7 @@ type
     FImage: ISkImage;
     function GetBuffer(const ASize: TSize; const AOpacity: Byte): TBitmap;
   strict protected
+    procedure AssignTo(ADest: TPersistent); override;
     procedure Changed(ASender: TObject); override;
     procedure Draw(ACanvas: TCanvas; const ARect: TRect); override;
     procedure DrawTransparent(ACanvas: TCanvas; const ARect: TRect; AOpacity: Byte); override;
@@ -6325,6 +6326,22 @@ begin
   end;
 end;
 {$ENDIF}
+
+procedure TSkGraphic.AssignTo(ADest: TPersistent);
+begin
+  if ADest is TBitmap then
+  begin
+    TBitmap(ADest).SetSize(Width, Height);
+    if FImage <> nil then
+      TBitmap(ADest).SkiaDraw(
+        procedure(const ACanvas: ISkCanvas)
+        begin
+          ACanvas.DrawImage(FImage, 0, 0);
+        end);
+  end
+  else
+    inherited;
+end;
 
 procedure TSkGraphic.Changed(ASender: TObject);
 begin
