@@ -98,7 +98,7 @@ begin
       LSvgBrush.WrapMode := TSkSvgWrapMode.Stretch;
       LSurface := TSkSurface.MakeRaster(APreferableWidth, APreferableHeight);
       LSurface.Canvas.Clear(TAlphaColors.Null);
-      LSvgBrush.Render(LSurface.Canvas, Rect(0, 0, APreferableWidth, APreferableHeight), 1);
+      LSvgBrush.Render(LSurface.Canvas, RectF(0, 0, APreferableWidth, APreferableHeight), 1);
       Result := LSurface.MakeImageSnapshot;
     finally
       LSvgBrush.Free;
