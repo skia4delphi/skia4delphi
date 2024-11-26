@@ -213,6 +213,24 @@ type
     procedure TestDrawBitmapWithModulateColor(const AImageFileName: string; ASurfaceWidth, ASurfaceHeight: Integer; ASurfaceScaleX, ASurfaceScaleY, ASurfaceOffsetX, ASurfaceOffsetY, ARotationDeg, ASrcLeft, ASrcTop, ASrcRight, ASrcBottom, ADestLeft, ADestTop, ADestRight, ADestBottom, AOpacity: Single; AHighSpeed, ABlending: Boolean; const AModulateColor: string; AModulateColorOpacity: Single; const AMinSimilarity: Double; const AExpectedImageHash: string);
     [TestCase('1', '3d-shapes.svg,200,200,0.98,+8u5NQADgp////l1Q0fO3///+33nR+7f//////fP79/vr++nr7cPcU0HAYO0j/Sf5J3YmMOZw/8')]
     procedure TestDrawBitmapWithModulateColor2(const AImageFileName: string; ASurfaceWidth, ASurfaceHeight: Integer; const AMinSimilarity: Double; const AExpectedImageHash: string);
+    [TestCase('1', '0.98,///Dw8PD//////Pjw8f/////8+Pj5//////////////wD/AP8A/wD/AP8A/wD/AP//////////8')]
+    procedure TestFillRectSolid(const AMinSimilarity: Double; const AExpectedImageHash: string);
+    [TestCase('1', '0.98,///Dw8PD//////Pjw8f/////8+Pj5//////////////wD/AP8A/wD/AP8A/wD/AP//////////8')]
+    procedure TestFillRectSolid2(const AMinSimilarity: Double; const AExpectedImageHash: string);
+    [TestCase('1', '0.98,/8+Hh8////////fnz///////9+fP///////////////w//D/8P/w//////////////////////8')]
+    procedure TestFillRectSolid3(const AMinSimilarity: Double; const AExpectedImageHash: string);
+    [TestCase('1', '0.98,///Dw8DA8PH///Pjw8f+/f//8+Pj5//////////////wD/AP8A/wD/AB8AHwAfAB/wH/Af8B//8')]
+    procedure TestFillRectSolid4(const AMinSimilarity: Double; const AExpectedImageHash: string);
+    [TestCase('1', '0.98,///Dw8DA8PH///Pjw8f+/f//8+Pj5//////////////wD/AP8A/wD/AB8AHwAfAB/wH/Af8B//8')]
+    procedure TestFillRectSolid5(const AMinSimilarity: Double; const AExpectedImageHash: string);
+    [TestCase('1', '0.98,///Dw8DA8PH///Pjw8f+/f//8+Pj5//////////////wD/AP8A/wD/AB8AHwAfAB/wH/Af8B//8')]
+    procedure TestFillRectSolid6(const AMinSimilarity: Double; const AExpectedImageHash: string);
+//    [TestCase('1', 'android.svg,Tile,0.5,0.98,00000000000000000000000000000000')]
+//    [TestCase('2', 'android.svg,TileOriginal,0.5,0.98,000000000000000000000000000')]
+    [TestCase('3', 'android.svg,TileStretch,0.5,0.98,/+fDgYHD5/////Phw8fv////9/PX1//////////////4H/gf4AfgB+AH4Af4H/w//D////////8')]
+    procedure TestFillRectBitmap(const AImageFileName: string; AWrapMode: TWrapMode; const AOpacity, AMinSimilarity: Double; const AExpectedImageHash: string);
+    [TestCase('1', '0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    procedure TestSaveState(const AMinSimilarity: Double; const AExpectedImageHash: string);
   end;
 
 implementation
@@ -766,6 +784,201 @@ begin
     Assert.AreSimilar(AExpectedImageHash, LSurface.ToSkImage, AMinSimilarity);
   finally
     LSurface.Free;
+  end;
+end;
+
+procedure TSkFMXCanvasTests.TestFillRectBitmap(const AImageFileName: string; AWrapMode: TWrapMode; const AOpacity, AMinSimilarity: Double;
+  const AExpectedImageHash: string);
+var
+  LImage: TBitmap;
+  LBitmap: TBitmap;
+begin
+  LBitmap := TBitmap.Create;
+  try
+    LBitmap.SetSize(500, 400);
+    LBitmap.BitmapScale := 1;
+    if LBitmap.Canvas.BeginScene then
+      try
+        LBitmap.Canvas.Fill.Kind := TBrushKind.Bitmap;
+        LBitmap.Canvas.Fill.Bitmap.WrapMode := AWrapMode;
+        LImage := CreateBitmap(AImageFileName);
+        try
+          LBitmap.Canvas.Fill.Bitmap.Bitmap := LImage;
+        finally
+          LImage.Free;
+        end;
+        LBitmap.Canvas.FillRect(
+          RectF(0.15 * LBitmap.Width, 0.15 * LBitmap.Height, 0.85 * LBitmap.Width, 0.85 * LBitmap.Height), AOpacity);
+      finally
+        LBitmap.Canvas.EndScene;
+      end;
+    Assert.AreSimilar(AExpectedImageHash, LBitmap.ToSkImage, AMinSimilarity);
+  finally
+    LBitmap.Free;
+  end;
+end;
+
+procedure TSkFMXCanvasTests.TestFillRectSolid(const AMinSimilarity: Double; const AExpectedImageHash: string);
+var
+  LBitmap: TBitmap;
+begin
+  LBitmap := TBitmap.Create;
+  try
+    LBitmap.SetSize(100, 100);
+    if LBitmap.Canvas.BeginScene then
+      try
+        LBitmap.Canvas.Fill.Kind := TBrushKind.Solid;
+        LBitmap.Canvas.Fill.Color := TAlphaColors.Black;
+        LBitmap.Canvas.FillRect(RectF(25, 25, 75, 75), 0.5);
+      finally
+        LBitmap.Canvas.EndScene;
+      end;
+    Assert.AreSimilar(AExpectedImageHash, LBitmap.ToSkImage, AMinSimilarity);
+  finally
+    LBitmap.Free;
+  end;
+end;
+
+procedure TSkFMXCanvasTests.TestFillRectSolid2(const AMinSimilarity: Double; const AExpectedImageHash: string);
+var
+  LBitmap: TBitmap;
+begin
+  LBitmap := TBitmap.Create;
+  try
+    LBitmap.SetSize(100, 100);
+    if LBitmap.Canvas.BeginScene then
+      try
+        LBitmap.Canvas.Fill.Kind := TBrushKind.Solid;
+        LBitmap.Canvas.Fill.Color := MakeColor(TAlphaColors.Black, 0.5);
+        LBitmap.Canvas.FillRect(RectF(25, 25, 75, 75), 1);
+      finally
+        LBitmap.Canvas.EndScene;
+      end;
+    Assert.AreSimilar(AExpectedImageHash, LBitmap.ToSkImage, AMinSimilarity);
+  finally
+    LBitmap.Free;
+  end;
+end;
+
+procedure TSkFMXCanvasTests.TestFillRectSolid3(const AMinSimilarity: Double; const AExpectedImageHash: string);
+var
+  LBitmap: TBitmap;
+begin
+  LBitmap := TBitmap.Create;
+  try
+    LBitmap.SetSize(100, 100);
+    if LBitmap.Canvas.BeginScene then
+      try
+        LBitmap.Canvas.IntersectClipRect(RectF(0, 0, 50, 50));
+        LBitmap.Canvas.Fill.Kind := TBrushKind.Solid;
+        LBitmap.Canvas.Fill.Color := TAlphaColors.Black;
+        LBitmap.Canvas.FillRect(RectF(25, 25, 75, 75), 1);
+      finally
+        LBitmap.Canvas.EndScene;
+      end;
+    Assert.AreSimilar(AExpectedImageHash, LBitmap.ToSkImage, AMinSimilarity);
+  finally
+    LBitmap.Free;
+  end;
+end;
+
+procedure TSkFMXCanvasTests.TestFillRectSolid4(const AMinSimilarity: Double; const AExpectedImageHash: string);
+var
+  LBitmap: TBitmap;
+begin
+  LBitmap := TBitmap.Create;
+  try
+    LBitmap.SetSize(100, 100);
+    if LBitmap.Canvas.BeginScene then
+      try
+        LBitmap.Canvas.IntersectClipRect(RectF(20, 20, 95, 95));
+        LBitmap.Canvas.Fill.Kind := TBrushKind.Solid;
+        LBitmap.Canvas.Fill.Color := TAlphaColors.Red;
+        LBitmap.Canvas.FillRect(RectF(25, 25, 75, 75), 1);
+        LBitmap.Canvas.Fill.Color := TAlphaColors.Green;
+        LBitmap.Canvas.FillRect(RectF(50, 50, 100, 100), 0.7);
+      finally
+        LBitmap.Canvas.EndScene;
+      end;
+    Assert.AreSimilar(AExpectedImageHash, LBitmap.ToSkImage, AMinSimilarity);
+  finally
+    LBitmap.Free;
+  end;
+end;
+
+procedure TSkFMXCanvasTests.TestFillRectSolid5(const AMinSimilarity: Double; const AExpectedImageHash: string);
+var
+  LBitmap: TBitmap;
+  LModulateCanvas: IModulateCanvas;
+begin
+  LBitmap := TBitmap.Create;
+  try
+    LBitmap.SetSize(100, 100);
+    if LBitmap.Canvas.BeginScene then
+      try
+        if not Supports(LBitmap.Canvas, IModulateCanvas, LModulateCanvas) then
+          Exit;
+        LModulateCanvas.ModulateColor := TAlphaColors.Blue;
+        LBitmap.Canvas.IntersectClipRect(RectF(20, 20, 95, 95));
+        LBitmap.Canvas.Fill.Kind := TBrushKind.Solid;
+        LBitmap.Canvas.Fill.Color := TAlphaColors.Red;
+        LBitmap.Canvas.FillRect(RectF(25, 25, 75, 75), 1);
+        LBitmap.Canvas.Fill.Color := TAlphaColors.Green;
+        LBitmap.Canvas.FillRect(RectF(50, 50, 100, 100), 0.7);
+      finally
+        LBitmap.Canvas.EndScene;
+      end;
+    Assert.AreSimilar(AExpectedImageHash, LBitmap.ToSkImage, AMinSimilarity);
+  finally
+    LBitmap.Free;
+  end;
+end;
+
+procedure TSkFMXCanvasTests.TestFillRectSolid6(const AMinSimilarity: Double; const AExpectedImageHash: string);
+var
+  LBitmap: TBitmap;
+begin
+  LBitmap := TBitmap.Create;
+  try
+    LBitmap.SetSize(100, 100);
+    if LBitmap.Canvas.BeginScene then
+      try
+        LBitmap.Canvas.Blending := False;
+        LBitmap.Canvas.IntersectClipRect(RectF(20, 20, 95, 95));
+        LBitmap.Canvas.Fill.Kind := TBrushKind.Solid;
+        LBitmap.Canvas.Fill.Color := TAlphaColors.Red;
+        LBitmap.Canvas.FillRect(RectF(25, 25, 75, 75), 1);
+        LBitmap.Canvas.Fill.Color := TAlphaColors.Green;
+        LBitmap.Canvas.FillRect(RectF(50, 50, 100, 100), 0.7);
+      finally
+        LBitmap.Canvas.EndScene;
+      end;
+    Assert.AreSimilar(AExpectedImageHash, LBitmap.ToSkImage, AMinSimilarity);
+  finally
+    LBitmap.Free;
+  end;
+end;
+
+procedure TSkFMXCanvasTests.TestSaveState(const AMinSimilarity: Double; const AExpectedImageHash: string);
+var
+  LBitmap: TBitmap;
+  LSaveState: TCanvasSaveState;
+begin
+  LBitmap := TBitmap.Create;
+  try
+    LBitmap.SetSize(100, 100);
+    if LBitmap.Canvas.BeginScene then
+      try
+        LSaveState := LBitmap.Canvas.SaveState;
+        LBitmap.Canvas.IntersectClipRect(RectF(25, 25, 75, 75));
+        LBitmap.Canvas.RestoreState(LSaveState);
+        LBitmap.Canvas.Clear(TAlphaColors.Red);
+      finally
+        LBitmap.Canvas.EndScene;
+      end;
+    Assert.AreSimilar(AExpectedImageHash, LBitmap.ToSkImage, AMinSimilarity);
+  finally
+    LBitmap.Free;
   end;
 end;
 
