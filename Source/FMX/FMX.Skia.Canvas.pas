@@ -81,6 +81,7 @@ type
     procedure SetModulateColor(const AColor: TAlphaColor);
   strict private
     FCanvas: ISkCanvas;
+    FCanvasSaveCount: Integer;
     FContextHandle: THandle;
     procedure BeginPaint(const ARect: TRectF; const AOpacity: Single; var ABrushData: TBrushData);
   strict protected
@@ -1898,7 +1899,7 @@ begin
     if Result then
     begin
       FContextHandle := AContextHandle;
-      Canvas.Save;
+      FCanvasSaveCount := Canvas.Save;
       Canvas.SetMatrix(Matrix * TMatrix.CreateScaling(Scale, Scale));
       if AClipRects <> nil then
         ClipRects(Canvas, AClipRects^);
@@ -2074,7 +2075,7 @@ end;
 
 procedure TSkCanvasCustom.DoEndScene;
 begin
-  Canvas.Restore;
+  Canvas.RestoreToCount(FCanvasSaveCount);
   EndCanvas(FContextHandle);
   inherited;
 end;
