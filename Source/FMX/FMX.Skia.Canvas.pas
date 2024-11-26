@@ -1872,6 +1872,23 @@ end;
 
 function TSkCanvasCustom.DoBeginScene({$IF CompilerVersion < 35}const {$ENDIF}AClipRects: PClipRects;
   AContextHandle: THandle): Boolean;
+
+  procedure ClipRects(const ACanvas: ISkCanvas; const AClipRects: TClipRects); inline;
+  var
+    LPathBuilder: ISkPathBuilder;
+    I: Integer;
+  begin
+    if Length(AClipRects) > 1 then
+    begin
+      LPathBuilder := TSkPathBuilder.Create;
+      for I := 0 to Length(AClipRects) - 1 do
+        LPathBuilder.AddRect(AClipRects[I]);
+      ACanvas.ClipPath(LPathBuilder.Snapshot, TSkClipOp.Intersect, True);
+    end
+    else if Length(AClipRects) = 1 then
+      ACanvas.ClipRect(AClipRects[0], TSkClipOp.Intersect, True);
+  end;
+
 begin
   Result := inherited;
   if Result then
@@ -1881,7 +1898,10 @@ begin
     if Result then
     begin
       FContextHandle := AContextHandle;
+      Canvas.Save;
       Canvas.SetMatrix(Matrix * TMatrix.CreateScaling(Scale, Scale));
+      if AClipRects <> nil then
+        ClipRects(Canvas, AClipRects^);
     end;
   end;
 end;
@@ -2054,6 +2074,7 @@ end;
 
 procedure TSkCanvasCustom.DoEndScene;
 begin
+  Canvas.Restore;
   EndCanvas(FContextHandle);
   inherited;
 end;
