@@ -808,7 +808,8 @@ begin
           LImage.Free;
         end;
         LBitmap.Canvas.FillRect(
-          RectF(0.15 * LBitmap.Width, 0.15 * LBitmap.Height, 0.85 * LBitmap.Width, 0.85 * LBitmap.Height), AOpacity);
+          RectF(0.15 * LBitmap.Width, 0.15 * LBitmap.Height, 0.85 * LBitmap.Width, 0.85 * LBitmap.Height),
+          0, 0, [], AOpacity);
       finally
         LBitmap.Canvas.EndScene;
       end;
@@ -829,7 +830,7 @@ begin
       try
         LBitmap.Canvas.Fill.Kind := TBrushKind.Solid;
         LBitmap.Canvas.Fill.Color := TAlphaColors.Black;
-        LBitmap.Canvas.FillRect(RectF(25, 25, 75, 75), 0.5);
+        LBitmap.Canvas.FillRect(RectF(25, 25, 75, 75), 0, 0, [], 0.5);
       finally
         LBitmap.Canvas.EndScene;
       end;
@@ -850,7 +851,7 @@ begin
       try
         LBitmap.Canvas.Fill.Kind := TBrushKind.Solid;
         LBitmap.Canvas.Fill.Color := MakeColor(TAlphaColors.Black, 0.5);
-        LBitmap.Canvas.FillRect(RectF(25, 25, 75, 75), 1);
+        LBitmap.Canvas.FillRect(RectF(25, 25, 75, 75), 0, 0, [], 1);
       finally
         LBitmap.Canvas.EndScene;
       end;
@@ -872,7 +873,7 @@ begin
         LBitmap.Canvas.IntersectClipRect(RectF(0, 0, 50, 50));
         LBitmap.Canvas.Fill.Kind := TBrushKind.Solid;
         LBitmap.Canvas.Fill.Color := TAlphaColors.Black;
-        LBitmap.Canvas.FillRect(RectF(25, 25, 75, 75), 1);
+        LBitmap.Canvas.FillRect(RectF(25, 25, 75, 75), 0, 0, [], 1);
       finally
         LBitmap.Canvas.EndScene;
       end;
@@ -894,9 +895,9 @@ begin
         LBitmap.Canvas.IntersectClipRect(RectF(20, 20, 95, 95));
         LBitmap.Canvas.Fill.Kind := TBrushKind.Solid;
         LBitmap.Canvas.Fill.Color := TAlphaColors.Red;
-        LBitmap.Canvas.FillRect(RectF(25, 25, 75, 75), 1);
+        LBitmap.Canvas.FillRect(RectF(25, 25, 75, 75), 0, 0, [], 1);
         LBitmap.Canvas.Fill.Color := TAlphaColors.Green;
-        LBitmap.Canvas.FillRect(RectF(50, 50, 100, 100), 0.7);
+        LBitmap.Canvas.FillRect(RectF(50, 50, 100, 100), 0, 0, [], 0.7);
       finally
         LBitmap.Canvas.EndScene;
       end;
@@ -922,9 +923,9 @@ begin
         LBitmap.Canvas.IntersectClipRect(RectF(20, 20, 95, 95));
         LBitmap.Canvas.Fill.Kind := TBrushKind.Solid;
         LBitmap.Canvas.Fill.Color := TAlphaColors.Red;
-        LBitmap.Canvas.FillRect(RectF(25, 25, 75, 75), 1);
+        LBitmap.Canvas.FillRect(RectF(25, 25, 75, 75), 0, 0, [], 1);
         LBitmap.Canvas.Fill.Color := TAlphaColors.Green;
-        LBitmap.Canvas.FillRect(RectF(50, 50, 100, 100), 0.7);
+        LBitmap.Canvas.FillRect(RectF(50, 50, 100, 100), 0, 0, [], 0.7);
       finally
         LBitmap.Canvas.EndScene;
       end;
@@ -947,9 +948,9 @@ begin
         LBitmap.Canvas.IntersectClipRect(RectF(20, 20, 95, 95));
         LBitmap.Canvas.Fill.Kind := TBrushKind.Solid;
         LBitmap.Canvas.Fill.Color := TAlphaColors.Red;
-        LBitmap.Canvas.FillRect(RectF(25, 25, 75, 75), 1);
+        LBitmap.Canvas.FillRect(RectF(25, 25, 75, 75), 0, 0, [], 1);
         LBitmap.Canvas.Fill.Color := TAlphaColors.Green;
-        LBitmap.Canvas.FillRect(RectF(50, 50, 100, 100), 0.7);
+        LBitmap.Canvas.FillRect(RectF(50, 50, 100, 100), 0, 0, [], 0.7);
       finally
         LBitmap.Canvas.EndScene;
       end;
