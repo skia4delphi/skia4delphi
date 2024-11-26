@@ -8,7 +8,7 @@
 { found in the LICENSE file.                                             }
 {                                                                        }
 {************************************************************************}
-unit Skia.Tests.Vcl.Bitmap;
+unit Skia.Tests.FMX.Bitmap;
 
 interface
 
@@ -18,25 +18,24 @@ uses
   { Delphi }
   System.SysUtils,
   System.UITypes,
+  FMX.Graphics,
   DUnitX.TestFramework,
-  Vcl.Graphics,
 
   { Skia }
   System.Skia,
-  Vcl.Skia,
+  FMX.Skia,
 
   { Tests }
   Skia.Tests.Foundation;
 
 type
-  { TSkVclBitmapTests }
+  { TSkFMXBitmapTests }
 
   [TestFixture]
-  TSkVclBitmapTests = class(TTestBase)
+  TSkFMXBitmapTests = class(TTestBase)
   private
     function CreateImage(const AImageFileName: string; APreferableWidth, APreferableHeight: Integer): ISkImage;
     procedure DrawChessBackground(ABitmap: TBitmap; ASquareSize: Single; AEvenSquareColor, AOddSquareColor: TAlphaColor);
-    procedure LoadImageFromFile(ABitmap: TBitmap; const AImageFileName: string);
   public
     [TestCase('1', '50,50,0.98,ZtuZZmaZ22Zn25lnZ5vf/nf73Xd33///f/vff3/////jx+PH//8eeB54///jx+PH48ceeB54Hng')]
     [TestCase('2', '50,40,0.98,aWmWaWmWaWlra5Zpa/7v/W9v3m1v/u/9f+/+73/+7/3nOec5Occ4xjjGOcfnOec55zk4xjjGOMY')]
@@ -67,8 +66,8 @@ type
     procedure TestSkiaDraw5(const AImageFileName: string; const AMinSimilarity: Double; const AExpectedImageHash: string);
     [TestCase('1', 'horse.webp,300,300,0.98,/85AAMDS8vL//nBgw9f+/v//d3P73/////////////8fgAeAB4AHwD/AAOAzQC/IC4APgABAAAA')]
     procedure TestSkiaDraw6(const AImageFileName: string; ABitmapWidth, ABitmapHeight: Integer; const AMinSimilarity: Double; const AExpectedImageHash: string);
-    [TestCase('1', '80,80,1,0.98,8PDw8AAAAAD//PDxQ0dOTP/8+PlDR05M//z/+f9H/0z/AP8A/wD/AACAAAAAAAAAAAAAAAAAAAA')]
-    [TestCase('2', '100,60,1.5,0.98,/Pz8/Pz8AAD//Pz9//9OTP/+/v///05M//7///////z/8P/w//D/8P/w//D/8P/wAAgAAAAAAAA')]
+    [TestCase('1', '80,80,1,0.98,Dw8PD/////9/f39v/////39/f2//////f/9///////8A/wD/AP8A//////////////////////8')]
+    [TestCase('2', '100,60,1.5,0.98,AwMDAwMD//9/f3NjQ0f//39/c2NDR///f39zb0NP//8ADwAPAA8ADwAPAA8ADwAP//////////8')]
     procedure TestSkiaDraw7(ABitmapWidth, ABitmapHeight: Integer; ABitmapScale: Single; const AMinSimilarity: Double; const AExpectedImageHash: string);
     [TestCase('1', 'horse.webp,0.98,Dw4ODn7++vJ/fn5vf//+/n9/f29/////////7///////8P/w//D/8B/wD/AP8A/4AoAAAAAAAAA')]
     procedure TestSkiaDraw8(const AImageFileName: string; const AMinSimilarity: Double; const AExpectedImageHash: string);
@@ -79,12 +78,13 @@ implementation
 uses
   { Delphi }
   System.Types,
+  System.IOUtils,
   System.Math,
-  System.IOUtils;
+  System.Math.Vectors;
 
-{ TSkVclBitmapTests }
+{ TSkFMXBitmapTests }
 
-function TSkVclBitmapTests.CreateImage(const AImageFileName: string; APreferableWidth,
+function TSkFMXBitmapTests.CreateImage(const AImageFileName: string; APreferableWidth,
   APreferableHeight: Integer): ISkImage;
 var
   LSurface: ISkSurface;
@@ -108,41 +108,26 @@ begin
     Result := TSkImage.MakeFromEncodedFile(ImageAssetsPath + AImageFileName);
 end;
 
-procedure TSkVclBitmapTests.DrawChessBackground(ABitmap: TBitmap; ASquareSize: Single; AEvenSquareColor,
+procedure TSkFMXBitmapTests.DrawChessBackground(ABitmap: TBitmap; ASquareSize: Single; AEvenSquareColor,
   AOddSquareColor: TAlphaColor);
-begin
-  ABitmap.SkiaDraw(
-    procedure(const ACanvas: ISkCanvas)
-    var
-      LPaint: ISkPaint;
-      X, Y: Integer;
-    begin
-      ACanvas.Clear(AEvenSquareColor);
-      LPaint := TSkPaint.Create;
-      LPaint.AntiAlias := True;
-      LPaint.Color := AOddSquareColor;
-      for X := 0 to Ceil(ABitmap.Width / ASquareSize) do
-        for Y := 0 to Ceil(ABitmap.Height / ASquareSize) do
-          if Odd(X + Y) then
-            ACanvas.DrawRect(
-              RectF(X * ASquareSize, Y * ASquareSize, (X + 1) * ASquareSize, (Y + 1) * ASquareSize), LPaint);
-    end);
-end;
-
-procedure TSkVclBitmapTests.LoadImageFromFile(ABitmap: TBitmap; const AImageFileName: string);
 var
-  LPicture: TPicture;
+  X, Y: Integer;
 begin
-  LPicture := TPicture.Create;
+  if ABitmap.Canvas.BeginScene then
   try
-    LPicture.LoadFromFile(ImageAssetsPath + AImageFileName);
-    ABitmap.Assign(LPicture.Graphic);
+    ABitmap.Canvas.Clear(AEvenSquareColor);
+    ABitmap.Canvas.Fill.Kind := TBrushKind.Solid;
+    ABitmap.Canvas.Fill.Color := AOddSquareColor;
+    for X := 0 to Ceil(ABitmap.Canvas.Width / ASquareSize) do
+      for Y := 0 to Ceil(ABitmap.Canvas.Height / ASquareSize) do
+        if Odd(X + Y) then
+          ABitmap.Canvas.FillRect(TRectF.Create(PointF(X, Y) * ASquareSize, ASquareSize, ASquareSize), 0, 0, [], 1);
   finally
-    LPicture.Free;
+    ABitmap.Canvas.EndScene;
   end;
 end;
 
-procedure TSkVclBitmapTests.TestBitmapToSkImage(ABitmapWidth, ABitmapHeight: Integer; const AMinSimilarity: Double;
+procedure TSkFMXBitmapTests.TestBitmapToSkImage(ABitmapWidth, ABitmapHeight: Integer; const AMinSimilarity: Double;
   const AExpectedImageHash: string);
 var
   LBitmap: TBitmap;
@@ -159,7 +144,7 @@ begin
   Assert.AreSimilar(AExpectedImageHash, LImage, AMinSimilarity);
 end;
 
-procedure TSkVclBitmapTests.TestBitmapToSkImage2(ABitmapWidth, ABitmapHeight: Integer; const AMinSimilarity: Double;
+procedure TSkFMXBitmapTests.TestBitmapToSkImage2(ABitmapWidth, ABitmapHeight: Integer; const AMinSimilarity: Double;
   const AExpectedImageHash: string);
 var
   LBitmap: TBitmap;
@@ -170,14 +155,14 @@ begin
     LBitmap.SetSize(ABitmapWidth, ABitmapHeight);
     DrawChessBackground(LBitmap, Min(ABitmapWidth, ABitmapHeight) / 5, TAlphaColors.Black, TAlphaColors.White);
     LImage := LBitmap.ToSkImage;
-    LBitmap.Canvas.FloodFill(0, 0, clBlack, fsSurface);
+    LBitmap.Clear(TAlphaColors.Null);
     Assert.AreSimilar(AExpectedImageHash, LImage, AMinSimilarity);
   finally
     LBitmap.Free;
   end;
 end;
 
-procedure TSkVclBitmapTests.TestCreateBitmapFromSkImage(const AImageFileName: string; ABitmapWidth,
+procedure TSkFMXBitmapTests.TestCreateBitmapFromSkImage(const AImageFileName: string; ABitmapWidth,
   ABitmapHeight: Integer; const AMinSimilarity: Double; const AExpectedImageHash: string);
 var
   LBitmap: TBitmap;
@@ -190,7 +175,7 @@ begin
   end;
 end;
 
-procedure TSkVclBitmapTests.TestCreateBitmapFromSkImage2(const AImageFileName: string; ABitmapWidth,
+procedure TSkFMXBitmapTests.TestCreateBitmapFromSkImage2(const AImageFileName: string; ABitmapWidth,
   ABitmapHeight: Integer; const AMinSimilarity: Double; const AExpectedImageHash: string);
 var
   LBitmap: TBitmap;
@@ -212,7 +197,7 @@ begin
   end;
 end;
 
-procedure TSkVclBitmapTests.TestSkiaDraw(const AImageFileName: string; ABitmapWidth, ABitmapHeight: Integer;
+procedure TSkFMXBitmapTests.TestSkiaDraw(const AImageFileName: string; ABitmapWidth, ABitmapHeight: Integer;
   ABitmapScale: Single; ASkipBeginScene, AStartClean: Boolean; const AMinSimilarity: Double;
   const AExpectedImageHash: string);
 var
@@ -222,20 +207,26 @@ begin
   try
     LBitmap.SetSize(ABitmapWidth, ABitmapHeight);
     DrawChessBackground(LBitmap, Min(ABitmapWidth, ABitmapHeight) / 15, TAlphaColors.Black, TAlphaColors.White);
-    LBitmap.SkiaDraw(
-      procedure(const ACanvas: ISkCanvas)
-      begin
-        ACanvas.Scale(ABitmapScale, ABitmapScale);
-        ACanvas.DrawImageRect(CreateImage(AImageFileName, LBitmap.Width, LBitmap.Height),
-          RectF(0, 0, LBitmap.Width, LBitmap.Height), TSkSamplingOptions.High);
-      end, AStartClean);
+    LBitmap.BitmapScale := ABitmapScale;
+    if ASkipBeginScene or LBitmap.Canvas.BeginScene then
+      try
+        LBitmap.SkiaDraw(
+          procedure(const ACanvas: ISkCanvas)
+          begin
+            ACanvas.DrawImageRect(CreateImage(AImageFileName, LBitmap.Width, LBitmap.Height),
+              RectF(0, 0, LBitmap.Width, LBitmap.Height), TSkSamplingOptions.High);
+          end, AStartClean);
+      finally
+        if not ASkipBeginScene then
+          LBitmap.Canvas.EndScene;
+      end;
     Assert.AreSimilar(AExpectedImageHash, LBitmap.ToSkImage, AMinSimilarity);
   finally
     LBitmap.Free;
   end;
 end;
 
-procedure TSkVclBitmapTests.TestSkiaDraw2(const AImageFileName: string; ABitmapWidth, ABitmapHeight: Integer;
+procedure TSkFMXBitmapTests.TestSkiaDraw2(const AImageFileName: string; ABitmapWidth, ABitmapHeight: Integer;
   ABitmapScale: Single; const AMinSimilarity: Double; const AExpectedImageHash: string);
 var
   LBitmap: TBitmap;
@@ -243,19 +234,23 @@ begin
   LBitmap := TBitmap.Create;
   try
     LBitmap.SetSize(ABitmapWidth, ABitmapHeight);
-    LBitmap.SkiaDraw(
-      procedure(const ACanvas: ISkCanvas)
-      begin
-        ACanvas.Scale(ABitmapScale, ABitmapScale);
-        ACanvas.DrawImageRect(CreateImage(AImageFileName, LBitmap.Width, LBitmap.Height),
-          RectF(0, 0, LBitmap.Width, LBitmap.Height), TSkSamplingOptions.High);
-      end);
+    LBitmap.BitmapScale := ABitmapScale;
+    LBitmap.Canvas.BeginScene;
+    try
+      LBitmap.SkiaDraw(
+        procedure(const ACanvas: ISkCanvas)
+        begin
+          ACanvas.DrawImageRect(CreateImage(AImageFileName, LBitmap.Width, LBitmap.Height),
+            RectF(0, 0, LBitmap.Width, LBitmap.Height), TSkSamplingOptions.High);
+        end);
+    finally
+      LBitmap.Canvas.EndScene;
+    end;
     LBitmap.SkiaDraw(
       procedure(const ACanvas: ISkCanvas)
       var
         LPaint: ISkPaint;
       begin
-        ACanvas.Scale(ABitmapScale, ABitmapScale);
         LPaint := TSkPaint.Create;
         LPaint.Color := TAlphaColors.Red;
         ACanvas.DrawRect(RectF(0, 0, LBitmap.Width / 2, LBitmap.Height / 2), LPaint);
@@ -266,14 +261,14 @@ begin
   end;
 end;
 
-procedure TSkVclBitmapTests.TestSkiaDraw3(const AImageFileName: string; const AMinSimilarity: Double;
+procedure TSkFMXBitmapTests.TestSkiaDraw3(const AImageFileName: string; const AMinSimilarity: Double;
   const AExpectedImageHash: string);
 var
   LBitmap: TBitmap;
 begin
   LBitmap := TBitmap.Create;
   try
-    LoadImageFromFile(LBitmap, AImageFileName);
+    LBitmap.LoadFromFile(ImageAssetsPath + AImageFileName);
     LBitmap.SkiaDraw(
       procedure(const ACanvas: ISkCanvas)
       var
@@ -289,14 +284,14 @@ begin
   end;
 end;
 
-procedure TSkVclBitmapTests.TestSkiaDraw4(const AImageFileName: string; AStartClean: Boolean;
+procedure TSkFMXBitmapTests.TestSkiaDraw4(const AImageFileName: string; AStartClean: Boolean;
   const AMinSimilarity: Double; const AExpectedImageHash: string);
 var
   LBitmap: TBitmap;
 begin
   LBitmap := TBitmap.Create;
   try
-    LoadImageFromFile(LBitmap, AImageFileName);
+    LBitmap.LoadFromFile(ImageAssetsPath + AImageFileName);
     LBitmap.SkiaDraw(
       procedure(const ACanvas: ISkCanvas)
       begin
@@ -307,14 +302,14 @@ begin
   end;
 end;
 
-procedure TSkVclBitmapTests.TestSkiaDraw5(const AImageFileName: string; const AMinSimilarity: Double;
+procedure TSkFMXBitmapTests.TestSkiaDraw5(const AImageFileName: string; const AMinSimilarity: Double;
   const AExpectedImageHash: string);
 var
   LBitmap: TBitmap;
 begin
   LBitmap := TBitmap.Create;
   try
-    LoadImageFromFile(LBitmap, AImageFileName);
+    LBitmap.LoadFromFile(ImageAssetsPath + AImageFileName);
     LBitmap.SkiaDraw(
       procedure(const ACanvas: ISkCanvas)
       begin
@@ -325,7 +320,7 @@ begin
   end;
 end;
 
-procedure TSkVclBitmapTests.TestSkiaDraw6(const AImageFileName: string; ABitmapWidth, ABitmapHeight: Integer;
+procedure TSkFMXBitmapTests.TestSkiaDraw6(const AImageFileName: string; ABitmapWidth, ABitmapHeight: Integer;
   const AMinSimilarity: Double; const AExpectedImageHash: string);
 var
   LBitmap: TBitmap;
@@ -337,54 +332,50 @@ begin
       procedure(const ACanvas: ISkCanvas)
       begin
       end);
-    LoadImageFromFile(LBitmap, AImageFileName);
+    LBitmap.LoadFromFile(ImageAssetsPath + AImageFileName);
     Assert.AreSimilar(AExpectedImageHash, LBitmap.ToSkImage, AMinSimilarity);
   finally
     LBitmap.Free;
   end;
 end;
 
-procedure TSkVclBitmapTests.TestSkiaDraw7(ABitmapWidth, ABitmapHeight: Integer; ABitmapScale: Single;
+procedure TSkFMXBitmapTests.TestSkiaDraw7(ABitmapWidth, ABitmapHeight: Integer; ABitmapScale: Single;
   const AMinSimilarity: Double; const AExpectedImageHash: string);
 var
   LBitmap: TBitmap;
 begin
   LBitmap := TBitmap.Create;
   try
+    LBitmap.BitmapScale := ABitmapScale;
     LBitmap.SetSize(ABitmapWidth, ABitmapHeight);
     LBitmap.SkiaDraw(
       procedure(const ACanvas: ISkCanvas)
       begin
       end);
-    // If we want to use Vcl's TCanvas after a Skia draw, we should remove the alpha channel
-    LBitmap.PixelFormat := pf24bit;
-    LBitmap.Canvas.Brush.Style := bsSolid;
-    LBitmap.Canvas.Brush.Color := clRed;
-    LBitmap.Canvas.FillRect(RectF(0, 0, ABitmapScale * LBitmap.Width / 2, ABitmapScale * LBitmap.Height / 2).Round);
+    if LBitmap.Canvas.BeginScene then
+      try
+        LBitmap.Canvas.Fill.Kind := TBrushKind.Solid;
+        LBitmap.Canvas.Fill.Color := TAlphaColors.Red;
+        LBitmap.Canvas.FillRect(RectF(0, 0, LBitmap.Width / 2, LBitmap.Height / 2), 0, 0, [], 1);
+      finally
+        LBitmap.Canvas.EndScene;
+      end;
     Assert.AreSimilar(AExpectedImageHash, LBitmap.ToSkImage, AMinSimilarity);
   finally
     LBitmap.Free;
   end;
 end;
 
-procedure TSkVclBitmapTests.TestSkiaDraw8(const AImageFileName: string; const AMinSimilarity: Double;
+procedure TSkFMXBitmapTests.TestSkiaDraw8(const AImageFileName: string; const AMinSimilarity: Double;
   const AExpectedImageHash: string);
 var
   LBitmap: TBitmap;
 begin
   LBitmap := TBitmap.Create;
   try
-    LoadImageFromFile(LBitmap, AImageFileName);
-    LBitmap.SkiaDraw(
-      procedure(const ACanvas: ISkCanvas)
-      begin
-        ACanvas.ClipRect(RectF(LBitmap.Width * 0.25, LBitmap.Height * 0.25, LBitmap.Width * 0.75, LBitmap.Height * 0.75));
-        try
-          ACanvas.Clear(TAlphaColors.Null);
-        finally
-          ACanvas.Restore;
-        end;
-      end, False);
+    LBitmap.LoadFromFile(ImageAssetsPath + AImageFileName);
+    LBitmap.ClearRect(RectF(LBitmap.Width * 0.25, LBitmap.Height * 0.25, LBitmap.Width * 0.75, LBitmap.Height * 0.75),
+      TAlphaColors.Null);
     LBitmap.SkiaDraw(
       procedure(const ACanvas: ISkCanvas)
       var
@@ -401,5 +392,5 @@ begin
 end;
 
 initialization
-  TDUnitX.RegisterTestFixture(TSkVclBitmapTests);
+  TDUnitX.RegisterTestFixture(TSkFMXBitmapTests);
 end.

@@ -1639,6 +1639,7 @@ begin
     if Map(LAccess, LData) then
       try
         LSurface := TSkSurface.MakeRasterDirect(TSkImageInfo.Create(LData.Width, LData.Height, LColorType), LData.Data, LData.Pitch);
+        LSurface.Canvas.Scale(BitmapScale, BitmapScale);
         Draw(LSurface.Canvas);
       finally
         Unmap(LData);
