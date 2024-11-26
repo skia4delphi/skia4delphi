@@ -61,6 +61,8 @@ type
   TSkCanvasCustom = class(TCanvas, IModulateCanvas)
   strict private type
     TSaveState = class(TCanvasSaveState)
+    strict private
+      FSaveCount: Integer;
     strict protected
       procedure AssignTo(ADest: TPersistent); override;
     public
@@ -2358,7 +2360,7 @@ procedure TSkCanvasCustom.TSaveState.Assign(ASource: TPersistent);
 begin
   inherited;
   if ASource is TSkCanvasCustom then
-    TSkCanvasCustom(ASource).Canvas.Save;
+    FSaveCount := TSkCanvasCustom(ASource).Canvas.Save;
 end;
 
 procedure TSkCanvasCustom.TSaveState.AssignTo(ADest: TPersistent);
@@ -2366,7 +2368,7 @@ begin
   if ADest is TSkCanvasCustom then
   begin
     TSkCanvasCustom(ADest).BeforeRestore;
-    TSkCanvasCustom(ADest).Canvas.Restore;
+    TSkCanvasCustom(ADest).Canvas.RestoreToCount(FSaveCount);
   end;
   inherited;
 end;
