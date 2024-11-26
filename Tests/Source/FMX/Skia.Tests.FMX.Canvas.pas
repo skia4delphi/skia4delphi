@@ -13,11 +13,6 @@ unit Skia.Tests.FMX.Canvas;
 interface
 
 {$SCOPEDENUMS ON}
-{$IF CompilerVersion <> 36}
-  // We should disable IModulateCanvas tests for v6 on RAD Studio 12 Athens,
-  // as it was not implemented on Skia based canvas.
-  {$DEFINE MODULATE_CANVAS}
-{$ENDIF}
 
 uses
   { Delphi }
@@ -207,7 +202,6 @@ type
     [TestCase('7', '3d-shapes.svg,300,300,-1,2,-50,-100,30,0,0,660,343,0,0,200,200,1,false,true,0.98,///P8AABg/P////xQ0fP//////Vvx//////////////k/////cH5mf7xAj9wDwHH8f/wj/+P//8')]
     [TestCase('8', '3d-shapes.svg,300,300,1,-2,-50,500,30,0,0,660,343,0,0,200,200,1,true,true,0.98,wMD8/////////Pz////////9/P////////38/////////P////////////////////////////8')]
     procedure TestDrawBitmapWithMatrix(const AImageFileName: string; ASurfaceWidth, ASurfaceHeight: Integer; ASurfaceScaleX, ASurfaceScaleY, ASurfaceOffsetX, ASurfaceOffsetY, ARotationDeg, ASrcLeft, ASrcTop, ASrcRight, ASrcBottom, ADestLeft, ADestTop, ADestRight, ADestBottom, AOpacity: Single; AHighSpeed, ABlending: Boolean; const AMinSimilarity: Double; const AExpectedImageHash: string);
-    {$IFDEF MODULATE_CANVAS}
     [TestCase('1', '3d-shapes.svg,300,300,1,2,-50,-100,30,0,0,660,343,-200,-50,660,343,1,false,true,Red,1,0.98,/Azg4cDEwPn8/PDh4MTI+f7+/PHixvz///7/+//+/P/w5v/j///8D/gB8Pjw+Px4/wD/9//7//8')]
     [TestCase('2', '3d-shapes.svg,300,300,1,2,-50,-100,30,0,0,660,343,-200,-50,660,343,1,true,true,Red,0.3,0.98,/Azg4cDEwPn//PDhw8fM/f/+/PHDx+z9///8//PP//8//wD+AAAH+A//D/8fjx/PD/8D/wD+AAA')]
     [TestCase('3', '3d-shapes.svg,300,300,1,2,-50,-100,30,0,0,660,343,0,0,200,200,1,false,true,Red,0,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
@@ -216,11 +210,8 @@ type
     [TestCase('6', '3d-shapes.svg,300,300,-1,2,-50,-100,30,0,0,660,343,-200,-50,660,343,1,true,true,Red,0.3,0.98,8AH4/Pj5APD/+fj9+//M/P/5/v///8z////+//////8D/gAPAA8AHwAeAB4APvA8//9//wH/AAc')]
     [TestCase('7', '3d-shapes.svg,300,300,-1,2,-50,-100,30,0,0,660,343,0,0,200,200,1,false,true,Red,0.3,0.98,//+HwAEBg/P///fhQ0fP////9+tTb8/////361Nv//8/gP+AB/7mZh/+/fDP+P/4PgA/+AD4AAA')]
     [TestCase('8', '3d-shapes.svg,300,300,1,-2,-50,500,30,0,0,660,343,0,0,200,200,1,true,true,Red,0.3,0.98,wOD8/////////Pz////////+//////////////////8ADwAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
-    {$ENDIF}
     procedure TestDrawBitmapWithModulateColor(const AImageFileName: string; ASurfaceWidth, ASurfaceHeight: Integer; ASurfaceScaleX, ASurfaceScaleY, ASurfaceOffsetX, ASurfaceOffsetY, ARotationDeg, ASrcLeft, ASrcTop, ASrcRight, ASrcBottom, ADestLeft, ADestTop, ADestRight, ADestBottom, AOpacity: Single; AHighSpeed, ABlending: Boolean; const AModulateColor: string; AModulateColorOpacity: Single; const AMinSimilarity: Double; const AExpectedImageHash: string);
-    {$IFDEF MODULATE_CANVAS}
     [TestCase('1', '3d-shapes.svg,200,200,0.98,+8u5NQADgp////l1Q0fO3///+33nR+7f//////fP79/vr++nr7cPcU0HAYO0j/Sf5J3YmMOZw/8')]
-    {$ENDIF}
     procedure TestDrawBitmapWithModulateColor2(const AImageFileName: string; ASurfaceWidth, ASurfaceHeight: Integer; const AMinSimilarity: Double; const AExpectedImageHash: string);
   end;
 
@@ -233,6 +224,21 @@ uses
   System.UIConsts,
   System.Math,
   System.Math.Vectors;
+
+{$IF CompilerVersion <= 30}
+type
+  TRectFHelper = record helper for TRectF
+    function CenterAt(const ADesignatedArea: TRectF): TRectF;
+  end;
+
+{ TRectFHelper }
+
+function TRectFHelper.CenterAt(const ADesignatedArea: TRectF): TRectF;
+begin
+  Result := Self;
+  RectCenter(Result, ADesignatedArea);
+end;
+{$ENDIF}
 
 { TSkFMXCanvasTests }
 
@@ -704,8 +710,9 @@ begin
     if LSurface.Canvas.BeginScene then
       try
         LSurface.Canvas.Blending := ABlending;
-        if Supports(LSurface.Canvas, IModulateCanvas, LModulateCanvas) then
-          LModulateCanvas.ModulateColor := MakeColor(StringToAlphaColor(AModulateColor), AModulateColorOpacity);
+        if not Supports(LSurface.Canvas, IModulateCanvas, LModulateCanvas) then
+          Exit;
+        LModulateCanvas.ModulateColor := MakeColor(StringToAlphaColor(AModulateColor), AModulateColorOpacity);
         LSurface.Canvas.SetMatrix(TMatrix.CreateScaling(ASurfaceScaleX, ASurfaceScaleY) *
           TMatrix.CreateTranslation(ASurfaceOffsetX, ASurfaceOffsetY) *
           TMatrix.CreateRotation(ARotationDeg));
@@ -738,14 +745,14 @@ begin
     LSurface.BitmapScale := 1;
     if LSurface.Canvas.BeginScene then
       try
-        if Supports(LSurface.Canvas, IModulateCanvas, LModulateCanvas) then
-          LModulateCanvas.ModulateColor := MakeColor(TAlphaColors.Black, 0.5);
+        if not Supports(LSurface.Canvas, IModulateCanvas, LModulateCanvas) then
+          Exit;
+        LModulateCanvas.ModulateColor := MakeColor(TAlphaColors.Black, 0.5);
         LImage := CreateBitmap(AImageFileName);
         try
           LSurface.Canvas.DrawBitmap(LImage, RectF(0, 0, LImage.Width, LImage.Height),
             RectF(0, 0, ASurfaceWidth, ASurfaceHeight), 1, False);
-          if LModulateCanvas <> nil then
-            LModulateCanvas.ModulateColor := TAlphaColors.Null;
+          LModulateCanvas.ModulateColor := TAlphaColors.Null;
           LSurface.Canvas.IntersectClipRect(RectF(LSurface.Width / 2, 0, LSurface.Width, LSurface.Height));
           LSurface.Canvas.Clear(TAlphaColors.Null);
           LSurface.Canvas.DrawBitmap(LImage, RectF(0, 0, LImage.Width, LImage.Height),
