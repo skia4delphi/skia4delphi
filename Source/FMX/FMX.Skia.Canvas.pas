@@ -87,7 +87,6 @@ type
     FContextHandle: THandle;
     procedure BeginPaint(const ARect: TRectF; const AOpacity: Single; var ABrushData: TBrushData);
   strict protected
-    FAntiAlias: Boolean;
     FWrapper: ISkCanvasWrapper;
     constructor CreateFromPrinter(const APrinter: TAbstractPrinter); override;
     // Since FMX effects use TContext3D, on systems using OpenGLES it makes the
@@ -1646,9 +1645,6 @@ end;
 
 procedure TSkCanvasCustom.AfterConstruction;
 begin
-  // Skia m107 shows better performance with anti-aliasing enabled. Therefore,
-  // we'll enforce it to always be true, regardless of the Quality property.
-  FAntiAlias := True;
   SkInitialize;
   inherited;
 end;
@@ -1681,7 +1677,7 @@ var
   LRadiusX: Single;
   LRadiusY: Single;
 begin
-  ABrushData.Paint.AntiAlias := FAntiAlias;
+  ABrushData.Paint.AntiAlias := True;
   case ABrushData.Brush.Kind of
     TBrushKind.Solid: ABrushData.Paint.Color := MakeColor(ABrushData.Brush.Color, AOpacity);
     TBrushKind.Gradient:
