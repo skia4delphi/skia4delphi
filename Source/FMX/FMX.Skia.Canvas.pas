@@ -1687,39 +1687,49 @@ begin
         case ABrushData.Brush.Gradient.Style of
           TGradientStyle.Linear:
             begin
-              for I := 0 to ABrushData.Brush.Gradient.Points.Count - 1 do
+              if ABrushData.Brush.Gradient.Points.Count = 0 then
+                ABrushData.Paint.Shader := TSkShader.MakeEmpty
+              else
               begin
-                LColors[I]    := MakeColor(ABrushData.Brush.Gradient.Points[I].Color, AOpacity);
-                LPositions[I] := ABrushData.Brush.Gradient.Points[I].Offset;
+                for I := 0 to ABrushData.Brush.Gradient.Points.Count - 1 do
+                begin
+                  LColors[I]    := MakeColor(ABrushData.Brush.Gradient.Points[I].Color, AOpacity);
+                  LPositions[I] := ABrushData.Brush.Gradient.Points[I].Offset;
+                end;
+                ABrushData.Paint.Shader := TSkShader.MakeGradientLinear(TPointF.Create(ARect.Left + ABrushData.Brush.Gradient.StartPosition.X * ARect.Width, ARect.Top + ABrushData.Brush.Gradient.StartPosition.Y * ARect.Height), TPointF.Create(ARect.Left + ABrushData.Brush.Gradient.StopPosition.X * ARect.Width, ARect.Top + ABrushData.Brush.Gradient.StopPosition.Y * ARect.Height), LColors, LPositions);
               end;
-              ABrushData.Paint.Shader := TSkShader.MakeGradientLinear(TPointF.Create(ARect.Left + ABrushData.Brush.Gradient.StartPosition.X * ARect.Width, ARect.Top + ABrushData.Brush.Gradient.StartPosition.Y * ARect.Height), TPointF.Create(ARect.Left + ABrushData.Brush.Gradient.StopPosition.X * ARect.Width, ARect.Top + ABrushData.Brush.Gradient.StopPosition.Y * ARect.Height), LColors, LPositions);
             end;
           TGradientStyle.Radial:
             begin
-              for I := 0 to ABrushData.Brush.Gradient.Points.Count - 1 do
+              if ABrushData.Brush.Gradient.Points.Count = 0 then
+                ABrushData.Paint.Shader := TSkShader.MakeEmpty
+              else
               begin
-                LColors[ABrushData.Brush.Gradient.Points.Count - 1 - I]    := MakeColor(ABrushData.Brush.Gradient.Points[I].Color, AOpacity);
-                LPositions[ABrushData.Brush.Gradient.Points.Count - 1 - I] := 1 - ABrushData.Brush.Gradient.Points[I].Offset;
-              end;
-              LCenter  := TPointF.Create(ARect.Width * ABrushData.Brush.Gradient.RadialTransform.RotationCenter.X, ARect.Height * ABrushData.Brush.Gradient.RadialTransform.RotationCenter.Y) + ARect.TopLeft;
-              LRadiusX := ABrushData.Brush.Gradient.RadialTransform.Scale.X * (ARect.Width  / 2);
-              LRadiusY := ABrushData.Brush.Gradient.RadialTransform.Scale.Y * (ARect.Height / 2);
-              if not SameValue(LRadiusX, LRadiusY, Epsilon) then
-              begin
-                if LRadiusX < LRadiusY then
+                for I := 0 to ABrushData.Brush.Gradient.Points.Count - 1 do
                 begin
-                  LRadius := LRadiusY;
-                  LMatrix := TMatrix.CreateScaling(LRadiusX / LRadiusY, 1) * TMatrix.CreateTranslation(LCenter.X - (LCenter.X * (LRadiusX / LRadiusY)), 0);
+                  LColors[ABrushData.Brush.Gradient.Points.Count - 1 - I]    := MakeColor(ABrushData.Brush.Gradient.Points[I].Color, AOpacity);
+                  LPositions[ABrushData.Brush.Gradient.Points.Count - 1 - I] := 1 - ABrushData.Brush.Gradient.Points[I].Offset;
+                end;
+                LCenter  := TPointF.Create(ARect.Width * ABrushData.Brush.Gradient.RadialTransform.RotationCenter.X, ARect.Height * ABrushData.Brush.Gradient.RadialTransform.RotationCenter.Y) + ARect.TopLeft;
+                LRadiusX := ABrushData.Brush.Gradient.RadialTransform.Scale.X * (ARect.Width  / 2);
+                LRadiusY := ABrushData.Brush.Gradient.RadialTransform.Scale.Y * (ARect.Height / 2);
+                if not SameValue(LRadiusX, LRadiusY, Epsilon) then
+                begin
+                  if LRadiusX < LRadiusY then
+                  begin
+                    LRadius := LRadiusY;
+                    LMatrix := TMatrix.CreateScaling(LRadiusX / LRadiusY, 1) * TMatrix.CreateTranslation(LCenter.X - (LCenter.X * (LRadiusX / LRadiusY)), 0);
+                  end
+                  else
+                  begin
+                    LRadius := LRadiusX;
+                    LMatrix := TMatrix.CreateScaling(1, LRadiusY / LRadiusX) * TMatrix.CreateTranslation(0, LCenter.Y - (LCenter.Y * (LRadiusY / LRadiusX)));
+                  end;
+                  ABrushData.Paint.Shader := TSkShader.MakeGradientRadial(LCenter, LRadius, LColors, LMatrix, LPositions);
                 end
                 else
-                begin
-                  LRadius := LRadiusX;
-                  LMatrix := TMatrix.CreateScaling(1, LRadiusY / LRadiusX) * TMatrix.CreateTranslation(0, LCenter.Y - (LCenter.Y * (LRadiusY / LRadiusX)));
-                end;
-                ABrushData.Paint.Shader := TSkShader.MakeGradientRadial(LCenter, LRadius, LColors, LMatrix, LPositions);
-              end
-              else
-                ABrushData.Paint.Shader := TSkShader.MakeGradientRadial(LCenter, LRadiusX, LColors, LPositions);
+                  ABrushData.Paint.Shader := TSkShader.MakeGradientRadial(LCenter, LRadiusX, LColors, LPositions);
+              end;
             end;
         end;
       end;
