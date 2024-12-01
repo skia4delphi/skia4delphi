@@ -48,7 +48,7 @@ type
     procedure TestMakeRasterCopy(const AMinSimilarity: Double; const AExpectedImageHash: string);
     [TestCase('1', 'horse.webp,0.99,/85AAMDS8vL//nBgw9f+/v//d3P73/////////////8fgAeAB4AHwD/AAOAzQC/IC4APgABAAAA')]
     procedure TestMakeRasterImage(const AImageFileName: string; const AMinSimilarity: Double; const AExpectedImageHash: string);
-    [TestCase('1', 'horse.webp,0.99,8vD48PA4Ph///Pjx839+X//9//37/39f//3//f///9/LAM9A/0C/Av4AvwANgEfgD/AP8AfgAqA')]
+    [TestCase('1', 'horse.webp,0.99,+Pjw+N0PBw///PD5309PT//++vvfb99v//7/+//v/+9ngX+A/4D/2T94AfwQ8gH8AdSAXwAnCQc')]
     procedure TestMakeShader(const AImageFileName: string; const AMinSimilarity: Double; const AExpectedImageHash: string);
     [TestCase('1', 'horse.webp,0.99,/85AAMDS8vL//nBgw9f+/v//d3P73/////////////8fgAeAB4AHwD/AAOAzQC/IC4APgABAAAA')]
     procedure TestPeekPixels(const AImageFileName: string; const AMinSimilarity: Double; const AExpectedImageHash: string);
@@ -240,7 +240,7 @@ begin
   LSurface := TSkSurface.MakeRaster(256, 256);
   LSurface.Canvas.Clear(TAlphaColors.Null);
 
-  LMatrix := TMatrix.CreateRotation(45);
+  LMatrix := TMatrix.CreateRotation(DegToRad(45));
   LPaint := TSkPaint.Create;
   LPaint.Shader := LImage.MakeShader(LMatrix, TSkTileMode.Repeat, TSkTileMode.Mirror);
   LSurface.Canvas.DrawPaint(LPaint);
