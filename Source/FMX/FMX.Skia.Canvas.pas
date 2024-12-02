@@ -1663,10 +1663,68 @@ end;
 
 procedure TSkCanvasCustom.BeginPaint(const ARect: TRectF;
   const AOpacity: Single; var ABrushData: TBrushData);
+
+  procedure GetGradientColorsAndPositions(AGradient: TGradient; AResultReverted: Boolean;
+    out AColors: TArray<TAlphaColor>; out APositions: TArray<Single>);
+  var
+    I: Integer;
+    LColor: TAlphaColor;
+    LPosition: Single;
+  begin
+    SetLength(AColors, AGradient.Points.Count);
+    SetLength(APositions, AGradient.Points.Count);
+    for I := 0 to AGradient.Points.Count - 1 do
+    begin
+      AColors[I] := AGradient.Points[I].Color;
+      APositions[I] := AGradient.Points[I].Offset;
+    end;
+    // According to the Skia documentation, only gradient positions within the range [0, 1] are allowed.
+    // This differs from FMX, which permits positions outside the [0, 1] range.
+    // We need to adapt the positions and colors to replicate FMX's behavior.
+    for I := 0 to Length(APositions) - 1 do
+    begin
+      if CompareValue(APositions[I], 0, TEpsilon.Vector) <> LessThanValue then
+      begin
+        if I > 0 then
+        begin
+          AColors := [AGradient.InterpolateColor(0)] + Copy(AColors, I, Length(AColors) - I);
+          APositions := [0] + Copy(APositions, I, Length(APositions) - I);
+        end;
+        Break;
+      end;
+    end;
+    for I := Length(APositions) - 1 downto 0 do
+    begin
+      if CompareValue(APositions[I], 1, TEpsilon.Vector) <> GreaterThanValue then
+      begin
+        if I < Length(APositions) - 1 then
+        begin
+          AColors := Copy(AColors, 0, I + 1) + [AGradient.InterpolateColor(1)];
+          APositions := Copy(APositions, 0, I + 1) + [1];
+        end;
+        Break;
+      end;
+    end;
+    // Radial gradient of Skia works on reverted order in relation to FMX
+    if AResultReverted then
+    begin
+      for I := 0 to (Length(APositions) div 2) - 1 do
+      begin
+        LColor := AColors[I];
+        AColors[I] := AColors[High(AColors) - I];
+        AColors[High(AColors) - I] := LColor;
+        LPosition := APositions[I];
+        APositions[I] := 1 - APositions[High(APositions) - I];
+        APositions[High(APositions) - I] := 1 - LPosition;
+      end;
+      if Length(APositions) mod 2 <> 0 then
+        APositions[Length(APositions) div 2] := 1 - APositions[Length(APositions) div 2];
+    end
+  end;
+
 const
   WrapMode: array[TWrapMode.Tile..TWrapMode.TileOriginal] of TSkTileMode = (TSkTileMode.Repeat, TSkTileMode.Decal);
 var
-  I: Integer;
   LCache: TSkImage;
   LCenter: TPointF;
   LColors: TArray<TAlphaColor>;
@@ -1682,34 +1740,20 @@ begin
     TBrushKind.Solid: ABrushData.Paint.Color := MakeColor(ABrushData.Brush.Color, AOpacity);
     TBrushKind.Gradient:
       begin
-        SetLength(LColors, ABrushData.Brush.Gradient.Points.Count);
-        SetLength(LPositions, ABrushData.Brush.Gradient.Points.Count);
-        case ABrushData.Brush.Gradient.Style of
-          TGradientStyle.Linear:
-            begin
-              if ABrushData.Brush.Gradient.Points.Count = 0 then
-                ABrushData.Paint.Shader := TSkShader.MakeEmpty
-              else
+        ABrushData.Paint.AlphaF := AOpacity;
+        if ABrushData.Brush.Gradient.Points.Count = 0 then
+          ABrushData.Paint.Shader := TSkShader.MakeEmpty
+        else
+        begin
+          case ABrushData.Brush.Gradient.Style of
+            TGradientStyle.Linear:
               begin
-                for I := 0 to ABrushData.Brush.Gradient.Points.Count - 1 do
-                begin
-                  LColors[I]    := MakeColor(ABrushData.Brush.Gradient.Points[I].Color, AOpacity);
-                  LPositions[I] := ABrushData.Brush.Gradient.Points[I].Offset;
-                end;
+                GetGradientColorsAndPositions(ABrushData.Brush.Gradient, False, LColors, LPositions);
                 ABrushData.Paint.Shader := TSkShader.MakeGradientLinear(TPointF.Create(ARect.Left + ABrushData.Brush.Gradient.StartPosition.X * ARect.Width, ARect.Top + ABrushData.Brush.Gradient.StartPosition.Y * ARect.Height), TPointF.Create(ARect.Left + ABrushData.Brush.Gradient.StopPosition.X * ARect.Width, ARect.Top + ABrushData.Brush.Gradient.StopPosition.Y * ARect.Height), LColors, LPositions);
               end;
-            end;
-          TGradientStyle.Radial:
-            begin
-              if ABrushData.Brush.Gradient.Points.Count = 0 then
-                ABrushData.Paint.Shader := TSkShader.MakeEmpty
-              else
+            TGradientStyle.Radial:
               begin
-                for I := 0 to ABrushData.Brush.Gradient.Points.Count - 1 do
-                begin
-                  LColors[ABrushData.Brush.Gradient.Points.Count - 1 - I]    := MakeColor(ABrushData.Brush.Gradient.Points[I].Color, AOpacity);
-                  LPositions[ABrushData.Brush.Gradient.Points.Count - 1 - I] := 1 - ABrushData.Brush.Gradient.Points[I].Offset;
-                end;
+                GetGradientColorsAndPositions(ABrushData.Brush.Gradient, True, LColors, LPositions);
                 LCenter  := TPointF.Create(ARect.Width * ABrushData.Brush.Gradient.RadialTransform.RotationCenter.X, ARect.Height * ABrushData.Brush.Gradient.RadialTransform.RotationCenter.Y) + ARect.TopLeft;
                 LRadiusX := ABrushData.Brush.Gradient.RadialTransform.Scale.X * (ARect.Width  / 2);
                 LRadiusY := ABrushData.Brush.Gradient.RadialTransform.Scale.Y * (ARect.Height / 2);
@@ -1730,7 +1774,7 @@ begin
                 else
                   ABrushData.Paint.Shader := TSkShader.MakeGradientRadial(LCenter, LRadiusX, LColors, LPositions);
               end;
-            end;
+          end;
         end;
       end;
     TBrushKind.Bitmap:
