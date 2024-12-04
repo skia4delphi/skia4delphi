@@ -1755,6 +1755,10 @@ var
   LRadiusX: Single;
   LRadiusY: Single;
 begin
+  {$IFDEF MODULATE_CANVAS}
+  if FModulateColor <> TAlphaColors.Null then
+    ABrushData.Paint.ColorFilter := TSkColorFilter.MakeBlend(FModulateColor, TSkBlendMode.SrcIn);
+  {$ENDIF}
   ABrushData.Paint.AntiAlias := FAntiAlias;
   case ABrushData.Brush.Kind of
     TBrushKind.Solid: ABrushData.Paint.Color := MakeColor(ABrushData.Brush.Color, AOpacity);
