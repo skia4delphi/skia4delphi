@@ -1735,6 +1735,8 @@ var
   LRadiusX: Single;
   LRadiusY: Single;
 begin
+  if FModulateColor <> TAlphaColors.Null then
+    ABrushData.Paint.ColorFilter := TSkColorFilter.MakeBlend(FModulateColor, TSkBlendMode.SrcIn);
   ABrushData.Paint.AntiAlias := True;
   case ABrushData.Brush.Kind of
     TBrushKind.Solid: ABrushData.Paint.Color := MakeColor(ABrushData.Brush.Color, AOpacity);
