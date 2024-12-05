@@ -1666,7 +1666,9 @@ begin
   // we'll enforce it to always be true, regardless of the Quality property.
   FAntiAlias := True;
   SkInitialize;
+  {$IFDEF MODULATE_CANVAS}
   FModulateColor := TAlphaColors.White;
+  {$ENDIF}
   inherited;
 end;
 
