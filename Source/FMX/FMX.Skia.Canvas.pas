@@ -1666,6 +1666,7 @@ begin
   // we'll enforce it to always be true, regardless of the Quality property.
   FAntiAlias := True;
   SkInitialize;
+  FModulateColor := TAlphaColors.White;
   inherited;
 end;
 
@@ -1756,8 +1757,8 @@ var
   LRadiusY: Single;
 begin
   {$IFDEF MODULATE_CANVAS}
-  if FModulateColor <> TAlphaColors.Null then
-    ABrushData.Paint.ColorFilter := TSkColorFilter.MakeBlend(FModulateColor, TSkBlendMode.SrcIn);
+  if FModulateColor <> TAlphaColors.White then
+    ABrushData.Paint.ColorFilter := TSkColorFilter.MakeBlend(FModulateColor, TSkBlendMode.Modulate);
   {$ENDIF}
   ABrushData.Paint.AntiAlias := FAntiAlias;
   case ABrushData.Brush.Kind of
@@ -2020,8 +2021,8 @@ begin
     LPaint := TSkPaint.Create;
     LPaint.AlphaF := AOpacity;
     {$IFDEF MODULATE_CANVAS}
-    if FModulateColor <> TAlphaColors.Null then
-      LPaint.ColorFilter := TSkColorFilter.MakeBlend(FModulateColor, TSkBlendMode.SrcIn);
+    if FModulateColor <> TAlphaColors.White then
+      LPaint.ColorFilter := TSkColorFilter.MakeBlend(FModulateColor, TSkBlendMode.Modulate);
     {$ENDIF}
     LCache := nil;
     if (ABitmap.CanvasClass.InheritsFrom(TSkCanvasCustom)) and (SupportsCachedImage) then
