@@ -78,14 +78,13 @@ type
     end;
 
   strict private
-    FModulateColor: TAlphaColor;
-    function GetModulateColor: TAlphaColor;
-    procedure SetModulateColor(const AColor: TAlphaColor);
-  strict private
     FCanvas: ISkCanvas;
     FCanvasSaveCount: Integer;
     FContextHandle: THandle;
+    FModulateColor: TAlphaColor;
     procedure BeginPaint(const ARect: TRectF; const AOpacity: Single; var ABrushData: TBrushData);
+    function GetModulateColor: TAlphaColor;
+    procedure SetModulateColor(const AColor: TAlphaColor);
   strict protected
     FWrapper: ISkCanvasWrapper;
     constructor CreateFromPrinter(const APrinter: TAbstractPrinter); override;
@@ -1646,6 +1645,7 @@ end;
 procedure TSkCanvasCustom.AfterConstruction;
 begin
   SkInitialize;
+  FModulateColor := TAlphaColors.White;
   inherited;
 end;
 
@@ -1735,8 +1735,8 @@ var
   LRadiusX: Single;
   LRadiusY: Single;
 begin
-  if FModulateColor <> TAlphaColors.Null then
-    ABrushData.Paint.ColorFilter := TSkColorFilter.MakeBlend(FModulateColor, TSkBlendMode.SrcIn);
+  if FModulateColor <> TAlphaColors.White then
+    ABrushData.Paint.ColorFilter := TSkColorFilter.MakeBlend(FModulateColor, TSkBlendMode.Modulate);
   ABrushData.Paint.AntiAlias := True;
   case ABrushData.Brush.Kind of
     TBrushKind.Solid: ABrushData.Paint.Color := MakeColor(ABrushData.Brush.Color, AOpacity);
@@ -1997,8 +1997,8 @@ begin
   begin
     LPaint := TSkPaint.Create;
     LPaint.AlphaF := AOpacity;
-    if FModulateColor <> TAlphaColors.Null then
-      LPaint.ColorFilter := TSkColorFilter.MakeBlend(FModulateColor, TSkBlendMode.SrcIn);
+    if FModulateColor <> TAlphaColors.White then
+      LPaint.ColorFilter := TSkColorFilter.MakeBlend(FModulateColor, TSkBlendMode.Modulate);
     LCache := nil;
     if (ABitmap.CanvasClass.InheritsFrom(TSkCanvasCustom)) and (SupportsCachedImage) then
     begin
