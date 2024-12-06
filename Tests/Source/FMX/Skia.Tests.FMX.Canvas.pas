@@ -19,6 +19,7 @@ uses
   System.SysUtils,
   System.UITypes,
   System.Math.Vectors,
+  FMX.Types,
   FMX.Graphics,
   DUnitX.TestFramework,
 
@@ -39,6 +40,7 @@ type
     function CreateBitmap(const AImageFileName: string): TBitmap;
     function CreateMatrix(AScaleX, AScaleY, ADeltaX, ADeltaY, ARotationDegree: Single): TMatrix;
     procedure DrawChessBackground(ACanvas: TCanvas; ASquareSize: Single; AEvenSquareColor, AOddSquareColor: TAlphaColor);
+    function StringToCorners(const ACornersString: string): TCorners;
   public
     [TestCase('1', '0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
     procedure TestClear(const AMinSimilarity: Double; const AExpectedImageHash: string);
@@ -242,6 +244,106 @@ type
     procedure TestDrawBitmapWithModulateColor(const AImageFileName: string; ASurfaceWidth, ASurfaceHeight: Integer; ASurfaceScaleX, ASurfaceScaleY, ASurfaceOffsetX, ASurfaceOffsetY, ARotationDeg, ASrcLeft, ASrcTop, ASrcRight, ASrcBottom, ADestLeft, ADestTop, ADestRight, ADestBottom, AOpacity: Single; AHighSpeed, ABlending: Boolean; const AModulateColor: string; AModulateColorOpacity: Single; const AMinSimilarity: Double; const AExpectedImageHash: string);
     [TestCase('1', '3d-shapes.svg,200,200,0.98,+8u5NQADgp////l1Q0fO3///+33nR+7f//////fP79/vr++nr7cPcU0HAYO0j/Sf5J3YmMOZw/8')]
     procedure TestDrawBitmapWithModulateColor2(const AImageFileName: string; ASurfaceWidth, ASurfaceHeight: Integer; const AMinSimilarity: Double; const AExpectedImageHash: string);
+    [TestCase('1',  'android.svg,claWhite,Tile,0,0,1,1,0.4,0.98,SHt7SP9K/wB/e3tp/0//TP/7++n/7//t//v76f/v/////5JJAkm22///tskACbbJ//+22wBJtkk')]
+    [TestCase('2',  'android.svg,claRed,Tile,0,0,1,1,0.4,0.98,SHt7SP9K/wD/+3tI/8//zP//f17/3//e//9/X//f/9+2WUhbQADySbf/SssBECJJ///73wAQAkg')]
+    [TestCase('3',  'android.svg,claWhite,Tile,0,0,1,1,1,0.98,SHt7SP9K/wD/+3tI/8//zP/7++n/7//t///76f/v/////7ZJAkm22///ttsCSbbb//+22wJJtsk')]
+    [TestCase('4',  'android.svg,claRed,Tile,0,0,1,1,1,0.98,SHt7SP9K/wD/+/vI/8//wP///97/3//W///////f////////tsm///////+2Sb////+3/7bJv/8')]
+    [TestCase('5',  'android.svg,claWhite,Tile,0.15,0.15,0.85,0.85,0.4,0.98,/4GBqYGBgf///fHpw8fP///99f339//////////////AA+ST///kk8AD5JP//+STwAPkk/////8')]
+    [TestCase('6',  'android.svg,claRed,Tile,0.15,0.15,0.85,0.85,0.4,0.98,/4GBqYGBgf///fHpw8fN////++vLz8///////+//7//AA8ST/7fkk8AD5AP0k+STwAPAA/////8')]
+    [TestCase('7',  'android.svg,claWhite,Tile,0.15,0.15,0.85,0.85,1,0.98,/4GBqYGBgf///fHpw8fN///99f339/3//////////f/kk+ST///km+ST5JP//+yb5JPkl/////8')]
+    [TestCase('8',  'android.svg,claRed,Tile,0.15,0.15,0.85,0.85,1,0.98,/4GBqYGBgf///fHpw8fN////++vLz8/////////////bZ//7/////9vn///t1///22/76/////8')]
+    [TestCase('9',  'android.svg,claWhite,TileOriginal,0,0,1,1,0.4,0.98,Pz8///////9/f3//////////f/////////9///////////////////////////////////////8')]
+    [TestCase('10', 'android.svg,claRed,TileOriginal,0,0,1,1,0.4,0.98,Pz9//////////3//////////f/////////9///////8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('11', 'android.svg,claWhite,TileOriginal,0,0,1,1,1,0.98,Pz9//////////3//////////f/////////9///////////////////////////////////////8')]
+    [TestCase('12', 'android.svg,claRed,TileOriginal,0,0,1,1,1,0.98,Pz9///////////////////////////////////////////////////////////////////////8')]
+    [TestCase('13', 'android.svg,claWhite,TileOriginal,0.15,0.15,0.85,0.85,0.4,0.98,nw8Pn///////f3////////9/f//////////////////D/8f/5/////////////////////////8')]
+    [TestCase('14', 'android.svg,claRed,TileOriginal,0.15,0.15,0.85,0.85,0.4,0.98,vx8fn///////f3////////////////////////////8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('15', 'android.svg,claWhite,TileOriginal,0.15,0.15,0.85,0.85,1,0.98,/x8fn///////f3////////9/f//////////////////D/+f/5/////////////////////////8')]
+    [TestCase('16', 'android.svg,claRed,TileOriginal,0.15,0.15,0.85,0.85,1,0.98,/x8fn///////f3////////////////////////////8YABgAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('17', 'android.svg,claWhite,TileStretch,0,0,1,1,0.4,0.98,/8ODAADDx/////NhQ8fP////92VH79//////f//////wD9ALgAGAAYABgAHQC/AP+R/5H/2///8')]
+    [TestCase('18', 'android.svg,claRed,TileStretch,0,0,1,1,0.4,0.98,/8PDAQHD5/////NhQ8fv////8+PD1+/////7//Pf///pt4ABgBGAEYARgBWAAekH+B/4H/gf//8')]
+    [TestCase('19', 'android.svg,claWhite,TileStretch,0,0,1,1,1,0.98,/8PDAQHD5/////NhQ8fv/////2VH7//////////////wD9/rgAOAA4ADgAPQC/AP+b/5v/2///8')]
+    [TestCase('20', 'android.svg,claRed,TileStretch,0,0,1,1,1,0.98,/8PDAQHD5/////NhQ8fv////8+Pj1+/////////////wD///0AvQC9AL0A/wD/AP/b/9v/2///8')]
+    [TestCase('21', 'android.svg,claWhite,TileStretch,0.15,0.15,0.85,0.85,0.4,0.98,/+fDgYHD5/////Phw8fv////9/fX1//////////////4H/gf4AfgB+AH4Af4H/w//D////////8')]
+    [TestCase('22', 'android.svg,claRed,TileStretch,0.15,0.15,0.85,0.85,0.4,0.98,/+fDgYHD5/////Phw8fv////8+nr7+/////////////6X/gf4AfgJ+AH4Cf4H/w//D////////8')]
+    [TestCase('23', 'android.svg,claWhite,TileStretch,0.15,0.15,0.85,0.85,1,0.98,/+fDgYHD5/////Phw8fv////9/PX1//////////////4P/gf4AfgB+AH4A/4H/w//T////////8')]
+    [TestCase('24', 'android.svg,claRed,TileStretch,0.15,0.15,0.85,0.85,1,0.98,/+fDgYHD5/////Phw8fv////8+nr7+/////////////8P/v////4P/g/+D////////////////8')]
+    procedure TestFillRectBitmap(const AImageFileName, AModulateColor: string; AWrapMode: TWrapMode; const ALeftPercent, ATopPercent, ARightPercent, ABottomPercent, AOpacity, AMinSimilarity: Double; const AExpectedImageHash: string);
+    [TestCase('1',  'android.svg,claWhite,Tile,true,1,0.98,S6gK+grqCOt7uPr6S+/M7/+9//9v/+3//73///////8IgGZubu79VQiyZkzu7mRUmAD1Xv7/9k4')]
+    [TestCase('2',  'android.svg,claWhite,Tile,true,0.5,0.98,SrxK+gpqCGt7vOr6S2vM7/u9//9Pf+3//73////////IgGBERu6ZVQiyRFDu7kReKAT1Xv7+dG4')]
+    [TestCase('3',  'android.svg,claWhite,Tile,false,1,0.98,S6gK+grqCOt7uPr6S+/M7/+9//9v/+3//73///////8IgGZubu79VQiyZkzu7mRUmAD1Xv7/9k4')]
+    [TestCase('4',  'android.svg,claWhite,Tile,false,0.5,0.98,SrxK+gpqCGt7vOr6S2vM7/u9//9Pf+3//73////////IgGBERu6ZVQiyRFDu7kReKAT1Xv7+dG4')]
+    [TestCase('5',  'android.svg,claRed,Tile,true,1,0.98,Qf1fUX9A/wB7/9/Rf0P/zPv///t/6//u+//////v//8IgGZsbu7dVQiCZkRu7mZUiAD3Xv7/9k4')]
+    [TestCase('6',  'android.svg,claRed,Tile,true,0.5,0.98,Qv1XUH9A/wB7/9fQf0P/zPv///p/6//u///////v/++IgGAERO6ZEQi6RBDE7kAWqAHxXvz/dA4')]
+    [TestCase('7',  'android.svg,claRed,Tile,false,1,0.98,Qf1fUX9A/wB7/9/Rf0P/zPv///t/6//u+//////v//8IgGZsbu7dVQiCZkRu7mZUiAD3Xv7/9k4')]
+    [TestCase('8',  'android.svg,claRed,Tile,false,0.5,0.98,Qv1XUH9A/wB7/9fQf0P/zPv///p/6//u///////v/++IgGAERO6ZEQi6RBDE7kAWqAHxXvz/dA4')]
+    [TestCase('9',  'android.svg,claWhite,TileOriginal,true,1,0.98,wv1CQkJCvUL7/fLiQ0f9zvv/9vbXx//////+9/fv//90KqgVQAIAAAAAQAKoFVQqqBVUKqpVVCo')]
+    [TestCase('10', 'android.svg,claWhite,TileOriginal,true,0.5,0.98,wv1CQkJCvUL7/eLCQ0P9zvv/5tbXx//////+1/fv//90KqgVQAIAAAAAQAKoFVQqqBVUKqpVVCo')]
+    [TestCase('11', 'android.svg,claWhite,TileOriginal,false,1,0.98,wv1CQkJCvUL7/fLiQ0f9zvv/9vbXx//////+9/fv//90KqgVQAIAAAAAQAKoFVQqqBVUKqpVVCo')]
+    [TestCase('12', 'android.svg,claWhite,TileOriginal,false,0.5,0.98,wv1CQkJCvUL7/eLCQ0P9zvv/5tbXx//////+1/fv//90KqgVQAIAAAAAQAKoFVQqqBVUKqpVVCo')]
+    [TestCase('13', 'android.svg,claRed,TileOriginal,true,1,0.98,Gj1a//9avVo7P9r//1v/3ru/3v//3////7/+//////90KqgVUAoAAAAAUAqoFVQqqlVUKqpVVCo')]
+    [TestCase('14', 'android.svg,claRed,TileOriginal,true,0.5,0.98,Gj1a//9avVo7P9r//1v/3ru/3v//3////7/+//////90KqgVUAoAAAAAUAqoFVQqqlVUKqpVVCo')]
+    [TestCase('15', 'android.svg,claRed,TileOriginal,false,1,0.98,Gj1a//9avVo7P9r//1v/3ru/3v//3////7/+//////90KqgVUAoAAAAAUAqoFVQqqlVUKqpVVCo')]
+    [TestCase('16', 'android.svg,claRed,TileOriginal,false,0.5,0.98,Gj1a//9avVo7P9r//1v/3ru/3v//3////7/+//////90KqgVUAoAAAAAUAqoFVQqqlVUKqpVVCo')]
+    [TestCase('17', 'android.svg,claWhite,TileStretch,true,1,0.98,ADw8fn48PAA7PPz+fz/8zHu+/v9/v/zdf77//3////0/9K/0//7//v/+//4v9C/0DvAP4A5ABkA')]
+    [TestCase('18', 'android.svg,claWhite,TileStretch,true,0.5,0.98,ADw8fn48PAA7PPz+fz/8zHu+/v9/v/79f77//3////0//C/0//7//v/+//4v9D/8DvBP4qJFQmI')]
+    [TestCase('19', 'android.svg,claWhite,TileStretch,false,1,0.98,ADw8fn48PAA7PPz+fz/8zHu+/v9/v/zdf77//3////0/9K/0//7//v/+//4v9C/0DvAP4A5ABkA')]
+    [TestCase('20', 'android.svg,claWhite,TileStretch,false,0.5,0.98,ADw8fn48PAA7PPz+fz/8zHu+/v9/v/79f77//3////0//C/0//7//v/+//4v9D/8DvBP4qJFQmI')]
+    [TestCase('21', 'android.svg,claRed,TileStretch,true,1,0.98,/8PDgYHD5///88PBg8Pv///z1+Pjw+////PX4+fj//8v9KpU7/Tv9O/07/Qv9C/0CtAOwApABsA')]
+    [TestCase('22', 'android.svg,claRed,TileStretch,true,0.5,0.98,/8PDgYHD5///88PBg8Pv///z19PT1+////v/19f///9/9iAE//6v9K/0//4v9H/2qlVeyqpVVmo')]
+    [TestCase('23', 'android.svg,claRed,TileStretch,false,1,0.98,/8PDgYHD5///88PBg8Pv///z1+Pjw+////PX4+fj//8v9KpU7/Tv9O/07/Qv9C/0CtAOwApABsA')]
+    [TestCase('24', 'android.svg,claRed,TileStretch,false,0.5,0.98,/8PDgYHD5///88PBg8Pv///z19PT1+////v/19f///9/9iAE//6v9K/0//4v9H/2qlVeyqpVVmo')]
+    procedure TestFillRectBitmapWithChessBackground(const AImageFileName, AModulateColor: string; AWrapMode: TWrapMode; ABlending: Boolean; const AOpacity, AMinSimilarity: Double; const AExpectedImageHash: string);
+    [TestCase('1',  'android.svg,claWhite,Tile,true,1,0.98,/8XBgcGB9////fHhw8f////99fXX1////////9fX///7v9ETwRP5u///2RPBE9mT///7u/////8')]
+    [TestCase('2',  'android.svg,claWhite,Tile,true,0.5,0.98,/8GBgcGB1////fHhw8ff///99fXX19///////9fX///7u9ETwAPZk///0RPAA9kT///5u/////8')]
+    [TestCase('3',  'android.svg,claWhite,Tile,false,1,0.98,/8XBgcGB9////fHhw8f////99fXX1////////9fX///7v9ETwRP5u///2RPBE9mT///7u/////8')]
+    [TestCase('4',  'android.svg,claWhite,Tile,false,0.5,0.98,/8GBgcGB1////fHhw8ff///99fXX19///////9fX///7u9ETwAPZk///0RPAA9kT///5u/////8')]
+    [TestCase('5',  'android.svg,claRed,Tile,true,1,0.98,/9XBgcGB/////fHhw8P/////++vr6///////////////////+z/////////7P/////////////8')]
+    [TestCase('6',  'android.svg,claRed,Tile,true,0.5,0.98,/9XBgcGB/////fHhw8P/////++vr6////////+vr///Zk8ZLxOvZU/u711PE69ET2ZvXe/////8')]
+    [TestCase('7',  'android.svg,claRed,Tile,false,1,0.98,/9XBgcGB/////fHhw8P/////++vr6///////////////////+z/////////7P/////////////8')]
+    [TestCase('8',  'android.svg,claRed,Tile,false,0.5,0.98,/9XBgcGB/////fHhw8P/////++vr6////////+vr///Zk8ZLxOvZU/u711PE69ET2ZvXe/////8')]
+    [TestCase('9',  'android.svg,claWhite,TileOriginal,true,1,0.98,Pz////////9/f////////39///////////////////////////////////////////////////8')]
+    [TestCase('10', 'android.svg,claWhite,TileOriginal,true,0.5,0.98,vz//////////f/////////9///////////////////////////////////////////////////8')]
+    [TestCase('11', 'android.svg,claWhite,TileOriginal,false,1,0.98,Pz////////9/f////////39///////////////////////////////////////////////////8')]
+    [TestCase('12', 'android.svg,claWhite,TileOriginal,false,0.5,0.98,vz//////////f/////////9///////////////////////////////////////////////////8')]
+    [TestCase('13', 'android.svg,claRed,TileOriginal,true,1,0.98,Hz8///////9/f3///////3//f///////f/9///////8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('14', 'android.svg,claRed,TileOriginal,true,0.5,0.98,Pz9///////9/f3///////3//f///////f/9///////8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('15', 'android.svg,claRed,TileOriginal,false,1,0.98,Hz8///////9/f3///////3//f///////f/9///////8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('16', 'android.svg,claRed,TileOriginal,false,0.5,0.98,Pz9///////9/f3///////3//f///////f/9///////8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('17', 'android.svg,claWhite,TileStretch,true,1,0.98,/8PDgYHDx/////Phw8fP/////+fH79/////////////wD//vwAPAC8ALwAPwD/AP+b/9v/////8')]
+    [TestCase('18', 'android.svg,claWhite,TileStretch,true,0.5,0.98,/8ODgYHDx/////Phw8fP/////+fH79/////////////wD9ALwAPAA8ADwAPQC/AP+R/5v/////8')]
+    [TestCase('19', 'android.svg,claWhite,TileStretch,false,1,0.98,/8PDgYHDx/////Phw8fP/////+fH79/////////////wD//vwAPAC8ALwAPwD/AP+b/9v/////8')]
+    [TestCase('20', 'android.svg,claWhite,TileStretch,false,0.5,0.98,/8ODgYHDx/////Phw8fP/////+fH79/////////////wD9ALwAPAA8ADwAPQC/AP+R/5v/////8')]
+    [TestCase('21', 'android.svg,claRed,TileStretch,true,1,0.98,/8PDgYHD5/////Phw8fv////8+Hj1+/////////////wD///8A/wD/AP8A/wD/AP/b////////8')]
+    [TestCase('22', 'android.svg,claRed,TileStretch,true,0.5,0.98,/8PDgYHDx/////Phw8fP////8+Hj1+/////z4ePX7/8P8AAAD/AP8A/wD/AP8A/4AkAAAAAAAAA')]
+    [TestCase('23', 'android.svg,claRed,TileStretch,false,1,0.98,/8PDgYHD5/////Phw8fv////8+Hj1+/////////////wD///8A/wD/AP8A/wD/AP/b////////8')]
+    [TestCase('24', 'android.svg,claRed,TileStretch,false,0.5,0.98,/8PDgYHDx/////Phw8fP////8+Hj1+/////z4ePX7/8P8AAAD/AP8A/wD/AP8A/4AkAAAAAAAAA')]
+    procedure TestFillRectBitmapWithClipping(const AImageFileName, AModulateColor: string; AWrapMode: TWrapMode; ABlending: Boolean; const AOpacity, AMinSimilarity: Double; const AExpectedImageHash: string);
+    [TestCase('1',  'android.svg,300,300,Tile,1,2,-50,-100,30,-200,-50,660,343,1,true,0.98,JOH4/j4nBcH//fj/f2cPzf//+/9/b8/f//////9v/9/5wv/C/+zn3of8j3wGfwh/CHOwY3jH8YM')]
+    [TestCase('2',  'android.svg,300,300,Tile,1,2,-50,-100,30,-200,-50,660,343,0.6,true,0.98,JOH4+j4nBcH//fj7f2dPzf//+/9/b8/f//////9v/9/5wv/C/+zn3of+j3wGfwh/CHOwY3jH8IM')]
+    [TestCase('3',  'android.svg,300,300,Tile,1,2,-50,-100,30,0,0,200,200,1,true,0.98,Pz8/f/////////9///////////////////////////8f/x//f/////////////////////////8')]
+    [TestCase('4',  'android.svg,300,300,Tile,1,2,-50,-100,30,0,0,200,200,0.6,true,0.98,Pz8/f/////////9///////////////////////////8f/x//f/////////////////////////8')]
+    [TestCase('5',  'android.svg,300,300,Tile,1,-2,50,500,30,-200,-50,660,343,1,true,0.98,58HB8LY+Dwv//fHx939PT//98/P3f9/f///7//9//9/4w/GD88T/hP+Yz7yP+B75DP8Q/xDnYM8')]
+    [TestCase('6',  'android.svg,300,300,Tile,-1,2,-50,-100,30,-200,-50,660,343,0.6,true,0.98,Hz9/f3////9/f39/f////39///////////////////9//z//P/9//z//f/////////////////8')]
+    [TestCase('7',  'android.svg,300,300,Tile,-1,2,250,-50,30,0,0,200,200,1,true,0.98,A+dvHx8fP3///29fX18/f/////9/f/////////9///95/3//d/9j/wP/h/8H/wf/D/8//7////8')]
+    [TestCase('8',  'android.svg,300,300,Tile,1,-2,-50,200,30,0,0,200,200,0.6,true,0.98,6dsfBwdHz////39nR0fP////f2/P3///////7//f///H/4d/Bj8Afwh/EH8wf/D/8f/z//////8')]
+    [TestCase('9',  'android.svg,300,300,TileOriginal,1,2,150,20,-90,-200,-50,660,343,1,true,0.98,////w4HD///////jw8f//////+/nz//////////////////////8P/AH4Af4H/4///////////8')]
+    [TestCase('10', 'android.svg,300,300,TileOriginal,1,2,-50,100,-90,-200,50,660,343,0.6,true,0.98,///////ngcH//////+fPzf//////78/P//////////////////////////////w/4AfgB+AH/D8')]
+    [TestCase('11', 'android.svg,300,300,TileOriginal,1,2,50,100,20,0,0,200,200,1,true,0.98,////nx8fHz//////X19ff/////9/f39////////////////////j/+P/g/+D/4P/h/+H/5//n/8')]
+    [TestCase('12', 'android.svg,300,300,TileOriginal,1,2,50,100,20,0,0,200,200,0.6,true,0.98,////nx8fHz//////X19ff/////9/f39////////////////////j/+P/g/+D/4P/B/+H/4//n/8')]
+    [TestCase('13', 'android.svg,300,300,TileOriginal,1,-2,50,500,30,-200,-50,660,343,1,true,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('14', 'android.svg,300,300,TileOriginal,-1,2,-50,-100,60,-200,-50,660,343,0.6,true,0.98,Hz9///////9/f3////////////////////////////9///////////////////////////////8')]
+    [TestCase('15', 'android.svg,300,300,TileOriginal,-1,2,-50,-100,-60,0,0,200,200,1,true,0.98,Hx////////9/f////////39/////////f/////////////////////////////////////////8')]
+    [TestCase('16', 'android.svg,300,300,TileOriginal,1,-2,-50,300,10,0,0,200,200,0.6,true,0.98,//9/Pz8/P3///39/f39/f///f///////////////////////H/8f/x//H/8f/x//H/8//z//f/8')]
+    [TestCase('17', 'android.svg,300,300,TileStretch,1,2,-50,-100,30,-200,-50,660,343,1,true,0.98,hwMBxTANBwP/+/Hlc09PD//79+d3X08P///3/3dfTw8AA4ADwAEwAQwBAwEBgQBhABkABwADAAc')]
+    [TestCase('18', 'android.svg,300,300,TileStretch,1,2,-50,-100,30,-200,-50,660,343,0.6,true,0.98,hwMBxTAdBwP/+/Hlc19PD//79/dzX08P///3/3NfTw8AA4Aj4DEwAQwBBwEBwQBhADkADwADAAc')]
+    [TestCase('19', 'android.svg,300,300,TileStretch,1,2,-50,-100,30,0,0,200,200,1,true,0.98,P39/f3////9/f39///////////////////////////9//z//P/9//3////////////////////8')]
+    [TestCase('20', 'android.svg,300,300,TileStretch,1,2,-50,-100,30,0,0,200,200,0.6,true,0.98,f39/f3////9/f39///////////////////////////9//z//P/9//3////////////////////8')]
+    [TestCase('21', 'android.svg,300,300,TileStretch,1,-2,50,500,30,-200,-50,660,343,1,true,0.98,///34sDAgID///fjw8fOzP//9+/Xz87c//////////////4e/gz8DPgI+BDwEPAg4GDAQMDAwIA')]
+    [TestCase('22', 'android.svg,300,300,TileStretch,-1,2,-50,-100,-60,-200,-50,660,343,0.6,true,0.98,XseBgAAAAAB///HhQ0fOzP//8eFDR87M/////+///+/f+/////////////////////////////8')]
+    [TestCase('23', 'android.svg,300,300,TileStretch,-1,2,-50,-100,-60,0,0,200,200,1,true,0.98,DwcHA4P///9/f3fjw/////9/f//3//////9///f///8AfwA/AB8Az8A/95////////////////8')]
+    [TestCase('24', 'android.svg,300,300,TileStretch,1,-2,-50,500,30,0,0,200,200,0.6,true,0.98,///////78cH/////////zf/////////P///////////////////////////////f/5f/h/4n8A8')]
+    procedure TestFillRectBitmapWithMatrix(const AImageFileName: string; ASurfaceWidth, ASurfaceHeight: Integer; AWrapMode: TWrapMode; ASurfaceScaleX, ASurfaceScaleY, ASurfaceOffsetX, ASurfaceOffsetY, ARotationDeg, ADestLeft, ADestTop, ADestRight, ADestBottom, AOpacity: Single; ABlending: Boolean; const AMinSimilarity: Double; const AExpectedImageHash: string);
     [TestCase('1',   '[claBlack;0 claWhite;1],claWhite,Linear,False,1,1,0.98,/4GBgYH///////Hh4f//////8eHh/////////+H////AA8ADwAPAA8ADwAPAA8ADwAPAA/////8')]
     [TestCase('2',   '[$7F000000;0 $7FFFFFFF;1],claWhite,Linear,False,1,1,0.98,/4GBgYH//////fHhwf//////8eHB/////////8H////AA8ADgAGAAYABwAPAA8AD//////////8')]
     [TestCase('3',   '[claBlack;0 claWhite;1],claWhite,Linear,False,1,0.5,0.98,/4GBgYH//////fHhwf//////8eHB/////////8H////AA8ADwAOAAYABwAPAA8AD//////////8')]
@@ -602,108 +704,201 @@ type
     procedure TestFillRectSolidWithMatrix(ASurfaceWidth, ASurfaceHeight: Integer; ASurfaceScaleX, ASurfaceScaleY, ASurfaceOffsetX, ASurfaceOffsetY, ARotationDeg, ADestLeft, ADestTop, ADestRight, ADestBottom, AOpacity: Single; ABlending: Boolean; const AMinSimilarity: Double; const AExpectedImageHash: string);
     [TestCase('1', '0.98,///Dw8PD//////Pjw8f/////8+Pj5//////////////wD/AP8A/wD/AP8A/wD/AP//////////8')]
     procedure TestFillRectSolidWithModulateColor(const AMinSimilarity: Double; const AExpectedImageHash: string);
-    [TestCase('1',  'android.svg,claWhite,Tile,0,0,1,1,0.4,0.98,SHt7SP9K/wB/e3tp/0//TP/7++n/7//t//v76f/v/////5JJAkm22///tskACbbJ//+22wBJtkk')]
-    [TestCase('2',  'android.svg,claRed,Tile,0,0,1,1,0.4,0.98,SHt7SP9K/wD/+3tI/8//zP//f17/3//e//9/X//f/9+2WUhbQADySbf/SssBECJJ///73wAQAkg')]
-    [TestCase('3',  'android.svg,claWhite,Tile,0,0,1,1,1,0.98,SHt7SP9K/wD/+3tI/8//zP/7++n/7//t///76f/v/////7ZJAkm22///ttsCSbbb//+22wJJtsk')]
-    [TestCase('4',  'android.svg,claRed,Tile,0,0,1,1,1,0.98,SHt7SP9K/wD/+/vI/8//wP///97/3//W///////f////////tsm///////+2Sb////+3/7bJv/8')]
-    [TestCase('5',  'android.svg,claWhite,Tile,0.15,0.15,0.85,0.85,0.4,0.98,/4GBqYGBgf///fHpw8fP///99f339//////////////AA+ST///kk8AD5JP//+STwAPkk/////8')]
-    [TestCase('6',  'android.svg,claRed,Tile,0.15,0.15,0.85,0.85,0.4,0.98,/4GBqYGBgf///fHpw8fN////++vLz8///////+//7//AA8ST/7fkk8AD5AP0k+STwAPAA/////8')]
-    [TestCase('7',  'android.svg,claWhite,Tile,0.15,0.15,0.85,0.85,1,0.98,/4GBqYGBgf///fHpw8fN///99f339/3//////////f/kk+ST///km+ST5JP//+yb5JPkl/////8')]
-    [TestCase('8',  'android.svg,claRed,Tile,0.15,0.15,0.85,0.85,1,0.98,/4GBqYGBgf///fHpw8fN////++vLz8/////////////bZ//7/////9vn///t1///22/76/////8')]
-    [TestCase('9',  'android.svg,claWhite,TileOriginal,0,0,1,1,0.4,0.98,Pz8///////9/f3//////////f/////////9///////////////////////////////////////8')]
-    [TestCase('10', 'android.svg,claRed,TileOriginal,0,0,1,1,0.4,0.98,Pz9//////////3//////////f/////////9///////8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
-    [TestCase('11', 'android.svg,claWhite,TileOriginal,0,0,1,1,1,0.98,Pz9//////////3//////////f/////////9///////////////////////////////////////8')]
-    [TestCase('12', 'android.svg,claRed,TileOriginal,0,0,1,1,1,0.98,Pz9///////////////////////////////////////////////////////////////////////8')]
-    [TestCase('13', 'android.svg,claWhite,TileOriginal,0.15,0.15,0.85,0.85,0.4,0.98,nw8Pn///////f3////////9/f//////////////////D/8f/5/////////////////////////8')]
-    [TestCase('14', 'android.svg,claRed,TileOriginal,0.15,0.15,0.85,0.85,0.4,0.98,vx8fn///////f3////////////////////////////8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
-    [TestCase('15', 'android.svg,claWhite,TileOriginal,0.15,0.15,0.85,0.85,1,0.98,/x8fn///////f3////////9/f//////////////////D/+f/5/////////////////////////8')]
-    [TestCase('16', 'android.svg,claRed,TileOriginal,0.15,0.15,0.85,0.85,1,0.98,/x8fn///////f3////////////////////////////8YABgAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
-    [TestCase('17', 'android.svg,claWhite,TileStretch,0,0,1,1,0.4,0.98,/8ODAADDx/////NhQ8fP////92VH79//////f//////wD9ALgAGAAYABgAHQC/AP+R/5H/2///8')]
-    [TestCase('18', 'android.svg,claRed,TileStretch,0,0,1,1,0.4,0.98,/8PDAQHD5/////NhQ8fv////8+PD1+/////7//Pf///pt4ABgBGAEYARgBWAAekH+B/4H/gf//8')]
-    [TestCase('19', 'android.svg,claWhite,TileStretch,0,0,1,1,1,0.98,/8PDAQHD5/////NhQ8fv/////2VH7//////////////wD9/rgAOAA4ADgAPQC/AP+b/5v/2///8')]
-    [TestCase('20', 'android.svg,claRed,TileStretch,0,0,1,1,1,0.98,/8PDAQHD5/////NhQ8fv////8+Pj1+/////////////wD///0AvQC9AL0A/wD/AP/b/9v/2///8')]
-    [TestCase('21', 'android.svg,claWhite,TileStretch,0.15,0.15,0.85,0.85,0.4,0.98,/+fDgYHD5/////Phw8fv////9/fX1//////////////4H/gf4AfgB+AH4Af4H/w//D////////8')]
-    [TestCase('22', 'android.svg,claRed,TileStretch,0.15,0.15,0.85,0.85,0.4,0.98,/+fDgYHD5/////Phw8fv////8+nr7+/////////////6X/gf4AfgJ+AH4Cf4H/w//D////////8')]
-    [TestCase('23', 'android.svg,claWhite,TileStretch,0.15,0.15,0.85,0.85,1,0.98,/+fDgYHD5/////Phw8fv////9/PX1//////////////4P/gf4AfgB+AH4A/4H/w//T////////8')]
-    [TestCase('24', 'android.svg,claRed,TileStretch,0.15,0.15,0.85,0.85,1,0.98,/+fDgYHD5/////Phw8fv////8+nr7+/////////////8P/v////4P/g/+D////////////////8')]
-    procedure TestFillRectBitmap(const AImageFileName, AModulateColor: string; AWrapMode: TWrapMode; const ALeftPercent, ATopPercent, ARightPercent, ABottomPercent, AOpacity, AMinSimilarity: Double; const AExpectedImageHash: string);
-    [TestCase('1',  'android.svg,claWhite,Tile,true,1,0.98,S6gK+grqCOt7uPr6S+/M7/+9//9v/+3//73///////8IgGZubu79VQiyZkzu7mRUmAD1Xv7/9k4')]
-    [TestCase('2',  'android.svg,claWhite,Tile,true,0.5,0.98,SrxK+gpqCGt7vOr6S2vM7/u9//9Pf+3//73////////IgGBERu6ZVQiyRFDu7kReKAT1Xv7+dG4')]
-    [TestCase('3',  'android.svg,claWhite,Tile,false,1,0.98,S6gK+grqCOt7uPr6S+/M7/+9//9v/+3//73///////8IgGZubu79VQiyZkzu7mRUmAD1Xv7/9k4')]
-    [TestCase('4',  'android.svg,claWhite,Tile,false,0.5,0.98,SrxK+gpqCGt7vOr6S2vM7/u9//9Pf+3//73////////IgGBERu6ZVQiyRFDu7kReKAT1Xv7+dG4')]
-    [TestCase('5',  'android.svg,claRed,Tile,true,1,0.98,Qf1fUX9A/wB7/9/Rf0P/zPv///t/6//u+//////v//8IgGZsbu7dVQiCZkRu7mZUiAD3Xv7/9k4')]
-    [TestCase('6',  'android.svg,claRed,Tile,true,0.5,0.98,Qv1XUH9A/wB7/9fQf0P/zPv///p/6//u///////v/++IgGAERO6ZEQi6RBDE7kAWqAHxXvz/dA4')]
-    [TestCase('7',  'android.svg,claRed,Tile,false,1,0.98,Qf1fUX9A/wB7/9/Rf0P/zPv///t/6//u+//////v//8IgGZsbu7dVQiCZkRu7mZUiAD3Xv7/9k4')]
-    [TestCase('8',  'android.svg,claRed,Tile,false,0.5,0.98,Qv1XUH9A/wB7/9fQf0P/zPv///p/6//u///////v/++IgGAERO6ZEQi6RBDE7kAWqAHxXvz/dA4')]
-    [TestCase('9',  'android.svg,claWhite,TileOriginal,true,1,0.98,wv1CQkJCvUL7/fLiQ0f9zvv/9vbXx//////+9/fv//90KqgVQAIAAAAAQAKoFVQqqBVUKqpVVCo')]
-    [TestCase('10', 'android.svg,claWhite,TileOriginal,true,0.5,0.98,wv1CQkJCvUL7/eLCQ0P9zvv/5tbXx//////+1/fv//90KqgVQAIAAAAAQAKoFVQqqBVUKqpVVCo')]
-    [TestCase('11', 'android.svg,claWhite,TileOriginal,false,1,0.98,wv1CQkJCvUL7/fLiQ0f9zvv/9vbXx//////+9/fv//90KqgVQAIAAAAAQAKoFVQqqBVUKqpVVCo')]
-    [TestCase('12', 'android.svg,claWhite,TileOriginal,false,0.5,0.98,wv1CQkJCvUL7/eLCQ0P9zvv/5tbXx//////+1/fv//90KqgVQAIAAAAAQAKoFVQqqBVUKqpVVCo')]
-    [TestCase('13', 'android.svg,claRed,TileOriginal,true,1,0.98,Gj1a//9avVo7P9r//1v/3ru/3v//3////7/+//////90KqgVUAoAAAAAUAqoFVQqqlVUKqpVVCo')]
-    [TestCase('14', 'android.svg,claRed,TileOriginal,true,0.5,0.98,Gj1a//9avVo7P9r//1v/3ru/3v//3////7/+//////90KqgVUAoAAAAAUAqoFVQqqlVUKqpVVCo')]
-    [TestCase('15', 'android.svg,claRed,TileOriginal,false,1,0.98,Gj1a//9avVo7P9r//1v/3ru/3v//3////7/+//////90KqgVUAoAAAAAUAqoFVQqqlVUKqpVVCo')]
-    [TestCase('16', 'android.svg,claRed,TileOriginal,false,0.5,0.98,Gj1a//9avVo7P9r//1v/3ru/3v//3////7/+//////90KqgVUAoAAAAAUAqoFVQqqlVUKqpVVCo')]
-    [TestCase('17', 'android.svg,claWhite,TileStretch,true,1,0.98,ADw8fn48PAA7PPz+fz/8zHu+/v9/v/zdf77//3////0/9K/0//7//v/+//4v9C/0DvAP4A5ABkA')]
-    [TestCase('18', 'android.svg,claWhite,TileStretch,true,0.5,0.98,ADw8fn48PAA7PPz+fz/8zHu+/v9/v/79f77//3////0//C/0//7//v/+//4v9D/8DvBP4qJFQmI')]
-    [TestCase('19', 'android.svg,claWhite,TileStretch,false,1,0.98,ADw8fn48PAA7PPz+fz/8zHu+/v9/v/zdf77//3////0/9K/0//7//v/+//4v9C/0DvAP4A5ABkA')]
-    [TestCase('20', 'android.svg,claWhite,TileStretch,false,0.5,0.98,ADw8fn48PAA7PPz+fz/8zHu+/v9/v/79f77//3////0//C/0//7//v/+//4v9D/8DvBP4qJFQmI')]
-    [TestCase('21', 'android.svg,claRed,TileStretch,true,1,0.98,/8PDgYHD5///88PBg8Pv///z1+Pjw+////PX4+fj//8v9KpU7/Tv9O/07/Qv9C/0CtAOwApABsA')]
-    [TestCase('22', 'android.svg,claRed,TileStretch,true,0.5,0.98,/8PDgYHD5///88PBg8Pv///z19PT1+////v/19f///9/9iAE//6v9K/0//4v9H/2qlVeyqpVVmo')]
-    [TestCase('23', 'android.svg,claRed,TileStretch,false,1,0.98,/8PDgYHD5///88PBg8Pv///z1+Pjw+////PX4+fj//8v9KpU7/Tv9O/07/Qv9C/0CtAOwApABsA')]
-    [TestCase('24', 'android.svg,claRed,TileStretch,false,0.5,0.98,/8PDgYHD5///88PBg8Pv///z19PT1+////v/19f///9/9iAE//6v9K/0//4v9H/2qlVeyqpVVmo')]
-    procedure TestFillRectBitmapWithChessBackground(const AImageFileName, AModulateColor: string; AWrapMode: TWrapMode; ABlending: Boolean; const AOpacity, AMinSimilarity: Double; const AExpectedImageHash: string);
-    [TestCase('1',  'android.svg,claWhite,Tile,true,1,0.98,/8XBgcGB9////fHhw8f////99fXX1////////9fX///7v9ETwRP5u///2RPBE9mT///7u/////8')]
-    [TestCase('2',  'android.svg,claWhite,Tile,true,0.5,0.98,/8GBgcGB1////fHhw8ff///99fXX19///////9fX///7u9ETwAPZk///0RPAA9kT///5u/////8')]
-    [TestCase('3',  'android.svg,claWhite,Tile,false,1,0.98,/8XBgcGB9////fHhw8f////99fXX1////////9fX///7v9ETwRP5u///2RPBE9mT///7u/////8')]
-    [TestCase('4',  'android.svg,claWhite,Tile,false,0.5,0.98,/8GBgcGB1////fHhw8ff///99fXX19///////9fX///7u9ETwAPZk///0RPAA9kT///5u/////8')]
-    [TestCase('5',  'android.svg,claRed,Tile,true,1,0.98,/9XBgcGB/////fHhw8P/////++vr6///////////////////+z/////////7P/////////////8')]
-    [TestCase('6',  'android.svg,claRed,Tile,true,0.5,0.98,/9XBgcGB/////fHhw8P/////++vr6////////+vr///Zk8ZLxOvZU/u711PE69ET2ZvXe/////8')]
-    [TestCase('7',  'android.svg,claRed,Tile,false,1,0.98,/9XBgcGB/////fHhw8P/////++vr6///////////////////+z/////////7P/////////////8')]
-    [TestCase('8',  'android.svg,claRed,Tile,false,0.5,0.98,/9XBgcGB/////fHhw8P/////++vr6////////+vr///Zk8ZLxOvZU/u711PE69ET2ZvXe/////8')]
-    [TestCase('9',  'android.svg,claWhite,TileOriginal,true,1,0.98,Pz////////9/f////////39///////////////////////////////////////////////////8')]
-    [TestCase('10', 'android.svg,claWhite,TileOriginal,true,0.5,0.98,vz//////////f/////////9///////////////////////////////////////////////////8')]
-    [TestCase('11', 'android.svg,claWhite,TileOriginal,false,1,0.98,Pz////////9/f////////39///////////////////////////////////////////////////8')]
-    [TestCase('12', 'android.svg,claWhite,TileOriginal,false,0.5,0.98,vz//////////f/////////9///////////////////////////////////////////////////8')]
-    [TestCase('13', 'android.svg,claRed,TileOriginal,true,1,0.98,Hz8///////9/f3///////3//f///////f/9///////8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
-    [TestCase('14', 'android.svg,claRed,TileOriginal,true,0.5,0.98,Pz9///////9/f3///////3//f///////f/9///////8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
-    [TestCase('15', 'android.svg,claRed,TileOriginal,false,1,0.98,Hz8///////9/f3///////3//f///////f/9///////8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
-    [TestCase('16', 'android.svg,claRed,TileOriginal,false,0.5,0.98,Pz9///////9/f3///////3//f///////f/9///////8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
-    [TestCase('17', 'android.svg,claWhite,TileStretch,true,1,0.98,/8PDgYHDx/////Phw8fP/////+fH79/////////////wD//vwAPAC8ALwAPwD/AP+b/9v/////8')]
-    [TestCase('18', 'android.svg,claWhite,TileStretch,true,0.5,0.98,/8ODgYHDx/////Phw8fP/////+fH79/////////////wD9ALwAPAA8ADwAPQC/AP+R/5v/////8')]
-    [TestCase('19', 'android.svg,claWhite,TileStretch,false,1,0.98,/8PDgYHDx/////Phw8fP/////+fH79/////////////wD//vwAPAC8ALwAPwD/AP+b/9v/////8')]
-    [TestCase('20', 'android.svg,claWhite,TileStretch,false,0.5,0.98,/8ODgYHDx/////Phw8fP/////+fH79/////////////wD9ALwAPAA8ADwAPQC/AP+R/5v/////8')]
-    [TestCase('21', 'android.svg,claRed,TileStretch,true,1,0.98,/8PDgYHD5/////Phw8fv////8+Hj1+/////////////wD///8A/wD/AP8A/wD/AP/b////////8')]
-    [TestCase('22', 'android.svg,claRed,TileStretch,true,0.5,0.98,/8PDgYHDx/////Phw8fP////8+Hj1+/////z4ePX7/8P8AAAD/AP8A/wD/AP8A/4AkAAAAAAAAA')]
-    [TestCase('23', 'android.svg,claRed,TileStretch,false,1,0.98,/8PDgYHD5/////Phw8fv////8+Hj1+/////////////wD///8A/wD/AP8A/wD/AP/b////////8')]
-    [TestCase('24', 'android.svg,claRed,TileStretch,false,0.5,0.98,/8PDgYHDx/////Phw8fP////8+Hj1+/////z4ePX7/8P8AAAD/AP8A/wD/AP8A/4AkAAAAAAAAA')]
-    procedure TestFillRectBitmapWithClipping(const AImageFileName, AModulateColor: string; AWrapMode: TWrapMode; ABlending: Boolean; const AOpacity, AMinSimilarity: Double; const AExpectedImageHash: string);
-    [TestCase('1',  'android.svg,300,300,Tile,1,2,-50,-100,30,-200,-50,660,343,1,true,0.98,JOH4/j4nBcH//fj/f2cPzf//+/9/b8/f//////9v/9/5wv/C/+zn3of8j3wGfwh/CHOwY3jH8YM')]
-    [TestCase('2',  'android.svg,300,300,Tile,1,2,-50,-100,30,-200,-50,660,343,0.6,true,0.98,JOH4+j4nBcH//fj7f2dPzf//+/9/b8/f//////9v/9/5wv/C/+zn3of+j3wGfwh/CHOwY3jH8IM')]
-    [TestCase('3',  'android.svg,300,300,Tile,1,2,-50,-100,30,0,0,200,200,1,true,0.98,Pz8/f/////////9///////////////////////////8f/x//f/////////////////////////8')]
-    [TestCase('4',  'android.svg,300,300,Tile,1,2,-50,-100,30,0,0,200,200,0.6,true,0.98,Pz8/f/////////9///////////////////////////8f/x//f/////////////////////////8')]
-    [TestCase('5',  'android.svg,300,300,Tile,1,-2,50,500,30,-200,-50,660,343,1,true,0.98,58HB8LY+Dwv//fHx939PT//98/P3f9/f///7//9//9/4w/GD88T/hP+Yz7yP+B75DP8Q/xDnYM8')]
-    [TestCase('6',  'android.svg,300,300,Tile,-1,2,-50,-100,30,-200,-50,660,343,0.6,true,0.98,Hz9/f3////9/f39/f////39///////////////////9//z//P/9//z//f/////////////////8')]
-    [TestCase('7',  'android.svg,300,300,Tile,-1,2,250,-50,30,0,0,200,200,1,true,0.98,A+dvHx8fP3///29fX18/f/////9/f/////////9///95/3//d/9j/wP/h/8H/wf/D/8//7////8')]
-    [TestCase('8',  'android.svg,300,300,Tile,1,-2,-50,200,30,0,0,200,200,0.6,true,0.98,6dsfBwdHz////39nR0fP////f2/P3///////7//f///H/4d/Bj8Afwh/EH8wf/D/8f/z//////8')]
-    [TestCase('9',  'android.svg,300,300,TileOriginal,1,2,150,20,-90,-200,-50,660,343,1,true,0.98,////w4HD///////jw8f//////+/nz//////////////////////8P/AH4Af4H/4///////////8')]
-    [TestCase('10', 'android.svg,300,300,TileOriginal,1,2,-50,100,-90,-200,50,660,343,0.6,true,0.98,///////ngcH//////+fPzf//////78/P//////////////////////////////w/4AfgB+AH/D8')]
-    [TestCase('11', 'android.svg,300,300,TileOriginal,1,2,50,100,20,0,0,200,200,1,true,0.98,////nx8fHz//////X19ff/////9/f39////////////////////j/+P/g/+D/4P/h/+H/5//n/8')]
-    [TestCase('12', 'android.svg,300,300,TileOriginal,1,2,50,100,20,0,0,200,200,0.6,true,0.98,////nx8fHz//////X19ff/////9/f39////////////////////j/+P/g/+D/4P/B/+H/4//n/8')]
-    [TestCase('13', 'android.svg,300,300,TileOriginal,1,-2,50,500,30,-200,-50,660,343,1,true,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
-    [TestCase('14', 'android.svg,300,300,TileOriginal,-1,2,-50,-100,60,-200,-50,660,343,0.6,true,0.98,Hz9///////9/f3////////////////////////////9///////////////////////////////8')]
-    [TestCase('15', 'android.svg,300,300,TileOriginal,-1,2,-50,-100,-60,0,0,200,200,1,true,0.98,Hx////////9/f////////39/////////f/////////////////////////////////////////8')]
-    [TestCase('16', 'android.svg,300,300,TileOriginal,1,-2,-50,300,10,0,0,200,200,0.6,true,0.98,//9/Pz8/P3///39/f39/f///f///////////////////////H/8f/x//H/8f/x//H/8//z//f/8')]
-    [TestCase('17', 'android.svg,300,300,TileStretch,1,2,-50,-100,30,-200,-50,660,343,1,true,0.98,hwMBxTANBwP/+/Hlc09PD//79+d3X08P///3/3dfTw8AA4ADwAEwAQwBAwEBgQBhABkABwADAAc')]
-    [TestCase('18', 'android.svg,300,300,TileStretch,1,2,-50,-100,30,-200,-50,660,343,0.6,true,0.98,hwMBxTAdBwP/+/Hlc19PD//79/dzX08P///3/3NfTw8AA4Aj4DEwAQwBBwEBwQBhADkADwADAAc')]
-    [TestCase('19', 'android.svg,300,300,TileStretch,1,2,-50,-100,30,0,0,200,200,1,true,0.98,P39/f3////9/f39///////////////////////////9//z//P/9//3////////////////////8')]
-    [TestCase('20', 'android.svg,300,300,TileStretch,1,2,-50,-100,30,0,0,200,200,0.6,true,0.98,f39/f3////9/f39///////////////////////////9//z//P/9//3////////////////////8')]
-    [TestCase('21', 'android.svg,300,300,TileStretch,1,-2,50,500,30,-200,-50,660,343,1,true,0.98,///34sDAgID///fjw8fOzP//9+/Xz87c//////////////4e/gz8DPgI+BDwEPAg4GDAQMDAwIA')]
-    [TestCase('22', 'android.svg,300,300,TileStretch,-1,2,-50,-100,-60,-200,-50,660,343,0.6,true,0.98,XseBgAAAAAB///HhQ0fOzP//8eFDR87M/////+///+/f+/////////////////////////////8')]
-    [TestCase('23', 'android.svg,300,300,TileStretch,-1,2,-50,-100,-60,0,0,200,200,1,true,0.98,DwcHA4P///9/f3fjw/////9/f//3//////9///f///8AfwA/AB8Az8A/95////////////////8')]
-    [TestCase('24', 'android.svg,300,300,TileStretch,1,-2,-50,500,30,0,0,200,200,0.6,true,0.98,///////78cH/////////zf/////////P///////////////////////////////f/5f/h/4n8A8')]
-    procedure TestFillRectBitmapWithMatrix(const AImageFileName: string; ASurfaceWidth, ASurfaceHeight: Integer; AWrapMode: TWrapMode; ASurfaceScaleX, ASurfaceScaleY, ASurfaceOffsetX, ASurfaceOffsetY, ARotationDeg, ADestLeft, ADestTop, ADestRight, ADestBottom, AOpacity: Single; ABlending: Boolean; const AMinSimilarity: Double; const AExpectedImageHash: string);
     [TestCase('1', '0.98,///Dw8PD//////Pjw8f/////8+Pj5//////////////wD/AP8A/wD/AP8A/wD/AP//////////8')]
     procedure TestFillRectResource(const AMinSimilarity: Double; const AExpectedImageHash: string);
+    [TestCase('1',   'horse.webp,claWhite,Tile,0.15,0.15,AllCorners,Round,False,0,0,1,1,0.4,0.98,3wDB9f/NAMH/+PH1/8/Ozf/69///7+7f///3///v7t8wQfAj9iM/AbID///x4wAAAAAwQfYj9iM')]
+    [TestCase('2',   'horse.webp,claRed,Tile,0.15,0.15,AllCorners,Round,False,0,0,1,1,0.4,0.98,3wDB8f/JAMH/+PHx/89Ozf/69/v/727f///3///vbt8wYfYj9jP/N/7////x4zEBAABwY/Yj9jM')]
+    [TestCase('3',   'horse.webp,claWhite,Tile,0.15,0.15,AllCorners,Round,False,0,0,1,1,1,0.98,3wDB9f/NQMH/+PH1/8/Mzf/69///7+7f///////v7t8PAAGAFiAAAAAA//+/pwYADwAPAKWBxgM')]
+    [TestCase('4',   'horse.webp,claRed,Tile,0.15,0.15,AllCorners,Round,False,0,0,1,1,1,0.98,3wDB9f/JAMH/8OH1/8lMyf/69///727b///3///vbtsQACABFiAKAAAA//9xwwAAAAAQAPAB1iM')]
+    [TestCase('5',   'horse.webp,claWhite,Tile,0.15,0.15,AllCorners,Round,False,0.15,0.15,0.85,0.85,0.4,0.98,/+eBgYGB5/////Hhw8fv////8/Hvz//////////////MA8ADwAPAA+iPwEPAA////D/sJ/////8')]
+    [TestCase('6',   'horse.webp,claRed,Tile,0.15,0.15,AllCorners,Round,False,0.15,0.15,0.85,0.85,0.4,0.98,/4GBgYGBgf///fHhw8fN///98fHvz/3///3x8f////8MMAAABAgcCD3MF8w/2D/8PPwMIAAAAAA')]
+    [TestCase('7',   'horse.webp,claWhite,Tile,0.15,0.15,AllCorners,Round,False,0.15,0.15,0.85,0.85,1,0.98,/+eBgYGB5/////Hhw8fv////8/Pvz//////////////gB8ADwAfgB+AH4AfgB+AH4Af/v/////8')]
+    [TestCase('8',   'horse.webp,claRed,Tile,0.15,0.15,AllCorners,Round,False,0.15,0.15,0.85,0.85,1,0.98,/4GBgYGBgf///fHhw8XJ///98fHvzfn/////////+f/gB+AH4AfgB+AH4AfgB+AH4Af///////8')]
+    [TestCase('9',   'horse.webp,claWhite,TileOriginal,0.15,0.15,AllCorners,Round,False,0,0,1,1,0.4,0.98,yQEBAff/////+fHh9///////9/v3///////3//f///8QBwAHFicABwAH//////////////////8')]
+    [TestCase('10',  'horse.webp,claRed,TileOriginal,0.15,0.15,AllCorners,Round,False,0,0,1,1,0.4,0.98,AQEBAf//////+fFh///////59Xn////////1+/////8wY/Yj9jP/M/77//////////////////8')]
+    [TestCase('11',  'horse.webp,claWhite,TileOriginal,0.15,0.15,AllCorners,Round,False,0,0,1,1,1,0.98,yQEBAff////9+fHh9//////79/v3///////3//f///8ABwAHAAcABwAH//////////////////8')]
+    [TestCase('12',  'horse.webp,claRed,TileOriginal,0.15,0.15,AllCorners,Round,False,0,0,1,1,1,0.98,AQEBAf/////58eHh//////359fn//////f/1//////8ABwAHAAcAB/////////////////////8')]
+    [TestCase('13',  'horse.webp,claWhite,TileOriginal,0.15,0.15,AllCorners,Round,False,0.15,0.15,0.85,0.85,0.4,0.98,/+eBgYGB//////Hhw8f/////8/Hvz//////////////MA8ADwAPAA+iLwEPAA//v//////////8')]
+    [TestCase('14',  'horse.webp,claRed,TileOriginal,0.15,0.15,AllCorners,Round,False,0.15,0.15,0.85,0.85,0.4,0.98,/4GBgYGB/////fHhw8f////98fHvz/////3x8f////8OOAAABAg8CD3MP8w/3B/gAAAAAAAAAAA')]
+    [TestCase('15',  'horse.webp,claWhite,TileOriginal,0.15,0.15,AllCorners,Round,False,0.15,0.15,0.85,0.85,1,0.98,/+eBgYGB//////Hhw8f/////8/Pvz//////////////AA8ADwAPgB+AH4AfgB/////////////8')]
+    [TestCase('16',  'horse.webp,claRed,TileOriginal,0.15,0.15,AllCorners,Round,False,0.15,0.15,0.85,0.85,1,0.98,/4GBgYGB/////fHhw8X////98fHvzf/////////////gB+AH4AfgB+AH4AfgB/////////////8')]
+    [TestCase('17',  'horse.webp,claWhite,TileStretch,0.15,0.15,AllCorners,Round,False,0,0,1,1,0.4,0.98,/85AAMDS8vP//nBgw9f+////d2P73/////////v///8AAAAAAAAICHgQcBjzCPvMD44/gA+40AM')]
+    [TestCase('18',  'horse.webp,claRed,TileStretch,0.15,0.15,AllCorners,Round,False,0,0,1,1,0.4,0.98,/84AAMDS8vP//vBgw9f+////93P73/////////v///84wAgAAAAYGHgQ+BzzDPusX4//hP++/64')]
+    [TestCase('19',  'horse.webp,claWhite,TileStretch,0.15,0.15,AllCorners,Round,False,0,0,1,1,1,0.98,/85AAMDS+vP//nBgw9f+////d3P73///////+/////8XAAOAB4AHwD/AAOAjQC/IAoABgIBBwAM')]
+    [TestCase('20',  'horse.webp,claRed,TileStretch,0.15,0.15,AllCorners,Round,False,0,0,1,1,1,0.98,/84AAMDS8vP//uDAw9b+////5/P73/////////v///8AAAAAAAAACDgAEBDzAPuIA4AHgIAhwAM')]
+    [TestCase('21',  'horse.webp,claWhite,TileStretch,0.15,0.15,AllCorners,Round,False,0.15,0.15,0.85,0.85,0.4,0.98,/++BgYGBgf////Hhw8fP////9/Pz79/////////////4Y8ADwAPAA8QDygPlA8CDwAPwB/////8')]
+    [TestCase('22',  'horse.webp,claRed,TileStretch,0.15,0.15,AllCorners,Round,False,0.15,0.15,0.85,0.85,0.4,0.98,/4GBgYGBgf///fHhw8fN///99fHz783//////////f/448yDwAPEM9wj+xP9k9+f3zv/n/////8')]
+    [TestCase('23',  'horse.webp,claWhite,TileStretch,0.15,0.15,AllCorners,Round,False,0.15,0.15,0.85,0.85,1,0.98,/++BgYGBgf////Hhw8fP////9/Pz79/////////////gA8AHwAfAB+AH4AfgB+AH4Af///////8')]
+    [TestCase('24',  'horse.webp,claRed,TileStretch,0.15,0.15,AllCorners,Round,False,0.15,0.15,0.85,0.85,1,0.98,/4GBgYGBgf///fHhw8XJ///99fHz7cn/////////6f/gB+AH4AfgB+AH4AfgB+AH4Af///////8')]
+    [TestCase('25',  'horse.webp,claWhite,Tile,0.15,0.15,AllCorners,Round,True,0,0,1,1,0.4,0.98,//ExADDw9v///XFgc/f+////+Wp79///////+//3//8fggAAAAAAAAMAPwA/AP48/z4Bvgnvgf8')]
+    [TestCase('26',  'horse.webp,claRed,Tile,0.15,0.15,AllCorners,Round,True,0,0,1,1,0.4,0.98,//EwADDw9v//+fBgc/f+///7+Gp79//////////3//8fgwEBAAABAAcAfwD/QP98/z73vv//f/8')]
+    [TestCase('27',  'horse.webp,claWhite,Tile,0.15,0.15,AllCorners,Round,True,0,0,1,1,1,0.98,//ExADDw9v//+fFgc/b+///7+2p79/////////////8f8gBwAH4AfgDnAEoAjQA8ATwAMoABwAM')]
+    [TestCase('28',  'horse.webp,claRed,Tile,0.15,0.15,AllCorners,Round,True,0,0,1,1,1,0.98,//EwADDw9v//+fDAc/b+///7+Mp79///////2//3//8PgAAAAAAAAAAAHwACADwsHz4APoABwA8')]
+    [TestCase('29',  'horse.webp,claWhite,Tile,0.15,0.15,AllCorners,Round,True,0.15,0.15,0.85,0.85,0.4,0.98,///5gYGBgf////nhw8fP/////e/Hx9//////////////4+/D48PAA8ADwAPAA8Hj4APn3/////8')]
+    [TestCase('30',  'horse.webp,claRed,Tile,0.15,0.15,AllCorners,Round,True,0.15,0.15,0.85,0.85,0.4,0.98,/4GBgYGBgf///fHhw8fN///9/e3Hx83///397d////8/4D/AL8ADYAAgACAAAAfgP8Af2AAAAAA')]
+    [TestCase('31',  'horse.webp,claWhite,Tile,0.15,0.15,AllCorners,Round,True,0.15,0.15,0.85,0.85,1,0.98,///5gYGBgf////nhw8fP/////e/Hx8//////////7//gB+AH4AfAA8ADwAPAA8AH4Af///////8')]
+    [TestCase('32',  'horse.webp,claRed,Tile,0.15,0.15,AllCorners,Round,True,0.15,0.15,0.85,0.85,1,0.98,/4GBgYGBgf///fHhw8XJ///9/e3Hxc3/////////7f/gB+AH4AfgB+AH4AfgB+AH4Af///////8')]
+    [TestCase('33',  'horse.webp,claWhite,TileOriginal,0.15,0.15,AllCorners,Round,True,0,0,1,1,0.4,0.98,//ExADDw9v///XFgc/f+////+Wp79///////+//3//8fggAAAAAAAAMAPwA/AP48/z4Bvgnvgf8')]
+    [TestCase('34',  'horse.webp,claRed,TileOriginal,0.15,0.15,AllCorners,Round,True,0,0,1,1,0.4,0.98,//EwADDw9v//+fBgc/f+///7+Gp79//////////3//8fgwEBAAABAAcAfwD/QP98/z73vv//f/8')]
+    [TestCase('35',  'horse.webp,claWhite,TileOriginal,0.15,0.15,AllCorners,Round,True,0,0,1,1,1,0.98,//ExADDw9v//+fFgc/b+///7+2p79/////////////8fkgBwAH4AfgDnAEoAjQA8ATwAMoABwAM')]
+    [TestCase('36',  'horse.webp,claRed,TileOriginal,0.15,0.15,AllCorners,Round,True,0,0,1,1,1,0.98,//EwADDw9v//+fDAc/b+///7+Mp79/////v4y3v3//+AAIAAgACAAIAAgACAAIAAgACAAIABwAc')]
+    [TestCase('37',  'horse.webp,claWhite,TileOriginal,0.15,0.15,AllCorners,Round,True,0.15,0.15,0.85,0.85,0.4,0.98,///5gYGBgf////nhw8fP/////e/Hx9//////////////4+/D48PAA8ADwAPAA8Hj4APn3/////8')]
+    [TestCase('38',  'horse.webp,claRed,TileOriginal,0.15,0.15,AllCorners,Round,True,0.15,0.15,0.85,0.85,0.4,0.98,/4GBgYGBgf///fHhw8fN///9/e3Hx83///397d////8/4D/AL8ADYAAgACAAAAfgP8Af2AAAAAA')]
+    [TestCase('39',  'horse.webp,claWhite,TileOriginal,0.15,0.15,AllCorners,Round,True,0.15,0.15,0.85,0.85,1,0.98,///5gYGBgf////nhw8fP/////e/Hx8//////////7//gB+AH4AfAA8ADwAPAA8AH4Af///////8')]
+    [TestCase('40',  'horse.webp,claRed,TileOriginal,0.15,0.15,AllCorners,Round,True,0.15,0.15,0.85,0.85,1,0.98,/4GBgYGBgf///fHhw8XJ///9/e3Hxc3/////////7f/gB+AH4AfgB+AH4AfgB+AH4Af///////8')]
+    [TestCase('41',  'horse.webp,claWhite,TileStretch,0.15,0.15,AllCorners,Round,True,0,0,1,1,0.4,0.98,/85AAMDS+vP//nBgw9f+////d3P73/////////v///8AAAAAAAAICHgQcBjzCPvMD44/gA+40AM')]
+    [TestCase('42',  'horse.webp,claRed,TileStretch,0.15,0.15,AllCorners,Round,True,0,0,1,1,0.4,0.98,/84AAMDS8vP//vBgw9f+////93H73/////////v///84wAgAAAAYGHgQ+BzzDPusX4//hP++/64')]
+    [TestCase('43',  'horse.webp,claWhite,TileStretch,0.15,0.15,AllCorners,Round,True,0,0,1,1,1,0.98,/85AAMDS+vP//vBgw9f+////93P73///////+/////8XAAOAB4AHwD/AAOAjQC/IAoABgIBBwAM')]
+    [TestCase('44',  'horse.webp,claRed,TileStretch,0.15,0.15,AllCorners,Round,True,0,0,1,1,1,0.98,/84AAMDS8vP//uDAw9b+////5/P73/////////v///8AAAAAAAAACDgAEACzAPuIA4ABgIABwAc')]
+    [TestCase('45',  'horse.webp,claWhite,TileStretch,0.15,0.15,AllCorners,Round,True,0.15,0.15,0.85,0.85,0.4,0.98,/++BgYGBgf////Hhw8fP////9/Pz79/////////////4Y8ADwAPAA8QDygPlA8CDwAPwB/////8')]
+    [TestCase('46',  'horse.webp,claRed,TileStretch,0.15,0.15,AllCorners,Round,True,0.15,0.15,0.85,0.85,0.4,0.98,/4GBgYGBgf///fHhw8fN///99fHz783//////////f/448yDwAPEM9wj+xP9k9+f/zv/n/////8')]
+    [TestCase('47',  'horse.webp,claWhite,TileStretch,0.15,0.15,AllCorners,Round,True,0.15,0.15,0.85,0.85,1,0.98,/++BgYGBgf////Hhw8fP////9/Pz79/////////////gA8AHwAfAB+AH4AfgB+AH4Af///////8')]
+    [TestCase('48',  'horse.webp,claRed,TileStretch,0.15,0.15,AllCorners,Round,True,0.15,0.15,0.85,0.85,1,0.98,/4GBgYGBgf///fHhw8XJ///99fHz7cn/////////6f/gB+AH4AfgB+AH4AfgB+AH4Af///////8')]
+    [TestCase('49',  'horse.webp,claWhite,Tile,0.15,0.15,AllCorners,Bevel,False,0,0,1,1,0.4,0.98,3wDB9f/NAMH/+PH1/8/Ozf/69///7+7f///3///v7t8wQfAj9iM/AbIC///x4wAAAAAwQfYj9iM')]
+    [TestCase('50',  'horse.webp,claRed,Tile,0.15,0.15,AllCorners,Bevel,False,0,0,1,1,0.4,0.98,zQAAAN1AAMH/+ODg30dMzf/69vrfb27f///3//9vbt8wYfYj9jP/N/7////x4zEBAABwY3Yj9jc')]
+    [TestCase('51',  'horse.webp,claWhite,Tile,0.15,0.15,AllCorners,Bevel,False,0,0,1,1,1,0.98,3wDB9f/JAMH/+PH1/8/Mzf/69///7+7f///////v7t8PAAEAFgAAAAAA//+/owYADwAPAIGBxgM')]
+    [TestCase('52',  'horse.webp,claRed,Tile,0.15,0.15,AllCorners,Bevel,False,0,0,1,1,1,0.98,zQAAAN1AAMH98ODA3UAAwf/69trfbmbT///3299vZtMAAAAABAAAAAAA9f9hwQAAAACAAYAB5Ac')]
+    [TestCase('53',  'horse.webp,claWhite,Tile,0.15,0.15,AllCorners,Bevel,False,0.15,0.15,0.85,0.85,0.4,0.98,/+eBgYGB5/////Hhw8fv////8/Hvz//////////////MA8ADwAPAA+iLwEPAA//v/D/8L/////8')]
+    [TestCase('54',  'horse.webp,claRed,Tile,0.15,0.15,AllCorners,Bevel,False,0.15,0.15,0.85,0.85,0.4,0.98,/8OBgYGBw/////Hhw8fP////8fHvz//////x8f////8MMAAABAg8CD3MF8w/3D/8PPwOMAAAAAA')]
+    [TestCase('55',  'horse.webp,claWhite,Tile,0.15,0.15,AllCorners,Bevel,False,0.15,0.15,0.85,0.85,1,0.98,/+eBgYGB5/////Hhw8fv////8/Pvz//////////////gB8ADwAfgB+AH4AfgB+AH4Af/P/////8')]
+    [TestCase('56',  'horse.webp,claRed,Tile,0.15,0.15,AllCorners,Bevel,False,0.15,0.15,0.85,0.85,1,0.98,/8OBgYGBw/////Hhw8fP////8fHvz//////////////gB+AH4AfgB+AH4AfgB+AH8A////////8')]
+    [TestCase('57',  'horse.webp,claWhite,TileOriginal,0.15,0.15,AllCorners,Bevel,False,0,0,1,1,0.4,0.98,yQEBAff/////+fHh9///////9/v3///////3//f///8QBwAHFicABwAH//////////////////8')]
+    [TestCase('58',  'horse.webp,claRed,TileOriginal,0.15,0.15,AllCorners,Bevel,False,0,0,1,1,0.4,0.98,AQEBAf//////+eHh///////59fn////////1+/////8wY/Yj9jP/M/77//////////////////8')]
+    [TestCase('59',  'horse.webp,claWhite,TileOriginal,0.15,0.15,AllCorners,Bevel,False,0,0,1,1,1,0.98,yQEBAff////5+fHh9//////79/v3///////3//f///8ABwAHAAcABwAH//////////////////8')]
+    [TestCase('60',  'horse.webp,claRed,TileOriginal,0.15,0.15,AllCorners,Bevel,False,0,0,1,1,1,0.98,AQEBAf/////58eHB//////359dn//////f/13/////8ABwAHAAcAB/////////////////////8')]
+    [TestCase('61',  'horse.webp,claWhite,TileOriginal,0.15,0.15,AllCorners,Bevel,False,0.15,0.15,0.85,0.85,0.4,0.98,/+eBgYGB//////Hhw8f/////8/Hvz//////////////MA8ADwAPAA+iLwEPAA//v//////////8')]
+    [TestCase('62',  'horse.webp,claRed,TileOriginal,0.15,0.15,AllCorners,Bevel,False,0.15,0.15,0.85,0.85,0.4,0.98,/8OBgYGB//////Hhw8f/////8fHvz//////x8f////8OMAAABAg8CD3MP8w/3B/gAAAAAAAAAAA')]
+    [TestCase('63',  'horse.webp,claWhite,TileOriginal,0.15,0.15,AllCorners,Bevel,False,0.15,0.15,0.85,0.85,1,0.98,/+eBgYGB//////Hhw8f/////8/Pvz//////////////AA8ADwAPgA+AH4AfgB/////////////8')]
+    [TestCase('64',  'horse.webp,claRed,TileOriginal,0.15,0.15,AllCorners,Bevel,False,0.15,0.15,0.85,0.85,1,0.98,/8OBgYGB//////Hhw8f/////8fHvz//////////////gB+AH4AfgB+AH4AfgB/////////////8')]
+    [TestCase('65',  'horse.webp,claWhite,TileStretch,0.15,0.15,AllCorners,Bevel,False,0,0,1,1,0.4,0.98,/85AAMDS8vP//nBgw9f+////d2P73/////////v///8AAAAAAAAACHgQcBjzCPvMD44/gIu58AM')]
+    [TestCase('66',  'horse.webp,claRed,TileStretch,0.15,0.15,AllCorners,Bevel,False,0,0,1,1,0.4,0.98,/8QAAADAEIH//ODgQ8dejf//5/N7z1+N//////v///04wAgAAAAYGHgQ+BzzDPusX4//hP+//68')]
+    [TestCase('67',  'horse.webp,claWhite,TileStretch,0.15,0.15,AllCorners,Bevel,False,0,0,1,1,1,0.98,/84AAMDS8vP//vDgw9f+////9/P73///////+/////8XAAOAB4AHwC/AAOADQA/AAoAAAIBBwAM')]
+    [TestCase('68',  'horse.webp,claRed,TileStretch,0.15,0.15,AllCorners,Bevel,False,0,0,1,1,1,0.98,/8QAAEDQMIH/9ODAQNA0gf/35/N72T2p//////v5PekAAAAAAAAAAAgAAAADAAuIAACAAYAB4Ac')]
+    [TestCase('69',  'horse.webp,claWhite,TileStretch,0.15,0.15,AllCorners,Bevel,False,0.15,0.15,0.85,0.85,0.4,0.98,/++BgYGBw/////Hhw8fP////9/Pz79/////////////4Y8ADwAPAA8QDygPhA8CD4AfwD/////8')]
+    [TestCase('70',  'horse.webp,claRed,TileStretch,0.15,0.15,AllCorners,Bevel,False,0.15,0.15,0.85,0.85,0.4,0.98,/8OBgYGBw/////Hhw8fP////9fHz78/////////////448yDwAPEM9wj+xP9k9+f/zv/l/////8')]
+    [TestCase('71',  'horse.webp,claWhite,TileStretch,0.15,0.15,AllCorners,Bevel,False,0.15,0.15,0.85,0.85,1,0.98,/++BgYGBw/////Hhw8fP////9/Pz79/////////////gA8AHwAfAB+AH4AfgB+AH4Af///////8')]
+    [TestCase('72',  'horse.webp,claRed,TileStretch,0.15,0.15,AllCorners,Bevel,False,0.15,0.15,0.85,0.85,1,0.98,/8OBgYGBw/////Hhw8fP////9fHz78/////////////gB+AH4AfgB+AH4AfgB+AH8A////////8')]
+    [TestCase('73',  'horse.webp,claWhite,Tile,0.15,0.15,AllCorners,InnerRound,False,0,0,1,1,0.4,0.98,3wBA8f/JAMH/+PDx/8/Ozf/69vv/7+7f///3+//v7t8wQPAj9iM/AZIC///x4wAAAAAwQfYj9iM')]
+    [TestCase('74',  'horse.webp,claRed,Tile,0.15,0.15,AllCorners,InnerRound,False,0,0,1,1,0.4,0.98,ywAAAMEAAMH/+PDgw0dMzf/69vrTb27d///3//Nvbt0wYfYz9jf/N/7////x5zEBAABwY/Yj9jM')]
+    [TestCase('75',  'horse.webp,claWhite,Tile,0.15,0.15,AllCorners,InnerRound,False,0,0,1,1,1,0.98,3wBB8f/JAMH/+PHx/8/Mzf/69/v/7+7f////+//v7t8NAAAABgAAAAAA//+3IwQADgCFAeCD5Ac')]
+    [TestCase('76',  'horse.webp,claRed,Tile,0.15,0.15,AllCorners,InnerRound,False,0,0,1,1,1,0.98,yQAAAAAAAMH5+PDgwAAAwf369vrSbmbT/f/3+9JvZtMAAAAABAAAAAAA8fshwQAAAACAAcAD5Ac')]
+    [TestCase('77',  'horse.webp,claWhite,Tile,0.15,0.15,AllCorners,InnerRound,False,0.15,0.15,0.85,0.85,0.4,0.98,/+eBgYGB5/////Hhw8fv////8/Hvz//////////////MA8ADwAPAA+iLwEPAA//v/D/8L/////8')]
+    [TestCase('78',  'horse.webp,claRed,Tile,0.15,0.15,AllCorners,InnerRound,False,0.15,0.15,0.85,0.85,0.4,0.98,/8OBgYGBw/////Hhw8fP////8fHvz//////x8e////8MMAAABAg8CD3MF8w/3D/8HPgOMAAAAAA')]
+    [TestCase('79',  'horse.webp,claWhite,Tile,0.15,0.15,AllCorners,InnerRound,False,0.15,0.15,0.85,0.85,1,0.98,/+eBgYGB5/////Hhw8fv////8/Pvz//////////////gA8ADwAfgB+AH4AfgB+AH8A//P/////8')]
+    [TestCase('80',  'horse.webp,claRed,Tile,0.15,0.15,AllCorners,InnerRound,False,0.15,0.15,0.85,0.85,1,0.98,/8OBgYGBw/////Hhw8fP////8fHvz//////////////gB+AH4AfgB+AH4AfgB+AH8A////////8')]
+    [TestCase('81',  'horse.webp,claWhite,TileOriginal,0.15,0.15,AllCorners,InnerRound,False,0,0,1,1,0.4,0.98,yQEBAff/////+fHh9///////9/v3///////3//f///8QBwAHFicABwAH//////////////////8')]
+    [TestCase('82',  'horse.webp,claRed,TileOriginal,0.15,0.15,AllCorners,InnerRound,False,0,0,1,1,0.4,0.98,gQEBAf//////+fHh///////59fn////////1+/////8wY/Yj9jP/M/77//////////////////8')]
+    [TestCase('83',  'horse.webp,claWhite,TileOriginal,0.15,0.15,AllCorners,InnerRound,False,0,0,1,1,1,0.98,yQEBAff////5+fHh9//////79/v3///////3//f///8ABwAHAAcABwAH//////////////////8')]
+    [TestCase('84',  'horse.webp,claRed,TileOriginal,0.15,0.15,AllCorners,InnerRound,False,0,0,1,1,1,0.98,gQEBAf/////5+fHh//////359fn//////f/1//////8ABwAHAAcAB/////////////////////8')]
+    [TestCase('85',  'horse.webp,claWhite,TileOriginal,0.15,0.15,AllCorners,InnerRound,False,0.15,0.15,0.85,0.85,0.4,0.98,/+eBgYGB//////Hhw8f/////8/Hvz//////////////MA8ADwAPAA+iLwEPAA//v//////////8')]
+    [TestCase('86',  'horse.webp,claRed,TileOriginal,0.15,0.15,AllCorners,InnerRound,False,0.15,0.15,0.85,0.85,0.4,0.98,/8OBgYGB//////Hhw8f/////8fHvz//////////////OO8ADxAv8C/3P/8//39/j//////////8')]
+    [TestCase('87',  'horse.webp,claWhite,TileOriginal,0.15,0.15,AllCorners,InnerRound,False,0.15,0.15,0.85,0.85,1,0.98,/+eBgYGB//////Hhw8f/////8/Pvz//////////////AA8ADwAPgA+AH4AfgB/////////////8')]
+    [TestCase('88',  'horse.webp,claRed,TileOriginal,0.15,0.15,AllCorners,InnerRound,False,0.15,0.15,0.85,0.85,1,0.98,/8OBgYGB//////Hhw8f/////8fHvz//////////////gB+AH4AfgB+AH4AfgB/////////////8')]
+    [TestCase('89',  'horse.webp,claWhite,TileStretch,0.15,0.15,AllCorners,InnerRound,False,0,0,1,1,0.4,0.98,/84AAEDS8PP//nBgQ9f+////d2N73/////////v///8AAAAAAAAACHgQcBjzCPvMC46/gMu78Ac')]
+    [TestCase('90',  'horse.webp,claRed,TileStretch,0.15,0.15,AllCorners,InnerRound,False,0,0,1,1,0.4,0.98,78QAAAAAAIH//PDgw0dMjf//9/P7T03N//////v//f04wAgAAAAYGHgQ+BzzDPusX4//hL+//68')]
+    [TestCase('91',  'horse.webp,claWhite,TileStretch,0.15,0.15,AllCorners,InnerRound,False,0,0,1,1,1,0.98,/84AAEDS8vP//vDgQ9f+////9/N73//////////f//8CAAOAB4AHwAmAAOADAAPAAACAAcBD4Ac')]
+    [TestCase('92',  'horse.webp,claRed,TileStretch,0.15,0.15,AllCorners,InnerRound,False,0,0,1,1,1,0.98,78QAAAAAAMP//PDgwAAAw///9/P7SQnr//////t5OesAAAAAAAAAAAgAAAABAAKAAACAAcAD4Ac')]
+    [TestCase('93',  'horse.webp,claWhite,TileStretch,0.15,0.15,AllCorners,InnerRound,False,0.15,0.15,0.85,0.85,0.4,0.98,/++BgYGBw/////Hhw8fP////9/Pz79/////////////4Y8ADwAPAA8QDygPhA8CD4AfwD/////8')]
+    [TestCase('94',  'horse.webp,claRed,TileStretch,0.15,0.15,AllCorners,InnerRound,False,0.15,0.15,0.85,0.85,0.4,0.98,/8OBgYGBw/////Hhw8fP////9fHz78/////////////448yDwAPEM9wj+xP9k9+f/zf/n/////8')]
+    [TestCase('95',  'horse.webp,claWhite,TileStretch,0.15,0.15,AllCorners,InnerRound,False,0.15,0.15,0.85,0.85,1,0.98,/++BgYGBw/////Hhw8fP////9/Pz79/////////////gA8AHwAfAB+AH4AfgB+AH8A////////8')]
+    [TestCase('96',  'horse.webp,claRed,TileStretch,0.15,0.15,AllCorners,InnerRound,False,0.15,0.15,0.85,0.85,1,0.98,/8OBgYGBw/////Hhw8fP////9fHz7+/////////////gB+AH4AfgB+AH4AfgB+AH8A////////8')]
+    [TestCase('97',  'horse.webp,claWhite,Tile,0.15,0.15,AllCorners,InnerLine,False,0,0,1,1,0.4,0.98,3wBA8f/JAMH/+PDx/8/Ozf/69vv/7+7f///3+//v7t8wQPAj9iM/AYIC///x4wAAAAAwQfYj9ic')]
+    [TestCase('98',  'horse.webp,claRed,Tile,0.15,0.15,AllCorners,InnerLine,False,0,0,1,1,0.4,0.98,ywAAAAAAAcH/+PDgw0ZNzf/69vrTbm/d///3+/Nub90wYfYz9jf/N/7////x5zEBAABwY/Yj9jM')]
+    [TestCase('99',  'horse.webp,claWhite,Tile,0.15,0.15,AllCorners,InnerLine,False,0,0,1,1,1,0.98,3wBA8f/JAMH/+PDx/8/Mzf/69vv/7+7f///////v7t8NAAAABgAAAAAA//+3IwQADgCFAcCD5Ac')]
+    [TestCase('100', 'horse.webp,claRed,Tile,0.15,0.15,AllCorners,InnerLine,False,0,0,1,1,1,0.98,ywAAAAAAAMH7+PDgwAAAwf/69vrSbmbR///2/9JvZtEAAAAAAAAAAAAAAAAAAAAAAADAA+AH4Ac')]
+    [TestCase('101', 'horse.webp,claWhite,Tile,0.15,0.15,AllCorners,InnerLine,False,0.15,0.15,0.85,0.85,0.4,0.98,/+eBgYGB5/////Hhw8fv////8/Hvz//////////////MA8ADwAPAA+iLwEPAA//v/D/8L/////8')]
+    [TestCase('102', 'horse.webp,claRed,Tile,0.15,0.15,AllCorners,InnerLine,False,0.15,0.15,0.85,0.85,0.4,0.98,/8OBgYGBw/////Hhw8fP////8fHvz//////x8e////8MOAAABAg8CD3MF8w/3D/8HPgOMAAAAAA')]
+    [TestCase('103', 'horse.webp,claWhite,Tile,0.15,0.15,AllCorners,InnerLine,False,0.15,0.15,0.85,0.85,1,0.98,/+eBgYGB5/////Hhw8fv////8/Pvz//////////////gB8ADwAfgB+AH4AfgB+AH8A//P/////8')]
+    [TestCase('104', 'horse.webp,claRed,Tile,0.15,0.15,AllCorners,InnerLine,False,0.15,0.15,0.85,0.85,1,0.98,/8OBgYGBw/////Hhw8fP////8fHvz//////////////gB+AH4AfgB+AH4AfgB+AH8A////////8')]
+    [TestCase('105', 'horse.webp,claWhite,TileOriginal,0.15,0.15,AllCorners,InnerLine,False,0,0,1,1,0.4,0.98,yQEBAff/////+fHh9///////9/v3///////3//f///8QBwAHFicABwAH//////////////////8')]
+    [TestCase('106', 'horse.webp,claRed,TileOriginal,0.15,0.15,AllCorners,InnerLine,False,0,0,1,1,0.4,0.98,gQEBAf//////+fHh///////59fn////////1+/////8wY/Yz9jP/M/77//////////////////8')]
+    [TestCase('107', 'horse.webp,claWhite,TileOriginal,0.15,0.15,AllCorners,InnerLine,False,0,0,1,1,1,0.98,yQEBAff////5+fHh9//////79/v3///////3//f///8ABwAHAAcABwAH//////////////////8')]
+    [TestCase('108', 'horse.webp,claRed,TileOriginal,0.15,0.15,AllCorners,InnerLine,False,0,0,1,1,1,0.98,gQEBAf/////5+fHh//////359fn//////f/1//////8ABwAHAAcAB/////////////////////8')]
+    [TestCase('109', 'horse.webp,claWhite,TileOriginal,0.15,0.15,AllCorners,InnerLine,False,0.15,0.15,0.85,0.85,0.4,0.98,/+eBgYGB//////Hhw8f/////8/Hvz//////////////MA8ADwAPAA+iLwEPAA//v//////////8')]
+    [TestCase('110', 'horse.webp,claRed,TileOriginal,0.15,0.15,AllCorners,InnerLine,False,0.15,0.15,0.85,0.85,0.4,0.98,/8OBgYGB//////Hhw8f/////8fHvz//////////////OO8ADxAv8C/3P/8//39/j//////////8')]
+    [TestCase('111', 'horse.webp,claWhite,TileOriginal,0.15,0.15,AllCorners,InnerLine,False,0.15,0.15,0.85,0.85,1,0.98,/+eBgYGB//////Hhw8f/////8/Pvz//////////////AA8ADwAPgA+AH4AfgB/////////////8')]
+    [TestCase('112', 'horse.webp,claRed,TileOriginal,0.15,0.15,AllCorners,InnerLine,False,0.15,0.15,0.85,0.85,1,0.98,/8OBgYGB//////Hhw8f/////8fHvz//////////////gB+AH4AfgB+AH4AfgB/////////////8')]
+    [TestCase('113', 'horse.webp,claWhite,TileStretch,0.15,0.15,AllCorners,InnerLine,False,0,0,1,1,0.4,0.98,/84AAEDS8PP//nBgQ9f+////d2N73/////////v///8AAAAAAAAACHgQcBjzCPvMC46/gMu/8Ac')]
+    [TestCase('114', 'horse.webp,claRed,TileStretch,0.15,0.15,AllCorners,InnerLine,False,0,0,1,1,0.4,0.98,78QAAAAAgcP//PDgw0fNz///9/P7T83P//////v//f84wAgAAAAYGHgQ+BzzDPusX4//hP+//68')]
+    [TestCase('115', 'horse.webp,claWhite,TileStretch,0.15,0.15,AllCorners,InnerLine,False,0,0,1,1,1,0.98,/84AAEDS8PP//vDgQ9f+////9/N73//////////f//8CAAOAB4AHwAmAAOADAAPAAACAAcBD4Ac')]
+    [TestCase('116', 'horse.webp,claRed,TileStretch,0.15,0.15,AllCorners,InnerLine,False,0,0,1,1,1,0.98,z8AAAAAAgcP/+PDgwACBw///9/P7SYnr///39/tLiesAAAAAAAAAAAAAAAAAAAAAAADAA+AH4Ac')]
+    [TestCase('117', 'horse.webp,claWhite,TileStretch,0.15,0.15,AllCorners,InnerLine,False,0.15,0.15,0.85,0.85,0.4,0.98,/++BgYGBw/////Hhw8fP////9/Pz79/////////////4Y8ADwAPAA8QDygPhA8CD8A/wD/////8')]
+    [TestCase('118', 'horse.webp,claRed,TileStretch,0.15,0.15,AllCorners,InnerLine,False,0.15,0.15,0.85,0.85,0.4,0.98,/8OBgYGBw/////Hhw8fP////9fHz7+/////////////488yDxAPEM9wj+xP9k9+f7zf/n/////8')]
+    [TestCase('119', 'horse.webp,claWhite,TileStretch,0.15,0.15,AllCorners,InnerLine,False,0.15,0.15,0.85,0.85,1,0.98,/++BgYGBw/////Hhw8fP////9/Pz79/////////////gA8AHwAfAB+AH4AfgB+AH8A////////8')]
+    [TestCase('120', 'horse.webp,claRed,TileStretch,0.15,0.15,AllCorners,InnerLine,False,0.15,0.15,0.85,0.85,1,0.98,/8OBgYGBw/////Hhw8fP////9fHz7+/////////////gB+AH4AfgB+AH4AfgB+AH8A////////8')]
+    [TestCase('121', 'horse.webp,claWhite,Tile,0,0.15,AllCorners,Round,False,0.15,0.15,0.85,0.85,1,0.98,/+eBgYGB5/////Hhw8fv////8/Pvz//////////////gB8ADwAfgB+AH4AfgB+AH4Af/v/////8')]
+    [TestCase('122', 'horse.webp,claWhite,TileOriginal,0,0.15,AllCorners,Round,False,0.15,0.15,0.85,0.85,1,0.98,/+eBgYGB//////Hhw8f/////8/Pvz//////////////AA8ADwAPgA+AH4AfgB/////////////8')]
+    [TestCase('123', 'horse.webp,claWhite,TileStretch,0,0.15,AllCorners,Round,False,0.15,0.15,0.85,0.85,1,0.98,/++BgYGBgf////Hhw8fP////9/Pz79/////////////gA+AH4AfgB+AH4AfgB+AH4Af///////8')]
+    [TestCase('124', 'horse.webp,claWhite,Tile,0,0.15,AllCorners,Bevel,False,0.15,0.15,0.85,0.85,1,0.98,/+eBgYGB5/////Hhw8fv////8/Pvz//////////////gB8ADwAfgB+AH4AfgB+AH4Af/v/////8')]
+    [TestCase('125', 'horse.webp,claWhite,TileOriginal,0,0.15,AllCorners,Bevel,False,0.15,0.15,0.85,0.85,1,0.98,/+eBgYGB//////Hhw8f/////8/Pvz//////////////AA8ADwAPgA+AH4AfgB/////////////8')]
+    [TestCase('126', 'horse.webp,claWhite,TileStretch,0,0.15,AllCorners,Bevel,False,0.15,0.15,0.85,0.85,1,0.98,/++BgYGBgf////Hhw8fP////9/Pz79/////////////gA+AH4AfgB+AH4AfgB+AH4Af///////8')]
+    [TestCase('127', 'horse.webp,claWhite,Tile,0,0.15,AllCorners,InnerRound,False,0.15,0.15,0.85,0.85,1,0.98,/+eBgYGB5/////Hhw8fv////8/Pvz//////////////gB8ADwAfgB+AH4AfgB+AH4Af/v/////8')]
+    [TestCase('128', 'horse.webp,claWhite,TileOriginal,0,0.15,AllCorners,InnerRound,False,0.15,0.15,0.85,0.85,1,0.98,/+eBgYGB//////Hhw8f/////8/Pvz//////////////AA8ADwAPgA+AH4AfgB/////////////8')]
+    [TestCase('129', 'horse.webp,claWhite,TileStretch,0,0.15,AllCorners,InnerRound,False,0.15,0.15,0.85,0.85,1,0.98,/++BgYGBgf////Hhw8fP////9/Pz79/////////////gA+AH4AfgB+AH4AfgB+AH4Af///////8')]
+    [TestCase('130', 'horse.webp,claWhite,Tile,0,0.15,AllCorners,InnerLine,False,0.15,0.15,0.85,0.85,1,0.98,/+eBgYGB5/////Hhw8fv////8/Pvz//////////////gB8ADwAfgB+AH4AfgB+AH4Af/v/////8')]
+    [TestCase('131', 'horse.webp,claWhite,TileOriginal,0,0.15,AllCorners,InnerLine,False,0.15,0.15,0.85,0.85,1,0.98,/+eBgYGB//////Hhw8f/////8/Pvz//////////////AA8ADwAPgA+AH4AfgB/////////////8')]
+    [TestCase('132', 'horse.webp,claWhite,TileStretch,0,0.15,AllCorners,InnerLine,False,0.15,0.15,0.85,0.85,1,0.98,/++BgYGBgf////Hhw8fP////9/Pz79/////////////gA+AH4AfgB+AH4AfgB+AH4Af///////8')]
+    [TestCase('133', 'horse.webp,claWhite,Tile,0.06,0.15,AllCorners,Round,False,0.15,0.15,0.85,0.85,1,0.98,/+eBgYGB5/////Hhw8fv////8/Pvz//////////////gB8ADwAfgB+AH4AfgB+AH4Af/v/////8')]
+    [TestCase('134', 'horse.webp,claWhite,TileOriginal,0.06,0.15,AllCorners,Round,False,0.15,0.15,0.85,0.85,1,0.98,/+eBgYGB//////Hhw8f/////8/Pvz//////////////AA8ADwAPgA+AH4AfgB/////////////8')]
+    [TestCase('135', 'horse.webp,claWhite,TileStretch,0.06,0.15,AllCorners,Round,False,0.15,0.15,0.85,0.85,1,0.98,/++BgYGBgf////Hhw8fP////9/Pz79/////////////gA8AH4AfgB+AH4AfgB+AH4Af///////8')]
+    [TestCase('136', 'horse.webp,claWhite,Tile,0.06,0.15,AllCorners,Bevel,False,0.15,0.15,0.85,0.85,1,0.98,/+eBgYGB5/////Hhw8fv////8/Pvz//////////////gB8ADwAfgB+AH4AfgB+AH4Af/v/////8')]
+    [TestCase('137', 'horse.webp,claWhite,TileOriginal,0.06,0.15,AllCorners,Bevel,False,0.15,0.15,0.85,0.85,1,0.98,/+eBgYGB//////Hhw8f/////8/Pvz//////////////AA8ADwAPgB+AH4AfgB/////////////8')]
+    [TestCase('138', 'horse.webp,claWhite,TileStretch,0.06,0.15,AllCorners,Bevel,False,0.15,0.15,0.85,0.85,1,0.98,/++BgYGBgf////Hhw8fP////9/Pz79/////////////gA8AHwAfAB+AH4AfgB+AH4Af///////8')]
+    [TestCase('139', 'horse.webp,claWhite,Tile,0.06,0.15,AllCorners,InnerRound,False,0.15,0.15,0.85,0.85,1,0.98,/+eBgYGB5/////Hhw8fv////8/Pvz//////////////gB8ADwAfgB+AH4AfgB+AH4A//v/////8')]
+    [TestCase('140', 'horse.webp,claWhite,TileOriginal,0.06,0.15,AllCorners,InnerRound,False,0.15,0.15,0.85,0.85,1,0.98,/+eBgYGB//////Hhw8f/////8/Pvz//////////////AA8ADwAPgA+AH4AfgB/////////////8')]
+    [TestCase('141', 'horse.webp,claWhite,TileStretch,0.06,0.15,AllCorners,InnerRound,False,0.15,0.15,0.85,0.85,1,0.98,/++BgYGBgf////Hhw8fP////9/Pz79/////////////gA8AHwAfAB+AH4AfgB+AH4Af///////8')]
+    [TestCase('142', 'horse.webp,claWhite,Tile,0.06,0.15,AllCorners,InnerLine,False,0.15,0.15,0.85,0.85,1,0.98,/+eBgYGB5/////Hhw8fv////8/Pvz//////////////gB8ADwAfgB+AH4AfgB+AH4Af/v/////8')]
+    [TestCase('143', 'horse.webp,claWhite,TileOriginal,0.06,0.15,AllCorners,InnerLine,False,0.15,0.15,0.85,0.85,1,0.98,/+eBgYGB//////Hhw8f/////8/Pvz//////////////AA8ADwAPgA+AH4AfgB/////////////8')]
+    [TestCase('144', 'horse.webp,claWhite,TileStretch,0.06,0.15,AllCorners,InnerLine,False,0.15,0.15,0.85,0.85,1,0.98,/++BgYGBwf////Hhw8fP////9/Pz79/////////////gA8AHwAfAB+AH4AfgB+AH4Af///////8')]
+    [TestCase('145', 'horse.webp,claWhite,Tile,0.15,0.15,,Round,False,0.15,0.15,0.85,0.85,1,0.98,/+eBgYGB5/////Hhw8fv////8/Pvz//////////////gB8ADwAfgB+AH4AfgB+AH4Af/v/////8')]
+    [TestCase('146', 'horse.webp,claWhite,TileOriginal,0.15,0.15,,Round,False,0.15,0.15,0.85,0.85,1,0.98,/+eBgYGB//////Hhw8f/////8/Pvz//////////////AA8ADwAPgA+AH4AfgB/////////////8')]
+    [TestCase('147', 'horse.webp,claWhite,TileStretch,0.15,0.15,,Round,False,0.15,0.15,0.85,0.85,1,0.98,/++BgYGBgf////Hhw8fP////9/Pz79/////////////gA+AH4AfgB+AH4AfgB+AH4Af///////8')]
+    [TestCase('148', 'horse.webp,claWhite,Tile,0.15,0.15,,Bevel,False,0.15,0.15,0.85,0.85,1,0.98,/+eBgYGB5/////Hhw8fv////8/Pvz//////////////gB8ADwAfgB+AH4AfgB+AH4Af/v/////8')]
+    [TestCase('149', 'horse.webp,claWhite,TileOriginal,0.15,0.15,,Bevel,False,0.15,0.15,0.85,0.85,1,0.98,/+eBgYGB//////Hhw8f/////8/Pvz//////////////AA8ADwAPgA+AH4AfgB/////////////8')]
+    [TestCase('150', 'horse.webp,claWhite,TileStretch,0.15,0.15,,Bevel,False,0.15,0.15,0.85,0.85,1,0.98,/++BgYGBgf////Hhw8fP////9/Pz79/////////////gA+AH4AfgB+AH4AfgB+AH4Af///////8')]
+    [TestCase('151', 'horse.webp,claWhite,Tile,0.15,0.15,,InnerRound,False,0.15,0.15,0.85,0.85,1,0.98,/+eBgYGB5/////Hhw8fv////8/Pvz//////////////gB8ADwAfgB+AH4AfgB+AH4Af/v/////8')]
+    [TestCase('152', 'horse.webp,claWhite,TileOriginal,0.15,0.15,,InnerRound,False,0.15,0.15,0.85,0.85,1,0.98,/+eBgYGB//////Hhw8f/////8/Pvz//////////////AA8ADwAPgA+AH4AfgB/////////////8')]
+    [TestCase('153', 'horse.webp,claWhite,TileStretch,0.15,0.15,,InnerRound,False,0.15,0.15,0.85,0.85,1,0.98,/++BgYGBgf////Hhw8fP////9/Pz79/////////////gA+AH4AfgB+AH4AfgB+AH4Af///////8')]
+    [TestCase('154', 'horse.webp,claWhite,Tile,0.15,0.15,,InnerLine,False,0.15,0.15,0.85,0.85,1,0.98,/+eBgYGB5/////Hhw8fv////8/Pvz//////////////gB8ADwAfgB+AH4AfgB+AH4Af/v/////8')]
+    [TestCase('155', 'horse.webp,claWhite,TileOriginal,0.15,0.15,,InnerLine,False,0.15,0.15,0.85,0.85,1,0.98,/+eBgYGB//////Hhw8f/////8/Pvz//////////////AA8ADwAPgA+AH4AfgB/////////////8')]
+    [TestCase('156', 'horse.webp,claWhite,TileStretch,0.15,0.15,,InnerLine,False,0.15,0.15,0.85,0.85,1,0.98,/++BgYGBgf////Hhw8fP////9/Pz79/////////////gA+AH4AfgB+AH4AfgB+AH4Af///////8')]
+    [TestCase('157', 'horse.webp,claWhite,Tile,0.15,0.15,TopLeft|TopRight|BottomRight,Round,False,0.15,0.15,0.85,0.85,1,0.98,/+eBgYGB5/////Hhw8fv////8/Pvz//////////////gB8ADwAfgB+AH4AfgB+AH4Af/v/////8')]
+    [TestCase('158', 'horse.webp,claWhite,TileOriginal,0.15,0.15,TopLeft|TopRight|BottomRight,Round,False,0.15,0.15,0.85,0.85,1,0.98,/+eBgYGB//////Hhw8f/////8/Pvz//////////////AA8ADwAPgB+AH4AfgB/////////////8')]
+    [TestCase('159', 'horse.webp,claWhite,TileStretch,0.15,0.15,TopLeft|TopRight|BottomRight,Round,False,0.15,0.15,0.85,0.85,1,0.98,/++BgYGBgf////Hhw8fP////9/Pz79/////////////gA8AH4AfAB+AH4AfgB+AH4Af///////8')]
+    [TestCase('160', 'horse.webp,claWhite,Tile,0.15,0.15,TopLeft|TopRight|BottomRight,Bevel,False,0.15,0.15,0.85,0.85,1,0.98,/+eBgYGB5/////Hhw8fv////8/Pvz//////////////gB8ADwAfgB+AH4AfgB+AH4Af/v/////8')]
+    [TestCase('161', 'horse.webp,claWhite,TileOriginal,0.15,0.15,TopLeft|TopRight|BottomRight,Bevel,False,0.15,0.15,0.85,0.85,1,0.98,/+eBgYGB//////Hhw8f/////8/Pvz//////////////AA8ADwAPgA+AH4AfgB/////////////8')]
+    [TestCase('162', 'horse.webp,claWhite,TileStretch,0.15,0.15,TopLeft|TopRight|BottomRight,Bevel,False,0.15,0.15,0.85,0.85,1,0.98,/++BgYGBg/////Hhw8fP////9/Pz79/////////////gA8AHwAfAB+AH4AfgB+AH4Af///////8')]
+    [TestCase('163', 'horse.webp,claWhite,Tile,0.15,0.15,TopLeft|TopRight|BottomRight,InnerRound,False,0.15,0.15,0.85,0.85,1,0.98,/+eBgYGB5/////Hhw8fv////8/Pvz//////////////gA8ADwAfgB+AH4AfgB+AH4A//P/////8')]
+    [TestCase('164', 'horse.webp,claWhite,TileOriginal,0.15,0.15,TopLeft|TopRight|BottomRight,InnerRound,False,0.15,0.15,0.85,0.85,1,0.98,/+eBgYGB//////Hhw8f/////8/Pvz//////////////AA8ADwAPgA+AH4AfgB/////////////8')]
+    [TestCase('165', 'horse.webp,claWhite,TileStretch,0.15,0.15,TopLeft|TopRight|BottomRight,InnerRound,False,0.15,0.15,0.85,0.85,1,0.98,/++BgYGBg/////Hhw8fP////9/Pz79/////////////gA8AHwAfAB+AH4AfgB+AH4A////////8')]
+    [TestCase('166', 'horse.webp,claWhite,Tile,0.15,0.15,TopLeft|TopRight|BottomRight,InnerLine,False,0.15,0.15,0.85,0.85,1,0.98,/+eBgYGB5/////Hhw8fv////8/Pvz//////////////gB8ADwAfgB+AH4AfgB+AH4A//P/////8')]
+    [TestCase('167', 'horse.webp,claWhite,TileOriginal,0.15,0.15,TopLeft|TopRight|BottomRight,InnerLine,False,0.15,0.15,0.85,0.85,1,0.98,/+eBgYGB//////Hhw8f/////8/Pvz//////////////AA8ADwAPgA+AH4AfgB/////////////8')]
+    [TestCase('168', 'horse.webp,claWhite,TileStretch,0.15,0.15,TopLeft|TopRight|BottomRight,InnerLine,False,0.15,0.15,0.85,0.85,1,0.98,/++BgYGBg/////Hhw8fP////9/Pz79/////////////gA8AHwAfAB+AH4AfgB+AH4A////////8')]
+    [TestCase('169', 'horse.webp,claWhite,Tile,0.15,0.15,TopLeft|BottomRight,Round,False,0.15,0.15,0.85,0.85,1,0.98,/+eBgYGB5/////Hhw8fv////8/Pvz//////////////gB8ADwAfgB+AH4AfgB+AH4Af/v/////8')]
+    [TestCase('170', 'horse.webp,claWhite,TileOriginal,0.15,0.15,TopLeft|BottomRight,Round,False,0.15,0.15,0.85,0.85,1,0.98,/+eBgYGB//////Hhw8f/////8/Pvz//////////////AA8ADwAPgB+AH4AfgB/////////////8')]
+    [TestCase('171', 'horse.webp,claWhite,TileStretch,0.15,0.15,TopLeft|BottomRight,Round,False,0.15,0.15,0.85,0.85,1,0.98,/++BgYGBgf////Hhw8fP////9/Pz79/////////////gA8AH4AfAB+AH4AfgB+AH4Af///////8')]
+    [TestCase('172', 'horse.webp,claWhite,Tile,0.15,0.15,TopLeft|BottomRight,Bevel,False,0.15,0.15,0.85,0.85,1,0.98,/+eBgYGB5/////Hhw8fv////8/Pvz//////////////gB8ADwAfgB+AH4AfgB+AH4Af/v/////8')]
+    [TestCase('173', 'horse.webp,claWhite,TileOriginal,0.15,0.15,TopLeft|BottomRight,Bevel,False,0.15,0.15,0.85,0.85,1,0.98,/+eBgYGB//////Hhw8f/////8/Pvz//////////////AA8ADwAPgA+AH4AfgB/////////////8')]
+    [TestCase('174', 'horse.webp,claWhite,TileStretch,0.15,0.15,TopLeft|BottomRight,Bevel,False,0.15,0.15,0.85,0.85,1,0.98,/++BgYGBg/////Hhw8fP////9/Pz79/////////////gA8AHwAfAB+AH4AfgB+AH4Af///////8')]
+    [TestCase('175', 'horse.webp,claWhite,Tile,0.15,0.15,TopLeft|BottomRight,InnerRound,False,0.15,0.15,0.85,0.85,1,0.98,/+eBgYGB5/////Hhw8fv////8/Pvz//////////////gB8ADwAfgB+AH4AfgB+AH4A//P/////8')]
+    [TestCase('176', 'horse.webp,claWhite,TileOriginal,0.15,0.15,TopLeft|BottomRight,InnerRound,False,0.15,0.15,0.85,0.85,1,0.98,/+eBgYGB//////Hhw8f/////8/Pvz//////////////AA8ADwAPgA+AH4AfgB/////////////8')]
+    [TestCase('177', 'horse.webp,claWhite,TileStretch,0.15,0.15,TopLeft|BottomRight,InnerRound,False,0.15,0.15,0.85,0.85,1,0.98,/++BgYGBg/////Hhw8fP////9/Pz79/////////////gA8AHwAfAB+AH4AfgB+AH4A////////8')]
+    [TestCase('178', 'horse.webp,claWhite,Tile,0.15,0.15,TopLeft|BottomRight,InnerLine,False,0.15,0.15,0.85,0.85,1,0.98,/+eBgYGB5/////Hhw8fv////8/Pvz//////////////gB8ADwAfgB+AH4AfgB+AH4A//P/////8')]
+    [TestCase('179', 'horse.webp,claWhite,TileOriginal,0.15,0.15,TopLeft|BottomRight,InnerLine,False,0.15,0.15,0.85,0.85,1,0.98,/+eBgYGB//////Hhw8f/////8/Pvz//////////////AA8ADwAPgA+AH4AfgB/////////////8')]
+    [TestCase('180', 'horse.webp,claWhite,TileStretch,0.15,0.15,TopLeft|BottomRight,InnerLine,False,0.15,0.15,0.85,0.85,1,0.98,/++BgYGBg/////Hhw8fP////9/Pz79/////////////gA8AHwAfAB+AH4AfgB+AH4A////////8')]
+    [TestCase('181', 'horse.webp,claWhite,Tile,0,0,AllCorners,Round,False,0.15,0.15,0.85,0.85,1,0.98,/+eBgYGB5/////Hhw8fv////8/Pvz//////////////gB8ADwAfgB+AH4AfgB+AH4Af/v/////8')]
+    [TestCase('182', 'horse.webp,claWhite,TileOriginal,0,0,AllCorners,Round,False,0.15,0.15,0.85,0.85,1,0.98,/+eBgYGB//////Hhw8f/////8/Pvz//////////////AA8ADwAPgA+AH4AfgB/////////////8')]
+    [TestCase('183', 'horse.webp,claWhite,TileStretch,0,0,AllCorners,Round,False,0.15,0.15,0.85,0.85,1,0.98,/++BgYGBgf////Hhw8fP////9/Pz79/////////////gA+AH4AfgB+AH4AfgB+AH4Af///////8')]
+    [TestCase('184', 'horse.webp,claWhite,Tile,0,0,AllCorners,Bevel,False,0.15,0.15,0.85,0.85,1,0.98,/+eBgYGB5/////Hhw8fv////8/Pvz//////////////gB8ADwAfgB+AH4AfgB+AH4Af/v/////8')]
+    [TestCase('185', 'horse.webp,claWhite,TileOriginal,0,0,AllCorners,Bevel,False,0.15,0.15,0.85,0.85,1,0.98,/+eBgYGB//////Hhw8f/////8/Pvz//////////////AA8ADwAPgA+AH4AfgB/////////////8')]
+    [TestCase('186', 'horse.webp,claWhite,TileStretch,0,0,AllCorners,Bevel,False,0.15,0.15,0.85,0.85,1,0.98,/++BgYGBgf////Hhw8fP////9/Pz79/////////////gA+AH4AfgB+AH4AfgB+AH4Af///////8')]
+    [TestCase('187', 'horse.webp,claWhite,Tile,0,0,AllCorners,InnerRound,False,0.15,0.15,0.85,0.85,1,0.98,/+eBgYGB5/////Hhw8fv////8/Pvz//////////////gB8ADwAfgB+AH4AfgB+AH4Af/v/////8')]
+    [TestCase('188', 'horse.webp,claWhite,TileOriginal,0,0,AllCorners,InnerRound,False,0.15,0.15,0.85,0.85,1,0.98,/+eBgYGB//////Hhw8f/////8/Pvz//////////////AA8ADwAPgA+AH4AfgB/////////////8')]
+    [TestCase('189', 'horse.webp,claWhite,TileStretch,0,0,AllCorners,InnerRound,False,0.15,0.15,0.85,0.85,1,0.98,/++BgYGBgf////Hhw8fP////9/Pz79/////////////gA+AH4AfgB+AH4AfgB+AH4Af///////8')]
+    [TestCase('190', 'horse.webp,claWhite,Tile,0,0,AllCorners,InnerLine,False,0.15,0.15,0.85,0.85,1,0.98,/+eBgYGB5/////Hhw8fv////8/Pvz//////////////gB8ADwAfgB+AH4AfgB+AH4Af/v/////8')]
+    [TestCase('191', 'horse.webp,claWhite,TileOriginal,0,0,AllCorners,InnerLine,False,0.15,0.15,0.85,0.85,1,0.98,/+eBgYGB//////Hhw8f/////8/Pvz//////////////AA8ADwAPgA+AH4AfgB/////////////8')]
+    [TestCase('192', 'horse.webp,claWhite,TileStretch,0,0,AllCorners,InnerLine,False,0.15,0.15,0.85,0.85,1,0.98,/++BgYGBgf////Hhw8fP////9/Pz79/////////////gA+AH4AfgB+AH4AfgB+AH4Af///////8')]
+    procedure TestFillRoundRectBitmap(const AImageFileName, AModulateColor: string; AWrapMode: TWrapMode; AXRadius, AYRadius: Single; const ACornersString: string; ACornerType: TCornerType; ASmallSize: Boolean; ALeftPercent, ATopPercent, ARightPercent, ABottomPercent, AOpacity, AMinSimilarity: Double; const AExpectedImageHash: string);
     [TestCase('1', '0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
     procedure TestSaveState(const AMinSimilarity: Double; const AExpectedImageHash: string);
   end;
@@ -715,8 +910,7 @@ uses
   System.Types,
   System.IOUtils,
   System.UIConsts,
-  System.Math,
-  FMX.Types;
+  System.Math;
 
 {$IF CompilerVersion <= 30}
 type
@@ -799,6 +993,26 @@ begin
     for Y := 0 to Ceil(ACanvas.Height / ASquareSize) do
       if Odd(X + Y) then
         ACanvas.FillRect(TRectF.Create(PointF(X, Y) * ASquareSize, ASquareSize, ASquareSize), 0, 0, [], 1);
+end;
+
+function TSkFMXCanvasTests.StringToCorners(const ACornersString: string): TCorners;
+var
+  LString: string;
+begin
+  if SameText(ACornersString, 'AllCorners') then
+    Exit(AllCorners);
+  Result := [];
+  for LString in ACornersString.Split([' ', ',', '|', ';']) do
+  begin
+    if SameText(LString, 'TopLeft') then
+      Result := Result + [TCorner.TopLeft]
+    else if SameText(LString, 'TopRight') then
+      Result := Result + [TCorner.TopRight]
+    else if SameText(LString, 'BottomLeft') then
+      Result := Result + [TCorner.BottomLeft]
+    else if SameText(LString, 'BottomRight') then
+      Result := Result + [TCorner.BottomRight];
+  end;
 end;
 
 procedure TSkFMXCanvasTests.TestClear(const AMinSimilarity: Double; const AExpectedImageHash: string);
@@ -1870,6 +2084,56 @@ begin
           LBitmap.Canvas.FillRect(RectF(25, 25, 75, 75), 0, 0, [], 0.6);
         finally
           LModulateCanvas.ModulateColor := TAlphaColors.White;
+        end;
+      finally
+        LBitmap.Canvas.EndScene;
+      end;
+    Assert.AreSimilar(AExpectedImageHash, LBitmap.ToSkImage, AMinSimilarity);
+  finally
+    LBitmap.Free;
+  end;
+end;
+
+procedure TSkFMXCanvasTests.TestFillRoundRectBitmap(const AImageFileName, AModulateColor: string; AWrapMode: TWrapMode;
+  AXRadius, AYRadius: Single; const ACornersString: string; ACornerType: TCornerType; ASmallSize: Boolean; ALeftPercent,
+  ATopPercent, ARightPercent, ABottomPercent, AOpacity, AMinSimilarity: Double; const AExpectedImageHash: string);
+var
+  LBitmap: TBitmap;
+  LDestRect: TRectF;
+  LImage: TBitmap;
+  LModulateCanvas: IModulateCanvas;
+begin
+  LBitmap := TBitmap.Create;
+  try
+    if ASmallSize then
+      LBitmap.SetSize(300, 300)
+    else
+      LBitmap.SetSize(600, 600);
+    LBitmap.BitmapScale := 1;
+    if LBitmap.Canvas.BeginScene then
+      try
+        if StringToAlphaColor(AModulateColor) <> TAlphaColors.White then
+        begin
+          if not Supports(LBitmap.Canvas, IModulateCanvas, LModulateCanvas) then
+            Exit;
+          LModulateCanvas.ModulateColor := StringToAlphaColor(AModulateColor);
+        end;
+        try
+          LBitmap.Canvas.Fill.Kind := TBrushKind.Bitmap;
+          LBitmap.Canvas.Fill.Bitmap.WrapMode := AWrapMode;
+          LImage := CreateBitmap(AImageFileName);
+          try
+            LBitmap.Canvas.Fill.Bitmap.Bitmap := LImage;
+          finally
+            LImage.Free;
+          end;
+          LDestRect := RectF(ALeftPercent * LBitmap.Width, ATopPercent * LBitmap.Height,
+            ARightPercent * LBitmap.Width, ABottomPercent * LBitmap.Height);
+          LBitmap.Canvas.FillRect(LDestRect, AXRadius * LDestRect.Width, AYRadius * LDestRect.Height,
+            StringToCorners(ACornersString), AOpacity, ACornerType);
+        finally
+          if LModulateCanvas <> nil then
+            LModulateCanvas.ModulateColor := TAlphaColors.White;
         end;
       finally
         LBitmap.Canvas.EndScene;
