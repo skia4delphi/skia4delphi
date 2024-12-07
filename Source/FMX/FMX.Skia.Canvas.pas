@@ -2097,8 +2097,11 @@ var
   LRoundRect: ISkRoundRect;
   LRoundRectRadii: TSkRoundRectRadii;
 begin
-  if ACornerType <> TCornerType.Round then
-    inherited
+  if (ACornerType <> TCornerType.Round) or
+    (not InRange(XRadius, 0, ARect.Width / 2)) or (not InRange(YRadius, 0, ARect.Height / 2)) then
+  begin
+    inherited;
+  end
   else
   begin
     LPaint := BeginPaintWithStrokeBrush(ABrush, ARect, AOpacity, LBrushData);
@@ -2189,8 +2192,11 @@ var
   LRoundRect: ISkRoundRect;
   LRoundRectRadii: TSkRoundRectRadii;
 begin
-  if ACornerType <> TCornerType.Round then
-    inherited
+  if (ACornerType <> TCornerType.Round) or
+    (not InRange(XRadius, 0, ARect.Width / 2)) or (not InRange(YRadius, 0, ARect.Height / 2)) then
+  begin
+    inherited;
+  end
   else
   begin
     LPaint := BeginPaintWithBrush(ABrush, ARect, AOpacity, LBrushData);
