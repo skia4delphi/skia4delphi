@@ -1764,7 +1764,11 @@ begin
   {$ENDIF}
   ABrushData.Paint.AntiAlias := FAntiAlias;
   case ABrushData.Brush.Kind of
-    TBrushKind.Solid: ABrushData.Paint.Color := MakeColor(ABrushData.Brush.Color, AOpacity);
+    TBrushKind.Solid:
+      begin
+        ABrushData.Paint.Color := ABrushData.Brush.Color;
+        ABrushData.Paint.AlphaF := ABrushData.Paint.AlphaF * AOpacity;
+      end;
     TBrushKind.Gradient:
       begin
         ABrushData.Paint.AlphaF := AOpacity;
