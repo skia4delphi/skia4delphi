@@ -2101,6 +2101,8 @@ var
   LRoundRect: ISkRoundRect;
   LRoundRectRadii: TSkRoundRectRadii;
 begin
+  if IsZero(ARect.Width) or IsZero(ARect.Height) then
+    Exit;
   if (ACornerType <> TCornerType.Round) or
     (not InRange(XRadius, 0, ARect.Width / 2)) or (not InRange(YRadius, 0, ARect.Height / 2)) then
   begin
@@ -2196,6 +2198,8 @@ var
   LRoundRect: ISkRoundRect;
   LRoundRectRadii: TSkRoundRectRadii;
 begin
+  if IsZero(ARect.Width) or IsZero(ARect.Height) then
+    Exit;
   if (ACornerType <> TCornerType.Round) or
     (not InRange(XRadius, 0, ARect.Width / 2)) or (not InRange(YRadius, 0, ARect.Height / 2)) then
   begin
