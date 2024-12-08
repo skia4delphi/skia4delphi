@@ -2059,6 +2059,8 @@ var
   LBrushData: TBrushData;
   LPaint: TSkPaint;
 begin
+  if IsZero(ARect.Width) or IsZero(ARect.Height) then
+    Exit;
   LPaint := BeginPaintWithStrokeBrush(ABrush, ARect, AOpacity, LBrushData);
   if LPaint <> nil then
   try
@@ -2108,6 +2110,8 @@ var
   LBrushData: TBrushData;
   LPaint: TSkPaint;
 begin
+  if IsZero(ARect.Width) or IsZero(ARect.Height) then
+    Exit;
   LPaint := BeginPaintWithStrokeBrush(ABrush, ARect, AOpacity, LBrushData);
   if LPaint <> nil then
   begin
@@ -2132,6 +2136,8 @@ var
   LBrushData: TBrushData;
   LPaint: TSkPaint;
 begin
+  if IsZero(ARect.Width) or IsZero(ARect.Height) then
+    Exit;
   LPaint := BeginPaintWithBrush(ABrush, ARect, AOpacity, LBrushData);
   if LPaint <> nil then
   try
@@ -2164,6 +2170,8 @@ var
   LBrushData: TBrushData;
   LPaint: TSkPaint;
 begin
+  if IsZero(ARect.Width) or IsZero(ARect.Height) then
+    Exit;
   LPaint := BeginPaintWithBrush(ABrush, ARect, AOpacity, LBrushData);
   if LPaint <> nil then
   try
