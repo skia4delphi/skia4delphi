@@ -75,9 +75,6 @@ Using the **Skia4Delphi** library it is possible to override Firemonkey's graphi
   - [TSkSvg](#tsksvg)
     - [Limitations](Documents/SVG.md#limitations)
 - [Compatibility](#compatibility)
-- [Known issues](#known-issues)
-  - [Universal macOS Binary](#universal-macos-binary)
-  - [Submit your app to the Mac App Store](#submit-your-app-to-the-mac-app-store)
 - [Documentation](#documentation)
 - [Version](#version)
 
@@ -611,8 +608,6 @@ Skia Version used: [chrome/m107](https://github.com/google/skia/tree/chrome/m107
 # Sponsors & Partners
 
 <p>
-  <a href="https://www.a-dato.com">
-    <img src="https://user-images.githubusercontent.com/11139086/186210969-0179cdbd-b65a-41cc-ad15-b7cc828a764f.png" alt="A-dato logo" width="200" /></a>
   <a href="https://www.delphistyles.com">
     <img src="https://user-images.githubusercontent.com/11139086/199366200-c5766e71-2684-4990-94bb-d44094fb90c4.png" alt="DelphiStyles logo" width="100" margin-left="100" /></a>
 </p>
