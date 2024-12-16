@@ -512,6 +512,1192 @@ type
     [TestCase('23', '3d-shapes.svg,300,300,TileStretch,-1,2,-50,-100,-60,0,0,200,200,1,true,0.98,z+cDAYHH/////3Nhw8f/////f+3n3/////////////+JP2eHJ0+AQ8Ib7x////////////////8')]
     [TestCase('24', '3d-shapes.svg,300,300,TileStretch,1,-2,-50,500,30,0,0,200,200,0.6,true,0.98,///////z4cD///////fvzP//////9+/////////37/8AAAAAAAAAAAAAAAAAAAAAAAwAHAxaHv4')]
     procedure TestFillEllipseBitmapWithMatrix(const AImageFileName: string; ASurfaceWidth, ASurfaceHeight: Integer; AWrapMode: TWrapMode; ASurfaceScaleX, ASurfaceScaleY, ASurfaceOffsetX, ASurfaceOffsetY, ARotationDeg, ADestLeft, ADestTop, ADestRight, ADestBottom, AOpacity: Single; ABlending: Boolean; const AMinSimilarity: Double; const AExpectedImageHash: string);
+    [TestCase('1',   '[claBlack;0 claWhite;1],claWhite,Linear,False,1,1,0.98,58OBgYHD//////Hhw8f/////8eHDx/////////vf///gB8ADwAPAA8ADwAPgB+AH8A/+f/////8')]
+    [TestCase('2',   '[$7F000000;0 $7FFFFFFF;1],claWhite,Linear,False,1,1,0.98,58OBgYHD//////Hhw8f/////8eHDx/////////vf///gB8ADwAOAAcADwAPAA+AH//////////8')]
+    [TestCase('3',   '[claBlack;0 claWhite;1],claWhite,Linear,False,1,0.5,0.98,78OBgYHD//////Hhw8f/////+eHDx/////////vf///gB8ADwAOAAcADwAPAA+AH//////////8')]
+    [TestCase('4',   '[claBlack;0 claWhite;1],claWhite,Linear,True,1,1,0.98,58OBgYHD//////Hhw8f/////8eHDx/////////vf///gB8ADwAPAA8ADwAPgB+AH8A/+f/////8')]
+    [TestCase('5',   '[$7F000000;0 $7FFFFFFF;1],claWhite,Linear,True,1,1,0.98,58OBgYHD//////Hhw8f/////8eHDx/////////vf///gB8ADwAOAAcADwAPAA+AH//////////8')]
+    [TestCase('6',   '[claBlack;0 claWhite;1],claWhite,Linear,True,1,0.5,0.98,78OBgYHD//////Hhw8f/////+eHDx/////////vf///gB8ADwAOAAcADwAPAA+AH//////////8')]
+    [TestCase('7',   '[claBlack;0 claWhite;1],claWhite,Linear,False,2,1,0.98,//744ODAwMD//vjh48fOzP///PHjx+7s////////////4P+A/wD+APwA+AD4APAA8ADwAPAA8AA')]
+    [TestCase('8',   '[$7F000000;0 $7FFFFFFF;1],claWhite,Linear,False,2,1,0.98,//744ODAwMD//vjh48fOzP///PHjx+7s////////////4P+A/wD+APwA+ADwAPAA8ADgAOAA4AA')]
+    [TestCase('9',   '[claBlack;0 claWhite;1],claWhite,Linear,False,-2,0.5,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('10',  '[claBlack;0 claWhite;1],claWhite,Linear,True,0.5,1,0.98,Dw8P//////////////////////////////////////+B/4H/w/////////////////////////8')]
+    [TestCase('11',  '[$7F000000;0 $7FFFFFFF;1],claWhite,Linear,True,-1,1,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('12',  '[claBlack;0 claWhite;1],claWhite,Linear,True,3,0.5,0.98,/////vz48OD////////+7P////////78/////////////////////P/4/+D/wP+A/wD/AP4A/gA')]
+    [TestCase('13',  '[claBlack;0.2 claWhite;0.8],claWhite,Linear,False,1,1,0.98,54GBgYH//////fHhw//////98eHD///////////////gB8ADwAPAA8ADwAPgB/AP8A/8P/////8')]
+    [TestCase('14',  '[$7F000000;0.2 $7FFFFFFF;0.8],claWhite,Linear,False,1,1,0.98,54GBgYH//////fHhw//////98eHD//////////v////gB8ADwAOAAYABwAPAA/////////////8')]
+    [TestCase('15',  '[claBlack;0.2 claWhite;0.8],claWhite,Linear,False,1,0.5,0.98,54GBgYH//////fHhw//////98eHD//////////v////gB8ADwAOAAYABwAPAA/////////////8')]
+    [TestCase('16',  '[claBlack;0.2 claWhite;0.8],claWhite,Linear,True,1,1,0.98,54GBgYH//////fHhw//////98eHD///////////////gB8ADwAPAA8ADwAPgB/AP8A/8P/////8')]
+    [TestCase('17',  '[$7F000000;0.2 $7FFFFFFF;0.8],claWhite,Linear,True,1,1,0.98,54GBgYH//////fHhw//////98eHD//////////v////gB8ADwAOAAYABwAPAA/////////////8')]
+    [TestCase('18',  '[claBlack;0.2 claWhite;0.8],claWhite,Linear,True,1,0.5,0.98,54GBgYH//////fHhw//////98eHD//////////v////gB8ADwAOAAYABwAPAA/////////////8')]
+    [TestCase('19',  '[claBlack;0.2 claWhite;0.8],claWhite,Linear,False,2,1,0.98,//744ODAwMD//vjh48fOzP///Pnj587s////////////4P+A/wD+AP4A+AD4APAA8ADwAPAA8AA')]
+    [TestCase('20',  '[$7F000000;0.2 $7FFFFFFF;0.8],claWhite,Linear,False,2,1,0.98,//744ODAwMD//vjh48fOzP///PHz5+7s////////////4P+A/wD+APwA+ADwAPAA8ADgAOAA4AA')]
+    [TestCase('21',  '[claBlack;0.2 claWhite;0.8],claWhite,Linear,False,-2,0.5,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('22',  '[claBlack;0.2 claWhite;0.8],claWhite,Linear,True,0.5,1,0.98,Dw8P//////////////////////////////////////+B/4H/5/////////////////////////8')]
+    [TestCase('23',  '[$7F000000;0.2 $7FFFFFFF;0.8],claWhite,Linear,True,-1,1,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('24',  '[claBlack;0.2 claWhite;0.8],claWhite,Linear,True,3,0.5,0.98,/////vz48OD////////+7P////////78/////////////////////P/w/+D/wP+A/wD/AP4A/gA')]
+    [TestCase('25',  '[claBlack;-1 claWhite;0.8],claWhite,Linear,True,1,1,0.98,54GBgYH//////fHhw///////9+HD//////////v////gB+AHwAPAA8ADwAPgB/AP8A/8P/////8')]
+    [TestCase('26',  '[claBlack;0 claWhite;2],claWhite,Linear,True,1,1,0.98,/8OBgYGBw/////Hhw8fP////8ePDx9/////////////gB8ADwAPAA8ADwAPAA+AH8A/4H/////8')]
+    [TestCase('27',  '[claBlack;0 claWhite;1],claRed,Linear,False,1,1,0.98,/8OBgYGBw/////Hhw8fP////8ePDx+/////////////gB+AHwAPAA8ADwAPgB+AH8A/8P/////8')]
+    [TestCase('28',  '[$7F000000;0 $7FFFFFFF;1],claRed,Linear,False,1,1,0.98,/8OBgYGBw/////Hhw8fP////8ePDx+/////9//PP7//AA8ADwAOAAf////////////////////8')]
+    [TestCase('29',  '[claBlack;0 claWhite;1],claRed,Linear,False,1,0.5,0.98,/8OBgYGBw/////Hhw8fP////8ePDx+/////9//PP7//AA8ADwAOAAf////////////////////8')]
+    [TestCase('30',  '[claBlack;0 claWhite;1],claRed,Linear,True,1,1,0.98,/8OBgYGBw/////Hhw8fP////8ePDx+/////////////gB+AHwAPAA8ADwAPgB+AH8A/8P/////8')]
+    [TestCase('31',  '[$7F000000;0 $7FFFFFFF;1],claRed,Linear,True,1,1,0.98,/8OBgYGBw/////Hhw8fP////8ePDx+/////9//PP7//AA8ADwAOAAf////////////////////8')]
+    [TestCase('32',  '[claBlack;0 claWhite;1],claRed,Linear,True,1,0.5,0.98,/8OBgYGBw/////Hhw8fP////8ePDx+/////9//PP7//AA8ADwAOAAf////////////////////8')]
+    [TestCase('33',  '[claBlack;0 claWhite;1],claRed,Linear,False,2,1,0.98,//744ODAwMD//vjh48fOzP///PHj587M////////////4P+A/wD+APwA+AD4APAA8ADwAPAA8AA')]
+    [TestCase('34',  '[$7F000000;0 $7FFFFFFF;1],claRed,Linear,False,2,1,0.98,//744ODAwMD//vjh48fOzP///PHj587M//////////z/wP8A/gD8APwA+ADwAPAA8ADwAP////8')]
+    [TestCase('35',  '[claBlack;0 claWhite;1],claRed,Linear,False,-2,0.5,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('36',  '[claBlack;0 claWhite;1],claRed,Linear,True,0.5,1,0.98,Hw8Pn/////////////////////////////////////+B/8P/5/////////////////////////8')]
+    [TestCase('37',  '[$7F000000;0 $7FFFFFFF;1],claRed,Linear,True,-1,1,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('38',  '[claBlack;0 claWhite;1],claRed,Linear,True,3,0.5,0.98,/////vz48OD////////+7P////////78/////////////////////P/w/+D/wP+A/wD/AP4A/gA')]
+    [TestCase('39',  '[claBlack;0.2 claWhite;0.8],claRed,Linear,False,1,1,0.98,/8OBgYGBw/////Hhw8fP////8ePDx+/////////////gB+AHwAPAA8ADwAPgB+AH8A/8P/////8')]
+    [TestCase('40',  '[$7F000000;0.2 $7FFFFFFF;0.8],claRed,Linear,False,1,1,0.98,/8OBgYGBw/////Hhw8fP////8ePDx+/////9//PP7//AA8ADwAOAAf////////////////////8')]
+    [TestCase('41',  '[claBlack;0.2 claWhite;0.8],claRed,Linear,False,1,0.5,0.98,/8OBgYGBw/////Hhw8fP////8ePDx+/////9//PP7//AA8ADwAOAAf////////////////////8')]
+    [TestCase('42',  '[claBlack;0.2 claWhite;0.8],claRed,Linear,True,1,1,0.98,/8OBgYGBw/////Hhw8fP////8ePDx+/////////////gB+AHwAPAA8ADwAPgB+AH8A/8P/////8')]
+    [TestCase('43',  '[$7F000000;0.2 $7FFFFFFF;0.8],claRed,Linear,True,1,1,0.98,/8OBgYGBw/////Hhw8fP////8ePDx+/////9//PP7//AA8ADwAOAAf////////////////////8')]
+    [TestCase('44',  '[claBlack;0.2 claWhite;0.8],claRed,Linear,True,1,0.5,0.98,/8OBgYGBw/////Hhw8fP////8ePDx+/////9//PP7//AA8ADwAOAAf////////////////////8')]
+    [TestCase('45',  '[claBlack;0.2 claWhite;0.8],claRed,Linear,False,2,1,0.98,//744ODAwMD//vjh48fOzP///Pnj987M////////////4P+A/wD+APwA+AD4APAA8ADwAPAA8AA')]
+    [TestCase('46',  '[$7F000000;0.2 $7FFFFFFF;0.8],claRed,Linear,False,2,1,0.98,//744ODAwMD//vjh48fOzP///PXj587M//////////z/wP+A/gD8APwA+ADwAPAA8ADwAP////8')]
+    [TestCase('47',  '[claBlack;0.2 claWhite;0.8],claRed,Linear,False,-2,0.5,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('48',  '[claBlack;0.2 claWhite;0.8],claRed,Linear,True,0.5,1,0.98,Dw8Pn/////////////////////////////////////+B/8P/5/////////////////////////8')]
+    [TestCase('49',  '[$7F000000;0.2 $7FFFFFFF;0.8],claRed,Linear,True,-1,1,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('50',  '[claBlack;0.2 claWhite;0.8],claRed,Linear,True,3,0.5,0.98,/////vz48OD////////+7P////////78/////////////////////P/w/+D/wP+A/wD/AP4A/gA')]
+    [TestCase('51',  '[claBlack;-1 claWhite;0.8],claRed,Linear,True,1,1,0.98,/8OBgYGBw/////Hhw8fP////8ePDx+/////////////gB+AHwAPAA8ADwAPgB+AH8A/8P/////8')]
+    [TestCase('52',  '[claBlack;0 claWhite;2],claRed,Linear,True,1,1,0.98,/8OBgYGBw/////Hhw8fP////8ePDx+/////////////gB+AHwAPAA8ADwAPgB+AH8A/8P/////8')]
+    [TestCase('53',  '[claRed;0 claBlue;1],claWhite,Linear,False,1,1,0.98,/8OBgYGBw/////Hhw8fP////8ePDx+//////////////////wAOAAYABwAPAA8AD4AfwD/5///8')]
+    [TestCase('54',  '[$7FFF0000;0 $7F0000FF;1],claWhite,Linear,False,1,1,0.98,/8OBgYGBw/////Hhw8fP////8ePDx+//////////////////wAOAAYABwAPAA8AD4AfwD/5///8')]
+    [TestCase('55',  '[claRed;0 claBlue;1],claWhite,Linear,False,1,0.5,0.98,/8OBgYGBw/////Hhw8fP////8ePDx+//////////////////wAOAAYABwAPAA8AD4AfwD/5///8')]
+    [TestCase('56',  '[claRed;0 claBlue;1],claWhite,Linear,True,1,1,0.98,/8OBgYGBw/////Hhw8fP////8ePDx+//////////////////wAOAAYABwAPAA8AD4AfwD/5///8')]
+    [TestCase('57',  '[$7FFF0000;0 $7F0000FF;1],claWhite,Linear,True,1,1,0.98,/8OBgYGBw/////Hhw8fP////8ePDx+//////////////////wAOAAYABwAPAA8AD4AfwD/5///8')]
+    [TestCase('58',  '[claRed;0 claBlue;1],claWhite,Linear,True,1,0.5,0.98,/8OBgYGBw/////Hhw8fP////8ePDx+//////////////////wAOAAYABwAPAA8AD4AfwD/5///8')]
+    [TestCase('59',  '[claRed;0 claBlue;1],claWhite,Linear,False,2,1,0.98,///44ODAwID///jh48fOzP///PHj587M///88ePnzs8APwD/Af8D/wf/B/8H/wAAAAAAAAAAAAA')]
+    [TestCase('60',  '[$7FFF0000;0 $7F0000FF;1],claWhite,Linear,False,2,1,0.98,///44ODAwID///jh48fOzP///PHj587M///////////////////////////wAPAA4ADgAOAA4AA')]
+    [TestCase('61',  '[claRed;0 claBlue;1],claWhite,Linear,False,-2,0.5,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('62',  '[claRed;0 claBlue;1],claWhite,Linear,True,0.5,1,0.98,Hw8Pn/////////////////////////////////////8A/4H/gf/n//////////////////////8')]
+    [TestCase('63',  '[$7FFF0000;0 $7F0000FF;1],claWhite,Linear,True,-1,1,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('64',  '[claRed;0 claBlue;1],claWhite,Linear,True,3,0.5,0.98,/////vz48OD////////+7P////////78/////////vwAAAAAAAEAAwAPAB8APwB/AP8A/wD/AAA')]
+    [TestCase('65',  '[claRed;0.2 claBlue;0.8],claWhite,Linear,False,1,1,0.98,/8OBgYGBw/////Hhw8fP////8ePDx+/////////////v9//////AA8ADwAPAA+AH4Af4H/////8')]
+    [TestCase('66',  '[$7FFF0000;0.2 $7F0000FF;0.8],claWhite,Linear,False,1,1,0.98,/8OBgYGBw/////Hhw8fP////8ePD5+////////////////////+AAYABwAPAA8AD4AfwD/5///8')]
+    [TestCase('67',  '[claRed;0.2 claBlue;0.8],claWhite,Linear,False,1,0.5,0.98,/8OBgYGBw/////Hhw8fP////8ePDx+////////////////////+AAYABwAPAA8AD4AfwD/5///8')]
+    [TestCase('68',  '[claRed;0.2 claBlue;0.8],claWhite,Linear,True,1,1,0.98,/8OBgYGBw/////Hhw8fP////8ePDx+/////////////v9//////AA8ADwAPAA+AH4Af4H/////8')]
+    [TestCase('69',  '[$7FFF0000;0.2 $7F0000FF;0.8],claWhite,Linear,True,1,1,0.98,/8OBgYGBw/////Hhw8fP////8ePD5+////////////////////+AAYABwAPAA8AD4AfwD/5///8')]
+    [TestCase('70',  '[claRed;0.2 claBlue;0.8],claWhite,Linear,True,1,0.5,0.98,/8OBgYGBw/////Hhw8fP////8ePDx+////////////////////+AAYABwAPAA8AD4AfwD/5///8')]
+    [TestCase('71',  '[claRed;0.2 claBlue;0.8],claWhite,Linear,False,2,1,0.98,///44ODAwID///jh48fOzP///Pnj587M////////////4P+A/wD+AP3/////////////////4AA')]
+    [TestCase('72',  '[$7FFF0000;0.2 $7F0000FF;0.8],claWhite,Linear,False,2,1,0.98,///44ODAwID///jh48fOzP///PHj587M///88ePnzs8APwD/Af8D/wf/B/8P/w//AAAAAAAAAAA')]
+    [TestCase('73',  '[claRed;0.2 claBlue;0.8],claWhite,Linear,False,-2,0.5,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('74',  '[claRed;0.2 claBlue;0.8],claWhite,Linear,True,0.5,1,0.98,Hw8Pn/////////////////////////////////////8A/4H/w//n//////////////////////8')]
+    [TestCase('75',  '[$7FFF0000;0.2 $7F0000FF;0.8],claWhite,Linear,True,-1,1,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('76',  '[claRed;0.2 claBlue;0.8],claWhite,Linear,True,3,0.5,0.98,/////vz48OD////////+7P////////78/////////vwAAAAAAAAAAwAPAB8APwB/AP8A/wH/Af8')]
+    [TestCase('77',  '[claRed;-1 claBlue;0.8],claWhite,Linear,True,1,1,0.98,/8OBgYGBw/////Hhw8fP////8ePD5+////////v////gB8ADwAPAA8ADwAPAA+AH8A/4H/////8')]
+    [TestCase('78',  '[claRed;0 claBlue;2],claWhite,Linear,True,1,1,0.98,/8OBgYGBw/////Hhw8fP////8ePDx+/////z48/3//8//D/8f/5//j/8AAAAAAAAAAAAAAAAAAA')]
+    [TestCase('79',  '[claRed;0 $7F000000;0.5 claBlue;1],claWhite,Linear,True,1,1,0.98,/8OBgYGBw/////Hhw8fP////8ePDx+//////////////////wAPAA4ABwAPAA+AH4Af4H/5///8')]
+    [TestCase('80',  '[claRed;0 $7F000000;1 claBlue;0.5],claWhite,Linear,True,1,1,0.98,/8OBgYGBw/////Hhw8fP////8ePDx+/////////////gB8ADwAPAA8ADwAPAA+AH4Af4H/////8')]
+    [TestCase('81',  '[claRed;0 $7F000000;-1 claBlue;0.5],claWhite,Linear,True,1,1,0.98,/8OBgYGBw/////Hhw8fP////8ePDx+/////////////gB8ADwAPAA8ADwAPAA+AH4Af4H/////8')]
+    [TestCase('82',  '[claRed;1 $7F000000;0.5 claBlue;0],claWhite,Linear,True,1,1,0.98,/8OBgYGBw/////Hhw8fP////8ePDx+////////vf7//gB8ADwAOAAcADwAP///////////////8')]
+    [TestCase('83',  '[claRed;1 $7F000000;0 claBlue;0.5],claWhite,Linear,True,1,1,0.98,/8OBgYGBw/////Hhw8fP////8ePDx+////////vf7//gB8ADwAPAA8ADwAPAA+AH//////////8')]
+    [TestCase('84',  '[claRed;1 $7F000000;0 claBlue;0.5 claWhite;0.49],claWhite,Linear,True,1,1,0.98,/8PD/4GBw/////P/w8fP////8//Dx+////////vf7//AA8ADwAPAA8ADwAPAA/////////////8')]
+    [TestCase('85',  '[claRed;1 $7F000000;0 claBlue;0.5 claWhite;0.49],claWhite,Linear,False,1,1,0.98,/8PD/4GBw/////P/w8fP////8//Dx+////////vf7//AA8ADwAPAA8ADwAPAA/////////////8')]
+    [TestCase('86',  '[claRed;1 $7F000000;0 claBlue;0.5 claWhite;0.49],claWhite,Linear,True,2,0.5,0.98,//zw4ODAwP///PDh48fO/////OHjx+7/////////////4P+A/gD8APgA+ADwAPAA8ADwAP////8')]
+    [TestCase('87',  '[],claWhite,Linear,True,1,1,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('88',  '[claBlack;0 claWhite;1],claWhite,Radial,False,1,1,0.98,/8OBmZmBw/////H528fP///////fz+/////////f///gB8ADwAPAA8ADwAPAA+AH8A/4H/////8')]
+    [TestCase('89',  '[$7F000000;0 $7FFFFFFF;1],claWhite,Radial,False,1,1,0.98,/8OBmZmBw/////H528fP///////fz+/////////f///gB8ADwAPBg8GDwAPAA+AH8A/4H/////8')]
+    [TestCase('90',  '[claBlack;0 claWhite;1],claWhite,Radial,False,1,0.5,0.98,/8OBmZmBw/////H528fP///////fz+/////////f///gB8ADwAPBg8GDwAPAA+AH8A/4H/////8')]
+    [TestCase('91',  '[claBlack;0 claWhite;1],claWhite,Radial,True,1,1,0.98,/8OBmZmBw/////H528fP///////fz+/////////f///gB8ADwAPAA8ADwAPAA+AH8A/4H/////8')]
+    [TestCase('92',  '[$7F000000;0 $7FFFFFFF;1],claWhite,Radial,True,1,1,0.98,/8OBmZmBw/////H528fP///////fz+/////////f///gB8ADwAPBg8GDwAPAA+AH8A/4H/////8')]
+    [TestCase('93',  '[claBlack;0 claWhite;1],claWhite,Radial,True,1,0.5,0.98,/8OBmZmBw/////H528fP///////fz+/////////f///gB8ADwAPBg8GDwAPAA+AH8A/4H/////8')]
+    [TestCase('94',  '[claBlack;0 claWhite;1],claWhite,Radial,False,2,1,0.98,//7w4MDAwYP//vDhw8fPz////PHjx8/P////////////4P+A/wD+APwA+AD4APAA8ADwAPAA8AA')]
+    [TestCase('95',  '[$7F000000;0 $7FFFFFFF;1],claWhite,Radial,False,2,1,0.98,//7w4MDAwYP//vDhw8fPz////PHjx8/P////////////4P+A/wD+APwA+AD4APAA8ADwAfAD8Ac')]
+    [TestCase('96',  '[claBlack;0 claWhite;1],claWhite,Radial,False,-2,0.5,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('97',  '[claBlack;0 claWhite;1],claWhite,Radial,True,0.5,1,0.98,Dw8PH/////////////////////////////////////+B/4H/w/////////////////////////8')]
+    [TestCase('98',  '[$7F000000;0 $7FFFFFFF;1],claWhite,Radial,True,-1,1,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('99',  '[claBlack;0 claWhite;1],claWhite,Radial,True,3,0.5,0.98,/////vz48OD////////+7P////////78/////////////////////P/4/+D/wP+A/4D/AP4A/gA')]
+    [TestCase('100', '[claBlack;0.2 claWhite;0.8],claWhite,Radial,False,1,1,0.98,/8OBmZmBw/////H528fP///////fz+/////////////gB+AHwAPAA8ADwAPgB+AH8A/8P/////8')]
+    [TestCase('101', '[$7F000000;0.2 $7FFFFFFF;0.8],claWhite,Radial,False,1,1,0.98,/8OBmZmBw/////H528fP///////fz+/////////f///gB8ADwYPDw8PDwYPAA+AH8A/4H/////8')]
+    [TestCase('102', '[claBlack;0.2 claWhite;0.8],claWhite,Radial,False,1,0.5,0.98,/8OBmZmBw/////H528fP///////fz+/////////f///gB8ADwYPDw8PDwYPAA+AH8A/4H/////8')]
+    [TestCase('103', '[claBlack;0.2 claWhite;0.8],claWhite,Radial,True,1,1,0.98,/8OBmZmBw/////H528fP///////fz+/////////////gB+AHwAPAA8ADwAPgB+AH8A/8P/////8')]
+    [TestCase('104', '[$7F000000;0.2 $7FFFFFFF;0.8],claWhite,Radial,True,1,1,0.98,/8OBmZmBw/////H528fP///////fz+/////////f///gB8ADwYPDw8PDwYPAA+AH8A/4H/////8')]
+    [TestCase('105', '[claBlack;0.2 claWhite;0.8],claWhite,Radial,True,1,0.5,0.98,/8OBmZmBw/////H528fP///////fz+/////////f///gB8ADwYPDw8PDwYPAA+AH8A/4H/////8')]
+    [TestCase('106', '[claBlack;0.2 claWhite;0.8],claWhite,Radial,False,2,1,0.98,//7w4MDBw4f//vDhw8fPz////Pnj58/P////////////4P+A/wD+APwA+AD4APAA8ADwAPAA8AA')]
+    [TestCase('107', '[$7F000000;0.2 $7FFFFFFF;0.8],claWhite,Radial,False,2,1,0.98,//7w4MDBw4f//vDhw8fPz////PHj58/P////////////4P+A/wD+APwA+AD4APAA8APwB/AP4A8')]
+    [TestCase('108', '[claBlack;0.2 claWhite;0.8],claWhite,Radial,False,-2,0.5,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('109', '[claBlack;0.2 claWhite;0.8],claWhite,Radial,True,0.5,1,0.98,Dw8PH/////////////////////////////////////+B/4H/w/////////////////////////8')]
+    [TestCase('110', '[$7F000000;0.2 $7FFFFFFF;0.8],claWhite,Radial,True,-1,1,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('111', '[claBlack;0.2 claWhite;0.8],claWhite,Radial,True,3,0.5,0.98,/////vz48OD////////+7P////////78/////////////////////P/w/+D/wP+A/wD/AP4A/gA')]
+    [TestCase('112', '[claBlack;-1 claWhite;0.8],claWhite,Radial,True,1,1,0.98,/8OBmZmBw/////H528fP///////fz8/////////f///gB8ADwAPAA8ADwAPAA+AH8A/4H/////8')]
+    [TestCase('113', '[claBlack;0 claWhite;2],claWhite,Radial,True,1,1,0.98,/8OBgYGBw/////Hhw8fP/////+/Pz+/////////////gB+AHwAPAA8ADwAPgB+AH8A/8P/////8')]
+    [TestCase('114', '[claBlack;0 claWhite;1],claRed,Radial,False,1,1,0.98,/8OBgYGBw/////Hhw8fP/////e/Pz+/////////////gB+AHwAPAA8ADwAPgB+AH8A/8P/////8')]
+    [TestCase('115', '[$7F000000;0 $7FFFFFFF;1],claRed,Radial,False,1,1,0.98,/8OBgYGBw/////Hhw8fP/////e/Pz+/////////P7//AA8PDx+OH4Yfhx+PDw8AD4AfwD/5///8')]
+    [TestCase('116', '[claBlack;0 claWhite;1],claRed,Radial,False,1,0.5,0.98,/8OBgYGBw/////Hhw8fP/////e/Pz+/////////P7//AA8PDx+OH4Yfhx+PDw8AD4AfwD/5///8')]
+    [TestCase('117', '[claBlack;0 claWhite;1],claRed,Radial,True,1,1,0.98,/8OBgYGBw/////Hhw8fP/////e/Pz+/////////////gB+AHwAPAA8ADwAPgB+AH8A/8P/////8')]
+    [TestCase('118', '[$7F000000;0 $7FFFFFFF;1],claRed,Radial,True,1,1,0.98,/8OBgYGBw/////Hhw8fP/////e/Pz+/////////P7//AA8PDx+OH4Yfhx+PDw8AD4AfwD/5///8')]
+    [TestCase('119', '[claBlack;0 claWhite;1],claRed,Radial,True,1,0.5,0.98,/8OBgYGBw/////Hhw8fP/////e/Pz+/////////P7//AA8PDx+OH4Yfhx+PDw8AD4AfwD/5///8')]
+    [TestCase('120', '[claBlack;0 claWhite;1],claRed,Radial,False,2,1,0.98,//744ODAwID//vjh48fOzP///PHj587M////////////4P+A/wD+APwA+AD4APAA8ADwAPAA8AA')]
+    [TestCase('121', '[$7F000000;0 $7FFFFFFF;1],claRed,Radial,False,2,1,0.98,//744ODAwID//vjh48fOzP///PHj587M//////////z/wP8A/gD8APgA+AfwD/Af4D/gf+B/4H8')]
+    [TestCase('122', '[claBlack;0 claWhite;1],claRed,Radial,False,-2,0.5,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('123', '[claBlack;0 claWhite;1],claRed,Radial,True,0.5,1,0.98,Hw8Pn/////////////////////////////////////+B/4H/w/////////////////////////8')]
+    [TestCase('124', '[$7F000000;0 $7FFFFFFF;1],claRed,Radial,True,-1,1,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('125', '[claBlack;0 claWhite;1],claRed,Radial,True,3,0.5,0.98,/////vz48OD////////+7P////////78/////////////////////P/w/+D/wP+A/wD/AP4A/AA')]
+    [TestCase('126', '[claBlack;0.2 claWhite;0.8],claRed,Radial,False,1,1,0.98,/8OBgYGBw/////Hhw8fP/////e/Pz+/////////////gB+AHwAPAA8ADwAPgB+AH8A/8P/////8')]
+    [TestCase('127', '[$7F000000;0.2 $7FFFFFFF;0.8],claRed,Radial,False,1,1,0.98,/8OBgYGBw/////Hhw8fP/////e/Pz+/////////P7//AA8PDx+OH4Yfhx+PDw8AD4AfwD/5///8')]
+    [TestCase('128', '[claBlack;0.2 claWhite;0.8],claRed,Radial,False,1,0.5,0.98,/8OBgYGBw/////Hhw8fP/////e/Pz+/////////P7//Bg8PDx+OP8Y/xx+PDw8GD4AfwD/5///8')]
+    [TestCase('129', '[claBlack;0.2 claWhite;0.8],claRed,Radial,True,1,1,0.98,/8OBgYGBw/////Hhw8fP/////e/Pz+/////////////gB+AHwAPAA8ADwAPgB+AH8A/8P/////8')]
+    [TestCase('130', '[$7F000000;0.2 $7FFFFFFF;0.8],claRed,Radial,True,1,1,0.98,/8OBgYGBw/////Hhw8fP/////e/Pz+/////////P7//AA8PDx+OH4Yfhx+PDw8AD4AfwD/5///8')]
+    [TestCase('131', '[claBlack;0.2 claWhite;0.8],claRed,Radial,True,1,0.5,0.98,/8OBgYGBw/////Hhw8fP/////e/Pz+/////////P7//Bg8PDx+OP8Y/xx+PDw8GD4AfwD/5///8')]
+    [TestCase('132', '[claBlack;0.2 claWhite;0.8],claRed,Radial,False,2,1,0.98,//744ODAwID//vjh48fOzP///Pnj587M////////////4P+A/wD+APwA+AD4APAA8ADwAPAA8AA')]
+    [TestCase('133', '[$7F000000;0.2 $7FFFFFFF;0.8],claRed,Radial,False,2,1,0.98,//744ODAwID//vjh48fOzP///PHj587M//////////z/wP8A/gD8APgA+AfwD/Af4D/gf+B/4H8')]
+    [TestCase('134', '[claBlack;0.2 claWhite;0.8],claRed,Radial,False,-2,0.5,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('135', '[claBlack;0.2 claWhite;0.8],claRed,Radial,True,0.5,1,0.98,Hw8Pn/////////////////////////////////////+B/4H/w/////////////////////////8')]
+    [TestCase('136', '[$7F000000;0.2 $7FFFFFFF;0.8],claRed,Radial,True,-1,1,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('137', '[claBlack;0.2 claWhite;0.8],claRed,Radial,True,3,0.5,0.98,/////vz48OD////////+7P////////78/////////////////////P/w/+D/wP+A/wD/AP4A/gA')]
+    [TestCase('138', '[claBlack;-1 claWhite;0.8],claRed,Radial,True,1,1,0.98,/8OBgYGBw/////Hhw8fP/////e/Pz+/////////////gB+AHwAPAA8ADwAPgB+AH8A/8P/////8')]
+    [TestCase('139', '[claBlack;0 claWhite;2],claRed,Radial,True,1,1,0.98,/8OBgYGBw/////Hhw8fP/////e/Pz+/////////////gB+AHwAPAA8ADwAPgB+AH8A/8P/////8')]
+    [TestCase('140', '[claRed;0 claBlue;1],claWhite,Radial,False,1,1,0.98,/8OBgYGBw/////Hhw8fP////8fHz9//////////////4H/AP8A/wD/AP8A/wD/gf//////////8')]
+    [TestCase('141', '[$7FFF0000;0 $7F0000FF;1],claWhite,Radial,False,1,1,0.98,/8OBgYGBw/////Hhw8fP////8fHz9//////////////4H/AP8A/wD/AP8A/wD/gf//////////8')]
+    [TestCase('142', '[claRed;0 claBlue;1],claWhite,Radial,False,1,0.5,0.98,/8OBgYGBw/////Hhw8fP////8fHz9//////////////4H/AP8A/gB+AH8A/wD/gf/n////////8')]
+    [TestCase('143', '[claRed;0 claBlue;1],claWhite,Radial,True,1,1,0.98,/8OBgYGBw/////Hhw8fP////8fHz9//////////////4H/AP8A/wD/AP8A/wD/gf//////////8')]
+    [TestCase('144', '[$7FFF0000;0 $7F0000FF;1],claWhite,Radial,True,1,1,0.98,/8OBgYGBw/////Hhw8fP////8fHz9//////////////4H/AP8A/wD/AP8A/wD/gf//////////8')]
+    [TestCase('145', '[claRed;0 claBlue;1],claWhite,Radial,True,1,0.5,0.98,/8OBgYGBw/////Hhw8fP////8fHz9//////////////4H/AP8A/gB+AH8A/wD/gf/n////////8')]
+    [TestCase('146', '[claRed;0 claBlue;1],claWhite,Radial,False,2,1,0.98,///44ODAwMD///jh48fOzP///////////////////////////////P/g/8D/gP8A/wD/AP4A/gA')]
+    [TestCase('147', '[$7FFF0000;0 $7F0000FF;1],claWhite,Radial,False,2,1,0.98,///44ODAwMD///jh48fOzP///v//////////////////////////+P/g/8D/gP8A/wD+AP4A/gA')]
+    [TestCase('148', '[claRed;0 claBlue;1],claWhite,Radial,False,-2,0.5,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('149', '[claRed;0 claBlue;1],claWhite,Radial,True,0.5,1,0.98,Hw8Pn//////////////////////////////////////D/8P///////////////////////////8')]
+    [TestCase('150', '[$7FFF0000;0 $7F0000FF;1],claWhite,Radial,True,-1,1,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('151', '[claRed;0 claBlue;1],claWhite,Radial,True,3,0.5,0.98,/////vz48OD////////+7P////////////////////8AAAAAAAEAAwAPAB8APwB/AP4A/AH4A/A')]
+    [TestCase('152', '[claRed;0.2 claBlue;0.8],claWhite,Radial,False,1,1,0.98,/8OBgYGBw/////Hhw8fP////8fHz9//////////////v9/w/2BvYG9gb2Bv8P+/39+/8P/////8')]
+    [TestCase('153', '[$7FFF0000;0.2 $7F0000FF;0.8],claWhite,Radial,False,1,1,0.98,/8OBgYGBw/////Hhw8fP////8fHz9+/////z8f/3//88PDgccA5wDnAOcA44HDw8H/gP8APAAAA')]
+    [TestCase('154', '[claRed;0.2 claBlue;0.8],claWhite,Radial,False,1,0.5,0.98,/8OBgYGBw/////Hhw8fP////8fHz9+/////z8f/3//88PDgccA5wDnAOcA44HDw8H/gP8APAAAA')]
+    [TestCase('155', '[claRed;0.2 claBlue;0.8],claWhite,Radial,True,1,1,0.98,/8OBgYGBw/////Hhw8fP////8fHz9//////////////v9/w/2BvYG9gb2Bv8P+/39+/8P/////8')]
+    [TestCase('156', '[$7FFF0000;0.2 $7F0000FF;0.8],claWhite,Radial,True,1,1,0.98,/8OBgYGBw/////Hhw8fP////8fHz9+/////z8f/3//88PDgccA5wDnAOcA44HDw8H/gP8APAAAA')]
+    [TestCase('157', '[claRed;0.2 claBlue;0.8],claWhite,Radial,True,1,0.5,0.98,/8OBgYGBw/////Hhw8fP////8fHz9+/////z8f/3//88PDgccA5wDnAOcA44HDw8H/gP8APAAAA')]
+    [TestCase('158', '[claRed;0.2 claBlue;0.8],claWhite,Radial,False,2,1,0.98,///44ODAwMD///jh48fOzP///P/v/9//////////////4P+A/w/+P/x/+P758PHg88DzwPPA84A')]
+    [TestCase('159', '[$7FFF0000;0.2 $7F0000FF;0.8],claWhite,Radial,False,2,1,0.98,///44ODAwMD///jh48fOzP///Pfv/9/e///89+//398APwD/Af8D/wf4B+APwA+AH4AfAB8AHwA')]
+    [TestCase('160', '[claRed;0.2 claBlue;0.8],claWhite,Radial,False,-2,0.5,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('161', '[claRed;0.2 claBlue;0.8],claWhite,Radial,True,0.5,1,0.98,Hw8Pn/////////////////////////////////////+B/+f/5/////////////////////////8')]
+    [TestCase('162', '[$7FFF0000;0.2 $7F0000FF;0.8],claWhite,Radial,True,-1,1,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('163', '[claRed;0.2 claBlue;0.8],claWhite,Radial,True,3,0.5,0.98,/////vz48OD////////+7P////////////////////8AAAAAAAAAAwAPAB8APwB/AP8A/wH+Afw')]
+    [TestCase('164', '[claRed;-1 claBlue;0.8],claWhite,Radial,True,1,1,0.98,/8OBgYGBw/////Hhw8fP////8fHz9+////////v////gB8ADwAPAA8ADwAPAA+AH8A/4H/////8')]
+    [TestCase('165', '[claRed;0 claBlue;2],claWhite,Radial,True,1,1,0.98,/8OBgYGBw/////Hhw8fP////8fHz9+/////x8f/3//8//Dw8OBx4HngeOBw8PD/8H/gP8AGAAAA')]
+    [TestCase('166', '[claRed;0 $7F000000;0.5 claBlue;1],claWhite,Radial,True,1,1,0.98,/8OBgYGBw/////Hhw8fP////8fHz9//////////////4H/AP4AfgB+AH4AfwD/gf/D////////8')]
+    [TestCase('167', '[claRed;0 $7F000000;1 claBlue;0.5],claWhite,Radial,True,1,1,0.98,/8OBgYGBw/////Hhw8fP////8enr9//////////////wD+AH4AfgB+AH4AfgB/AP+B////////8')]
+    [TestCase('168', '[claRed;0 $7F000000;-1 claBlue;0.5],claWhite,Radial,True,1,1,0.98,/8OBgYGBw/////Hhw8fP////8eHj9//////////////wD+AH4AfgB+AH4AfgB/AP+B////////8')]
+    [TestCase('169', '[claRed;1 $7F000000;0.5 claBlue;0],claWhite,Radial,True,1,1,0.98,/8OBgYGBw/////Hhw8fP/////e/Pz+/////////f7//gB8ADw8PDw8PDw8PAA+AH4Af4H/////8')]
+    [TestCase('170', '[claRed;1 $7F000000;0 claBlue;0.5],claWhite,Radial,True,1,1,0.98,/8OBgYGBw/////Hhw8fP////+e3P7+/////////////gB8ADwAPBg8GDwAPAA+AH8A/4H/////8')]
+    [TestCase('171', '[claRed;1 $7F000000;0 claBlue;0.5 claWhite;0.49],claWhite,Radial,True,1,1,0.98,/8OBgYGBw/////Hhw8fP////9+vr18////////vf///iR8ADyZPDw8PDyZPAA+JH8A/4H/////8')]
+    [TestCase('172', '[claRed;1 $7F000000;0 claBlue;0.5 claWhite;0.49],claWhite,Radial,False,1,1,0.98,/8OBgYGBw/////Hhw8fP////9+vr18////////vf///iR8ADyZPDw8PDyZPAA+JH8A/4H/////8')]
+    [TestCase('173', '[claRed;1 $7F000000;0 claBlue;0.5 claWhite;0.49],claWhite,Radial,True,2,0.5,0.98,///44OLAyMD///jh48fOzP///PHjx87M//////////7/4P+A/wD+APwA+A/4GPAw8GDwQ/BH4Ec')]
+    [TestCase('174', '[],claWhite,Radial,True,1,1,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('175', '[claRed;0.3],claWhite,Radial,True,1,1,0.98,/8OBgYGBw/////Hhw8fP////8eHDx+/////////////gB+AHwAPAA8ADwAPgB+AH8A/8P/////8')]
+    [TestCase('176', '[claRed;0.3],claBlue,Radial,True,1,1,0.98,/8OBgYGBw/////Hhw8fP////8eHDx+/////////////gB+AHwAPAA8ADwAPgB+AH8A/8P/////8')]
+    [TestCase('177', '[claRed;0.3],claWhite,Linear,True,1,1,0.98,/8OBgYGBw/////Hhw8fP////8eHDx+/////////////gB+AHwAPAA8ADwAPgB+AH8A/8P/////8')]
+    [TestCase('178', '[claRed;0.3],claBlue,Linear,True,1,1,0.98,/8OBgYGBw/////Hhw8fP////8eHDx+/////////////gB+AHwAPAA8ADwAPgB+AH8A/8P/////8')]
+    [TestCase('179', '[claRed;0 claBlue;1 claBlue;1],claWhite,Radial,False,1,1,0.98,/8OBgYGBw/////Hhw8fP////8fHz9//////////////4H/AP8A/wD/AP8A/wD/gf//////////8')]
+    [TestCase('180', '[claRed;0 claRed;0 claBlue;1],claWhite,Radial,False,1,1,0.98,/8OBgYGBw/////Hhw8fP////8fHz9//////////////4H/AP8A/wD/AP8A/wD/gf//////////8')]
+    [TestCase('181', '[claRed;0 claBlue;1 claBlue;1],claWhite,Linear,False,1,1,0.98,/8OBgYGBw/////Hhw8fP////8ePDx+//////////////////wAOAAYABwAPAA8AD4AfwD/5///8')]
+    [TestCase('182', '[claRed;0 claRed;0 claBlue;1],claWhite,Linear,False,1,1,0.98,/8OBgYGBw/////Hhw8fP////8ePDx+//////////////////wAOAAYABwAPAA8AD4AfwD/5///8')]
+    [TestCase('183', '[$00FF0000;0 $FF0000FF;1],claBlack,Linear,True,1,1,0.98,///DgYGBw/////Phw8fP////8+PD5+///////////////8ADwAPAA8ADwAPAA+AH4AfwD/5///8')]
+    [TestCase('184', '[$00FF0000;0 $FF0000FF;1],claBlack,Radial,True,1,1,0.98,/+fDgYHD5/////Phw8fv////8/Hz9//////////////wD+AH4AfgB+AH4AfgB/AP+B////////8')]
+    [TestCase('185', '[$00FF0000;0 $FF0000FF;1],claBlack,Linear,True,1,0.5,0.98,///DgYGBw/////Phw8fP////8+PDx+///////////////8ADwAPAA8ADwAPAA+AH4AfwD/5///8')]
+    [TestCase('186', '[$00FF0000;0 $FF0000FF;1],claBlack,Radial,True,1,0.5,0.98,/+fDgYHD5/////Phw8fv////8/Hz9//////////////wD+AH4AfgB+AH4AfgB/AP+B////////8')]
+    procedure TestFillEllipseGradient(const APoints, AModulateColor: string; AGradientStyle: TGradientStyle; ABlending: Boolean; const AScale, AOpacity, AMinSimilarity: Double; const AExpectedImageHash: string);
+    [TestCase('1',  '[claBlack;0 claWhite;1],claWhite,Linear,False,1,1,0.98,//+BgYH///////Hhw///////8efr//////////////////APwAPAA8AD4Af4H/////////////8')]
+    [TestCase('2',  '[$7F000000;0 $7FFFFFFF;1],claWhite,Linear,False,1,1,0.98,//+BgYH///////Hhw///////8ffj//////////////////APwAOAAYABwAP///////////////8')]
+    [TestCase('3',  '[claBlack;0 claWhite;1],claWhite,Linear,False,1,0.5,0.98,//+BgYH///////Hhw///////8eXj//////////////////APwAOAAYABwAP///////////////8')]
+    [TestCase('4',  '[claBlack;0 claWhite;1],claWhite,Linear,True,1,1,0.98,//+BgYH///////Hhw///////8efr//////////////////APwAPAA8AD4Af4H/////////////8')]
+    [TestCase('5',  '[$7F000000;0 $7FFFFFFF;1],claWhite,Linear,True,1,1,0.98,//+BgYH///////Hhw///////8ffj//////////////////APwAOAAYABwAP///////////////8')]
+    [TestCase('6',  '[claBlack;0 claWhite;1],claWhite,Linear,True,1,0.5,0.98,//+BgYH///////Hhw///////8eXj//////////////////APwAOAAYABwAP///////////////8')]
+    [TestCase('7',  '[claBlack;0 claWhite;1],claWhite,Linear,False,2,1,0.98,//////7gwID//////+fOzP///////+7s////////////////////////////wP4A+ADwAPAA4AA')]
+    [TestCase('8',  '[$7F000000;0 $7FFFFFFF;1],claWhite,Linear,False,2,1,0.98,//////7gwID//////+fOzP///////+7s////////////////////////////gP4A+ADwAOAA4AA')]
+    [TestCase('9',  '[claBlack;0 claWhite;1],claWhite,Linear,False,-2,0.5,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('10', '[claBlack;0 claWhite;1],claWhite,Linear,True,0.5,1,0.98,nw8P//////////////////////////////////////+B//////////////////////////////8')]
+    [TestCase('11', '[$7F000000;0 $7FFFFFFF;1],claWhite,Linear,True,-1,1,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('12', '[claBlack;0 claWhite;1],claWhite,Linear,True,3,0.5,0.98,//////////z//////////P////////////////////////////////////////////////////g')]
+    [TestCase('13', '[claBlack;0.2 claWhite;0.8],claWhite,Linear,False,1,1,0.98,//+BgYH///////Hhw///////8eXj//////////////////gfwAPAA8AD4Af4H/////////////8')]
+    [TestCase('14', '[$7F000000;0.2 $7FFFFFFF;0.8],claWhite,Linear,False,1,1,0.98,//+BgYH///////Hhw///////8eXj//////////////////APwAOAAYAB//////////////////8')]
+    [TestCase('15', '[claBlack;0.2 claWhite;0.8],claWhite,Linear,False,1,0.5,0.98,//+BgYH///////Hhw///////8eXj//////////////////APwAOAAYAB//////////////////8')]
+    [TestCase('16', '[claBlack;0.2 claWhite;0.8],claWhite,Linear,True,1,1,0.98,//+BgYH///////Hhw///////8eXj//////////////////gfwAPAA8AD4Af4H/////////////8')]
+    [TestCase('17', '[$7F000000;0.2 $7FFFFFFF;0.8],claWhite,Linear,True,1,1,0.98,//+BgYH///////Hhw///////8eXj//////////////////APwAOAAYAB//////////////////8')]
+    [TestCase('18', '[claBlack;0.2 claWhite;0.8],claWhite,Linear,True,1,0.5,0.98,//+BgYH///////Hhw///////8eXj//////////////////APwAOAAYAB//////////////////8')]
+    [TestCase('19', '[claBlack;0.2 claWhite;0.8],claWhite,Linear,False,2,1,0.98,///////gwID//////+fOzP///////+7M////////////////////////////4P8A/ADwAPAA4AA')]
+    [TestCase('20', '[$7F000000;0.2 $7FFFFFFF;0.8],claWhite,Linear,False,2,1,0.98,///////gwID//////+fOzP///////+7M////////////////////////////gP4A+ADwAOAA4AA')]
+    [TestCase('21', '[claBlack;0 claWhite;1],claWhite,Radial,False,1,1,0.98,///DAADD//////NhQ8f/////++/P7/////////////////AP4AfAA8AD4AfwD/////////////8')]
+    [TestCase('22', '[$7F000000;0 $7FFFFFFF;1],claWhite,Radial,False,1,1,0.98,///DAADD//////NhQ8f/////++/P7/////////////////APwAPAA8ADwAPwD/////////////8')]
+    [TestCase('23', '[claBlack;0 claWhite;1],claWhite,Radial,False,1,0.5,0.98,///DAADD//////NhQ8f/////++/P7/////////////////APwAPAA8ADwAPwD/////////////8')]
+    [TestCase('24', '[claBlack;0 claWhite;1],claWhite,Radial,True,1,1,0.98,///DAADD//////NhQ8f/////++/P7/////////////////AP4AfAA8AD4AfwD/////////////8')]
+    [TestCase('25', '[$7F000000;0 $7FFFFFFF;1],claWhite,Radial,True,1,1,0.98,///DAADD//////NhQ8f/////++/P7/////////////////APwAPAA8ADwAPwD/////////////8')]
+    [TestCase('26', '[claBlack;0 claWhite;1],claWhite,Radial,True,1,0.5,0.98,///DAADD//////NhQ8f/////++/P7/////////////////APwAPAA8ADwAPwD/////////////8')]
+    [TestCase('27', '[claBlack;0 claWhite;1],claWhite,Radial,False,2,1,0.98,//////7gwID//////+fOzP///////+7M////////////////////////////wP4A/ADwAPAA8AA')]
+    [TestCase('28', '[$7F000000;0 $7FFFFFFF;1],claWhite,Radial,False,2,1,0.98,//////7gwID//////+fOzP///////+7M////////////////////////////gP4A+ADwAPAA4AM')]
+    [TestCase('29', '[claBlack;0 claWhite;1],claWhite,Radial,False,-2,0.5,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('30', '[claBlack;0 claWhite;1],claWhite,Radial,True,0.5,1,0.98,nw8P//////////////////////////////////////+B/8P///////////////////////////8')]
+    [TestCase('31', '[$7F000000;0 $7FFFFFFF;1],claWhite,Radial,True,-1,1,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('32', '[claBlack;0 claWhite;1],claWhite,Radial,True,3,0.5,0.98,//////////z//////////P////////////////////////////////////////////////////g')]
+    [TestCase('33', '[claBlack;0.2 claWhite;0.8],claWhite,Radial,False,1,1,0.98,///DAADD//////NhQ8f/////8+/P9/////////////////gf4AfAA8AD4Af4H/////////////8')]
+    [TestCase('34', '[$7F000000;0.2 $7FFFFFFF;0.8],claWhite,Radial,False,1,1,0.98,///DAADD//////NhQ8f/////8+/P9/////////////////APwAPBg8GDwAPwD/////////////8')]
+    [TestCase('35', '[claBlack;0.2 claWhite;0.8],claWhite,Radial,False,1,0.5,0.98,///DAADD//////NhQ8f/////8+/P9/////////////////APwAPBg8GDwAPwD/////////////8')]
+    [TestCase('36', '[claBlack;0.2 claWhite;0.8],claWhite,Radial,True,1,1,0.98,///DAADD//////NhQ8f/////8+/P9/////////////////gf4AfAA8AD4Af4H/////////////8')]
+    [TestCase('37', '[$7F000000;0.2 $7FFFFFFF;0.8],claWhite,Radial,True,1,1,0.98,///DAADD//////NhQ8f/////8+/P9/////////////////APwAPBg8GDwAPwD/////////////8')]
+    [TestCase('38', '[claBlack;0.2 claWhite;0.8],claWhite,Radial,True,1,0.5,0.98,///DAADD//////NhQ8f/////8+/P9/////////////////APwAPBg8GDwAPwD/////////////8')]
+    [TestCase('39', '[claBlack;0.2 claWhite;0.8],claWhite,Radial,False,2,1,0.98,//////7gwIH//////+fOzf///////+7N////////////////////////////4P8A/AD4APAA8AA')]
+    [TestCase('40', '[$7F000000;0.2 $7FFFFFFF;0.8],claWhite,Radial,False,2,1,0.98,//////7gwIH//////+fOzf///////+7N//////////////////////////7/gP4A+ADwAOAD4Ac')]
+    [TestCase('41', '[claRed;0 claBlue;1],claBlack,Linear,False,1,1,0.98,///DgYHD//////Phw8f/////8+HD9/////////////////gf4AfAA8AD4Af4H/////////////8')]
+    [TestCase('42', '[$7FFF0000;0 $7F0000FF;1],claBlack,Linear,False,1,1,0.98,///DgYHD//////Phw8f/////8/XX9/////////////////APwAOAAYABwAPwD/////////////8')]
+    [TestCase('43', '[claRed;0 claBlue;1],claBlack,Linear,False,1,0.5,0.98,///DgYHD//////Phw8f/////8+HD9/////////////////APwAOAAYABwAPwD/////////////8')]
+    [TestCase('44', '[claRed;0 claBlue;1],claBlack,Linear,True,1,1,0.98,///DgYHD//////Phw8f/////8+HD9/////////////////gf4AfAA8AD4Af4H/////////////8')]
+    [TestCase('45', '[$7FFF0000;0 $7F0000FF;1],claBlack,Linear,True,1,1,0.98,///DgYHD//////Phw8f/////8/XX9/////////////////APwAOAAYABwAPwD/////////////8')]
+    [TestCase('46', '[claRed;0 claBlue;1],claBlack,Linear,True,1,0.5,0.98,///DgYHD//////Phw8f/////8+HD9/////////////////APwAOAAYABwAPwD/////////////8')]
+    [TestCase('47', '[claRed;0 claBlue;1],claBlack,Linear,False,2,1,0.98,///////gwID//////+fOzP///////+7M////////////////////////////4P8A/AD4APAA8AA')]
+    [TestCase('48', '[$7FFF0000;0 $7F0000FF;1],claBlack,Linear,False,2,1,0.98,///////gwID//////+fOzP///////+7M//////////////////////////j/gP4A+ADwAOAA4AA')]
+    [TestCase('49', '[claRed;0 claBlue;1],claBlack,Linear,False,-2,0.5,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('50', '[claRed;0 claBlue;1],claBlack,Linear,True,0.5,1,0.98,nw8P//////////////////////////////////////+B/8P///////////////////////////8')]
+    [TestCase('51', '[$7FFF0000;0 $7F0000FF;1],claBlack,Linear,True,-1,1,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('52', '[claRed;0 claBlue;1],claBlack,Linear,True,3,0.5,0.98,//////////z//////////P////////////////////////////////////////////////////g')]
+    [TestCase('53', '[claRed;0.2 claBlue;0.8],claBlack,Linear,False,1,1,0.98,///DgYHD//////Phw8f/////8+HD9/////////////////gf4AfAA8AD4Af4H/////////////8')]
+    [TestCase('54', '[$7FFF0000;0.2 $7F0000FF;0.8],claBlack,Linear,False,1,1,0.98,///DgYHD//////Phw8f/////8/XX9/////////////////APwAOAAYABwAPwD/////////////8')]
+    [TestCase('55', '[claRed;0.2 claBlue;0.8],claBlack,Linear,False,1,0.5,0.98,///DgYHD//////Phw8f/////8+HD9/////////////////APwAOAAYABwAPwD/////////////8')]
+    [TestCase('56', '[claRed;0.2 claBlue;0.8],claBlack,Linear,True,1,1,0.98,///DgYHD//////Phw8f/////8+HD9/////////////////gf4AfAA8AD4Af4H/////////////8')]
+    [TestCase('57', '[$7FFF0000;0.2 $7F0000FF;0.8],claBlack,Linear,True,1,1,0.98,///DgYHD//////Phw8f/////8/XX9/////////////////APwAOAAYABwAPwD/////////////8')]
+    [TestCase('58', '[claRed;0.2 claBlue;0.8],claBlack,Linear,True,1,0.5,0.98,///DgYHD//////Phw8f/////8+HD9/////////////////APwAOAAYABwAPwD/////////////8')]
+    [TestCase('59', '[claRed;0.2 claBlue;0.8],claBlack,Linear,False,2,1,0.98,///////gwID//////+fOzP///////+7M////////////////////////////4P8A/AD4APAA8AA')]
+    [TestCase('60', '[$7FFF0000;0.2 $7F0000FF;0.8],claBlack,Linear,False,2,1,0.98,///////gwID//////+fOzP///////+7M//////////////////////////j/gP4A+ADwAOAA4AA')]
+    [TestCase('61', '[claRed;0 claBlue;1],claBlack,Radial,False,1,1,0.98,///DgYHD//////Phw8f/////8+HD9/////////////////gf4AfAA8AD4Af4H/////////////8')]
+    [TestCase('62', '[$7FFF0000;0 $7F0000FF;1],claBlack,Radial,False,1,1,0.98,///DgYHD//////Phw8f/////8/XX9/////////////////APwAOAAYABwAPwD/////////////8')]
+    [TestCase('63', '[claRed;0 claBlue;1],claBlack,Radial,False,1,0.5,0.98,///DgYHD//////Phw8f/////8+HD9/////////////////APwAOAAYABwAPwD/////////////8')]
+    [TestCase('64', '[claRed;0 claBlue;1],claBlack,Radial,True,1,1,0.98,///DgYHD//////Phw8f/////8+HD9/////////////////gf4AfAA8AD4Af4H/////////////8')]
+    [TestCase('65', '[$7FFF0000;0 $7F0000FF;1],claBlack,Radial,True,1,1,0.98,///DgYHD//////Phw8f/////8/XX9/////////////////APwAOAAYABwAPwD/////////////8')]
+    [TestCase('66', '[claRed;0 claBlue;1],claBlack,Radial,True,1,0.5,0.98,///DgYHD//////Phw8f/////8+HD9/////////////////APwAOAAYABwAPwD/////////////8')]
+    [TestCase('67', '[claRed;0 claBlue;1],claBlack,Radial,False,2,1,0.98,///////gwID//////+fOzP///////+7M////////////////////////////4P8A/AD4APAA8AA')]
+    [TestCase('68', '[$7FFF0000;0 $7F0000FF;1],claBlack,Radial,False,2,1,0.98,///////gwID//////+fOzP///////+7M//////////////////////////j/gP4A+ADwAOAA4AA')]
+    [TestCase('69', '[claRed;0 claBlue;1],claBlack,Radial,False,-2,0.5,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('70', '[claRed;0 claBlue;1],claBlack,Radial,True,0.5,1,0.98,nw8P//////////////////////////////////////+B/8P///////////////////////////8')]
+    [TestCase('71', '[$7FFF0000;0 $7F0000FF;1],claBlack,Radial,True,-1,1,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('72', '[claRed;0 claBlue;1],claBlack,Radial,True,3,0.5,0.98,//////////z//////////P////////////////////////////////////////////////////g')]
+    [TestCase('73', '[claRed;0.2 claBlue;0.8],claBlack,Radial,False,1,1,0.98,///DgYHD//////Phw8f/////8+HD9/////////////////gf4AfAA8AD4Af4H/////////////8')]
+    [TestCase('74', '[$7FFF0000;0.2 $7F0000FF;0.8],claBlack,Radial,False,1,1,0.98,///DgYHD//////Phw8f/////8/XX9/////////////////APwAOAAYABwAPwD/////////////8')]
+    [TestCase('75', '[claRed;0.2 claBlue;0.8],claBlack,Radial,False,1,0.5,0.98,///DgYHD//////Phw8f/////8+HD9/////////////////APwAOAAYABwAPwD/////////////8')]
+    [TestCase('76', '[claRed;0.2 claBlue;0.8],claBlack,Radial,True,1,1,0.98,///DgYHD//////Phw8f/////8+HD9/////////////////gf4AfAA8AD4Af4H/////////////8')]
+    [TestCase('77', '[$7FFF0000;0.2 $7F0000FF;0.8],claBlack,Radial,True,1,1,0.98,///DgYHD//////Phw8f/////8/XX9/////////////////APwAOAAYABwAPwD/////////////8')]
+    [TestCase('78', '[claRed;0.2 claBlue;0.8],claBlack,Radial,True,1,0.5,0.98,///DgYHD//////Phw8f/////8+HD9/////////////////APwAOAAYABwAPwD/////////////8')]
+    [TestCase('79', '[claRed;0.2 claBlue;0.8],claBlack,Radial,False,2,1,0.98,///////gwID//////+fOzP///////+7M////////////////////////////4P8A/AD4APAA8AA')]
+    [TestCase('80', '[$7FFF0000;0.2 $7F0000FF;0.8],claBlack,Radial,False,2,1,0.98,///////gwID//////+fOzP///////+7M//////////////////////////j/gP4A+ADwAOAA4AA')]
+    procedure TestFillEllipseGradient2(const APoints, AModulateColor: string; AGradientStyle: TGradientStyle; ABlending: Boolean; const AScale, AOpacity, AMinSimilarity: Double; const AExpectedImageHash: string);
+    [TestCase('1',  '[claRed;0 claBlue;1],claWhite,1,1,0,0,0,0.5,0.5,0,0,0.15,0.15,0.85,0.85,1,1.3,0,-20,30,False,False,False,0.9,1,0.98,/x8fDw8fH3/////vz9/f/////+/P39///////////////w//B/8H/wf/B/8H/w//H////3////8')]
+    [TestCase('2',  '[claRed;0 claBlue;1],claWhite,1,1,0,0,0,0.5,0.5,0,0,0.15,0.15,0.85,0.85,1,1.3,0,-20,30,True,False,False,0.9,1,0.98,/x8fDw8fH3/////vz9/f/////+/P39///////////////w//B/8H/wf/B/8H/w//H////3////8')]
+    [TestCase('3',  '[claRed;0 claBlue;1],claWhite,1,1,0,0,0,0.5,0.5,0,0,0.15,0.15,0.85,0.85,1,1.3,0,-20,30,False,True,False,0.9,1,0.98,/x8fDw8fH3/////vz9/f/////+/P39///////////////w//B/8H/wf/B/8H/w//H////3////8')]
+    [TestCase('4',  '[claRed;0 claBlue;1],claWhite,1,1,0,0,0,0.5,0.5,0,0,0.15,0.15,0.85,0.85,1,1.3,0,-20,30,True,True,False,0.9,1,0.98,/x8fDw8fH3/////vz9/f/////+/P39///////////////w//B/8H/wf/B/8H/w//H////3////8')]
+    [TestCase('5',  '[claRed;0 claBlue;1],claWhite,1,1,0,0,0,0.5,0.5,0,0,0.15,0.15,0.85,0.85,1,1.3,0,-20,30,False,False,False,0.9,0.5,0.98,/x8fDw8fH3/////vz9/f/////+/P39/////////////f/wf/B/8H/wf/B/8H/w//H/////////8')]
+    [TestCase('6',  '[claRed;0 claBlue;1],claWhite,1,1,0,0,0,0.5,0.5,0,0,0.15,0.15,0.85,0.85,1,1.3,0,-20,30,True,False,False,0.9,0.5,0.98,/x8fDw8fH3/////vz9/f/////+/P39/////////////f/wf/B/8H/wf/B/8H/w//H/////////8')]
+    [TestCase('7',  '[claRed;0 claBlue;1],claWhite,1,1,0,0,0,0.5,0.5,0,0,0.15,0.15,0.85,0.85,1,1.3,0,-20,30,False,True,False,0.9,0.5,0.98,/x8fDw8fH3/////vz9/f/////+/P39/////////////f/wf/B/8H/wf/B/8H/w//H/////////8')]
+    [TestCase('8',  '[claRed;0 claBlue;1],claWhite,1,1,0,0,0,0.5,0.5,0,0,0.15,0.15,0.85,0.85,1,1.3,0,-20,30,True,True,False,0.9,0.5,0.98,/x8fDw8fH3/////vz9/f/////+/P39/////////////f/wf/B/8H/wf/B/8H/w//H/////////8')]
+    [TestCase('9',  '[claRed;0 claBlue;1],claWhite,1,0.7,0,20,-30,0,0,0.3,0,0.15,0.15,0.85,0.85,1,1.3,0,-20,30,False,False,False,0.9,1,0.98,/x8fDw8fH3/////vz9/f/////+/P39/////////////z/4P/Af8B/wP/A/8D/wf/B/8f/3////8')]
+    [TestCase('10', '[claRed;0 claBlue;1],claWhite,1,0.7,0,20,-30,0,0,0.3,0,0.15,0.15,0.85,0.85,1,1.3,0,-20,30,True,False,False,0.9,1,0.98,/x8fDw8fH3/////vz9/f/////+/P39/////////////z/4P/Af8B/wP/A/8D/wf/B/8f/3////8')]
+    [TestCase('11', '[claRed;0 claBlue;1],claWhite,1,0.7,0,20,-30,0,0,0.3,0,0.15,0.15,0.85,0.85,1,1.3,0,-20,30,False,True,False,0.9,1,0.98,/x8fDw8fH3/////vz9/f/////+/P39/////////////z/4P/Af8B/wP/A/8D/wf/B/8f/3////8')]
+    [TestCase('12', '[claRed;0 claBlue;1],claWhite,1,0.7,0,20,-30,0,0,0.3,0,0.15,0.15,0.85,0.85,1,1.3,0,-20,30,True,True,False,0.9,1,0.98,/x8fDw8fH3/////vz9/f/////+/P39/////////////z/4P/Af8B/wP/A/8D/wf/B/8f/3////8')]
+    [TestCase('13', '[claRed;0 claBlue;1],claWhite,1,0.7,0,20,-30,0,0,0.3,0,0.15,0.15,0.85,0.85,1,1.3,0,-20,30,False,False,False,0.9,0.5,0.98,/x8fDw8fH3/////vz9/f/////+/P39//////78/f3//8AP4A/gD+AP4A/gD+APwA+ADwAOAAAAA')]
+    [TestCase('14', '[claRed;0 claBlue;1],claWhite,1,0.7,0,20,-30,0,0,0.3,0,0.15,0.15,0.85,0.85,1,1.3,0,-20,30,True,False,False,0.9,0.5,0.98,/x8fDw8fH3/////vz9/f/////+/P39//////78/f3//8AP4A/gD+AP4A/gD+APwA+ADwAOAAAAA')]
+    [TestCase('15', '[claRed;0 claBlue;1],claWhite,1,0.7,0,20,-30,0,0,0.3,0,0.15,0.15,0.85,0.85,1,1.3,0,-20,30,False,True,False,0.9,0.5,0.98,/x8fDw8fH3/////vz9/f/////+/P39//////78/f3//8AP4A/gD+AP4A/gD+APwA+ADwAOAAAAA')]
+    [TestCase('16', '[claRed;0 claBlue;1],claWhite,1,0.7,0,20,-30,0,0,0.3,0,0.15,0.15,0.85,0.85,1,1.3,0,-20,30,True,True,False,0.9,0.5,0.98,/x8fDw8fH3/////vz9/f/////+/P39//////78/f3//8AP4A/gD+AP4A/gD+APwA+ADwAOAAAAA')]
+    [TestCase('17', '[claRed;0 claBlue;1],claBlack,1,0.7,0,20,-30,0,0,0.3,0,0.15,0.15,0.85,0.85,1,1.3,0,-20,30,True,True,False,0.9,0.5,0.98,/x8fDw8fH3/////vz9/f/////+/P39///////8//3/8D/wH/Af8B/wH/Af8B/wP/B/8P/x////8')]
+    [TestCase('18', '[claRed;0 claBlue;1],claWhite,1,1,0,0,0,0.5,0.5,0,0,0.15,0.15,0.85,0.85,1,1.3,0,-20,0,False,False,False,0.9,1,0.98,x4ODg4PD7/////Pjw8fv////8/Pz5+/////////////wP/Af8B/wH/A/+D/8f////v////////8')]
+    [TestCase('19', '[claRed;0 claNull;0.5 claBlue;1],claWhite,1,1,0,0,0,0.5,0.5,0,0,0.15,0.15,0.85,0.85,1,1.3,0,-20,0,False,False,False,0.9,1,0.98,x4ODg4ODx/////Pjw8fP////9/ffz+/////////////wH+Af4B/gH/Af8D/4P/z///////////8')]
+    [TestCase('20', '[claRed;0 claBlue;1],claWhite,1,1,0,0,0,0.5,0.5,0,0,0.15,0.15,0.85,0.85,1,1.3,0,-20,30,False,False,True,0.9,1,0.98,/x8fDw8fH3//P//Pbx/f//+//89vH9///7//z38f///8AP8A/wD/AP8A/wD+AP4A+ADwAOAAAAA')]
+    [TestCase('21', '[claRed;0 claBlue;1],claWhite,1,1,0,0,0,0.5,0.5,0,0,0.15,0.15,0.85,0.85,1,1.3,0,-20,30,True,False,True,0.9,1,0.98,/x8fDw8fH3//P//Pbx/f//+//89vH9///7//z38f///8AP8A/wD/AP8A/wD+AP4A+ADwAOAAAAA')]
+    [TestCase('22', '[claRed;0 claBlue;1],claWhite,1,1,0,0,0,0.5,0.5,0,0,0.15,0.15,0.85,0.85,1,1.3,0,-20,30,False,True,True,0.9,1,0.98,/x8fDw8fH3//P//Pbx/f//+//89vH9///7//z38f///8AP8A/wD/AP8A/wD+AP4A+ADwAOAAAAA')]
+    [TestCase('23', '[claRed;0 claBlue;1],claWhite,1,1,0,0,0,0.5,0.5,0,0,0.15,0.15,0.85,0.85,1,1.3,0,-20,30,True,True,True,0.9,1,0.98,/x8fDw8fH3//P//Pbx/f//+//89vH9///7//z38f///8AP8A/wD/AP8A/wD+AP4A+ADwAOAAAAA')]
+    [TestCase('24', '[claRed;0 claBlue;1],claWhite,1,1,0,0,0,0.5,0.5,0,0,0.15,0.15,0.85,0.85,1,1.3,0,-20,30,False,False,True,0.9,0.5,0.98,/x8fDw8fH3//P//PTx/f//+//89PH9///7//z18f///8AP8A/wD/AP8A/wD+AP4A+ADwAOAAAAA')]
+    [TestCase('25', '[claRed;0 claBlue;1],claWhite,1,1,0,0,0,0.5,0.5,0,0,0.15,0.15,0.85,0.85,1,1.3,0,-20,30,True,False,True,0.9,0.5,0.98,/x8fDw8fH3//P//PTx/f//+//89PH9///7//z18f///8AP8A/wD/AP8A/wD+AP4A+ADwAOAAAAA')]
+    [TestCase('26', '[claRed;0 claBlue;1],claWhite,1,1,0,0,0,0.5,0.5,0,0,0.15,0.15,0.85,0.85,1,1.3,0,-20,30,False,True,True,0.9,0.5,0.98,/x8fDw8fH3//P//PTx/f//+//89PH9///7//z18f///8AP8A/wD/AP8A/wD+AP4A+ADwAOAAAAA')]
+    [TestCase('27', '[claRed;0 claBlue;1],claWhite,1,1,0,0,0,0.5,0.5,0,0,0.15,0.15,0.85,0.85,1,1.3,0,-20,30,True,True,True,0.9,0.5,0.98,/x8fDw8fH3//P//PTx/f//+//89PH9///7//z18f///8AP8A/wD/AP8A/wD+AP4A+ADwAOAAAAA')]
+    [TestCase('28', '[claRed;0 claBlue;1],claWhite,1,0.7,0,20,-30,0,0,0.3,0,0.15,0.15,0.85,0.85,1,1.3,0,-20,30,False,False,True,0.9,1,0.98,/x8PDw8fH3//P+/Pbx/f//+/789vH9///7/vz38f///8AP8A/wD/AP8A/wD+AP4A+ADwAvAFQAI')]
+    [TestCase('29', '[claRed;0 claBlue;1],claWhite,1,0.7,0,20,-30,0,0,0.3,0,0.15,0.15,0.85,0.85,1,1.3,0,-20,30,True,False,True,0.9,1,0.98,/x8PDw8fH3//P+/Pbx/f//+/789vH9///7/vz38f///8AP8A/wD/AP8A/wD+AP4A+ADwAvAFQAI')]
+    [TestCase('30', '[claRed;0 claBlue;1],claWhite,1,0.7,0,20,-30,0,0,0.3,0,0.15,0.15,0.85,0.85,1,1.3,0,-20,30,False,True,True,0.9,1,0.98,/x8PDw8fH3//P+/Pbx/f//+/789vH9///7/vz38f///8AP8A/wD/AP8A/wD+AP4A+ADwAvAFQAI')]
+    [TestCase('31', '[claRed;0 claBlue;1],claWhite,1,0.7,0,20,-30,0,0,0.3,0,0.15,0.15,0.85,0.85,1,1.3,0,-20,30,True,True,True,0.9,1,0.98,/x8PDw8fH3//P+/Pbx/f//+/789vH9///7/vz38f///8AP8A/wD/AP8A/wD+AP4A+ADwAvAFQAI')]
+    [TestCase('32', '[claRed;0 claBlue;1],claWhite,1,0.7,0,20,-30,0,0,0.3,0,0.15,0.15,0.85,0.85,1,1.3,0,-20,30,False,False,True,0.9,0.5,0.98,/x8PDw8fH3//P+/PTx/f//+/78/P39///7/v3//f///8Av8A/wD/AP8A/wD8AP4C+AHwAvgVUAo')]
+    [TestCase('33', '[claRed;0 claBlue;1],claWhite,1,0.7,0,20,-30,0,0,0.3,0,0.15,0.15,0.85,0.85,1,1.3,0,-20,30,True,False,True,0.9,0.5,0.98,/x8PDw8fH3//P+/PTx/f//+/78/P39///7/v3//f///8Av8A/wD/AP8A/wD8AP4C+AHwAvgVUAo')]
+    [TestCase('34', '[claRed;0 claBlue;1],claWhite,1,0.7,0,20,-30,0,0,0.3,0,0.15,0.15,0.85,0.85,1,1.3,0,-20,30,False,True,True,0.9,0.5,0.98,/x8PDw8fH3//P+/PTx/f//+/78/P39///7/v3//f///8Av8A/wD/AP8A/wD8AP4C+AHwAvgVUAo')]
+    [TestCase('35', '[claRed;0 claBlue;1],claWhite,1,0.7,0,20,-30,0,0,0.3,0,0.15,0.15,0.85,0.85,1,1.3,0,-20,30,True,True,True,0.9,0.5,0.98,/x8PDw8fH3//P+/PTx/f//+/78/P39///7/v3//f///8Av8A/wD/AP8A/wD8AP4C+AHwAvgVUAo')]
+    [TestCase('36', '[claRed;0 claBlue;1],claBlack,1,0.7,0,20,-30,0,0,0.3,0,0.15,0.15,0.85,0.85,1,1.3,0,-20,30,True,True,True,0.9,0.5,0.98,/x8PDw8fH3//P+/Pbx/f//+/78/v39/////v3///3/8B6gHVAf8B/wH/Af8D1QPqg9VX6qvVV+o')]
+    [TestCase('37', '[claRed;0 claBlue;1],claWhite,1,1,0,0,0,0.5,0.5,0,0,0.15,0.15,0.85,0.85,1,1.3,0,-20,0,False,False,True,0.9,1,0.98,x4ODg4PD7///s+PD48Pv///z8/Pz4/////P/8//j//9/+D/wP/A/8D/wH/Af4A/AB4AAAAAAAAA')]
+    [TestCase('38', '[claRed;0 claNull;0.5 claBlue;1],claWhite,1,1,0,0,0,0.5,0.5,0,0,0.15,0.15,0.85,0.85,1,1.3,0,-20,0,False,False,True,0.9,1,0.98,x4ODg4PD5///s+PD48Pn///79/f/y/f///v/9//r9/93mGfQZ9BnkHOYETg4YA/wh6FHgqAFUAo')]
+    procedure TestFillEllipseGradientRadial(const APoints, AModulateColor: string; AGradientScaleX, AGradientScaleY, AGradientPosX, AGradientPosY, AGradientRotationDegree, AGradientRotationCenterX, AGradientRotationCenterY, AGradientSkewX, AGradientSkewY, ADestLeftPercent, ADestTopPercent, ADestRightPercent, ADestBottomPercent, ACanvasScaleX, ACanvasScaleY, ACanvasOffsetX, ACanvasOffsetY, ACanvasRotationDeg: Single; AApplyClip, ABlending, ADrawBackgroundChess: Boolean; const ABitmapScale, AOpacity, AMinSimilarity: Double; const AExpectedImageHash: string);
+    [TestCase('1',  '[claRed;0 claBlue;1],claWhite,0,0,1,1,0,0,1,1,1,1,0,0,0,False,True,1,1,False,0.98,54GBAACAgeP///Hg4MDB4/////7+/v/z//////////P/gf8A/gD8APgA8ADgAMABwAHAA+AH+B8')]
+    [TestCase('2',  '[claRed;0 claBlue;1],claWhite,1,1,0,0,0,0,1,1,1,1,0,0,0,False,True,1,1,False,0.98,x4EBAACBgef///Hg4MHB5///8eDgwcH3///x5+DDwfeAAwAHAA8AHwA/AH8A/4H/g//H//////8')]
+    [TestCase('3',  '[claRed;0 claBlue;1],claWhite,1,0,0,1,0,0,1,1,1,1,0,0,0,False,True,1,1,False,0.98,54GBAAABgcf///Hg4MHBx///8eDgwcH3/////+f/w/+B/wD/AH8APwAfAA8AB4ADgAPAA+AH+B8')]
+    [TestCase('4',  '[claRed;0 claBlue;1],claWhite,0.15,0.15,0.85,0.85,0,0,1,1,1,1,0,0,0,False,True,1,1,False,0.98,54GAAACAgcP///Dg4MDBw////v///v/z//////////O/wf+A/wD+APwA+ADwAOABwAHAA+AH+B8')]
+    [TestCase('5',  '[claRed;0 claBlue;1],claWhite,0.85,0.85,0.15,0.15,0,0,1,1,1,1,0,0,0,False,True,1,1,False,0.98,w4EBAAABgef///Hg4MHB5///8eDgwcHn///x5+DDweeABwAPAB8APwB/AP8B/4P9h//P///v//8')]
+    [TestCase('6',  '[claRed;0 claBlue;1],claWhite,0.85,0.15,0.15,0.85,0,0,1,1,1,1,0,0,0,False,True,1,1,False,0.98,54EBAAABgcP///Hg4MHBw///8eDgwcHz////7+//x/+D/QH/AP8AfwA/AB8AD4AHgAPAA+AH+B8')]
+    [TestCase('7',  '[claRed;0 claBlue;1],claWhite,0,0,1,1,0.15,0.15,0.85,0.85,1,1,0,0,0,False,True,1,1,False,0.98,/8OBgYGBw/////Hhw8fP/////f3/3///////////////h/4H/gP4A/gD8APgB/AH8A/8P/////8')]
+    [TestCase('8',  '[claRed;0 claBlue;1],claWhite,1,1,0,0,0.15,0.15,0.85,0.85,1,1,0,0,0,False,True,1,1,False,0.98,/8OBgYGBw/////Hhw8fP////8eHDx//////////////gD+AHwA/AH8AfwH/gf+H/+/////////8')]
+    [TestCase('9',  '[claRed;0 claBlue;1],claWhite,1,0,0,1,0.15,0.15,0.85,0.85,1,1,0,0,0,False,True,1,1,False,0.98,/8OBgYGBw/////Hhw8fP////8eHDx//////////////h/+B/wH/AH8AfwA/gB+AP8A/8P/////8')]
+    [TestCase('10', '[claRed;0 claBlue;1],claWhite,0.15,0.15,0.85,0.85,0.15,0.15,0.85,0.85,1,1,0,0,0,False,True,1,1,False,0.98,/8OBgYGBw/////Hhw8fP/////f3////////////////3h/8H/gP8A/gD8APgB/AH8A/8P/////8')]
+    [TestCase('11', '[claRed;0 claBlue;1],claWhite,0.85,0.85,0.15,0.15,0.15,0.15,0.85,0.85,1,1,0,0,0,False,True,1,1,False,0.98,/8OBgYGBw/////Hhw8fP////8eHDx//////////////gD+AHwA/AH8A/wH/g/+Hv+/////////8')]
+    [TestCase('12', '[claRed;0 claBlue;1],claWhite,0.85,0.15,0.15,0.85,0.15,0.15,0.85,0.85,1,1,0,0,0,False,True,1,1,False,0.98,/8OBgYGBw/////Hhw8fP////8eHDx//////////////h7+D/wH/AP8AfwA/gB+AP8A/8P/////8')]
+    [TestCase('13', '[claRed;0 claBlue;1],claWhite,0,0,1,1,0,0.15,1,0.85,1,1,0,0,0,False,True,1,1,False,0.98,/8OBAACBw/////FhQ8fP////////////////////////A/4B/AD8APgA8ADwAeAD4Af8P/////8')]
+    [TestCase('14', '[claRed;0 claBlue;1],claWhite,1,1,0,0,0,0.15,1,0.85,1,1,0,0,0,False,True,1,1,False,0.98,/8OBAACBw/////FhQ8fP////8eHDx+//////////7//AB4APAA8AHwA/AD+Af8D/4P////////8')]
+    [TestCase('15', '[claRed;0 claBlue;1],claWhite,1,0,0,1,0,0.15,1,0.85,1,1,0,0,0,False,True,1,1,False,0.98,/8OBAACBw/////FhQ8fP////8eHDx+//////////7//A/4B/AD8APwAfAA+AD8AH4Af8P/////8')]
+    [TestCase('16', '[claRed;0 claBlue;1],claWhite,0.15,0.15,0.85,0.85,0,0.15,1,0.85,1,1,0,0,0,False,True,1,1,False,0.98,/8OBAACBw/////FhQ8fP///////////////////////fA78B/gD8APwA+ADwAfAD8Af8P/////8')]
+    [TestCase('17', '[claRed;0 claBlue;1],claWhite,0.85,0.85,0.15,0.15,0,0.15,1,0.85,1,1,0,0,0,False,True,1,1,False,0.98,/8OBAACBw/////FhQ8fP////8WFDx+//////////7//AD4APAB8APwA/AH+A/cD74f////////8')]
+    [TestCase('18', '[claRed;0 claBlue;1],claWhite,0.85,0.15,0.15,0.85,0,0.15,1,0.85,1,1,0,0,0,False,True,1,1,False,0.98,/8OBAACBw/////FhQ8fP////8WFDx+//////////7//A+4D9AH8APwA/AB+AD8AP4A/8P/////8')]
+    [TestCase('19', '[claRed;0 claBlue;1],claWhite,0,0,1,1,0,0,1,1,1,1.3,0,-20,30,True,True,0.9,0.5,False,0.98,Pw8HBw8PHz///+fnz8/f////9/fvz9/////////////gf4B/AD8AfwB/AP8B/wH/A/8D/wf/B/8')]
+    [TestCase('20', '[claRed;0 claBlue;1],claWhite,1,1,0,0,0,0,1,1,1,1.3,0,-20,30,True,True,0.9,0.5,False,0.98,Pw8HBw8PHz///+fHz8/f////99fPz9///////8//3/8AfwB/AH8AfwD/AP8B/w//P/////////8')]
+    [TestCase('21', '[claRed;0 claBlue;1],claWhite,1,0,0,1,0,0,1,1,1,1.3,0,-20,30,True,True,0.9,0.5,False,0.98,Pw8HBw8PHz///+fnz8/f////5+fPz9/////v/8//3/8H/wf/B/8H/wf/A/8D/wP/A/8H/wf/B/8')]
+    [TestCase('22', '[claRed;0 claBlue;1],claWhite,0.15,0.15,0.85,0.85,0,0,1,1,1,1.3,0,-20,30,True,True,0.9,0.5,False,0.98,Pw8HBw8PHx///+fnz8/f3///9/fvz9/f///////////4f+B/gD8AfwB/AP8B/wH/A/8D/wf/B/8')]
+    [TestCase('23', '[claRed;0 claBlue;1],claWhite,0.85,0.85,0.15,0.15,0,0,1,1,1,1.3,0,-20,30,True,True,0.9,0.5,False,0.98,Pw8HBw8PHz///+fHz8/f////99fPz9///////8//3/8AfwB/AD8AfwD/Af8P/z////////////8')]
+    [TestCase('24', '[claRed;0 claBlue;1],claWhite,0.85,0.15,0.15,0.85,0,0,1,1,1,1.3,0,-20,30,True,True,0.9,0.5,False,0.98,Pw8HBw8PHz///+fnz8/f////5+fPz9/////v/8//3/8P/w//D/8P/w//B/8H/wf/B/8H/wf/B/8')]
+    [TestCase('25', '[claRed;0 claBlue;1],claWhite,0,0,1,1,0.15,0.15,0.85,0.85,1,1.3,0,-20,30,True,True,0.9,0.5,False,0.98,/x8fDw8fH3/////vz9/f/////+/P39/////////////7/8H/Af8B/wH/Af8B/wP/B/8P/x////8')]
+    [TestCase('26', '[claRed;0 claBlue;1],claWhite,1,1,0,0,0.15,0.15,0.85,0.85,1,1.3,0,-20,30,True,True,0.9,0.5,False,0.98,/x8fDw8fH3/////vz9/f/////+/P39///////8//3/8D/wH/Af8B/wH/Af8H/z////////////8')]
+    [TestCase('27', '[claRed;0 claBlue;1],claWhite,1,0,0,1,0.15,0.15,0.85,0.85,1,1.3,0,-20,30,True,True,0.9,0.5,False,0.98,/x8fDw8fH3/////vz9/f/////+/P39///////9//3/8P/w//D/8P/w//B/8H/wf/B/8P/x////8')]
+    [TestCase('28', '[claRed;0 claBlue;1],claWhite,0.15,0.15,0.85,0.85,0.15,0.15,0.85,0.85,1,1.3,0,-20,30,True,True,0.9,0.5,False,0.98,/x8fDw8fH3/////vz9/f/////+/P39////////////////H/wf8B/wH/Af8B/wP/B/8P/x////8')]
+    [TestCase('29', '[claRed;0 claBlue;1],claWhite,0.85,0.85,0.15,0.15,0.15,0.15,0.85,0.85,1,1.3,0,-20,30,True,True,0.9,0.5,False,0.98,/x8fDw8fH3/////vz9/f/////+/P39///////8//3/8B/wH/Af8B/wH/B/8f/3////////////8')]
+    [TestCase('30', '[claRed;0 claBlue;1],claWhite,0.85,0.15,0.15,0.85,0.15,0.15,0.85,0.85,1,1.3,0,-20,30,True,True,0.9,0.5,False,0.98,/x8fDw8fH3/////vz9/f/////+/P39///////9//3/8f/x//H/8P/w//D/8P/w//D/8P/x////8')]
+    [TestCase('31', '[claRed;0 claBlue;1],claWhite,0,0,1,1,0,0.15,1,0.85,1,1.3,0,-20,30,True,True,0.9,0.5,False,0.98,/x8PDw8PHx/////vz8/f3////+/vz9/f///////////h/8D/AP8AfwB/AP8B/wH/A/8D/wf/D/8')]
+    [TestCase('32', '[claRed;0 claBlue;1],claWhite,1,1,0,0,0,0.15,1,0.85,1,1.3,0,-20,30,True,True,0.9,0.5,False,0.98,/x8PDw8PHz/////vz8/f/////+/Pz9///////8//3/8B/wD/AP8A/wD/Af8H/w//P/////////8')]
+    [TestCase('33', '[claRed;0 claBlue;1],claWhite,1,0,0,1,0,0.15,1,0.85,1,1.3,0,-20,30,True,True,0.9,0.5,False,0.98,/x8PDw8PHx/////vz8/f3////+/Pz9/f/////8//3/8H/wf/B/8H/wf/B/8H/wf/B/8H/wf/D/8')]
+    [TestCase('34', '[claRed;0 claBlue;1],claWhite,0.15,0.15,0.85,0.85,0,0.15,1,0.85,1,1.3,0,-20,30,True,True,0.9,0.5,False,0.98,/x8PDw8PHx/////vz8/f3////+/v79/f///////////5/+D/gP8AfwB/AP8B/wH/A/8D/wf/D/8')]
+    [TestCase('35', '[claRed;0 claBlue;1],claWhite,0.85,0.85,0.15,0.15,0,0.15,1,0.85,1,1.3,0,-20,30,True,True,0.9,0.5,False,0.98,/x8PDw8PHz/////vz8/f/////+/Pz9///////8//3/8B/wD/AP8A/wH/B/8f/z////////////8')]
+    [TestCase('36', '[claRed;0 claBlue;1],claWhite,0.85,0.15,0.15,0.85,0,0.15,1,0.85,1,1.3,0,-20,30,True,True,0.9,0.5,False,0.98,/x8PDw8PHz/////vz8/f/////+/Pz9///////8//3/8P/w//D/8P/w//D/8P/w//D/8P/w//D/8')]
+    [TestCase('37', '[claRed;0 claBlue;1],claWhite,0.85,0.15,0.15,0.85,0,0.15,1,0.85,1,1.3,0,-20,30,True,False,0.9,0.5,False,0.98,/x8PDw8PHz/////vz8/f/////+/Pz9///////8//3/8P/w//D/8P/w//D/8P/w//D/8P/w//D/8')]
+    [TestCase('38', '[claRed;0 claBlue;1],claWhite,0.85,0.15,0.15,0.85,0,0.15,1,0.85,1,1.3,0,-20,30,True,False,0.9,1,False,0.98,/x8PDw8PHx/////v78/f3////+/vz9/f/////+//3/8P/w//D/8P/w//D/8P/w//D/8P/w//D/8')]
+    [TestCase('39', '[claRed;0 claBlue;1],claGreen,0.85,0.15,0.15,0.85,0,0.15,1,0.85,1,1.3,0,-20,30,True,False,0.9,1,False,0.98,/x8PDw8PHx/////v78/f3////+/vz9/f////////3/8D/wH/Af8A/wD/Af8B/wf/A/8H/w////8')]
+    [TestCase('40', '[claRed;0 claBlue;1],claGreen,0.85,0.15,0.15,0.85,0,0.15,1,0.85,1,1.3,0,-20,30,True,False,0.9,0.5,False,0.98,/x8PDw8PHx/////vz8/f3////+/Pz9/f/////8//3/8B/wH/AP8A/wB/AP8B/wH/A/8D/wf/D/8')]
+    [TestCase('41', '[claRed;0 claBlue;1],claWhite,1.15,-0.15,-0.15,1.15,0,0.15,1,0.85,1,1.3,0,-20,30,True,True,0.9,1,False,0.98,/x8PDw8PHx/////v78/f3////+/vz9/f/////+//3/8H/wf/B/8H/wf/B/8H/wf/B/8H/wf/D/8')]
+    [TestCase('42', '[claRed;0 claBlue;1],claWhite,1.15,-0.15,-0.15,1.15,0,-0.15,1.15,0.85,1,1.3,0,-20,30,True,True,0.9,1,False,0.98,Pw8HBw8PHz8/DwfHz8/f/z8PB9fPz9//P/8P/8//3/8B/wH/Af8B/wH/AP8B/wH/A/8D/wf/D/8')]
+    [TestCase('43', '[claRed;0.3 claNull;0.5 claBlue;0.7],claWhite,1.15,-0.15,-0.15,1.15,0,-0.15,1.15,0.85,1,1.3,0,-20,30,True,True,0.9,1,False,0.98,f08HBw8PPz9/f2fnz8///39/d/fv7///f/9///////8R/xG/Gf8Z/xn/Gf8J/wn/C/8P/w//D/8')]
+    [TestCase('44', '[claRed;0 claBlue;1],claWhite,0,0,1,1,0,0,1,1,1,1,0,0,0,False,True,1,1,True,0.98,48GAAAAAgcP7++DAYADBw/v//v7+/v/z/////v/+//9//v/+//////////9//n/+P/w//A/wA8A')]
+    [TestCase('45', '[claRed;0 claBlue;1],claWhite,1,1,0,0,0,0,1,1,1,1,0,0,0,False,True,1,1,True,0.98,w4EAAAABg8f7u+DAYAHDx/u74MDggcP3+/vv8P/9//9//n/+//////////9//3/+P/4//A/4A+A')]
+    [TestCase('46', '[claRed;0 claBlue;1],claWhite,1,0,0,1,0,0,1,1,1,1,0,0,0,False,True,1,1,True,0.98,x4MBAAAAgcP/u+HAYADBw/+74cDggMHz//vv+P/8//9//n////////////9//n/+P/w//A/wA8A')]
+    [TestCase('47', '[claRed;0 claBlue;1],claWhite,0.15,0.15,0.85,0.85,0,0,1,1,1,1,0,0,0,False,True,1,1,True,0.98,58GAAACAgcP/++DAYIDBw////v7+/v/z/////v/+//9//v/+//////////9//n/+P/w//A/wA8A')]
+    [TestCase('48', '[claRed;0 claBlue;1],claWhite,0.85,0.85,0.15,0.15,0,0,1,1,1,1,0,0,0,False,True,1,1,True,0.98,w4EBAAABg+f7u+HAYAHD5/u74cDggcP3+/vv8P/9//9//n////////////9//3/+P/4/+A/4B+A')]
+    [TestCase('49', '[claRed;0 claBlue;1],claWhite,0.85,0.15,0.15,0.85,0,0,1,1,1,1,0,0,0,False,True,1,1,True,0.98,54MBAAABgcP/u+HAYAHBw/+74cDggcHz//vv+P/5//9//n////////////9//n/+P/w//A/wA8A')]
+    [TestCase('50', '[claRed;0 claBlue;1],claWhite,0,0,1,1,0.15,0.15,0.85,0.85,1,1,0,0,0,False,True,1,1,True,0.98,/8OBgYGBw///88HBg4PP///3/f3//9////f9/f//3/8f+B/4P/w//D/8P/4f+B/4D/ADwAAAAAA')]
+    [TestCase('51', '[claRed;0 claBlue;1],claWhite,1,1,0,0,0.15,0.15,0.85,0.85,1,1,0,0,0,False,True,1,1,True,0.98,/8OBgYGBw///88HBg4PP///3wcHDw9////fBwcPD3/8f+B/4P/w//D/8P/wf+B/4D/ADwAAAAAA')]
+    [TestCase('52', '[claRed;0 claBlue;1],claWhite,1,0,0,1,0.15,0.15,0.85,0.85,1,1,0,0,0,False,True,1,1,True,0.98,/8OBgYGBw///88HBg4PP///3wcHDw9////fBwcPD3/8f+B/4P/w//D/8f/wf+B/4D/ADwAAAAAA')]
+    [TestCase('53', '[claRed;0 claBlue;1],claWhite,0.15,0.15,0.85,0.85,0.15,0.15,0.85,0.85,1,1,0,0,0,False,True,1,1,True,0.98,/8OBgYGBw///88HBg4PP///3/f3//9////f9/f//3/8P+B/4P/w//D/8P/4f+B/4D/ADwABAAAA')]
+    [TestCase('54', '[claRed;0 claBlue;1],claWhite,0.85,0.85,0.15,0.15,0.15,0.15,0.85,0.85,1,1,0,0,0,False,True,1,1,True,0.98,/8OBgYGBw///88HBg4PP///3wcHDw9////fDwcPD3/8f+B/4f/w//D/8P/wf/B/wD+AD4AAAAAA')]
+    [TestCase('55', '[claRed;0 claBlue;1],claWhite,0.85,0.15,0.15,0.85,0.15,0.15,0.85,0.85,1,1,0,0,0,False,True,1,1,True,0.98,/8OBgYGBw///88HBg4PP///3wcHDw9////fBwcPj3/8f8B/8P/w//D/8f/wf+B/4D/ADwAIAAAA')]
+    [TestCase('56', '[claRed;0 claBlue;1],claWhite,0,0,1,1,0,0.15,1,0.85,1,1,0,0,0,False,True,1,1,True,0.98,/8OAAACAw///88DAA4PP///3/v7//9////f+/v//3/9//v/+/////////////n/+P/gH4AAAAAA')]
+    [TestCase('57', '[claRed;0 claBlue;1],claWhite,1,1,0,0,0,0.15,1,0.85,1,1,0,0,0,False,True,1,1,True,0.98,/8MBAAABw///88HAAwPP///3wcCDg9////fBwIfj3/9//n////////////9//3/+P/gH4AAAAAA')]
+    [TestCase('58', '[claRed;0 claBlue;1],claWhite,1,0,0,1,0,0.15,1,0.85,1,1,0,0,0,False,True,1,1,True,0.98,/8MBAAABw///88HAAwPP///3wcCDg9////fBwIfj//9//n////////////9//3/+H/wH4AAAAAA')]
+    [TestCase('59', '[claRed;0 claBlue;1],claWhite,0.15,0.15,0.85,0.85,0,0.15,1,0.85,1,1,0,0,0,False,True,1,1,True,0.98,/8OAAACAw///88DAA4PP///3/v7//9////f+/v//3/8f/j/+/////////////n/+P/gH4AAAAAA')]
+    [TestCase('60', '[claRed;0 claBlue;1],claWhite,0.85,0.85,0.15,0.15,0,0.15,1,0.85,1,1,0,0,0,False,True,1,1,True,0.98,/8MBAAABw///88HAAwPP///3wcCDg9////fBwIfj3/9//n////////////9//H/4P/gH4AAAAAA')]
+    [TestCase('61', '[claRed;0 claBlue;1],claWhite,0.85,0.15,0.15,0.85,0,0.15,1,0.85,1,1,0,0,0,False,True,1,1,True,0.98,/8MBAAABw///88HAAwPP///3wcCDg9////fBwIfj//9/+H/8//////////9//3/+H/wH4AAAAAA')]
+    [TestCase('62', '[claRed;0 claBlue;1],claWhite,0,0,1,1,0,0,1,1,1,1.3,0,-20,30,True,True,0.9,0.5,True,0.98,fw8HBw8PHx9/P+fHTw/f33//99fPj9/f////1/+P/9//gP/A/+D/gP+A/wD/AP4A/gD+APgA+AA')]
+    [TestCase('63', '[claRed;0 claBlue;1],claWhite,1,1,0,0,0,0,1,1,1,1.3,0,-20,30,True,True,0.9,0.5,True,0.98,Pw8HBw8PHx8/P8fHDw/f3z//19cPj9/f////1/+P/9//gP/A/+D/gP+A/wD/AP4A/AD8APgA+AA')]
+    [TestCase('64', '[claRed;0 claBlue;1],claWhite,1,0,0,1,0,0,1,1,1,1.3,0,-20,30,True,True,0.9,0.5,True,0.98,Pw8HBw8PHx8/P8fHTw/f3z//x9dPD9/f////1/8P/9//gP/A/8D/gP+A/wD/AP4A/gD8APgA+AA')]
+    [TestCase('65', '[claRed;0 claBlue;1],claWhite,0.15,0.15,0.85,0.85,0,0,1,1,1,1.3,0,-20,30,True,True,0.9,0.5,True,0.98,fw8HBw8PHx9/P+fHTw/f33//99fPz9/f////1//P/9//gP/A/+D/gP+A/wD/AP4A/gD+APgA+AA')]
+    [TestCase('66', '[claRed;0 claBlue;1],claWhite,0.85,0.85,0.15,0.15,0,0,1,1,1,1.3,0,-20,30,True,True,0.9,0.5,True,0.98,Pw8HBw8PHx8/P8fHDw/f3z//19ePj9/f////1/+P/9//gP/A/+D/gP+A/wD/AP4A/gD8APgA+AA')]
+    [TestCase('67', '[claRed;0 claBlue;1],claWhite,0.85,0.15,0.15,0.85,0,0,1,1,1,1.3,0,-20,30,True,True,0.9,0.5,True,0.98,Pw8HBw8PHx8/P8fHTw/f3z//x9dPD9/f////1/8P/9//gP+A/4D/gP+A/wD/AP4A/AD8APgA+AA')]
+    [TestCase('68', '[claRed;0 claBlue;1],claWhite,0,0,1,1,0.15,0.15,0.85,0.85,1,1.3,0,-20,30,True,True,0.9,0.5,True,0.98,/x8PDw8fH3//P+/PTx/f//+/78/P39///7/vz//f///+AP4A/wD+AP4A/gD+APwA/AD8AOgAAAA')]
+    [TestCase('69', '[claRed;0 claBlue;1],claWhite,1,1,0,0,0.15,0.15,0.85,0.85,1,1.3,0,-20,30,True,True,0.9,0.5,True,0.98,/x8PDw8fH3//P+/Pbx/f//+/78/v39///7/vz//f///+AP4A/gD/AP8A/gD+AP4A/AD4AOAAAAA')]
+    [TestCase('70', '[claRed;0 claBlue;1],claWhite,1,0,0,1,0.15,0.15,0.85,0.85,1,1.3,0,-20,30,True,True,0.9,0.5,True,0.98,/x8fDw8fH3//P//PTx/f//+//89PH9///7//z38f///+AP8A/wD/AP8A/wD+AP4A/AD4AOgAAAA')]
+    [TestCase('71', '[claRed;0 claBlue;1],claWhite,0.15,0.15,0.85,0.85,0.15,0.15,0.85,0.85,1,1.3,0,-20,30,True,True,0.9,0.5,True,0.98,/x8PDw8fH3//P+/PTx/f//+/78/P39///7/vz//f///+AP4A/wD+AP4A/gD+APwA/AD8AOgAAAA')]
+    [TestCase('72', '[claRed;0 claBlue;1],claWhite,0.85,0.85,0.15,0.15,0.15,0.15,0.85,0.85,1,1.3,0,-20,30,True,True,0.9,0.5,True,0.98,/x8PDw8fH3//P+/Pbx/f//+/789vn9///7/vz3+f///+AP4A/gD/AP8A/wD+AP4A/AD4AOAAAAA')]
+    [TestCase('73', '[claRed;0 claBlue;1],claWhite,0.85,0.15,0.15,0.85,0.15,0.15,0.85,0.85,1,1.3,0,-20,30,True,True,0.9,0.5,True,0.98,/x8fDw8fH3//P//PTx/f//+//89PH9///7//z38f///8AP8A/wD/AP8A/wD+AP4A/AD4AOAAAAA')]
+    [TestCase('74', '[claRed;0 claBlue;1],claWhite,0,0,1,1,0,0.15,1,0.85,1,1.3,0,-20,30,True,True,0.9,0.5,True,0.98,/x8PDw8PHx//P+/PTw/f3/+/78/Pz9/f/7/vz//P/9/+AP8A/wD/gP+A/wD/AP4A/gD+APgA+AA')]
+    [TestCase('75', '[claRed;0 claBlue;1],claWhite,1,1,0,0,0,0.15,1,0.85,1,1.3,0,-20,30,True,True,0.9,0.5,True,0.98,/x8PDw8PHx//P+/Pbw/f3/8/789vj9/f/z/vz/+P/9/+AP8A/wD/gP+A/wD/AP8A/gD8APgA+AA')]
+    [TestCase('76', '[claRed;0 claBlue;1],claWhite,1,0,0,1,0,0.15,1,0.85,1,1.3,0,-20,30,True,True,0.9,0.5,True,0.98,/x8PDw8PHx//P+/Pbw/f3/8/789vD9/f/z/vz/8P/9//AP8A/4D/gP+A/4D/AP8A/AD8APgAeAA')]
+    [TestCase('77', '[claRed;0 claBlue;1],claWhite,0.15,0.15,0.85,0.85,0,0.15,1,0.85,1,1.3,0,-20,30,True,True,0.9,0.5,True,0.98,/x8PDw8PHx//P+/PTw/f3/+/78/Pz9/f/7/vz//P/9/+AP8A/wD/gP+A/wD/AP4A/gD+APgA+AA')]
+    [TestCase('78', '[claRed;0 claBlue;1],claWhite,0.85,0.85,0.15,0.15,0,0.15,1,0.85,1,1.3,0,-20,30,True,True,0.9,0.5,True,0.98,/x8PDw8PHx//P+/Pbw/f3/8/789vj9/f/z/vz/+P/9/+AP8A/wD/gP+A/4D/AP8A/AD8APgA8AA')]
+    [TestCase('79', '[claRed;0 claBlue;1],claWhite,0.85,0.15,0.15,0.85,0,0.15,1,0.85,1,1.3,0,-20,30,True,True,0.9,0.5,True,0.98,/x8PDw8PHx//P+/Pbw/f3/8/789vD9/f/z/vz/8P/9//AP8A/4D/AP+A/4D/AP8A/AD8APgAeAA')]
+    [TestCase('80', '[claRed;0 claBlue;1],claWhite,0.85,0.15,0.15,0.85,0,0.15,1,0.85,1,1.3,0,-20,30,True,False,0.9,0.5,True,0.98,/x8PDw8PHx//P+/Pbw/f3/8/789vD9/f/z/vz/8P/9//AP8A/4D/AP+A/4D/AP8A/AD8APgAeAA')]
+    [TestCase('81', '[claRed;0 claBlue;1],claWhite,0.85,0.15,0.15,0.85,0,0.15,1,0.85,1,1.3,0,-20,30,True,False,0.9,1,True,0.98,/x8PDw8PHx//P+/Pbw/f3/8/789vD9/f/z/vz/8P/9/+AP8A/wD/AP8A/wD/AP4A/AD8APgA+AA')]
+    [TestCase('82', '[claRed;0 claBlue;1],claGreen,0.85,0.15,0.15,0.85,0,0.15,1,0.85,1,1.3,0,-20,30,True,False,0.9,1,True,0.98,/x8PDw8PHx//P+/Pby/f3/8/789vL9/f///v33/v3/8B6gD9AP8A/wD/AP8A/QHqA/UH6gPVV+o')]
+    [TestCase('83', '[claRed;0 claBlue;1],claGreen,0.85,0.15,0.15,0.85,0,0.15,1,0.85,1,1.3,0,-20,30,True,False,0.9,0.5,True,0.98,/x8PDw8PHx//P+/Pbw/f3/8/78/vz9/f///v3//v399B6gD1AP8A/wD/AP8A9UHqg9VH6qvVV+o')]
+    [TestCase('84', '[claRed;0 claBlue;1],claWhite,1.15,-0.15,-0.15,1.15,0,0.15,1,0.85,1,1.3,0,-20,30,True,True,0.9,1,True,0.98,/x8PDw8PHx//P+/Pbw/f3/8/789vL9/f/z/vz/8v/9/+AP8A/wD/gP+A/wD/AP4A/gD8APgA+AA')]
+    [TestCase('85', '[claRed;0 claBlue;1],claWhite,1.15,-0.15,-0.15,1.15,0,-0.15,1.15,0.85,1,1.3,0,-20,30,True,True,0.9,1,True,0.98,Pw8HBw8PHx9/f+fHzw/f339/58fPL9/f/3//x/8v/9//wP/g/8D/gP+A/wD/AP4A/gD8APgA+AA')]
+    [TestCase('86', '[claRed;0.3 claNull;0.5 claBlue;0.7],claWhite,1.15,-0.15,-0.15,1.15,0,-0.15,1.15,0.85,1,1.3,0,-20,30,True,True,0.9,1,True,0.98,fw9HBw8PPz9/P8fHTw///38/9/dvL////z/39+8v///xoOHA8cDxwPEA8IDwAPEA8ADwAvAF8AI')]
+    procedure TestFillEllipseGradientStartEndPoint(const APoints, AModulateColor: string; AStartX, AStartY, AStopX, AStopY, ADestLeftPercent, ADestTopPercent, ADestRightPercent, ADestBottomPercent, ACanvasScaleX, ACanvasScaleY, ACanvasOffsetX, ACanvasOffsetY, ACanvasRotationDeg: Single; AApplyClip, ABlending: Boolean; const ABitmapScale, AOpacity: Single; ADrawBackgroundChess: Boolean; AMinSimilarity: Double; const AExpectedImageHash: string);
+    [TestCase('1',  '[claRed;0 claBlue;1],claWhite,Linear,False,1,1,0.98,///DgYHD/////8PBg8P/////18HD1//////XwcPX//8EID/8f/5//n/+P/wf+APAAAAAAAAAAAA')]
+    [TestCase('2',  '[$7FFF0000;0 $7F0000FF;1],claWhite,Linear,False,1,1,0.98,///DgYHD/////8PBg8P/////18XX1//////XxdfX//8OcC/0f/5//n/+P/w//AGAAAAAAAAAAAA')]
+    [TestCase('3',  '[claRed;0 claBlue;1],claWhite,Linear,False,1,0.5,0.98,///DgYHD/////8PBg8P/////18XH1//////XxcfX//8OcC/0f/5//n/+P/w//AGAAAAAAAAAAAA')]
+    [TestCase('4',  '[claRed;0 claBlue;1],claWhite,Linear,True,1,1,0.98,///DgYHD/////8PBg8P/////18HD1//////XwcPX//8EID/8f/5//n/+P/wf+APAAAAAAAAAAAA')]
+    [TestCase('5',  '[$7FFF0000;0 $7F0000FF;1],claWhite,Linear,True,1,1,0.98,///DgYHD/////8PBg8P/////18XX1//////XxdfX//8OcC/0f/5//n/+P/w//AGAAAAAAAAAAAA')]
+    [TestCase('6',  '[claRed;0 claBlue;1],claWhite,Linear,True,1,0.5,0.98,///DgYHD/////8PBg8P/////18XH1//////XxcfX//8OcC/0f/5//n/+P/w//AGAAAAAAAAAAAA')]
+    [TestCase('7',  '[claRed;0 claBlue;1],claWhite,Linear,False,2,1,0.98,///////gwID//////+PMzP///////+zM////////7MwAAAAAAAAAAAAAAHMB/wf/D/8f/x//H/8')]
+    [TestCase('8',  '[$7FFF0000;0 $7F0000FF;1],claWhite,Linear,False,2,1,0.98,///////gwID//////+PMzP///////+7e////////7t4AAAAAAAAAAAAAAHABfwf/D/8f/x//H/8')]
+    [TestCase('9',  '[claRed;0 claBlue;1],claWhite,Linear,False,-2,0.5,0.98,Qr1CQkJCvUJ7vcLCQ0P9znu/1tbX1///f7/+19f///9VqqvVVmqtta21Vmqr1VWqqlVVqqpVVao')]
+    [TestCase('10', '[claRed;0 claBlue;1],claWhite,Linear,True,0.5,1,0.98,3w8P////////P+//////////7///////////////////An8AHAAAAAAAAAAAAEACoAVQCqgVUAo')]
+    [TestCase('11', '[$7FFF0000;0 $7F0000FF;1],claWhite,Linear,True,-1,1,0.98,Qr1CQkJCvUJ7vcLCQ0P9znu/1tbX1///f7/+19f///9VqqvVVmqtta21Vmqr1VWqqlVVqqpVVao')]
+    [TestCase('12', '[claRed;0 claBlue;1],claWhite,Linear,True,3,0.5,0.98,Qr1CQkJCvUJ7vcLCQ0P9znu/1tbX1///f7/+19f///9UKqpVVmogBCAEVmqqVVQqqlVVqqpVVCs')]
+    [TestCase('13', '[claRed;0.2 claBlue;0.8],claWhite,Linear,False,1,1,0.98,///DgYHD/////8PBg8P/////1+HD1//////X4cPX//8MMC/0f/5//n/+P/wf+AGIAAAAAAAAAAA')]
+    [TestCase('14', '[$7FFF0000;0.2 $7F0000FF;0.8],claWhite,Linear,False,1,1,0.98,///DgYHD/////8PBg8P/////18XX1//////XxdfX//8OcC/0f/5//n/+P/wf+AGAAAAAAAAAAAA')]
+    [TestCase('15', '[claRed;0.2 claBlue;0.8],claWhite,Linear,False,1,0.5,0.98,///DgYHD/////8PBg8P/////19XX1//////X1dfX//8OcC/0f/5//n/+P/wf+AGAAAAAAAAAAAA')]
+    [TestCase('16', '[claRed;0.2 claBlue;0.8],claWhite,Linear,True,1,1,0.98,///DgYHD/////8PBg8P/////1+HD1//////X4cPX//8MMC/0f/5//n/+P/wf+AGIAAAAAAAAAAA')]
+    [TestCase('17', '[$7FFF0000;0.2 $7F0000FF;0.8],claWhite,Linear,True,1,1,0.98,///DgYHD/////8PBg8P/////18XX1//////XxdfX//8OcC/0f/5//n/+P/wf+AGAAAAAAAAAAAA')]
+    [TestCase('18', '[claRed;0.2 claBlue;0.8],claWhite,Linear,True,1,0.5,0.98,///DgYHD/////8PBg8P/////19XX1//////X1dfX//8OcC/0f/5//n/+P/wf+AGAAAAAAAAAAAA')]
+    [TestCase('19', '[claRed;0.2 claBlue;0.8],claWhite,Linear,False,2,1,0.98,///////gwID//////+PMzP///////+zM////////7MwAAAAAAAAAAAAAAHMBfwX/D/8f/x//H/8')]
+    [TestCase('20', '[$7FFF0000;0.2 $7F0000FF;0.8],claWhite,Linear,False,2,1,0.98,///////gwID//////+PMzP///////+7e////////7t4AAAAAAAAAAAAAAHIBPwX/D/9f/7//X/8')]
+    [TestCase('21', '[claRed;0 claBlue;1],claWhite,Radial,False,1,1,0.98,///DgYHD/////8PBg8P/////1/Hz1//////X8fPX//8EIC/0f/4//D/8f/4v9AQgAAAAAAAAAAA')]
+    [TestCase('22', '[$7FFF0000;0 $7F0000FF;1],claWhite,Radial,False,1,1,0.98,///DgYHD/////8PBg8P/////19HT1//////X0dPX//8MMC/0X/o//D/8f/4v9AwwAAAAAAAAAAA')]
+    [TestCase('23', '[claRed;0 claBlue;1],claWhite,Radial,False,1,0.5,0.98,///DgYHD/////8PBg8P/////1/Hz1//////X8fPX//8MMC/0f/4//D/8f/4v9AwwAAAAAAAAAAA')]
+    [TestCase('24', '[claRed;0 claBlue;1],claWhite,Radial,True,1,1,0.98,///DgYHD/////8PBg8P/////1/Hz1//////X8fPX//8EIC/0f/4//D/8f/4v9AQgAAAAAAAAAAA')]
+    [TestCase('25', '[$7FFF0000;0 $7F0000FF;1],claWhite,Radial,True,1,1,0.98,///DgYHD/////8PBg8P/////19HT1//////X0dPX//8MMC/0X/o//D/8f/4v9AwwAAAAAAAAAAA')]
+    [TestCase('26', '[claRed;0 claBlue;1],claWhite,Radial,True,1,0.5,0.98,///DgYHD/////8PBg8P/////1/Hz1//////X8fPX//8MMC/0f/4//D/8f/4v9AwwAAAAAAAAAAA')]
+    [TestCase('27', '[claRed;0 claBlue;1],claWhite,Radial,False,2,1,0.98,///////gwID//////+PMzP////////////////////8AAAAAAAAAAAAAAHMBfwX/D/8f/w//H/8')]
+    [TestCase('28', '[$7FFF0000;0 $7F0000FF;1],claWhite,Radial,False,2,1,0.98,///////gwID//////+PMzP///////+7/////////7v8AAAAAAAAAAAAAAHABfwX/D/8f/w//H/8')]
+    [TestCase('29', '[claRed;0 claBlue;1],claWhite,Radial,False,-2,0.5,0.98,Qr1CQkJCvUJ7vcLCQ0P9znu/1tbX1///f7/+19f///9VqqvVVmqtta21Vmqr1VWqqlVVqqpVVao')]
+    [TestCase('30', '[claRed;0 claBlue;1],claWhite,Radial,True,0.5,1,0.98,3w8P////////P+//////////7/////////////////9+An4AGAAAAAAAAAAAAEACoAVQCqgVUAo')]
+    [TestCase('31', '[$7FFF0000;0 $7F0000FF;1],claWhite,Radial,True,-1,1,0.98,Qr1CQkJCvUJ7vcLCQ0P9znu/1tbX1///f7/+19f///9VqqvVVmqtta21Vmqr1VWqqlVVqqpVVao')]
+    [TestCase('32', '[claRed;0 claBlue;1],claWhite,Radial,True,3,0.5,0.98,Qr1CQkJCvUJ7vcLCQ0P9znu/1tbX1///f7/+19f///9UKqpVVmogBCAEVmqqVVQqqlVVqqpVVCs')]
+    [TestCase('33', '[claRed;0.2 claBlue;0.8],claWhite,Radial,False,1,1,0.98,///DgYHD/////8PBg8P/////1/Hz1//////X8fPX//8MMC/0f/4//D/8f/4v9AwwAAAAAAAAAAA')]
+    [TestCase('34', '[$7FFF0000;0.2 $7F0000FF;0.8],claWhite,Radial,False,1,1,0.98,///DgYHD/////8PBg8P/////1/Hz1//////39fPX//8OcC/0X/o//D/8X/ov9A5wAABAAqAFQAI')]
+    [TestCase('35', '[claRed;0.2 claBlue;0.8],claWhite,Radial,False,1,0.5,0.98,///DgYHD/////8PBg8P/////1/Hz1//////39fPX//8OcC/0X/o//D/8X/ov9A5wAABAAqAFQAI')]
+    [TestCase('36', '[claRed;0.2 claBlue;0.8],claWhite,Radial,True,1,1,0.98,///DgYHD/////8PBg8P/////1/Hz1//////X8fPX//8MMC/0f/4//D/8f/4v9AwwAAAAAAAAAAA')]
+    [TestCase('37', '[$7FFF0000;0.2 $7F0000FF;0.8],claWhite,Radial,True,1,1,0.98,///DgYHD/////8PBg8P/////1/Hz1//////39fPX//8OcC/0X/o//D/8X/ov9A5wAABAAqAFQAI')]
+    [TestCase('38', '[claRed;0.2 claBlue;0.8],claWhite,Radial,True,1,0.5,0.98,///DgYHD/////8PBg8P/////1/Hz1//////39fPX//8OcC/0X/o//D/8X/ov9A5wAABAAqAFQAI')]
+    [TestCase('39', '[claRed;0.2 claBlue;0.8],claWhite,Radial,False,2,1,0.98,///////gwID//////+PMzP///////+//////////7/8AAAAAAAAAAAAAAHMBfwX/D/8f/w//H/8')]
+    [TestCase('40', '[$7FFF0000;0.2 $7F0000FF;0.8],claWhite,Radial,False,2,1,0.98,///////g4ID//////+PszP///////+7f////////7t8AAAAAAAAAAAAAAHIBPwX/C/9f/6//X/8')]
+    [TestCase('41', '[claRed;0 claBlue;1],claBlack,Linear,False,1,1,0.98,///DgYHD/////8PBg8P/////18HD1///////1df///9X6rANwAPAA8ADwAOwDVfqq9VX6qvVV+o')]
+    [TestCase('42', '[$7FFF0000;0 $7F0000FF;1],claBlack,Linear,False,1,1,0.98,///DgYHD/////8PBg8P/////18XH1///////1df///9X6qAFwAOAAYABwAOgBVfqq9VVqqvVV+o')]
+    [TestCase('43', '[claRed;0 claBlue;1],claBlack,Linear,False,1,0.5,0.98,///DgYHD/////8PBg8P/////183P1///////3d////9X6qAFwAOAAYABwAOgBVfqq9VVqqvVV+o')]
+    [TestCase('44', '[claRed;0 claBlue;1],claBlack,Linear,True,1,1,0.98,///DgYHD/////8PBg8P/////18HD1///////1df///9X6rANwAPAA8ADwAOwDVfqq9VX6qvVV+o')]
+    [TestCase('45', '[$7FFF0000;0 $7F0000FF;1],claBlack,Linear,True,1,1,0.98,///DgYHD/////8PBg8P/////18XH1///////1df///9X6qAFwAOAAYABwAOgBVfqq9VVqqvVV+o')]
+    [TestCase('46', '[claRed;0 claBlue;1],claBlack,Linear,True,1,0.5,0.98,///DgYHD/////8PBg8P/////183P1///////3d////9X6qAFwAOAAYABwAOgBVfqq9VVqqvVV+o')]
+    [TestCase('47', '[claRed;0 claBlue;1],claBlack,Linear,False,2,1,0.98,///////gwID//////+PMzP///////+zM////////7/1X6r/9//////////q/gFQAqABQAKAAQAA')]
+    [TestCase('48', '[$7FFF0000;0 $7F0000FF;1],claBlack,Linear,False,2,1,0.98,///////gwID//////+PMzP///////+7e////////799X6qvV3/v/////3/qrgFQAqAFQAqAFUAo')]
+    [TestCase('49', '[claRed;0 claBlue;1],claBlack,Linear,False,-2,0.5,0.98,Qr1CQkJCvUJ7vcLCQ0P9znu/1tbX1///f7/+19f///9VqqvVVmqtta21Vmqr1VWqqlVVqqpVVao')]
+    [TestCase('50', '[claRed;0 claBlue;1],claBlack,Linear,True,0.5,1,0.98,nw8P//////+/P+//////////7//////////v//////8BqqPVX+r/////V+qr1VWqq9VVqqvVVao')]
+    [TestCase('51', '[$7FFF0000;0 $7F0000FF;1],claBlack,Linear,True,-1,1,0.98,Qr1CQkJCvUJ7vcLCQ0P9znu/1tbX1///f7/+19f///9VqqvVVmqtta21Vmqr1VWqqlVVqqpVVao')]
+    [TestCase('52', '[claRed;0 claBlue;1],claBlack,Linear,True,3,0.5,0.98,Qr1CQkJCvUJ7vcLCQ0P9znu/1tbX1///f7/+19f///9VqqvVVmqtta21Vmqr1VWqqlVVqqpVVao')]
+    [TestCase('53', '[claRed;0.2 claBlue;0.8],claBlack,Linear,False,1,1,0.98,///DgYHD/////8PBg8P/////18HD1///////1df///9X6rANwAPAA8ADwAOwDVfqq9VX6qvVV+o')]
+    [TestCase('54', '[$7FFF0000;0.2 $7F0000FF;0.8],claBlack,Linear,False,1,1,0.98,///DgYHD/////8PBg8P/////18XH1///////1df///9X6qAFwAOAAYABwAOgBVfqq9VVqqvVV+o')]
+    [TestCase('55', '[claRed;0.2 claBlue;0.8],claBlack,Linear,False,1,0.5,0.98,///DgYHD/////8PBg8P/////183P1///////3d////9X6qAFwAOAAYABwAOgBVfqq9VVqqvVV+o')]
+    [TestCase('56', '[claRed;0.2 claBlue;0.8],claBlack,Linear,True,1,1,0.98,///DgYHD/////8PBg8P/////18HD1///////1df///9X6rANwAPAA8ADwAOwDVfqq9VX6qvVV+o')]
+    [TestCase('57', '[$7FFF0000;0.2 $7F0000FF;0.8],claBlack,Linear,True,1,1,0.98,///DgYHD/////8PBg8P/////18XH1///////1df///9X6qAFwAOAAYABwAOgBVfqq9VVqqvVV+o')]
+    [TestCase('58', '[claRed;0.2 claBlue;0.8],claBlack,Linear,True,1,0.5,0.98,///DgYHD/////8PBg8P/////183P1///////3d////9X6qAFwAOAAYABwAOgBVfqq9VVqqvVV+o')]
+    [TestCase('59', '[claRed;0.2 claBlue;0.8],claBlack,Linear,False,2,1,0.98,///////gwID//////+PMzP///////+zM////////7/1X6r/9//////////q/gFQAqABQAKAAQAA')]
+    [TestCase('60', '[$7FFF0000;0.2 $7F0000FF;0.8],claBlack,Linear,False,2,1,0.98,///////gwID//////+PMzP///////+7e////////799X6qvV3/v/////3/qrgFQAqAFQAqAFUAo')]
+    [TestCase('61', '[claRed;0 claBlue;1],claBlack,Radial,False,1,1,0.98,///DgYHD/////8PBg8P/////18HD1///////1df///9X6rANwAPAA8ADwAOwDVfqq9VX6qvVV+o')]
+    [TestCase('62', '[$7FFF0000;0 $7F0000FF;1],claBlack,Radial,False,1,1,0.98,///DgYHD/////8PBg8P/////18XH1///////1df///9X6qAFwAOAAYABwAOgBVfqq9VVqqvVV+o')]
+    [TestCase('63', '[claRed;0 claBlue;1],claBlack,Radial,False,1,0.5,0.98,///DgYHD/////8PBg8P/////183P1///////3d////9X6qAFwAOAAYABwAOgBVfqq9VVqqvVV+o')]
+    [TestCase('64', '[claRed;0 claBlue;1],claBlack,Radial,True,1,1,0.98,///DgYHD/////8PBg8P/////18HD1///////1df///9X6rANwAPAA8ADwAOwDVfqq9VX6qvVV+o')]
+    [TestCase('65', '[$7FFF0000;0 $7F0000FF;1],claBlack,Radial,True,1,1,0.98,///DgYHD/////8PBg8P/////18XH1///////1df///9X6qAFwAOAAYABwAOgBVfqq9VVqqvVV+o')]
+    [TestCase('66', '[claRed;0 claBlue;1],claBlack,Radial,True,1,0.5,0.98,///DgYHD/////8PBg8P/////183P1///////3d////9X6qAFwAOAAYABwAOgBVfqq9VVqqvVV+o')]
+    [TestCase('67', '[claRed;0 claBlue;1],claBlack,Radial,False,2,1,0.98,///////gwID//////+PMzP///////+zM////////7/1X6r/9//////////q/gFQAqABQAKAAQAA')]
+    [TestCase('68', '[$7FFF0000;0 $7F0000FF;1],claBlack,Radial,False,2,1,0.98,///////gwID//////+PMzP///////+7e////////799X6qvV3/v/////3/qrgFQAqAFQAqAFUAo')]
+    [TestCase('69', '[claRed;0 claBlue;1],claBlack,Radial,False,-2,0.5,0.98,Qr1CQkJCvUJ7vcLCQ0P9znu/1tbX1///f7/+19f///9VqqvVVmqtta21Vmqr1VWqqlVVqqpVVao')]
+    [TestCase('70', '[claRed;0 claBlue;1],claBlack,Radial,True,0.5,1,0.98,nw8P//////+/P+//////////7//////////v//////8BqqPVX+r/////V+qr1VWqq9VVqqvVVao')]
+    [TestCase('71', '[$7FFF0000;0 $7F0000FF;1],claBlack,Radial,True,-1,1,0.98,Qr1CQkJCvUJ7vcLCQ0P9znu/1tbX1///f7/+19f///9VqqvVVmqtta21Vmqr1VWqqlVVqqpVVao')]
+    [TestCase('72', '[claRed;0 claBlue;1],claBlack,Radial,True,3,0.5,0.98,Qr1CQkJCvUJ7vcLCQ0P9znu/1tbX1///f7/+19f///9VqqvVVmqtta21Vmqr1VWqqlVVqqpVVao')]
+    [TestCase('73', '[claRed;0.2 claBlue;0.8],claBlack,Radial,False,1,1,0.98,///DgYHD/////8PBg8P/////18HD1///////1df///9X6rANwAPAA8ADwAOwDVfqq9VX6qvVV+o')]
+    [TestCase('74', '[$7FFF0000;0.2 $7F0000FF;0.8],claBlack,Radial,False,1,1,0.98,///DgYHD/////8PBg8P/////18XH1///////1df///9X6qAFwAOAAYABwAOgBVfqq9VVqqvVV+o')]
+    [TestCase('75', '[claRed;0.2 claBlue;0.8],claBlack,Radial,False,1,0.5,0.98,///DgYHD/////8PBg8P/////183P1///////3d////9X6qAFwAOAAYABwAOgBVfqq9VVqqvVV+o')]
+    [TestCase('76', '[claRed;0.2 claBlue;0.8],claBlack,Radial,True,1,1,0.98,///DgYHD/////8PBg8P/////18HD1///////1df///9X6rANwAPAA8ADwAOwDVfqq9VX6qvVV+o')]
+    [TestCase('77', '[$7FFF0000;0.2 $7F0000FF;0.8],claBlack,Radial,True,1,1,0.98,///DgYHD/////8PBg8P/////18XH1///////1df///9X6qAFwAOAAYABwAOgBVfqq9VVqqvVV+o')]
+    [TestCase('78', '[claRed;0.2 claBlue;0.8],claBlack,Radial,True,1,0.5,0.98,///DgYHD/////8PBg8P/////183P1///////3d////9X6qAFwAOAAYABwAOgBVfqq9VVqqvVV+o')]
+    [TestCase('79', '[claRed;0.2 claBlue;0.8],claBlack,Radial,False,2,1,0.98,///////gwID//////+PMzP///////+zM////////7/1X6r/9//////////q/gFQAqABQAKAAQAA')]
+    [TestCase('80', '[$7FFF0000;0.2 $7F0000FF;0.8],claBlack,Radial,False,2,1,0.98,///////gwID//////+PMzP///////+7e////////799X6qvV3/v/////3/qrgFQAqAFQAqAFUAo')]
+    procedure TestFillEllipseGradientWithChessBackground(const APoints, AModulateColor: string; AGradientStyle: TGradientStyle; ABlending: Boolean; const AScale, AOpacity, AMinSimilarity: Double; const AExpectedImageHash: string);
+    [TestCase('1', '0.98,///Dw8PD//////Pjw8f/////8+Pj9//////////////8P/gf8A/wD/AP8A/4H/w///////////8')]
+    procedure TestFillEllipseSolid(const AMinSimilarity: Double; const AExpectedImageHash: string);
+    [TestCase('1', '0.98,///Dw8PD//////Pjw8f/////8/Pz9//////////////8P/gf8A/wD/AP8A/4H/w///////////8')]
+    procedure TestFillEllipseSolid2(const AMinSimilarity: Double; const AExpectedImageHash: string);
+    [TestCase('1', '0.98,/+/Hh8////////fnz///////9+fP///////////////8//j/8P/w//////////////////////8')]
+    procedure TestFillEllipseSolid3(const AMinSimilarity: Double; const AExpectedImageHash: string);
+    [TestCase('1', '0.98,///Dw8HA8Pn///Pjw8f+/f//8+Pj5//9///////////+f/gf+B/wD/AD+AH4Af4B/wH/Af+B//8')]
+    procedure TestFillEllipseSolid4(const AMinSimilarity: Double; const AExpectedImageHash: string);
+    [TestCase('1', '0.98,///Dw8HA8Pj///Pjw8f+/P//8+Pj9/7+///////////+f/gf+B/wD/AP+B/4H/5///////////8')]
+    procedure TestFillEllipseSolid5(const AMinSimilarity: Double; const AExpectedImageHash: string);
+    [TestCase('1', '0.98,///Dw8HA8Pn///Pjw8f+/f//8+Pj5//9///////////+f/gf+B/wD/AD+AH4Af4B/wH/Af+B//8')]
+    procedure TestFillEllipseSolid6(const AMinSimilarity: Double; const AExpectedImageHash: string);
+    [TestCase('1',  '300,300,1,2,-50,-100,60,-200,-50,660,343,1,true,0.98,Hw8HBwcHAwN/f3dnR0dPT39/d2dHR09Pf/93/0f/T/8AfwB/AH8APwA/AD8AHwAfAB8AHwAfAB8')]
+    [TestCase('2',  '300,300,1,2,-50,-100,60,-200,-50,660,343,1,false,0.98,Hw8HBwcHAwN/f3dnR0dPT39/d2dHR09Pf/93/0f/T/8AfwB/AH8APwA/AD8AHwAfAB8AHwAfAB8')]
+    [TestCase('3',  '300,300,1,2,-50,-100,60,-200,-50,660,343,0.5,true,0.98,Hw8HBwcHAwN/f3dnR0dPT39/d2dHR09P/3//Z/9H/0//gP+A/8D/wP/A/+D/4P/g/+D/4P/g/+A')]
+    [TestCase('4',  '300,300,1,2,-50,-100,60,-200,-50,660,343,0.5,false,0.98,Hw8HBwcHAwN/f3dnR0dPT39/d2dHR09P/3//Z/9H/0//gP+A/8D/wP/A/+D/4P/g/+D/4P/g/+A')]
+    [TestCase('5',  '300,300,1,2,-50,-100,60,-200,-50,660,343,1,true,0.98,Hw8HBwcHAwN/f3dnR0dPT39/d2dHR09Pf/93/0f/T/8AfwB/AH8APwA/AD8AHwAfAB8AHwAfAB8')]
+    [TestCase('6',  '300,300,1,2,-50,-100,60,-200,-50,660,343,1,false,0.98,Hw8HBwcHAwN/f3dnR0dPT39/d2dHR09Pf/93/0f/T/8AfwB/AH8APwA/AD8AHwAfAB8AHwAfAB8')]
+    [TestCase('7',  '300,300,1,2,-50,-100,60,-200,-50,660,343,0.5,true,0.98,Hw8HBwcHAwN/f3dnR0dPT39/d2dHR09P/3//Z/9H/0//gP+A/8D/wP/A/+D/4P/g/+D/4P/g/+A')]
+    [TestCase('8',  '300,300,1,2,-50,-100,60,-200,-50,660,343,0.5,false,0.98,Hw8HBwcHAwN/f3dnR0dPT39/d2dHR09P/3//Z/9H/0//gP+A/8D/wP/A/+D/4P/g/+D/4P/g/+A')]
+    [TestCase('9',  '300,300,1,2,-50,-100,60,0,0,200,200,1,true,0.98,f3////////9/f////////39//////////3////////8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('10', '300,300,1,2,-50,-100,30,0,0,200,200,1,false,0.98,Pz8/P3////9/f39/f////39/f39/////f/9//3////8f/z//P/8/////f/////////////////8')]
+    [TestCase('11', '300,300,1,2,-50,-100,30,0,0,200,200,0.5,true,0.98,Pz8/P3////9/f39/f////39/f39//////3//f//////wAOAA4ADAAMAAgACAAAAAAAAAAAAAAAA')]
+    [TestCase('12', '300,300,1,2,-50,-100,30,0,0,200,200,0.5,false,0.98,Pz8/P3////9/f39/f////39/f39//////3//f//////wAOAA4ADAAMAAgACAAAAAAAAAAAAAAAA')]
+    [TestCase('13', '300,300,1,2,-50,-100,30,0,0,200,200,1,true,0.98,Pz8/P3////9/f39/f////39/f39/////f/9//3////8f/z//P/8/////f/////////////////8')]
+    [TestCase('14', '300,300,1,2,-50,-100,30,0,0,200,200,1,false,0.98,Pz8/P3////9/f39/f////39/f39/////f/9//3////8f/z//P/8/////f/////////////////8')]
+    [TestCase('15', '300,300,1,2,-50,-100,30,0,0,200,200,0.5,true,0.98,Pz8/P3////9/f39/f////39/f39//////3//f//////wAOAA4ADAAMAAgACAAAAAAAAAAAAAAAA')]
+    [TestCase('16', '300,300,1,2,-50,-100,30,0,0,200,200,0.5,false,0.98,Pz8/P3////9/f39/f////39/f39//////3//f//////wAOAA4ADAAMAAgACAAAAAAAAAAAAAAAA')]
+    [TestCase('17', '300,300,1,-2,50,500,30,-200,-50,660,343,1,true,0.98,+ODAgIAAAAD//PDhw0dOTP/88OHDR05M//z/4f9H/kzwAOAA4ADAAIAAgACAAAAAAAAAAAAAAAA')]
+    [TestCase('18', '300,300,1,-2,50,500,30,-200,-50,660,343,1,false,0.98,+ODAgIAAAAD//PDhw0dOTP/88OHDR05M//z/4f9H/kzwAOAA4ADAAIAAgACAAAAAAAAAAAAAAAA')]
+    [TestCase('19', '300,300,1,-2,50,500,30,-200,-50,660,343,0.5,true,0.98,+ODAgIAAAAD//PDhw0dOTP/88OHDR05M///w/8P/T/8P/x//P/8//3//f/////////////////8')]
+    [TestCase('20', '300,300,1,-2,50,500,30,-200,-50,660,343,0.5,false,0.98,+ODAgIAAAAD//PDhw0dOTP/88OHDR05M///w/8P/T/8P/x//P/8//3//f/////////////////8')]
+    [TestCase('21', '300,300,-1,2,-50,-100,30,-200,-50,660,343,1,true,0.98,f39/f3////9/f////////39/////////f/////////9//3//f/9///////////////////////8')]
+    [TestCase('22', '300,300,-1,2,-50,-100,30,-200,-50,660,343,1,false,0.98,f39/f3////9/f////////39/////////f/////////9//3//f/9///////////////////////8')]
+    [TestCase('23', '300,300,-1,2,-50,-100,30,-200,-50,660,343,0.5,true,0.98,f39/f3////9/f////////39//////////3/////////AAMAAwACAAIAAgACAAAAAAAAAAAAAAAA')]
+    [TestCase('24', '300,300,-1,2,-50,-100,30,-200,-50,660,343,0.5,false,0.98,f39/f3////9/f////////39//////////3/////////AAMAAwACAAIAAgACAAAAAAAAAAAAAAAA')]
+    [TestCase('25', '300,300,-1,2,-50,-100,-60,0,0,200,200,1,true,0.98,DwcDAQHj//9/f3NhQ+f//39/c2HD9///f/9z/8P///8AHwAPAAcAB4AH4Af4D/////////////8')]
+    [TestCase('26', '300,300,-1,2,-50,-100,-60,0,0,200,200,1,false,0.98,DwcDAQHj//9/f3NhQ+f//39/c2HD9///f/9z/8P///8AHwAPAAcAB4AH4Af4D/////////////8')]
+    [TestCase('27', '300,300,-1,2,-50,-100,-60,0,0,200,200,0.5,true,0.98,DwcDAQHj//9/f3NhQ+f//39/c2HD9////3//4f/3////8P/4//j/+P/8P/gP+AHgAAAAAAAAAAA')]
+    [TestCase('28', '300,300,-1,2,-50,-100,-60,0,0,200,200,0.5,false,0.98,DwcDAQHj//9/f3NhQ+f//39/c2HD9////3//4f/3////8P/4//j/+P/8P/gP+AHgAAAAAAAAAAA')]
+    [TestCase('29', '300,300,1,-2,-50,500,30,0,0,200,200,1,true,0.98,///////x4cD///////fvzP/////////s//////////////////////////////+H/gf8A/gD8AM')]
+    [TestCase('30', '300,300,1,-2,-50,500,30,0,0,200,200,1,false,0.98,///////x4cD///////fvzP/////////s//////////////////////////////+H/gf8A/gD8AM')]
+    [TestCase('31', '300,300,1,-2,-50,500,30,0,0,200,200,0.5,true,0.98,///////x4cD///////fvzP/////////s/////////+wAAAAAAAAAAAAAAAAAMAD8A/wH/g/+D/4')]
+    [TestCase('32', '300,300,1,-2,-50,500,30,0,0,200,200,0.5,false,0.98,///////x4cD///////fvzP/////////s/////////+wAAAAAAAAAAAAAAAAAMAD8A/wH/g/+D/4')]
+    [TestCase('33', '80,80,1,1,0,0,0,0,0,60,60,0,false,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('34', '80,80,1,1,0,0,0,60,0,60,60,1,false,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('35', '80,80,1,1,0,0,0,0,60,60,60,1,false,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('36', '80,80,1,1,0,0,0,0,0,60,60,0,true,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('37', '80,80,1,1,0,0,0,60,0,60,60,1,true,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('38', '80,80,1,1,0,0,0,0,60,60,60,1,true,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('39', '80,80,1,1,0,0,10,0,0,60,60,0,false,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('40', '80,80,1,1,0,0,10,60,0,60,60,1,false,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('41', '80,80,1,1,0,0,10,0,60,60,60,1,false,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('42', '80,80,1,1,0,0,10,0,0,60,60,0,true,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('43', '80,80,1,1,0,0,10,60,0,60,60,1,true,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('44', '80,80,1,1,0,0,10,0,60,60,60,1,true,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    procedure TestFillEllipseSolidWithMatrix(ASurfaceWidth, ASurfaceHeight: Integer; ASurfaceScaleX, ASurfaceScaleY, ASurfaceOffsetX, ASurfaceOffsetY, ARotationDeg, ADestLeft, ADestTop, ADestRight, ADestBottom, AOpacity: Single; ABlending: Boolean; const AMinSimilarity: Double; const AExpectedImageHash: string);
+    [TestCase('1', '0.98,///Dw8PD//////Pjw8f/////8+Pj9//////////////8P/gf8A/wD/AP8A/4H/w///////////8')]
+    procedure TestFillEllipseSolidWithModulateColor(const AMinSimilarity: Double; const AExpectedImageHash: string);
+    [TestCase('1', '0.98,///Dw8PD//////Pjw8f/////8+Pj9//////////////8P/gf8A/wD/AP8A/4H/w///////////8')]
+    procedure TestFillEllipseSolidWithResource(const AMinSimilarity: Double; const AExpectedImageHash: string);
+    [TestCase('1',   'horse.webp,claWhite,Tile,True,0,0,1,1,0.4,0.98,/78/ODg/n+f//394e3/f7///f3h/f/////////////+H/4f3D/cPwQ/jj+OH+4f/w//h///f/n8')]
+    [TestCase('2',   'horse.webp,claRed,Tile,True,0,0,1,1,0.4,0.98,x58/OTk/n8f////5+//fz/////3//9///////f////8AAAAAAAAwAvAA8ARwMDgAHAA+AB/wBkA')]
+    [TestCase('3',   'horse.webp,claWhite,Tile,True,0,0,1,1,1,0.98,/78/ODg/n+f//394e3/f7///f3h/f/////////////+H/4//D/cPwQ/jj+OP/4f/x//h//zf/n8')]
+    [TestCase('4',   'horse.webp,claRed,Tile,True,0,0,1,1,1,0.98,x58/OTk/n8f////5+f/fx/////39/9/3////////3//v/4//n/ef95/nn+OP/+//x//r//j///8')]
+    [TestCase('5',   'horse.webp,claWhite,Tile,True,0.15,0.15,0.85,0.85,0.4,0.98,//+fmZGfx//////509/P//////v7/8///////////////+f/4+/Hh8fP48fj//H/+D/+f/////8')]
+    [TestCase('6',   'horse.webp,claRed,Tile,True,0.15,0.15,0.85,0.85,0.4,0.98,/8ePmZmPx//////528/P//////3fz////////d/P//8OAAwAACAAAAAABAAcAA4AB6ABgAAAAAA')]
+    [TestCase('7',   'horse.webp,claWhite,Tile,True,0.15,0.15,0.85,0.85,1,0.98,//+fmZGfx//////509/P//////v7/8/////////////z/+P/4+/Hh8fP58fj//H/+D/+//////8')]
+    [TestCase('8',   'horse.webp,claRed,Tile,True,0.15,0.15,0.85,0.85,1,0.98,/8ePmZmPx//////528/P//////3fz//////////////7////5+/nh+fP58f///v//b////////8')]
+    [TestCase('9',   'horse.webp,claWhite,TileOriginal,True,0,0,1,1,0.4,0.98,/78/ODg/n////394e3/f////f3h/f/////////////+H/4f3D/cPwQ/jD+OH+4f/w//h//////8')]
+    [TestCase('10',  'horse.webp,claRed,TileOriginal,True,0,0,1,1,0.4,0.98,x58/OTk/n//////5+//f//////3//9///////f////8AAAAAAAAwAvAA8ARwMDgAHAA+AAAAAAA')]
+    [TestCase('11',  'horse.webp,claWhite,TileOriginal,True,0,0,1,1,1,0.98,/78/ODg/n////394e3/f////f3h/f///////f/////+H/4//D/cPwQ/jj+OP/4f/w//h//////8')]
+    [TestCase('12',  'horse.webp,claRed,TileOriginal,True,0,0,1,1,1,0.98,x58/OTk/n//////5+f/f//////39/9//////////3//v/4//n/ef15/jn+OP/+//x/////////8')]
+    [TestCase('13',  'horse.webp,claWhite,TileOriginal,True,0.15,0.15,0.85,0.85,0.4,0.98,//+fmZGfx//////509/P//////v7/8///////////////+f/4+/Hh8fP48fj//H/+D/+f/////8')]
+    [TestCase('14',  'horse.webp,claRed,TileOriginal,True,0.15,0.15,0.85,0.85,0.4,0.98,/8ePmZmPx//////528/P//////3fz////////d/P//8OAAwAACAAAAAABAAcAA4AB6ABgAAAAAA')]
+    [TestCase('15',  'horse.webp,claWhite,TileOriginal,True,0.15,0.15,0.85,0.85,1,0.98,//+fmZGfx//////509/P//////v7/8/////////////z/+P/4+/Hh8fP58fj//H/+D/+//////8')]
+    [TestCase('16',  'horse.webp,claRed,TileOriginal,True,0.15,0.15,0.85,0.85,1,0.98,/8ePmZmPx//////528/P//////3fz//////////////7////5+/nh+fP58f///v//b////////8')]
+    [TestCase('17',  'horse.webp,claWhite,TileStretch,True,0,0,1,1,0.4,0.98,798/ODg/n8f//395e3/fz///f3t7f//P//////v///+H/4/3D/cPwQ/jD+OP+4f/w//h//Af/H8')]
+    [TestCase('18',  'horse.webp,claRed,TileStretch,True,0,0,1,1,0.4,0.98,x58/OTk/n8f////5+//fz////////9////////////84AAAAAAAAGHAQ8Bh4AHgAPAAeAA8AAcA')]
+    [TestCase('19',  'horse.webp,claWhite,TileStretch,True,0,0,1,1,1,0.98,798/ODg/n8f//394e3/fz///f3t7f//P//////v///+H/4//D/cPwQ/jj+OP/8//x//h//Af/v8')]
+    [TestCase('20',  'horse.webp,claRed,TileStretch,True,0,0,1,1,1,0.98,x58/OTk/n8f////5+f/fx////////9/3////////3//v/4//n/ef95/3n+uP/+//x//r//j///8')]
+    [TestCase('21',  'horse.webp,claWhite,TileStretch,True,0.15,0.15,0.85,0.85,0.4,0.98,/8+PmZmPx//////528/P//////v7/8/////////////5/+P/4+/Hh8fP58fj//H/+B/+//////8')]
+    [TestCase('22',  'horse.webp,claRed,TileStretch,True,0.15,0.15,0.85,0.85,0.4,0.98,/8ePmZmPx//////528/P//////3fz////////d/P//8MAAwAAAAAIBggHAAcAA4ABwABgAAAAAA')]
+    [TestCase('23',  'horse.webp,claWhite,TileStretch,True,0.15,0.15,0.85,0.85,1,0.98,/++PmZmPx//////528/P//////v7/8/////////////x/+P/4+/Hh8fP58fj//H/+D////////8')]
+    [TestCase('24',  'horse.webp,claRed,TileStretch,True,0.15,0.15,0.85,0.85,1,0.98,/8ePmZmPx//////528/P//////3fz//////////////5////5//n9+fv5/////v//f////////8')]
+    [TestCase('25',  'horse.webp,claWhite,Tile,False,0,0,1,1,0.4,0.98,/78/ODg/n+f//394e3/f7///f3h/f/////////////+H/4f3D/cPwQ/jj+OH+4f/w//h///f/n8')]
+    [TestCase('26',  'horse.webp,claRed,Tile,False,0,0,1,1,0.4,0.98,x58/OTk/n8f////5+//fz/////3//9///////f////8AAAAAAAAwAvAA8ARwMDgAHAA+AB/wBkA')]
+    [TestCase('27',  'horse.webp,claWhite,Tile,False,0,0,1,1,1,0.98,/78/ODg/n+f//394e3/f7///f3h/f/////////////+H/4//D/cPwQ/jj+OP/4f/x//h//zf/n8')]
+    [TestCase('28',  'horse.webp,claRed,Tile,False,0,0,1,1,1,0.98,x58/OTk/n8f////5+f/fx/////39/9/3////////3//v/4//n/ef95/nn+OP/+//x//r//j///8')]
+    [TestCase('29',  'horse.webp,claWhite,Tile,False,0.15,0.15,0.85,0.85,0.4,0.98,//+fmZGfx//////509/P//////v7/8///////////////+f/4+/Hh8fP48fj//H/+D/+f/////8')]
+    [TestCase('30',  'horse.webp,claRed,Tile,False,0.15,0.15,0.85,0.85,0.4,0.98,/8ePmZmPx//////528/P//////3fz////////d/P//8OAAwAACAAAAAABAAcAA4AB6ABgAAAAAA')]
+    [TestCase('31',  'horse.webp,claWhite,Tile,False,0.15,0.15,0.85,0.85,1,0.98,//+fmZGfx//////509/P//////v7/8/////////////z/+P/4+/Hh8fP58fj//H/+D/+//////8')]
+    [TestCase('32',  'horse.webp,claRed,Tile,False,0.15,0.15,0.85,0.85,1,0.98,/8ePmZmPx//////528/P//////3fz//////////////7////5+/nh+fP58f///v//b////////8')]
+    [TestCase('33',  'horse.webp,claWhite,TileOriginal,False,0,0,1,1,0.4,0.98,/78/ODg/n////394e3/f////f3h/f/////////////+H/4f3D/cPwQ/jD+OH+4f/w//h//////8')]
+    [TestCase('34',  'horse.webp,claRed,TileOriginal,False,0,0,1,1,0.4,0.98,x58/OTk/n//////5+//f//////3//9///////f////8AAAAAAAAwAvAA8ARwMDgAHAA+AAAAAAA')]
+    [TestCase('35',  'horse.webp,claWhite,TileOriginal,False,0,0,1,1,1,0.98,/78/ODg/n////394e3/f////f3h/f///////f/////+H/4//D/cPwQ/jj+OP/4f/w//h//////8')]
+    [TestCase('36',  'horse.webp,claRed,TileOriginal,False,0,0,1,1,1,0.98,x58/OTk/n//////5+f/f//////39/9//////////3//v/4//n/ef15/jn+OP/+//x/////////8')]
+    [TestCase('37',  'horse.webp,claWhite,TileOriginal,False,0.15,0.15,0.85,0.85,0.4,0.98,//+fmZGfx//////509/P//////v7/8///////////////+f/4+/Hh8fP48fj//H/+D/+f/////8')]
+    [TestCase('38',  'horse.webp,claRed,TileOriginal,False,0.15,0.15,0.85,0.85,0.4,0.98,/8ePmZmPx//////528/P//////3fz////////d/P//8OAAwAACAAAAAABAAcAA4AB6ABgAAAAAA')]
+    [TestCase('39',  'horse.webp,claWhite,TileOriginal,False,0.15,0.15,0.85,0.85,1,0.98,//+fmZGfx//////509/P//////v7/8/////////////z/+P/4+/Hh8fP58fj//H/+D/+//////8')]
+    [TestCase('40',  'horse.webp,claRed,TileOriginal,False,0.15,0.15,0.85,0.85,1,0.98,/8ePmZmPx//////528/P//////3fz//////////////7////5+/nh+fP58f///v//b////////8')]
+    [TestCase('41',  'horse.webp,claWhite,TileStretch,False,0,0,1,1,0.4,0.98,798/ODg/n8f//395e3/fz///f3t7f//P//////v///+H/4/3D/cPwQ/jD+OP+4f/w//h//Af/H8')]
+    [TestCase('42',  'horse.webp,claRed,TileStretch,False,0,0,1,1,0.4,0.98,x58/OTk/n8f////5+//fz////////9////////////84AAAAAAAAGHAQ8Bh4AHgAPAAeAA8AAcA')]
+    [TestCase('43',  'horse.webp,claWhite,TileStretch,False,0,0,1,1,1,0.98,798/ODg/n8f//394e3/fz///f3t7f//P//////v///+H/4//D/cPwQ/jj+OP/8//x//h//Af/v8')]
+    [TestCase('44',  'horse.webp,claRed,TileStretch,False,0,0,1,1,1,0.98,x58/OTk/n8f////5+f/fx////////9/3////////3//v/4//n/ef95/3n+uP/+//x//r//j///8')]
+    [TestCase('45',  'horse.webp,claWhite,TileStretch,False,0.15,0.15,0.85,0.85,0.4,0.98,/8+PmZmPx//////528/P//////v7/8/////////////5/+P/4+/Hh8fP58fj//H/+B/+//////8')]
+    [TestCase('46',  'horse.webp,claRed,TileStretch,False,0.15,0.15,0.85,0.85,0.4,0.98,/8ePmZmPx//////528/P//////3fz////////d/P//8MAAwAAAAAIBggHAAcAA4ABwABgAAAAAA')]
+    [TestCase('47',  'horse.webp,claWhite,TileStretch,False,0.15,0.15,0.85,0.85,1,0.98,/++PmZmPx//////528/P//////v7/8/////////////x/+P/4+/Hh8fP58fj//H/+D////////8')]
+    [TestCase('48',  'horse.webp,claRed,TileStretch,False,0.15,0.15,0.85,0.85,1,0.98,/8ePmZmPx//////528/P//////3fz//////////////5////5//n9+fv5/////v//f////////8')]
+    [TestCase('49',  'horse.webp,claWhite,Tile,True,0,0.2,1,0.8,0.4,0.98,//+/ODgPz/////95e0/P/////3l7f8///////////////7//n/cPwQ/jh8uD/+Fv+L////////8')]
+    [TestCase('50',  'horse.webp,claRed,Tile,True,0,0.2,1,0.8,0.4,0.98,/8cPOTgPx////395e0/P//////3/z+///////f/P7/8/kHwAuAgAAAAAAAA8AB0AAOAAAAAAAAA')]
+    [TestCase('51',  'horse.webp,claWhite,Tile,True,0,0.2,1,0.8,1,0.98,//+/ODgPz/////95e0/P/////3l7f8/////////////z/8f/j/8PwQ/jj+uH/+H//L////////8')]
+    [TestCase('52',  'horse.webp,claRed,Tile,True,0,0.2,1,0.8,1,0.98,/8cPOTkPx////395e0/P//////3/z+/////////////z/9f/j/+f15/3j//X//P///////////8')]
+    [TestCase('53',  'horse.webp,claWhite,TileOriginal,True,0,0.2,1,0.8,0.4,0.98,//+/ODgPz/////95e0/P/////3l7f8///////////////7//n/cPwQ/jh8uD/+Fv+L////////8')]
+    [TestCase('54',  'horse.webp,claRed,TileOriginal,True,0,0.2,1,0.8,0.4,0.98,/8cPOTgPx////395e0/P//////3/z+///////f/P7/8/kHwAuAgAAAAAAAA8AB0AAOAAAAAAAAA')]
+    [TestCase('55',  'horse.webp,claWhite,TileOriginal,True,0,0.2,1,0.8,1,0.98,//+/ODgPz/////95e0/P/////3l7f8/////////////z/8f/j/8PwQ/jj+uH/+H//L////////8')]
+    [TestCase('56',  'horse.webp,claRed,TileOriginal,True,0,0.2,1,0.8,1,0.98,/8cPOTkPx////395e0/P//////3/z+/////////////z/9f/j/+f15/3j//X//P///////////8')]
+    [TestCase('57',  'horse.webp,claWhite,TileStretch,True,0,0.2,1,0.8,0.4,0.98,//8PODgPx////395e0/P////f3t7f8/////////////4/5P/h/cPwQ/jj+uH/+B/+B////////8')]
+    [TestCase('58',  'horse.webp,claRed,TileStretch,True,0,0.2,1,0.8,0.4,0.98,/8cPOTkPx////395e0/P////////z//////////P//85kDgAAAAAGHAYeAB8AB8AAYAAAAAAAAA')]
+    [TestCase('59',  'horse.webp,claWhite,TileStretch,True,0,0.2,1,0.8,1,0.98,//8PODgPx////395e0/P////f3t7f8/////////////w/4P/j/cPwQ/jj+vH/+D//B////////8')]
+    [TestCase('60',  'horse.webp,claRed,TileStretch,True,0,0.2,1,0.8,1,0.98,/8cPOTkPx////395e0/P////////z//////////////z/9f/j/+f95/3j//X//P///////////8')]
+    [TestCase('61',  'horse.webp,claWhite,Tile,True,0,0.2,1,0.8,0,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('62',  'horse.webp,claRed,Tile,True,0,0.2,1,0.8,0,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('63',  'horse.webp,claWhite,TileOriginal,True,0,0.2,1,0.8,0,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('64',  'horse.webp,claRed,TileOriginal,True,0,0.2,1,0.8,0,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('65',  'horse.webp,claWhite,TileStretch,True,0,0.2,1,0.8,0,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('66',  'horse.webp,claRed,TileStretch,True,0,0.2,1,0.8,0,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('67',  'horse.webp,claWhite,Tile,True,0,0.2,1,0.2,1,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('68',  'horse.webp,claRed,Tile,True,0,0.2,1,0.2,1,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('69',  'horse.webp,claWhite,TileOriginal,True,0,0.2,1,0.2,1,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('70',  'horse.webp,claRed,TileOriginal,True,0,0.2,1,0.2,1,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('71',  'horse.webp,claWhite,TileStretch,True,0,0.2,1,0.2,1,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('72',  'horse.webp,claRed,TileStretch,True,0,0.2,1,0.2,1,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('73',  'horse.webp,claWhite,Tile,True,0.5,0.2,0.5,0.8,1,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('74',  'horse.webp,claRed,Tile,True,0.5,0.2,0.5,0.8,1,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('75',  'horse.webp,claWhite,TileOriginal,True,0.5,0.2,0.5,0.8,1,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('76',  'horse.webp,claRed,TileOriginal,True,0.5,0.2,0.5,0.8,1,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('77',  'horse.webp,claWhite,TileStretch,True,0.5,0.2,0.5,0.8,1,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('78',  'horse.webp,claRed,TileStretch,True,0.5,0.2,0.5,0.8,1,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('79',  'horse.webp,claWhite,Tile,True,0.5,0.5,0.5,0.5,1,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('80',  'horse.webp,claRed,Tile,True,0.5,0.5,0.5,0.5,1,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('81',  'horse.webp,claWhite,TileOriginal,True,0.5,0.5,0.5,0.5,1,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('82',  'horse.webp,claRed,TileOriginal,True,0.5,0.5,0.5,0.5,1,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('83',  'horse.webp,claWhite,TileStretch,True,0.5,0.5,0.5,0.5,1,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('84',  'horse.webp,claRed,TileStretch,True,0.5,0.5,0.5,0.5,1,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('85',  'horse.webp,claWhite,Tile,True,0,-0.2,1,1.2,1,0.98,nx89ODg9v5////34+P//3//////7//////////////+P/4/3n/ePwQ/jj+OP68//j//H/8P/4f8')]
+    [TestCase('86',  'horse.webp,claWhite,TileOriginal,True,0,-0.2,1,1.2,1,0.98,Hx89ODg9//////34+P/////////7//////////////+P/4/3n/cPwQ/jD+OP6/////////////8')]
+    [TestCase('87',  'horse.webp,claWhite,TileStretch,True,0,-0.2,1,1.2,1,0.98,3z89ODg5P5////34+P9/3////fv7/3////////////+P/4/3D/cPwR/jj/OP64//z//H/8f/4/8')]
+    [TestCase('88',  'horse.webp,claWhite,Tile,False,0,-0.2,1,1.2,1,0.98,nx89ODg9v5////34+P//3//////7//////////////+P/4/3n/ePwQ/jj+OP68//j//H/8P/4f8')]
+    [TestCase('89',  'horse.webp,claWhite,TileOriginal,False,0,-0.2,1,1.2,1,0.98,Hx89ODg9//////34+P/////////7//////////////+P/4/3n/cPwQ/jD+OP6/////////////8')]
+    [TestCase('90',  'horse.webp,claWhite,TileStretch,False,0,-0.2,1,1.2,1,0.98,3z89ODg5P5////34+P9/3////fv7/3////////////+P/4/3D/cPwR/jj/OP64//z//H/8f/4/8')]
+    [TestCase('91',  'horse.webp,claWhite,Tile,True,0,-0.2,1,1.2,0.85,0.98,nx89ODg9v5////34+f//3//////7//////////////+P/4/3j/cPwQ/jD+OP66//r/+f/8P/wf8')]
+    [TestCase('92',  'horse.webp,claWhite,TileOriginal,True,0,-0.2,1,1.2,0.85,0.98,Hx89ODg9//////34+f/////////7//////////////+P94/3D/cPwQ/jD+OP4/////////////8')]
+    [TestCase('93',  'horse.webp,claWhite,TileStretch,True,0,-0.2,1,1.2,0.85,0.98,3z89ODg5P5////34+f9/3////fv7/3////////////+P/w/3D/cPwR/jj/OP64//j//H/8P/4/8')]
+    [TestCase('94',  'horse.webp,claWhite,Tile,False,0,-0.2,1,1.2,0.85,0.98,nx89ODg9v5////34+f//3//////7//////////////+P/4/3j/cPwQ/jD+OP66//r/+f/8P/wf8')]
+    [TestCase('95',  'horse.webp,claWhite,TileOriginal,False,0,-0.2,1,1.2,0.85,0.98,Hx89ODg9//////34+f/////////7//////////////+P94/3D/cPwQ/jD+OP4/////////////8')]
+    [TestCase('96',  'horse.webp,claWhite,TileStretch,False,0,-0.2,1,1.2,0.85,0.98,3z89ODg5P5////34+f9/3////fv7/3////////////+P/w/3D/cPwR/jj/OP64//j//H/8P/4/8')]
+    [TestCase('97',  'horse.webp,$7F0000FF,Tile,True,0,-0.2,1,1.2,1,0.98,nx8/ODk5H5/////4+fsfn/////z//5/f////////n/+P/4/3D/cPwQ/jD+OP44//h/+H/8P/4f8')]
+    [TestCase('98',  'horse.webp,$7F0000FF,TileOriginal,True,0,-0.2,1,1.2,1,0.98,nx89ODk9//////34+f////////z///////////////+P9w/3D/cPwQ/jD+MP4/////////////8')]
+    [TestCase('99',  'horse.webp,$7F0000FF,TileStretch,True,0,-0.2,1,1.2,1,0.98,nx8/ODk5H5/////4+f8fn/////7//5/f////////n/+P/w/3D/cPwQ/jD+OP64/fh/+H/8P/4f8')]
+    [TestCase('100', 'horse.webp,$7F0000FF,Tile,False,0,-0.2,1,1.2,1,0.98,nx8/ODk5H5/////4+fsfn/////z//5/f////////n/+P/4/3D/cPwQ/jD+OP44//h/+H/8P/4f8')]
+    [TestCase('101', 'horse.webp,$7F0000FF,TileOriginal,False,0,-0.2,1,1.2,1,0.98,nx89ODk9//////34+f////////z///////////////+P9w/3D/cPwQ/jD+MP4/////////////8')]
+    [TestCase('102', 'horse.webp,$7F0000FF,TileStretch,False,0,-0.2,1,1.2,1,0.98,nx8/ODk5H5/////4+f8fn/////7//5/f////////n/+P/w/3D/cPwQ/jD+OP64/fh/+H/8P/4f8')]
+    [TestCase('103', 'horse.webp,$7F0000FF,Tile,True,0,-0.2,1,1.2,0.85,0.98,nx8/ODk5H5/////4+/8fn/////7//5/f////////n/+P/w/3D/cPwQ/jD+OP44//h/+H/8P/4f8')]
+    [TestCase('104', 'horse.webp,$7F0000FF,TileOriginal,True,0,-0.2,1,1.2,0.85,0.98,nx89ODg9//////34+////////f7///////////////+P9w/3D/cPwQ/jD+MP4/////////////8')]
+    [TestCase('105', 'horse.webp,$7F0000FF,TileStretch,True,0,-0.2,1,1.2,0.85,0.98,nx8/ODk5H5/////4+/8fn/////7//5/f////////n/+P/w/3D/cPwQ/jD+OP64/fh/+H/8P/4f8')]
+    [TestCase('106', 'horse.webp,$7F0000FF,Tile,False,0,-0.2,1,1.2,0.85,0.98,nx8/ODk5H5/////4+/8fn/////7//5/f////////n/+P/w/3D/cPwQ/jD+OP44//h/+H/8P/4f8')]
+    [TestCase('107', 'horse.webp,$7F0000FF,TileOriginal,False,0,-0.2,1,1.2,0.85,0.98,nx89ODg9//////34+////////f7///////////////+P9w/3D/cPwQ/jD+MP4/////////////8')]
+    [TestCase('108', 'horse.webp,$7F0000FF,TileStretch,False,0,-0.2,1,1.2,0.85,0.98,nx8/ODk5H5/////4+/8fn/////7//5/f////////n/+P/w/3D/cPwQ/jD+OP64/fh/+H/8P/4f8')]
+    procedure TestFillPathBitmap(const AImageFileName, AModulateColor: string; AWrapMode: TWrapMode; ABlending: Boolean; const ALeftPercent, ATopPercent, ARightPercent, ABottomPercent, AOpacity, AMinSimilarity: Double; const AExpectedImageHash: string);
+    [TestCase('1',   'horse.webp,claWhite,Tile,True,0,0,1,1,0.4,0.98,/+uDgYHj//////Phw+f/////+/339/////////////+8n8Af4B/4A/AP4j/cf/zf/f/9//////8')]
+    [TestCase('2',   'horse.webp,claRed,Tile,True,0,0,1,1,0.4,0.98,/+uDwYPD7/////Phw8fv////+/HT9+////////////+/n8Ef4B/3Af4H/v/+f/////////////8')]
+    [TestCase('3',   'horse.webp,claWhite,Tile,True,0,0,1,1,1,0.98,/+uDgYPj//////Phw+f/////+/339//////////////8n8Af4D/4A/BP4r/8H/zf/f/9//////8')]
+    [TestCase('4',   'horse.webp,claRed,Tile,True,0,0,1,1,1,0.98,/+uDwYPD7/////Phw8fv////+/HT9+//////////////n98f87/+C/oP9r/+v/////////////8')]
+    [TestCase('5',   'horse.webp,claWhite,Tile,True,0.15,0.15,0.85,0.85,0.4,0.98,///Dw8PD//////Pjw8f/////++/P1///////////////3/+/8D/4B/gf4D/8n/////////////8')]
+    [TestCase('6',   'horse.webp,claRed,Tile,True,0.15,0.15,0.85,0.85,0.4,0.98,///Dw8PD//////Pjw8f/////+/Pj7///////////////3/+f8//4R/gf4f//3/////////////8')]
+    [TestCase('7',   'horse.webp,claWhite,Tile,True,0.15,0.15,0.85,0.85,1,0.98,///Dw8PD//////Pjw8f/////++/P1///////////////3/6/8D/4D/gf4D/8n/////////////8')]
+    [TestCase('8',   'horse.webp,claRed,Tile,True,0.15,0.15,0.85,0.85,1,0.98,///Dw8Pj//////Pjw+f/////+/Pz7///////////////3/+////4x/hf4v//3/////////////8')]
+    [TestCase('9',   'horse.webp,claWhite,TileOriginal,True,0,0,1,1,0.4,0.98,/+uDgYHj//////Phw+f/////+/339/////////////+8n8Af4B/4A/AP4j/cf/zf/f/9//////8')]
+    [TestCase('10',  'horse.webp,claRed,TileOriginal,True,0,0,1,1,0.4,0.98,/+uDwYPD7/////Phw8fv////+/HT9+////////////+/n8Ef4B/3Af4H/v/+f/////////////8')]
+    [TestCase('11',  'horse.webp,claWhite,TileOriginal,True,0,0,1,1,1,0.98,/+uDgYPj//////Phw+f/////+/339//////////////8n8Af4D/4A/BP4r/8H/zf/f/9//////8')]
+    [TestCase('12',  'horse.webp,claRed,TileOriginal,True,0,0,1,1,1,0.98,/+uDwYPD7/////Phw8fv////+/HT9+//////////////n98f87/+C/oP9r/+v/////////////8')]
+    [TestCase('13',  'horse.webp,claWhite,TileOriginal,True,0.15,0.15,0.85,0.85,0.4,0.98,///Dw8PD//////Pjw8f/////++/P1///////////////3/+/8D/4B/gf4D/8n/////////////8')]
+    [TestCase('14',  'horse.webp,claRed,TileOriginal,True,0.15,0.15,0.85,0.85,0.4,0.98,///Dw8PD//////Pjw8f/////+/Pj7///////////////3/+f8//4R/gf4f//3/////////////8')]
+    [TestCase('15',  'horse.webp,claWhite,TileOriginal,True,0.15,0.15,0.85,0.85,1,0.98,///Dw8PD//////Pjw8f/////++/P1///////////////3/6/8D/4D/gf4D/8n/////////////8')]
+    [TestCase('16',  'horse.webp,claRed,TileOriginal,True,0.15,0.15,0.85,0.85,1,0.98,///Dw8Pj//////Pjw+f/////+/Pz7///////////////3/+////4x/hf4v//3/////////////8')]
+    [TestCase('17',  'horse.webp,claWhite,TileStretch,True,0,0,1,1,0.4,0.98,/++DwcPj//////Phw+f/////9+P7///////////////8n8Af4B/4A/AP4h/dH/zf/e/9//////8')]
+    [TestCase('18',  'horse.webp,claRed,TileStretch,True,0,0,1,1,0.4,0.98,/+uDwYPD7/////Phw8fv////+/Hz7+////////////+838Af4B/8Mfg/+x//n//f/+////////8')]
+    [TestCase('19',  'horse.webp,claWhite,TileStretch,True,0,0,1,1,1,0.98,/++DwcPj//////Phw+f/////9+P7///////////////8n8Af4D/4A/BP4j/8H/zf/e/9//////8')]
+    [TestCase('20',  'horse.webp,claRed,TileStretch,True,0,0,1,1,1,0.98,/+uDwYPD7/////Phw8fv////+/Hz7+/////////////8/9y/8X/8D/h/9z/+n//f//////////8')]
+    [TestCase('21',  'horse.webp,claWhite,TileStretch,True,0.15,0.15,0.85,0.85,0.4,0.98,///Hw8Pj//////fjw+f/////9/ff///////////////8/+y/8D/4B/gf8T/8v/3f//////////8')]
+    [TestCase('22',  'horse.webp,claRed,TileStretch,True,0.15,0.15,0.85,0.85,0.4,0.98,///Dw8Pj//////Pjw+f/////+/Pz7//////////////8/+z/8D/8J/w//T//v//f//////////8')]
+    [TestCase('23',  'horse.webp,claWhite,TileStretch,True,0.15,0.15,0.85,0.85,1,0.98,///Hw8Pj//////fjw+f/////9/ff///////////////8/+y/8D/4D/gf8D/8v/3f//////////8')]
+    [TestCase('24',  'horse.webp,claRed,TileStretch,True,0.15,0.15,0.85,0.85,1,0.98,///Dw8Pj//////Pjw+f/////+/Pz7//////////////8//y/9D/8J/w//D//v/////////////8')]
+    [TestCase('25',  'horse.webp,claWhite,Tile,False,0,0,1,1,0.4,0.98,/+uDgYHj//////Phw+f/////+/339/////////////+8n8Af4B/4A/AP4j/cf/zf/f/9//////8')]
+    [TestCase('26',  'horse.webp,claRed,Tile,False,0,0,1,1,0.4,0.98,/+uDwYPD7/////Phw8fv////+/HT9+////////////+/n8Ef4B/3Af4H/v/+f/////////////8')]
+    [TestCase('27',  'horse.webp,claWhite,Tile,False,0,0,1,1,1,0.98,/+uDgYPj//////Phw+f/////+/339//////////////8n8Af4D/4A/BP4r/8H/zf/f/9//////8')]
+    [TestCase('28',  'horse.webp,claRed,Tile,False,0,0,1,1,1,0.98,/+uDwYPD7/////Phw8fv////+/HT9+//////////////n98f87/+C/oP9r/+v/////////////8')]
+    [TestCase('29',  'horse.webp,claWhite,Tile,False,0.15,0.15,0.85,0.85,0.4,0.98,///Dw8PD//////Pjw8f/////++/P1///////////////3/+/8D/4B/gf4D/8n/////////////8')]
+    [TestCase('30',  'horse.webp,claRed,Tile,False,0.15,0.15,0.85,0.85,0.4,0.98,///Dw8PD//////Pjw8f/////+/Pj7///////////////3/+f8//4R/gf4f//3/////////////8')]
+    [TestCase('31',  'horse.webp,claWhite,Tile,False,0.15,0.15,0.85,0.85,1,0.98,///Dw8PD//////Pjw8f/////++/P1///////////////3/6/8D/4D/gf4D/8n/////////////8')]
+    [TestCase('32',  'horse.webp,claRed,Tile,False,0.15,0.15,0.85,0.85,1,0.98,///Dw8Pj//////Pjw+f/////+/Pz7///////////////3/+////4x/hf4v//3/////////////8')]
+    [TestCase('33',  'horse.webp,claWhite,TileOriginal,False,0,0,1,1,0.4,0.98,/+uDgYHj//////Phw+f/////+/339/////////////+8n8Af4B/4A/AP4j/cf/zf/f/9//////8')]
+    [TestCase('34',  'horse.webp,claRed,TileOriginal,False,0,0,1,1,0.4,0.98,/+uDwYPD7/////Phw8fv////+/HT9+////////////+/n8Ef4B/3Af4H/v/+f/////////////8')]
+    [TestCase('35',  'horse.webp,claWhite,TileOriginal,False,0,0,1,1,1,0.98,/+uDgYPj//////Phw+f/////+/339//////////////8n8Af4D/4A/BP4r/8H/zf/f/9//////8')]
+    [TestCase('36',  'horse.webp,claRed,TileOriginal,False,0,0,1,1,1,0.98,/+uDwYPD7/////Phw8fv////+/HT9+//////////////n98f87/+C/oP9r/+v/////////////8')]
+    [TestCase('37',  'horse.webp,claWhite,TileOriginal,False,0.15,0.15,0.85,0.85,0.4,0.98,///Dw8PD//////Pjw8f/////++/P1///////////////3/+/8D/4B/gf4D/8n/////////////8')]
+    [TestCase('38',  'horse.webp,claRed,TileOriginal,False,0.15,0.15,0.85,0.85,0.4,0.98,///Dw8PD//////Pjw8f/////+/Pj7///////////////3/+f8//4R/gf4f//3/////////////8')]
+    [TestCase('39',  'horse.webp,claWhite,TileOriginal,False,0.15,0.15,0.85,0.85,1,0.98,///Dw8PD//////Pjw8f/////++/P1///////////////3/6/8D/4D/gf4D/8n/////////////8')]
+    [TestCase('40',  'horse.webp,claRed,TileOriginal,False,0.15,0.15,0.85,0.85,1,0.98,///Dw8Pj//////Pjw+f/////+/Pz7///////////////3/+////4x/hf4v//3/////////////8')]
+    [TestCase('41',  'horse.webp,claWhite,TileStretch,False,0,0,1,1,0.4,0.98,/++DwcPj//////Phw+f/////9+P7///////////////8n8Af4B/4A/AP4h/dH/zf/e/9//////8')]
+    [TestCase('42',  'horse.webp,claRed,TileStretch,False,0,0,1,1,0.4,0.98,/+uDwYPD7/////Phw8fv////+/Hz7+////////////+838Af4B/8Mfg/+x//n//f/+////////8')]
+    [TestCase('43',  'horse.webp,claWhite,TileStretch,False,0,0,1,1,1,0.98,/++DwcPj//////Phw+f/////9+P7///////////////8n8Af4D/4A/BP4j/8H/zf/e/9//////8')]
+    [TestCase('44',  'horse.webp,claRed,TileStretch,False,0,0,1,1,1,0.98,/+uDwYPD7/////Phw8fv////+/Hz7+/////////////8/9y/8X/8D/h/9z/+n//f//////////8')]
+    [TestCase('45',  'horse.webp,claWhite,TileStretch,False,0.15,0.15,0.85,0.85,0.4,0.98,///Hw8Pj//////fjw+f/////9/ff///////////////8/+y/8D/4B/gf8T/8v/3f//////////8')]
+    [TestCase('46',  'horse.webp,claRed,TileStretch,False,0.15,0.15,0.85,0.85,0.4,0.98,///Dw8Pj//////Pjw+f/////+/Pz7//////////////8/+z/8D/8J/w//T//v//f//////////8')]
+    [TestCase('47',  'horse.webp,claWhite,TileStretch,False,0.15,0.15,0.85,0.85,1,0.98,///Hw8Pj//////fjw+f/////9/ff///////////////8/+y/8D/4D/gf8D/8v/3f//////////8')]
+    [TestCase('48',  'horse.webp,claRed,TileStretch,False,0.15,0.15,0.85,0.85,1,0.98,///Dw8Pj//////Pjw+f/////+/Pz7//////////////8//y/9D/8J/w//D//v/////////////8')]
+    [TestCase('49',  'horse.webp,claWhite,Tile,True,0,0.2,1,0.8,0.4,0.98,///jgYHj//////Phw+f/////9/nf9/////////////////6fzh/4A+APxB//z/3///////////8')]
+    [TestCase('50',  'horse.webp,claRed,Tile,True,0,0.2,1,0.8,0.4,0.98,///DgYPr//////Phw+//////9/n77/////////////////+//h//D+EHhB//z/////////////8')]
+    [TestCase('51',  'horse.webp,claWhite,Tile,True,0,0.2,1,0.8,1,0.98,///jwYHj//////Phw+f/////9/nf9/////////////////yfzh/4A+AfxB/9z/3///////////8')]
+    [TestCase('52',  'horse.webp,claRed,Tile,True,0,0.2,1,0.8,1,0.98,///DgYPr//////Phw+////////n77/////////////////+//j/+D+sPzh//z/////////////8')]
+    [TestCase('53',  'horse.webp,claWhite,TileOriginal,True,0,0.2,1,0.8,0.4,0.98,///jgYHj//////Phw+f/////9/nf9/////////////////6fzh/4A+APxB//z/3///////////8')]
+    [TestCase('54',  'horse.webp,claRed,TileOriginal,True,0,0.2,1,0.8,0.4,0.98,///DgYPr//////Phw+//////9/n77/////////////////+//h//D+EHhB//z/////////////8')]
+    [TestCase('55',  'horse.webp,claWhite,TileOriginal,True,0,0.2,1,0.8,1,0.98,///jwYHj//////Phw+f/////9/nf9/////////////////yfzh/4A+AfxB/9z/3///////////8')]
+    [TestCase('56',  'horse.webp,claRed,TileOriginal,True,0,0.2,1,0.8,1,0.98,///DgYPr//////Phw+////////n77/////////////////+//j/+D+sPzh//z/////////////8')]
+    [TestCase('57',  'horse.webp,claWhite,TileStretch,True,0,0.2,1,0.8,0.4,0.98,///DgYHj//////Phw+f/////8+f79//////////////9//yfwB/wA/AP3R/8z/3///////////8')]
+    [TestCase('58',  'horse.webp,claRed,TileStretch,True,0,0.2,1,0.8,0.4,0.98,///DgYPr//////Phw+////////H77//////////////9//z/gB/0Efg//x//3/////////////8')]
+    [TestCase('59',  'horse.webp,claWhite,TileStretch,True,0,0.2,1,0.8,1,0.98,///DgYPj//////Phw+f/////8+f79//////////////9//yfwB/wA/AP3B/9z/3///////////8')]
+    [TestCase('60',  'horse.webp,claRed,TileStretch,True,0,0.2,1,0.8,1,0.98,///DgYPr//////Phw+////////P77/////////////////z/wB/8M/g//h//3/////////////8')]
+    [TestCase('61',  'horse.webp,claWhite,Tile,True,0,0.2,1,0.8,0,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('62',  'horse.webp,claRed,Tile,True,0,0.2,1,0.8,0,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('63',  'horse.webp,claWhite,TileOriginal,True,0,0.2,1,0.8,0,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('64',  'horse.webp,claRed,TileOriginal,True,0,0.2,1,0.8,0,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('65',  'horse.webp,claWhite,TileStretch,True,0,0.2,1,0.8,0,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('66',  'horse.webp,claRed,TileStretch,True,0,0.2,1,0.8,0,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('67',  'horse.webp,claWhite,Tile,True,0,0.2,1,0.2,1,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('68',  'horse.webp,claRed,Tile,True,0,0.2,1,0.2,1,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('69',  'horse.webp,claWhite,TileOriginal,True,0,0.2,1,0.2,1,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('70',  'horse.webp,claRed,TileOriginal,True,0,0.2,1,0.2,1,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('71',  'horse.webp,claWhite,TileStretch,True,0,0.2,1,0.2,1,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('72',  'horse.webp,claRed,TileStretch,True,0,0.2,1,0.2,1,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('73',  'horse.webp,claWhite,Tile,True,0.5,0.2,0.5,0.8,1,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('74',  'horse.webp,claRed,Tile,True,0.5,0.2,0.5,0.8,1,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('75',  'horse.webp,claWhite,TileOriginal,True,0.5,0.2,0.5,0.8,1,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('76',  'horse.webp,claRed,TileOriginal,True,0.5,0.2,0.5,0.8,1,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('77',  'horse.webp,claWhite,TileStretch,True,0.5,0.2,0.5,0.8,1,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('78',  'horse.webp,claRed,TileStretch,True,0.5,0.2,0.5,0.8,1,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('79',  'horse.webp,claWhite,Tile,True,0.5,0.5,0.5,0.5,1,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('80',  'horse.webp,claRed,Tile,True,0.5,0.5,0.5,0.5,1,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('81',  'horse.webp,claWhite,TileOriginal,True,0.5,0.5,0.5,0.5,1,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('82',  'horse.webp,claRed,TileOriginal,True,0.5,0.5,0.5,0.5,1,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('83',  'horse.webp,claWhite,TileStretch,True,0.5,0.5,0.5,0.5,1,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('84',  'horse.webp,claRed,TileStretch,True,0.5,0.5,0.5,0.5,1,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('85',  'horse.webp,claWhite,Tile,True,0,-0.2,1,1.2,1,0.98,++ODwcOH+/////Phw8f/////+/Pv1//////////f///EH+I/+F/8Q/Bf4r/gP/yf/9//z/3v/f8')]
+    [TestCase('86',  'horse.webp,claWhite,TileOriginal,True,0,-0.2,1,1.2,1,0.98,++ODwYOH//////Phw8f/////+/Pvx//////////f///EH+I/8F/8Q/Bf4r/gH96///////////8')]
+    [TestCase('87',  'horse.webp,claWhite,TileStretch,True,0,-0.2,1,1.2,1,0.98,7+OHwcPj6/////fhw+fv////9+Pz7//////////////EH+I/8F/8A/BP8j/gH/yf/d/93/3v/f8')]
+    [TestCase('88',  'horse.webp,claWhite,Tile,False,0,-0.2,1,1.2,1,0.98,++ODwcOH+/////Phw8f/////+/Pv1//////////f///EH+I/+F/8Q/Bf4r/gP/yf/9//z/3v/f8')]
+    [TestCase('89',  'horse.webp,claWhite,TileOriginal,False,0,-0.2,1,1.2,1,0.98,++ODwYOH//////Phw8f/////+/Pvx//////////f///EH+I/8F/8Q/Bf4r/gH96///////////8')]
+    [TestCase('90',  'horse.webp,claWhite,TileStretch,False,0,-0.2,1,1.2,1,0.98,7+OHwcPj6/////fhw+fv////9+Pz7//////////////EH+I/8F/8A/BP8j/gH/yf/d/93/3v/f8')]
+    [TestCase('91',  'horse.webp,claWhite,Tile,True,0,-0.2,1,1.2,0.85,0.98,++ODwcOH+/////Phw8f/////+/Pv1//////////f///EH+I/8F/8c/Bf4j/AH9yf/9//z//v/f8')]
+    [TestCase('92',  'horse.webp,claWhite,TileOriginal,True,0,-0.2,1,1.2,0.85,0.98,++ODwcOH//////Phw8f/////+/Pv1//////////f///EH+I/8F/8U/Bf4j/AH9y///////////8')]
+    [TestCase('93',  'horse.webp,claWhite,TileStretch,True,0,-0.2,1,1.2,0.85,0.98,7+OHwcPj6/////fhw+fv////9+Pz7//////////////AH+I/8F/8A/BP8j/gH/yf/Z/93/3v/f8')]
+    [TestCase('94',  'horse.webp,claWhite,Tile,False,0,-0.2,1,1.2,0.85,0.98,++ODwcOH+/////Phw8f/////+/Pv1//////////f///EH+I/8F/8c/Bf4j/AH9yf/9//z//v/f8')]
+    [TestCase('95',  'horse.webp,claWhite,TileOriginal,False,0,-0.2,1,1.2,0.85,0.98,++ODwcOH//////Phw8f/////+/Pv1//////////f///EH+I/8F/8U/Bf4j/AH9y///////////8')]
+    [TestCase('96',  'horse.webp,claWhite,TileStretch,False,0,-0.2,1,1.2,0.85,0.98,7+OHwcPj6/////fhw+fv////9+Pz7//////////////AH+I/8F/8A/BP8j/gH/yf/Z/93/3v/f8')]
+    [TestCase('97',  'horse.webp,$7F0000FF,Tile,True,0,-0.2,1,1.2,1,0.98,6+ODwcOD6/////Phw8fv////+/XT7+/////////////AH+I/8E/4A/BP4j/AH9yf/N/8z/3v/f8')]
+    [TestCase('98',  'horse.webp,$7F0000FF,TileOriginal,True,0,-0.2,1,1.2,1,0.98,6+ODwYOH//////Phw8f/////+/XT///////////////AH+I/8E/4A/BP4j/AH9yf//////////8')]
+    [TestCase('99',  'horse.webp,$7F0000FF,TileStretch,True,0,-0.2,1,1.2,1,0.98,6+ODwcOD6/////Phw8fv////+/XT7+/////////////AH+I/8E/8A/BP4j/AH9yf/J/8z/3v/f8')]
+    [TestCase('100', 'horse.webp,$7F0000FF,Tile,False,0,-0.2,1,1.2,1,0.98,6+ODwcOD6/////Phw8fv////+/XT7+/////////////AH+I/8E/4A/BP4j/AH9yf/N/8z/3v/f8')]
+    [TestCase('101', 'horse.webp,$7F0000FF,TileOriginal,False,0,-0.2,1,1.2,1,0.98,6+ODwYOH//////Phw8f/////+/XT///////////////AH+I/8E/4A/BP4j/AH9yf//////////8')]
+    [TestCase('102', 'horse.webp,$7F0000FF,TileStretch,False,0,-0.2,1,1.2,1,0.98,6+ODwcOD6/////Phw8fv////+/XT7+/////////////AH+I/8E/8A/BP4j/AH9yf/J/8z/3v/f8')]
+    [TestCase('103', 'horse.webp,$7F0000FF,Tile,True,0,-0.2,1,1.2,0.85,0.98,6+ODwcOD6/////Phw8fv////+/XT7+/////////////AH+I/8E/4A/BP4j/AH9yf/N/8z/3v/f8')]
+    [TestCase('104', 'horse.webp,$7F0000FF,TileOriginal,True,0,-0.2,1,1.2,0.85,0.98,6+ODwYOH//////Phw8f/////+/XT///////////////AH+I/8E/4A/BP4j/AH9yf//////////8')]
+    [TestCase('105', 'horse.webp,$7F0000FF,TileStretch,True,0,-0.2,1,1.2,0.85,0.98,6+ODwcOD6/////Phw8fv////+/XT7+/////////////AH+I/8E/8A/BP4j/AH9yf/J/8z/3v/f8')]
+    [TestCase('106', 'horse.webp,$7F0000FF,Tile,False,0,-0.2,1,1.2,0.85,0.98,6+ODwcOD6/////Phw8fv////+/XT7+/////////////AH+I/8E/4A/BP4j/AH9yf/N/8z/3v/f8')]
+    [TestCase('107', 'horse.webp,$7F0000FF,TileOriginal,False,0,-0.2,1,1.2,0.85,0.98,6+ODwYOH//////Phw8f/////+/XT///////////////AH+I/8E/4A/BP4j/AH9yf//////////8')]
+    [TestCase('108', 'horse.webp,$7F0000FF,TileStretch,False,0,-0.2,1,1.2,0.85,0.98,6+ODwcOD6/////Phw8fv////+/XT7+/////////////AH+I/8E/8A/BP4j/AH9yf/J/8z/3v/f8')]
+    procedure TestFillPathBitmap2(const AImageFileName, AModulateColor: string; AWrapMode: TWrapMode; ABlending: Boolean; const ALeftPercent, ATopPercent, ARightPercent, ABottomPercent, AOpacity, AMinSimilarity: Double; const AExpectedImageHash: string);
+    [TestCase('1',   'horse.webp,claWhite,Tile,True,0,0,1,1,0.4,0.98,//GRobGZif///fHh89/P////+f3//9/////////////Ph8PDxCPdu9+7xDPDw8P74YfwD/////8')]
+    [TestCase('2',   'horse.webp,claRed,Tile,True,0,0,1,1,0.4,0.98,/4GZpaWZgf///fnl59/N///9/e/v3+3///397/////8+BAQEAAAAAAIAMwA8MD54AnwP+AAAAAA')]
+    [TestCase('3',   'horse.webp,claWhite,Tile,True,0,0,1,1,1,0.98,//GRobGZif///fHh89/P////+f3//9/////////////Dx8PDzDPdu9+7zTPDw+PD4Yfxn/////8')]
+    [TestCase('4',   'horse.webp,claRed,Tile,True,0,0,1,1,1,0.98,/4GZpaWZgf///fnl59/N///9/e/v3+3////////f7//jx8PD3bv/////3bvDw+PH48f5n/////8')]
+    [TestCase('5',   'horse.webp,claWhite,Tile,True,0.15,0.15,0.85,0.85,0.4,0.98,///R0YHB//////Hxw8f/////9/331//////////////////P84f3b/Qv4Afxz/gP/7////////8')]
+    [TestCase('6',   'horse.webp,claRed,Tile,True,0.15,0.15,0.85,0.85,0.4,0.98,/+fDgYHD5/////Phw8fv////++3P7+/////////////////P/4f37+Qv4Afzz//P/7////////8')]
+    [TestCase('7',   'horse.webp,claWhite,Tile,True,0.15,0.15,0.85,0.85,1,0.98,///T0YHB//////Pxw8f/////9/331//////////////5n/GP84/37/Qv8A/xj/gf//////////8')]
+    [TestCase('8',   'horse.webp,claRed,Tile,True,0.15,0.15,0.85,0.85,1,0.98,///DgYHD5/////Phw8fv////++3P7+/////////////5n/PP9+//7//v9+/zz/mf//////////8')]
+    [TestCase('9',   'horse.webp,claWhite,TileOriginal,True,0,0,1,1,0.4,0.98,//GRobGZif///fHh89/P////+f3//9/////////////Ph8PDxCPdu9+7xDPDw8P74YfwD/////8')]
+    [TestCase('10',  'horse.webp,claRed,TileOriginal,True,0,0,1,1,0.4,0.98,/4GZpaWZgf///fnl59/N///9/e/v3+3///397/////8+BAQEAAAAAAIAMwA8MD54AnwP+AAAAAA')]
+    [TestCase('11',  'horse.webp,claWhite,TileOriginal,True,0,0,1,1,1,0.98,//GRobGZif///fHh89/P////+f3//9/////////////Dx8PDzDPdu9+7zTPDw+PD4Yfxn/////8')]
+    [TestCase('12',  'horse.webp,claRed,TileOriginal,True,0,0,1,1,1,0.98,/4GZpaWZgf///fnl59/N///9/e/v3+3////////f7//jx8PD3bv/////3bvDw+PH48f5n/////8')]
+    [TestCase('13',  'horse.webp,claWhite,TileOriginal,True,0.15,0.15,0.85,0.85,0.4,0.98,///R0YHB//////Hxw8f/////9/331//////////////////P84f3b/Qv4Afxz/gP/7////////8')]
+    [TestCase('14',  'horse.webp,claRed,TileOriginal,True,0.15,0.15,0.85,0.85,0.4,0.98,/+fDgYHD5/////Phw8fv////++3P7+/////////////////P/4f37+Qv4Afzz//P/7////////8')]
+    [TestCase('15',  'horse.webp,claWhite,TileOriginal,True,0.15,0.15,0.85,0.85,1,0.98,///T0YHB//////Pxw8f/////9/331//////////////5n/GP84/37/Qv8A/xj/gf//////////8')]
+    [TestCase('16',  'horse.webp,claRed,TileOriginal,True,0.15,0.15,0.85,0.85,1,0.98,///DgYHD5/////Phw8fv////++3P7+/////////////5n/PP9+//7//v9+/zz/mf//////////8')]
+    [TestCase('17',  'horse.webp,claWhite,TileStretch,True,0,0,1,1,0.4,0.98,/82ZpaGRgf///fnl49fP////++X7/9/////////////Zw8PDxCPdu927zDPD08OD4YfwD/////8')]
+    [TestCase('18',  'horse.webp,claRed,TileStretch,True,0,0,1,1,0.4,0.98,/4GZpaWZgf///fnl59/N///9/e/v3+3///397////f84cAQAAAAAACAAOhA4EBwcPhgfOAAAAAA')]
+    [TestCase('19',  'horse.webp,claWhite,TileStretch,True,0,0,1,1,1,0.98,/82ZpaGRgf///fnl49fP////++X7/9/////////////Dw8PDzDPdu/27zDPDw8PD4YfxD/////8')]
+    [TestCase('20',  'horse.webp,claRed,TileStretch,True,0,0,1,1,1,0.98,/4GZpaWZgf///fnl59/N///9/+/v3+3////////f7//jx8PD3bv/////3bvDw+PH48f5n/////8')]
+    [TestCase('21',  'horse.webp,claWhite,TileStretch,True,0.15,0.15,0.85,0.85,0.4,0.98,///DgcHD9/////Phw8f/////9/f31//////////////9//WP4Af0L/Qv8Qfxj/AP/7////////8')]
+    [TestCase('22',  'horse.webp,claRed,TileStretch,True,0.15,0.15,0.85,0.85,0.4,0.98,/+fDgYHD5/////Phw8fv////++3P7+/////77c/v7/8P8AxgAAAAAAgAHSAOMAdgAgAAAAAAAAA')]
+    [TestCase('23',  'horse.webp,claWhite,TileStretch,True,0.15,0.15,0.85,0.85,1,0.98,///DgYHD5/////Phw8fv////9/P31+/////////////4n/GP8A/0L/Rv8Y/xj/gf//////////8')]
+    [TestCase('24',  'horse.webp,claRed,TileStretch,True,0.15,0.15,0.85,0.85,1,0.98,/+/DgYHD5/////Phw8fv////++3P7+/////////////5n/PP9+////9/96/zz/kf//////////8')]
+    [TestCase('25',  'horse.webp,claWhite,Tile,False,0,0,1,1,0.4,0.98,//GRobGZif///fHh89/P////+f3//9/////////////Ph8PDxCPdu9+7xDPDw8P74YfwD/////8')]
+    [TestCase('26',  'horse.webp,claRed,Tile,False,0,0,1,1,0.4,0.98,/4GZpaWZgf///fnl59/N///9/e/v3+3///397/////8+BAQEAAAAAAIAMwA8MD54AnwP+AAAAAA')]
+    [TestCase('27',  'horse.webp,claWhite,Tile,False,0,0,1,1,1,0.98,//GRobGZif///fHh89/P////+f3//9/////////////Dx8PDzDPdu9+7zTPDw+PD4Yfxn/////8')]
+    [TestCase('28',  'horse.webp,claRed,Tile,False,0,0,1,1,1,0.98,/4GZpaWZgf///fnl59/N///9/e/v3+3////////f7//jx8PD3bv/////3bvDw+PH48f5n/////8')]
+    [TestCase('29',  'horse.webp,claWhite,Tile,False,0.15,0.15,0.85,0.85,0.4,0.98,///R0YHB//////Hxw8f/////9/331//////////////////P84f3b/Qv4Afxz/gP/7////////8')]
+    [TestCase('30',  'horse.webp,claRed,Tile,False,0.15,0.15,0.85,0.85,0.4,0.98,/+fDgYHD5/////Phw8fv////++3P7+/////////////////P/4f37+Qv4Afzz//P/7////////8')]
+    [TestCase('31',  'horse.webp,claWhite,Tile,False,0.15,0.15,0.85,0.85,1,0.98,///T0YHB//////Pxw8f/////9/331//////////////5n/GP84/37/Qv8A/xj/gf//////////8')]
+    [TestCase('32',  'horse.webp,claRed,Tile,False,0.15,0.15,0.85,0.85,1,0.98,///DgYHD5/////Phw8fv////++3P7+/////////////5n/PP9+//7//v9+/zz/mf//////////8')]
+    [TestCase('33',  'horse.webp,claWhite,TileOriginal,False,0,0,1,1,0.4,0.98,//GRobGZif///fHh89/P////+f3//9/////////////Ph8PDxCPdu9+7xDPDw8P74YfwD/////8')]
+    [TestCase('34',  'horse.webp,claRed,TileOriginal,False,0,0,1,1,0.4,0.98,/4GZpaWZgf///fnl59/N///9/e/v3+3///397/////8+BAQEAAAAAAIAMwA8MD54AnwP+AAAAAA')]
+    [TestCase('35',  'horse.webp,claWhite,TileOriginal,False,0,0,1,1,1,0.98,//GRobGZif///fHh89/P////+f3//9/////////////Dx8PDzDPdu9+7zTPDw+PD4Yfxn/////8')]
+    [TestCase('36',  'horse.webp,claRed,TileOriginal,False,0,0,1,1,1,0.98,/4GZpaWZgf///fnl59/N///9/e/v3+3////////f7//jx8PD3bv/////3bvDw+PH48f5n/////8')]
+    [TestCase('37',  'horse.webp,claWhite,TileOriginal,False,0.15,0.15,0.85,0.85,0.4,0.98,///R0YHB//////Hxw8f/////9/331//////////////////P84f3b/Qv4Afxz/gP/7////////8')]
+    [TestCase('38',  'horse.webp,claRed,TileOriginal,False,0.15,0.15,0.85,0.85,0.4,0.98,/+fDgYHD5/////Phw8fv////++3P7+/////////////////P/4f37+Qv4Afzz//P/7////////8')]
+    [TestCase('39',  'horse.webp,claWhite,TileOriginal,False,0.15,0.15,0.85,0.85,1,0.98,///T0YHB//////Pxw8f/////9/331//////////////5n/GP84/37/Qv8A/xj/gf//////////8')]
+    [TestCase('40',  'horse.webp,claRed,TileOriginal,False,0.15,0.15,0.85,0.85,1,0.98,///DgYHD5/////Phw8fv////++3P7+/////////////5n/PP9+//7//v9+/zz/mf//////////8')]
+    [TestCase('41',  'horse.webp,claWhite,TileStretch,False,0,0,1,1,0.4,0.98,/82ZpaGRgf///fnl49fP////++X7/9/////////////Zw8PDxCPdu927zDPD08OD4YfwD/////8')]
+    [TestCase('42',  'horse.webp,claRed,TileStretch,False,0,0,1,1,0.4,0.98,/4GZpaWZgf///fnl59/N///9/e/v3+3///397////f84cAQAAAAAACAAOhA4EBwcPhgfOAAAAAA')]
+    [TestCase('43',  'horse.webp,claWhite,TileStretch,False,0,0,1,1,1,0.98,/82ZpaGRgf///fnl49fP////++X7/9/////////////Dw8PDzDPdu/27zDPDw8PD4YfxD/////8')]
+    [TestCase('44',  'horse.webp,claRed,TileStretch,False,0,0,1,1,1,0.98,/4GZpaWZgf///fnl59/N///9/+/v3+3////////f7//jx8PD3bv/////3bvDw+PH48f5n/////8')]
+    [TestCase('45',  'horse.webp,claWhite,TileStretch,False,0.15,0.15,0.85,0.85,0.4,0.98,///DgcHD9/////Phw8f/////9/f31//////////////9//WP4Af0L/Qv8Qfxj/AP/7////////8')]
+    [TestCase('46',  'horse.webp,claRed,TileStretch,False,0.15,0.15,0.85,0.85,0.4,0.98,/+fDgYHD5/////Phw8fv////++3P7+/////77c/v7/8P8AxgAAAAAAgAHSAOMAdgAgAAAAAAAAA')]
+    [TestCase('47',  'horse.webp,claWhite,TileStretch,False,0.15,0.15,0.85,0.85,1,0.98,///DgYHD5/////Phw8fv////9/P31+/////////////4n/GP8A/0L/Rv8Y/xj/gf//////////8')]
+    [TestCase('48',  'horse.webp,claRed,TileStretch,False,0.15,0.15,0.85,0.85,1,0.98,/+/DgYHD5/////Phw8fv////++3P7+/////////////5n/PP9+////9/96/zz/kf//////////8')]
+    [TestCase('49',  'horse.webp,claWhite,Tile,True,0,0.2,1,0.8,0.4,0.98,///5sQGB//////nxQ8f///////l73/////////////////+vz4feM8wzwcPBh/8P//////////800000000000000000000000000')]
+    [TestCase('50',  'horse.webp,claRed,Tile,True,0,0.2,1,0.8,0.4,0.98,//+BgYGB//////Hhw8f/////+enLz////////////////////4f/N8w3wYPBh/8H//////////8')]
+    [TestCase('51',  'horse.webp,claWhite,Tile,True,0,0.2,1,0.8,1,0.98,///5sQGB//////nxQ8f///////l73////////////////+OHw8PeM8wzw8PBh/8P//////////8')]
+    [TestCase('52',  'horse.webp,claRed,Tile,True,0,0.2,1,0.8,1,0.98,//+BgYGB//////Hhw8f/////+enLz////////////////+PHx+P/v/+/x+Pjh/+f//////////8')]
+    [TestCase('53',  'horse.webp,claWhite,TileOriginal,True,0,0.2,1,0.8,0.4,0.98,///5sQGB//////nxQ8f///////l73/////////////////+vz4feM8wzwcPBh/8P//////////8')]
+    [TestCase('54',  'horse.webp,claRed,TileOriginal,True,0,0.2,1,0.8,0.4,0.98,//+BgYGB//////Hhw8f/////+enLz////////////////////4f/N8w3wYPBh/8H//////////8')]
+    [TestCase('55',  'horse.webp,claWhite,TileOriginal,True,0,0.2,1,0.8,1,0.98,///5sQGB//////nxQ8f///////l73////////////////+OHw8PeM8wzw8PBh/8P//////////8')]
+    [TestCase('56',  'horse.webp,claRed,TileOriginal,True,0,0.2,1,0.8,1,0.98,//+BgYGB//////Hhw8f/////+enLz////////////////+PHx+P/v/+/x+Pjh/+f//////////8')]
+    [TestCase('57',  'horse.webp,claWhite,TileStretch,True,0,0.2,1,0.8,0.4,0.98,//+JgICB//////nhw8f///////P71////////////////9njw4PMM9wzw8PBg/AP//////////8')]
+    [TestCase('58',  'horse.webp,claRed,TileStretch,True,0,0.2,1,0.8,0.4,0.98,//+BgYGB//////Hhw8f//////e/rz//////97+vP//8P+Dx4DAAAADAAPFgeGB8wAAAAAAAAAAA')]
+    [TestCase('59',  'horse.webp,claWhite,TileStretch,True,0,0.2,1,0.8,1,0.98,//+JAICB//////lhw8f//////3P71////////////////+HDw8PMM9wzw8PBg/AP//////////8')]
+    [TestCase('60',  'horse.webp,claRed,TileStretch,True,0,0.2,1,0.8,1,0.98,//+BgYGB//////Hhw8f//////e/rz////////////////+HHx+P///+/x+Pjx/////////////8')]
+    [TestCase('61',  'horse.webp,claWhite,Tile,True,0,0.2,1,0.8,0,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('62',  'horse.webp,claRed,Tile,True,0,0.2,1,0.8,0,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('63',  'horse.webp,claWhite,TileOriginal,True,0,0.2,1,0.8,0,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('64',  'horse.webp,claRed,TileOriginal,True,0,0.2,1,0.8,0,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('65',  'horse.webp,claWhite,TileStretch,True,0,0.2,1,0.8,0,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('66',  'horse.webp,claRed,TileStretch,True,0,0.2,1,0.8,0,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('67',  'horse.webp,claWhite,Tile,True,0,0.2,1,0.2,1,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('68',  'horse.webp,claRed,Tile,True,0,0.2,1,0.2,1,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('69',  'horse.webp,claWhite,TileOriginal,True,0,0.2,1,0.2,1,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('70',  'horse.webp,claRed,TileOriginal,True,0,0.2,1,0.2,1,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('71',  'horse.webp,claWhite,TileStretch,True,0,0.2,1,0.2,1,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('72',  'horse.webp,claRed,TileStretch,True,0,0.2,1,0.2,1,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('73',  'horse.webp,claWhite,Tile,True,0.5,0.2,0.5,0.8,1,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('74',  'horse.webp,claRed,Tile,True,0.5,0.2,0.5,0.8,1,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('75',  'horse.webp,claWhite,TileOriginal,True,0.5,0.2,0.5,0.8,1,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('76',  'horse.webp,claRed,TileOriginal,True,0.5,0.2,0.5,0.8,1,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('77',  'horse.webp,claWhite,TileStretch,True,0.5,0.2,0.5,0.8,1,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('78',  'horse.webp,claRed,TileStretch,True,0.5,0.2,0.5,0.8,1,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('79',  'horse.webp,claWhite,Tile,True,0.5,0.5,0.5,0.5,1,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('80',  'horse.webp,claRed,Tile,True,0.5,0.5,0.5,0.5,1,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('81',  'horse.webp,claWhite,TileOriginal,True,0.5,0.5,0.5,0.5,1,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('82',  'horse.webp,claRed,TileOriginal,True,0.5,0.5,0.5,0.5,1,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('83',  'horse.webp,claWhite,TileStretch,True,0.5,0.5,0.5,0.5,1,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('84',  'horse.webp,claRed,TileStretch,True,0.5,0.5,0.5,0.5,1,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('85',  'horse.webp,claWhite,Tile,True,0,-0.2,1,1.2,1,0.98,8ZmR9f+ZmfH//fH1/9nd/f/9+f//+//////5///////Dw8Wj3bv/////3bvNs8PDw8Pjz+GH8Q8')]
+    [TestCase('86',  'horse.webp,claWhite,TileOriginal,True,0,-0.2,1,1.2,1,0.98,8ZGRtf+Zmf///fH1/9nd///9+f//+//////5///////Dw8Wjzbv/v///3TvNs8PDw8P///////8')]
+    [TestCase('87',  'horse.webp,claWhite,TileStretch,True,0,-0.2,1,1.2,1,0.98,/5mZ5eWRmYH//fnl59fdzf//++X3///f///75/f//9/Dw8Wj3bv/////3bvNs8PDw8fjx+GH8Q8')]
+    [TestCase('88',  'horse.webp,claWhite,Tile,False,0,-0.2,1,1.2,1,0.98,8ZmR9f+ZmfH//fH1/9nd/f/9+f//+//////5///////Dw8Wj3bv/////3bvNs8PDw8Pjz+GH8Q8')]
+    [TestCase('89',  'horse.webp,claWhite,TileOriginal,False,0,-0.2,1,1.2,1,0.98,8ZGRtf+Zmf///fH1/9nd///9+f//+//////5///////Dw8Wjzbv/v///3TvNs8PDw8P///////8')]
+    [TestCase('90',  'horse.webp,claWhite,TileStretch,False,0,-0.2,1,1.2,1,0.98,/5mZ5eWRmYH//fnl59fdzf//++X3///f///75/f//9/Dw8Wj3bv/////3bvNs8PDw8fjx+GH8Q8')]
+    [TestCase('91',  'horse.webp,claWhite,Tile,True,0,-0.2,1,1.2,0.85,0.98,8ZmR9f+ZmfH//fH1/9/d/f/9+f/////////////////Dw8Ujz7P/u///3TvFs8PDw8P/7++H9g8')]
+    [TestCase('92',  'horse.webp,claWhite,TileOriginal,True,0,-0.2,1,1.2,0.85,0.98,8ZGRtf+Zmf///fH1/9/d///9+f/////////////////Dw8QjzzP/u/+73TvFs8PDw8P///////8')]
+    [TestCase('93',  'horse.webp,claWhite,TileStretch,True,0,-0.2,1,1.2,0.85,0.98,/5mZ5eWRmYH//fnl59fdzf//+/X////f////9////9/Dw8WjzDPfu///3bPNs9vTw9Pjg+GH8A8')]
+    [TestCase('94',  'horse.webp,claWhite,Tile,False,0,-0.2,1,1.2,0.85,0.98,8ZmR9f+ZmfH//fH1/9/d/f/9+f/////////////////Dw8Ujz7P/u///3TvFs8PDw8P/7++H9g8')]
+    [TestCase('95',  'horse.webp,claWhite,TileOriginal,False,0,-0.2,1,1.2,0.85,0.98,8ZGRtf+Zmf///fH1/9/d///9+f/////////////////Dw8QjzzP/u/+73TvFs8PDw8P///////8')]
+    [TestCase('96',  'horse.webp,claWhite,TileStretch,False,0,-0.2,1,1.2,0.85,0.98,/5mZ5eWRmYH//fnl59fdzf//+/X////f////9////9/Dw8WjzDPfu///3bPNs9vTw9Pjg+GH8A8')]
+    [TestCase('97',  'horse.webp,$7F0000FF,Tile,True,0,-0.2,1,1.2,1,0.98,gZmZ//+ZmYH//fn//9vdif/9/f//393p///9///f3+vDw8WjzTPdu927zTvFo8PDw8Pjx+GH8A8')]
+    [TestCase('98',  'horse.webp,$7F0000FF,TileOriginal,True,0,-0.2,1,1.2,1,0.98,gZmZ//+Zmf///fn//9vd///9/f//393////9///f3//Dw8QjzDPdu927zDPEI8PDw8P///////8')]
+    [TestCase('99',  'horse.webp,$7F0000FF,TileStretch,True,0,-0.2,1,1.2,1,0.98,gZmZ//+ZmYH//fn//9vdif/9////393p///////f3+vDw8WjzDPdu9273DPFo8PDw8PBg+GH8A8')]
+    [TestCase('100', 'horse.webp,$7F0000FF,Tile,False,0,-0.2,1,1.2,1,0.98,gZmZ//+ZmYH//fn//9vdif/9/f//393p///9///f3+vDw8WjzTPdu927zTvFo8PDw8Pjx+GH8A8')]
+    [TestCase('101', 'horse.webp,$7F0000FF,TileOriginal,False,0,-0.2,1,1.2,1,0.98,gZmZ//+Zmf///fn//9vd///9/f//393////9///f3//Dw8QjzDPdu927zDPEI8PDw8P///////8')]
+    [TestCase('102', 'horse.webp,$7F0000FF,TileStretch,False,0,-0.2,1,1.2,1,0.98,gZmZ//+ZmYH//fn//9vdif/9////393p///////f3+vDw8WjzDPdu9273DPFo8PDw8PBg+GH8A8')]
+    [TestCase('103', 'horse.webp,$7F0000FF,Tile,True,0,-0.2,1,1.2,0.85,0.98,gZmZ//+ZmYH//fn//9/dif/9/f//393p///9///f3+vDw8WjzTPdu927zTvFo8PDw8Pjx+GH8A8')]
+    [TestCase('104', 'horse.webp,$7F0000FF,TileOriginal,True,0,-0.2,1,1.2,0.85,0.98,gZmZ//+Zmf///fn//9/d///9/f//393////9///f3//Dw8QjzDPdu927zDPEI8PDw8P///////8')]
+    [TestCase('105', 'horse.webp,$7F0000FF,TileStretch,True,0,-0.2,1,1.2,0.85,0.98,gZmZ//+ZmYH//fn//9/dif/9////393p///////f3+vDw8WjzDPdu9273DPFo8PDw8PBg+GH8A8')]
+    [TestCase('106', 'horse.webp,$7F0000FF,Tile,False,0,-0.2,1,1.2,0.85,0.98,gZmZ//+ZmYH//fn//9/dif/9/f//393p///9///f3+vDw8WjzTPdu927zTvFo8PDw8Pjx+GH8A8')]
+    [TestCase('107', 'horse.webp,$7F0000FF,TileOriginal,False,0,-0.2,1,1.2,0.85,0.98,gZmZ//+Zmf///fn//9/d///9/f//393////9///f3//Dw8QjzDPdu927zDPEI8PDw8P///////8')]
+    [TestCase('108', 'horse.webp,$7F0000FF,TileStretch,False,0,-0.2,1,1.2,0.85,0.98,gZmZ//+ZmYH//fn//9/dif/9////393p///////f3+vDw8WjzDPdu9273DPFo8PDw8PBg+GH8A8')]
+    procedure TestFillPathBitmap3(const AImageFileName, AModulateColor: string; AWrapMode: TWrapMode; ABlending: Boolean; const ALeftPercent, ATopPercent, ARightPercent, ABottomPercent, AOpacity, AMinSimilarity: Double; const AExpectedImageHash: string);
+    [TestCase('1',  'horse.webp,claWhite,Tile,true,1,0.98,PH5gAFBmfgA/fuDAU2f+zH9//dlfd//9f3/92V/3//08fD8+V14xRldEd7x/dHw8P/wf+A/wAAA')]
+    [TestCase('2',  'horse.webp,claWhite,Tile,true,0.5,0.98,OH5wAFBmPgA7fvDAU2f+zHv//d1fd/79e//93V/3/v0+eD8+V94zRjFEVr5vdFQ4q9VX6q9lUAo')]
+    [TestCase('3',  'horse.webp,claWhite,Tile,false,1,0.98,PH5gAFBmfgA/fuDAU2f+zH9//dlfd//9f3/92V/3//08fD8+V14xRldEd7x/dHw8P/wf+A/wAAA')]
+    [TestCase('4',  'horse.webp,claWhite,Tile,false,0.5,0.98,OH5wAFBmPgA7fvDAU2f+zHv//d1fd/79e//93V/3/v0+eD8+V94zRjFEVr5vdFQ4q9VX6q9lUAo')]
+    [TestCase('5',  'horse.webp,claRed,Tile,true,1,0.98,/5GRubmZgf//sfH5+5vN///5/fv73+3///n/+/////98Pn/+ZmZVqleid2Z/fnw4H/gP8A/wAAA')]
+    [TestCase('6',  'horse.webp,claRed,Tile,true,0.5,0.98,/5GRub2Zmf//sdH5v5vd///53fu/3/3///v///////98Bn/ORiZVqleCdiJ/enw6v/1X+q/1UAo')]
+    [TestCase('7',  'horse.webp,claRed,Tile,false,1,0.98,/5GRubmZgf//sfH5+5vN///5/fv73+3///n/+/////98Pn/+ZmZVqleid2Z/fnw4H/gP8A/wAAA')]
+    [TestCase('8',  'horse.webp,claRed,Tile,false,0.5,0.98,/5GRub2Zmf//sdH5v5vd///53fu/3/3///v///////98Bn/ORiZVqleCdiJ/enw6v/1X+q/1UAo')]
+    [TestCase('9',  'horse.webp,claWhite,TileOriginal,true,1,0.98,PH5gAFBmfgA/fuDAU2f+zH9//dlfd//9f3/92V/3//08fD8+V14xRldEd7x/dHw8P/wf+A/wAAA')]
+    [TestCase('10', 'horse.webp,claWhite,TileOriginal,true,0.5,0.98,OH5wAFBmPgA7fvDAU2f+zHv//d1fd/79e//93V/3/v0+eD8+V94zRjFEVr5vdFQ4q9VX6q9lUAo')]
+    [TestCase('11', 'horse.webp,claWhite,TileOriginal,false,1,0.98,PH5gAFBmfgA/fuDAU2f+zH9//dlfd//9f3/92V/3//08fD8+V14xRldEd7x/dHw8P/wf+A/wAAA')]
+    [TestCase('12', 'horse.webp,claWhite,TileOriginal,false,0.5,0.98,OH5wAFBmPgA7fvDAU2f+zHv//d1fd/79e//93V/3/v0+eD8+V94zRjFEVr5vdFQ4q9VX6q9lUAo')]
+    [TestCase('13', 'horse.webp,claRed,TileOriginal,true,1,0.98,/5GRubmZgf//sfH5+5vN///5/fv73+3///n/+/////98Pn/+ZmZVqleid2Z/fnw4H/gP8A/wAAA')]
+    [TestCase('14', 'horse.webp,claRed,TileOriginal,true,0.5,0.98,/5GRub2Zmf//sdH5v5vd///53fu/3/3///v///////98Bn/ORiZVqleCdiJ/enw6v/1X+q/1UAo')]
+    [TestCase('15', 'horse.webp,claRed,TileOriginal,false,1,0.98,/5GRubmZgf//sfH5+5vN///5/fv73+3///n/+/////98Pn/+ZmZVqleid2Z/fnw4H/gP8A/wAAA')]
+    [TestCase('16', 'horse.webp,claRed,TileOriginal,false,0.5,0.98,/5GRub2Zmf//sdH5v5vd///53fu/3/3///v///////98Bn/ORiZVqleCdiJ/enw6v/1X+q/1UAo')]
+    [TestCase('17', 'horse.webp,claWhite,TileStretch,true,1,0.98,PH5kAEBmdgA/fuTAQ2f+zH9+5uRbb/79f37m5X///v0+fH56d+pyaHJAdkJ7EnweP/xfOqf1QAI')]
+    [TestCase('18', 'horse.webp,claWhite,TileStretch,true,0.5,0.98,PH5kAEBidAA/fuTAQ2P+zH/+5uZba/79f/7m9197/v12Pj5+c+oySDNAd0hrEFwar/VXqq/1UAo')]
+    [TestCase('19', 'horse.webp,claWhite,TileStretch,false,1,0.98,PH5kAEBmdgA/fuTAQ2f+zH9+5uRbb/79f37m5X///v0+fH56d+pyaHJAdkJ7EnweP/xfOqf1QAI')]
+    [TestCase('20', 'horse.webp,claWhite,TileStretch,false,0.5,0.98,PH5kAEBidAA/fuTAQ2P+zH/+5uZba/79f/7m9197/v12Pj5+c+oySDNAd0hrEFwar/VXqq/1UAo')]
+    [TestCase('21', 'horse.webp,claRed,TileStretch,true,1,0.98,/4mZvbWRgf//ufn995PN///5/f//3+3///n//////f98On/+dm5VqnGqdm5//nw+H/gPcA/wAAA')]
+    [TestCase('22', 'horse.webp,claRed,TileStretch,true,0.5,0.98,/4mZvfWRgf//udn995PN///53f//3+3///v//////f98Mk/iRGJRqnWKdiJ/Wlwev7leeq/1UAo')]
+    [TestCase('23', 'horse.webp,claRed,TileStretch,false,1,0.98,/4mZvbWRgf//ufn995PN///5/f//3+3///n//////f98On/+dm5VqnGqdm5//nw+H/gPcA/wAAA')]
+    [TestCase('24', 'horse.webp,claRed,TileStretch,false,0.5,0.98,/4mZvfWRgf//udn995PN///53f//3+3///v//////f98Mk/iRGJRqnWKdiJ/Wlwev7leeq/1UAo')]
+    procedure TestFillPathBitmapWithChessBackground(const AImageFileName, AModulateColor: string; AWrapMode: TWrapMode; ABlending: Boolean; const AOpacity, AMinSimilarity: Double; const AExpectedImageHash: string);
+    [TestCase('1',  'horse.webp,claWhite,Tile,true,1,0.98,//Hx8fDw8f///fHx8/f/////+f3/9///////////////h//D/yP/u/+7/zP/w//D/4f/D/////8')]
+    [TestCase('2',  'horse.webp,claWhite,Tile,true,0.5,0.98,//Hx8fDw8f///fHx8/f/////+f3/9///////////////h//D/yP/u/+7/yP/w//7/4f/D/////8')]
+    [TestCase('3',  'horse.webp,claWhite,Tile,false,1,0.98,//Hx8fDw8f///fHx8/f/////+f3/9///////////////h//D/yP/u/+7/zP/w//D/4f/D/////8')]
+    [TestCase('4',  'horse.webp,claWhite,Tile,false,0.5,0.98,//Hx8fDw8f///fHx8/f/////+f3/9///////////////h//D/yP/u/+7/yP/w//7/4f/D/////8')]
+    [TestCase('5',  'horse.webp,claRed,Tile,true,1,0.98,//Hx8fHx8f///fHx8/f////9/fv7////////////////x//D/7P///+//7P/w//D/8f/n/////8')]
+    [TestCase('6',  'horse.webp,claRed,Tile,true,0.5,0.98,//Hx8fHx8f///fHx8/f////9/fv7////////////////h//P/yf/u/+7/yP/8//7//////////8')]
+    [TestCase('7',  'horse.webp,claRed,Tile,false,1,0.98,//Hx8fHx8f///fHx8/f////9/fv7////////////////x//D/7P///+//7P/w//D/8f/n/////8')]
+    [TestCase('8',  'horse.webp,claRed,Tile,false,0.5,0.98,//Hx8fHx8f///fHx8/f////9/fv7////////////////h//P/yf/u/+7/yP/8//7//////////8')]
+    [TestCase('9',  'horse.webp,claWhite,TileOriginal,true,1,0.98,//Hx8fDw8f///fHx8/f/////+f3/9///////////////h//D/yP/u/+7/zP/w//D/4f/D/////8')]
+    [TestCase('10', 'horse.webp,claWhite,TileOriginal,true,0.5,0.98,//Hx8fDw8f///fHx8/f/////+f3/9///////////////h//D/yP/u/+7/yP/w//7/4f/D/////8')]
+    [TestCase('11', 'horse.webp,claWhite,TileOriginal,false,1,0.98,//Hx8fDw8f///fHx8/f/////+f3/9///////////////h//D/yP/u/+7/zP/w//D/4f/D/////8')]
+    [TestCase('12', 'horse.webp,claWhite,TileOriginal,false,0.5,0.98,//Hx8fDw8f///fHx8/f/////+f3/9///////////////h//D/yP/u/+7/yP/w//7/4f/D/////8')]
+    [TestCase('13', 'horse.webp,claRed,TileOriginal,true,1,0.98,//Hx8fHx8f///fHx8/f////9/fv7////////////////x//D/7P///+//7P/w//D/8f/n/////8')]
+    [TestCase('14', 'horse.webp,claRed,TileOriginal,true,0.5,0.98,//Hx8fHx8f///fHx8/f////9/fv7////////////////h//P/yf/u/+7/yP/8//7//////////8')]
+    [TestCase('15', 'horse.webp,claRed,TileOriginal,false,1,0.98,//Hx8fHx8f///fHx8/f////9/fv7////////////////x//D/7P///+//7P/w//D/8f/n/////8')]
+    [TestCase('16', 'horse.webp,claRed,TileOriginal,false,0.5,0.98,//Hx8fHx8f///fHx8/f////9/fv7////////////////h//P/yf/u/+7/yP/8//7//////////8')]
+    [TestCase('17', 'horse.webp,claWhite,TileStretch,true,1,0.98,//nw8PDw8f///fDx8/f/////8/X7////////////////w//D/yP/u/+7/zP/w/+D/4f/D/////8')]
+    [TestCase('18', 'horse.webp,claWhite,TileStretch,true,0.5,0.98,//nw8PDw8f///fDx8/f/////8/X7////////////////w//D/yP/u/+7/zP/w/+D/4f/D/////8')]
+    [TestCase('19', 'horse.webp,claWhite,TileStretch,false,1,0.98,//nw8PDw8f///fDx8/f/////8/X7////////////////w//D/yP/u/+7/zP/w/+D/4f/D/////8')]
+    [TestCase('20', 'horse.webp,claWhite,TileStretch,false,0.5,0.98,//nw8PDw8f///fDx8/f/////8/X7////////////////w//D/yP/u/+7/zP/w/+D/4f/D/////8')]
+    [TestCase('21', 'horse.webp,claRed,TileStretch,true,1,0.98,//Hx8fHx8f///fHx8/f////9//v7////////////////x//D/7v///+//zv/w//H/8f/n/////8')]
+    [TestCase('22', 'horse.webp,claRed,TileStretch,true,0.5,0.98,//Hx8fHx8f///fHx8/f////9/fv7////////////////8//D/yP/u/+7/zP/0/+f/5v/P/////8')]
+    [TestCase('23', 'horse.webp,claRed,TileStretch,false,1,0.98,//Hx8fHx8f///fHx8/f////9//v7////////////////x//D/7v///+//zv/w//H/8f/n/////8')]
+    [TestCase('24', 'horse.webp,claRed,TileStretch,false,0.5,0.98,//Hx8fHx8f///fHx8/f////9/fv7////////////////8//D/yP/u/+7/zP/0/+f/5v/P/////8')]
+    procedure TestFillPathBitmapWithClipping(const AImageFileName, AModulateColor: string; AWrapMode: TWrapMode; ABlending: Boolean; const AOpacity, AMinSimilarity: Double; const AExpectedImageHash: string);
+    [TestCase('1',  'horse.webp,300,300,Tile,1,2,-50,-100,30,-200,-50,660,343,1,true,0.98,58dDBwcHBw///3NnR0dPT///e2/H509P//9/f8f/T18AHwAfAB8ADwAfAB8AHwAfAD8APwJ/AH8')]
+    [TestCase('2',  'horse.webp,300,300,Tile,1,2,-50,-100,30,-200,-50,660,343,0.6,true,0.98,58dDBwcHBw///3NnR0dPT///e2/H509P//9/f////18wHwgfAB8APwBfAA8AHwAfAD8APwA/AH8')]
+    [TestCase('3',  'horse.webp,300,300,Tile,1,2,-50,-100,30,0,0,200,200,1,true,0.98,fz8/f3////9/f39/f/////////////////////////8f/z//P/9//3//f/////////////////8')]
+    [TestCase('4',  'horse.webp,300,300,Tile,1,2,-50,-100,30,0,0,200,200,0.6,true,0.98,fz8/f3////9/f39/f/////////////////////////+f/z//P/9//3//f/////////////////8')]
+    [TestCase('5',  'horse.webp,300,300,Tile,1,-2,50,500,30,-200,-50,660,343,1,true,0.98,///////+/vz////////+/P////////78/////////////////////////////v/+//z//P/4//g')]
+    [TestCase('6',  'horse.webp,300,300,Tile,-1,2,-50,-100,30,-200,-50,660,343,0.6,true,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('7',  'horse.webp,300,300,Tile,-1,2,250,-50,30,0,0,200,200,1,true,0.98,fw8PDx8/////fz9vX/////9/v3///////3+/f/////8A/wH/Af8B/wP/B/8f/z////////////8')]
+    [TestCase('8',  'horse.webp,300,300,Tile,1,-2,-50,200,30,0,0,200,200,0.6,true,0.98,gYGTt+f//////fP35//////////////////////////DB8eP3///P/8//3////////////////8')]
+    [TestCase('9',  'horse.webp,300,300,TileOriginal,1,2,150,20,-90,-200,-50,660,343,1,true,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('10', 'horse.webp,300,300,TileOriginal,1,2,-50,100,-90,-200,50,660,343,0.6,true,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('11', 'horse.webp,300,300,TileOriginal,1,2,50,100,20,0,0,200,200,1,true,0.98,/////8+PBwf/////z89PT//////f/09f////////////////////////+P/g/8B/gH+AfwB/AH8')]
+    [TestCase('12', 'horse.webp,300,300,TileOriginal,1,2,50,100,20,0,0,200,200,0.6,true,0.98,/////8+PBwf/////z89PT//////f/09f////////////////////////+//v/8//n/+Pvw8/Dn8')]
+    [TestCase('13', 'horse.webp,300,300,TileOriginal,1,-2,50,500,30,-200,-50,660,343,1,true,0.98,///////+/vz////////+/P////////78/////////////////////////////v/+//z//P/4//g')]
+    [TestCase('14', 'horse.webp,300,300,TileOriginal,-1,2,-50,-100,60,-200,-50,660,343,0.6,true,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('15', 'horse.webp,300,300,TileOriginal,-1,2,-50,-100,-60,0,0,200,200,1,true,0.98,j4eDA4P///////Njw////////2vn/////////+f///8APwAfAA+AD8Af4B////////////////8')]
+    [TestCase('16', 'horse.webp,300,300,TileOriginal,1,-2,-50,300,10,0,0,200,200,0.6,true,0.98,DwcHB2/v//////fnb+///////+9///////////////8AfwB/CH8f/x7/fP98//7///////////8')]
+    [TestCase('17', 'horse.webp,300,300,TileStretch,1,2,-50,-100,30,-200,-50,660,343,1,true,0.98,n48fDwMHBwf////vw8fHh//////P79+//////8//378AHwAfAA8ADwAPAB8AHwAfAD8APwB/AH8')]
+    [TestCase('18', 'horse.webp,300,300,TileStretch,1,2,-50,-100,30,-200,-50,660,343,0.6,true,0.98,n48fHwMHBwf/////w8fHj//////P79+//////8//3/9B/wP/BO8ADwAPAA8AHwAfAD8APwQ/AH8')]
+    [TestCase('19', 'horse.webp,300,300,TileStretch,1,2,-50,-100,30,0,0,200,200,1,true,0.98,fz8/f3////9///////////////////////////////8f/z//P/9//3//f/////////////////8')]
+    [TestCase('20', 'horse.webp,300,300,TileStretch,1,2,-50,-100,30,0,0,200,200,0.6,true,0.98,fz8/f3////9/f39///////////////////////////8f/z//P/9//3//f/////////////////8')]
+    [TestCase('21', 'horse.webp,300,300,TileStretch,1,-2,50,500,30,-200,-50,660,343,1,true,0.98,///////+/vz////////+/P////////78/////////////////////////////v/+//z//P/4//g')]
+    [TestCase('22', 'horse.webp,300,300,TileStretch,-1,2,-50,-100,-60,-200,-50,660,343,0.6,true,0.98,/z8PBx8HAA3////n38fMzf///+/f5+3P////////7/8B/wB/AN8DDwM/A38A/wAcAMgARACyAPs')]
+    [TestCase('23', 'horse.webp,300,300,TileStretch,-1,2,-50,-100,-60,0,0,200,200,1,true,0.98,DwcHA4P/////5+fjw//////v9+/X///////3/9f///8APwAfAA8AD8Af4B////////////////8')]
+    [TestCase('24', 'horse.webp,300,300,TileStretch,1,-2,-50,500,30,0,0,200,200,0.6,true,0.98,////////4cH////////vzf///////+/P//////////////////////////////+//w/+A/wD8Ac')]
+    procedure TestFillPathBitmapWithMatrix(const AImageFileName: string; ASurfaceWidth, ASurfaceHeight: Integer; AWrapMode: TWrapMode; ASurfaceScaleX, ASurfaceScaleY, ASurfaceOffsetX, ASurfaceOffsetY, ARotationDeg, ADestLeft, ADestTop, ADestRight, ADestBottom, AOpacity: Single; ABlending: Boolean; const AMinSimilarity: Double; const AExpectedImageHash: string);
+    [TestCase('1',   '[claBlack;0 claWhite;1],claWhite,Linear,False,1,1,0.98,/+/jw8HD//////Pjw8f/////9//X7//////////////+7/4f4B/4D/wD8B/iH/7f/u////////8')]
+    [TestCase('2',   '[$7F000000;0 $7FFFFFFF;1],claWhite,Linear,False,1,1,0.98,/+/jw8HD//////Pjw8f/////9/fX7//////////////+7/4P4B/4D/wD8B/iH/5P/v////////8')]
+    [TestCase('3',   '[claBlack;0 claWhite;1],claWhite,Linear,False,1,0.5,0.98,/+/jw8HD//////Pjw8f/////9/fX7//////////////+7/4P4B/4D/wD8B/iH/5P/v////////8')]
+    [TestCase('4',   '[claBlack;0 claWhite;1],claWhite,Linear,True,1,1,0.98,/+/jw8HD//////Pjw8f/////9//X7//////////////+7/4f4B/4D/wD8B/iH/7f/u////////8')]
+    [TestCase('5',   '[$7F000000;0 $7FFFFFFF;1],claWhite,Linear,True,1,1,0.98,/+/jw8HD//////Pjw8f/////9/fX7//////////////+7/4P4B/4D/wD8B/iH/5P/v////////8')]
+    [TestCase('6',   '[claBlack;0 claWhite;1],claWhite,Linear,True,1,0.5,0.98,/+/jw8HD//////Pjw8f/////9/fX7//////////////+7/4P4B/4D/wD8B/iH/5P/v////////8')]
+    [TestCase('7',   '[claBlack;0 claWhite;1],claWhite,Linear,False,2,1,0.98,///+/v7+4PD///7////u/P///v///+7///////////////////3//f/8//z//P38/gz/AP+C/+A')]
+    [TestCase('8',   '[$7F000000;0 $7FFFFFFF;1],claWhite,Linear,False,2,1,0.98,///+/v7+4PD///7////u/P///v///+7////////////////9//3//P/8//z//P38/gz/AP+C/8A')]
+    [TestCase('9',   '[claBlack;0 claWhite;1],claWhite,Linear,False,-2,0.5,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('10',  '[claBlack;0 claWhite;1],claWhite,Linear,True,0.5,1,0.98,nw8P///////////////////////////////////////B/4P///////////////////////////8')]
+    [TestCase('11',  '[$7F000000;0 $7FFFFFFF;1],claWhite,Linear,True,-1,1,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('12',  '[claBlack;0 claWhite;1],claWhite,Linear,True,3,0.5,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('13',  '[claBlack;0.2 claWhite;0.8],claWhite,Linear,False,1,1,0.98,/+/Dw8Hn//////Pjw+f/////9/vX7//////////////+7/5f4B/4D/wD+B/yH/7f/v////////8')]
+    [TestCase('14',  '[$7F000000;0.2 $7FFFFFFF;0.8],claWhite,Linear,False,1,1,0.98,/+/Dw8Hn//////Pjw+f/////9/vX7//////////////+7/4P4B/4D/wD8B/yH/////////////8')]
+    [TestCase('15',  '[claBlack;0.2 claWhite;0.8],claWhite,Linear,False,1,0.5,0.98,/+/Dw8Hn//////Pjw+f/////9/vX7//////////////+7/4P4B/4D/wD8B/yH/////////////8')]
+    [TestCase('16',  '[claBlack;0.2 claWhite;0.8],claWhite,Linear,True,1,1,0.98,/+/Dw8Hn//////Pjw+f/////9/vX7//////////////+7/5f4B/4D/wD+B/yH/7f/v////////8')]
+    [TestCase('17',  '[$7F000000;0.2 $7FFFFFFF;0.8],claWhite,Linear,True,1,1,0.98,/+/Dw8Hn//////Pjw+f/////9/vX7//////////////+7/4P4B/4D/wD8B/yH/////////////8')]
+    [TestCase('18',  '[claBlack;0.2 claWhite;0.8],claWhite,Linear,True,1,0.5,0.98,/+/Dw8Hn//////Pjw+f/////9/vX7//////////////+7/4P4B/4D/wD8B/yH/////////////8')]
+    [TestCase('19',  '[claBlack;0.2 claWhite;0.8],claWhite,Linear,False,2,1,0.98,/////v7+4PD////////u/P/////////+//////////////////3//f/8//z//P38/hz/AP+C/+A')]
+    [TestCase('20',  '[$7F000000;0.2 $7FFFFFFF;0.8],claWhite,Linear,False,2,1,0.98,/////v784PD////////u/P/////////////////////////9//3//f/8//z//P38/gz/AP+C/8A')]
+    [TestCase('21',  '[claBlack;0.2 claWhite;0.8],claWhite,Linear,False,-2,0.5,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('22',  '[claBlack;0.2 claWhite;0.8],claWhite,Linear,True,0.5,1,0.98,nw8P///////////////////////////////////////B/8P///////////////////////////8')]
+    [TestCase('23',  '[$7F000000;0.2 $7FFFFFFF;0.8],claWhite,Linear,True,-1,1,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('24',  '[claBlack;0.2 claWhite;0.8],claWhite,Linear,True,3,0.5,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('25',  '[claBlack;-1 claWhite;0.8],claWhite,Linear,True,1,1,0.98,/+/Dw8Hn//////Pjw+f/////+/fP7//////////////+7/4f4B/4H/4D+T/+n/7//v////////8')]
+    [TestCase('26',  '[claBlack;0 claWhite;2],claWhite,Linear,True,1,1,0.98,/+/jw8HD7/////Pjw8fv////9+vX7+/////////////+7/5f8B/4D/wD8B/iH/5P/u/+//////8')]
+    [TestCase('27',  '[claBlack;0 claWhite;1],claRed,Linear,False,1,1,0.98,/+/jw8HD6/////Pjw8fv////9+vz1//////////////+7/5f+p/9f/5P+f/+//7//v////////8')]
+    [TestCase('28',  '[$7F000000;0 $7FFFFFFF;1],claRed,Linear,False,1,1,0.98,/+/jw8HD7/////Pjw8fv////9+vz1//////////////+z+4P4B/4D/wD/n////////////////8')]
+    [TestCase('29',  '[claBlack;0 claWhite;1],claRed,Linear,False,1,0.5,0.98,/+/jw8HD7/////Pjw8fv////9+vz1//////////////+z+4P4B/4D/wD/n////////////////8')]
+    [TestCase('30',  '[claBlack;0 claWhite;1],claRed,Linear,True,1,1,0.98,/+/jw8HD6/////Pjw8fv////9+vz1//////////////+7/5f+p/9f/5P+f/+//7//v////////8')]
+    [TestCase('31',  '[$7F000000;0 $7FFFFFFF;1],claRed,Linear,True,1,1,0.98,/+/jw8HD7/////Pjw8fv////9+vz1//////////////+z+4P4B/4D/wD/n////////////////8')]
+    [TestCase('32',  '[claBlack;0 claWhite;1],claRed,Linear,True,1,0.5,0.98,/+/jw8HD7/////Pjw8fv////9+vz1//////////////+z+4P4B/4D/wD/n////////////////8')]
+    [TestCase('33',  '[claBlack;0 claWhite;1],claRed,Linear,False,2,1,0.98,/////v7+4PD////////u/P/////////8///////////////9//3//f/8//z//P/8/3z/h//D//c')]
+    [TestCase('34',  '[$7F000000;0 $7FFFFFFF;1],claRed,Linear,False,2,1,0.98,/////v7+4PD////////u/P/////////8///////////////9//3//P/8//z//Pz8/gz/AP+C/+A')]
+    [TestCase('35',  '[claBlack;0 claWhite;1],claRed,Linear,False,-2,0.5,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('36',  '[claBlack;0 claWhite;1],claRed,Linear,True,0.5,1,0.98,nw8Pn//////////////////////////////////////J//////////////////////////////8')]
+    [TestCase('37',  '[$7F000000;0 $7FFFFFFF;1],claRed,Linear,True,-1,1,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('38',  '[claBlack;0 claWhite;1],claRed,Linear,True,3,0.5,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('39',  '[claBlack;0.2 claWhite;0.8],claRed,Linear,False,1,1,0.98,/+/jw8HD7/////Pjw8fv////9+vz1//////////////+7/5f8B/9f/5P+f/+//7//v////////8')]
+    [TestCase('40',  '[$7F000000;0.2 $7FFFFFFF;0.8],claRed,Linear,False,1,1,0.98,/+/jw8HD7/////Pjw8fv////9+vz1//////////////+z+4P4B/4D/wD//////////////////8')]
+    [TestCase('41',  '[claBlack;0.2 claWhite;0.8],claRed,Linear,False,1,0.5,0.98,/+/jw8HD7/////Pjw8fv////9+vz1//////////////+z+4P4B/4D/wD//////////////////8')]
+    [TestCase('42',  '[claBlack;0.2 claWhite;0.8],claRed,Linear,True,1,1,0.98,/+/jw8HD7/////Pjw8fv////9+vz1//////////////+7/5f8B/9f/5P+f/+//7//v////////8')]
+    [TestCase('43',  '[$7F000000;0.2 $7FFFFFFF;0.8],claRed,Linear,True,1,1,0.98,/+/jw8HD7/////Pjw8fv////9+vz1//////////////+z+4P4B/4D/wD//////////////////8')]
+    [TestCase('44',  '[claBlack;0.2 claWhite;0.8],claRed,Linear,True,1,0.5,0.98,/+/jw8HD7/////Pjw8fv////9+vz1//////////////+z+4P4B/4D/wD//////////////////8')]
+    [TestCase('45',  '[claBlack;0.2 claWhite;0.8],claRed,Linear,False,2,1,0.98,/////v7+4PD////////u/P/////////8///////////////9//3//f/8//z//P/8/jz/h//D//c')]
+    [TestCase('46',  '[$7F000000;0.2 $7FFFFFFF;0.8],claRed,Linear,False,2,1,0.98,/////v7+4PD////////u/P/////////8///////////////9//3//P/8//z//Pz8/gz/AP+C/+A')]
+    [TestCase('47',  '[claBlack;0.2 claWhite;0.8],claRed,Linear,False,-2,0.5,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('48',  '[claBlack;0.2 claWhite;0.8],claRed,Linear,True,0.5,1,0.98,nw8Pn//////////////////////////////////////p//////////////////////////////8')]
+    [TestCase('49',  '[$7F000000;0.2 $7FFFFFFF;0.8],claRed,Linear,True,-1,1,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('50',  '[claBlack;0.2 claWhite;0.8],claRed,Linear,True,3,0.5,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('51',  '[claBlack;-1 claWhite;0.8],claRed,Linear,True,1,1,0.98,/+/jw8HD6/////Pjw8fv////9+vz1//////////////+//7f/7/9f/5P+f/+//7//v////////8')]
+    [TestCase('52',  '[claBlack;0 claWhite;2],claRed,Linear,True,1,1,0.98,/+/jw8HD6/////Pjw8fv////9+vz1//////////////+7/5f8B/4H/4D+T/2//7//v////////8')]
+    [TestCase('53',  '[claRed;0 claBlue;1],claWhite,Linear,False,1,1,0.98,/+/jw8HD6/////Pjw8fv////9+vz1///////////////////8J/4D/wD8B/iH/5P/u/+//////8')]
+    [TestCase('54',  '[$7FFF0000;0 $7F0000FF;1],claWhite,Linear,False,1,1,0.98,/+/jw8HD6/////Pjw8fv////9+vj1///////////////////8B/4D/wD8B/iH/5P/u/+//////8')]
+    [TestCase('55',  '[claRed;0 claBlue;1],claWhite,Linear,False,1,0.5,0.98,/+/jw8HD6/////Pjw8fv////9+vj1///////////////////8B/4D/wD8B/iH/5P/u/+//////8')]
+    [TestCase('56',  '[claRed;0 claBlue;1],claWhite,Linear,True,1,1,0.98,/+/jw8HD6/////Pjw8fv////9+vz1///////////////////8J/4D/wD8B/iH/5P/u/+//////8')]
+    [TestCase('57',  '[$7FFF0000;0 $7F0000FF;1],claWhite,Linear,True,1,1,0.98,/+/jw8HD6/////Pjw8fv////9+vj1///////////////////8B/4D/wD8B/iH/5P/u/+//////8')]
+    [TestCase('58',  '[claRed;0 claBlue;1],claWhite,Linear,True,1,0.5,0.98,/+/jw8HD6/////Pjw8fv////9+vj1///////////////////8B/4D/wD8B/iH/5P/u/+//////8')]
+    [TestCase('59',  '[claRed;0 claBlue;1],claWhite,Linear,False,2,1,0.98,/////v7+4PD////////u/P/////////8//////////////////////////////3//Az/AP+C/8A')]
+    [TestCase('60',  '[$7FFF0000;0 $7F0000FF;1],claWhite,Linear,False,2,1,0.98,/////v7+4PD////////u/P/////////8//////////////////////////////3//gz/AP+C/8A')]
+    [TestCase('61',  '[claRed;0 claBlue;1],claWhite,Linear,False,-2,0.5,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('62',  '[claRed;0 claBlue;1],claWhite,Linear,True,0.5,1,0.98,nw8Pn//////////////////////////////////////B/4P/6/////////////////////////8')]
+    [TestCase('63',  '[$7FFF0000;0 $7F0000FF;1],claWhite,Linear,True,-1,1,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('64',  '[claRed;0 claBlue;1],claWhite,Linear,True,3,0.5,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('65',  '[claRed;0.2 claBlue;0.8],claWhite,Linear,False,1,1,0.98,/+/jw8HD6/////Pjw8fv////9+vj1//////////////+//7////4D/wD8B/iH/5P/u/+//////8')]
+    [TestCase('66',  '[$7FFF0000;0.2 $7F0000FF;0.8],claWhite,Linear,False,1,1,0.98,/+/jw8HD6/////Pjw8fv////9+vj1//////////////////////4D/wD8B/iH/5P/u/+//////8')]
+    [TestCase('67',  '[claRed;0.2 claBlue;0.8],claWhite,Linear,False,1,0.5,0.98,/+/jw8HD6/////Pjw8fv////9+vj1//////////////////////4D/wD8B/iH/5P/u/+//////8')]
+    [TestCase('68',  '[claRed;0.2 claBlue;0.8],claWhite,Linear,True,1,1,0.98,/+/jw8HD6/////Pjw8fv////9+vj1//////////////+//7////4D/wD8B/iH/5P/u/+//////8')]
+    [TestCase('69',  '[$7FFF0000;0.2 $7F0000FF;0.8],claWhite,Linear,True,1,1,0.98,/+/jw8HD6/////Pjw8fv////9+vj1//////////////////////4D/wD8B/iH/5P/u/+//////8')]
+    [TestCase('70',  '[claRed;0.2 claBlue;0.8],claWhite,Linear,True,1,0.5,0.98,/+/jw8HD6/////Pjw8fv////9+vj1//////////////////////4D/wD8B/iH/5P/u/+//////8')]
+    [TestCase('71',  '[claRed;0.2 claBlue;0.8],claWhite,Linear,False,2,1,0.98,/////v7+4PD////////u/P/////////8/////////////////////f/9//z//f////////+C/8A')]
+    [TestCase('72',  '[$7FFF0000;0.2 $7F0000FF;0.8],claWhite,Linear,False,2,1,0.98,/////v7+4PD////////u/P/////////8//////////wAAAACAAIAAwADAAMAAwMDAfMACAAAAAA')]
+    [TestCase('73',  '[claRed;0.2 claBlue;0.8],claWhite,Linear,False,-2,0.5,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('74',  '[claRed;0.2 claBlue;0.8],claWhite,Linear,True,0.5,1,0.98,nw8Pn//////////////////////////////////////B/4P/6/////////////////////////8')]
+    [TestCase('75',  '[$7FFF0000;0.2 $7F0000FF;0.8],claWhite,Linear,True,-1,1,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('76',  '[claRed;0.2 claBlue;0.8],claWhite,Linear,True,3,0.5,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('77',  '[claRed;-1 claBlue;0.8],claWhite,Linear,True,1,1,0.98,/+/jw8HD6/////Pjw8fv////9+vz1//////////////+7/4P4B/4D/wD8B/iH/5P/u/+//////8')]
+    [TestCase('78',  '[claRed;0 claBlue;2],claWhite,Linear,True,1,1,0.98,/+/jw8HD6/////Pjw8fv////9+vz1//////36/PX//8AcBHwH+Af+Av8BgAAAAAAAAAAAAAAAAA')]
+    [TestCase('79',  '[claRed;0 $7F000000;0.5 claBlue;1],claWhite,Linear,True,1,1,0.98,/+/jw8HD6/////Pjw8fv////9+vj1/////////////////9/4B/4D/wD8B/iH/5P/u/+//////8')]
+    [TestCase('80',  '[claRed;0 $7F000000;1 claBlue;0.5],claWhite,Linear,True,1,1,0.98,/+/jw8HD7/////Pjw8fv////9+vz1//////////////+7/4P4B/4D/wD8B/iH/5P/u/+//////8')]
+    [TestCase('81',  '[claRed;0 $7F000000;-1 claBlue;0.5],claWhite,Linear,True,1,1,0.98,/+/jw8HD6/////Pjw8fv////9+vz1//////////////+7/4P4B/4D/wD8B/iH/5P/u/+//////8')]
+    [TestCase('82',  '[claRed;1 $7F000000;0.5 claBlue;0],claWhite,Linear,True,1,1,0.98,/+/jw8HD6/////Pjw8fv////9+vz1//////////////+7+4P4B/4D/wD8B/iH/////////////8')]
+    [TestCase('83',  '[claRed;1 $7F000000;0 claBlue;0.5],claWhite,Linear,True,1,1,0.98,///jw8HD6/////Pjw8fv////9+vz1//////////////+7/4P4B/4D/wD8B/iH/5P//////////8')]
+    [TestCase('84',  '[claRed;1 $7F000000;0 claBlue;0.5 claWhite;0.49],claWhite,Linear,True,1,1,0.98,/+/jx8GD6/////Pnw8fv////+/fj1//////////////+7+4P4B/5f/wH+B/iH/5P//////////8')]
+    [TestCase('85',  '[claRed;1 $7F000000;0 claBlue;0.5 claWhite;0.49],claWhite,Linear,False,1,1,0.98,/+/jx8GD6/////Pnw8fv////+/fj1//////////////+7+4P4B/5f/wH+B/iH/5P//////////8')]
+    [TestCase('86',  '[claRed;1 $7F000000;0 claBlue;0.5 claWhite;0.49],claWhite,Linear,True,2,0.5,0.98,///+/Pz84PD///79///u/P///v3//+7////////////////9//3//P/8//z//Pz8/gz/AP+C//8')]
+    [TestCase('87',  '[],claWhite,Linear,True,1,1,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('88',  '[claBlack;0 claWhite;1],claWhite,Radial,False,1,1,0.98,/+/Dw8GD6/////Pjw8fv/////+/Pz//////////////+7/4f8B/4D/wD8R/iH/5P/u/+//////8')]
+    [TestCase('89',  '[$7F000000;0 $7FFFFFFF;1],claWhite,Radial,False,1,1,0.98,/+/jw8GD6/////Pjw8fv/////+/Pz//////////////+7/4P4B/4T/zD8R/iH/5P/u/+//////8')]
+    [TestCase('90',  '[claBlack;0 claWhite;1],claWhite,Radial,False,1,0.5,0.98,/+/jw8GD6/////Pjw8fv/////+/Pz//////////////+7/4P4B/4D/zD8R/iH/5P/u/+//////8')]
+    [TestCase('91',  '[claBlack;0 claWhite;1],claWhite,Radial,True,1,1,0.98,/+/Dw8GD6/////Pjw8fv/////+/Pz//////////////+7/4f8B/4D/wD8R/iH/5P/u/+//////8')]
+    [TestCase('92',  '[$7F000000;0 $7FFFFFFF;1],claWhite,Radial,True,1,1,0.98,/+/jw8GD6/////Pjw8fv/////+/Pz//////////////+7/4P4B/4T/zD8R/iH/5P/u/+//////8')]
+    [TestCase('93',  '[claBlack;0 claWhite;1],claWhite,Radial,True,1,0.5,0.98,/+/jw8GD6/////Pjw8fv/////+/Pz//////////////+7/4P4B/4D/zD8R/iH/5P/u/+//////8')]
+    [TestCase('94',  '[claBlack;0 claWhite;1],claWhite,Radial,False,2,1,0.98,///+/v7u4PD///7//+/u/P///v//7/78//////////////////3//P/8//z//P/8/gz/AP+C/+A')]
+    [TestCase('95',  '[$7F000000;0 $7FFFFFFF;1],claWhite,Radial,False,2,1,0.98,///+/v7u4PD///7//+/u/P///v//7/78///////////////9//3//P/8//z//P38/gz/AP+C/8A')]
+    [TestCase('96',  '[claBlack;0 claWhite;1],claWhite,Radial,False,-2,0.5,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('97',  '[claBlack;0 claWhite;1],claWhite,Radial,True,0.5,1,0.98,nw8Pn//////////////////////////////////////B/4P/6/////////////////////////8')]
+    [TestCase('98',  '[$7F000000;0 $7FFFFFFF;1],claWhite,Radial,True,-1,1,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('99',  '[claBlack;0 claWhite;1],claWhite,Radial,True,3,0.5,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('100', '[claBlack;0.2 claWhite;0.8],claWhite,Radial,False,1,1,0.98,/+/DgcmD6/////Phy8fv/////+/Pz//////////////+7/4f8B/5T/xD+d/iH/5P/u/+//////8')]
+    [TestCase('101', '[$7F000000;0.2 $7FFFFFFF;0.8],claWhite,Radial,False,1,1,0.98,/+/DgcmD6/////Phy8fv/////+/Pz//////////////+7/4P4B/5z/3D8d/iH/5P/u/+//////8')]
+    [TestCase('102', '[claBlack;0.2 claWhite;0.8],claWhite,Radial,False,1,0.5,0.98,/+/DgcmD6/////Phy8fv/////+/Pz//////////////+7/4P4B/5z/3D8d/iH/5P/u/+//////8')]
+    [TestCase('103', '[claBlack;0.2 claWhite;0.8],claWhite,Radial,True,1,1,0.98,/+/DgcmD6/////Phy8fv/////+/Pz//////////////+7/4f8B/5T/xD+d/iH/5P/u/+//////8')]
+    [TestCase('104', '[$7F000000;0.2 $7FFFFFFF;0.8],claWhite,Radial,True,1,1,0.98,/+/DgcmD6/////Phy8fv/////+/Pz//////////////+7/4P4B/5z/3D8d/iH/5P/u/+//////8')]
+    [TestCase('105', '[claBlack;0.2 claWhite;0.8],claWhite,Radial,True,1,0.5,0.98,/+/DgcmD6/////Phy8fv/////+/Pz//////////////+7/4P4B/5z/3D8d/iH/5P/u/+//////8')]
+    [TestCase('106', '[claBlack;0.2 claWhite;0.8],claWhite,Radial,False,2,1,0.98,///+/Pzu4PD///79/+/u/P///v//7/78//////////////////3//f/8//z//P/8/gz/AP+D/+E')]
+    [TestCase('107', '[$7F000000;0.2 $7FFFFFFF;0.8],claWhite,Radial,False,2,1,0.98,///+/P7u4PD///79/+/u/P///v//7/78///////////////9//3//P/8//z//P38/gz/AP+D/8M')]
+    [TestCase('108', '[claBlack;0.2 claWhite;0.8],claWhite,Radial,False,-2,0.5,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('109', '[claBlack;0.2 claWhite;0.8],claWhite,Radial,True,0.5,1,0.98,nw8Pn//////////////////////////////////////J/4P/6/////////////////////////8')]
+    [TestCase('110', '[$7F000000;0.2 $7FFFFFFF;0.8],claWhite,Radial,True,-1,1,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('111', '[claBlack;0.2 claWhite;0.8],claWhite,Radial,True,3,0.5,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('112', '[claBlack;-1 claWhite;0.8],claWhite,Radial,True,1,1,0.98,/+/Dg8mD6/////Pjy8fv////++fP7+/////////////+7+5f4p/5f/5D8f/in/7P/u/+//////8')]
+    [TestCase('113', '[claBlack;0 claWhite;2],claWhite,Radial,True,1,1,0.98,/+/jw8HD6/////Pjw8fv////9+/P1//////////////+7/5f8B/4D/wD+B/iH/5P/u/+//////8')]
+    [TestCase('114', '[claBlack;0 claWhite;1],claRed,Radial,False,1,1,0.98,/+/jw8HD6/////Pjw8fv////9+vv1//////////////+7/7f57/9f/5D+f/m//7//u/+//////8')]
+    [TestCase('115', '[$7F000000;0 $7FFFFFFF;1],claRed,Radial,False,1,1,0.98,/+/jw8HD6/////Pjw8fv////9+vv1//////////////+z+4P4d/77/3h8//j3/5P/u/+//////8')]
+    [TestCase('116', '[claBlack;0 claWhite;1],claRed,Radial,False,1,0.5,0.98,/+/jw8HD6/////Pjw8fv////9+vv1//////////////+z+4P4d/77/3h8//j3/5P/u/+//////8')]
+    [TestCase('117', '[claBlack;0 claWhite;1],claRed,Radial,True,1,1,0.98,/+/jw8HD6/////Pjw8fv////9+vv1//////////////+7/7f57/9f/5D+f/m//7//u/+//////8')]
+    [TestCase('118', '[$7F000000;0 $7FFFFFFF;1],claRed,Radial,True,1,1,0.98,/+/jw8HD6/////Pjw8fv////9+vv1//////////////+z+4P4d/77/3h8//j3/5P/u/+//////8')]
+    [TestCase('119', '[claBlack;0 claWhite;1],claRed,Radial,True,1,0.5,0.98,/+/jw8HD6/////Pjw8fv////9+vv1//////////////+z+4P4d/77/3h8//j3/5P/u/+//////8')]
+    [TestCase('120', '[claBlack;0 claWhite;1],claRed,Radial,False,2,1,0.98,/////v7+4PD////////u/P/////////8///////////////9//3//f/8//z//P38/jz/B//D//c')]
+    [TestCase('121', '[$7F000000;0 $7FFFFFFF;1],claRed,Radial,False,2,1,0.98,/////v7+4PD////////u/P/////////8///////////////9//3//P/8//z//Pz8/A3/B/+H/88')]
+    [TestCase('122', '[claBlack;0 claWhite;1],claRed,Radial,False,-2,0.5,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('123', '[claBlack;0 claWhite;1],claRed,Radial,True,0.5,1,0.98,nw8Pn//////////////////////////////////////d/4v/6/////////////////////////8')]
+    [TestCase('124', '[$7F000000;0 $7FFFFFFF;1],claRed,Radial,True,-1,1,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('125', '[claBlack;0 claWhite;1],claRed,Radial,True,3,0.5,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('126', '[claBlack;0.2 claWhite;0.8],claRed,Radial,False,1,1,0.98,/+/jw8HD6/////Pjw8fv////9+vv1//////////////+7/7f47/9f/5D+f/i//7P/u/+//////8')]
+    [TestCase('127', '[$7F000000;0.2 $7FFFFFFF;0.8],claRed,Radial,False,1,1,0.98,/+/jw8HD6/////Pjw8fv////9+vv1//////////////+z+4P4f/z7//h8//h3/5P/u/+//////8')]
+    [TestCase('128', '[claBlack;0.2 claWhite;0.8],claRed,Radial,False,1,0.5,0.98,/+/jw8HD6/////Pjw8fv////9+vv1//////////////+z+4P4f/z7//h8//j3/5P/u/+//////8')]
+    [TestCase('129', '[claBlack;0.2 claWhite;0.8],claRed,Radial,True,1,1,0.98,/+/jw8HD6/////Pjw8fv////9+vv1//////////////+7/7f47/9f/5D+f/i//7P/u/+//////8')]
+    [TestCase('130', '[$7F000000;0.2 $7FFFFFFF;0.8],claRed,Radial,True,1,1,0.98,/+/jw8HD6/////Pjw8fv////9+vv1//////////////+z+4P4f/z7//h8//h3/5P/u/+//////8')]
+    [TestCase('131', '[claBlack;0.2 claWhite;0.8],claRed,Radial,True,1,0.5,0.98,/+/jw8HD6/////Pjw8fv////9+vv1//////////////+z+4P4f/z7//h8//j3/5P/u/+//////8')]
+    [TestCase('132', '[claBlack;0.2 claWhite;0.8],claRed,Radial,False,2,1,0.98,/////v7+4PD////////u/P/////////8///////////////9//3//f/8//z//P38/hz/B//D//c')]
+    [TestCase('133', '[$7F000000;0.2 $7FFFFFFF;0.8],claRed,Radial,False,2,1,0.98,/////v7+4PD////////u/P/////////8///////////////9//3//P/8//z//Pz8/A//B/+P/88')]
+    [TestCase('134', '[claBlack;0.2 claWhite;0.8],claRed,Radial,False,-2,0.5,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('135', '[claBlack;0.2 claWhite;0.8],claRed,Radial,True,0.5,1,0.98,nw8Pn//////////////////////////////////////d/4v/6/////////////////////////8')]
+    [TestCase('136', '[$7F000000;0.2 $7FFFFFFF;0.8],claRed,Radial,True,-1,1,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('137', '[claBlack;0.2 claWhite;0.8],claRed,Radial,True,3,0.5,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('138', '[claBlack;-1 claWhite;0.8],claRed,Radial,True,1,1,0.98,/+/jw8HD6/////Pjw8fv////9+vv1//////////////+//7f/7/9f/5P+f/+//7//v////////8')]
+    [TestCase('139', '[claBlack;0 claWhite;2],claRed,Radial,True,1,1,0.98,/+/jw8HD6/////Pjw8fv////9+vr1//////////////+7/5f8p/5X/5D+f/i//7P/u/+//////8')]
+    [TestCase('140', '[claRed;0 claBlue;1],claWhite,Radial,False,1,1,0.98,/+/jw8HD6/////Pjw8fv////9/vz1/////////////////4f+B/4D/wH+B/6H/5f//////////8')]
+    [TestCase('141', '[$7FFF0000;0 $7F0000FF;1],claWhite,Radial,False,1,1,0.98,/+/jw8HD6/////Pjw8fv////9/vz1//////////////+//4f+B/4D/wH+B/6H/5f//////////8')]
+    [TestCase('142', '[claRed;0 claBlue;1],claWhite,Radial,False,1,0.5,0.98,/+/jw8HD6/////Pjw8fv////9/vz1//////////////+//4f+B/4D/wH+B/6H/5f//////////8')]
+    [TestCase('143', '[claRed;0 claBlue;1],claWhite,Radial,True,1,1,0.98,/+/jw8HD6/////Pjw8fv////9/vz1/////////////////4f+B/4D/wH+B/6H/5f//////////8')]
+    [TestCase('144', '[$7FFF0000;0 $7F0000FF;1],claWhite,Radial,True,1,1,0.98,/+/jw8HD6/////Pjw8fv////9/vz1//////////////+//4f+B/4D/wH+B/6H/5f//////////8')]
+    [TestCase('145', '[claRed;0 claBlue;1],claWhite,Radial,True,1,0.5,0.98,/+/jw8HD6/////Pjw8fv////9/vz1//////////////+//4f+B/4D/wH+B/6H/5f//////////8')]
+    [TestCase('146', '[claRed;0 claBlue;1],claWhite,Radial,False,2,1,0.98,/////v7+4PD////////u/P/////////+//////////////////////////z//P/8/8z/wP/C/8A')]
+    [TestCase('147', '[$7FFF0000;0 $7F0000FF;1],claWhite,Radial,False,2,1,0.98,/////v7+4PD////////u/P/////////+//////////////////////////z//P/8/8z/wP/C/8A')]
+    [TestCase('148', '[claRed;0 claBlue;1],claWhite,Radial,False,-2,0.5,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('149', '[claRed;0 claBlue;1],claWhite,Radial,True,0.5,1,0.98,nw8Pn//////////////////////////////////////D/+P///////////////////////////8')]
+    [TestCase('150', '[$7FFF0000;0 $7F0000FF;1],claWhite,Radial,True,-1,1,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('151', '[claRed;0 claBlue;1],claWhite,Radial,True,3,0.5,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('152', '[claRed;0.2 claBlue;0.8],claWhite,Radial,False,1,1,0.98,/+/jw8HD6/////Pjw8fv////9/vz1/////////////////4f/B/4D/wP+B/+H/5///////////8')]
+    [TestCase('153', '[$7FFF0000;0.2 $7F0000FF;0.8],claWhite,Radial,False,1,1,0.98,/+/jw8HD6/////Pjw8fv////9/Pz1/////////////////4f/B/4D/wP+B/+H/5f//////////8')]
+    [TestCase('154', '[claRed;0.2 claBlue;0.8],claWhite,Radial,False,1,0.5,0.98,/+/jw8HD6/////Pjw8fv////9/Pz1/////////////////4f/B/4D/wP+B/+H/5f//////////8')]
+    [TestCase('155', '[claRed;0.2 claBlue;0.8],claWhite,Radial,True,1,1,0.98,/+/jw8HD6/////Pjw8fv////9/vz1/////////////////4f/B/4D/wP+B/+H/5///////////8')]
+    [TestCase('156', '[$7FFF0000;0.2 $7F0000FF;0.8],claWhite,Radial,True,1,1,0.98,/+/jw8HD6/////Pjw8fv////9/Pz1/////////////////4f/B/4D/wP+B/+H/5f//////////8')]
+    [TestCase('157', '[claRed;0.2 claBlue;0.8],claWhite,Radial,True,1,0.5,0.98,/+/jw8HD6/////Pjw8fv////9/Pz1/////////////////4f/B/4D/wP+B/+H/5f//////////8')]
+    [TestCase('158', '[claRed;0.2 claBlue;0.8],claWhite,Radial,False,2,1,0.98,/////v7+4PD////////u/P/////////+/////////////////////f///////P/8/3z/4P/i/+A')]
+    [TestCase('159', '[$7FFF0000;0.2 $7F0000FF;0.8],claWhite,Radial,False,2,1,0.98,/////v7+4PD////////u/P/////////+/////////////////////////////P/8/+z/4P/C/8A')]
+    [TestCase('160', '[claRed;0.2 claBlue;0.8],claWhite,Radial,False,-2,0.5,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('161', '[claRed;0.2 claBlue;0.8],claWhite,Radial,True,0.5,1,0.98,nw8Pn//////////////////////////////////////D/+P///////////////////////////8')]
+    [TestCase('162', '[$7FFF0000;0.2 $7F0000FF;0.8],claWhite,Radial,True,-1,1,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('163', '[claRed;0.2 claBlue;0.8],claWhite,Radial,True,3,0.5,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('164', '[claRed;-1 claBlue;0.8],claWhite,Radial,True,1,1,0.98,/+/jw8HD6/////Pjw8fv////9+vz1//////////////+7/4P4B/4D/wD8B/iH/5P/u/+//////8')]
+    [TestCase('165', '[claRed;0 claBlue;2],claWhite,Radial,True,1,1,0.98,/+/jw8HD6/////Pjw8fv////9/vz1//////3+/PX//8BMBGwHCAGEAAeDgAdIAGwARABAAAAAAA')]
+    [TestCase('166', '[claRed;0 $7F000000;0.5 claBlue;1],claWhite,Radial,True,1,1,0.98,/+/jw8HD6/////Pjw8fv////9/vz1//////////////+//4f+B/4D/wH+B/6H/5P/v////////8')]
+    [TestCase('167', '[claRed;0 $7F000000;1 claBlue;0.5],claWhite,Radial,True,1,1,0.98,/+/jw8HD6/////Pjw8fv////9+vr1//////////////+7/4P8B/4D/wH8B/yH/5P/v////////8')]
+    [TestCase('168', '[claRed;0 $7F000000;-1 claBlue;0.5],claWhite,Radial,True,1,1,0.98,/+/jw8HD6/////Pjw8fv////9+vz1//////////////+7/4P8B/4D/wH8B/yH/5P/v////////8')]
+    [TestCase('169', '[claRed;1 $7F000000;0.5 claBlue;0],claWhite,Radial,True,1,1,0.98,/+/jw8HD6/////Pjw8fv////9+vr1//////////////+7+4P4B/5z/3D8d/iH/5P/u/+//////8')]
+    [TestCase('170', '[claRed;1 $7F000000;0 claBlue;0.5],claWhite,Radial,True,1,1,0.98,/+/jw8HD7/////Pjw8fv////9+vv1//////////////+7/4P4B/4j/zD8R/iH/5P/u/+//////8')]
+    [TestCase('171', '[claRed;1 $7F000000;0 claBlue;0.5 claWhite;0.49],claWhite,Radial,True,1,1,0.98,///jw8PD7/////Pjw8fv//////v7z+/////////////+7/5P4B/43/zD8Z/iH/7P/u/+//////8')]
+    [TestCase('172', '[claRed;1 $7F000000;0 claBlue;0.5 claWhite;0.49],claWhite,Radial,False,1,1,0.98,///jw8PD7/////Pjw8fv//////v7z+/////////////+7/5P4B/43/zD8Z/iH/7P/u/+//////8')]
+    [TestCase('173', '[claRed;1 $7F000000;0 claBlue;0.5 claWhite;0.49],claWhite,Radial,True,2,0.5,0.98,/////v7+4PD////////u/P/////////+///////////////9//3//P/8//z//f3+/gz/AP+S//A')]
+    [TestCase('174', '[],claWhite,Radial,True,1,1,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('175', '[claRed;0.3],claWhite,Radial,True,1,1,0.98,/+/jw8HD6/////Pjw8fv////9+vz1//////////////+//7f/7/9f/5P+f/+//7//v////////8')]
+    [TestCase('176', '[claRed;0.3],claBlue,Radial,True,1,1,0.98,/+/jw8HD6/////Pjw8fv////9+vz1//////////////+7/5f8p/4H/4D+T/2H/7f/u/+//////8')]
+    [TestCase('177', '[claRed;0.3],claWhite,Linear,True,1,1,0.98,/+/jw8HD6/////Pjw8fv////9+vz1//////////////+//7f/7/9f/5P+f/+//7//v////////8')]
+    [TestCase('178', '[claRed;0.3],claBlue,Linear,True,1,1,0.98,/+/jw8HD6/////Pjw8fv////9+vz1//////////////+7/5f8p/4H/4D+T/2H/7f/u/+//////8')]
+    [TestCase('179', '[claRed;0 claBlue;1 claBlue;1],claWhite,Radial,False,1,1,0.98,/+/jw8HD6/////Pjw8fv////9/vz1/////////////////4f+B/4D/wH+B/6H/5f//////////8')]
+    [TestCase('180', '[claRed;0 claRed;0 claBlue;1],claWhite,Radial,False,1,1,0.98,/+/jw8HD6/////Pjw8fv////9/vz1/////////////////4f+B/4D/wH+B/6H/5f//////////8')]
+    [TestCase('181', '[claRed;0 claBlue;1 claBlue;1],claWhite,Linear,False,1,1,0.98,/+/jw8HD6/////Pjw8fv////9+vz1///////////////////8J/4D/wD8B/iH/5P/u/+//////8')]
+    [TestCase('182', '[claRed;0 claRed;0 claBlue;1],claWhite,Linear,False,1,1,0.98,/+/jw8HD6/////Pjw8fv////9+vz1///////////////////8J/4D/wD8B/iH/5P/u/+//////8')]
+    [TestCase('183', '[$00FF0000;0 $FF0000FF;1],claBlack,Linear,True,1,1,0.98,///jw8HD6/////Pjw8fv////9+vj1//////////////+7/5f4B/4D/wD8B/iH/5P/u/+//////8')]
+    [TestCase('184', '[$00FF0000;0 $FF0000FF;1],claBlack,Radial,True,1,1,0.98,///jw8HD7/////Pjw8fv////9/vz1//////////////+7/4f8B/4D/wD+B/yH/5P/u////////8')]
+    [TestCase('185', '[$00FF0000;0 $FF0000FF;1],claBlack,Linear,True,1,0.5,0.98,///jw8HD6/////Pjw8fv////9+vj1//////////////+7/5f8B/4D/wD8B/iH/5P/u/+//////8')]
+    [TestCase('186', '[$00FF0000;0 $FF0000FF;1],claBlack,Radial,True,1,0.5,0.98,///jw8HD7/////Pjw8fv////9/Pz1//////////////+7/4f8B/4D/wD+B/yH/5P/u////////8')]
+    procedure TestFillPathGradient(const APoints, AModulateColor: string; AGradientStyle: TGradientStyle; ABlending: Boolean; const AScale, AOpacity, AMinSimilarity: Double; const AExpectedImageHash: string);
+    [TestCase('1', '0.98,/+fDgYHD5/////Phw8fv////++3P7+/////////////wD/GP4Af0L/Qv4Afxj/AP/b////////8')]
+    procedure TestFillPathSolid(const AMinSimilarity: Double; const AExpectedImageHash: string);
+    [TestCase('1', '0.98,/+fDgYHD5/////Phw8fv////++3P7+/////////////wD/GP4Af0L/Qv4Afxj/AP/b////////8')]
+    procedure TestFillPathSolid2(const AMinSimilarity: Double; const AExpectedImageHash: string);
+    [TestCase('1', '0.98,/8+Pj//////////v/////////+/////////////////w//H/4P/0//////////////////////8')]
+    procedure TestFillPathSolid3(const AMinSimilarity: Double; const AExpectedImageHash: string);
+    [TestCase('1', '0.98,///Dw8HA8Pn///Pjw8f+/f//++/H5//9///////////5n/PP9+//////98Hzmfml/6X/mf+B//8')]
+    procedure TestFillPathSolid4(const AMinSimilarity: Double; const AExpectedImageHash: string);
+    [TestCase('1', '0.98,///Dw8HA8Pn///Pjw8f+/f//++/P7/7////////////4H/GP88/37/fv88Pxifgf/7//mf/b//8')]
+    procedure TestFillPathSolid5(const AMinSimilarity: Double; const AExpectedImageHash: string);
+    [TestCase('1', '0.98,///Dw8HA8Pn///Pjw8f+/f//++/H5//9///////////5n/PP9+//////98Hzmfml/6X/mf+B//8')]
+    procedure TestFillPathSolid6(const AMinSimilarity: Double; const AExpectedImageHash: string);
+    [TestCase('1',  '300,300,1,2,-50,-100,60,-200,-50,660,343,1,true,0.98,/38/Hx8fP3//////39/////////f3/////////////8////////f/4f/h/8P/w//H/8f/z////8')]
+    [TestCase('2',  '300,300,1,2,-50,-100,60,-200,-50,660,343,1,false,0.98,/38/Hx8fP3//////39/////////f3/////////////8////////f/4f/h/8P/w//H/8f/z////8')]
+    [TestCase('3',  '300,300,1,2,-50,-100,60,-200,-50,660,343,0.5,true,0.98,/38/Hx8fP3//////39/////////f3////////9/f///gAOAAMAB4AHgA+AD4APgA8ADgAMAAgAA')]
+    [TestCase('4',  '300,300,1,2,-50,-100,60,-200,-50,660,343,0.5,false,0.98,/38/Hx8fP3//////39/////////f3////////9/f///gAOAAMAB4AHgA+AD4APgA8ADgAMAAgAA')]
+    [TestCase('5',  '300,300,1,2,-50,-100,60,-200,-50,660,343,1,true,0.98,/38/Hx8fP3//////39/////////f3/////////////8////////f/4f/h/8P/w//H/8f/z////8')]
+    [TestCase('6',  '300,300,1,2,-50,-100,60,-200,-50,660,343,1,false,0.98,/38/Hx8fP3//////39/////////f3/////////////8////////f/4f/h/8P/w//H/8f/z////8')]
+    [TestCase('7',  '300,300,1,2,-50,-100,60,-200,-50,660,343,0.5,true,0.98,/38/Hx8fP3//////39/////////f3////////9/f///gAOAAMAB4AHgA+AD4APgA8ADgAMAAgAA')]
+    [TestCase('8',  '300,300,1,2,-50,-100,60,-200,-50,660,343,0.5,false,0.98,/38/Hx8fP3//////39/////////f3////////9/f///gAOAAMAB4AHgA+AD4APgA8ADgAMAAgAA')]
+    [TestCase('9',  '300,300,1,2,-50,-100,60,0,0,200,200,1,true,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('10', '300,300,1,2,-50,-100,30,0,0,200,200,1,false,0.98,Pz8/f/////9/Pz///////38/P/////////////////8//3//f/////////////////////////8')]
+    [TestCase('11', '300,300,1,2,-50,-100,30,0,0,200,200,0.5,true,0.98,Pz8/f/////9/f3///////39/f////////3/////////gAMAAwACAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('12', '300,300,1,2,-50,-100,30,0,0,200,200,0.5,false,0.98,Pz8/f/////9/f3///////39/f////////3/////////gAMAAwACAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('13', '300,300,1,2,-50,-100,30,0,0,200,200,1,true,0.98,Pz8/f/////9/Pz///////38/P/////////////////8//3//f/////////////////////////8')]
+    [TestCase('14', '300,300,1,2,-50,-100,30,0,0,200,200,1,false,0.98,Pz8/f/////9/Pz///////38/P/////////////////8//3//f/////////////////////////8')]
+    [TestCase('15', '300,300,1,2,-50,-100,30,0,0,200,200,0.5,true,0.98,Pz8/f/////9/f3///////39/f////////3/////////gAMAAwACAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('16', '300,300,1,2,-50,-100,30,0,0,200,200,0.5,false,0.98,Pz8/f/////9/f3///////39/f////////3/////////gAMAAwACAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('17', '300,300,1,-2,50,500,30,-200,-50,660,343,1,true,0.98,/////////v7////////+/v////////////////////8AAAAAAAAAAAAAAAAAAAAAAAEAAQABAAM')]
+    [TestCase('18', '300,300,1,-2,50,500,30,-200,-50,660,343,1,false,0.98,/////////v7////////+/v////////////////////8AAAAAAAAAAAAAAAAAAAAAAAEAAQABAAM')]
+    [TestCase('19', '300,300,1,-2,50,500,30,-200,-50,660,343,0.5,true,0.98,/////////v7////////+/v////////////////////8AAAAAAAAAAAAAAAAAAAAAAAEAAQABAAM')]
+    [TestCase('20', '300,300,1,-2,50,500,30,-200,-50,660,343,0.5,false,0.98,/////////v7////////+/v////////////////////8AAAAAAAAAAAAAAAAAAAAAAAEAAQABAAM')]
+    [TestCase('21', '300,300,-1,2,-50,-100,30,-200,-50,660,343,1,true,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('22', '300,300,-1,2,-50,-100,30,-200,-50,660,343,1,false,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('23', '300,300,-1,2,-50,-100,30,-200,-50,660,343,0.5,true,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('24', '300,300,-1,2,-50,-100,30,-200,-50,660,343,0.5,false,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('25', '300,300,-1,2,-50,-100,-60,0,0,200,200,1,true,0.98,H6cDQ4Pn//8/vxtDg+f//7+/O2vj9///v//////////+P//ff9//3+T/+D////////////////8')]
+    [TestCase('26', '300,300,-1,2,-50,-100,-60,0,0,200,200,1,false,0.98,H6cDQ4Pn//8/vxtDg+f//7+/O2vj9///v//////////+P//ff9//3+T/+D////////////////8')]
+    [TestCase('27', '300,300,-1,2,-50,-100,-60,0,0,200,200,0.5,true,0.98,H6cDQ4Pn//9//3NDw+f/////e2vj9///////a+P3///n4JzwjHBGMD/gD+ADwAAAAAAAAAAAAAA')]
+    [TestCase('28', '300,300,-1,2,-50,-100,-60,0,0,200,200,0.5,false,0.98,H6cDQ4Pn//9//3NDw+f/////e2vj9///////a+P3///n4JzwjHBGMD/gD+ADwAAAAAAAAAAAAAA')]
+    [TestCase('29', '300,300,1,-2,-50,500,30,0,0,200,200,1,true,0.98,////////48H////////vzf/////////9////////////////////////////////////P/5n/uc')]
+    [TestCase('30', '300,300,1,-2,-50,500,30,0,0,200,200,1,false,0.98,////////48H////////vzf/////////9////////////////////////////////////P/5n/uc')]
+    [TestCase('31', '300,300,1,-2,-50,500,30,0,0,200,200,0.5,true,0.98,////////48H////////vzf/////////9//////////0AAAAAAAAAAAAAAAAAAAAAAOAD+APYB5w')]
+    [TestCase('32', '300,300,1,-2,-50,500,30,0,0,200,200,0.5,false,0.98,////////48H////////vzf/////////9//////////0AAAAAAAAAAAAAAAAAAAAAAOAD+APYB5w')]
+    [TestCase('33', '80,80,1,1,0,0,0,0,0,60,60,0,false,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('34', '80,80,1,1,0,0,0,60,0,60,60,1,false,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('35', '80,80,1,1,0,0,0,0,60,60,60,1,false,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('36', '80,80,1,1,0,0,0,0,0,60,60,0,true,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('37', '80,80,1,1,0,0,0,60,0,60,60,1,true,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('38', '80,80,1,1,0,0,0,0,60,60,60,1,true,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('39', '80,80,1,1,0,0,10,0,0,60,60,0,false,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('40', '80,80,1,1,0,0,10,60,0,60,60,1,false,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('41', '80,80,1,1,0,0,10,0,60,60,60,1,false,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('42', '80,80,1,1,0,0,10,0,0,60,60,0,true,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('43', '80,80,1,1,0,0,10,60,0,60,60,1,true,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('44', '80,80,1,1,0,0,10,0,60,60,60,1,true,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    procedure TestFillPathSolidWithMatrix(ASurfaceWidth, ASurfaceHeight: Integer; ASurfaceScaleX, ASurfaceScaleY, ASurfaceOffsetX, ASurfaceOffsetY, ARotationDeg, ADestLeft, ADestTop, ADestRight, ADestBottom, AOpacity: Single; ABlending: Boolean; const AMinSimilarity: Double; const AExpectedImageHash: string);
+    [TestCase('1', '0.98,/+fDgYHD5/////Phw8fv////++3P7+/////////////wD/GP4Af0L/Qv4Afxj/AP/b////////8')]
+    procedure TestFillPathSolidWithModulateColor(const AMinSimilarity: Double; const AExpectedImageHash: string);
+    [TestCase('1', '0.98,/+fDgYHD5/////Phw8fv////++3P7+/////////////wD/GP4Af0L/Qv4Afxj/AP/b////////8')]
+    procedure TestFillPathSolidWithResource(const AMinSimilarity: Double; const AExpectedImageHash: string);
     [TestCase('1',  'android.svg,claWhite,Tile,0,0,1,1,0.4,0.98,SHt7SP9K/wB/e3tp/0//TP/7++n/7//t//v76f/v/////5JJAkm22///tskACbbJ//+22wBJtkk')]
     [TestCase('2',  'android.svg,claRed,Tile,0,0,1,1,0.4,0.98,SHt7SP9K/wD/+3tI/8//zP//f17/3//e//9/X//f/9+2WUhbQADySbf/SssBECJJ///73wAQAkg')]
     [TestCase('3',  'android.svg,claWhite,Tile,0,0,1,1,1,0.98,SHt7SP9K/wD/+3tI/8//zP/7++n/7//t///76f/v/////7ZJAkm22///ttsCSbbb//+22wJJtsk')]
@@ -799,6 +1985,87 @@ type
     [TestCase('185', '[$00FF0000;0 $FF0000FF;1],claBlack,Linear,True,1,0.5,0.98,////gYGBgf/////hw8fP/////+PDx8//////////////////wAPAA8ADwAPAA4ABgAGAAcAD//8')]
     [TestCase('186', '[$00FF0000;0 $FF0000FF;1],claBlack,Radial,True,1,0.5,0.98,/+fDgYHD5/////Phw8fv////8/Hz9//////////////wD+AH4AfgB+AH4AfgB/AP+B////////8')]
     procedure TestFillRectGradient(const APoints, AModulateColor: string; AGradientStyle: TGradientStyle; ABlending: Boolean; const AScale, AOpacity, AMinSimilarity: Double; const AExpectedImageHash: string);
+    [TestCase('1',  '[claBlack;0 claWhite;1],claWhite,Linear,False,1,1,0.98,//8AAIH//////3Bhw///////8mHD/////////////////8ADwAPAA8ADwAPAA/////////////8')]
+    [TestCase('2',  '[$7F000000;0 $7FFFFFFF;1],claWhite,Linear,False,1,1,0.98,//8AAIH//////3Bhw///////8mHD/////////////////4ABgAGAAYABwAP///////////////8')]
+    [TestCase('3',  '[claBlack;0 claWhite;1],claWhite,Linear,False,1,0.5,0.98,//8AAIH//////3Bhw///////8GHD/////////////////4ABgAGAAYABwAP///////////////8')]
+    [TestCase('4',  '[claBlack;0 claWhite;1],claWhite,Linear,True,1,1,0.98,//8AAIH//////3Bhw///////8mHD/////////////////8ADwAPAA8ADwAPAA/////////////8')]
+    [TestCase('5',  '[$7F000000;0 $7FFFFFFF;1],claWhite,Linear,True,1,1,0.98,//8AAIH//////3Bhw///////8mHD/////////////////4ABgAGAAYABwAP///////////////8')]
+    [TestCase('6',  '[claBlack;0 claWhite;1],claWhite,Linear,True,1,0.5,0.98,//8AAIH//////3Bhw///////8GHD/////////////////4ABgAGAAYABwAP///////////////8')]
+    [TestCase('7',  '[claBlack;0 claWhite;1],claWhite,Linear,False,2,1,0.98,//////+AgID//////8fOzP//////x87s///////////////////////////gAOAA4ADgAOAA4AA')]
+    [TestCase('8',  '[$7F000000;0 $7FFFFFFF;1],claWhite,Linear,False,2,1,0.98,//////+AgID//////8fOzP//////x+7s///////////////////////////gAOAA4ADgAOAA4AA')]
+    [TestCase('9',  '[claBlack;0 claWhite;1],claWhite,Linear,False,-2,0.5,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('10', '[claBlack;0 claWhite;1],claWhite,Linear,True,0.5,1,0.98,Dw8P//////////////////////////////////////8A//////////////////////////////8')]
+    [TestCase('11', '[$7F000000;0 $7FFFFFFF;1],claWhite,Linear,True,-1,1,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('12', '[claBlack;0 claWhite;1],claWhite,Linear,True,3,0.5,0.98,/////////8D/////////zP/////////s//////////////////////////////////////AA8AA')]
+    [TestCase('13', '[claBlack;0.2 claWhite;0.8],claWhite,Linear,False,1,1,0.98,//8AAIH//////3Bhw///////8uPD/////////////////8ADwAPAA8ADwAPAA/////////////8')]
+    [TestCase('14', '[$7F000000;0.2 $7FFFFFFF;0.8],claWhite,Linear,False,1,1,0.98,//8AAIH//////3Bhw///////8uPD/////////////////4ABgAGAAYAB//////////////////8')]
+    [TestCase('15', '[claBlack;0.2 claWhite;0.8],claWhite,Linear,False,1,0.5,0.98,//8AAIH//////3Bhw///////8uHD/////////////////4ABgAGAAYAB//////////////////8')]
+    [TestCase('16', '[claBlack;0.2 claWhite;0.8],claWhite,Linear,True,1,1,0.98,//8AAIH//////3Bhw///////8uPD/////////////////8ADwAPAA8ADwAPAA/////////////8')]
+    [TestCase('17', '[$7F000000;0.2 $7FFFFFFF;0.8],claWhite,Linear,True,1,1,0.98,//8AAIH//////3Bhw///////8uPD/////////////////4ABgAGAAYAB//////////////////8')]
+    [TestCase('18', '[claBlack;0.2 claWhite;0.8],claWhite,Linear,True,1,0.5,0.98,//8AAIH//////3Bhw///////8uHD/////////////////4ABgAGAAYAB//////////////////8')]
+    [TestCase('19', '[claBlack;0.2 claWhite;0.8],claWhite,Linear,False,2,1,0.98,//////+AgID//////8fOzP//////x87s///////////////////////////wAPAA8ADgAOAA4AA')]
+    [TestCase('20', '[$7F000000;0.2 $7FFFFFFF;0.8],claWhite,Linear,False,2,1,0.98,//////+AgID//////8fOzP//////x87M///////////////////////////gAOAA4ADgAOAA4AA')]
+    [TestCase('21', '[claBlack;0 claWhite;1],claWhite,Radial,False,1,1,0.98,//+BAACB//////FhQ8f//////+/Pz////////////////8ADwAPAA8ADwAPAA/////////////8')]
+    [TestCase('22', '[$7F000000;0 $7FFFFFFF;1],claWhite,Radial,False,1,1,0.98,//+BAACB//////FhQ8f//////+/Pz////////////////8ADwAPAA8ADwAPAA/////////////8')]
+    [TestCase('23', '[claBlack;0 claWhite;1],claWhite,Radial,False,1,0.5,0.98,//+BAACB//////FhQ8f//////+/Pz////////////////8ADwAPAA8ADwAPAA/////////////8')]
+    [TestCase('24', '[claBlack;0 claWhite;1],claWhite,Radial,True,1,1,0.98,//+BAACB//////FhQ8f//////+/Pz////////////////8ADwAPAA8ADwAPAA/////////////8')]
+    [TestCase('25', '[$7F000000;0 $7FFFFFFF;1],claWhite,Radial,True,1,1,0.98,//+BAACB//////FhQ8f//////+/Pz////////////////8ADwAPAA8ADwAPAA/////////////8')]
+    [TestCase('26', '[claBlack;0 claWhite;1],claWhite,Radial,True,1,0.5,0.98,//+BAACB//////FhQ8f//////+/Pz////////////////8ADwAPAA8ADwAPAA/////////////8')]
+    [TestCase('27', '[claBlack;0 claWhite;1],claWhite,Radial,False,2,1,0.98,//////+AgID//////8fOzP//////x87M///////////////////////////wAPAA8ADwAPAA8AA')]
+    [TestCase('28', '[$7F000000;0 $7FFFFFFF;1],claWhite,Radial,False,2,1,0.98,//////+AgID//////8fOzP//////x87M///////////////////////////gAOAA4ADgAOAA4AM')]
+    [TestCase('29', '[claBlack;0 claWhite;1],claWhite,Radial,False,-2,0.5,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('30', '[claBlack;0 claWhite;1],claWhite,Radial,True,0.5,1,0.98,Hw8P//////////////////////////////////////8A/4H///////////////////////////8')]
+    [TestCase('31', '[$7F000000;0 $7FFFFFFF;1],claWhite,Radial,True,-1,1,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('32', '[claBlack;0 claWhite;1],claWhite,Radial,True,3,0.5,0.98,/////////8D/////////zP/////////s//////////////////////////////////////AA8AA')]
+    [TestCase('33', '[claBlack;0.2 claWhite;0.8],claWhite,Radial,False,1,1,0.98,//+BAACB//////FhQ8f/////++/P7////////////////8ADwAPAA8ADwAPAA/////////////8')]
+    [TestCase('34', '[$7F000000;0.2 $7FFFFFFF;0.8],claWhite,Radial,False,1,1,0.98,//+BAACB//////FhQ8f/////++/Pz////////////////4ABgAGDwYPBgAGAAf////////////8')]
+    [TestCase('35', '[claBlack;0.2 claWhite;0.8],claWhite,Radial,False,1,0.5,0.98,//+BAACB//////FhQ8f/////8+/Px////////////////4ABwAPDw8PDwAOAAf////////////8')]
+    [TestCase('36', '[claBlack;0.2 claWhite;0.8],claWhite,Radial,True,1,1,0.98,//+BAACB//////FhQ8f/////++/P7////////////////8ADwAPAA8ADwAPAA/////////////8')]
+    [TestCase('37', '[$7F000000;0.2 $7FFFFFFF;0.8],claWhite,Radial,True,1,1,0.98,//+BAACB//////FhQ8f/////++/Pz////////////////4ABgAGDwYPBgAGAAf////////////8')]
+    [TestCase('38', '[claBlack;0.2 claWhite;0.8],claWhite,Radial,True,1,0.5,0.98,//+BAACB//////FhQ8f/////8+/Px////////////////4ABwAPDw8PDwAOAAf////////////8')]
+    [TestCase('39', '[claBlack;0.2 claWhite;0.8],claWhite,Radial,False,2,1,0.98,//////+AgIP//////8fOz///////x87P///////////////////////////wAPAA8ADwAPAA8AA')]
+    [TestCase('40', '[$7F000000;0.2 $7FFFFFFF;0.8],claWhite,Radial,False,2,1,0.98,//////+AgIP//////8fOz///////x87P////////////////////////8ADgAOAA4ADgAOAD4Ac')]
+    [TestCase('41', '[claRed;0 claBlue;1],claBlack,Linear,False,1,1,0.98,//+BAACB//////FhQ8f/////8+HDx////////////////8ADwAPAA8ADwAPAA/////////////8')]
+    [TestCase('42', '[$7FFF0000;0 $7F0000FF;1],claBlack,Linear,False,1,1,0.98,//+BAACB//////FhQ8f/////8+PDx////////////////4ABgAGAAYABgAGAAf////////////8')]
+    [TestCase('43', '[claRed;0 claBlue;1],claBlack,Linear,False,1,0.5,0.98,//+BAACB//////FhQ8f/////8+PDx////////////////4ABgAGAAYABgAGAAf////////////8')]
+    [TestCase('44', '[claRed;0 claBlue;1],claBlack,Linear,True,1,1,0.98,//+BAACB//////FhQ8f/////8+HDx////////////////8ADwAPAA8ADwAPAA/////////////8')]
+    [TestCase('45', '[$7FFF0000;0 $7F0000FF;1],claBlack,Linear,True,1,1,0.98,//+BAACB//////FhQ8f/////8+PDx////////////////4ABgAGAAYABgAGAAf////////////8')]
+    [TestCase('46', '[claRed;0 claBlue;1],claBlack,Linear,True,1,0.5,0.98,//+BAACB//////FhQ8f/////8+PDx////////////////4ABgAGAAYABgAGAAf////////////8')]
+    [TestCase('47', '[claRed;0 claBlue;1],claBlack,Linear,False,2,1,0.98,//////+AgID//////8fOzP//////x87M///////////////////////////wAPAA8ADwAPAA8AA')]
+    [TestCase('48', '[$7FFF0000;0 $7F0000FF;1],claBlack,Linear,False,2,1,0.98,//////+AgID//////8fOzP//////x87M////////////////////////4ADgAOAA4ADgAOAA4AA')]
+    [TestCase('49', '[claRed;0 claBlue;1],claBlack,Linear,False,-2,0.5,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('50', '[claRed;0 claBlue;1],claBlack,Linear,True,0.5,1,0.98,nw8P//////////////////////////////////////+B/4H///////////////////////////8')]
+    [TestCase('51', '[$7FFF0000;0 $7F0000FF;1],claBlack,Linear,True,-1,1,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('52', '[claRed;0 claBlue;1],claBlack,Linear,True,3,0.5,0.98,/////////8D/////////zP/////////s//////////////////////////////////////AA8AA')]
+    [TestCase('53', '[claRed;0.2 claBlue;0.8],claBlack,Linear,False,1,1,0.98,//+BAACB//////FhQ8f/////8+HDx////////////////8ADwAPAA8ADwAPAA/////////////8')]
+    [TestCase('54', '[$7FFF0000;0.2 $7F0000FF;0.8],claBlack,Linear,False,1,1,0.98,//+BAACB//////FhQ8f/////8+PDx////////////////4ABgAGAAYABgAGAAf////////////8')]
+    [TestCase('55', '[claRed;0.2 claBlue;0.8],claBlack,Linear,False,1,0.5,0.98,//+BAACB//////FhQ8f/////8+PDx////////////////4ABgAGAAYABgAGAAf////////////8')]
+    [TestCase('56', '[claRed;0.2 claBlue;0.8],claBlack,Linear,True,1,1,0.98,//+BAACB//////FhQ8f/////8+HDx////////////////8ADwAPAA8ADwAPAA/////////////8')]
+    [TestCase('57', '[$7FFF0000;0.2 $7F0000FF;0.8],claBlack,Linear,True,1,1,0.98,//+BAACB//////FhQ8f/////8+PDx////////////////4ABgAGAAYABgAGAAf////////////8')]
+    [TestCase('58', '[claRed;0.2 claBlue;0.8],claBlack,Linear,True,1,0.5,0.98,//+BAACB//////FhQ8f/////8+PDx////////////////4ABgAGAAYABgAGAAf////////////8')]
+    [TestCase('59', '[claRed;0.2 claBlue;0.8],claBlack,Linear,False,2,1,0.98,//////+AgID//////8fOzP//////x87M///////////////////////////wAPAA8ADwAPAA8AA')]
+    [TestCase('60', '[$7FFF0000;0.2 $7F0000FF;0.8],claBlack,Linear,False,2,1,0.98,//////+AgID//////8fOzP//////x87M////////////////////////4ADgAOAA4ADgAOAA4AA')]
+    [TestCase('61', '[claRed;0 claBlue;1],claBlack,Radial,False,1,1,0.98,//+BAACB//////FhQ8f/////8+HDx////////////////8ADwAPAA8ADwAPAA/////////////8')]
+    [TestCase('62', '[$7FFF0000;0 $7F0000FF;1],claBlack,Radial,False,1,1,0.98,//+BAACB//////FhQ8f/////8+PDx////////////////4ABgAGAAYABgAGAAf////////////8')]
+    [TestCase('63', '[claRed;0 claBlue;1],claBlack,Radial,False,1,0.5,0.98,//+BAACB//////FhQ8f/////8+PDx////////////////4ABgAGAAYABgAGAAf////////////8')]
+    [TestCase('64', '[claRed;0 claBlue;1],claBlack,Radial,True,1,1,0.98,//+BAACB//////FhQ8f/////8+HDx////////////////8ADwAPAA8ADwAPAA/////////////8')]
+    [TestCase('65', '[$7FFF0000;0 $7F0000FF;1],claBlack,Radial,True,1,1,0.98,//+BAACB//////FhQ8f/////8+PDx////////////////4ABgAGAAYABgAGAAf////////////8')]
+    [TestCase('66', '[claRed;0 claBlue;1],claBlack,Radial,True,1,0.5,0.98,//+BAACB//////FhQ8f/////8+PDx////////////////4ABgAGAAYABgAGAAf////////////8')]
+    [TestCase('67', '[claRed;0 claBlue;1],claBlack,Radial,False,2,1,0.98,//////+AgID//////8fOzP//////x87M///////////////////////////wAPAA8ADwAPAA8AA')]
+    [TestCase('68', '[$7FFF0000;0 $7F0000FF;1],claBlack,Radial,False,2,1,0.98,//////+AgID//////8fOzP//////x87M////////////////////////4ADgAOAA4ADgAOAA4AA')]
+    [TestCase('69', '[claRed;0 claBlue;1],claBlack,Radial,False,-2,0.5,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('70', '[claRed;0 claBlue;1],claBlack,Radial,True,0.5,1,0.98,nw8P//////////////////////////////////////+B/4H///////////////////////////8')]
+    [TestCase('71', '[$7FFF0000;0 $7F0000FF;1],claBlack,Radial,True,-1,1,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('72', '[claRed;0 claBlue;1],claBlack,Radial,True,3,0.5,0.98,/////////8D/////////zP/////////s//////////////////////////////////////AA8AA')]
+    [TestCase('73', '[claRed;0.2 claBlue;0.8],claBlack,Radial,False,1,1,0.98,//+BAACB//////FhQ8f/////8+HDx////////////////8ADwAPAA8ADwAPAA/////////////8')]
+    [TestCase('74', '[$7FFF0000;0.2 $7F0000FF;0.8],claBlack,Radial,False,1,1,0.98,//+BAACB//////FhQ8f/////8+PDx////////////////4ABgAGAAYABgAGAAf////////////8')]
+    [TestCase('75', '[claRed;0.2 claBlue;0.8],claBlack,Radial,False,1,0.5,0.98,//+BAACB//////FhQ8f/////8+PDx////////////////4ABgAGAAYABgAGAAf////////////8')]
+    [TestCase('76', '[claRed;0.2 claBlue;0.8],claBlack,Radial,True,1,1,0.98,//+BAACB//////FhQ8f/////8+HDx////////////////8ADwAPAA8ADwAPAA/////////////8')]
+    [TestCase('77', '[$7FFF0000;0.2 $7F0000FF;0.8],claBlack,Radial,True,1,1,0.98,//+BAACB//////FhQ8f/////8+PDx////////////////4ABgAGAAYABgAGAAf////////////8')]
+    [TestCase('78', '[claRed;0.2 claBlue;0.8],claBlack,Radial,True,1,0.5,0.98,//+BAACB//////FhQ8f/////8+PDx////////////////4ABgAGAAYABgAGAAf////////////8')]
+    [TestCase('79', '[claRed;0.2 claBlue;0.8],claBlack,Radial,False,2,1,0.98,//////+AgID//////8fOzP//////x87M///////////////////////////wAPAA8ADwAPAA8AA')]
+    [TestCase('80', '[$7FFF0000;0.2 $7F0000FF;0.8],claBlack,Radial,False,2,1,0.98,//////+AgID//////8fOzP//////x87M////////////////////////4ADgAOAA4ADgAOAA4AA')]
+    procedure TestFillRectGradient2(const APoints, AModulateColor: string; AGradientStyle: TGradientStyle; ABlending: Boolean; const AScale, AOpacity, AMinSimilarity: Double; const AExpectedImageHash: string);
     [TestCase('1',  '[claRed;0 claBlue;1],claWhite,1,1,0,0,0,0.5,0.5,0,0,0.15,0.15,0.85,0.85,1,1.3,0,-20,30,False,False,False,0.9,1,0.98,fx8PDw8fHz//3+/v79/f///f7+/v39///////////////w7/Bv8G/wf/B/8P/w//P////+//n/8')]
     [TestCase('2',  '[claRed;0 claBlue;1],claWhite,1,1,0,0,0,0.5,0.5,0,0,0.15,0.15,0.85,0.85,1,1.3,0,-20,30,True,False,False,0.9,1,0.98,fx8PDw8fHz//3+/v79/f///f7+/v39///////////////w7/Bv8G/wf/B/8P/w//P////+//n/8')]
     [TestCase('3',  '[claRed;0 claBlue;1],claWhite,1,1,0,0,0,0.5,0.5,0,0,0.15,0.15,0.85,0.85,1,1.3,0,-20,30,False,True,False,0.9,1,0.98,fx8PDw8fHz//3+/v79/f///f7+/v39///////////////w7/Bv8G/wf/B/8P/w//P////+//n/8')]
@@ -972,15 +2239,15 @@ type
     [TestCase('33', '80,80,1,1,0,0,0,0,0,60,60,0,false,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
     [TestCase('34', '80,80,1,1,0,0,0,60,0,60,60,1,false,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
     [TestCase('35', '80,80,1,1,0,0,0,0,60,60,60,1,false,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
-    [TestCase('33', '80,80,1,1,0,0,0,0,0,60,60,0,true,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
-    [TestCase('34', '80,80,1,1,0,0,0,60,0,60,60,1,true,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
-    [TestCase('35', '80,80,1,1,0,0,0,0,60,60,60,1,true,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
-    [TestCase('36', '80,80,1,1,0,0,10,0,0,60,60,0,false,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
-    [TestCase('37', '80,80,1,1,0,0,10,60,0,60,60,1,false,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
-    [TestCase('38', '80,80,1,1,0,0,10,0,60,60,60,1,false,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
-    [TestCase('39', '80,80,1,1,0,0,10,0,0,60,60,0,true,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
-    [TestCase('40', '80,80,1,1,0,0,10,60,0,60,60,1,true,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
-    [TestCase('41', '80,80,1,1,0,0,10,0,60,60,60,1,true,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('36', '80,80,1,1,0,0,0,0,0,60,60,0,true,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('37', '80,80,1,1,0,0,0,60,0,60,60,1,true,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('38', '80,80,1,1,0,0,0,0,60,60,60,1,true,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('39', '80,80,1,1,0,0,10,0,0,60,60,0,false,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('40', '80,80,1,1,0,0,10,60,0,60,60,1,false,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('41', '80,80,1,1,0,0,10,0,60,60,60,1,false,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('42', '80,80,1,1,0,0,10,0,0,60,60,0,true,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('43', '80,80,1,1,0,0,10,60,0,60,60,1,true,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('44', '80,80,1,1,0,0,10,0,60,60,60,1,true,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
     procedure TestFillRectSolidWithMatrix(ASurfaceWidth, ASurfaceHeight: Integer; ASurfaceScaleX, ASurfaceScaleY, ASurfaceOffsetX, ASurfaceOffsetY, ARotationDeg, ADestLeft, ADestTop, ADestRight, ADestBottom, AOpacity: Single; ABlending: Boolean; const AMinSimilarity: Double; const AExpectedImageHash: string);
     [TestCase('1', '0.98,///Dw8PD//////Pjw8f/////8+Pj5//////////////wD/AP8A/wD/AP8A/wD/AP//////////8')]
     procedure TestFillRectSolidWithModulateColor(const AMinSimilarity: Double; const AExpectedImageHash: string);
@@ -2360,6 +3627,9 @@ uses
   System.UIConsts,
   System.Math;
 
+type
+  TOpenTransform = class(TTransform);
+
 {$IF CompilerVersion <= 30}
 type
   TRectFHelper = record helper for TRectF
@@ -2374,6 +3644,43 @@ begin
   RectCenter(Result, ADesignatedArea);
 end;
 {$ENDIF}
+
+function CirclesPath(const ABounds: TRectF): TPathData;
+
+  function CircleBounds(ACenterX, ACenterY, ARadius: Single): TRectF;
+  begin
+    Result := TRectF.Create(PointF(ACenterX - ARadius, ACenterY - ARadius), 2 * ARadius, 2 * ARadius);
+  end;
+
+var
+  LRadius: SIngle;
+begin
+  LRadius := Min(ABounds.Width, ABounds.Height) / 4;
+  Result := TPathData.Create;
+  Result.AddEllipse(CircleBounds(ABounds.CenterPoint.X - LRadius / 2, ABounds.CenterPoint.Y - LRadius / 2, LRadius));
+  Result.AddEllipse(CircleBounds(ABounds.CenterPoint.X - LRadius / 2, ABounds.CenterPoint.Y + LRadius / 2, LRadius));
+  Result.AddEllipse(CircleBounds(ABounds.CenterPoint.X + LRadius / 2, ABounds.CenterPoint.Y - LRadius / 2, LRadius));
+  Result.AddEllipse(CircleBounds(ABounds.CenterPoint.X + LRadius / 2, ABounds.CenterPoint.Y + LRadius / 2, LRadius));
+end;
+
+function StarPath: ISkPath;
+const
+  C = 128.0;
+  R = 115.2;
+var
+  I: Integer;
+  A: Single;
+  LPathBuilder: ISkPathBuilder;
+begin
+  LPathBuilder := TSkPathBuilder.Create;
+  LPathBuilder.MoveTo(C + R, C);
+  for I := 1 to 7 do
+  begin
+    A := 2.6927937 * I;
+    LPathBuilder.LineTo(C + R * Cos(A), C + R * Sin(A));
+  end;
+  Result := LPathBuilder.Detach;
+end;
 
 { TSkFMXCanvasTests }
 
@@ -2437,8 +3744,8 @@ begin
   ACanvas.Clear(AEvenSquareColor);
   ACanvas.Fill.Kind := TBrushKind.Solid;
   ACanvas.Fill.Color := AOddSquareColor;
-  for X := 0 to Ceil(ACanvas.Width / ASquareSize) do
-    for Y := 0 to Ceil(ACanvas.Height / ASquareSize) do
+  for X := 0 to Ceil(Abs(ACanvas.Width / ACanvas.Scale / ASquareSize)) do
+    for Y := 0 to Ceil(Abs(ACanvas.Height / ACanvas.Scale / ASquareSize)) do
       if Odd(X + Y) then
         ACanvas.FillRect(TRectF.Create(PointF(X, Y) * ASquareSize, ASquareSize, ASquareSize), 0, 0, [], 1);
 end;
@@ -3152,6 +4459,1162 @@ begin
   end;
 end;
 
+procedure TSkFMXCanvasTests.TestFillEllipseGradient(const APoints, AModulateColor: string;
+  AGradientStyle: TGradientStyle; ABlending: Boolean; const AScale, AOpacity, AMinSimilarity: Double;
+  const AExpectedImageHash: string);
+var
+  LBitmap: TBitmap;
+  LModulateCanvas: IModulateCanvas;
+begin
+  LBitmap := TBitmap.Create;
+  try
+    LBitmap.SetSize(100, 100);
+    LBitmap.BitmapScale := AScale;
+    if LBitmap.Canvas.BeginScene then
+      try
+        if StringToAlphaColor(AModulateColor) <> TAlphaColors.White then
+        begin
+          if not Supports(LBitmap.Canvas, IModulateCanvas, LModulateCanvas) then
+            Exit;
+          LModulateCanvas.ModulateColor := StringToAlphaColor(AModulateColor);
+        end;
+        try
+          LBitmap.Canvas.SetMatrix(TMatrix.CreateTranslation(10, 10));
+          LBitmap.Canvas.Blending := ABlending;
+          LBitmap.Canvas.Fill.Kind := TBrushKind.Gradient;
+          LBitmap.Canvas.Fill.Gradient.Style := AGradientStyle;
+          ApplyGradientPoints(LBitmap.Canvas.Fill.Gradient, APoints);
+          LBitmap.Canvas.FillEllipse(RectF(0, 0, 80, 80), AOpacity);
+        finally
+          if LModulateCanvas <> nil then
+            LModulateCanvas.ModulateColor := TAlphaColors.White;
+        end;
+      finally
+        LBitmap.Canvas.EndScene;
+      end;
+    Assert.AreSimilar(AExpectedImageHash, LBitmap.ToSkImage, AMinSimilarity);
+  finally
+    LBitmap.Free;
+  end;
+end;
+
+procedure TSkFMXCanvasTests.TestFillEllipseGradient2(const APoints, AModulateColor: string;
+  AGradientStyle: TGradientStyle; ABlending: Boolean; const AScale, AOpacity, AMinSimilarity: Double;
+  const AExpectedImageHash: string);
+var
+  LBitmap: TBitmap;
+  LModulateCanvas: IModulateCanvas;
+begin
+  LBitmap := TBitmap.Create;
+  try
+    LBitmap.SetSize(100, 100);
+    LBitmap.BitmapScale := AScale;
+    if LBitmap.Canvas.BeginScene then
+      try
+        if StringToAlphaColor(AModulateColor) <> TAlphaColors.White then
+        begin
+          if not Supports(LBitmap.Canvas, IModulateCanvas, LModulateCanvas) then
+            Exit;
+          LModulateCanvas.ModulateColor := StringToAlphaColor(AModulateColor);
+        end;
+        try
+          LBitmap.Canvas.SetMatrix(TMatrix.CreateTranslation(10, 10));
+          LBitmap.Canvas.Blending := ABlending;
+          LBitmap.Canvas.Fill.Kind := TBrushKind.Gradient;
+          LBitmap.Canvas.Fill.Gradient.Style := AGradientStyle;
+          ApplyGradientPoints(LBitmap.Canvas.Fill.Gradient, APoints);
+          LBitmap.Canvas.FillEllipse(RectF(0, 20, 80, 60), AOpacity);
+        finally
+          if LModulateCanvas <> nil then
+            LModulateCanvas.ModulateColor := TAlphaColors.White;
+        end;
+      finally
+        LBitmap.Canvas.EndScene;
+      end;
+    Assert.AreSimilar(AExpectedImageHash, LBitmap.ToSkImage, AMinSimilarity);
+  finally
+    LBitmap.Free;
+  end;
+end;
+
+procedure TSkFMXCanvasTests.TestFillEllipseGradientRadial(const APoints, AModulateColor: string; AGradientScaleX,
+  AGradientScaleY, AGradientPosX, AGradientPosY, AGradientRotationDegree, AGradientRotationCenterX,
+  AGradientRotationCenterY, AGradientSkewX, AGradientSkewY, ADestLeftPercent, ADestTopPercent, ADestRightPercent,
+  ADestBottomPercent, ACanvasScaleX, ACanvasScaleY, ACanvasOffsetX, ACanvasOffsetY, ACanvasRotationDeg: Single;
+  AApplyClip, ABlending, ADrawBackgroundChess: Boolean; const ABitmapScale, AOpacity, AMinSimilarity: Double;
+  const AExpectedImageHash: string);
+var
+  LBitmap: TBitmap;
+  LModulateCanvas: IModulateCanvas;
+begin
+  LBitmap := TBitmap.Create;
+  try
+    LBitmap.SetSize(100, 100);
+    LBitmap.BitmapScale := ABitmapScale;
+    if LBitmap.Canvas.BeginScene then
+      try
+        if ADrawBackgroundChess then
+        begin
+          DrawChessBackground(LBitmap.Canvas, Min(LBitmap.Width, LBitmap.Height) / 15 / LBitmap.BitmapScale,
+            TAlphaColors.Black, TAlphaColors.White);
+        end;
+        if StringToAlphaColor(AModulateColor) <> TAlphaColors.White then
+        begin
+          if not Supports(LBitmap.Canvas, IModulateCanvas, LModulateCanvas) then
+            Exit;
+          LModulateCanvas.ModulateColor := StringToAlphaColor(AModulateColor);
+        end;
+        try
+          LBitmap.Canvas.SetMatrix(
+            CreateMatrix(ACanvasScaleX, ACanvasScaleY, ACanvasOffsetX, ACanvasOffsetY, ACanvasRotationDeg));
+          if AApplyClip then
+          begin
+            LBitmap.Canvas.IntersectClipRect(RectF(0.1 * LBitmap.Width, 0.1 * LBitmap.Height,
+              0.9 * LBitmap.Width, 0.9 * LBitmap.Height));
+          end;
+          LBitmap.Canvas.Blending := ABlending;
+          LBitmap.Canvas.Fill.Kind := TBrushKind.Gradient;
+          LBitmap.Canvas.Fill.Gradient.Style := TGradientStyle.Radial;
+          ApplyGradientPoints(LBitmap.Canvas.Fill.Gradient, APoints);
+          LBitmap.Canvas.Fill.Gradient.RadialTransform.Scale.Point := PointF(AGradientScaleX, AGradientScaleY);
+          LBitmap.Canvas.Fill.Gradient.RadialTransform.Position.Point := PointF(AGradientPosX, AGradientPosY);
+          LBitmap.Canvas.Fill.Gradient.RadialTransform.RotationAngle := AGradientRotationDegree;
+          LBitmap.Canvas.Fill.Gradient.RadialTransform.RotationCenter.Point := PointF(AGradientRotationCenterX, AGradientRotationCenterY);
+          TOpenTransform(LBitmap.Canvas.Fill.Gradient.RadialTransform).Skew.Point := PointF(AGradientSkewX, AGradientSkewY);
+          LBitmap.Canvas.FillEllipse(RectF(ADestLeftPercent * LBitmap.Width, ADestTopPercent * LBitmap.Height,
+            ADestRightPercent * LBitmap.Width, ADestBottomPercent * LBitmap.Height), AOpacity);
+        finally
+          if LModulateCanvas <> nil then
+            LModulateCanvas.ModulateColor := TAlphaColors.White;
+        end;
+      finally
+        LBitmap.Canvas.EndScene;
+      end;
+    Assert.AreSimilar(AExpectedImageHash, LBitmap.ToSkImage, AMinSimilarity);
+  finally
+    LBitmap.Free;
+  end;
+end;
+
+procedure TSkFMXCanvasTests.TestFillEllipseGradientStartEndPoint(const APoints, AModulateColor: string; AStartX,
+  AStartY, AStopX, AStopY, ADestLeftPercent, ADestTopPercent, ADestRightPercent, ADestBottomPercent, ACanvasScaleX,
+  ACanvasScaleY, ACanvasOffsetX, ACanvasOffsetY, ACanvasRotationDeg: Single; AApplyClip, ABlending: Boolean;
+  const ABitmapScale, AOpacity: Single; ADrawBackgroundChess: Boolean; AMinSimilarity: Double;
+  const AExpectedImageHash: string);
+var
+  LBitmap: TBitmap;
+  LModulateCanvas: IModulateCanvas;
+begin
+  LBitmap := TBitmap.Create;
+  try
+    LBitmap.SetSize(100, 100);
+    LBitmap.BitmapScale := ABitmapScale;
+    if LBitmap.Canvas.BeginScene then
+      try
+        if ADrawBackgroundChess then
+        begin
+          DrawChessBackground(LBitmap.Canvas, Min(LBitmap.Width, LBitmap.Height) / 15 / LBitmap.BitmapScale,
+            TAlphaColors.Black, TAlphaColors.White);
+        end;
+        if StringToAlphaColor(AModulateColor) <> TAlphaColors.White then
+        begin
+          if not Supports(LBitmap.Canvas, IModulateCanvas, LModulateCanvas) then
+            Exit;
+          LModulateCanvas.ModulateColor := StringToAlphaColor(AModulateColor);
+        end;
+        try
+          LBitmap.Canvas.SetMatrix(
+            CreateMatrix(ACanvasScaleX, ACanvasScaleY, ACanvasOffsetX, ACanvasOffsetY, ACanvasRotationDeg));
+          if AApplyClip then
+          begin
+            LBitmap.Canvas.IntersectClipRect(RectF(0.1 * LBitmap.Width, 0.1 * LBitmap.Height,
+              0.9 * LBitmap.Width, 0.9 * LBitmap.Height));
+          end;
+          LBitmap.Canvas.Blending := ABlending;
+          LBitmap.Canvas.Fill.Kind := TBrushKind.Gradient;
+          LBitmap.Canvas.Fill.Gradient.Style := TGradientStyle.Linear;
+          ApplyGradientPoints(LBitmap.Canvas.Fill.Gradient, APoints);
+          LBitmap.Canvas.Fill.Gradient.StartPosition.Point := PointF(AStartX, AStartY);
+          LBitmap.Canvas.Fill.Gradient.StopPosition.Point := PointF(AStopX, AStopY);
+          LBitmap.Canvas.FillEllipse(RectF(ADestLeftPercent * LBitmap.Width, ADestTopPercent * LBitmap.Height,
+            ADestRightPercent * LBitmap.Width, ADestBottomPercent * LBitmap.Height), AOpacity);
+        finally
+          if LModulateCanvas <> nil then
+            LModulateCanvas.ModulateColor := TAlphaColors.White;
+        end;
+      finally
+        LBitmap.Canvas.EndScene;
+      end;
+    Assert.AreSimilar(AExpectedImageHash, LBitmap.ToSkImage, AMinSimilarity);
+  finally
+    LBitmap.Free;
+  end;
+end;
+
+procedure TSkFMXCanvasTests.TestFillEllipseGradientWithChessBackground(const APoints, AModulateColor: string;
+  AGradientStyle: TGradientStyle; ABlending: Boolean; const AScale, AOpacity, AMinSimilarity: Double;
+  const AExpectedImageHash: string);
+var
+  LBitmap: TBitmap;
+  LModulateCanvas: IModulateCanvas;
+begin
+  LBitmap := TBitmap.Create;
+  try
+    LBitmap.SetSize(100, 100);
+    LBitmap.BitmapScale := AScale;
+    if LBitmap.Canvas.BeginScene then
+      try
+        DrawChessBackground(LBitmap.Canvas, Min(LBitmap.Width, LBitmap.Height) / 15 / LBitmap.BitmapScale,
+          TAlphaColors.Black, TAlphaColors.White);
+        if StringToAlphaColor(AModulateColor) <> TAlphaColors.White then
+        begin
+          if not Supports(LBitmap.Canvas, IModulateCanvas, LModulateCanvas) then
+            Exit;
+          LModulateCanvas.ModulateColor := StringToAlphaColor(AModulateColor);
+        end;
+        try
+          LBitmap.Canvas.SetMatrix(TMatrix.CreateTranslation(10, 10));
+          LBitmap.Canvas.Blending := ABlending;
+          LBitmap.Canvas.Fill.Kind := TBrushKind.Gradient;
+          LBitmap.Canvas.Fill.Gradient.Style := AGradientStyle;
+          ApplyGradientPoints(LBitmap.Canvas.Fill.Gradient, APoints);
+          LBitmap.Canvas.FillEllipse(RectF(0, 20, 80, 60), AOpacity);
+        finally
+          if LModulateCanvas <> nil then
+            LModulateCanvas.ModulateColor := TAlphaColors.White;
+        end;
+      finally
+        LBitmap.Canvas.EndScene;
+      end;
+    Assert.AreSimilar(AExpectedImageHash, LBitmap.ToSkImage, AMinSimilarity);
+  finally
+    LBitmap.Free;
+  end;
+end;
+
+procedure TSkFMXCanvasTests.TestFillEllipseSolid(const AMinSimilarity: Double; const AExpectedImageHash: string);
+var
+  LBitmap: TBitmap;
+begin
+  LBitmap := TBitmap.Create;
+  try
+    LBitmap.SetSize(100, 100);
+    if LBitmap.Canvas.BeginScene then
+      try
+        LBitmap.Canvas.Fill.Kind := TBrushKind.Solid;
+        LBitmap.Canvas.Fill.Color := TAlphaColors.Black;
+        LBitmap.Canvas.FillEllipse(RectF(25, 25, 75, 75), 0.5);
+      finally
+        LBitmap.Canvas.EndScene;
+      end;
+    Assert.AreSimilar(AExpectedImageHash, LBitmap.ToSkImage, AMinSimilarity);
+  finally
+    LBitmap.Free;
+  end;
+end;
+
+procedure TSkFMXCanvasTests.TestFillEllipseSolid2(const AMinSimilarity: Double; const AExpectedImageHash: string);
+var
+  LBitmap: TBitmap;
+begin
+  LBitmap := TBitmap.Create;
+  try
+    LBitmap.SetSize(100, 100);
+    if LBitmap.Canvas.BeginScene then
+      try
+        LBitmap.Canvas.Fill.Kind := TBrushKind.Solid;
+        LBitmap.Canvas.Fill.Color := MakeColor(TAlphaColors.Black, 0.5);
+        LBitmap.Canvas.FillEllipse(RectF(25, 25, 75, 75), 1);
+      finally
+        LBitmap.Canvas.EndScene;
+      end;
+    Assert.AreSimilar(AExpectedImageHash, LBitmap.ToSkImage, AMinSimilarity);
+  finally
+    LBitmap.Free;
+  end;
+end;
+
+procedure TSkFMXCanvasTests.TestFillEllipseSolid3(const AMinSimilarity: Double; const AExpectedImageHash: string);
+var
+  LBitmap: TBitmap;
+begin
+  LBitmap := TBitmap.Create;
+  try
+    LBitmap.SetSize(100, 100);
+    if LBitmap.Canvas.BeginScene then
+      try
+        LBitmap.Canvas.IntersectClipRect(RectF(0, 0, 50, 50));
+        LBitmap.Canvas.Fill.Kind := TBrushKind.Solid;
+        LBitmap.Canvas.Fill.Color := TAlphaColors.Black;
+        LBitmap.Canvas.FillEllipse(RectF(25, 25, 75, 75), 1);
+      finally
+        LBitmap.Canvas.EndScene;
+      end;
+    Assert.AreSimilar(AExpectedImageHash, LBitmap.ToSkImage, AMinSimilarity);
+  finally
+    LBitmap.Free;
+  end;
+end;
+
+procedure TSkFMXCanvasTests.TestFillEllipseSolid4(const AMinSimilarity: Double; const AExpectedImageHash: string);
+var
+  LBitmap: TBitmap;
+begin
+  LBitmap := TBitmap.Create;
+  try
+    LBitmap.SetSize(100, 100);
+    if LBitmap.Canvas.BeginScene then
+      try
+        LBitmap.Canvas.IntersectClipRect(RectF(20, 20, 95, 95));
+        LBitmap.Canvas.Fill.Kind := TBrushKind.Solid;
+        LBitmap.Canvas.Fill.Color := TAlphaColors.Red;
+        LBitmap.Canvas.FillEllipse(RectF(25, 25, 75, 75), 1);
+        LBitmap.Canvas.Fill.Color := TAlphaColors.Green;
+        LBitmap.Canvas.FillEllipse(RectF(50, 50, 100, 100), 0.7);
+      finally
+        LBitmap.Canvas.EndScene;
+      end;
+    Assert.AreSimilar(AExpectedImageHash, LBitmap.ToSkImage, AMinSimilarity);
+  finally
+    LBitmap.Free;
+  end;
+end;
+
+procedure TSkFMXCanvasTests.TestFillEllipseSolid5(const AMinSimilarity: Double; const AExpectedImageHash: string);
+var
+  LBitmap: TBitmap;
+  LModulateCanvas: IModulateCanvas;
+begin
+  LBitmap := TBitmap.Create;
+  try
+    LBitmap.SetSize(100, 100);
+    if LBitmap.Canvas.BeginScene then
+      try
+        if not Supports(LBitmap.Canvas, IModulateCanvas, LModulateCanvas) then
+          Exit;
+        LModulateCanvas.ModulateColor := TAlphaColors.Blue;
+        try
+          LBitmap.Canvas.IntersectClipRect(RectF(20, 20, 95, 95));
+          LBitmap.Canvas.Fill.Kind := TBrushKind.Solid;
+          LBitmap.Canvas.Fill.Color := TAlphaColors.Red;
+          LBitmap.Canvas.FillEllipse(RectF(25, 25, 75, 75), 1);
+          LBitmap.Canvas.Fill.Color := TAlphaColors.Green;
+          LBitmap.Canvas.FillEllipse(RectF(50, 50, 100, 100), 0.7);
+        finally
+          LModulateCanvas.ModulateColor := TAlphaColors.White;
+        end;
+      finally
+        LBitmap.Canvas.EndScene;
+      end;
+    Assert.AreSimilar(AExpectedImageHash, LBitmap.ToSkImage, AMinSimilarity);
+  finally
+    LBitmap.Free;
+  end;
+end;
+
+procedure TSkFMXCanvasTests.TestFillEllipseSolid6(const AMinSimilarity: Double; const AExpectedImageHash: string);
+var
+  LBitmap: TBitmap;
+begin
+  LBitmap := TBitmap.Create;
+  try
+    LBitmap.SetSize(100, 100);
+    if LBitmap.Canvas.BeginScene then
+      try
+        LBitmap.Canvas.Blending := False;
+        LBitmap.Canvas.IntersectClipRect(RectF(20, 20, 95, 95));
+        LBitmap.Canvas.Fill.Kind := TBrushKind.Solid;
+        LBitmap.Canvas.Fill.Color := TAlphaColors.Red;
+        LBitmap.Canvas.FillEllipse(RectF(25, 25, 75, 75), 1);
+        LBitmap.Canvas.Fill.Color := TAlphaColors.Green;
+        LBitmap.Canvas.FillEllipse(RectF(50, 50, 100, 100), 0.7);
+      finally
+        LBitmap.Canvas.EndScene;
+      end;
+    Assert.AreSimilar(AExpectedImageHash, LBitmap.ToSkImage, AMinSimilarity);
+  finally
+    LBitmap.Free;
+  end;
+end;
+
+procedure TSkFMXCanvasTests.TestFillEllipseSolidWithMatrix(ASurfaceWidth, ASurfaceHeight: Integer; ASurfaceScaleX,
+  ASurfaceScaleY, ASurfaceOffsetX, ASurfaceOffsetY, ARotationDeg, ADestLeft, ADestTop, ADestRight, ADestBottom,
+  AOpacity: Single; ABlending: Boolean; const AMinSimilarity: Double; const AExpectedImageHash: string);
+var
+  LBitmap: TBitmap;
+begin
+  LBitmap := TBitmap.Create;
+  try
+    LBitmap.SetSize(ASurfaceWidth, ASurfaceHeight);
+    if LBitmap.Canvas.BeginScene then
+      try
+        LBitmap.Canvas.Blending := ABlending;
+        LBitmap.Canvas.SetMatrix(
+          CreateMatrix(ASurfaceScaleX, ASurfaceScaleY, ASurfaceOffsetX, ASurfaceOffsetY, ARotationDeg));
+        LBitmap.Canvas.Fill.Kind := TBrushKind.Solid;
+        LBitmap.Canvas.Fill.Color := TAlphaColors.Red;
+        LBitmap.Canvas.FillEllipse(RectF(ADestLeft, ADestTop, ADestRight, ADestBottom), AOpacity);
+      finally
+        LBitmap.Canvas.EndScene;
+      end;
+    Assert.AreSimilar(AExpectedImageHash, LBitmap.ToSkImage, AMinSimilarity);
+  finally
+    LBitmap.Free;
+  end;
+end;
+
+procedure TSkFMXCanvasTests.TestFillEllipseSolidWithModulateColor(const AMinSimilarity: Double;
+  const AExpectedImageHash: string);
+var
+  LBitmap: TBitmap;
+  LModulateCanvas: IModulateCanvas;
+begin
+  LBitmap := TBitmap.Create;
+  try
+    LBitmap.SetSize(100, 100);
+    if LBitmap.Canvas.BeginScene then
+      try
+        if not Supports(LBitmap.Canvas, IModulateCanvas, LModulateCanvas) then
+          Exit;
+        LModulateCanvas.ModulateColor := TAlphaColors.Blue;
+        try
+          LBitmap.Canvas.Fill.Kind := TBrushKind.Solid;
+          LBitmap.Canvas.Fill.Color := TAlphaColors.Red;
+          LBitmap.Canvas.FillEllipse(RectF(25, 25, 75, 75), 0.6);
+        finally
+          LModulateCanvas.ModulateColor := TAlphaColors.White;
+        end;
+      finally
+        LBitmap.Canvas.EndScene;
+      end;
+    Assert.AreSimilar(AExpectedImageHash, LBitmap.ToSkImage, AMinSimilarity);
+  finally
+    LBitmap.Free;
+  end;
+end;
+
+procedure TSkFMXCanvasTests.TestFillEllipseSolidWithResource(const AMinSimilarity: Double; const AExpectedImageHash: string);
+var
+  LBitmap: TBitmap;
+  LBrushObject: TBrushObject;
+  LBrushObject2: TBrushObject;
+begin
+  LBitmap := TBitmap.Create;
+  try
+    LBitmap.SetSize(100, 100);
+    if LBitmap.Canvas.BeginScene then
+      try
+        LBrushObject := TBrushObject.Create(nil);
+        try
+          LBrushObject2 := TBrushObject.Create(nil);
+          try
+            LBrushObject2.Brush.Kind := TBrushKind.Solid;
+            LBrushObject2.Brush.Color := TAlphaColors.Blue;
+            LBrushObject.Brush.Kind := TBrushKind.Resource;
+            LBrushObject.Brush.Resource.StyleResource := LBrushObject2;
+            LBitmap.Canvas.Fill.Kind := TBrushKind.Resource;
+            LBitmap.Canvas.Fill.Resource.StyleResource := LBrushObject;
+            LBitmap.Canvas.FillEllipse(RectF(25, 25, 75, 75), 0.7);
+          finally
+            LBrushObject2.Free;
+          end;
+        finally
+          LBrushObject.Free;
+        end;
+      finally
+        LBitmap.Canvas.EndScene;
+      end;
+    Assert.AreSimilar(AExpectedImageHash, LBitmap.ToSkImage, AMinSimilarity);
+  finally
+    LBitmap.Free;
+  end;
+end;
+
+procedure TSkFMXCanvasTests.TestFillPathBitmap(const AImageFileName, AModulateColor: string; AWrapMode: TWrapMode;
+  ABlending: Boolean; const ALeftPercent, ATopPercent, ARightPercent, ABottomPercent, AOpacity, AMinSimilarity: Double;
+  const AExpectedImageHash: string);
+const
+  PathDataString = 'M253.706 364.063C164.912 364.063 92.9062 290.606 92.9062 200.006C92.9062 109.394 164.912 35.9375 ' +
+    '253.706 35.9375C267.531 35.9375 280.944 37.725 293.75 41.0688C264.673 22.3955 230.838 12.4784 196.281 ' +
+    '12.5C94.7813 12.5 12.5 96.45 12.5 200.006C12.5 303.556 94.7813 387.5 196.281 387.5C232.094 387.5 265.5 377.013 ' +
+    '293.75 358.938C280.944 362.281 267.531 364.063 253.706 364.063Z M311.331 237.325L358.413 270.313L340.625 ' +
+    '216.669L387.5 183.406L329.431 183.238L311.331 129.694L293.225 183.238L235.156 183.406L282.044 216.669L264.244 ' +
+    '270.313L311.331 237.325Z';
+var
+  LBitmap: TBitmap;
+  LImage: TBitmap;
+  LModulateCanvas: IModulateCanvas;
+  LPathData: TPathData;
+begin
+  LBitmap := TBitmap.Create;
+  try
+    LBitmap.SetSize(400, 400);
+    LBitmap.BitmapScale := 1;
+    if LBitmap.Canvas.BeginScene then
+      try
+        LBitmap.Canvas.Blending := ABlending;
+        if StringToAlphaColor(AModulateColor) <> TAlphaColors.White then
+        begin
+          if not Supports(LBitmap.Canvas, IModulateCanvas, LModulateCanvas) then
+            Exit;
+          LModulateCanvas.ModulateColor := StringToAlphaColor(AModulateColor);
+        end;
+        try
+          LBitmap.Canvas.Fill.Kind := TBrushKind.Bitmap;
+          LBitmap.Canvas.Fill.Bitmap.WrapMode := AWrapMode;
+          LImage := CreateBitmap(AImageFileName);
+          try
+            LBitmap.Canvas.Fill.Bitmap.Bitmap := LImage;
+          finally
+            LImage.Free;
+          end;
+          LPathData := TPathData.Create;
+          try
+            LPathData.Data := PathDataString;
+            LPathData.ApplyMatrix(CreateMatrix(ARightPercent - ALeftPercent, ABottomPercent - ATopPercent,
+              ALeftPercent * LBitmap.Width, ATopPercent * LBitmap.Height, 0));
+            LBitmap.Canvas.FillPath(LPathData, AOpacity);
+          finally
+            LPathData.Free;
+          end;
+        finally
+          if LModulateCanvas <> nil then
+            LModulateCanvas.ModulateColor := TAlphaColors.White;
+        end;
+      finally
+        LBitmap.Canvas.EndScene;
+      end;
+    Assert.AreSimilar(AExpectedImageHash, LBitmap.ToSkImage, AMinSimilarity);
+  finally
+    LBitmap.Free;
+  end;
+end;
+
+procedure TSkFMXCanvasTests.TestFillPathBitmap2(const AImageFileName, AModulateColor: string; AWrapMode: TWrapMode;
+  ABlending: Boolean; const ALeftPercent, ATopPercent, ARightPercent, ABottomPercent, AOpacity, AMinSimilarity: Double;
+  const AExpectedImageHash: string);
+var
+  LBitmap: TBitmap;
+  LImage: TBitmap;
+  LModulateCanvas: IModulateCanvas;
+  LPathData: TPathData;
+begin
+  LBitmap := TBitmap.Create;
+  try
+    LBitmap.SetSize(400, 400);
+    LBitmap.BitmapScale := 1;
+    if LBitmap.Canvas.BeginScene then
+      try
+        LBitmap.Canvas.Blending := ABlending;
+        if StringToAlphaColor(AModulateColor) <> TAlphaColors.White then
+        begin
+          if not Supports(LBitmap.Canvas, IModulateCanvas, LModulateCanvas) then
+            Exit;
+          LModulateCanvas.ModulateColor := StringToAlphaColor(AModulateColor);
+        end;
+        try
+          LBitmap.Canvas.Fill.Kind := TBrushKind.Bitmap;
+          LBitmap.Canvas.Fill.Bitmap.WrapMode := AWrapMode;
+          LImage := CreateBitmap(AImageFileName);
+          try
+            LBitmap.Canvas.Fill.Bitmap.Bitmap := LImage;
+          finally
+            LImage.Free;
+          end;
+          LPathData := TPathData.CreateFromSkPath(StarPath);
+          try
+            LPathData.ApplyMatrix(CreateMatrix((ARightPercent - ALeftPercent) * 1.5,
+              (ABottomPercent - ATopPercent) * 1.5, ALeftPercent * LBitmap.Width, ATopPercent * LBitmap.Height, 0));
+            LBitmap.Canvas.FillPath(LPathData, AOpacity);
+          finally
+            LPathData.Free;
+          end;
+        finally
+          if LModulateCanvas <> nil then
+            LModulateCanvas.ModulateColor := TAlphaColors.White;
+        end;
+      finally
+        LBitmap.Canvas.EndScene;
+      end;
+    Assert.AreSimilar(AExpectedImageHash, LBitmap.ToSkImage, AMinSimilarity);
+  finally
+    LBitmap.Free;
+  end;
+end;
+
+procedure TSkFMXCanvasTests.TestFillPathBitmap3(const AImageFileName, AModulateColor: string; AWrapMode: TWrapMode;
+  ABlending: Boolean; const ALeftPercent, ATopPercent, ARightPercent, ABottomPercent, AOpacity, AMinSimilarity: Double;
+  const AExpectedImageHash: string);
+var
+  LBitmap: TBitmap;
+  LImage: TBitmap;
+  LModulateCanvas: IModulateCanvas;
+  LPathData: TPathData;
+begin
+  LBitmap := TBitmap.Create;
+  try
+    LBitmap.SetSize(400, 400);
+    LBitmap.BitmapScale := 1;
+    if LBitmap.Canvas.BeginScene then
+      try
+        LBitmap.Canvas.Blending := ABlending;
+        if StringToAlphaColor(AModulateColor) <> TAlphaColors.White then
+        begin
+          if not Supports(LBitmap.Canvas, IModulateCanvas, LModulateCanvas) then
+            Exit;
+          LModulateCanvas.ModulateColor := StringToAlphaColor(AModulateColor);
+        end;
+        try
+          LBitmap.Canvas.Fill.Kind := TBrushKind.Bitmap;
+          LBitmap.Canvas.Fill.Bitmap.WrapMode := AWrapMode;
+          LImage := CreateBitmap(AImageFileName);
+          try
+            LBitmap.Canvas.Fill.Bitmap.Bitmap := LImage;
+          finally
+            LImage.Free;
+          end;
+          LPathData := CirclesPath(RectF(0, 0, LBitmap.Width, LBitmap.Height));
+          try
+            LPathData.ApplyMatrix(CreateMatrix(ARightPercent - ALeftPercent,
+              ABottomPercent - ATopPercent, ALeftPercent * LBitmap.Width, ATopPercent * LBitmap.Height, 0));
+            LBitmap.Canvas.FillPath(LPathData, AOpacity);
+          finally
+            LPathData.Free;
+          end;
+        finally
+          if LModulateCanvas <> nil then
+            LModulateCanvas.ModulateColor := TAlphaColors.White;
+        end;
+      finally
+        LBitmap.Canvas.EndScene;
+      end;
+    Assert.AreSimilar(AExpectedImageHash, LBitmap.ToSkImage, AMinSimilarity);
+  finally
+    LBitmap.Free;
+  end;
+end;
+
+procedure TSkFMXCanvasTests.TestFillPathBitmapWithChessBackground(const AImageFileName, AModulateColor: string;
+  AWrapMode: TWrapMode; ABlending: Boolean; const AOpacity, AMinSimilarity: Double; const AExpectedImageHash: string);
+var
+  LBitmap: TBitmap;
+  LImage: TBitmap;
+  LModulateCanvas: IModulateCanvas;
+  LPathData: TPathData;
+begin
+  LBitmap := TBitmap.Create;
+  try
+    LBitmap.SetSize(400, 400);
+    LBitmap.BitmapScale := 1;
+    if LBitmap.Canvas.BeginScene then
+      try
+        DrawChessBackground(LBitmap.Canvas, Min(LBitmap.Width, LBitmap.Height) / 15 / LBitmap.BitmapScale,
+          TAlphaColors.Black, TAlphaColors.White);
+        LBitmap.Canvas.Blending := ABlending;
+        if StringToAlphaColor(AModulateColor) <> TAlphaColors.White then
+        begin
+          if not Supports(LBitmap.Canvas, IModulateCanvas, LModulateCanvas) then
+            Exit;
+          LModulateCanvas.ModulateColor := StringToAlphaColor(AModulateColor);
+        end;
+        try
+          LBitmap.Canvas.Fill.Kind := TBrushKind.Bitmap;
+          LBitmap.Canvas.Fill.Bitmap.WrapMode := AWrapMode;
+          LImage := CreateBitmap(AImageFileName);
+          try
+            LBitmap.Canvas.Fill.Bitmap.Bitmap := LImage;
+          finally
+            LImage.Free;
+          end;
+          LPathData := CirclesPath(RectF(0, 0, LBitmap.Width, LBitmap.Height));
+          try
+            LBitmap.Canvas.FillPath(LPathData, AOpacity);
+          finally
+            LPathData.Free;
+          end;
+        finally
+          if LModulateCanvas <> nil then
+            LModulateCanvas.ModulateColor := TAlphaColors.White;
+        end;
+      finally
+        LBitmap.Canvas.EndScene;
+      end;
+    Assert.AreSimilar(AExpectedImageHash, LBitmap.ToSkImage, AMinSimilarity);
+  finally
+    LBitmap.Free;
+  end;
+end;
+
+procedure TSkFMXCanvasTests.TestFillPathBitmapWithClipping(const AImageFileName, AModulateColor: string;
+  AWrapMode: TWrapMode; ABlending: Boolean; const AOpacity, AMinSimilarity: Double; const AExpectedImageHash: string);
+var
+  LBitmap: TBitmap;
+  LImage: TBitmap;
+  LModulateCanvas: IModulateCanvas;
+  LPathData: TPathData;
+begin
+  LBitmap := TBitmap.Create;
+  try
+    LBitmap.SetSize(400, 400);
+    LBitmap.BitmapScale := 1;
+    if LBitmap.Canvas.BeginScene then
+      try
+        LBitmap.Canvas.IntersectClipRect(RectF(0.5 * LBitmap.Width, 0, LBitmap.Width, LBitmap.Height));
+        LBitmap.Canvas.Blending := ABlending;
+        if StringToAlphaColor(AModulateColor) <> TAlphaColors.White then
+        begin
+          if not Supports(LBitmap.Canvas, IModulateCanvas, LModulateCanvas) then
+            Exit;
+          LModulateCanvas.ModulateColor := StringToAlphaColor(AModulateColor);
+        end;
+        try
+          LBitmap.Canvas.Fill.Kind := TBrushKind.Bitmap;
+          LBitmap.Canvas.Fill.Bitmap.WrapMode := AWrapMode;
+          LImage := CreateBitmap(AImageFileName);
+          try
+            LBitmap.Canvas.Fill.Bitmap.Bitmap := LImage;
+          finally
+            LImage.Free;
+          end;
+          LPathData := CirclesPath(RectF(0, 0, LBitmap.Width, LBitmap.Height));
+          try
+            LBitmap.Canvas.FillPath(LPathData, AOpacity);
+          finally
+            LPathData.Free;
+          end;
+        finally
+          if LModulateCanvas <> nil then
+            LModulateCanvas.ModulateColor := TAlphaColors.White;
+        end;
+      finally
+        LBitmap.Canvas.EndScene;
+      end;
+    Assert.AreSimilar(AExpectedImageHash, LBitmap.ToSkImage, AMinSimilarity);
+  finally
+    LBitmap.Free;
+  end;
+end;
+
+procedure TSkFMXCanvasTests.TestFillPathBitmapWithMatrix(const AImageFileName: string; ASurfaceWidth,
+  ASurfaceHeight: Integer; AWrapMode: TWrapMode; ASurfaceScaleX, ASurfaceScaleY, ASurfaceOffsetX, ASurfaceOffsetY,
+  ARotationDeg, ADestLeft, ADestTop, ADestRight, ADestBottom, AOpacity: Single; ABlending: Boolean;
+  const AMinSimilarity: Double; const AExpectedImageHash: string);
+
+  function HeptagonPath(const ABounds: TRectF): ISkPath;
+  const
+    VerticesCount = 7;
+  var
+    LPathBuilder: ISkPathBuilder;
+    LPolygon: TPolygon;
+    LRadius: Single;
+    LVertexAngle: Double;
+    I: Integer;
+  begin
+    LRadius := 0.45 * Min(ABounds.Width, ABounds.Height);
+    SetLength(LPolygon, VerticesCount);
+    LVertexAngle := -0.5 * Pi;
+    for I := 0 to Length(LPolygon) - 1 do
+    begin
+      LPolygon[I] := PointF(LRadius * Cos(LVertexAngle), LRadius * Sin(LVertexAngle));
+      LVertexAngle := LVertexAngle + (2 * Pi / VerticesCount);
+    end;
+
+    LPathBuilder := TSkPathBuilder.Create;
+    LPathBuilder.AddPolygon(LPolygon, True);
+    LPathBuilder.Offset(ABounds.CenterPoint.X, ABounds.CenterPoint.Y);
+    Result := LPathBuilder.Detach;
+  end;
+
+var
+  LBitmap: TBitmap;
+  LImage: TBitmap;
+  LPathData: TPathData;
+begin
+  LBitmap := TBitmap.Create;
+  try
+    LBitmap.SetSize(ASurfaceWidth, ASurfaceHeight);
+    LBitmap.BitmapScale := 1;
+    if LBitmap.Canvas.BeginScene then
+      try
+        LBitmap.Canvas.Blending := ABlending;
+        LBitmap.Canvas.SetMatrix(
+          CreateMatrix(ASurfaceScaleX, ASurfaceScaleY, ASurfaceOffsetX, ASurfaceOffsetY, ARotationDeg));
+        LBitmap.Canvas.Fill.Kind := TBrushKind.Bitmap;
+        LBitmap.Canvas.Fill.Bitmap.WrapMode := AWrapMode;
+        LImage := CreateBitmap(AImageFileName);
+        try
+          LBitmap.Canvas.Fill.Bitmap.Bitmap := LImage;
+        finally
+          LImage.Free;
+        end;
+        LPathData := TPathData.CreateFromSkPath(HeptagonPath(RectF(ADestLeft, ADestTop, ADestRight, ADestBottom)));
+        try
+          LBitmap.Canvas.FillPath(LPathData, AOpacity);
+        finally
+          LPathData.Free;
+        end;
+      finally
+        LBitmap.Canvas.EndScene;
+      end;
+    Assert.AreSimilar(AExpectedImageHash, LBitmap.ToSkImage, AMinSimilarity);
+  finally
+    LBitmap.Free;
+  end;
+end;
+
+procedure TSkFMXCanvasTests.TestFillPathGradient(const APoints, AModulateColor: string; AGradientStyle: TGradientStyle;
+  ABlending: Boolean; const AScale, AOpacity, AMinSimilarity: Double; const AExpectedImageHash: string);
+var
+  LBitmap: TBitmap;
+  LModulateCanvas: IModulateCanvas;
+  LPathData: TPathData;
+begin
+  LBitmap := TBitmap.Create;
+  try
+    LBitmap.SetSize(100, 100);
+    LBitmap.BitmapScale := AScale;
+    if LBitmap.Canvas.BeginScene then
+      try
+        if StringToAlphaColor(AModulateColor) <> TAlphaColors.White then
+        begin
+          if not Supports(LBitmap.Canvas, IModulateCanvas, LModulateCanvas) then
+            Exit;
+          LModulateCanvas.ModulateColor := StringToAlphaColor(AModulateColor);
+        end;
+        try
+          LBitmap.Canvas.SetMatrix(TMatrix.CreateTranslation(10, 10));
+          LBitmap.Canvas.Blending := ABlending;
+          LBitmap.Canvas.Fill.Kind := TBrushKind.Gradient;
+          LBitmap.Canvas.Fill.Gradient.Style := AGradientStyle;
+          ApplyGradientPoints(LBitmap.Canvas.Fill.Gradient, APoints);
+          LPathData := TPathData.CreateFromSkPath(StarPath);
+          try
+            LPathData.ApplyMatrix(CreateMatrix(0.33, 0.33, 0, 0, 0));
+            LBitmap.Canvas.FillPath(LPathData, AOpacity);
+          finally
+            LPathData.Free;
+          end;
+        finally
+          if LModulateCanvas <> nil then
+            LModulateCanvas.ModulateColor := TAlphaColors.White;
+        end;
+      finally
+        LBitmap.Canvas.EndScene;
+      end;
+    Assert.AreSimilar(AExpectedImageHash, LBitmap.ToSkImage, AMinSimilarity);
+  finally
+    LBitmap.Free;
+  end;
+end;
+
+procedure TSkFMXCanvasTests.TestFillPathSolid(const AMinSimilarity: Double; const AExpectedImageHash: string);
+var
+  LBitmap: TBitmap;
+  LPathData: TPathData;
+begin
+  LBitmap := TBitmap.Create;
+  try
+    LBitmap.SetSize(100, 100);
+    if LBitmap.Canvas.BeginScene then
+      try
+        LBitmap.Canvas.Fill.Kind := TBrushKind.Solid;
+        LBitmap.Canvas.Fill.Color := TAlphaColors.Black;
+        LPathData := CirclesPath(RectF(15, 15, 85, 85));
+        try
+          LBitmap.Canvas.FillPath(LPathData, 0.5);
+        finally
+          LPathData.Free;
+        end;
+      finally
+        LBitmap.Canvas.EndScene;
+      end;
+    Assert.AreSimilar(AExpectedImageHash, LBitmap.ToSkImage, AMinSimilarity);
+  finally
+    LBitmap.Free;
+  end;
+end;
+
+procedure TSkFMXCanvasTests.TestFillPathSolid2(const AMinSimilarity: Double; const AExpectedImageHash: string);
+var
+  LBitmap: TBitmap;
+  LPathData: TPathData;
+begin
+  LBitmap := TBitmap.Create;
+  try
+    LBitmap.SetSize(100, 100);
+    if LBitmap.Canvas.BeginScene then
+      try
+        LBitmap.Canvas.Fill.Kind := TBrushKind.Solid;
+        LBitmap.Canvas.Fill.Color := MakeColor(TAlphaColors.Black, 0.5);
+        LPathData := CirclesPath(RectF(15, 15, 85, 85));
+        try
+          LBitmap.Canvas.FillPath(LPathData, 1);
+        finally
+          LPathData.Free;
+        end;
+      finally
+        LBitmap.Canvas.EndScene;
+      end;
+    Assert.AreSimilar(AExpectedImageHash, LBitmap.ToSkImage, AMinSimilarity);
+  finally
+    LBitmap.Free;
+  end;
+end;
+
+procedure TSkFMXCanvasTests.TestFillPathSolid3(const AMinSimilarity: Double; const AExpectedImageHash: string);
+var
+  LBitmap: TBitmap;
+  LPathData: TPathData;
+begin
+  LBitmap := TBitmap.Create;
+  try
+    LBitmap.SetSize(100, 100);
+    if LBitmap.Canvas.BeginScene then
+      try
+        LBitmap.Canvas.IntersectClipRect(RectF(0, 0, 50, 50));
+        LBitmap.Canvas.Fill.Kind := TBrushKind.Solid;
+        LBitmap.Canvas.Fill.Color := TAlphaColors.Black;
+        LPathData := CirclesPath(RectF(15, 15, 85, 85));
+        try
+          LBitmap.Canvas.FillPath(LPathData, 1);
+        finally
+          LPathData.Free;
+        end;
+      finally
+        LBitmap.Canvas.EndScene;
+      end;
+    Assert.AreSimilar(AExpectedImageHash, LBitmap.ToSkImage, AMinSimilarity);
+  finally
+    LBitmap.Free;
+  end;
+end;
+
+procedure TSkFMXCanvasTests.TestFillPathSolid4(const AMinSimilarity: Double; const AExpectedImageHash: string);
+var
+  LBitmap: TBitmap;
+  LPathData: TPathData;
+begin
+  LBitmap := TBitmap.Create;
+  try
+    LBitmap.SetSize(100, 100);
+    if LBitmap.Canvas.BeginScene then
+      try
+        LBitmap.Canvas.IntersectClipRect(RectF(20, 20, 95, 95));
+        LBitmap.Canvas.Fill.Kind := TBrushKind.Solid;
+        LBitmap.Canvas.Fill.Color := TAlphaColors.Red;
+        LPathData := CirclesPath(RectF(15, 15, 85, 85));
+        try
+          LBitmap.Canvas.FillPath(LPathData, 1);
+        finally
+          LPathData.Free;
+        end;
+        LBitmap.Canvas.Fill.Color := TAlphaColors.Green;
+        LPathData := CirclesPath(RectF(50, 50, 100, 100));
+        try
+          LBitmap.Canvas.FillPath(LPathData, 0.7);
+        finally
+          LPathData.Free;
+        end;
+      finally
+        LBitmap.Canvas.EndScene;
+      end;
+    Assert.AreSimilar(AExpectedImageHash, LBitmap.ToSkImage, AMinSimilarity);
+  finally
+    LBitmap.Free;
+  end;
+end;
+
+procedure TSkFMXCanvasTests.TestFillPathSolid5(const AMinSimilarity: Double; const AExpectedImageHash: string);
+var
+  LBitmap: TBitmap;
+  LModulateCanvas: IModulateCanvas;
+  LPathData: TPathData;
+begin
+  LBitmap := TBitmap.Create;
+  try
+    LBitmap.SetSize(100, 100);
+    if LBitmap.Canvas.BeginScene then
+      try
+        if not Supports(LBitmap.Canvas, IModulateCanvas, LModulateCanvas) then
+          Exit;
+        LModulateCanvas.ModulateColor := TAlphaColors.Blue;
+        try
+          LBitmap.Canvas.IntersectClipRect(RectF(20, 20, 95, 95));
+          LBitmap.Canvas.Fill.Kind := TBrushKind.Solid;
+          LBitmap.Canvas.Fill.Color := TAlphaColors.Red;
+          LPathData := CirclesPath(RectF(15, 15, 85, 85));
+          try
+            LBitmap.Canvas.FillPath(LPathData, 1);
+          finally
+            LPathData.Free;
+          end;
+          LBitmap.Canvas.Fill.Color := TAlphaColors.Green;
+          LPathData := CirclesPath(RectF(50, 50, 100, 100));
+          try
+            LBitmap.Canvas.FillPath(LPathData, 0.7);
+          finally
+            LPathData.Free;
+          end;
+        finally
+          LModulateCanvas.ModulateColor := TAlphaColors.White;
+        end;
+      finally
+        LBitmap.Canvas.EndScene;
+      end;
+    Assert.AreSimilar(AExpectedImageHash, LBitmap.ToSkImage, AMinSimilarity);
+  finally
+    LBitmap.Free;
+  end;
+end;
+
+procedure TSkFMXCanvasTests.TestFillPathSolid6(const AMinSimilarity: Double; const AExpectedImageHash: string);
+var
+  LBitmap: TBitmap;
+  LPathData: TPathData;
+begin
+  LBitmap := TBitmap.Create;
+  try
+    LBitmap.SetSize(100, 100);
+    if LBitmap.Canvas.BeginScene then
+      try
+        LBitmap.Canvas.Blending := False;
+        LBitmap.Canvas.IntersectClipRect(RectF(20, 20, 95, 95));
+        LBitmap.Canvas.Fill.Kind := TBrushKind.Solid;
+        LBitmap.Canvas.Fill.Color := TAlphaColors.Red;
+        LPathData := CirclesPath(RectF(15, 15, 85, 85));
+        try
+          LBitmap.Canvas.FillPath(LPathData, 1);
+        finally
+          LPathData.Free;
+        end;
+        LBitmap.Canvas.Fill.Color := TAlphaColors.Green;
+        LPathData := CirclesPath(RectF(50, 50, 100, 100));
+        try
+          LBitmap.Canvas.FillPath(LPathData, 0.7);
+        finally
+          LPathData.Free;
+        end;
+      finally
+        LBitmap.Canvas.EndScene;
+      end;
+    Assert.AreSimilar(AExpectedImageHash, LBitmap.ToSkImage, AMinSimilarity);
+  finally
+    LBitmap.Free;
+  end;
+end;
+
+procedure TSkFMXCanvasTests.TestFillPathSolidWithMatrix(ASurfaceWidth, ASurfaceHeight: Integer; ASurfaceScaleX,
+  ASurfaceScaleY, ASurfaceOffsetX, ASurfaceOffsetY, ARotationDeg, ADestLeft, ADestTop, ADestRight, ADestBottom,
+  AOpacity: Single; ABlending: Boolean; const AMinSimilarity: Double; const AExpectedImageHash: string);
+var
+  LBitmap: TBitmap;
+  LPathData: TPathData;
+begin
+  LBitmap := TBitmap.Create;
+  try
+    LBitmap.SetSize(ASurfaceWidth, ASurfaceHeight);
+    if LBitmap.Canvas.BeginScene then
+      try
+        LBitmap.Canvas.Blending := ABlending;
+        LBitmap.Canvas.SetMatrix(
+          CreateMatrix(ASurfaceScaleX, ASurfaceScaleY, ASurfaceOffsetX, ASurfaceOffsetY, ARotationDeg));
+        LBitmap.Canvas.Fill.Kind := TBrushKind.Solid;
+        LBitmap.Canvas.Fill.Color := TAlphaColors.Red;
+        LPathData := CirclesPath(RectF(ADestLeft, ADestTop, ADestRight, ADestBottom));
+        try
+          LBitmap.Canvas.FillPath(LPathData, AOpacity);
+        finally
+          LPathData.Free;
+        end;
+      finally
+        LBitmap.Canvas.EndScene;
+      end;
+    Assert.AreSimilar(AExpectedImageHash, LBitmap.ToSkImage, AMinSimilarity);
+  finally
+    LBitmap.Free;
+  end;
+end;
+
+procedure TSkFMXCanvasTests.TestFillPathSolidWithModulateColor(const AMinSimilarity: Double;
+  const AExpectedImageHash: string);
+var
+  LBitmap: TBitmap;
+  LModulateCanvas: IModulateCanvas;
+  LPathData: TPathData;
+begin
+  LBitmap := TBitmap.Create;
+  try
+    LBitmap.SetSize(100, 100);
+    if LBitmap.Canvas.BeginScene then
+      try
+        if not Supports(LBitmap.Canvas, IModulateCanvas, LModulateCanvas) then
+          Exit;
+        LModulateCanvas.ModulateColor := TAlphaColors.Blue;
+        try
+          LBitmap.Canvas.Fill.Kind := TBrushKind.Solid;
+          LBitmap.Canvas.Fill.Color := TAlphaColors.Red;
+          LPathData := CirclesPath(RectF(15, 15, 85, 85));
+          try
+            LBitmap.Canvas.FillPath(LPathData, 0.6);
+          finally
+            LPathData.Free;
+          end;
+        finally
+          LModulateCanvas.ModulateColor := TAlphaColors.White;
+        end;
+      finally
+        LBitmap.Canvas.EndScene;
+      end;
+    Assert.AreSimilar(AExpectedImageHash, LBitmap.ToSkImage, AMinSimilarity);
+  finally
+    LBitmap.Free;
+  end;
+end;
+
+procedure TSkFMXCanvasTests.TestFillPathSolidWithResource(const AMinSimilarity: Double;
+  const AExpectedImageHash: string);
+var
+  LBitmap: TBitmap;
+  LBrushObject: TBrushObject;
+  LBrushObject2: TBrushObject;
+  LPathData: TPathData;
+begin
+  LBitmap := TBitmap.Create;
+  try
+    LBitmap.SetSize(100, 100);
+    if LBitmap.Canvas.BeginScene then
+      try
+        LBrushObject := TBrushObject.Create(nil);
+        try
+          LBrushObject2 := TBrushObject.Create(nil);
+          try
+            LBrushObject2.Brush.Kind := TBrushKind.Solid;
+            LBrushObject2.Brush.Color := TAlphaColors.Blue;
+            LBrushObject.Brush.Kind := TBrushKind.Resource;
+            LBrushObject.Brush.Resource.StyleResource := LBrushObject2;
+            LBitmap.Canvas.Fill.Kind := TBrushKind.Resource;
+            LBitmap.Canvas.Fill.Resource.StyleResource := LBrushObject;
+            LPathData := CirclesPath(RectF(15, 15, 85, 85));
+            try
+              LBitmap.Canvas.FillPath(LPathData, 0.7);
+            finally
+              LPathData.Free;
+            end;
+          finally
+            LBrushObject2.Free;
+          end;
+        finally
+          LBrushObject.Free;
+        end;
+      finally
+        LBitmap.Canvas.EndScene;
+      end;
+    Assert.AreSimilar(AExpectedImageHash, LBitmap.ToSkImage, AMinSimilarity);
+  finally
+    LBitmap.Free;
+  end;
+end;
+
 procedure TSkFMXCanvasTests.TestFillRectBitmap(const AImageFileName, AModulateColor: string; AWrapMode: TWrapMode;
   const ALeftPercent, ATopPercent, ARightPercent, ABottomPercent, AOpacity, AMinSimilarity: Double;
   const AExpectedImageHash: string);
@@ -3359,8 +5822,43 @@ begin
   end;
 end;
 
-type
-  TOpenTransform = class(TTransform);
+procedure TSkFMXCanvasTests.TestFillRectGradient2(const APoints, AModulateColor: string; AGradientStyle: TGradientStyle;
+  ABlending: Boolean; const AScale, AOpacity, AMinSimilarity: Double; const AExpectedImageHash: string);
+var
+  LBitmap: TBitmap;
+  LModulateCanvas: IModulateCanvas;
+begin
+  LBitmap := TBitmap.Create;
+  try
+    LBitmap.SetSize(100, 100);
+    LBitmap.BitmapScale := AScale;
+    if LBitmap.Canvas.BeginScene then
+      try
+        if StringToAlphaColor(AModulateColor) <> TAlphaColors.White then
+        begin
+          if not Supports(LBitmap.Canvas, IModulateCanvas, LModulateCanvas) then
+            Exit;
+          LModulateCanvas.ModulateColor := StringToAlphaColor(AModulateColor);
+        end;
+        try
+          LBitmap.Canvas.SetMatrix(TMatrix.CreateTranslation(10, 10));
+          LBitmap.Canvas.Blending := ABlending;
+          LBitmap.Canvas.Fill.Kind := TBrushKind.Gradient;
+          LBitmap.Canvas.Fill.Gradient.Style := AGradientStyle;
+          ApplyGradientPoints(LBitmap.Canvas.Fill.Gradient, APoints);
+          LBitmap.Canvas.FillRect(RectF(0, 20, 80, 60), 0, 0, [], AOpacity);
+        finally
+          if LModulateCanvas <> nil then
+            LModulateCanvas.ModulateColor := TAlphaColors.White;
+        end;
+      finally
+        LBitmap.Canvas.EndScene;
+      end;
+    Assert.AreSimilar(AExpectedImageHash, LBitmap.ToSkImage, AMinSimilarity);
+  finally
+    LBitmap.Free;
+  end;
+end;
 
 procedure TSkFMXCanvasTests.TestFillRectGradientRadial(const APoints, AModulateColor: string; AGradientScaleX,
   AGradientScaleY, AGradientPosX, AGradientPosY, AGradientRotationDegree, AGradientRotationCenterX,
