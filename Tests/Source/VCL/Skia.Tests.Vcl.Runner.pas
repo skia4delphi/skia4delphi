@@ -531,7 +531,7 @@ var
     try
       ACanvas.Translate(AImageRect.Left, AImageRect.Top);
       ACanvas.Scale(AImageRect.Width / AImage.Width, AImageRect.Height / AImage.Height);
-      ACanvas.DrawImage(AImage, 0, 0, TSkSamplingOptions.Low);
+      ACanvas.DrawImage(AImage, 0, 0, TSkSamplingOptions.High);
     finally
       ACanvas.Restore;
     end;
