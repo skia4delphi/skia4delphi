@@ -6787,16 +6787,12 @@ end;
 {$HPPEMIT END '    using ::Vcl::Skia::TSkTextTrimming;'}
 {$HPPEMIT END '    using ::Vcl::Skia::TSkTextVertAlign;'}
 {$HPPEMIT END '    using ::Vcl::Skia::TSkTypefaceManager;'}
-{$HPPEMIT END '    typedef ::System::Skia::_di_ISkImage (__fastcall *TBitmapToSkImageFunc)(::Vcl::Graphics::TBitmap* const ABitmap);'}
-{$HPPEMIT END '    typedef void (__fastcall *TDrawDesignBorderProc)(const ::System::Skia::_di_ISkCanvas ACanvas, const ::System::Types::TRectF &ADest, const float AOpacity);'}
-{$HPPEMIT END '    typedef void (__fastcall *TSkiaDrawProc)(::Vcl::Graphics::TBitmap* const ABitmap, const ::Vcl::Skia::_di_TSkDrawProc AProc, const bool AStartClean);'}
-{$HPPEMIT END '    typedef ::Vcl::Graphics::TBitmap* (__fastcall *TSkImageToBitmapFunc)(const ::System::Skia::_di_ISkImage AImage);'}
-{$HPPEMIT END '    static TSkStyledSettings& AllStyledSettings = ::Vcl::Skia::AllStyledSettings;'}
-{$HPPEMIT END '    static TSkStyledSettings& DefaultStyledSettings = ::Vcl::Skia::DefaultStyledSettings;'}
-{$HPPEMIT END '    static const TBitmapToSkImageFunc BitmapToSkImage = ::Vcl::Skia::BitmapToSkImage;'}
-{$HPPEMIT END '    static const TDrawDesignBorderProc DrawDesignBorder = ::Vcl::Skia::DrawDesignBorder;'}
-{$HPPEMIT END '    static const TSkiaDrawProc SkiaDraw = ::Vcl::Skia::SkiaDraw;'}
-{$HPPEMIT END '    static const TSkImageToBitmapFunc SkImageToBitmap = ::Vcl::Skia::SkImageToBitmap;'}
+{$HPPEMIT END '    using ::Vcl::Skia::AllStyledSettings;'}
+{$HPPEMIT END '    using ::Vcl::Skia::DefaultStyledSettings;'}
+{$HPPEMIT END '    using ::Vcl::Skia::BitmapToSkImage;'}
+{$HPPEMIT END '    using ::Vcl::Skia::DrawDesignBorder;'}
+{$HPPEMIT END '    using ::Vcl::Skia::SkiaDraw;'}
+{$HPPEMIT END '    using ::Vcl::Skia::SkImageToBitmap;'}
 {$HPPEMIT END '#endif'}
 
 initialization

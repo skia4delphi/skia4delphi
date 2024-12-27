@@ -1062,7 +1062,7 @@ type
     class procedure __DestroyHandle(const AHandle: sk_handle_t); override;
   end;
 
-  {$HPPEMIT END '#define GrBackendRenderTarget(...) __SkCreate(TGrBackendSemaphore, IGrBackendSemaphore, __VA_ARGS__)'}
+  {$HPPEMIT END '#define GrBackendSemaphore(...) __SkCreate(TGrBackendSemaphore, IGrBackendSemaphore, __VA_ARGS__)'}
 
   { IGrBackendSurfaceMutableState }
 
@@ -1076,7 +1076,7 @@ type
     class procedure __DestroyHandle(const AHandle: sk_handle_t); override;
   end;
 
-  {$HPPEMIT END '#define GrBackendRenderTarget(...) __SkCreate(TGrBackendSurfaceMutableState, IGrBackendSurfaceMutableState, __VA_ARGS__)'}
+  {$HPPEMIT END '#define GrBackendSurfaceMutableState(...) __SkCreate(TGrBackendSurfaceMutableState, IGrBackendSurfaceMutableState, __VA_ARGS__)'}
 
   { IGrBackendTexture }
 
@@ -13417,41 +13417,40 @@ end;
 {$HPPEMIT END '    using ::System::Skia::TSkUnicodeCodepointProc;'}
 {$HPPEMIT END '    using ::System::Skia::TSkVertexMode;'}
 {$HPPEMIT END '    using ::System::Skia::TSkVertices;'}
-{$HPPEMIT END '    typedef TSkEncodedImageFormat (__fastcall *TExtensionToEncodedImageFormatFunc)(const ::System::UnicodeString AValue);'}
-{$HPPEMIT END '    static const TSkFontSlant SkFontSlantRegular = ::System::Skia::SkFontSlantRegular;'}
-{$HPPEMIT END '    static const TSkFontWeight SkFontWeightDemiBold = ::System::Skia::SkFontWeightDemiBold;'}
-{$HPPEMIT END '    static const TSkFontWeight SkFontWeightHairline = ::System::Skia::SkFontWeightHairline;'}
-{$HPPEMIT END '    static const TSkFontWeight SkFontWeightHeavy = ::System::Skia::SkFontWeightHeavy;'}
-{$HPPEMIT END '    static const TSkFontWeight SkFontWeightRegular = ::System::Skia::SkFontWeightRegular;'}
-{$HPPEMIT END '    static const TSkFontWeight SkFontWeightUltraBlack = ::System::Skia::SkFontWeightUltraBlack;'}
-{$HPPEMIT END '    static const TSkFontWeight SkFontWeightUltraBold = ::System::Skia::SkFontWeightUltraBold;'}
-{$HPPEMIT END '    static const TSkFontWeight SkFontWeightUltraLight = ::System::Skia::SkFontWeightUltraLight;'}
-{$HPPEMIT END '    static const TSkFontWidth SkFontWidthRegular = ::System::Skia::SkFontWidthRegular;'}
-{$HPPEMIT END '    static ::System::StaticArray<int, 23>& SkBytesPerPixel = ::System::Skia::SkBytesPerPixel;'}
-{$HPPEMIT END '    static TSkColorMatrix& SkColorMatrixIdentity = ::System::Skia::SkColorMatrixIdentity;'}
-{$HPPEMIT END '    static TSkColorSpaceTransferFunction& SkColorSpaceTransferFunctionHLG = ::System::Skia::SkColorSpaceTransferFunctionHLG;'}
-{$HPPEMIT END '    static TSkColorSpaceTransferFunction& SkColorSpaceTransferFunctionLinear = ::System::Skia::SkColorSpaceTransferFunctionLinear;'}
-{$HPPEMIT END '    static TSkColorSpaceTransferFunction& SkColorSpaceTransferFunctionPQ = ::System::Skia::SkColorSpaceTransferFunctionPQ;'}
-{$HPPEMIT END '    static TSkColorSpaceTransferFunction& SkColorSpaceTransferFunctionRec2020 = ::System::Skia::SkColorSpaceTransferFunctionRec2020;'}
-{$HPPEMIT END '    static TSkColorSpaceTransferFunction& SkColorSpaceTransferFunctionSRGB = ::System::Skia::SkColorSpaceTransferFunctionSRGB;'}
-{$HPPEMIT END '    static TSkColorSpaceTransferFunction& SkColorSpaceTransferFunctionTwoDotTwo = ::System::Skia::SkColorSpaceTransferFunctionTwoDotTwo;'}
-{$HPPEMIT END '    static TSkColorSpaceXyz& SkColorSpaceXyzAdobeRGB = ::System::Skia::SkColorSpaceXyzAdobeRGB;'}
-{$HPPEMIT END '    static TSkColorSpaceXyz& SkColorSpaceXyzDisplayP3 = ::System::Skia::SkColorSpaceXyzDisplayP3;'}
-{$HPPEMIT END '    static TSkColorSpaceXyz& SkColorSpaceXyzIdentity = ::System::Skia::SkColorSpaceXyzIdentity;'}
-{$HPPEMIT END '    static TSkColorSpaceXyz& SkColorSpaceXyzRec2020 = ::System::Skia::SkColorSpaceXyzRec2020;'}
-{$HPPEMIT END '    static TSkColorSpaceXyz& SkColorSpaceXyzSRGB = ::System::Skia::SkColorSpaceXyzSRGB;'}
-{$HPPEMIT END '    static TSkCubicResampler& SkCubicResamplerCatmullRom = ::System::Skia::SkCubicResamplerCatmullRom;'}
-{$HPPEMIT END '    static TSkCubicResampler& SkCubicResamplerMitchell = ::System::Skia::SkCubicResamplerMitchell;'}
-{$HPPEMIT END '    static TSkFontStyle& SkFontStyleBold = ::System::Skia::SkFontStyleBold;'}
-{$HPPEMIT END '    static TSkFontStyle& SkFontStyleBoldItalic = ::System::Skia::SkFontStyleBoldItalic;'}
-{$HPPEMIT END '    static TSkFontStyle& SkFontStyleItalic = ::System::Skia::SkFontStyleItalic;'}
-{$HPPEMIT END '    static TSkFontStyle& SkFontStyleNormal = ::System::Skia::SkFontStyleNormal;'}
-{$HPPEMIT END '    static TSkColorType& SkNative32ColorType = ::System::Skia::SkNative32ColorType;'}
-{$HPPEMIT END '    static TSkRotationScaleMatrix& SkRotationScaleMatrixIdentity = ::System::Skia::SkRotationScaleMatrixIdentity;'}
-{$HPPEMIT END '    static TSkSamplingOptions& SkSamplingOptionsHigh = ::System::Skia::SkSamplingOptionsHigh;'}
-{$HPPEMIT END '    static TSkSamplingOptions& SkSamplingOptionsLow = ::System::Skia::SkSamplingOptionsLow;'}
-{$HPPEMIT END '    static TSkSamplingOptions& SkSamplingOptionsMedium = ::System::Skia::SkSamplingOptionsMedium;'}
-{$HPPEMIT END '    static ::System::StaticArray<int, 23>& SkShiftPerPixel = ::System::Skia::SkShiftPerPixel;'}
-{$HPPEMIT END '    static const TExtensionToEncodedImageFormatFunc ExtensionToEncodedImageFormat = ::System::Skia::ExtensionToEncodedImageFormat;'}
+{$HPPEMIT END '    using ::System::Skia::SkFontSlantRegular;'}
+{$HPPEMIT END '    using ::System::Skia::SkFontWeightDemiBold;'}
+{$HPPEMIT END '    using ::System::Skia::SkFontWeightHairline;'}
+{$HPPEMIT END '    using ::System::Skia::SkFontWeightHeavy;'}
+{$HPPEMIT END '    using ::System::Skia::SkFontWeightRegular;'}
+{$HPPEMIT END '    using ::System::Skia::SkFontWeightUltraBlack;'}
+{$HPPEMIT END '    using ::System::Skia::SkFontWeightUltraBold;'}
+{$HPPEMIT END '    using ::System::Skia::SkFontWeightUltraLight;'}
+{$HPPEMIT END '    using ::System::Skia::SkFontWidthRegular;'}
+{$HPPEMIT END '    using ::System::Skia::SkBytesPerPixel;'}
+{$HPPEMIT END '    using ::System::Skia::SkColorMatrixIdentity;'}
+{$HPPEMIT END '    using ::System::Skia::SkColorSpaceTransferFunctionHLG;'}
+{$HPPEMIT END '    using ::System::Skia::SkColorSpaceTransferFunctionLinear;'}
+{$HPPEMIT END '    using ::System::Skia::SkColorSpaceTransferFunctionPQ;'}
+{$HPPEMIT END '    using ::System::Skia::SkColorSpaceTransferFunctionRec2020;'}
+{$HPPEMIT END '    using ::System::Skia::SkColorSpaceTransferFunctionSRGB;'}
+{$HPPEMIT END '    using ::System::Skia::SkColorSpaceTransferFunctionTwoDotTwo;'}
+{$HPPEMIT END '    using ::System::Skia::SkColorSpaceXyzAdobeRGB;'}
+{$HPPEMIT END '    using ::System::Skia::SkColorSpaceXyzDisplayP3;'}
+{$HPPEMIT END '    using ::System::Skia::SkColorSpaceXyzIdentity;'}
+{$HPPEMIT END '    using ::System::Skia::SkColorSpaceXyzRec2020;'}
+{$HPPEMIT END '    using ::System::Skia::SkColorSpaceXyzSRGB;'}
+{$HPPEMIT END '    using ::System::Skia::SkCubicResamplerCatmullRom;'}
+{$HPPEMIT END '    using ::System::Skia::SkCubicResamplerMitchell;'}
+{$HPPEMIT END '    using ::System::Skia::SkFontStyleBold;'}
+{$HPPEMIT END '    using ::System::Skia::SkFontStyleBoldItalic;'}
+{$HPPEMIT END '    using ::System::Skia::SkFontStyleItalic;'}
+{$HPPEMIT END '    using ::System::Skia::SkFontStyleNormal;'}
+{$HPPEMIT END '    using ::System::Skia::SkNative32ColorType;'}
+{$HPPEMIT END '    using ::System::Skia::SkRotationScaleMatrixIdentity;'}
+{$HPPEMIT END '    using ::System::Skia::SkSamplingOptionsHigh;'}
+{$HPPEMIT END '    using ::System::Skia::SkSamplingOptionsLow;'}
+{$HPPEMIT END '    using ::System::Skia::SkSamplingOptionsMedium;'}
+{$HPPEMIT END '    using ::System::Skia::SkShiftPerPixel;'}
+{$HPPEMIT END '    using ::System::Skia::ExtensionToEncodedImageFormat;'}
 {$HPPEMIT END '#endif'}
 end.
