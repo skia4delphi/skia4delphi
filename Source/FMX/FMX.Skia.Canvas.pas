@@ -4163,12 +4163,9 @@ end;
 {$HPPEMIT END '    using ::Fmx::Skia::Canvas::TSkCanvasCustom;'}
 {$HPPEMIT END '    using ::Fmx::Skia::Canvas::TSkCanvasCustomClass;'}
 {$HPPEMIT END '    using ::Fmx::Skia::Canvas::TSkTextLayout;'}
-{$HPPEMIT END '    typedef TSkCanvasBaseClass (__fastcall *TDefaultSkiaRenderCanvasClassFunc)(void);'}
-{$HPPEMIT END '    typedef void (__fastcall *TRegisterSkiaRenderCanvasProc)(const ::Fmx::Skia::Canvas::TSkCanvasBaseClass ACanvasClass, const bool APriority, '}
-{$HPPEMIT END '        const ::System::DelphiInterface<System::Sysutils::TFunc__1<bool> > AIsSupportedFunc);'}
-{$HPPEMIT END '    static ::System::StaticArray<int, 3>& CanvasQualitySampleCount = ::Fmx::Skia::Canvas::CanvasQualitySampleCount;'}
-{$HPPEMIT END '    static const TDefaultSkiaRenderCanvasClassFunc DefaultSkiaRenderCanvasClass = ::Fmx::Skia::Canvas::DefaultSkiaRenderCanvasClass;'}
-{$HPPEMIT END '    static const TRegisterSkiaRenderCanvasProc RegisterSkiaRenderCanvas = ::Fmx::Skia::Canvas::RegisterSkiaRenderCanvas;'}
+{$HPPEMIT END '    using ::Fmx::Skia::Canvas::CanvasQualitySampleCount;'}
+{$HPPEMIT END '    using ::Fmx::Skia::Canvas::DefaultSkiaRenderCanvasClass;'}
+{$HPPEMIT END '    using ::Fmx::Skia::Canvas::RegisterSkiaRenderCanvas;'}
 {$HPPEMIT END '#endif'}
 
 {$REGION '- Canvas Registration'}
