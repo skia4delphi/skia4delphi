@@ -2,7 +2,7 @@
 {                                                                        }
 {                              Skia4Delphi                               }
 {                                                                        }
-{ Copyright (c) 2021-2024 Skia4Delphi Project.                           }
+{ Copyright (c) 2021-2025 Skia4Delphi Project.                           }
 {                                                                        }
 { Use of this source code is governed by the MIT license that can be     }
 { found in the LICENSE file.                                             }
@@ -1294,6 +1294,7 @@ type
     {$ENDIF}
     procedure LoadFromClipboardFormat(AFormat: Word; AData: THandle; APalette: HPALETTE); override;
     procedure LoadFromStream(AStream: TStream); override;
+    function QueryInterface(const IID: TGUID; out Obj): HResult; override; stdcall;
     procedure SaveToClipboardFormat(var AFormat: Word; var AData: THandle; var APalette: HPALETTE); override;
     procedure SaveToFile(const AFileName: string); override;
     procedure SaveToStream(AStream: TStream); override;
@@ -6495,6 +6496,13 @@ begin
   Changed(Self);
 end;
 
+function TSkGraphic.QueryInterface(const IID: TGUID; out Obj): HResult;
+begin
+  Result := inherited QueryInterface(IID, Obj);
+  if (FImage <> nil) and (Result <> S_OK) then
+    Result := FImage.QueryInterface(IID, Obj);
+end;
+
 procedure TSkGraphic.SaveToClipboardFormat(var AFormat: Word;
   var AData: THandle; var APalette: HPALETTE);
 begin
@@ -6504,7 +6512,7 @@ procedure TSkGraphic.SaveToFile(const AFileName: string);
 begin
   if FImage <> nil then
   begin
-    if ExtensionToEncodedImageFormat(AFileName) = FFormat then
+    if ExtensionToEncodedImageFormat(ExtractFileExt(AFileName)) = FFormat then
       FData.SaveToFile(AFileName)
     else
       FImage.EncodeToFile(AFileName);
