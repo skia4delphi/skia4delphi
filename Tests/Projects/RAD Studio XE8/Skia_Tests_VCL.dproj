@@ -124,6 +124,7 @@
         <DCCReference Include="..\..\Source\Skia.Tests.TextBlob.pas"/>
         <DCCReference Include="..\..\Source\Skia.Tests.Unicode.pas"/>
         <DCCReference Include="..\..\Source\VCL\Skia.Tests.Vcl.Bitmap.pas"/>
+        <DCCReference Include="..\..\Source\VCL\Skia.Tests.Vcl.Codec.pas"/>
         <DCCReference Include="..\..\Source\VCL\Skia.Tests.Vcl.Runner.pas">
             <Form>frmVclRunner</Form>
             <FormType>dfm</FormType>
