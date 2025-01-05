@@ -2,7 +2,7 @@
 {                                                                        }
 {                              Skia4Delphi                               }
 {                                                                        }
-{ Copyright (c) 2021-2024 Skia4Delphi Project.                           }
+{ Copyright (c) 2021-2025 Skia4Delphi Project.                           }
 {                                                                        }
 { Use of this source code is governed by the MIT license that can be     }
 { found in the LICENSE file.                                             }
@@ -66,15 +66,15 @@ type
     [TestCase('WebP (kung-fu-panda.webp)',    'kung-fu-panda.webp')]
     [TestCase('WebP Animated (rocket.webp)',  'rocket.webp')]
     procedure TestDecodeFile(const AImageFileName: string);
-    [TestCase('SkImage Decode/Encode PNG (elephant.png)',        'elephant.png,80')]
-    [TestCase('SkImage Decode/Encode PNG (kung-fu-panda.png)',   'kung-fu-panda.png,0')]
-    [TestCase('SkImage Decode/Encode PNG (emoji1.png)',          'emoji1.png,100')]
-    [TestCase('SkImage Decode/Encode PNG (emoji2.png)',          'emoji2.png,50')]
-    [TestCase('SkImage Decode/Encode PNG (world-time-zone.png)', 'world-time-zone.png,100')]
-    [TestCase('SkImage Decode/Encode PNG (animated.png)',        'animated.png,30')]
+    [TestCase('PNG (elephant.png)',          'elephant.png,80')]
+    [TestCase('PNG (kung-fu-panda.png)',     'kung-fu-panda.png,0')]
+    [TestCase('PNG (emoji1.png)',            'emoji1.png,100')]
+    [TestCase('PNG (emoji2.png)',            'emoji2.png,50')]
+    [TestCase('PNG (world-time-zone.png)',   'world-time-zone.png,100')]
+    [TestCase('PNG Animated (animated.png)', 'animated.png,30')]
     procedure TestDecodeAndEncodePNG(const AImageFileName: string; const AQuality: Byte);
-    [TestCase('SkImage Decode/Encode WebP (kung-fu-panda.webp)',   'kung-fu-panda.webp,100')]
-    [TestCase('SkImage Decode/Encode WebP Animated (rocket.webp)', 'rocket.webp,90')]
+    [TestCase('WebP (kung-fu-panda.webp)',   'kung-fu-panda.webp,100')]
+    [TestCase('WebP Animated (rocket.webp)', 'rocket.webp,90')]
     procedure TestDecodeAndEncodeWebP(const AImageFileName: string; const AQuality: Byte);
   end;
 

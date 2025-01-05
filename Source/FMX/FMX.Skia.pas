@@ -2,7 +2,7 @@
 {                                                                        }
 {                              Skia4Delphi                               }
 {                                                                        }
-{ Copyright (c) 2021-2024 Skia4Delphi Project.                           }
+{ Copyright (c) 2021-2025 Skia4Delphi Project.                           }
 {                                                                        }
 { Use of this source code is governed by the MIT license that can be     }
 { found in the LICENSE file.                                             }
@@ -6319,31 +6319,24 @@ end;
 {$HPPEMIT END '    using ::Fmx::Skia::TSkTextSettingsClass;'}
 {$HPPEMIT END '    using ::Fmx::Skia::TSkTextSettingsInfo;'}
 {$HPPEMIT END '    using ::Fmx::Skia::TSkTypefaceManager;'}
-{$HPPEMIT END '    typedef void (__fastcall *TAddSkPathToPathDataProc)(::Fmx::Graphics::TPathData* const APathData, const ::System::Skia::_di_ISkPath ASkPath);'}
-{$HPPEMIT END '    typedef ::System::Skia::_di_ISkImage (__fastcall *TBitmapToSkImageFunc)(::Fmx::Graphics::TBitmap* const ABitmap);'}
-{$HPPEMIT END '    typedef void (__fastcall *TDrawDesignBorderProc)(const ::System::Skia::_di_ISkCanvas ACanvas, const ::System::Types::TRectF &ADest, const float AOpacity);'}
-{$HPPEMIT END '    typedef ::System::Skia::_di_ISkPath (__fastcall *TPathDataToSkPathFunc)(::Fmx::Graphics::TPathData* const APathData);'}
-{$HPPEMIT END '    typedef void (__fastcall *TSkiaDrawProc)(::Fmx::Graphics::TBitmap* const ABitmap, const ::Fmx::Skia::_di_TSkDrawProc AProc, const bool AStartClean);'}
-{$HPPEMIT END '    typedef ::Fmx::Graphics::TBitmap* (__fastcall *TSkImageToBitmapFunc)(const ::System::Skia::_di_ISkImage AImage);'}
-{$HPPEMIT END '    typedef ::Fmx::Graphics::TPathData* (__fastcall *TSkPathToPathDataFunc)(const ::System::Skia::_di_ISkPath ASkPath);'}
-{$HPPEMIT END '    static const int SkSupportedPlatformsMask = ::Fmx::Skia::SkSupportedPlatformsMask;'}
-{$HPPEMIT END '    static bool& GlobalDisableSkiaCodecsReplacement = ::Fmx::Skia::GlobalDisableSkiaCodecsReplacement;'}
-{$HPPEMIT END '    static bool& GlobalUseSkia = ::Fmx::Skia::GlobalUseSkia;'}
-{$HPPEMIT END '    static bool& GlobalUseSkiaRasterWhenAvailable = ::Fmx::Skia::GlobalUseSkiaRasterWhenAvailable;'}
+{$HPPEMIT END '    using ::Fmx::Skia::SkSupportedPlatformsMask;'}
+{$HPPEMIT END '    using ::Fmx::Skia::GlobalDisableSkiaCodecsReplacement;'}
+{$HPPEMIT END '    using ::Fmx::Skia::GlobalUseSkia;'}
+{$HPPEMIT END '    using ::Fmx::Skia::GlobalUseSkiaRasterWhenAvailable;'}
 {$IF CompilerVersion >= 36}
-{$HPPEMIT END '    static bool& GlobalUseSkiaFilters = ::Fmx::Skia::GlobalUseSkiaFilters;'}
-{$HPPEMIT END '    static bool& GlobalSkiaBitmapsInParallel = ::Fmx::Skia::GlobalSkiaBitmapsInParallel;'}
+{$HPPEMIT END '    using ::Fmx::Skia::GlobalUseSkiaFilters;'}
+{$HPPEMIT END '    using ::Fmx::Skia::GlobalSkiaBitmapsInParallel;'}
 {$ENDIF}
-{$HPPEMIT END '    static bool& GlobalSkiaTextLocale = ::Fmx::Skia::GlobalSkiaTextLocale;'}
-{$HPPEMIT END '    static ::System::StaticArray<System::Skia::TSkColorType, 24>& SkFmxColorType = ::Fmx::Skia::SkFmxColorType;'}
-{$HPPEMIT END '    static ::System::StaticArray<Fmx::Types::TPixelFormat, 23>& SkFmxPixelFormat = ::Fmx::Skia::SkFmxPixelFormat;'}
-{$HPPEMIT END '    static const TAddSkPathToPathDataProc AddSkPathToPathData = ::Fmx::Skia::AddSkPathToPathData;'}
-{$HPPEMIT END '    static const TBitmapToSkImageFunc BitmapToSkImage = ::Fmx::Skia::BitmapToSkImage;'}
-{$HPPEMIT END '    static const TDrawDesignBorderProc DrawDesignBorder = ::Fmx::Skia::DrawDesignBorder;'}
-{$HPPEMIT END '    static const TPathDataToSkPathFunc PathDataToSkPath = ::Fmx::Skia::PathDataToSkPath;'}
-{$HPPEMIT END '    static const TSkiaDrawProc SkiaDraw = ::Fmx::Skia::SkiaDraw;'}
-{$HPPEMIT END '    static const TSkImageToBitmapFunc SkImageToBitmap = ::Fmx::Skia::SkImageToBitmap;'}
-{$HPPEMIT END '    static const TSkPathToPathDataFunc SkPathToPathData = ::Fmx::Skia::SkPathToPathData;'}
+{$HPPEMIT END '    using ::Fmx::Skia::GlobalSkiaTextLocale;'}
+{$HPPEMIT END '    using ::Fmx::Skia::SkFmxColorType;'}
+{$HPPEMIT END '    using ::Fmx::Skia::SkFmxPixelFormat;'}
+{$HPPEMIT END '    using ::Fmx::Skia::AddSkPathToPathData;'}
+{$HPPEMIT END '    using ::Fmx::Skia::BitmapToSkImage;'}
+{$HPPEMIT END '    using ::Fmx::Skia::DrawDesignBorder;'}
+{$HPPEMIT END '    using ::Fmx::Skia::PathDataToSkPath;'}
+{$HPPEMIT END '    using ::Fmx::Skia::SkiaDraw;'}
+{$HPPEMIT END '    using ::Fmx::Skia::SkImageToBitmap;'}
+{$HPPEMIT END '    using ::Fmx::Skia::SkPathToPathData;'}
 {$HPPEMIT END '#endif'}
 
 initialization

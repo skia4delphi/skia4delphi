@@ -2,7 +2,7 @@
 {                                                                        }
 {                              Skia4Delphi                               }
 {                                                                        }
-{ Copyright (c) 2021-2024 Skia4Delphi Project.                           }
+{ Copyright (c) 2021-2025 Skia4Delphi Project.                           }
 {                                                                        }
 { Use of this source code is governed by the MIT license that can be     }
 { found in the LICENSE file.                                             }
@@ -719,6 +719,7 @@ begin
   FPanel.HitTest := False;
   FPanel.Width := 48;
   FPanel.Align := TAlignLayout.Right;
+  FPanel.Margins.Right := 1;
   FPanel.Visible := False;
   FPanel.Parent := Self;
 end;
