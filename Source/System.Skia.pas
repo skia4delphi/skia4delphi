@@ -57,7 +57,7 @@ uses
   System.Skia.API;
 
 const
-  SkVersion = '6.2.0';
+  SkVersion = '6.3.0-beta1';
 
 {$REGION 'FPC Compatibility'}
 {$IFDEF FPC}
