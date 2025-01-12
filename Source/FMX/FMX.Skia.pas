@@ -1114,6 +1114,9 @@ type
     function FillTextFlags: TFillTextFlags; override;
     procedure FreeStyle; override;
     function GetDefaultSize: TSizeF; override;
+    {$IF CompilerVersion > 36}
+    function GetDefaultStyleLookupName: string; override;
+    {$ENDIF}
     function GetTextSettingsClass: TSkTextSettingsInfo.TCustomTextSettingsClass; virtual;
     function GetWordsItemAtPosition(const AX, AY: Single): TCustomWordsItem;
     function IsStyledSettingsStored: Boolean; virtual;
@@ -4284,7 +4287,28 @@ begin
 end;
 
 procedure TSkTextSettings.DoAssign(ASource: TPersistent);
+
+  function TextAlignToSkTextHorzAlign(const ATextAlign: TTextAlign): TSkTextHorzAlign;
+  begin
+    case ATextAlign of
+      TTextAlign.Center:
+        Result := TSkTextHorzAlign.Center;
+      TTextAlign.Leading:
+        Result := TSkTextHorzAlign.Leading;
+      TTextAlign.Trailing:
+        Result := TSkTextHorzAlign.Trailing;
+    else
+      Result := DefaultHorzAlign;
+    end;
+  end;
+
+{$IF CompilerVersion < 31}
+const
+  ItalicToSlant: array[Boolean] of TFontSlant = (TFontSlant.Regular, TFontSlant.Italic);
+  BoldToWeight: array[Boolean] of TFontWeight = (TFontWeight.Regular, TFontWeight.Bold);
+{$ENDIF}
 var
+  LFMXTextSettings: TTextSettings absolute ASource;
   LSourceTextSettings: TSkTextSettings absolute ASource;
 begin
   if ASource = nil then
@@ -4310,6 +4334,28 @@ begin
     MaxLines         := LSourceTextSettings.MaxLines;
     Trimming         := LSourceTextSettings.Trimming;
     VertAlign        := LSourceTextSettings.VertAlign;
+  end
+  else if ASource is TTextSettings then
+  begin
+    Decorations      := nil;
+    Font.Families    := LFMXTextSettings.Font.Family;
+    Font.Size        := LFMXTextSettings.Font.Size;
+    {$IF CompilerVersion >= 31}
+    Font.Slant       := LFMXTextSettings.Font.StyleExt.Slant;
+    Font.Stretch     := LFMXTextSettings.Font.StyleExt.Stretch;
+    Font.Weight      := LFMXTextSettings.Font.StyleExt.Weight;
+    {$ELSE}
+    Font.Slant       := ItalicToSlant[TFontStyle.fsItalic in LFMXTextSettings.Font.Style];
+    Font.Stretch     := TFontStretch.Regular;
+    Font.Weight      := BoldToWeight[TFontStyle.fsBold in LFMXTextSettings.Font.Style];
+    {$ENDIF}
+    FontColor        := LFMXTextSettings.FontColor;
+    HeightMultiplier := DefaultHeightMultiplier;
+    HorzAlign        := TextAlignToSkTextHorzAlign(LFMXTextSettings.HorzAlign);
+    LetterSpacing    := DefaultLetterSpacing;
+    MaxLines         := DefaultMaxLines;
+    Trimming         := LFMXTextSettings.Trimming;
+    VertAlign        := LFMXTextSettings.VertAlign;
   end
   else
     inherited;
@@ -5159,6 +5205,7 @@ var
   procedure SetupDefaultTextSetting(const AObject: TFmxObject;
     const ADefaultTextSettings: TSkTextSettings);
   var
+    LFMXTextSettings: ITextSettings;
     LNewFamily: string;
     LNewSize: Single;
   begin
@@ -5170,8 +5217,10 @@ var
     FStyleText := nil;
     if ADefaultTextSettings <> nil then
     begin
-      if (AObject <> nil) and Supports(AObject, ISkStyleTextObject, FStyleText) then
+      if Supports(AObject, ISkStyleTextObject, FStyleText) then
         ADefaultTextSettings.Assign(FStyleText.TextSettings)
+      else if Supports(AObject, ITextSettings, LFMXTextSettings) then
+        ADefaultTextSettings.Assign(LFMXTextSettings.TextSettings)
       else
         ADefaultTextSettings.Assign(nil);
 
@@ -5475,6 +5524,13 @@ begin
   {$ENDIF}
     Result := TSizeF.Create(120, 19);
 end;
+
+{$IF CompilerVersion > 36}
+function TSkLabel.GetDefaultStyleLookupName: string;
+begin
+  Result := 'labelstyle';
+end;
+{$ENDIF}
 
 function TSkLabel.GetDefaultTextSettings: TSkTextSettings;
 begin

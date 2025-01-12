@@ -719,6 +719,7 @@ begin
   FPanel.HitTest := False;
   FPanel.Width := 48;
   FPanel.Align := TAlignLayout.Right;
+  FPanel.Margins.Right := 1;
   FPanel.Visible := False;
   FPanel.Parent := Self;
 end;
