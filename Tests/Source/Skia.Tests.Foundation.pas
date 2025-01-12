@@ -103,6 +103,13 @@ type
     class property OnImageChecking: TOnImageCheckingProc read FOnImageChecking write FOnImageChecking;
   end;
 
+  { TestCaseIgnoreAttribute }
+
+  TestCaseIgnoreAttribute = class(IgnoreAttribute)
+  public
+    constructor Create(const ACaseName, AValues: string);
+  end;
+
   { TSkPathHelper }
 
   TSkPathHelper = record helper for TPath
@@ -762,6 +769,13 @@ begin
   finally
     LStream.Free;
   end;
+end;
+
+{ TestCaseIgnoreAttribute }
+
+constructor TestCaseIgnoreAttribute.Create(const ACaseName, AValues: string);
+begin
+  inherited Create;
 end;
 
 { TSkPathHelper }
