@@ -38,6 +38,8 @@ type
   [TestFixture]
   TSkLabelTests = class(TTestBase)
   private
+    type
+      TSkLabelClass = class of TSkLabel;
     const
       ShortText = 'Label1';
       {$IFDEF TEXT_RENDER}
@@ -52,7 +54,7 @@ type
         'ut tellus elementum sagittis vitae et leo. In iaculis nunc sed augue lacus viverra vitae congue eu. Feugiat pretium ' +
         'nibh ipsum consequat nisl. Lobortis feugiat vivamus at augue eget arcu dictum.';
       {$ENDIF}
-    procedure Test(const AText: string; const ABitmapSize: TSize; const AScale, AFontSize: Single; const ATextTopLeft, AMaxSize: TPointF; const AMaxLines: Integer; const ARightToLeft: Boolean; const AHorizontalAlign: TSkTextHorzAlign; const AVerticalAlign: TTextAlign; const ATrimming: TTextTrimming; const AColor: TAlphaColor; const AExpectedTextRect: TRectF; const ACheckTextRect: Boolean; const AMinSimilarity: Double; const AExpectedImageHash: string);
+    procedure Test(const AText: string; const ABitmapSize: TSize; const AScale, AFontSize: Single; const ATextTopLeft, AMaxSize: TPointF; const AMaxLines: Integer; const ARightToLeft: Boolean; const AHorizontalAlign: TSkTextHorzAlign; const AVerticalAlign: TTextAlign; const ATrimming: TTextTrimming; const AColor: TAlphaColor; const AExpectedTextRect: TRectF; const ACheckTextRect: Boolean; ALabelClass: TSkLabelClass; const AMinSimilarity: Double; const AExpectedImageHash: string);
   protected
     function AssetsPath: string; override;
   public
@@ -122,6 +124,10 @@ type
     [Test]
     {$ENDIF}
     procedure TestJapaneseLocale;
+    {$IF Defined(TEXT_RENDER) AND (CompilerVersion > 28)}
+    [Test]
+    {$ENDIF}
+    procedure TestStyle;
     [Setup]
     procedure Setup; override;
   end;
@@ -137,14 +143,59 @@ uses
   {$IF CompilerVersion >= 29}
   FMX.Utils,
   {$ENDIF}
+  FMX.Controls,
   FMX.Graphics,
-  FMX.Forms;
+  FMX.Forms,
+  FMX.Layouts,
+  FMX.Objects;
 
 type
   TSkLabelAccess = class(TSkLabel)
   public
     property ParagraphBounds;
   end;
+
+  TSkLabelDarkStyled = class(TSkLabel)
+  private
+    FResourceLink: TFmxObject;
+  protected
+    procedure Draw(const ACanvas: ISkCanvas; const ADest: TRectF; const AOpacity: Single); override;
+    function GetResourceLink: TFmxObject; {$IF CompilerVersion > 28}override;{$ENDIF}
+  public
+    function FindStyleResource(const AStyleLookup: string; const Clone: Boolean = False): TFmxObject; override;
+  end;
+
+{ TSkLabelDarkStyled }
+
+procedure TSkLabelDarkStyled.Draw(const ACanvas: ISkCanvas; const ADest: TRectF; const AOpacity: Single);
+begin
+  ApplyStyle;
+  inherited;
+end;
+
+function TSkLabelDarkStyled.FindStyleResource(const AStyleLookup: string; const Clone: Boolean): TFmxObject;
+begin
+  Result := GetResourceLink.FindStyleResource(AStyleLookup, Clone);
+end;
+
+function TSkLabelDarkStyled.GetResourceLink: TFmxObject;
+var
+  LLayout: TLayout;
+  LText: TText;
+begin
+  if FResourceLink = nil then
+  begin
+    LLayout := TLayout.Create(Self);
+    LLayout.StyleName := 'Labelstyle';
+    LText := TText.Create(LLayout);
+    LText.StyleName := 'text';
+    LText.Align := TAlignLayout.Client;
+    LText.TextSettings.FontColor := TAlphaColors.White;
+    LText.Parent := LLayout;
+    FResourceLink := LLayout;
+  end;
+  Result := FResourceLink;
+end;
 
 const
   TextRectEpsilon = 2;
@@ -168,7 +219,7 @@ begin
     PointF(ATextLeft, ATextTop), PointF(AMaxWidth, AMaxHeight), AMaxLines,
     ARightToLeft, AHorizontalAlign, AVerticalAlign, ATrimming, StringToAlphaColor(AColor),
     RectF(AExpectedTextLeft, AExpectedTextTop, AExpectedTextRight, AExpectedTextBottom),
-    True, AMinSimilarity, AExpectedImageHash);
+    True, TSkLabel, AMinSimilarity, AExpectedImageHash);
 end;
 
 procedure TSkLabelTests.Setup;
@@ -183,7 +234,7 @@ procedure TSkLabelTests.Test(const AText: string; const ABitmapSize: TSize;
   const AHorizontalAlign: TSkTextHorzAlign;
   const AVerticalAlign: TTextAlign; const ATrimming: TTextTrimming;
   const AColor: TAlphaColor; const AExpectedTextRect: TRectF;
-  const ACheckTextRect: Boolean; const AMinSimilarity: Double;
+  const ACheckTextRect: Boolean; ALabelClass: TSkLabelClass; const AMinSimilarity: Double;
   const AExpectedImageHash: string);
 var
   LBitmap: TBitmap;
@@ -204,7 +255,7 @@ begin
       else
         Application.BiDiMode := TBiDiMode.bdLeftToRight;
       try
-        LLabel := TSkLabel.Create(nil);
+        LLabel := ALabelClass.Create(nil);
         try
           LLabel.BeginUpdate;
           try
@@ -259,11 +310,22 @@ begin
     Test('直', {BitmapSize} TSize.Create(100, 100), {AScale} 1, {FontSize} 72, {TextTopLeft} PointF(10, 3),
       {MaxSize} PointF(1000, 1000), 1, {RightToLeft} False, {HorizontalAlign} TSkTextHorzAlign.Leading,
       {VerticalAlign} TTextAlign.Leading, {Trimming} TTextTrimming.None, TAlphaColors.Black,
-      {ExpectedTextRect} TRectF.Create(0, 0, 0, 0), {CheckTextRect} False, {MinSimilarity} 0.98,
+      {ExpectedTextRect} TRectF.Create(0, 0, 0, 0), {CheckTextRect} False, {SkLabelClass} TSkLabel,
+      {MinSimilarity} 0.98,
       {ExpectedImageHash} '//+Dg4ODg/////Pjw8fP////9+vr78/////////////AD8AP6B/qX+gf6B/r3+gf4Afv//////8');
   finally
     GlobalSkiaTextLocale := OldTextLocale;
   end;
+end;
+
+procedure TSkLabelTests.TestStyle;
+begin
+  Test('A', {BitmapSize} TSize.Create(100, 100), {AScale} 1, {FontSize} 72, {TextTopLeft} PointF(10, 3),
+    {MaxSize} PointF(1000, 1000), 1, {RightToLeft} False, {HorizontalAlign} TSkTextHorzAlign.Leading,
+    {VerticalAlign} TTextAlign.Leading, {Trimming} TTextTrimming.None, TAlphaColors.Black,
+    {ExpectedTextRect} TRectF.Create(0, 0, 0, 0), {CheckTextRect} False, {SkLabelClass} TSkLabelDarkStyled,
+    {MinSimilarity} 0.98,
+    {ExpectedImageHash} 'AAAAAAAAAAB/fHBhQ0dOTH98cHFbT05M//////////////v/////////7//+////3/////////8');
 end;
 
 initialization
