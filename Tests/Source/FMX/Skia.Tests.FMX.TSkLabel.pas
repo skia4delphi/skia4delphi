@@ -124,7 +124,7 @@ type
     [Test]
     {$ENDIF}
     procedure TestJapaneseLocale;
-    {$IFDEF TEXT_RENDER}
+    {$IF Defined(TEXT_RENDER) AND (CompilerVersion > 28)}
     [Test]
     {$ENDIF}
     procedure TestStyle;
@@ -160,7 +160,7 @@ type
     FResourceLink: TFmxObject;
   protected
     procedure Draw(const ACanvas: ISkCanvas; const ADest: TRectF; const AOpacity: Single); override;
-    function GetResourceLink: TFmxObject; override;
+    function GetResourceLink: TFmxObject; {$IF CompilerVersion > 28}override;{$ENDIF}
   public
     function FindStyleResource(const AStyleLookup: string; const Clone: Boolean = False): TFmxObject; override;
   end;
@@ -175,7 +175,7 @@ end;
 
 function TSkLabelDarkStyled.FindStyleResource(const AStyleLookup: string; const Clone: Boolean): TFmxObject;
 begin
-  Result := ResourceLink.FindStyleResource(AStyleLookup, Clone);
+  Result := GetResourceLink.FindStyleResource(AStyleLookup, Clone);
 end;
 
 function TSkLabelDarkStyled.GetResourceLink: TFmxObject;
