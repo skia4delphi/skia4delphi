@@ -4302,6 +4302,11 @@ procedure TSkTextSettings.DoAssign(ASource: TPersistent);
     end;
   end;
 
+{$IF CompilerVersion < 31}
+const
+  ItalicToSlant: array[Boolean] of TFontSlant = (TFontSlant.Regular, TFontSlant.Italic);
+  BoldToWeight: array[Boolean] of TFontWeight = (TFontWeight.Regular, TFontWeight.Bold);
+{$ENDIF}
 var
   LFMXTextSettings: TTextSettings absolute ASource;
   LSourceTextSettings: TSkTextSettings absolute ASource;
@@ -4335,9 +4340,15 @@ begin
     Decorations      := nil;
     Font.Families    := LFMXTextSettings.Font.Family;
     Font.Size        := LFMXTextSettings.Font.Size;
+    {$IF CompilerVersion >= 31}
     Font.Slant       := LFMXTextSettings.Font.StyleExt.Slant;
     Font.Stretch     := LFMXTextSettings.Font.StyleExt.Stretch;
     Font.Weight      := LFMXTextSettings.Font.StyleExt.Weight;
+    {$ELSE}
+    Font.Slant       := ItalicToSlant[TFontStyle.fsItalic in LFMXTextSettings.Font.Style];
+    Font.Stretch     := TFontStretch.Regular;
+    Font.Weight      := BoldToWeight[TFontStyle.fsBold in LFMXTextSettings.Font.Style];
+    {$ENDIF}
     FontColor        := LFMXTextSettings.FontColor;
     HeightMultiplier := DefaultHeightMultiplier;
     HorzAlign        := TextAlignToSkTextHorzAlign(LFMXTextSettings.HorzAlign);
