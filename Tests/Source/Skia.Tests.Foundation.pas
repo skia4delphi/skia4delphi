@@ -2,7 +2,7 @@
 {                                                                        }
 {                              Skia4Delphi                               }
 {                                                                        }
-{ Copyright (c) 2021-2024 Skia4Delphi Project.                           }
+{ Copyright (c) 2021-2025 Skia4Delphi Project.                           }
 {                                                                        }
 { Use of this source code is governed by the MIT license that can be     }
 { found in the LICENSE file.                                             }
@@ -101,6 +101,13 @@ type
     class procedure AreSimilar(const AExpectedHash: string; const AActual: ISkCodec; AMinSimilarity: Double = DefaultMinImageSimilarity; const AMessage: string = ''); overload;
     class procedure AreSimilar(const AExpected, AActual: ISkImage; AMinSimilarity: Double = DefaultMinImageSimilarity; const AMessage: string = ''); overload;
     class property OnImageChecking: TOnImageCheckingProc read FOnImageChecking write FOnImageChecking;
+  end;
+
+  { TestCaseIgnoreAttribute }
+
+  TestCaseIgnoreAttribute = class(IgnoreAttribute)
+  public
+    constructor Create(const ACaseName, AValues: string);
   end;
 
   { TSkPathHelper }
@@ -762,6 +769,13 @@ begin
   finally
     LStream.Free;
   end;
+end;
+
+{ TestCaseIgnoreAttribute }
+
+constructor TestCaseIgnoreAttribute.Create(const ACaseName, AValues: string);
+begin
+  inherited Create;
 end;
 
 { TSkPathHelper }

@@ -2,7 +2,7 @@
 {                                                                        }
 {                              Skia4Delphi                               }
 {                                                                        }
-{ Copyright (c) 2021-2024 Skia4Delphi Project.                           }
+{ Copyright (c) 2021-2025 Skia4Delphi Project.                           }
 {                                                                        }
 { Use of this source code is governed by the MIT license that can be     }
 { found in the LICENSE file.                                             }
@@ -47,7 +47,7 @@ type
     [TestCase('1', '3d-shapes.svg,300,300,0.98,DwsPD/H//59/f39v8///339/f2/3////f/9///f///8A7wD/APcA9V//UZu/j/+f/53/mP+Z//8')]
     procedure TestCreateBitmapFromSkImage2(const AImageFileName: string; ABitmapWidth, ABitmapHeight: Integer; const AMinSimilarity: Double; const AExpectedImageHash: string);
     [TestCase('1', '3d-shapes.svg,300,300,1,false,false,0.98,AHBQ0fO/HwUzcNDR87/fzXd62d33v9/9d3rZ/ff/3/0AWODYQNpw37D/8/9LfxviP2c/7353fgg')]
-    [TestCase('2', '3d-shapes.svg,300,300,1.5,false,false,0.98,ABg8JGTk/P0zOPzkZ+f8/XO8/vd39///c7z+93f3//8AAwADAAcABmAGcA74HHAO+A/QP/hven8')]
+    [TestCase('2', '3d-shapes.svg,300,300,1.5,false,false,0.98,ARg8LPTs/P0dHDzt9+/8/V+9vf/3//79X729//f//v8AAwADAAcADhAGeA54HPgO2A/wP/Bv+nc')]
     [TestCase('3', '3d-shapes.svg,300,300,1,true,false,0.98,AHBQ0fO/HwUzcNDR87/fzXd62d33v9/9d3rZ/ff/3/0AWODYQNpw37D/8/9LfxviP2c/7353fgg')]
     [TestCase('4', '3d-shapes.svg,300,300,1,true,true,0.98,+/vxcXDAgp7///Fxc8fO3v//8/l3997///////f////vr++nr7ePcV0HUYO/j/ef5p3bmNuZw/8')]
     [TestCase('5', '3d-shapes.svg,300,300,1,false,true,0.98,+/vxcXDAgp7///Fxc8fO3v//8/l3997///////f////vr++nr7ePcV0HUYO/j/ef5p3bmNuZw/8')]
@@ -206,8 +206,8 @@ begin
   LBitmap := TBitmap.Create;
   try
     LBitmap.SetSize(ABitmapWidth, ABitmapHeight);
-    DrawChessBackground(LBitmap, Min(ABitmapWidth, ABitmapHeight) / 15, TAlphaColors.Black, TAlphaColors.White);
     LBitmap.BitmapScale := ABitmapScale;
+    DrawChessBackground(LBitmap, Min(ABitmapWidth, ABitmapHeight) / 15, TAlphaColors.Black, TAlphaColors.White);
     if ASkipBeginScene or LBitmap.Canvas.BeginScene then
       try
         LBitmap.SkiaDraw(

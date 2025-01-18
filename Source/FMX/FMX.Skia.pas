@@ -2,7 +2,7 @@
 {                                                                        }
 {                              Skia4Delphi                               }
 {                                                                        }
-{ Copyright (c) 2021-2024 Skia4Delphi Project.                           }
+{ Copyright (c) 2021-2025 Skia4Delphi Project.                           }
 {                                                                        }
 { Use of this source code is governed by the MIT license that can be     }
 { found in the LICENSE file.                                             }
@@ -1114,6 +1114,9 @@ type
     function FillTextFlags: TFillTextFlags; override;
     procedure FreeStyle; override;
     function GetDefaultSize: TSizeF; override;
+    {$IF CompilerVersion > 36}
+    function GetDefaultStyleLookupName: string; override;
+    {$ENDIF}
     function GetTextSettingsClass: TSkTextSettingsInfo.TCustomTextSettingsClass; virtual;
     function GetWordsItemAtPosition(const AX, AY: Single): TCustomWordsItem;
     function IsStyledSettingsStored: Boolean; virtual;
@@ -4284,7 +4287,28 @@ begin
 end;
 
 procedure TSkTextSettings.DoAssign(ASource: TPersistent);
+
+  function TextAlignToSkTextHorzAlign(const ATextAlign: TTextAlign): TSkTextHorzAlign;
+  begin
+    case ATextAlign of
+      TTextAlign.Center:
+        Result := TSkTextHorzAlign.Center;
+      TTextAlign.Leading:
+        Result := TSkTextHorzAlign.Leading;
+      TTextAlign.Trailing:
+        Result := TSkTextHorzAlign.Trailing;
+    else
+      Result := DefaultHorzAlign;
+    end;
+  end;
+
+{$IF CompilerVersion < 31}
+const
+  ItalicToSlant: array[Boolean] of TFontSlant = (TFontSlant.Regular, TFontSlant.Italic);
+  BoldToWeight: array[Boolean] of TFontWeight = (TFontWeight.Regular, TFontWeight.Bold);
+{$ENDIF}
 var
+  LFMXTextSettings: TTextSettings absolute ASource;
   LSourceTextSettings: TSkTextSettings absolute ASource;
 begin
   if ASource = nil then
@@ -4310,6 +4334,28 @@ begin
     MaxLines         := LSourceTextSettings.MaxLines;
     Trimming         := LSourceTextSettings.Trimming;
     VertAlign        := LSourceTextSettings.VertAlign;
+  end
+  else if ASource is TTextSettings then
+  begin
+    Decorations      := nil;
+    Font.Families    := LFMXTextSettings.Font.Family;
+    Font.Size        := LFMXTextSettings.Font.Size;
+    {$IF CompilerVersion >= 31}
+    Font.Slant       := LFMXTextSettings.Font.StyleExt.Slant;
+    Font.Stretch     := LFMXTextSettings.Font.StyleExt.Stretch;
+    Font.Weight      := LFMXTextSettings.Font.StyleExt.Weight;
+    {$ELSE}
+    Font.Slant       := ItalicToSlant[TFontStyle.fsItalic in LFMXTextSettings.Font.Style];
+    Font.Stretch     := TFontStretch.Regular;
+    Font.Weight      := BoldToWeight[TFontStyle.fsBold in LFMXTextSettings.Font.Style];
+    {$ENDIF}
+    FontColor        := LFMXTextSettings.FontColor;
+    HeightMultiplier := DefaultHeightMultiplier;
+    HorzAlign        := TextAlignToSkTextHorzAlign(LFMXTextSettings.HorzAlign);
+    LetterSpacing    := DefaultLetterSpacing;
+    MaxLines         := DefaultMaxLines;
+    Trimming         := LFMXTextSettings.Trimming;
+    VertAlign        := LFMXTextSettings.VertAlign;
   end
   else
     inherited;
@@ -5159,6 +5205,7 @@ var
   procedure SetupDefaultTextSetting(const AObject: TFmxObject;
     const ADefaultTextSettings: TSkTextSettings);
   var
+    LFMXTextSettings: ITextSettings;
     LNewFamily: string;
     LNewSize: Single;
   begin
@@ -5170,8 +5217,10 @@ var
     FStyleText := nil;
     if ADefaultTextSettings <> nil then
     begin
-      if (AObject <> nil) and Supports(AObject, ISkStyleTextObject, FStyleText) then
+      if Supports(AObject, ISkStyleTextObject, FStyleText) then
         ADefaultTextSettings.Assign(FStyleText.TextSettings)
+      else if Supports(AObject, ITextSettings, LFMXTextSettings) then
+        ADefaultTextSettings.Assign(LFMXTextSettings.TextSettings)
       else
         ADefaultTextSettings.Assign(nil);
 
@@ -5475,6 +5524,13 @@ begin
   {$ENDIF}
     Result := TSizeF.Create(120, 19);
 end;
+
+{$IF CompilerVersion > 36}
+function TSkLabel.GetDefaultStyleLookupName: string;
+begin
+  Result := 'labelstyle';
+end;
+{$ENDIF}
 
 function TSkLabel.GetDefaultTextSettings: TSkTextSettings;
 begin
@@ -6319,31 +6375,24 @@ end;
 {$HPPEMIT END '    using ::Fmx::Skia::TSkTextSettingsClass;'}
 {$HPPEMIT END '    using ::Fmx::Skia::TSkTextSettingsInfo;'}
 {$HPPEMIT END '    using ::Fmx::Skia::TSkTypefaceManager;'}
-{$HPPEMIT END '    typedef void (__fastcall *TAddSkPathToPathDataProc)(::Fmx::Graphics::TPathData* const APathData, const ::System::Skia::_di_ISkPath ASkPath);'}
-{$HPPEMIT END '    typedef ::System::Skia::_di_ISkImage (__fastcall *TBitmapToSkImageFunc)(::Fmx::Graphics::TBitmap* const ABitmap);'}
-{$HPPEMIT END '    typedef void (__fastcall *TDrawDesignBorderProc)(const ::System::Skia::_di_ISkCanvas ACanvas, const ::System::Types::TRectF &ADest, const float AOpacity);'}
-{$HPPEMIT END '    typedef ::System::Skia::_di_ISkPath (__fastcall *TPathDataToSkPathFunc)(::Fmx::Graphics::TPathData* const APathData);'}
-{$HPPEMIT END '    typedef void (__fastcall *TSkiaDrawProc)(::Fmx::Graphics::TBitmap* const ABitmap, const ::Fmx::Skia::_di_TSkDrawProc AProc, const bool AStartClean);'}
-{$HPPEMIT END '    typedef ::Fmx::Graphics::TBitmap* (__fastcall *TSkImageToBitmapFunc)(const ::System::Skia::_di_ISkImage AImage);'}
-{$HPPEMIT END '    typedef ::Fmx::Graphics::TPathData* (__fastcall *TSkPathToPathDataFunc)(const ::System::Skia::_di_ISkPath ASkPath);'}
-{$HPPEMIT END '    static const int SkSupportedPlatformsMask = ::Fmx::Skia::SkSupportedPlatformsMask;'}
-{$HPPEMIT END '    static bool& GlobalDisableSkiaCodecsReplacement = ::Fmx::Skia::GlobalDisableSkiaCodecsReplacement;'}
-{$HPPEMIT END '    static bool& GlobalUseSkia = ::Fmx::Skia::GlobalUseSkia;'}
-{$HPPEMIT END '    static bool& GlobalUseSkiaRasterWhenAvailable = ::Fmx::Skia::GlobalUseSkiaRasterWhenAvailable;'}
+{$HPPEMIT END '    using ::Fmx::Skia::SkSupportedPlatformsMask;'}
+{$HPPEMIT END '    using ::Fmx::Skia::GlobalDisableSkiaCodecsReplacement;'}
+{$HPPEMIT END '    using ::Fmx::Skia::GlobalUseSkia;'}
+{$HPPEMIT END '    using ::Fmx::Skia::GlobalUseSkiaRasterWhenAvailable;'}
 {$IF CompilerVersion >= 36}
-{$HPPEMIT END '    static bool& GlobalUseSkiaFilters = ::Fmx::Skia::GlobalUseSkiaFilters;'}
-{$HPPEMIT END '    static bool& GlobalSkiaBitmapsInParallel = ::Fmx::Skia::GlobalSkiaBitmapsInParallel;'}
+{$HPPEMIT END '    using ::Fmx::Skia::GlobalUseSkiaFilters;'}
+{$HPPEMIT END '    using ::Fmx::Skia::GlobalSkiaBitmapsInParallel;'}
 {$ENDIF}
-{$HPPEMIT END '    static bool& GlobalSkiaTextLocale = ::Fmx::Skia::GlobalSkiaTextLocale;'}
-{$HPPEMIT END '    static ::System::StaticArray<System::Skia::TSkColorType, 24>& SkFmxColorType = ::Fmx::Skia::SkFmxColorType;'}
-{$HPPEMIT END '    static ::System::StaticArray<Fmx::Types::TPixelFormat, 23>& SkFmxPixelFormat = ::Fmx::Skia::SkFmxPixelFormat;'}
-{$HPPEMIT END '    static const TAddSkPathToPathDataProc AddSkPathToPathData = ::Fmx::Skia::AddSkPathToPathData;'}
-{$HPPEMIT END '    static const TBitmapToSkImageFunc BitmapToSkImage = ::Fmx::Skia::BitmapToSkImage;'}
-{$HPPEMIT END '    static const TDrawDesignBorderProc DrawDesignBorder = ::Fmx::Skia::DrawDesignBorder;'}
-{$HPPEMIT END '    static const TPathDataToSkPathFunc PathDataToSkPath = ::Fmx::Skia::PathDataToSkPath;'}
-{$HPPEMIT END '    static const TSkiaDrawProc SkiaDraw = ::Fmx::Skia::SkiaDraw;'}
-{$HPPEMIT END '    static const TSkImageToBitmapFunc SkImageToBitmap = ::Fmx::Skia::SkImageToBitmap;'}
-{$HPPEMIT END '    static const TSkPathToPathDataFunc SkPathToPathData = ::Fmx::Skia::SkPathToPathData;'}
+{$HPPEMIT END '    using ::Fmx::Skia::GlobalSkiaTextLocale;'}
+{$HPPEMIT END '    using ::Fmx::Skia::SkFmxColorType;'}
+{$HPPEMIT END '    using ::Fmx::Skia::SkFmxPixelFormat;'}
+{$HPPEMIT END '    using ::Fmx::Skia::AddSkPathToPathData;'}
+{$HPPEMIT END '    using ::Fmx::Skia::BitmapToSkImage;'}
+{$HPPEMIT END '    using ::Fmx::Skia::DrawDesignBorder;'}
+{$HPPEMIT END '    using ::Fmx::Skia::PathDataToSkPath;'}
+{$HPPEMIT END '    using ::Fmx::Skia::SkiaDraw;'}
+{$HPPEMIT END '    using ::Fmx::Skia::SkImageToBitmap;'}
+{$HPPEMIT END '    using ::Fmx::Skia::SkPathToPathData;'}
 {$HPPEMIT END '#endif'}
 
 initialization
