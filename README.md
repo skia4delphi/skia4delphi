@@ -617,7 +617,3 @@ Skia Version used: [chrome/m107](https://github.com/google/skia/tree/chrome/m107
 <a href="https://github.com/skia4delphi/skia4delphi/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=skia4delphi/skia4delphi" />
 </a>
-
-#
-
-Help us responding a small questionnaire about our users in [this link](https://form.typeform.com/to/Qc6o3ELs)
