@@ -145,7 +145,11 @@ type
     procedure SetMatrix(const AMatrix: TMatrix); override;
     {$ENDIF}
     property Canvas: ISkCanvas read FCanvas;
+    {$IF CompilerVersion <= 36}
     procedure SetSize(const AWidth, AHeight: Integer); override; final;
+    {$ELSE}
+    procedure SetSize(const AWidth, AHeight: Single); override; final;
+    {$ENDIF}
     class function GetCanvasStyle: TCanvasStyles; override;
     class function QualityToSamplingOptions(const AQuality: TCanvasQuality; const AHighSpeed: Boolean = False): TSkSamplingOptions;
   end;
@@ -178,7 +182,11 @@ type
     FSurface: TSkSurface;
   strict protected
     {$IFDEF MSWINDOWS}
+    {$IF CompilerVersion <= 36}
     constructor CreateFromWindow(const AParent: TWindowHandle; const AWidth, AHeight: Integer; const AQuality: TCanvasQuality = TCanvasQuality.SystemDefault); override;
+    {$ELSE}
+    constructor CreateFromWindow(const AParent: TWindowHandle; const AWidth, AHeight: Single; const AQuality: TCanvasQuality = TCanvasQuality.SystemDefault); override;
+    {$ENDIF}
     {$ENDIF}
     function BeginCanvas(const AContextHandle: THandle): ISkCanvas; override;
     procedure EndCanvas(const AContextHandle: THandle); override;
@@ -290,7 +298,11 @@ type
     FSharedContext: IGrSharedContext;
   strict protected
     FGrDirectContext: IGrDirectContext;
+    {$IF CompilerVersion <= 36}
     constructor CreateFromWindow(const AParent: TWindowHandle; const AWidth, AHeight: Integer; const AQuality: TCanvasQuality = TCanvasQuality.SystemDefault); override;
+    {$ELSE}
+    constructor CreateFromWindow(const AParent: TWindowHandle; const AWidth, AHeight: Single; const AQuality: TCanvasQuality = TCanvasQuality.SystemDefault); override;
+    {$ENDIF}
     function BeginCanvas(const AContextHandle: THandle): ISkCanvas; override;
     function CreateSharedContext: IGrSharedContext; virtual; abstract;
     procedure EndCanvas(const AContextHandle: THandle); override;
@@ -2342,6 +2354,7 @@ end;
 
 {$ENDIF}
 
+{$IF CompilerVersion <= 36}
 procedure TSkCanvasCustom.SetSize(const AWidth, AHeight: Integer);
 begin
   if (Width <> AWidth) or (Height <> AHeight) then
@@ -2350,6 +2363,16 @@ begin
     Resized;
   end;
 end;
+{$ELSE}
+procedure TSkCanvasCustom.SetSize(const AWidth, AHeight: Single);
+begin
+  if not SameValue(Width, AWidth, TEpsilon.Matrix) or not SameValue(Height, AHeight, TEpsilon.Matrix) then
+  begin
+    inherited;
+    Resized;
+  end;
+end;
+{$ENDIF}
 
 function TSkCanvasCustom.SupportsCachedImage: Boolean;
 begin
@@ -2434,8 +2457,13 @@ end;
 
 {$IFDEF MSWINDOWS}
 
+{$IF CompilerVersion <= 36}
 constructor TSkCanvasBase.CreateFromWindow(const AParent: TWindowHandle;
   const AWidth, AHeight: Integer; const AQuality: TCanvasQuality);
+{$ELSE}
+constructor TSkCanvasBase.CreateFromWindow(const AParent: TWindowHandle;
+  const AWidth, AHeight: Single; const AQuality: TCanvasQuality);
+{$ENDIF}
 var
   LParentHandle: TWinWindowHandle;
 begin
@@ -2626,8 +2654,13 @@ begin
   Result := TGrBitmapHandle.Create(AWidth, AHeight, APixelFormat);
 end;
 
+{$IF CompilerVersion <= 36}
 constructor TGrCanvas.CreateFromWindow(const AParent: TWindowHandle;
   const AWidth, AHeight: Integer; const AQuality: TCanvasQuality);
+{$ELSE}
+constructor TGrCanvas.CreateFromWindow(const AParent: TWindowHandle;
+  const AWidth, AHeight: Single; const AQuality: TCanvasQuality);
+{$ENDIF}
 begin
   inherited;
   if not FInitialized then

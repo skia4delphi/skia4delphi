@@ -71,7 +71,11 @@ type
     FHasCreatedAnySurface: Boolean;
     procedure BeforeCreateFirstSurface;
   protected
+    {$IF CompilerVersion <= 36}
     constructor CreateFromWindow(const AParent: TWindowHandle; const AWidth, AHeight: Integer; const AQuality: TCanvasQuality = TCanvasQuality.SystemDefault); override;
+    {$ELSE}
+    constructor CreateFromWindow(const AParent: TWindowHandle; const AWidth, AHeight: Single; const AQuality: TCanvasQuality = TCanvasQuality.SystemDefault); override;
+    {$ENDIF}
     function CreateSharedContext: IGrSharedContext; override;
     function GetSurfaceFromWindow(const AContextHandle: THandle): TSkSurface; override;
     procedure SwapBuffers(const AContextHandle: THandle); override;
@@ -152,8 +156,13 @@ begin
 {$ENDIF}
 end;
 
+{$IF CompilerVersion <= 36}
 constructor TMtlCanvas.CreateFromWindow(const AParent: TWindowHandle;
-  const AWidth, AHeight: Integer; const AQuality: TCanvasQuality);
+  const AWidth, AHeight: Integer; const AQuality: TCanvasQuality = TCanvasQuality.SystemDefault);
+{$ELSE}
+constructor TMtlCanvas.CreateFromWindow(const AParent: TWindowHandle;
+  const AWidth, AHeight: Single; const AQuality: TCanvasQuality = TCanvasQuality.SystemDefault);
+{$ENDIF}
 begin
   inherited;
   FGrDirectContext := TGrSharedContext(SharedContext).GrDirectContext;
