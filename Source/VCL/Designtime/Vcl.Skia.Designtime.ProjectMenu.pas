@@ -987,10 +987,12 @@ end;
 class function TSkDeployFilesHelper.LocalFilesExists: Boolean;
 var
   LFile: TSkDeployFile;
+  LPlatform: TSkProjectPlatform;
 begin
   Result := False;
-  for LFile in GetSkiaDeployFiles(TSkProjectPlatform.Win32) do
-    if TFile.Exists(TSkOTAHelper.ExpandVars(LFile.LocalFileName, TSkProjectPlatform.Win32, cbtRelease)) then
+  LPlatform := TSkProjectPlatform.{$IFDEF WIN32}Win32{$ELSEIF DEFINED(WIN64)}Win64{$ENDIF};
+  for LFile in GetSkiaDeployFiles(LPlatform) do
+    if TFile.Exists(TSkOTAHelper.ExpandVars(LFile.LocalFileName, LPlatform, cbtRelease)) then
       Exit(True);
 end;
 
