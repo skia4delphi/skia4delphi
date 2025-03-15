@@ -2441,7 +2441,7 @@ begin
   begin
     LBitmap := TSkBitmapHandle(Bitmap.Handle);
     if LBitmap.Pixels = nil then
-      LBitmap.FPixels := AllocMem(LBitmap.Width * LBitmap.Height * PixelFormatBytes[LBitmap.PixelFormat]);
+      LBitmap.FPixels := AllocMem(NativeInt(LBitmap.Width) * LBitmap.Height * PixelFormatBytes[LBitmap.PixelFormat]);
     FBitmapSurface := TSkSurface.MakeRasterDirect(TSkImageInfo.Create(LBitmap.Width, LBitmap.Height, SkFmxColorType[LBitmap.PixelFormat]), LBitmap.Pixels, LBitmap.Width * PixelFormatBytes[LBitmap.PixelFormat]);
     Result         := FBitmapSurface.Canvas;
   end
