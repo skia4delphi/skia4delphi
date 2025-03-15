@@ -37,7 +37,7 @@ type
   public
     [TestCase('android.svg.1', 'android.svg,80,80,/8PDgYHD5/////Phw8fv/////+XHz//////////f///wD9f/wAPAA8ADwAPwD/AP/b/9v/2///8')]
     [TestCase('android.svg.2', 'android.svg,160,80,5+fDw8PH5+f///Pjw8fv7////+/Pz+/v///////////8P/gf+B/4H/gf+B/4H/w//n/+f/5///8')]
-    [TestCase('delphi.svg.1',  'delphi.svg,80,80,w508PHgwmcP//fz8+PDZw////v7+/N33/////////ff/2f/R9gHsAP2I+gD8Qfqh+gPoQ/EP/D8')]
+    [TestCase('delphi.svg.1',  'delphi.svg,80,80,w508PHgwmcP//fz8+PDZw////v7+/t33/////////ff/2ffR9gHsYP2Y+hH8Qf6h+gPoF/EP/n8')]
     [TestCase('delphi.svg.2',  'delphi.svg,160,80,58PD29PDw8P///P708fPz//////f3+//////////////r/+P/g/2D/ZP/g/+D/wP/J/4H/w//H8')]
     [TestCase('gorilla.svg.1', 'gorilla.svg,80,80,7+fDw4GBmf////Pjw8ff////++Pz19/////////////4P/g/8B/wH+APwgPCAccD7/Pn8/////8')]
     [TestCase('gorilla.svg.2', 'gorilla.svg,160,80,5+fnx8PDw/////fnw8fP////9/f39+/////////////8f/x//D/8P/gf+B/4D/kf+5/53/////8')]
@@ -49,8 +49,8 @@ type
     [TestCase('youtube.svg.2', 'youtube.svg,160,80,/8PDw8PDw/////Pjw8fP////8+vr5//////////////4H/EP8Y/xj/GP8Y/xD/gf+B////////8')]
     procedure TestFitRender(const ASvgFileName: string; const AWidth, AHeight: Integer; const AExpectedImageHash: string);
     [TestCase('android.svg.1', 'android.svg,80,80,/8OBgYHDx/////Hhw8fP/////+XH79/////////////wD9frgAOAC4ALgAvQC/AP+b/5v/2///8')]
-    [TestCase('android.svg.2', 'android.svg,160,80,78OBgYHDx/////Hhw8fP/////+XH79/////////////wD9frgAOQA5ADkAPQC/AP+b/5v/2///8')]
-    [TestCase('delphi.svg.1',  'delphi.svg,80,80,w508PHgwmcP//fz8+PDZw////v7+/N33/////////ff/2f/R9gHsAP2I+gD8Qfqh+gPoQ/EP/D8')]
+    [TestCase('android.svg.2', 'android.svg,160,80,58ODgYHDx/////Phw8fP/////+XH79/////////////wD9frgAOAA4ADgAPQC/AP+b/5v/2///8')]
+    [TestCase('delphi.svg.1',  'delphi.svg,80,80,w508PHgwmcP//fz8+PDZw////v7+/t33/////////ff/2ffR9gHsYP2Y+hH8Qf6h+gPoF/EP/n8')]
     [TestCase('delphi.svg.2',  'delphi.svg,160,80,w408PDgwkcP//fz8+PDRw////v7+/tX3/////////f//2ffR9gDsYP2I+xH8QfKh+gPoE/EP/D8')]
     [TestCase('gorilla.svg.1', 'gorilla.svg,80,80,7+fDw4GBmf////Pjw8ff////++Pz19/////////////4P/g/8B/wH+APwgPCAccD7/Pn8/////8')]
     [TestCase('gorilla.svg.2', 'gorilla.svg,160,80,5+fDh4GBmf////Pnw8ff////++fz19/////////////4P/g/8B/wH+APwgPCAccD7/Pn8/////8')]
