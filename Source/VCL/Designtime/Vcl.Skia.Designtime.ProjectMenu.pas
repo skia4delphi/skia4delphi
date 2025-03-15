@@ -14,6 +14,8 @@ interface
 
 {$SCOPEDENUMS ON}
 
+{$DEFINE SK_STATIC_WIN_EXPERIMENTAL}
+
 procedure Register;
 
 implementation
@@ -276,10 +278,20 @@ const
     CppLinkedLibraries: TArray<string>;
   end = (
     (&Platform: TSkProjectPlatform.Android;     CppLibraryPath: []; CppLinkedLibraries: ['Skia.Package.RTL', 'Skia.Package.FMX']),
-    (&Platform: TSkProjectPlatform.iOSDevice64; CppLibraryPath: []; CppLinkedLibraries: ['clang_rt.ios', 'sk4d', 'Skia.Package.RTL', 'Skia.Package.FMX'])
+    (&Platform: TSkProjectPlatform.iOSDevice64; CppLibraryPath: []; CppLinkedLibraries: ['sk4d', 'Skia.Package.RTL', 'Skia.Package.FMX'])
   );
   {$ENDIF}
 
+  {$IFDEF SK_STATIC_WIN_EXPERIMENTAL}
+  {$IF CompilerVersion >= 35}
+  SkiaDeployFiles: array[0..1] of TSkDeployFile = (
+    (&Platform: TSkProjectPlatform.Linux64;     LocalFileName: '$(BDS)\binlinux64\libsk4d.so';                                   RemotePath: '.\';                       CopyToOutput: False; Required: True; Operation: TDeployOperation.doSetExecBit; Condition: '''$('+SkiaDirVariable+')''=='''''), // Linux64
+  {$ELSE}
+  SkiaDeployFiles: array[0..0] of TSkDeployFile = (
+  {$ENDIF}
+    (&Platform: TSkProjectPlatform.Linux64;     LocalFileName: '$('+SkiaDirVariable+')\Binary\Shared\Linux64\libsk4d.so';        RemotePath: '.\';                       CopyToOutput: False; Required: True; Operation: TDeployOperation.doSetExecBit; Condition: '''$('+SkiaDirVariable+')''!=''''')  // Linux64
+  );
+  {$ELSE}
   {$IF CompilerVersion >= 35}
   SkiaDeployFiles: array[0..7] of TSkDeployFile = (
     (&Platform: TSkProjectPlatform.Win32;       LocalFileName: '$(BDS)\bin\sk4d.dll';                                            RemotePath: '.\';                       CopyToOutput: True;  Required: True; Operation: TDeployOperation.doCopyOnly;   Condition: '''$('+SkiaDirVariable+')''=='''''), // Win32
@@ -294,6 +306,7 @@ const
     (&Platform: TSkProjectPlatform.Win64x;      LocalFileName: '$('+SkiaDirVariable+')\Binary\Shared\Win64\sk4d.dll';            RemotePath: '.\';                       CopyToOutput: True;  Required: True; Operation: TDeployOperation.doCopyOnly;   Condition: '''$('+SkiaDirVariable+')''!='''''), // Win64x
     (&Platform: TSkProjectPlatform.Linux64;     LocalFileName: '$('+SkiaDirVariable+')\Binary\Shared\Linux64\libsk4d.so';        RemotePath: '.\';                       CopyToOutput: False; Required: True; Operation: TDeployOperation.doSetExecBit; Condition: '''$('+SkiaDirVariable+')''!=''''')  // Linux64
   );
+  {$ENDIF}
 
 function ContainsStringInArray(const AString: string;
   const AArray: TArray<string>; const ACaseSensitive: Boolean = True): Boolean;
@@ -985,6 +998,10 @@ begin
 end;
 
 class function TSkDeployFilesHelper.LocalFilesExists: Boolean;
+{$IFDEF SK_STATIC_WIN_EXPERIMENTAL}
+begin
+  Result := True;
+{$ELSE}
 var
   LFile: TSkDeployFile;
   LPlatform: TSkProjectPlatform;
@@ -994,6 +1011,7 @@ begin
   for LFile in GetSkiaDeployFiles(LPlatform) do
     if TFile.Exists(TSkOTAHelper.ExpandVars(LFile.LocalFileName, LPlatform, cbtRelease)) then
       Exit(True);
+{$ENDIF}
 end;
 
 class procedure TSkDeployFilesHelper.RemoveDeployFiles(
