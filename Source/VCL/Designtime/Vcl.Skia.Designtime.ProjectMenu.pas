@@ -222,14 +222,14 @@ type
     {$IF CompilerVersion < 28} // Below RAD Studio XE7
     CBuilderSupportedPlatforms = [];
     DelphiSupportedPlatforms = [];
-    {$ELSEIF CompilerVersion < 33} // RAD Studio XE7 to RAD Studio 10.2 Tokyo
+    {$ELSEIF CompilerVersion <= 33} // RAD Studio XE7 to RAD Studio 10.3 Rio
     CBuilderSupportedPlatforms = [TSkProjectPlatform.Win32, TSkProjectPlatform.Win64];
     DelphiSupportedPlatforms = [TSkProjectPlatform.Win32, TSkProjectPlatform.Win64];
-    {$ELSEIF CompilerVersion < 35} // RAD Studio 10.3 Rio and RAD Studio 10.4 Sydney
+    {$ELSEIF CompilerVersion <= 34} // RAD Studio 10.4 Sydney
     CBuilderSupportedPlatforms = [TSkProjectPlatform.Win32, TSkProjectPlatform.Win64, TSkProjectPlatform.Android];
     DelphiSupportedPlatforms = [TSkProjectPlatform.Win32, TSkProjectPlatform.Win64, TSkProjectPlatform.Android,
       TSkProjectPlatform.Android64];
-    {$ELSEIF CompilerVersion < 36} // RAD Studio 11 Alexandria
+    {$ELSEIF CompilerVersion <= 35} // RAD Studio 11 Alexandria
     CBuilderSupportedPlatforms = [TSkProjectPlatform.Win32, TSkProjectPlatform.Win64, TSkProjectPlatform.Android,
       TSkProjectPlatform.iOSDevice64];
     DelphiSupportedPlatforms = [TSkProjectPlatform.Win32, TSkProjectPlatform.Win64, TSkProjectPlatform.Android,

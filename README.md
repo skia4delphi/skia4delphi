@@ -590,7 +590,7 @@ The example above results in the output below:
 | RAD Studio                        | Platforms        |
 | --------------------------------- | ---------------- |
 | RAD Studio 11 Alexandria or newer | All Platforms    |
-| RAD Studio 10.3 Rio or newer      | Windows, Android |
+| RAD Studio 10.4 Sydney            | Windows, Android |
 | RAD Studio XE7 or newer           | Windows          |
 
 For the platforms supported by **Skia4Delphi** (listed above), the OS versions supported by the library are the same [OS versions that RAD Studio supports.](https://docwiki.embarcadero.com/PlatformStatus/en/Main_Page)
