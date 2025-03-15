@@ -2,45 +2,35 @@
 
 # Build
 
-**Skia4Delphi** has its own [forked version of Skia](../../../../skia) with the necessary edits to make the library work. To compile it is very simple, just run a native script, and it will help you build until the end.
+**Skia4Delphi** has its own [forked version of Skia](../../../../skia) with the necessary edits to make the library work. The build files for Skia's fork are generated using the **GN** meta-build system, following the same compilation [instructions](https://skia.org/docs/user/build/) as the official Skia library. The only differences involve specific Skia4Delphi build variables, which must be considered during configuration.
+
+The key variables for building are:
+
+| Name                    | Type    | Description                                                   |
+| ----------------------- | ------- | ------------------------------------------------------------- |
+| is_sk4d_build           | Boolean | Enables the Skia4Delphi library target.                       |
+| is_sk4d_component_build | Boolean | Determines whether the compiled library is static or dynamic. |
 
   
 
-## Prerequisites
+Once the build files have been generated, the library can be built directly using Ninja with the following command:
 
-| OS      | Targets                                          |
-| ------- | ------------------------------------------------ |
-| Linux   | Linux64, Android, Android64                      |
-| macOS   | OSX64, OSXARM64, iOSDevice64, Android, Android64 |
-| Windows | Win32, Win64, Android, Android64                 |
+```shell
+ninja -C <build dir> sk4d
+```
 
   
 
-## Downloading
+## Known Issues
 
-Run the command on Windows via command line or PowerShell, or from Linux/macOS via shell: `git clone https://github.com/skia4delphi/skia.git`
+Unfortunately, static linking of more complex C++ libraries in Delphi presents certain limitations, requiring specific workarounds to ensure proper linkage.
 
- 
+Skia's library depends on a few builtin functions for static linking on certain platforms. However, Delphi does not provide the compiler runtime libraries for Clang, nor does the SDK Manager automatically retrieve the runtime libraries (compiler-rt) for macOS. Similarly, on Android, it does not add the NDK directory containing compiler-rt to the search path, creating challenges for vendors relying on static linking.
 
-## Building
+As there is currently no official solution for this, the internal build script implements workarounds by extracting the necessary object files from the compiler runtime, converting their symbols to weak to avoid conflicts, and appending them alongside the static library.
 
-Just use the build script. To access help run the command:
+While this is not an ideal solution, it remains the only viable approach at this time. The required object files may vary depending on the toolchain, but as of now, the following modifications are applied:
 
-- Through Windows via the command line:
-  ```batch
-  sk4d-build -h
-  ```
+- For OSX64, iOSDevice64, and iOSSimARM64: The object file `os_version_check.c.o` from compiler-rt builtins;
+- For Android and Android64: The object file `emutls.c.o` from compiler-rt builtins.
 
-- Through Linux or macOS via the terminal:
-  ```bash
-  ./sk4d-build.sh -h
-  ```
-
-### Examples
-
-  - Building for Win64 through Windows: `sk4d-build --targets win64`
-  - Building for Android64 through Windows: `sk4d-build --targets Android64 --ndk C:\android-ndk-r23b`
-  - Building for iOSDevice64 through macOS: `./sk4d-build.sh --targets iosdevice64`
-  - Building for Linux64 through Linux: `./sk4d-build.sh --targets linux64`
-
-*Note: If you don't pass the ndk parameter to the Android build, the script will help you to download it.*
