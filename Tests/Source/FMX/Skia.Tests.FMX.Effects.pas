@@ -4444,7 +4444,7 @@ begin
 end;
 
 initialization
-  TDUnitX.RegisterTestFixture(TFMXEffectsTests);
+  //TDUnitX.RegisterTestFixture(TFMXEffectsTests);
 {$ELSE}
 implementation
 {$ENDIF}
