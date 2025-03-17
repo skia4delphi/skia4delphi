@@ -2451,7 +2451,6 @@ const
         {$L '../Binary/Static/FPC/Win64/gpu.FillRRectOp.o'}
         {$L '../Binary/Static/FPC/Win64/gpu.FillRectOp.o'}
         {$L '../Binary/Static/FPC/Win64/gpu.GrAAConvexTessellator.o'}
-        {$L '../Binary/Static/FPC/Win64/gpu.GrAATriangulator.o'}
         {$L '../Binary/Static/FPC/Win64/gpu.GrAtlasManager.o'}
         {$L '../Binary/Static/FPC/Win64/gpu.GrAttachment.o'}
         {$L '../Binary/Static/FPC/Win64/gpu.GrAuditTrail.o'}
@@ -2466,6 +2465,7 @@ const
         {$L '../Binary/Static/FPC/Win64/gpu.GrBlurUtils.o'}
         {$L '../Binary/Static/FPC/Win64/gpu.GrBufferAllocPool.o'}
         {$L '../Binary/Static/FPC/Win64/gpu.GrBufferTransferRenderTask.o'}
+        {$L '../Binary/Static/FPC/Win64/gpu.GrCanvas.o'}
         {$L '../Binary/Static/FPC/Win64/gpu.GrCaps.o'}
         {$L '../Binary/Static/FPC/Win64/gpu.GrClientMappedBufferManager.o'}
         {$L '../Binary/Static/FPC/Win64/gpu.GrColorInfo.o'}
@@ -2478,13 +2478,14 @@ const
         {$L '../Binary/Static/FPC/Win64/gpu.GrCoverageSetOpXP.o'}
         {$L '../Binary/Static/FPC/Win64/gpu.GrCustomXfermode.o'}
         {$L '../Binary/Static/FPC/Win64/gpu.GrDDLContext.o'}
+        {$L '../Binary/Static/FPC/Win64/gpu.GrDDLTask.o'}
         {$L '../Binary/Static/FPC/Win64/gpu.GrDataUtils.o'}
         {$L '../Binary/Static/FPC/Win64/gpu.GrDefaultGeoProcFactory.o'}
+        {$L '../Binary/Static/FPC/Win64/gpu.GrDeferredDisplayList.o'}
+        {$L '../Binary/Static/FPC/Win64/gpu.GrDeferredDisplayListRecorder.o'}
         {$L '../Binary/Static/FPC/Win64/gpu.GrDirectContext.o'}
         {$L '../Binary/Static/FPC/Win64/gpu.GrDirectContextPriv.o'}
         {$L '../Binary/Static/FPC/Win64/gpu.GrDisableColorXP.o'}
-        {$L '../Binary/Static/FPC/Win64/gpu.GrDistanceFieldGenFromVector.o'}
-        {$L '../Binary/Static/FPC/Win64/gpu.GrDistanceFieldGeoProc.o'}
         {$L '../Binary/Static/FPC/Win64/gpu.GrDrawOpAtlas.o'}
         {$L '../Binary/Static/FPC/Win64/gpu.GrDrawingManager.o'}
         {$L '../Binary/Static/FPC/Win64/gpu.GrDriverBugWorkarounds.o'}
@@ -2544,6 +2545,7 @@ const
         {$L '../Binary/Static/FPC/Win64/gpu.GrImageUtils.o'}
         {$L '../Binary/Static/FPC/Win64/gpu.GrMatrixEffect.o'}
         {$L '../Binary/Static/FPC/Win64/gpu.GrMemoryPool.o'}
+        {$L '../Binary/Static/FPC/Win64/gpu.GrMeshBuffers.o'}
         {$L '../Binary/Static/FPC/Win64/gpu.GrMeshDrawOp.o'}
         {$L '../Binary/Static/FPC/Win64/gpu.GrMeshDrawTarget.o'}
         {$L '../Binary/Static/FPC/Win64/gpu.GrMockGpu.o'}
@@ -2554,7 +2556,6 @@ const
         {$L '../Binary/Static/FPC/Win64/gpu.GrOpFlushState.o'}
         {$L '../Binary/Static/FPC/Win64/gpu.GrOpsRenderPass.o'}
         {$L '../Binary/Static/FPC/Win64/gpu.GrOvalEffect.o'}
-        {$L '../Binary/Static/FPC/Win64/gpu.GrOvalOpFactory.o'}
         {$L '../Binary/Static/FPC/Win64/gpu.GrPaint.o'}
         {$L '../Binary/Static/FPC/Win64/gpu.GrPathTessellationShader.o'}
         {$L '../Binary/Static/FPC/Win64/gpu.GrPathUtils.o'}
@@ -2586,7 +2587,6 @@ const
         {$L '../Binary/Static/FPC/Win64/gpu.GrSWMaskHelper.o'}
         {$L '../Binary/Static/FPC/Win64/gpu.GrShaderCaps.o'}
         {$L '../Binary/Static/FPC/Win64/gpu.GrShaderVar.o'}
-        {$L '../Binary/Static/FPC/Win64/gpu.GrShadowGeoProc.o'}
         {$L '../Binary/Static/FPC/Win64/gpu.GrShape.o'}
         {$L '../Binary/Static/FPC/Win64/gpu.GrSimpleMeshDrawOpHelper.o'}
         {$L '../Binary/Static/FPC/Win64/gpu.GrSimpleMeshDrawOpHelperWithStencil.o'}
@@ -2597,6 +2597,7 @@ const
         {$L '../Binary/Static/FPC/Win64/gpu.GrStyle.o'}
         {$L '../Binary/Static/FPC/Win64/gpu.GrStyledShape.o'}
         {$L '../Binary/Static/FPC/Win64/gpu.GrSurface.o'}
+        {$L '../Binary/Static/FPC/Win64/gpu.GrSurfaceCharacterization.o'}
         {$L '../Binary/Static/FPC/Win64/gpu.GrSurfaceProxy.o'}
         {$L '../Binary/Static/FPC/Win64/gpu.GrSurfaceProxyView.o'}
         {$L '../Binary/Static/FPC/Win64/gpu.GrTessellationShader.o'}
@@ -2608,7 +2609,6 @@ const
         {$L '../Binary/Static/FPC/Win64/gpu.GrTextureResolveRenderTask.o'}
         {$L '../Binary/Static/FPC/Win64/gpu.GrThreadSafeCache.o'}
         {$L '../Binary/Static/FPC/Win64/gpu.GrTransferFromRenderTask.o'}
-        {$L '../Binary/Static/FPC/Win64/gpu.GrTriangulator.o'}
         {$L '../Binary/Static/FPC/Win64/gpu.GrUniformDataManager.o'}
         {$L '../Binary/Static/FPC/Win64/gpu.GrUtil.o'}
         {$L '../Binary/Static/FPC/Win64/gpu.GrVertexChunkArray.o'}
@@ -2649,11 +2649,11 @@ const
         {$L '../Binary/Static/FPC/Win64/gpu.GrWaitRenderTask.o'}
         {$L '../Binary/Static/FPC/Win64/gpu.GrWritePixelsRenderTask.o'}
         {$L '../Binary/Static/FPC/Win64/gpu.GrXferProcessor.o'}
+        {$L '../Binary/Static/FPC/Win64/gpu.GrYUVABackendTextures.o'}
         {$L '../Binary/Static/FPC/Win64/gpu.GrYUVATextureProxies.o'}
         {$L '../Binary/Static/FPC/Win64/gpu.GrYUVtoRGBEffect.o'}
         {$L '../Binary/Static/FPC/Win64/gpu.LatticeOp.o'}
         {$L '../Binary/Static/FPC/Win64/gpu.OpsTask.o'}
-        {$L '../Binary/Static/FPC/Win64/gpu.PathInnerTriangulateOp.o'}
         {$L '../Binary/Static/FPC/Win64/gpu.PathRenderer.o'}
         {$L '../Binary/Static/FPC/Win64/gpu.PathRendererChain.o'}
         {$L '../Binary/Static/FPC/Win64/gpu.PathStencilCoverOp.o'}
@@ -2661,18 +2661,15 @@ const
         {$L '../Binary/Static/FPC/Win64/gpu.PathTessellator.o'}
         {$L '../Binary/Static/FPC/Win64/gpu.QuadPerEdgeAA.o'}
         {$L '../Binary/Static/FPC/Win64/gpu.RegionOp.o'}
-        {$L '../Binary/Static/FPC/Win64/gpu.ShadowRRectOp.o'}
         {$L '../Binary/Static/FPC/Win64/gpu.SkGr.o'}
         {$L '../Binary/Static/FPC/Win64/gpu.SkImage_Ganesh.o'}
         {$L '../Binary/Static/FPC/Win64/gpu.SkImage_GaneshBase.o'}
         {$L '../Binary/Static/FPC/Win64/gpu.SkImage_GaneshFactories.o'}
+        {$L '../Binary/Static/FPC/Win64/gpu.SkImage_GaneshYUVA.o'}
         {$L '../Binary/Static/FPC/Win64/gpu.SkImage_LazyTexture.o'}
         {$L '../Binary/Static/FPC/Win64/gpu.SkImage_RasterPinnable.o'}
         {$L '../Binary/Static/FPC/Win64/gpu.SkSpecialImage_Ganesh.o'}
         {$L '../Binary/Static/FPC/Win64/gpu.SkSurface_Ganesh.o'}
-        {$L '../Binary/Static/FPC/Win64/gpu.SmallPathAtlasMgr.o'}
-        {$L '../Binary/Static/FPC/Win64/gpu.SmallPathRenderer.o'}
-        {$L '../Binary/Static/FPC/Win64/gpu.SmallPathShapeData.o'}
         {$L '../Binary/Static/FPC/Win64/gpu.SoftwarePathRenderer.o'}
         {$L '../Binary/Static/FPC/Win64/gpu.StencilMaskHelper.o'}
         {$L '../Binary/Static/FPC/Win64/gpu.StrokeRectOp.o'}
@@ -2683,7 +2680,6 @@ const
         {$L '../Binary/Static/FPC/Win64/gpu.SurfaceFillContext.o'}
         {$L '../Binary/Static/FPC/Win64/gpu.TessellationPathRenderer.o'}
         {$L '../Binary/Static/FPC/Win64/gpu.TextureOp.o'}
-        {$L '../Binary/Static/FPC/Win64/gpu.TriangulatingPathRenderer.o'}
         {$L '../Binary/Static/FPC/Win64/gpu_shared.AtlasTypes.o'}
         {$L '../Binary/Static/FPC/Win64/gpu_shared.Blend.o'}
         {$L '../Binary/Static/FPC/Win64/gpu_shared.BlendFormula.o'}
@@ -2697,7 +2693,6 @@ const
         {$L '../Binary/Static/FPC/Win64/gpu_shared.RectanizerPow2.o'}
         {$L '../Binary/Static/FPC/Win64/gpu_shared.RectanizerSkyline.o'}
         {$L '../Binary/Static/FPC/Win64/gpu_shared.ResourceKey.o'}
-        {$L '../Binary/Static/FPC/Win64/gpu_shared.SDFMaskFilter.o'}
         {$L '../Binary/Static/FPC/Win64/gpu_shared.ShaderErrorHandler.o'}
         {$L '../Binary/Static/FPC/Win64/gpu_shared.SkBackingFit.o'}
         {$L '../Binary/Static/FPC/Win64/gpu_shared.SkChromeRemoteGlyphCache.o'}
@@ -2724,7 +2719,6 @@ const
         {$L '../Binary/Static/FPC/Win64/gpu_shared.VulkanMemory.o'}
         {$L '../Binary/Static/FPC/Win64/gpu_shared.VulkanMutableTextureState.o'}
         {$L '../Binary/Static/FPC/Win64/gpu_shared.VulkanUtilsPriv.o'}
-        {$L '../Binary/Static/FPC/Win64/hsw.SkOpts_hsw.o'}
         {$L '../Binary/Static/FPC/Win64/jpeg_decode.SkJpegCodec.o'}
         {$L '../Binary/Static/FPC/Win64/jpeg_decode.SkJpegDecoderMgr.o'}
         {$L '../Binary/Static/FPC/Win64/jpeg_decode.SkJpegMetadataDecoderImpl.o'}
@@ -3049,7 +3043,6 @@ const
         {$L '../Binary/Static/FPC/Win64/libskia.SkBitmapProcState.o'}
         {$L '../Binary/Static/FPC/Win64/libskia.SkBitmapProcState_matrixProcs.o'}
         {$L '../Binary/Static/FPC/Win64/libskia.SkBitmapProcState_opts.o'}
-        {$L '../Binary/Static/FPC/Win64/libskia.SkBitmapProcState_opts_ssse3.o'}
         {$L '../Binary/Static/FPC/Win64/libskia.SkBlendImageFilter.o'}
         {$L '../Binary/Static/FPC/Win64/libskia.SkBlendMode.o'}
         {$L '../Binary/Static/FPC/Win64/libskia.SkBlendModeBlender.o'}
@@ -3057,13 +3050,10 @@ const
         {$L '../Binary/Static/FPC/Win64/libskia.SkBlendShader.o'}
         {$L '../Binary/Static/FPC/Win64/libskia.SkBlenders.o'}
         {$L '../Binary/Static/FPC/Win64/libskia.SkBlitMask_opts.o'}
-        {$L '../Binary/Static/FPC/Win64/libskia.SkBlitMask_opts_ssse3.o'}
         {$L '../Binary/Static/FPC/Win64/libskia.SkBlitRow_D32.o'}
         {$L '../Binary/Static/FPC/Win64/libskia.SkBlitRow_opts.o'}
-        {$L '../Binary/Static/FPC/Win64/libskia.SkBlitRow_opts_hsw.o'}
         {$L '../Binary/Static/FPC/Win64/libskia.SkBlitter.o'}
         {$L '../Binary/Static/FPC/Win64/libskia.SkBlitter_A8.o'}
-        {$L '../Binary/Static/FPC/Win64/libskia.SkBlitter_ARGB32.o'}
         {$L '../Binary/Static/FPC/Win64/libskia.SkBlitter_Sprite.o'}
         {$L '../Binary/Static/FPC/Win64/libskia.SkBlockAllocator.o'}
         {$L '../Binary/Static/FPC/Win64/libskia.SkBlurEngine.o'}
@@ -3132,7 +3122,6 @@ const
         {$L '../Binary/Static/FPC/Win64/libskia.SkDevice.o'}
         {$L '../Binary/Static/FPC/Win64/libskia.SkDiscretePathEffect.o'}
         {$L '../Binary/Static/FPC/Win64/libskia.SkDisplacementMapImageFilter.o'}
-        {$L '../Binary/Static/FPC/Win64/libskia.SkDistanceFieldGen.o'}
         {$L '../Binary/Static/FPC/Win64/libskia.SkDocument.o'}
         {$L '../Binary/Static/FPC/Win64/libskia.SkDraw.o'}
         {$L '../Binary/Static/FPC/Win64/libskia.SkDrawBase.o'}
@@ -3160,7 +3149,6 @@ const
         {$L '../Binary/Static/FPC/Win64/libskia.SkFontStream.o'}
         {$L '../Binary/Static/FPC/Win64/libskia.SkFont_serial.o'}
         {$L '../Binary/Static/FPC/Win64/libskia.SkGaussFilter.o'}
-        {$L '../Binary/Static/FPC/Win64/libskia.SkGaussianColorFilter.o'}
         {$L '../Binary/Static/FPC/Win64/libskia.SkGeometry.o'}
         {$L '../Binary/Static/FPC/Win64/libskia.SkGlobalInitialization_core.o'}
         {$L '../Binary/Static/FPC/Win64/libskia.SkGlobalInitialization_default.o'}
@@ -3218,8 +3206,6 @@ const
         {$L '../Binary/Static/FPC/Win64/libskia.SkMatrixTransformImageFilter.o'}
         {$L '../Binary/Static/FPC/Win64/libskia.SkMemory_malloc.o'}
         {$L '../Binary/Static/FPC/Win64/libskia.SkMemset_opts.o'}
-        {$L '../Binary/Static/FPC/Win64/libskia.SkMemset_opts_avx.o'}
-        {$L '../Binary/Static/FPC/Win64/libskia.SkMemset_opts_erms.o'}
         {$L '../Binary/Static/FPC/Win64/libskia.SkMergeImageFilter.o'}
         {$L '../Binary/Static/FPC/Win64/libskia.SkMesh.o'}
         {$L '../Binary/Static/FPC/Win64/libskia.SkMipmap.o'}
@@ -3285,7 +3271,6 @@ const
         {$L '../Binary/Static/FPC/Win64/libskia.SkPixmapUtils.o'}
         {$L '../Binary/Static/FPC/Win64/libskia.SkPoint.o'}
         {$L '../Binary/Static/FPC/Win64/libskia.SkPoint3.o'}
-        {$L '../Binary/Static/FPC/Win64/libskia.SkPolyUtils.o'}
         {$L '../Binary/Static/FPC/Win64/libskia.SkPtrRecorder.o'}
         {$L '../Binary/Static/FPC/Win64/libskia.SkQuads.o'}
         {$L '../Binary/Static/FPC/Win64/libskia.SkRRect.o'}
@@ -3314,7 +3299,6 @@ const
         {$L '../Binary/Static/FPC/Win64/libskia.SkRuntimeEffect.o'}
         {$L '../Binary/Static/FPC/Win64/libskia.SkRuntimeImageFilter.o'}
         {$L '../Binary/Static/FPC/Win64/libskia.SkRuntimeShader.o'}
-        {$L '../Binary/Static/FPC/Win64/libskia.SkSLAddConstToVarModifiers.o'}
         {$L '../Binary/Static/FPC/Win64/libskia.SkSLAnalysis.o'}
         {$L '../Binary/Static/FPC/Win64/libskia.SkSLBinaryExpression.o'}
         {$L '../Binary/Static/FPC/Win64/libskia.SkSLBlock.o'}
@@ -3341,6 +3325,7 @@ const
         {$L '../Binary/Static/FPC/Win64/libskia.SkSLEliminateDeadFunctions.o'}
         {$L '../Binary/Static/FPC/Win64/libskia.SkSLEliminateDeadGlobalVariables.o'}
         {$L '../Binary/Static/FPC/Win64/libskia.SkSLEliminateDeadLocalVariables.o'}
+        {$L '../Binary/Static/FPC/Win64/libskia.SkSLEliminateEmptyStatements.o'}
         {$L '../Binary/Static/FPC/Win64/libskia.SkSLEliminateUnreachableCode.o'}
         {$L '../Binary/Static/FPC/Win64/libskia.SkSLErrorReporter.o'}
         {$L '../Binary/Static/FPC/Win64/libskia.SkSLExpression.o'}
@@ -3362,7 +3347,6 @@ const
         {$L '../Binary/Static/FPC/Win64/libskia.SkSLHoistSwitchVarDeclarationsAtTopLevel.o'}
         {$L '../Binary/Static/FPC/Win64/libskia.SkSLIfStatement.o'}
         {$L '../Binary/Static/FPC/Win64/libskia.SkSLIndexExpression.o'}
-        {$L '../Binary/Static/FPC/Win64/libskia.SkSLInliner.o'}
         {$L '../Binary/Static/FPC/Win64/libskia.SkSLInterfaceBlock.o'}
         {$L '../Binary/Static/FPC/Win64/libskia.SkSLIntrinsicList.o'}
         {$L '../Binary/Static/FPC/Win64/libskia.SkSLIsConstantExpression.o'}
@@ -3401,7 +3385,6 @@ const
         {$L '../Binary/Static/FPC/Win64/libskia.SkSLSwizzle.o'}
         {$L '../Binary/Static/FPC/Win64/libskia.SkSLSymbol.o'}
         {$L '../Binary/Static/FPC/Win64/libskia.SkSLSymbolTable.o'}
-        {$L '../Binary/Static/FPC/Win64/libskia.SkSLSymbolTableStackBuilder.o'}
         {$L '../Binary/Static/FPC/Win64/libskia.SkSLTernaryExpression.o'}
         {$L '../Binary/Static/FPC/Win64/libskia.SkSLTraceHook.o'}
         {$L '../Binary/Static/FPC/Win64/libskia.SkSLType.o'}
@@ -3427,7 +3410,6 @@ const
         {$L '../Binary/Static/FPC/Win64/libskia.SkShaderImageFilter.o'}
         {$L '../Binary/Static/FPC/Win64/libskia.SkShaderMaskFilterImpl.o'}
         {$L '../Binary/Static/FPC/Win64/libskia.SkShaderUtils.o'}
-        {$L '../Binary/Static/FPC/Win64/libskia.SkShadowTessellator.o'}
         {$L '../Binary/Static/FPC/Win64/libskia.SkShadowUtils.o'}
         {$L '../Binary/Static/FPC/Win64/libskia.SkSharedMutex.o'}
         {$L '../Binary/Static/FPC/Win64/libskia.SkSpecialImage.o'}
@@ -3448,8 +3430,6 @@ const
         {$L '../Binary/Static/FPC/Win64/libskia.SkSweepGradient.o'}
         {$L '../Binary/Static/FPC/Win64/libskia.SkSwizzler.o'}
         {$L '../Binary/Static/FPC/Win64/libskia.SkSwizzler_opts.o'}
-        {$L '../Binary/Static/FPC/Win64/libskia.SkSwizzler_opts_hsw.o'}
-        {$L '../Binary/Static/FPC/Win64/libskia.SkSwizzler_opts_ssse3.o'}
         {$L '../Binary/Static/FPC/Win64/libskia.SkTDArray.o'}
         {$L '../Binary/Static/FPC/Win64/libskia.SkTSearch.o'}
         {$L '../Binary/Static/FPC/Win64/libskia.SkTableColorFilter.o'}
@@ -3816,7 +3796,6 @@ const
         {$L '../Binary/Static/FPC/Win64/sk4d.sk4d_typefacefontprovider.o'}
         {$L '../Binary/Static/FPC/Win64/sk4d.sk4d_unicode.o'}
         {$L '../Binary/Static/FPC/Win64/sk4d.sk4d_vertices.o'}
-        {$L '../Binary/Static/FPC/Win64/skx.SkOpts_skx.o'}
         {$L '../Binary/Static/FPC/Win64/vulkanmemoryallocator.VulkanMemoryAllocatorWrapper.o'}
         {$L '../Binary/Static/FPC/Win64/webp_decode.SkWebpCodec.o'}
         {$L '../Binary/Static/FPC/Win64/webp_encode.SkWebpEncoderImpl.o'}
@@ -3864,7 +3843,6 @@ const
         {$L '../Binary/Static/FPC/Win32/gpu.FillRRectOp.o'}
         {$L '../Binary/Static/FPC/Win32/gpu.FillRectOp.o'}
         {$L '../Binary/Static/FPC/Win32/gpu.GrAAConvexTessellator.o'}
-        {$L '../Binary/Static/FPC/Win32/gpu.GrAATriangulator.o'}
         {$L '../Binary/Static/FPC/Win32/gpu.GrAtlasManager.o'}
         {$L '../Binary/Static/FPC/Win32/gpu.GrAttachment.o'}
         {$L '../Binary/Static/FPC/Win32/gpu.GrAuditTrail.o'}
@@ -3879,6 +3857,7 @@ const
         {$L '../Binary/Static/FPC/Win32/gpu.GrBlurUtils.o'}
         {$L '../Binary/Static/FPC/Win32/gpu.GrBufferAllocPool.o'}
         {$L '../Binary/Static/FPC/Win32/gpu.GrBufferTransferRenderTask.o'}
+        {$L '../Binary/Static/FPC/Win32/gpu.GrCanvas.o'}
         {$L '../Binary/Static/FPC/Win32/gpu.GrCaps.o'}
         {$L '../Binary/Static/FPC/Win32/gpu.GrClientMappedBufferManager.o'}
         {$L '../Binary/Static/FPC/Win32/gpu.GrColorInfo.o'}
@@ -3891,13 +3870,14 @@ const
         {$L '../Binary/Static/FPC/Win32/gpu.GrCoverageSetOpXP.o'}
         {$L '../Binary/Static/FPC/Win32/gpu.GrCustomXfermode.o'}
         {$L '../Binary/Static/FPC/Win32/gpu.GrDDLContext.o'}
+        {$L '../Binary/Static/FPC/Win32/gpu.GrDDLTask.o'}
         {$L '../Binary/Static/FPC/Win32/gpu.GrDataUtils.o'}
         {$L '../Binary/Static/FPC/Win32/gpu.GrDefaultGeoProcFactory.o'}
+        {$L '../Binary/Static/FPC/Win32/gpu.GrDeferredDisplayList.o'}
+        {$L '../Binary/Static/FPC/Win32/gpu.GrDeferredDisplayListRecorder.o'}
         {$L '../Binary/Static/FPC/Win32/gpu.GrDirectContext.o'}
         {$L '../Binary/Static/FPC/Win32/gpu.GrDirectContextPriv.o'}
         {$L '../Binary/Static/FPC/Win32/gpu.GrDisableColorXP.o'}
-        {$L '../Binary/Static/FPC/Win32/gpu.GrDistanceFieldGenFromVector.o'}
-        {$L '../Binary/Static/FPC/Win32/gpu.GrDistanceFieldGeoProc.o'}
         {$L '../Binary/Static/FPC/Win32/gpu.GrDrawOpAtlas.o'}
         {$L '../Binary/Static/FPC/Win32/gpu.GrDrawingManager.o'}
         {$L '../Binary/Static/FPC/Win32/gpu.GrDriverBugWorkarounds.o'}
@@ -3957,6 +3937,7 @@ const
         {$L '../Binary/Static/FPC/Win32/gpu.GrImageUtils.o'}
         {$L '../Binary/Static/FPC/Win32/gpu.GrMatrixEffect.o'}
         {$L '../Binary/Static/FPC/Win32/gpu.GrMemoryPool.o'}
+        {$L '../Binary/Static/FPC/Win32/gpu.GrMeshBuffers.o'}
         {$L '../Binary/Static/FPC/Win32/gpu.GrMeshDrawOp.o'}
         {$L '../Binary/Static/FPC/Win32/gpu.GrMeshDrawTarget.o'}
         {$L '../Binary/Static/FPC/Win32/gpu.GrMockGpu.o'}
@@ -3967,7 +3948,6 @@ const
         {$L '../Binary/Static/FPC/Win32/gpu.GrOpFlushState.o'}
         {$L '../Binary/Static/FPC/Win32/gpu.GrOpsRenderPass.o'}
         {$L '../Binary/Static/FPC/Win32/gpu.GrOvalEffect.o'}
-        {$L '../Binary/Static/FPC/Win32/gpu.GrOvalOpFactory.o'}
         {$L '../Binary/Static/FPC/Win32/gpu.GrPaint.o'}
         {$L '../Binary/Static/FPC/Win32/gpu.GrPathTessellationShader.o'}
         {$L '../Binary/Static/FPC/Win32/gpu.GrPathUtils.o'}
@@ -3999,7 +3979,6 @@ const
         {$L '../Binary/Static/FPC/Win32/gpu.GrSWMaskHelper.o'}
         {$L '../Binary/Static/FPC/Win32/gpu.GrShaderCaps.o'}
         {$L '../Binary/Static/FPC/Win32/gpu.GrShaderVar.o'}
-        {$L '../Binary/Static/FPC/Win32/gpu.GrShadowGeoProc.o'}
         {$L '../Binary/Static/FPC/Win32/gpu.GrShape.o'}
         {$L '../Binary/Static/FPC/Win32/gpu.GrSimpleMeshDrawOpHelper.o'}
         {$L '../Binary/Static/FPC/Win32/gpu.GrSimpleMeshDrawOpHelperWithStencil.o'}
@@ -4010,6 +3989,7 @@ const
         {$L '../Binary/Static/FPC/Win32/gpu.GrStyle.o'}
         {$L '../Binary/Static/FPC/Win32/gpu.GrStyledShape.o'}
         {$L '../Binary/Static/FPC/Win32/gpu.GrSurface.o'}
+        {$L '../Binary/Static/FPC/Win32/gpu.GrSurfaceCharacterization.o'}
         {$L '../Binary/Static/FPC/Win32/gpu.GrSurfaceProxy.o'}
         {$L '../Binary/Static/FPC/Win32/gpu.GrSurfaceProxyView.o'}
         {$L '../Binary/Static/FPC/Win32/gpu.GrTessellationShader.o'}
@@ -4021,7 +4001,6 @@ const
         {$L '../Binary/Static/FPC/Win32/gpu.GrTextureResolveRenderTask.o'}
         {$L '../Binary/Static/FPC/Win32/gpu.GrThreadSafeCache.o'}
         {$L '../Binary/Static/FPC/Win32/gpu.GrTransferFromRenderTask.o'}
-        {$L '../Binary/Static/FPC/Win32/gpu.GrTriangulator.o'}
         {$L '../Binary/Static/FPC/Win32/gpu.GrUniformDataManager.o'}
         {$L '../Binary/Static/FPC/Win32/gpu.GrUtil.o'}
         {$L '../Binary/Static/FPC/Win32/gpu.GrVertexChunkArray.o'}
@@ -4062,11 +4041,11 @@ const
         {$L '../Binary/Static/FPC/Win32/gpu.GrWaitRenderTask.o'}
         {$L '../Binary/Static/FPC/Win32/gpu.GrWritePixelsRenderTask.o'}
         {$L '../Binary/Static/FPC/Win32/gpu.GrXferProcessor.o'}
+        {$L '../Binary/Static/FPC/Win32/gpu.GrYUVABackendTextures.o'}
         {$L '../Binary/Static/FPC/Win32/gpu.GrYUVATextureProxies.o'}
         {$L '../Binary/Static/FPC/Win32/gpu.GrYUVtoRGBEffect.o'}
         {$L '../Binary/Static/FPC/Win32/gpu.LatticeOp.o'}
         {$L '../Binary/Static/FPC/Win32/gpu.OpsTask.o'}
-        {$L '../Binary/Static/FPC/Win32/gpu.PathInnerTriangulateOp.o'}
         {$L '../Binary/Static/FPC/Win32/gpu.PathRenderer.o'}
         {$L '../Binary/Static/FPC/Win32/gpu.PathRendererChain.o'}
         {$L '../Binary/Static/FPC/Win32/gpu.PathStencilCoverOp.o'}
@@ -4074,18 +4053,15 @@ const
         {$L '../Binary/Static/FPC/Win32/gpu.PathTessellator.o'}
         {$L '../Binary/Static/FPC/Win32/gpu.QuadPerEdgeAA.o'}
         {$L '../Binary/Static/FPC/Win32/gpu.RegionOp.o'}
-        {$L '../Binary/Static/FPC/Win32/gpu.ShadowRRectOp.o'}
         {$L '../Binary/Static/FPC/Win32/gpu.SkGr.o'}
         {$L '../Binary/Static/FPC/Win32/gpu.SkImage_Ganesh.o'}
         {$L '../Binary/Static/FPC/Win32/gpu.SkImage_GaneshBase.o'}
         {$L '../Binary/Static/FPC/Win32/gpu.SkImage_GaneshFactories.o'}
+        {$L '../Binary/Static/FPC/Win32/gpu.SkImage_GaneshYUVA.o'}
         {$L '../Binary/Static/FPC/Win32/gpu.SkImage_LazyTexture.o'}
         {$L '../Binary/Static/FPC/Win32/gpu.SkImage_RasterPinnable.o'}
         {$L '../Binary/Static/FPC/Win32/gpu.SkSpecialImage_Ganesh.o'}
         {$L '../Binary/Static/FPC/Win32/gpu.SkSurface_Ganesh.o'}
-        {$L '../Binary/Static/FPC/Win32/gpu.SmallPathAtlasMgr.o'}
-        {$L '../Binary/Static/FPC/Win32/gpu.SmallPathRenderer.o'}
-        {$L '../Binary/Static/FPC/Win32/gpu.SmallPathShapeData.o'}
         {$L '../Binary/Static/FPC/Win32/gpu.SoftwarePathRenderer.o'}
         {$L '../Binary/Static/FPC/Win32/gpu.StencilMaskHelper.o'}
         {$L '../Binary/Static/FPC/Win32/gpu.StrokeRectOp.o'}
@@ -4096,7 +4072,6 @@ const
         {$L '../Binary/Static/FPC/Win32/gpu.SurfaceFillContext.o'}
         {$L '../Binary/Static/FPC/Win32/gpu.TessellationPathRenderer.o'}
         {$L '../Binary/Static/FPC/Win32/gpu.TextureOp.o'}
-        {$L '../Binary/Static/FPC/Win32/gpu.TriangulatingPathRenderer.o'}
         {$L '../Binary/Static/FPC/Win32/gpu_shared.AtlasTypes.o'}
         {$L '../Binary/Static/FPC/Win32/gpu_shared.Blend.o'}
         {$L '../Binary/Static/FPC/Win32/gpu_shared.BlendFormula.o'}
@@ -4110,7 +4085,6 @@ const
         {$L '../Binary/Static/FPC/Win32/gpu_shared.RectanizerPow2.o'}
         {$L '../Binary/Static/FPC/Win32/gpu_shared.RectanizerSkyline.o'}
         {$L '../Binary/Static/FPC/Win32/gpu_shared.ResourceKey.o'}
-        {$L '../Binary/Static/FPC/Win32/gpu_shared.SDFMaskFilter.o'}
         {$L '../Binary/Static/FPC/Win32/gpu_shared.ShaderErrorHandler.o'}
         {$L '../Binary/Static/FPC/Win32/gpu_shared.SkBackingFit.o'}
         {$L '../Binary/Static/FPC/Win32/gpu_shared.SkChromeRemoteGlyphCache.o'}
@@ -4137,7 +4111,6 @@ const
         {$L '../Binary/Static/FPC/Win32/gpu_shared.VulkanMemory.o'}
         {$L '../Binary/Static/FPC/Win32/gpu_shared.VulkanMutableTextureState.o'}
         {$L '../Binary/Static/FPC/Win32/gpu_shared.VulkanUtilsPriv.o'}
-        {$L '../Binary/Static/FPC/Win32/hsw.SkOpts_hsw.o'}
         {$L '../Binary/Static/FPC/Win32/jpeg_decode.SkJpegCodec.o'}
         {$L '../Binary/Static/FPC/Win32/jpeg_decode.SkJpegDecoderMgr.o'}
         {$L '../Binary/Static/FPC/Win32/jpeg_decode.SkJpegMetadataDecoderImpl.o'}
@@ -4482,7 +4455,6 @@ const
         {$L '../Binary/Static/FPC/Win32/libskia.SkBitmapProcState.o'}
         {$L '../Binary/Static/FPC/Win32/libskia.SkBitmapProcState_matrixProcs.o'}
         {$L '../Binary/Static/FPC/Win32/libskia.SkBitmapProcState_opts.o'}
-        {$L '../Binary/Static/FPC/Win32/libskia.SkBitmapProcState_opts_ssse3.o'}
         {$L '../Binary/Static/FPC/Win32/libskia.SkBlendImageFilter.o'}
         {$L '../Binary/Static/FPC/Win32/libskia.SkBlendMode.o'}
         {$L '../Binary/Static/FPC/Win32/libskia.SkBlendModeBlender.o'}
@@ -4490,13 +4462,10 @@ const
         {$L '../Binary/Static/FPC/Win32/libskia.SkBlendShader.o'}
         {$L '../Binary/Static/FPC/Win32/libskia.SkBlenders.o'}
         {$L '../Binary/Static/FPC/Win32/libskia.SkBlitMask_opts.o'}
-        {$L '../Binary/Static/FPC/Win32/libskia.SkBlitMask_opts_ssse3.o'}
         {$L '../Binary/Static/FPC/Win32/libskia.SkBlitRow_D32.o'}
         {$L '../Binary/Static/FPC/Win32/libskia.SkBlitRow_opts.o'}
-        {$L '../Binary/Static/FPC/Win32/libskia.SkBlitRow_opts_hsw.o'}
         {$L '../Binary/Static/FPC/Win32/libskia.SkBlitter.o'}
         {$L '../Binary/Static/FPC/Win32/libskia.SkBlitter_A8.o'}
-        {$L '../Binary/Static/FPC/Win32/libskia.SkBlitter_ARGB32.o'}
         {$L '../Binary/Static/FPC/Win32/libskia.SkBlitter_Sprite.o'}
         {$L '../Binary/Static/FPC/Win32/libskia.SkBlockAllocator.o'}
         {$L '../Binary/Static/FPC/Win32/libskia.SkBlurEngine.o'}
@@ -4565,7 +4534,6 @@ const
         {$L '../Binary/Static/FPC/Win32/libskia.SkDevice.o'}
         {$L '../Binary/Static/FPC/Win32/libskia.SkDiscretePathEffect.o'}
         {$L '../Binary/Static/FPC/Win32/libskia.SkDisplacementMapImageFilter.o'}
-        {$L '../Binary/Static/FPC/Win32/libskia.SkDistanceFieldGen.o'}
         {$L '../Binary/Static/FPC/Win32/libskia.SkDocument.o'}
         {$L '../Binary/Static/FPC/Win32/libskia.SkDraw.o'}
         {$L '../Binary/Static/FPC/Win32/libskia.SkDrawBase.o'}
@@ -4593,7 +4561,6 @@ const
         {$L '../Binary/Static/FPC/Win32/libskia.SkFontStream.o'}
         {$L '../Binary/Static/FPC/Win32/libskia.SkFont_serial.o'}
         {$L '../Binary/Static/FPC/Win32/libskia.SkGaussFilter.o'}
-        {$L '../Binary/Static/FPC/Win32/libskia.SkGaussianColorFilter.o'}
         {$L '../Binary/Static/FPC/Win32/libskia.SkGeometry.o'}
         {$L '../Binary/Static/FPC/Win32/libskia.SkGlobalInitialization_core.o'}
         {$L '../Binary/Static/FPC/Win32/libskia.SkGlobalInitialization_default.o'}
@@ -4651,8 +4618,6 @@ const
         {$L '../Binary/Static/FPC/Win32/libskia.SkMatrixTransformImageFilter.o'}
         {$L '../Binary/Static/FPC/Win32/libskia.SkMemory_malloc.o'}
         {$L '../Binary/Static/FPC/Win32/libskia.SkMemset_opts.o'}
-        {$L '../Binary/Static/FPC/Win32/libskia.SkMemset_opts_avx.o'}
-        {$L '../Binary/Static/FPC/Win32/libskia.SkMemset_opts_erms.o'}
         {$L '../Binary/Static/FPC/Win32/libskia.SkMergeImageFilter.o'}
         {$L '../Binary/Static/FPC/Win32/libskia.SkMesh.o'}
         {$L '../Binary/Static/FPC/Win32/libskia.SkMipmap.o'}
@@ -4718,7 +4683,6 @@ const
         {$L '../Binary/Static/FPC/Win32/libskia.SkPixmapUtils.o'}
         {$L '../Binary/Static/FPC/Win32/libskia.SkPoint.o'}
         {$L '../Binary/Static/FPC/Win32/libskia.SkPoint3.o'}
-        {$L '../Binary/Static/FPC/Win32/libskia.SkPolyUtils.o'}
         {$L '../Binary/Static/FPC/Win32/libskia.SkPtrRecorder.o'}
         {$L '../Binary/Static/FPC/Win32/libskia.SkQuads.o'}
         {$L '../Binary/Static/FPC/Win32/libskia.SkRRect.o'}
@@ -4747,7 +4711,6 @@ const
         {$L '../Binary/Static/FPC/Win32/libskia.SkRuntimeEffect.o'}
         {$L '../Binary/Static/FPC/Win32/libskia.SkRuntimeImageFilter.o'}
         {$L '../Binary/Static/FPC/Win32/libskia.SkRuntimeShader.o'}
-        {$L '../Binary/Static/FPC/Win32/libskia.SkSLAddConstToVarModifiers.o'}
         {$L '../Binary/Static/FPC/Win32/libskia.SkSLAnalysis.o'}
         {$L '../Binary/Static/FPC/Win32/libskia.SkSLBinaryExpression.o'}
         {$L '../Binary/Static/FPC/Win32/libskia.SkSLBlock.o'}
@@ -4774,6 +4737,7 @@ const
         {$L '../Binary/Static/FPC/Win32/libskia.SkSLEliminateDeadFunctions.o'}
         {$L '../Binary/Static/FPC/Win32/libskia.SkSLEliminateDeadGlobalVariables.o'}
         {$L '../Binary/Static/FPC/Win32/libskia.SkSLEliminateDeadLocalVariables.o'}
+        {$L '../Binary/Static/FPC/Win32/libskia.SkSLEliminateEmptyStatements.o'}
         {$L '../Binary/Static/FPC/Win32/libskia.SkSLEliminateUnreachableCode.o'}
         {$L '../Binary/Static/FPC/Win32/libskia.SkSLErrorReporter.o'}
         {$L '../Binary/Static/FPC/Win32/libskia.SkSLExpression.o'}
@@ -4795,7 +4759,6 @@ const
         {$L '../Binary/Static/FPC/Win32/libskia.SkSLHoistSwitchVarDeclarationsAtTopLevel.o'}
         {$L '../Binary/Static/FPC/Win32/libskia.SkSLIfStatement.o'}
         {$L '../Binary/Static/FPC/Win32/libskia.SkSLIndexExpression.o'}
-        {$L '../Binary/Static/FPC/Win32/libskia.SkSLInliner.o'}
         {$L '../Binary/Static/FPC/Win32/libskia.SkSLInterfaceBlock.o'}
         {$L '../Binary/Static/FPC/Win32/libskia.SkSLIntrinsicList.o'}
         {$L '../Binary/Static/FPC/Win32/libskia.SkSLIsConstantExpression.o'}
@@ -4834,7 +4797,6 @@ const
         {$L '../Binary/Static/FPC/Win32/libskia.SkSLSwizzle.o'}
         {$L '../Binary/Static/FPC/Win32/libskia.SkSLSymbol.o'}
         {$L '../Binary/Static/FPC/Win32/libskia.SkSLSymbolTable.o'}
-        {$L '../Binary/Static/FPC/Win32/libskia.SkSLSymbolTableStackBuilder.o'}
         {$L '../Binary/Static/FPC/Win32/libskia.SkSLTernaryExpression.o'}
         {$L '../Binary/Static/FPC/Win32/libskia.SkSLTraceHook.o'}
         {$L '../Binary/Static/FPC/Win32/libskia.SkSLType.o'}
@@ -4860,7 +4822,6 @@ const
         {$L '../Binary/Static/FPC/Win32/libskia.SkShaderImageFilter.o'}
         {$L '../Binary/Static/FPC/Win32/libskia.SkShaderMaskFilterImpl.o'}
         {$L '../Binary/Static/FPC/Win32/libskia.SkShaderUtils.o'}
-        {$L '../Binary/Static/FPC/Win32/libskia.SkShadowTessellator.o'}
         {$L '../Binary/Static/FPC/Win32/libskia.SkShadowUtils.o'}
         {$L '../Binary/Static/FPC/Win32/libskia.SkSharedMutex.o'}
         {$L '../Binary/Static/FPC/Win32/libskia.SkSpecialImage.o'}
@@ -4881,8 +4842,6 @@ const
         {$L '../Binary/Static/FPC/Win32/libskia.SkSweepGradient.o'}
         {$L '../Binary/Static/FPC/Win32/libskia.SkSwizzler.o'}
         {$L '../Binary/Static/FPC/Win32/libskia.SkSwizzler_opts.o'}
-        {$L '../Binary/Static/FPC/Win32/libskia.SkSwizzler_opts_hsw.o'}
-        {$L '../Binary/Static/FPC/Win32/libskia.SkSwizzler_opts_ssse3.o'}
         {$L '../Binary/Static/FPC/Win32/libskia.SkTDArray.o'}
         {$L '../Binary/Static/FPC/Win32/libskia.SkTSearch.o'}
         {$L '../Binary/Static/FPC/Win32/libskia.SkTableColorFilter.o'}
@@ -5249,7 +5208,6 @@ const
         {$L '../Binary/Static/FPC/Win32/sk4d.sk4d_typefacefontprovider.o'}
         {$L '../Binary/Static/FPC/Win32/sk4d.sk4d_unicode.o'}
         {$L '../Binary/Static/FPC/Win32/sk4d.sk4d_vertices.o'}
-        {$L '../Binary/Static/FPC/Win32/skx.SkOpts_skx.o'}
         {$L '../Binary/Static/FPC/Win32/vulkanmemoryallocator.VulkanMemoryAllocatorWrapper.o'}
         {$L '../Binary/Static/FPC/Win32/webp_decode.SkWebpCodec.o'}
         {$L '../Binary/Static/FPC/Win32/webp_encode.SkWebpEncoderImpl.o'}
@@ -5273,6 +5231,7 @@ const
         {$L '../Binary/Static/FPC/Win32/__thunk.o'}
       {$ENDIF}
 
+
       function __InitLib: Integer; cdecl; external name _PU + '_InitLib';
       procedure __FiniLib; cdecl; external name _PU + '_FiniLib';
 
@@ -5290,15 +5249,15 @@ const
       procedure strtoull; external 'api-ms-win-crt-convert-l1-1-0.dll';
       procedure wcrtomb; external 'api-ms-win-crt-convert-l1-1-0.dll';
       procedure wcrtomb_s; external 'api-ms-win-crt-convert-l1-1-0.dll';
-
+      
       procedure __p__environ; external 'api-ms-win-crt-environment-l1-1-0.dll';
       procedure __p__wenviron; external 'api-ms-win-crt-environment-l1-1-0.dll';
       procedure getenv; external 'api-ms-win-crt-environment-l1-1-0.dll';
-
+      
       procedure _lock_file; external 'api-ms-win-crt-filesystem-l1-1-0.dll';
       procedure _stat64; external 'api-ms-win-crt-filesystem-l1-1-0.dll';
       procedure _unlock_file; external 'api-ms-win-crt-filesystem-l1-1-0.dll';
-
+      
       procedure _aligned_free; external 'api-ms-win-crt-heap-l1-1-0.dll';
       procedure _aligned_malloc; external 'api-ms-win-crt-heap-l1-1-0.dll';
       procedure _msize; external 'api-ms-win-crt-heap-l1-1-0.dll';
@@ -5307,7 +5266,7 @@ const
       procedure free; external 'api-ms-win-crt-heap-l1-1-0.dll';
       procedure malloc; external 'api-ms-win-crt-heap-l1-1-0.dll';
       procedure realloc; external 'api-ms-win-crt-heap-l1-1-0.dll';
-
+      
       procedure ___lc_codepage_func; external 'api-ms-win-crt-locale-l1-1-0.dll';
       procedure ___mb_cur_max_func; external 'api-ms-win-crt-locale-l1-1-0.dll';
       procedure __pctype_func; external 'api-ms-win-crt-locale-l1-1-0.dll';
@@ -5316,24 +5275,7 @@ const
       procedure _free_locale; external 'api-ms-win-crt-locale-l1-1-0.dll';
       procedure localeconv; external 'api-ms-win-crt-locale-l1-1-0.dll';
       procedure setlocale; external 'api-ms-win-crt-locale-l1-1-0.dll';
-
-      {$IFDEF WIN64}
-      procedure acosf; external 'api-ms-win-crt-math-l1-1-0.dll';
-      procedure asinf; external 'api-ms-win-crt-math-l1-1-0.dll';
-      procedure atan2f; external 'api-ms-win-crt-math-l1-1-0.dll';
-      procedure atanf; external 'api-ms-win-crt-math-l1-1-0.dll';
-      procedure ceilf; external 'api-ms-win-crt-math-l1-1-0.dll';
-      procedure cosf; external 'api-ms-win-crt-math-l1-1-0.dll';
-      procedure expf; external 'api-ms-win-crt-math-l1-1-0.dll';
-      procedure floorf; external 'api-ms-win-crt-math-l1-1-0.dll';
-      procedure fmodf; external 'api-ms-win-crt-math-l1-1-0.dll';
-      procedure logf; external 'api-ms-win-crt-math-l1-1-0.dll';
-      procedure powf; external 'api-ms-win-crt-math-l1-1-0.dll';
-      procedure sinf; external 'api-ms-win-crt-math-l1-1-0.dll';
-      procedure sqrtf; external 'api-ms-win-crt-math-l1-1-0.dll';
-      procedure tanf; external 'api-ms-win-crt-math-l1-1-0.dll';
-      procedure tanhf; external 'api-ms-win-crt-math-l1-1-0.dll';
-      {$ENDIF}
+      
       {$IFDEF WIN32}
       procedure __setusermatherr; external 'api-ms-win-crt-math-l1-1-0.dll';
       {$ENDIF}
@@ -5341,50 +5283,95 @@ const
       procedure _round; external 'api-ms-win-crt-math-l1-1-0.dll' name 'round';
       procedure _trunc; external 'api-ms-win-crt-math-l1-1-0.dll' name 'trunc';
       procedure acos; external 'api-ms-win-crt-math-l1-1-0.dll';
+      {$IFDEF WIN64}
+      procedure acosf; external 'api-ms-win-crt-math-l1-1-0.dll';
+      {$ENDIF}
       procedure acosh; external 'api-ms-win-crt-math-l1-1-0.dll';
       procedure asin; external 'api-ms-win-crt-math-l1-1-0.dll';
+      {$IFDEF WIN64}
+      procedure asinf; external 'api-ms-win-crt-math-l1-1-0.dll';
+      {$ENDIF}
       procedure asinh; external 'api-ms-win-crt-math-l1-1-0.dll';
       procedure atan; external 'api-ms-win-crt-math-l1-1-0.dll';
       procedure atan2; external 'api-ms-win-crt-math-l1-1-0.dll';
+      {$IFDEF WIN64}
+      procedure atan2f; external 'api-ms-win-crt-math-l1-1-0.dll';
+      procedure atanf; external 'api-ms-win-crt-math-l1-1-0.dll';
+      {$ENDIF}
       procedure atanh; external 'api-ms-win-crt-math-l1-1-0.dll';
       procedure cbrt; external 'api-ms-win-crt-math-l1-1-0.dll';
       procedure cbrtf; external 'api-ms-win-crt-math-l1-1-0.dll';
       procedure ceil; external 'api-ms-win-crt-math-l1-1-0.dll';
+      {$IFDEF WIN64}
+      procedure ceilf; external 'api-ms-win-crt-math-l1-1-0.dll';
+      {$ENDIF}
       procedure cos; external 'api-ms-win-crt-math-l1-1-0.dll';
+      {$IFDEF WIN64}
+      procedure cosf; external 'api-ms-win-crt-math-l1-1-0.dll';
+      {$ENDIF}
       procedure cosh; external 'api-ms-win-crt-math-l1-1-0.dll';
       procedure erff; external 'api-ms-win-crt-math-l1-1-0.dll';
       procedure exp; external 'api-ms-win-crt-math-l1-1-0.dll';
       procedure exp2; external 'api-ms-win-crt-math-l1-1-0.dll';
       procedure exp2f; external 'api-ms-win-crt-math-l1-1-0.dll';
+      {$IFDEF WIN64}
+      procedure expf; external 'api-ms-win-crt-math-l1-1-0.dll';
+      {$ENDIF}
       procedure floor; external 'api-ms-win-crt-math-l1-1-0.dll';
+      {$IFDEF WIN64}
+      procedure floorf; external 'api-ms-win-crt-math-l1-1-0.dll';
+      {$ENDIF}
       procedure fma; external 'api-ms-win-crt-math-l1-1-0.dll';
       procedure fmaf; external 'api-ms-win-crt-math-l1-1-0.dll';
+      procedure fmaxf; external 'api-ms-win-crt-math-l1-1-0.dll';
+      procedure fminf; external 'api-ms-win-crt-math-l1-1-0.dll';
       procedure fmod; external 'api-ms-win-crt-math-l1-1-0.dll';
+      {$IFDEF WIN64}
+      procedure fmodf; external 'api-ms-win-crt-math-l1-1-0.dll';
+      {$ENDIF}
       procedure frexp; external 'api-ms-win-crt-math-l1-1-0.dll';
-      procedure ilogbf; external 'api-ms-win-crt-math-l1-1-0.dll';
       procedure log; external 'api-ms-win-crt-math-l1-1-0.dll';
       procedure log10; external 'api-ms-win-crt-math-l1-1-0.dll';
       procedure log2; external 'api-ms-win-crt-math-l1-1-0.dll';
       procedure log2f; external 'api-ms-win-crt-math-l1-1-0.dll';
+      {$IFDEF WIN64}
+      procedure logf; external 'api-ms-win-crt-math-l1-1-0.dll';
+      {$ENDIF}
       procedure nextafterf; external 'api-ms-win-crt-math-l1-1-0.dll';
       procedure pow; external 'api-ms-win-crt-math-l1-1-0.dll';
+      {$IFDEF WIN64}
+      procedure powf; external 'api-ms-win-crt-math-l1-1-0.dll';
+      {$ENDIF}
       procedure remainder; external 'api-ms-win-crt-math-l1-1-0.dll';
       procedure roundf; external 'api-ms-win-crt-math-l1-1-0.dll';
       procedure sin; external 'api-ms-win-crt-math-l1-1-0.dll';
+      {$IFDEF WIN64}
+      procedure sinf; external 'api-ms-win-crt-math-l1-1-0.dll';
+      {$ENDIF}
       procedure sinh; external 'api-ms-win-crt-math-l1-1-0.dll';
       procedure sqrt; external 'api-ms-win-crt-math-l1-1-0.dll';
+      {$IFDEF WIN64}
+      procedure sqrtf; external 'api-ms-win-crt-math-l1-1-0.dll';
+      {$ENDIF}
       procedure tan; external 'api-ms-win-crt-math-l1-1-0.dll';
+      {$IFDEF WIN64}
+      procedure tanf; external 'api-ms-win-crt-math-l1-1-0.dll';
+      {$ENDIF}
       procedure tanh; external 'api-ms-win-crt-math-l1-1-0.dll';
+      {$IFDEF WIN64}
+      procedure tanhf; external 'api-ms-win-crt-math-l1-1-0.dll';
+      {$ENDIF}
       procedure truncf; external 'api-ms-win-crt-math-l1-1-0.dll';
-
+      
       procedure _mbtowc_l; external 'api-ms-win-crt-multibyte-l1-1-0.dll';
-
+      
       {$IFDEF WIN64}
       procedure __intrinsic_setjmpex; external 'api-ms-win-crt-private-l1-1-0.dll';
       {$ENDIF}
       {$IFDEF WIN32}
       procedure _setjmp3; external 'api-ms-win-crt-private-l1-1-0.dll';
       {$ENDIF}
+      
       procedure longjmp; external 'api-ms-win-crt-private-l1-1-0.dll';
       procedure memchr; external 'api-ms-win-crt-private-l1-1-0.dll';
       procedure memcmp; external 'api-ms-win-crt-private-l1-1-0.dll';
@@ -5393,7 +5380,7 @@ const
       procedure strchr; external 'api-ms-win-crt-private-l1-1-0.dll';
       procedure strrchr; external 'api-ms-win-crt-private-l1-1-0.dll';
       procedure strstr; external 'api-ms-win-crt-private-l1-1-0.dll';
-
+      
       procedure __exit; external 'api-ms-win-crt-runtime-l1-1-0.dll' name '_exit';
       procedure __p___argc; external 'api-ms-win-crt-runtime-l1-1-0.dll';
       procedure __p___argv; external 'api-ms-win-crt-runtime-l1-1-0.dll';
@@ -5412,7 +5399,7 @@ const
       procedure _register_onexit_function; external 'api-ms-win-crt-runtime-l1-1-0.dll';
       procedure abort; external 'api-ms-win-crt-runtime-l1-1-0.dll';
       procedure strerror; external 'api-ms-win-crt-runtime-l1-1-0.dll';
-
+      
       procedure __acrt_iob_func; external 'api-ms-win-crt-stdio-l1-1-0.dll';
       procedure __stdio_common_vfprintf; external 'api-ms-win-crt-stdio-l1-1-0.dll';
       procedure __stdio_common_vfwprintf; external 'api-ms-win-crt-stdio-l1-1-0.dll';
@@ -5432,7 +5419,7 @@ const
       procedure fseek; external 'api-ms-win-crt-stdio-l1-1-0.dll';
       procedure ftell; external 'api-ms-win-crt-stdio-l1-1-0.dll';
       procedure fwrite; external 'api-ms-win-crt-stdio-l1-1-0.dll';
-
+      
       procedure _isctype_l; external 'api-ms-win-crt-string-l1-1-0.dll';
       procedure _iswlower_l; external 'api-ms-win-crt-string-l1-1-0.dll';
       procedure _strdup; external 'api-ms-win-crt-string-l1-1-0.dll';
@@ -5454,12 +5441,12 @@ const
       procedure toupper; external 'api-ms-win-crt-string-l1-1-0.dll';
       procedure wcscmp; external 'api-ms-win-crt-string-l1-1-0.dll';
       procedure wcslen; external 'api-ms-win-crt-string-l1-1-0.dll';
-
+      
       procedure __daylight; external 'api-ms-win-crt-time-l1-1-0.dll';
       procedure __timezone; external 'api-ms-win-crt-time-l1-1-0.dll';
       procedure __tzname; external 'api-ms-win-crt-time-l1-1-0.dll';
       procedure _strftime_l; external 'api-ms-win-crt-time-l1-1-0.dll';
-
+      
       procedure bsearch; external 'api-ms-win-crt-utility-l1-1-0.dll';
       procedure qsort; external 'api-ms-win-crt-utility-l1-1-0.dll';
       procedure rand_s; external 'api-ms-win-crt-utility-l1-1-0.dll';
@@ -5531,7 +5518,6 @@ const
         {$L '../Binary/Static/Win64/gpu.FillRRectOp.o'}
         {$L '../Binary/Static/Win64/gpu.FillRectOp.o'}
         {$L '../Binary/Static/Win64/gpu.GrAAConvexTessellator.o'}
-        {$L '../Binary/Static/Win64/gpu.GrAATriangulator.o'}
         {$L '../Binary/Static/Win64/gpu.GrAtlasManager.o'}
         {$L '../Binary/Static/Win64/gpu.GrAttachment.o'}
         {$L '../Binary/Static/Win64/gpu.GrAuditTrail.o'}
@@ -5546,6 +5532,7 @@ const
         {$L '../Binary/Static/Win64/gpu.GrBlurUtils.o'}
         {$L '../Binary/Static/Win64/gpu.GrBufferAllocPool.o'}
         {$L '../Binary/Static/Win64/gpu.GrBufferTransferRenderTask.o'}
+        {$L '../Binary/Static/Win64/gpu.GrCanvas.o'}
         {$L '../Binary/Static/Win64/gpu.GrCaps.o'}
         {$L '../Binary/Static/Win64/gpu.GrClientMappedBufferManager.o'}
         {$L '../Binary/Static/Win64/gpu.GrColorInfo.o'}
@@ -5558,13 +5545,14 @@ const
         {$L '../Binary/Static/Win64/gpu.GrCoverageSetOpXP.o'}
         {$L '../Binary/Static/Win64/gpu.GrCustomXfermode.o'}
         {$L '../Binary/Static/Win64/gpu.GrDDLContext.o'}
+        {$L '../Binary/Static/Win64/gpu.GrDDLTask.o'}
         {$L '../Binary/Static/Win64/gpu.GrDataUtils.o'}
         {$L '../Binary/Static/Win64/gpu.GrDefaultGeoProcFactory.o'}
+        {$L '../Binary/Static/Win64/gpu.GrDeferredDisplayList.o'}
+        {$L '../Binary/Static/Win64/gpu.GrDeferredDisplayListRecorder.o'}
         {$L '../Binary/Static/Win64/gpu.GrDirectContext.o'}
         {$L '../Binary/Static/Win64/gpu.GrDirectContextPriv.o'}
         {$L '../Binary/Static/Win64/gpu.GrDisableColorXP.o'}
-        {$L '../Binary/Static/Win64/gpu.GrDistanceFieldGenFromVector.o'}
-        {$L '../Binary/Static/Win64/gpu.GrDistanceFieldGeoProc.o'}
         {$L '../Binary/Static/Win64/gpu.GrDrawOpAtlas.o'}
         {$L '../Binary/Static/Win64/gpu.GrDrawingManager.o'}
         {$L '../Binary/Static/Win64/gpu.GrDriverBugWorkarounds.o'}
@@ -5624,6 +5612,7 @@ const
         {$L '../Binary/Static/Win64/gpu.GrImageUtils.o'}
         {$L '../Binary/Static/Win64/gpu.GrMatrixEffect.o'}
         {$L '../Binary/Static/Win64/gpu.GrMemoryPool.o'}
+        {$L '../Binary/Static/Win64/gpu.GrMeshBuffers.o'}
         {$L '../Binary/Static/Win64/gpu.GrMeshDrawOp.o'}
         {$L '../Binary/Static/Win64/gpu.GrMeshDrawTarget.o'}
         {$L '../Binary/Static/Win64/gpu.GrMockGpu.o'}
@@ -5634,7 +5623,6 @@ const
         {$L '../Binary/Static/Win64/gpu.GrOpFlushState.o'}
         {$L '../Binary/Static/Win64/gpu.GrOpsRenderPass.o'}
         {$L '../Binary/Static/Win64/gpu.GrOvalEffect.o'}
-        {$L '../Binary/Static/Win64/gpu.GrOvalOpFactory.o'}
         {$L '../Binary/Static/Win64/gpu.GrPaint.o'}
         {$L '../Binary/Static/Win64/gpu.GrPathTessellationShader.o'}
         {$L '../Binary/Static/Win64/gpu.GrPathUtils.o'}
@@ -5666,7 +5654,6 @@ const
         {$L '../Binary/Static/Win64/gpu.GrSWMaskHelper.o'}
         {$L '../Binary/Static/Win64/gpu.GrShaderCaps.o'}
         {$L '../Binary/Static/Win64/gpu.GrShaderVar.o'}
-        {$L '../Binary/Static/Win64/gpu.GrShadowGeoProc.o'}
         {$L '../Binary/Static/Win64/gpu.GrShape.o'}
         {$L '../Binary/Static/Win64/gpu.GrSimpleMeshDrawOpHelper.o'}
         {$L '../Binary/Static/Win64/gpu.GrSimpleMeshDrawOpHelperWithStencil.o'}
@@ -5677,6 +5664,7 @@ const
         {$L '../Binary/Static/Win64/gpu.GrStyle.o'}
         {$L '../Binary/Static/Win64/gpu.GrStyledShape.o'}
         {$L '../Binary/Static/Win64/gpu.GrSurface.o'}
+        {$L '../Binary/Static/Win64/gpu.GrSurfaceCharacterization.o'}
         {$L '../Binary/Static/Win64/gpu.GrSurfaceProxy.o'}
         {$L '../Binary/Static/Win64/gpu.GrSurfaceProxyView.o'}
         {$L '../Binary/Static/Win64/gpu.GrTessellationShader.o'}
@@ -5688,7 +5676,6 @@ const
         {$L '../Binary/Static/Win64/gpu.GrTextureResolveRenderTask.o'}
         {$L '../Binary/Static/Win64/gpu.GrThreadSafeCache.o'}
         {$L '../Binary/Static/Win64/gpu.GrTransferFromRenderTask.o'}
-        {$L '../Binary/Static/Win64/gpu.GrTriangulator.o'}
         {$L '../Binary/Static/Win64/gpu.GrUniformDataManager.o'}
         {$L '../Binary/Static/Win64/gpu.GrUtil.o'}
         {$L '../Binary/Static/Win64/gpu.GrVertexChunkArray.o'}
@@ -5729,11 +5716,11 @@ const
         {$L '../Binary/Static/Win64/gpu.GrWaitRenderTask.o'}
         {$L '../Binary/Static/Win64/gpu.GrWritePixelsRenderTask.o'}
         {$L '../Binary/Static/Win64/gpu.GrXferProcessor.o'}
+        {$L '../Binary/Static/Win64/gpu.GrYUVABackendTextures.o'}
         {$L '../Binary/Static/Win64/gpu.GrYUVATextureProxies.o'}
         {$L '../Binary/Static/Win64/gpu.GrYUVtoRGBEffect.o'}
         {$L '../Binary/Static/Win64/gpu.LatticeOp.o'}
         {$L '../Binary/Static/Win64/gpu.OpsTask.o'}
-        {$L '../Binary/Static/Win64/gpu.PathInnerTriangulateOp.o'}
         {$L '../Binary/Static/Win64/gpu.PathRenderer.o'}
         {$L '../Binary/Static/Win64/gpu.PathRendererChain.o'}
         {$L '../Binary/Static/Win64/gpu.PathStencilCoverOp.o'}
@@ -5741,18 +5728,15 @@ const
         {$L '../Binary/Static/Win64/gpu.PathTessellator.o'}
         {$L '../Binary/Static/Win64/gpu.QuadPerEdgeAA.o'}
         {$L '../Binary/Static/Win64/gpu.RegionOp.o'}
-        {$L '../Binary/Static/Win64/gpu.ShadowRRectOp.o'}
         {$L '../Binary/Static/Win64/gpu.SkGr.o'}
         {$L '../Binary/Static/Win64/gpu.SkImage_Ganesh.o'}
         {$L '../Binary/Static/Win64/gpu.SkImage_GaneshBase.o'}
         {$L '../Binary/Static/Win64/gpu.SkImage_GaneshFactories.o'}
+        {$L '../Binary/Static/Win64/gpu.SkImage_GaneshYUVA.o'}
         {$L '../Binary/Static/Win64/gpu.SkImage_LazyTexture.o'}
         {$L '../Binary/Static/Win64/gpu.SkImage_RasterPinnable.o'}
         {$L '../Binary/Static/Win64/gpu.SkSpecialImage_Ganesh.o'}
         {$L '../Binary/Static/Win64/gpu.SkSurface_Ganesh.o'}
-        {$L '../Binary/Static/Win64/gpu.SmallPathAtlasMgr.o'}
-        {$L '../Binary/Static/Win64/gpu.SmallPathRenderer.o'}
-        {$L '../Binary/Static/Win64/gpu.SmallPathShapeData.o'}
         {$L '../Binary/Static/Win64/gpu.SoftwarePathRenderer.o'}
         {$L '../Binary/Static/Win64/gpu.StencilMaskHelper.o'}
         {$L '../Binary/Static/Win64/gpu.StrokeRectOp.o'}
@@ -5763,7 +5747,6 @@ const
         {$L '../Binary/Static/Win64/gpu.SurfaceFillContext.o'}
         {$L '../Binary/Static/Win64/gpu.TessellationPathRenderer.o'}
         {$L '../Binary/Static/Win64/gpu.TextureOp.o'}
-        {$L '../Binary/Static/Win64/gpu.TriangulatingPathRenderer.o'}
         {$L '../Binary/Static/Win64/gpu_shared.AtlasTypes.o'}
         {$L '../Binary/Static/Win64/gpu_shared.Blend.o'}
         {$L '../Binary/Static/Win64/gpu_shared.BlendFormula.o'}
@@ -5777,7 +5760,6 @@ const
         {$L '../Binary/Static/Win64/gpu_shared.RectanizerPow2.o'}
         {$L '../Binary/Static/Win64/gpu_shared.RectanizerSkyline.o'}
         {$L '../Binary/Static/Win64/gpu_shared.ResourceKey.o'}
-        {$L '../Binary/Static/Win64/gpu_shared.SDFMaskFilter.o'}
         {$L '../Binary/Static/Win64/gpu_shared.ShaderErrorHandler.o'}
         {$L '../Binary/Static/Win64/gpu_shared.SkBackingFit.o'}
         {$L '../Binary/Static/Win64/gpu_shared.SkChromeRemoteGlyphCache.o'}
@@ -5804,7 +5786,6 @@ const
         {$L '../Binary/Static/Win64/gpu_shared.VulkanMemory.o'}
         {$L '../Binary/Static/Win64/gpu_shared.VulkanMutableTextureState.o'}
         {$L '../Binary/Static/Win64/gpu_shared.VulkanUtilsPriv.o'}
-        {$L '../Binary/Static/Win64/hsw.SkOpts_hsw.o'}
         {$L '../Binary/Static/Win64/jpeg_decode.SkJpegCodec.o'}
         {$L '../Binary/Static/Win64/jpeg_decode.SkJpegDecoderMgr.o'}
         {$L '../Binary/Static/Win64/jpeg_decode.SkJpegMetadataDecoderImpl.o'}
@@ -6129,7 +6110,6 @@ const
         {$L '../Binary/Static/Win64/libskia.SkBitmapProcState.o'}
         {$L '../Binary/Static/Win64/libskia.SkBitmapProcState_matrixProcs.o'}
         {$L '../Binary/Static/Win64/libskia.SkBitmapProcState_opts.o'}
-        {$L '../Binary/Static/Win64/libskia.SkBitmapProcState_opts_ssse3.o'}
         {$L '../Binary/Static/Win64/libskia.SkBlendImageFilter.o'}
         {$L '../Binary/Static/Win64/libskia.SkBlendMode.o'}
         {$L '../Binary/Static/Win64/libskia.SkBlendModeBlender.o'}
@@ -6137,13 +6117,10 @@ const
         {$L '../Binary/Static/Win64/libskia.SkBlendShader.o'}
         {$L '../Binary/Static/Win64/libskia.SkBlenders.o'}
         {$L '../Binary/Static/Win64/libskia.SkBlitMask_opts.o'}
-        {$L '../Binary/Static/Win64/libskia.SkBlitMask_opts_ssse3.o'}
         {$L '../Binary/Static/Win64/libskia.SkBlitRow_D32.o'}
         {$L '../Binary/Static/Win64/libskia.SkBlitRow_opts.o'}
-        {$L '../Binary/Static/Win64/libskia.SkBlitRow_opts_hsw.o'}
         {$L '../Binary/Static/Win64/libskia.SkBlitter.o'}
         {$L '../Binary/Static/Win64/libskia.SkBlitter_A8.o'}
-        {$L '../Binary/Static/Win64/libskia.SkBlitter_ARGB32.o'}
         {$L '../Binary/Static/Win64/libskia.SkBlitter_Sprite.o'}
         {$L '../Binary/Static/Win64/libskia.SkBlockAllocator.o'}
         {$L '../Binary/Static/Win64/libskia.SkBlurEngine.o'}
@@ -6212,7 +6189,6 @@ const
         {$L '../Binary/Static/Win64/libskia.SkDevice.o'}
         {$L '../Binary/Static/Win64/libskia.SkDiscretePathEffect.o'}
         {$L '../Binary/Static/Win64/libskia.SkDisplacementMapImageFilter.o'}
-        {$L '../Binary/Static/Win64/libskia.SkDistanceFieldGen.o'}
         {$L '../Binary/Static/Win64/libskia.SkDocument.o'}
         {$L '../Binary/Static/Win64/libskia.SkDraw.o'}
         {$L '../Binary/Static/Win64/libskia.SkDrawBase.o'}
@@ -6240,7 +6216,6 @@ const
         {$L '../Binary/Static/Win64/libskia.SkFontStream.o'}
         {$L '../Binary/Static/Win64/libskia.SkFont_serial.o'}
         {$L '../Binary/Static/Win64/libskia.SkGaussFilter.o'}
-        {$L '../Binary/Static/Win64/libskia.SkGaussianColorFilter.o'}
         {$L '../Binary/Static/Win64/libskia.SkGeometry.o'}
         {$L '../Binary/Static/Win64/libskia.SkGlobalInitialization_core.o'}
         {$L '../Binary/Static/Win64/libskia.SkGlobalInitialization_default.o'}
@@ -6298,8 +6273,6 @@ const
         {$L '../Binary/Static/Win64/libskia.SkMatrixTransformImageFilter.o'}
         {$L '../Binary/Static/Win64/libskia.SkMemory_malloc.o'}
         {$L '../Binary/Static/Win64/libskia.SkMemset_opts.o'}
-        {$L '../Binary/Static/Win64/libskia.SkMemset_opts_avx.o'}
-        {$L '../Binary/Static/Win64/libskia.SkMemset_opts_erms.o'}
         {$L '../Binary/Static/Win64/libskia.SkMergeImageFilter.o'}
         {$L '../Binary/Static/Win64/libskia.SkMesh.o'}
         {$L '../Binary/Static/Win64/libskia.SkMipmap.o'}
@@ -6365,7 +6338,6 @@ const
         {$L '../Binary/Static/Win64/libskia.SkPixmapUtils.o'}
         {$L '../Binary/Static/Win64/libskia.SkPoint.o'}
         {$L '../Binary/Static/Win64/libskia.SkPoint3.o'}
-        {$L '../Binary/Static/Win64/libskia.SkPolyUtils.o'}
         {$L '../Binary/Static/Win64/libskia.SkPtrRecorder.o'}
         {$L '../Binary/Static/Win64/libskia.SkQuads.o'}
         {$L '../Binary/Static/Win64/libskia.SkRRect.o'}
@@ -6394,7 +6366,6 @@ const
         {$L '../Binary/Static/Win64/libskia.SkRuntimeEffect.o'}
         {$L '../Binary/Static/Win64/libskia.SkRuntimeImageFilter.o'}
         {$L '../Binary/Static/Win64/libskia.SkRuntimeShader.o'}
-        {$L '../Binary/Static/Win64/libskia.SkSLAddConstToVarModifiers.o'}
         {$L '../Binary/Static/Win64/libskia.SkSLAnalysis.o'}
         {$L '../Binary/Static/Win64/libskia.SkSLBinaryExpression.o'}
         {$L '../Binary/Static/Win64/libskia.SkSLBlock.o'}
@@ -6421,6 +6392,7 @@ const
         {$L '../Binary/Static/Win64/libskia.SkSLEliminateDeadFunctions.o'}
         {$L '../Binary/Static/Win64/libskia.SkSLEliminateDeadGlobalVariables.o'}
         {$L '../Binary/Static/Win64/libskia.SkSLEliminateDeadLocalVariables.o'}
+        {$L '../Binary/Static/Win64/libskia.SkSLEliminateEmptyStatements.o'}
         {$L '../Binary/Static/Win64/libskia.SkSLEliminateUnreachableCode.o'}
         {$L '../Binary/Static/Win64/libskia.SkSLErrorReporter.o'}
         {$L '../Binary/Static/Win64/libskia.SkSLExpression.o'}
@@ -6442,7 +6414,6 @@ const
         {$L '../Binary/Static/Win64/libskia.SkSLHoistSwitchVarDeclarationsAtTopLevel.o'}
         {$L '../Binary/Static/Win64/libskia.SkSLIfStatement.o'}
         {$L '../Binary/Static/Win64/libskia.SkSLIndexExpression.o'}
-        {$L '../Binary/Static/Win64/libskia.SkSLInliner.o'}
         {$L '../Binary/Static/Win64/libskia.SkSLInterfaceBlock.o'}
         {$L '../Binary/Static/Win64/libskia.SkSLIntrinsicList.o'}
         {$L '../Binary/Static/Win64/libskia.SkSLIsConstantExpression.o'}
@@ -6481,7 +6452,6 @@ const
         {$L '../Binary/Static/Win64/libskia.SkSLSwizzle.o'}
         {$L '../Binary/Static/Win64/libskia.SkSLSymbol.o'}
         {$L '../Binary/Static/Win64/libskia.SkSLSymbolTable.o'}
-        {$L '../Binary/Static/Win64/libskia.SkSLSymbolTableStackBuilder.o'}
         {$L '../Binary/Static/Win64/libskia.SkSLTernaryExpression.o'}
         {$L '../Binary/Static/Win64/libskia.SkSLTraceHook.o'}
         {$L '../Binary/Static/Win64/libskia.SkSLType.o'}
@@ -6507,7 +6477,6 @@ const
         {$L '../Binary/Static/Win64/libskia.SkShaderImageFilter.o'}
         {$L '../Binary/Static/Win64/libskia.SkShaderMaskFilterImpl.o'}
         {$L '../Binary/Static/Win64/libskia.SkShaderUtils.o'}
-        {$L '../Binary/Static/Win64/libskia.SkShadowTessellator.o'}
         {$L '../Binary/Static/Win64/libskia.SkShadowUtils.o'}
         {$L '../Binary/Static/Win64/libskia.SkSharedMutex.o'}
         {$L '../Binary/Static/Win64/libskia.SkSpecialImage.o'}
@@ -6528,8 +6497,6 @@ const
         {$L '../Binary/Static/Win64/libskia.SkSweepGradient.o'}
         {$L '../Binary/Static/Win64/libskia.SkSwizzler.o'}
         {$L '../Binary/Static/Win64/libskia.SkSwizzler_opts.o'}
-        {$L '../Binary/Static/Win64/libskia.SkSwizzler_opts_hsw.o'}
-        {$L '../Binary/Static/Win64/libskia.SkSwizzler_opts_ssse3.o'}
         {$L '../Binary/Static/Win64/libskia.SkTDArray.o'}
         {$L '../Binary/Static/Win64/libskia.SkTSearch.o'}
         {$L '../Binary/Static/Win64/libskia.SkTableColorFilter.o'}
@@ -6896,7 +6863,6 @@ const
         {$L '../Binary/Static/Win64/sk4d.sk4d_typefacefontprovider.o'}
         {$L '../Binary/Static/Win64/sk4d.sk4d_unicode.o'}
         {$L '../Binary/Static/Win64/sk4d.sk4d_vertices.o'}
-        {$L '../Binary/Static/Win64/skx.SkOpts_skx.o'}
         {$L '../Binary/Static/Win64/vulkanmemoryallocator.VulkanMemoryAllocatorWrapper.o'}
         {$L '../Binary/Static/Win64/webp_decode.SkWebpCodec.o'}
         {$L '../Binary/Static/Win64/webp_encode.SkWebpEncoderImpl.o'}
@@ -6945,7 +6911,6 @@ const
         {$L '../Binary/Static/Win32/gpu.FillRRectOp.o'}
         {$L '../Binary/Static/Win32/gpu.FillRectOp.o'}
         {$L '../Binary/Static/Win32/gpu.GrAAConvexTessellator.o'}
-        {$L '../Binary/Static/Win32/gpu.GrAATriangulator.o'}
         {$L '../Binary/Static/Win32/gpu.GrAtlasManager.o'}
         {$L '../Binary/Static/Win32/gpu.GrAttachment.o'}
         {$L '../Binary/Static/Win32/gpu.GrAuditTrail.o'}
@@ -6960,6 +6925,7 @@ const
         {$L '../Binary/Static/Win32/gpu.GrBlurUtils.o'}
         {$L '../Binary/Static/Win32/gpu.GrBufferAllocPool.o'}
         {$L '../Binary/Static/Win32/gpu.GrBufferTransferRenderTask.o'}
+        {$L '../Binary/Static/Win32/gpu.GrCanvas.o'}
         {$L '../Binary/Static/Win32/gpu.GrCaps.o'}
         {$L '../Binary/Static/Win32/gpu.GrClientMappedBufferManager.o'}
         {$L '../Binary/Static/Win32/gpu.GrColorInfo.o'}
@@ -6972,13 +6938,14 @@ const
         {$L '../Binary/Static/Win32/gpu.GrCoverageSetOpXP.o'}
         {$L '../Binary/Static/Win32/gpu.GrCustomXfermode.o'}
         {$L '../Binary/Static/Win32/gpu.GrDDLContext.o'}
+        {$L '../Binary/Static/Win32/gpu.GrDDLTask.o'}
         {$L '../Binary/Static/Win32/gpu.GrDataUtils.o'}
         {$L '../Binary/Static/Win32/gpu.GrDefaultGeoProcFactory.o'}
+        {$L '../Binary/Static/Win32/gpu.GrDeferredDisplayList.o'}
+        {$L '../Binary/Static/Win32/gpu.GrDeferredDisplayListRecorder.o'}
         {$L '../Binary/Static/Win32/gpu.GrDirectContext.o'}
         {$L '../Binary/Static/Win32/gpu.GrDirectContextPriv.o'}
         {$L '../Binary/Static/Win32/gpu.GrDisableColorXP.o'}
-        {$L '../Binary/Static/Win32/gpu.GrDistanceFieldGenFromVector.o'}
-        {$L '../Binary/Static/Win32/gpu.GrDistanceFieldGeoProc.o'}
         {$L '../Binary/Static/Win32/gpu.GrDrawOpAtlas.o'}
         {$L '../Binary/Static/Win32/gpu.GrDrawingManager.o'}
         {$L '../Binary/Static/Win32/gpu.GrDriverBugWorkarounds.o'}
@@ -7038,6 +7005,7 @@ const
         {$L '../Binary/Static/Win32/gpu.GrImageUtils.o'}
         {$L '../Binary/Static/Win32/gpu.GrMatrixEffect.o'}
         {$L '../Binary/Static/Win32/gpu.GrMemoryPool.o'}
+        {$L '../Binary/Static/Win32/gpu.GrMeshBuffers.o'}
         {$L '../Binary/Static/Win32/gpu.GrMeshDrawOp.o'}
         {$L '../Binary/Static/Win32/gpu.GrMeshDrawTarget.o'}
         {$L '../Binary/Static/Win32/gpu.GrMockGpu.o'}
@@ -7048,7 +7016,6 @@ const
         {$L '../Binary/Static/Win32/gpu.GrOpFlushState.o'}
         {$L '../Binary/Static/Win32/gpu.GrOpsRenderPass.o'}
         {$L '../Binary/Static/Win32/gpu.GrOvalEffect.o'}
-        {$L '../Binary/Static/Win32/gpu.GrOvalOpFactory.o'}
         {$L '../Binary/Static/Win32/gpu.GrPaint.o'}
         {$L '../Binary/Static/Win32/gpu.GrPathTessellationShader.o'}
         {$L '../Binary/Static/Win32/gpu.GrPathUtils.o'}
@@ -7080,7 +7047,6 @@ const
         {$L '../Binary/Static/Win32/gpu.GrSWMaskHelper.o'}
         {$L '../Binary/Static/Win32/gpu.GrShaderCaps.o'}
         {$L '../Binary/Static/Win32/gpu.GrShaderVar.o'}
-        {$L '../Binary/Static/Win32/gpu.GrShadowGeoProc.o'}
         {$L '../Binary/Static/Win32/gpu.GrShape.o'}
         {$L '../Binary/Static/Win32/gpu.GrSimpleMeshDrawOpHelper.o'}
         {$L '../Binary/Static/Win32/gpu.GrSimpleMeshDrawOpHelperWithStencil.o'}
@@ -7091,6 +7057,7 @@ const
         {$L '../Binary/Static/Win32/gpu.GrStyle.o'}
         {$L '../Binary/Static/Win32/gpu.GrStyledShape.o'}
         {$L '../Binary/Static/Win32/gpu.GrSurface.o'}
+        {$L '../Binary/Static/Win32/gpu.GrSurfaceCharacterization.o'}
         {$L '../Binary/Static/Win32/gpu.GrSurfaceProxy.o'}
         {$L '../Binary/Static/Win32/gpu.GrSurfaceProxyView.o'}
         {$L '../Binary/Static/Win32/gpu.GrTessellationShader.o'}
@@ -7102,7 +7069,6 @@ const
         {$L '../Binary/Static/Win32/gpu.GrTextureResolveRenderTask.o'}
         {$L '../Binary/Static/Win32/gpu.GrThreadSafeCache.o'}
         {$L '../Binary/Static/Win32/gpu.GrTransferFromRenderTask.o'}
-        {$L '../Binary/Static/Win32/gpu.GrTriangulator.o'}
         {$L '../Binary/Static/Win32/gpu.GrUniformDataManager.o'}
         {$L '../Binary/Static/Win32/gpu.GrUtil.o'}
         {$L '../Binary/Static/Win32/gpu.GrVertexChunkArray.o'}
@@ -7143,11 +7109,11 @@ const
         {$L '../Binary/Static/Win32/gpu.GrWaitRenderTask.o'}
         {$L '../Binary/Static/Win32/gpu.GrWritePixelsRenderTask.o'}
         {$L '../Binary/Static/Win32/gpu.GrXferProcessor.o'}
+        {$L '../Binary/Static/Win32/gpu.GrYUVABackendTextures.o'}
         {$L '../Binary/Static/Win32/gpu.GrYUVATextureProxies.o'}
         {$L '../Binary/Static/Win32/gpu.GrYUVtoRGBEffect.o'}
         {$L '../Binary/Static/Win32/gpu.LatticeOp.o'}
         {$L '../Binary/Static/Win32/gpu.OpsTask.o'}
-        {$L '../Binary/Static/Win32/gpu.PathInnerTriangulateOp.o'}
         {$L '../Binary/Static/Win32/gpu.PathRenderer.o'}
         {$L '../Binary/Static/Win32/gpu.PathRendererChain.o'}
         {$L '../Binary/Static/Win32/gpu.PathStencilCoverOp.o'}
@@ -7155,18 +7121,15 @@ const
         {$L '../Binary/Static/Win32/gpu.PathTessellator.o'}
         {$L '../Binary/Static/Win32/gpu.QuadPerEdgeAA.o'}
         {$L '../Binary/Static/Win32/gpu.RegionOp.o'}
-        {$L '../Binary/Static/Win32/gpu.ShadowRRectOp.o'}
         {$L '../Binary/Static/Win32/gpu.SkGr.o'}
         {$L '../Binary/Static/Win32/gpu.SkImage_Ganesh.o'}
         {$L '../Binary/Static/Win32/gpu.SkImage_GaneshBase.o'}
         {$L '../Binary/Static/Win32/gpu.SkImage_GaneshFactories.o'}
+        {$L '../Binary/Static/Win32/gpu.SkImage_GaneshYUVA.o'}
         {$L '../Binary/Static/Win32/gpu.SkImage_LazyTexture.o'}
         {$L '../Binary/Static/Win32/gpu.SkImage_RasterPinnable.o'}
         {$L '../Binary/Static/Win32/gpu.SkSpecialImage_Ganesh.o'}
         {$L '../Binary/Static/Win32/gpu.SkSurface_Ganesh.o'}
-        {$L '../Binary/Static/Win32/gpu.SmallPathAtlasMgr.o'}
-        {$L '../Binary/Static/Win32/gpu.SmallPathRenderer.o'}
-        {$L '../Binary/Static/Win32/gpu.SmallPathShapeData.o'}
         {$L '../Binary/Static/Win32/gpu.SoftwarePathRenderer.o'}
         {$L '../Binary/Static/Win32/gpu.StencilMaskHelper.o'}
         {$L '../Binary/Static/Win32/gpu.StrokeRectOp.o'}
@@ -7177,7 +7140,6 @@ const
         {$L '../Binary/Static/Win32/gpu.SurfaceFillContext.o'}
         {$L '../Binary/Static/Win32/gpu.TessellationPathRenderer.o'}
         {$L '../Binary/Static/Win32/gpu.TextureOp.o'}
-        {$L '../Binary/Static/Win32/gpu.TriangulatingPathRenderer.o'}
         {$L '../Binary/Static/Win32/gpu_shared.AtlasTypes.o'}
         {$L '../Binary/Static/Win32/gpu_shared.Blend.o'}
         {$L '../Binary/Static/Win32/gpu_shared.BlendFormula.o'}
@@ -7191,7 +7153,6 @@ const
         {$L '../Binary/Static/Win32/gpu_shared.RectanizerPow2.o'}
         {$L '../Binary/Static/Win32/gpu_shared.RectanizerSkyline.o'}
         {$L '../Binary/Static/Win32/gpu_shared.ResourceKey.o'}
-        {$L '../Binary/Static/Win32/gpu_shared.SDFMaskFilter.o'}
         {$L '../Binary/Static/Win32/gpu_shared.ShaderErrorHandler.o'}
         {$L '../Binary/Static/Win32/gpu_shared.SkBackingFit.o'}
         {$L '../Binary/Static/Win32/gpu_shared.SkChromeRemoteGlyphCache.o'}
@@ -7218,7 +7179,6 @@ const
         {$L '../Binary/Static/Win32/gpu_shared.VulkanMemory.o'}
         {$L '../Binary/Static/Win32/gpu_shared.VulkanMutableTextureState.o'}
         {$L '../Binary/Static/Win32/gpu_shared.VulkanUtilsPriv.o'}
-        {$L '../Binary/Static/Win32/hsw.SkOpts_hsw.o'}
         {$L '../Binary/Static/Win32/jpeg_decode.SkJpegCodec.o'}
         {$L '../Binary/Static/Win32/jpeg_decode.SkJpegDecoderMgr.o'}
         {$L '../Binary/Static/Win32/jpeg_decode.SkJpegMetadataDecoderImpl.o'}
@@ -7563,7 +7523,6 @@ const
         {$L '../Binary/Static/Win32/libskia.SkBitmapProcState.o'}
         {$L '../Binary/Static/Win32/libskia.SkBitmapProcState_matrixProcs.o'}
         {$L '../Binary/Static/Win32/libskia.SkBitmapProcState_opts.o'}
-        {$L '../Binary/Static/Win32/libskia.SkBitmapProcState_opts_ssse3.o'}
         {$L '../Binary/Static/Win32/libskia.SkBlendImageFilter.o'}
         {$L '../Binary/Static/Win32/libskia.SkBlendMode.o'}
         {$L '../Binary/Static/Win32/libskia.SkBlendModeBlender.o'}
@@ -7571,13 +7530,10 @@ const
         {$L '../Binary/Static/Win32/libskia.SkBlendShader.o'}
         {$L '../Binary/Static/Win32/libskia.SkBlenders.o'}
         {$L '../Binary/Static/Win32/libskia.SkBlitMask_opts.o'}
-        {$L '../Binary/Static/Win32/libskia.SkBlitMask_opts_ssse3.o'}
         {$L '../Binary/Static/Win32/libskia.SkBlitRow_D32.o'}
         {$L '../Binary/Static/Win32/libskia.SkBlitRow_opts.o'}
-        {$L '../Binary/Static/Win32/libskia.SkBlitRow_opts_hsw.o'}
         {$L '../Binary/Static/Win32/libskia.SkBlitter.o'}
         {$L '../Binary/Static/Win32/libskia.SkBlitter_A8.o'}
-        {$L '../Binary/Static/Win32/libskia.SkBlitter_ARGB32.o'}
         {$L '../Binary/Static/Win32/libskia.SkBlitter_Sprite.o'}
         {$L '../Binary/Static/Win32/libskia.SkBlockAllocator.o'}
         {$L '../Binary/Static/Win32/libskia.SkBlurEngine.o'}
@@ -7646,7 +7602,6 @@ const
         {$L '../Binary/Static/Win32/libskia.SkDevice.o'}
         {$L '../Binary/Static/Win32/libskia.SkDiscretePathEffect.o'}
         {$L '../Binary/Static/Win32/libskia.SkDisplacementMapImageFilter.o'}
-        {$L '../Binary/Static/Win32/libskia.SkDistanceFieldGen.o'}
         {$L '../Binary/Static/Win32/libskia.SkDocument.o'}
         {$L '../Binary/Static/Win32/libskia.SkDraw.o'}
         {$L '../Binary/Static/Win32/libskia.SkDrawBase.o'}
@@ -7674,7 +7629,6 @@ const
         {$L '../Binary/Static/Win32/libskia.SkFontStream.o'}
         {$L '../Binary/Static/Win32/libskia.SkFont_serial.o'}
         {$L '../Binary/Static/Win32/libskia.SkGaussFilter.o'}
-        {$L '../Binary/Static/Win32/libskia.SkGaussianColorFilter.o'}
         {$L '../Binary/Static/Win32/libskia.SkGeometry.o'}
         {$L '../Binary/Static/Win32/libskia.SkGlobalInitialization_core.o'}
         {$L '../Binary/Static/Win32/libskia.SkGlobalInitialization_default.o'}
@@ -7732,8 +7686,6 @@ const
         {$L '../Binary/Static/Win32/libskia.SkMatrixTransformImageFilter.o'}
         {$L '../Binary/Static/Win32/libskia.SkMemory_malloc.o'}
         {$L '../Binary/Static/Win32/libskia.SkMemset_opts.o'}
-        {$L '../Binary/Static/Win32/libskia.SkMemset_opts_avx.o'}
-        {$L '../Binary/Static/Win32/libskia.SkMemset_opts_erms.o'}
         {$L '../Binary/Static/Win32/libskia.SkMergeImageFilter.o'}
         {$L '../Binary/Static/Win32/libskia.SkMesh.o'}
         {$L '../Binary/Static/Win32/libskia.SkMipmap.o'}
@@ -7799,7 +7751,6 @@ const
         {$L '../Binary/Static/Win32/libskia.SkPixmapUtils.o'}
         {$L '../Binary/Static/Win32/libskia.SkPoint.o'}
         {$L '../Binary/Static/Win32/libskia.SkPoint3.o'}
-        {$L '../Binary/Static/Win32/libskia.SkPolyUtils.o'}
         {$L '../Binary/Static/Win32/libskia.SkPtrRecorder.o'}
         {$L '../Binary/Static/Win32/libskia.SkQuads.o'}
         {$L '../Binary/Static/Win32/libskia.SkRRect.o'}
@@ -7828,7 +7779,6 @@ const
         {$L '../Binary/Static/Win32/libskia.SkRuntimeEffect.o'}
         {$L '../Binary/Static/Win32/libskia.SkRuntimeImageFilter.o'}
         {$L '../Binary/Static/Win32/libskia.SkRuntimeShader.o'}
-        {$L '../Binary/Static/Win32/libskia.SkSLAddConstToVarModifiers.o'}
         {$L '../Binary/Static/Win32/libskia.SkSLAnalysis.o'}
         {$L '../Binary/Static/Win32/libskia.SkSLBinaryExpression.o'}
         {$L '../Binary/Static/Win32/libskia.SkSLBlock.o'}
@@ -7855,6 +7805,7 @@ const
         {$L '../Binary/Static/Win32/libskia.SkSLEliminateDeadFunctions.o'}
         {$L '../Binary/Static/Win32/libskia.SkSLEliminateDeadGlobalVariables.o'}
         {$L '../Binary/Static/Win32/libskia.SkSLEliminateDeadLocalVariables.o'}
+        {$L '../Binary/Static/Win32/libskia.SkSLEliminateEmptyStatements.o'}
         {$L '../Binary/Static/Win32/libskia.SkSLEliminateUnreachableCode.o'}
         {$L '../Binary/Static/Win32/libskia.SkSLErrorReporter.o'}
         {$L '../Binary/Static/Win32/libskia.SkSLExpression.o'}
@@ -7876,7 +7827,6 @@ const
         {$L '../Binary/Static/Win32/libskia.SkSLHoistSwitchVarDeclarationsAtTopLevel.o'}
         {$L '../Binary/Static/Win32/libskia.SkSLIfStatement.o'}
         {$L '../Binary/Static/Win32/libskia.SkSLIndexExpression.o'}
-        {$L '../Binary/Static/Win32/libskia.SkSLInliner.o'}
         {$L '../Binary/Static/Win32/libskia.SkSLInterfaceBlock.o'}
         {$L '../Binary/Static/Win32/libskia.SkSLIntrinsicList.o'}
         {$L '../Binary/Static/Win32/libskia.SkSLIsConstantExpression.o'}
@@ -7915,7 +7865,6 @@ const
         {$L '../Binary/Static/Win32/libskia.SkSLSwizzle.o'}
         {$L '../Binary/Static/Win32/libskia.SkSLSymbol.o'}
         {$L '../Binary/Static/Win32/libskia.SkSLSymbolTable.o'}
-        {$L '../Binary/Static/Win32/libskia.SkSLSymbolTableStackBuilder.o'}
         {$L '../Binary/Static/Win32/libskia.SkSLTernaryExpression.o'}
         {$L '../Binary/Static/Win32/libskia.SkSLTraceHook.o'}
         {$L '../Binary/Static/Win32/libskia.SkSLType.o'}
@@ -7941,7 +7890,6 @@ const
         {$L '../Binary/Static/Win32/libskia.SkShaderImageFilter.o'}
         {$L '../Binary/Static/Win32/libskia.SkShaderMaskFilterImpl.o'}
         {$L '../Binary/Static/Win32/libskia.SkShaderUtils.o'}
-        {$L '../Binary/Static/Win32/libskia.SkShadowTessellator.o'}
         {$L '../Binary/Static/Win32/libskia.SkShadowUtils.o'}
         {$L '../Binary/Static/Win32/libskia.SkSharedMutex.o'}
         {$L '../Binary/Static/Win32/libskia.SkSpecialImage.o'}
@@ -7962,8 +7910,6 @@ const
         {$L '../Binary/Static/Win32/libskia.SkSweepGradient.o'}
         {$L '../Binary/Static/Win32/libskia.SkSwizzler.o'}
         {$L '../Binary/Static/Win32/libskia.SkSwizzler_opts.o'}
-        {$L '../Binary/Static/Win32/libskia.SkSwizzler_opts_hsw.o'}
-        {$L '../Binary/Static/Win32/libskia.SkSwizzler_opts_ssse3.o'}
         {$L '../Binary/Static/Win32/libskia.SkTDArray.o'}
         {$L '../Binary/Static/Win32/libskia.SkTSearch.o'}
         {$L '../Binary/Static/Win32/libskia.SkTableColorFilter.o'}
@@ -8330,7 +8276,6 @@ const
         {$L '../Binary/Static/Win32/sk4d.sk4d_typefacefontprovider.o'}
         {$L '../Binary/Static/Win32/sk4d.sk4d_unicode.o'}
         {$L '../Binary/Static/Win32/sk4d.sk4d_vertices.o'}
-        {$L '../Binary/Static/Win32/skx.SkOpts_skx.o'}
         {$L '../Binary/Static/Win32/vulkanmemoryallocator.VulkanMemoryAllocatorWrapper.o'}
         {$L '../Binary/Static/Win32/webp_decode.SkWebpCodec.o'}
         {$L '../Binary/Static/Win32/webp_encode.SkWebpEncoderImpl.o'}
@@ -8353,6 +8298,7 @@ const
         {$L '../Binary/Static/Win32/__dtorlist.o'}
         {$L '../Binary/Static/Win32/__thunk.o'}
       {$ENDIF}
+      
 
       function __InitLib: Integer; cdecl; external name _PU + '_InitLib';
       procedure __FiniLib; cdecl; external name _PU + '_FiniLib';
@@ -8371,15 +8317,15 @@ const
       procedure strtoull; external 'api-ms-win-crt-convert-l1-1-0.dll';
       procedure wcrtomb; external 'api-ms-win-crt-convert-l1-1-0.dll';
       procedure wcrtomb_s; external 'api-ms-win-crt-convert-l1-1-0.dll';
-
+      
       procedure __p__environ; external 'api-ms-win-crt-environment-l1-1-0.dll';
       procedure __p__wenviron; external 'api-ms-win-crt-environment-l1-1-0.dll';
       procedure getenv; external 'api-ms-win-crt-environment-l1-1-0.dll';
-
+      
       procedure _lock_file; external 'api-ms-win-crt-filesystem-l1-1-0.dll';
       procedure _stat64; external 'api-ms-win-crt-filesystem-l1-1-0.dll';
       procedure _unlock_file; external 'api-ms-win-crt-filesystem-l1-1-0.dll';
-
+      
       procedure _aligned_free; external 'api-ms-win-crt-heap-l1-1-0.dll';
       procedure _aligned_malloc; external 'api-ms-win-crt-heap-l1-1-0.dll';
       procedure _msize; external 'api-ms-win-crt-heap-l1-1-0.dll';
@@ -8388,7 +8334,7 @@ const
       procedure free; external 'api-ms-win-crt-heap-l1-1-0.dll';
       procedure malloc; external 'api-ms-win-crt-heap-l1-1-0.dll';
       procedure realloc; external 'api-ms-win-crt-heap-l1-1-0.dll';
-
+      
       procedure ___lc_codepage_func; external 'api-ms-win-crt-locale-l1-1-0.dll';
       procedure ___mb_cur_max_func; external 'api-ms-win-crt-locale-l1-1-0.dll';
       procedure __pctype_func; external 'api-ms-win-crt-locale-l1-1-0.dll';
@@ -8397,24 +8343,7 @@ const
       procedure _free_locale; external 'api-ms-win-crt-locale-l1-1-0.dll';
       procedure localeconv; external 'api-ms-win-crt-locale-l1-1-0.dll';
       procedure setlocale; external 'api-ms-win-crt-locale-l1-1-0.dll';
-
-      {$IFDEF WIN64}
-      procedure acosf; external 'api-ms-win-crt-math-l1-1-0.dll';
-      procedure asinf; external 'api-ms-win-crt-math-l1-1-0.dll';
-      procedure atan2f; external 'api-ms-win-crt-math-l1-1-0.dll';
-      procedure atanf; external 'api-ms-win-crt-math-l1-1-0.dll';
-      procedure ceilf; external 'api-ms-win-crt-math-l1-1-0.dll';
-      procedure cosf; external 'api-ms-win-crt-math-l1-1-0.dll';
-      procedure expf; external 'api-ms-win-crt-math-l1-1-0.dll';
-      procedure floorf; external 'api-ms-win-crt-math-l1-1-0.dll';
-      procedure fmodf; external 'api-ms-win-crt-math-l1-1-0.dll';
-      procedure logf; external 'api-ms-win-crt-math-l1-1-0.dll';
-      procedure powf; external 'api-ms-win-crt-math-l1-1-0.dll';
-      procedure sinf; external 'api-ms-win-crt-math-l1-1-0.dll';
-      procedure sqrtf; external 'api-ms-win-crt-math-l1-1-0.dll';
-      procedure tanf; external 'api-ms-win-crt-math-l1-1-0.dll';
-      procedure tanhf; external 'api-ms-win-crt-math-l1-1-0.dll';
-      {$ENDIF}
+      
       {$IFDEF WIN32}
       procedure __setusermatherr; external 'api-ms-win-crt-math-l1-1-0.dll';
       {$ENDIF}
@@ -8422,50 +8351,95 @@ const
       procedure _round; external 'api-ms-win-crt-math-l1-1-0.dll' name 'round';
       procedure _trunc; external 'api-ms-win-crt-math-l1-1-0.dll' name 'trunc';
       procedure acos; external 'api-ms-win-crt-math-l1-1-0.dll';
+      {$IFDEF WIN64}
+      procedure acosf; external 'api-ms-win-crt-math-l1-1-0.dll';
+      {$ENDIF}
       procedure acosh; external 'api-ms-win-crt-math-l1-1-0.dll';
       procedure asin; external 'api-ms-win-crt-math-l1-1-0.dll';
+      {$IFDEF WIN64}
+      procedure asinf; external 'api-ms-win-crt-math-l1-1-0.dll';
+      {$ENDIF}
       procedure asinh; external 'api-ms-win-crt-math-l1-1-0.dll';
       procedure atan; external 'api-ms-win-crt-math-l1-1-0.dll';
       procedure atan2; external 'api-ms-win-crt-math-l1-1-0.dll';
+      {$IFDEF WIN64}
+      procedure atan2f; external 'api-ms-win-crt-math-l1-1-0.dll';
+      procedure atanf; external 'api-ms-win-crt-math-l1-1-0.dll';
+      {$ENDIF}
       procedure atanh; external 'api-ms-win-crt-math-l1-1-0.dll';
       procedure cbrt; external 'api-ms-win-crt-math-l1-1-0.dll';
       procedure cbrtf; external 'api-ms-win-crt-math-l1-1-0.dll';
       procedure ceil; external 'api-ms-win-crt-math-l1-1-0.dll';
+      {$IFDEF WIN64}
+      procedure ceilf; external 'api-ms-win-crt-math-l1-1-0.dll';
+      {$ENDIF}
       procedure cos; external 'api-ms-win-crt-math-l1-1-0.dll';
+      {$IFDEF WIN64}
+      procedure cosf; external 'api-ms-win-crt-math-l1-1-0.dll';
+      {$ENDIF}
       procedure cosh; external 'api-ms-win-crt-math-l1-1-0.dll';
       procedure erff; external 'api-ms-win-crt-math-l1-1-0.dll';
       procedure exp; external 'api-ms-win-crt-math-l1-1-0.dll';
       procedure exp2; external 'api-ms-win-crt-math-l1-1-0.dll';
       procedure exp2f; external 'api-ms-win-crt-math-l1-1-0.dll';
+      {$IFDEF WIN64}
+      procedure expf; external 'api-ms-win-crt-math-l1-1-0.dll';
+      {$ENDIF}
       procedure floor; external 'api-ms-win-crt-math-l1-1-0.dll';
+      {$IFDEF WIN64}
+      procedure floorf; external 'api-ms-win-crt-math-l1-1-0.dll';
+      {$ENDIF}
       procedure fma; external 'api-ms-win-crt-math-l1-1-0.dll';
       procedure fmaf; external 'api-ms-win-crt-math-l1-1-0.dll';
+      procedure fmaxf; external 'api-ms-win-crt-math-l1-1-0.dll';
+      procedure fminf; external 'api-ms-win-crt-math-l1-1-0.dll';
       procedure fmod; external 'api-ms-win-crt-math-l1-1-0.dll';
+      {$IFDEF WIN64}
+      procedure fmodf; external 'api-ms-win-crt-math-l1-1-0.dll';
+      {$ENDIF}
       procedure frexp; external 'api-ms-win-crt-math-l1-1-0.dll';
-      procedure ilogbf; external 'api-ms-win-crt-math-l1-1-0.dll';
       procedure log; external 'api-ms-win-crt-math-l1-1-0.dll';
       procedure log10; external 'api-ms-win-crt-math-l1-1-0.dll';
       procedure log2; external 'api-ms-win-crt-math-l1-1-0.dll';
       procedure log2f; external 'api-ms-win-crt-math-l1-1-0.dll';
+      {$IFDEF WIN64}
+      procedure logf; external 'api-ms-win-crt-math-l1-1-0.dll';
+      {$ENDIF}
       procedure nextafterf; external 'api-ms-win-crt-math-l1-1-0.dll';
       procedure pow; external 'api-ms-win-crt-math-l1-1-0.dll';
+      {$IFDEF WIN64}
+      procedure powf; external 'api-ms-win-crt-math-l1-1-0.dll';
+      {$ENDIF}
       procedure remainder; external 'api-ms-win-crt-math-l1-1-0.dll';
       procedure roundf; external 'api-ms-win-crt-math-l1-1-0.dll';
       procedure sin; external 'api-ms-win-crt-math-l1-1-0.dll';
+      {$IFDEF WIN64}
+      procedure sinf; external 'api-ms-win-crt-math-l1-1-0.dll';
+      {$ENDIF}
       procedure sinh; external 'api-ms-win-crt-math-l1-1-0.dll';
       procedure sqrt; external 'api-ms-win-crt-math-l1-1-0.dll';
+      {$IFDEF WIN64}
+      procedure sqrtf; external 'api-ms-win-crt-math-l1-1-0.dll';
+      {$ENDIF}
       procedure tan; external 'api-ms-win-crt-math-l1-1-0.dll';
+      {$IFDEF WIN64}
+      procedure tanf; external 'api-ms-win-crt-math-l1-1-0.dll';
+      {$ENDIF}
       procedure tanh; external 'api-ms-win-crt-math-l1-1-0.dll';
+      {$IFDEF WIN64}
+      procedure tanhf; external 'api-ms-win-crt-math-l1-1-0.dll';
+      {$ENDIF}
       procedure truncf; external 'api-ms-win-crt-math-l1-1-0.dll';
-
+      
       procedure _mbtowc_l; external 'api-ms-win-crt-multibyte-l1-1-0.dll';
-
+      
       {$IFDEF WIN64}
       procedure __intrinsic_setjmpex; external 'api-ms-win-crt-private-l1-1-0.dll';
       {$ENDIF}
       {$IFDEF WIN32}
       procedure _setjmp3; external 'api-ms-win-crt-private-l1-1-0.dll';
       {$ENDIF}
+      
       procedure longjmp; external 'api-ms-win-crt-private-l1-1-0.dll';
       procedure memchr; external 'api-ms-win-crt-private-l1-1-0.dll';
       procedure memcmp; external 'api-ms-win-crt-private-l1-1-0.dll';
@@ -8474,7 +8448,7 @@ const
       procedure strchr; external 'api-ms-win-crt-private-l1-1-0.dll';
       procedure strrchr; external 'api-ms-win-crt-private-l1-1-0.dll';
       procedure strstr; external 'api-ms-win-crt-private-l1-1-0.dll';
-
+      
       procedure __exit; external 'api-ms-win-crt-runtime-l1-1-0.dll' name '_exit';
       procedure __p___argc; external 'api-ms-win-crt-runtime-l1-1-0.dll';
       procedure __p___argv; external 'api-ms-win-crt-runtime-l1-1-0.dll';
@@ -8493,7 +8467,7 @@ const
       procedure _register_onexit_function; external 'api-ms-win-crt-runtime-l1-1-0.dll';
       procedure abort; external 'api-ms-win-crt-runtime-l1-1-0.dll';
       procedure strerror; external 'api-ms-win-crt-runtime-l1-1-0.dll';
-
+      
       procedure __acrt_iob_func; external 'api-ms-win-crt-stdio-l1-1-0.dll';
       procedure __stdio_common_vfprintf; external 'api-ms-win-crt-stdio-l1-1-0.dll';
       procedure __stdio_common_vfwprintf; external 'api-ms-win-crt-stdio-l1-1-0.dll';
@@ -8513,7 +8487,7 @@ const
       procedure fseek; external 'api-ms-win-crt-stdio-l1-1-0.dll';
       procedure ftell; external 'api-ms-win-crt-stdio-l1-1-0.dll';
       procedure fwrite; external 'api-ms-win-crt-stdio-l1-1-0.dll';
-
+      
       procedure _isctype_l; external 'api-ms-win-crt-string-l1-1-0.dll';
       procedure _iswlower_l; external 'api-ms-win-crt-string-l1-1-0.dll';
       procedure _strdup; external 'api-ms-win-crt-string-l1-1-0.dll';
@@ -8535,12 +8509,12 @@ const
       procedure toupper; external 'api-ms-win-crt-string-l1-1-0.dll';
       procedure wcscmp; external 'api-ms-win-crt-string-l1-1-0.dll';
       procedure wcslen; external 'api-ms-win-crt-string-l1-1-0.dll';
-
+      
       procedure __daylight; external 'api-ms-win-crt-time-l1-1-0.dll';
       procedure __timezone; external 'api-ms-win-crt-time-l1-1-0.dll';
       procedure __tzname; external 'api-ms-win-crt-time-l1-1-0.dll';
       procedure _strftime_l; external 'api-ms-win-crt-time-l1-1-0.dll';
-
+      
       procedure bsearch; external 'api-ms-win-crt-utility-l1-1-0.dll';
       procedure qsort; external 'api-ms-win-crt-utility-l1-1-0.dll';
       procedure rand_s; external 'api-ms-win-crt-utility-l1-1-0.dll';
