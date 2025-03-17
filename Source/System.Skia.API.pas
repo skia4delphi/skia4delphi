@@ -8520,6 +8520,14 @@ const
       procedure rand_s; external 'api-ms-win-crt-utility-l1-1-0.dll';
 
 
+      {$IF CompilerVersion <= 31}
+      procedure AcquireSRWLockExclusive; external 'kernel32.dll';
+      procedure GetFileSizeEx; external 'kernel32.dll';
+      procedure InitOnceExecuteOnce; external 'kernel32.dll';
+      procedure ReleaseSRWLockExclusive; external 'kernel32.dll';
+      procedure SleepConditionVariableSRW; external 'kernel32.dll';
+      {$ENDIF}
+
       procedure CreateFontPackage; external 'fontsub.dll';
     {$ELSE}
       const
