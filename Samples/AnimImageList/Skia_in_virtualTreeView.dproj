@@ -134,7 +134,6 @@
             <FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="..\..\Source\VCL\VCL.Skia.AnimatedImageList.pas"/>
-        <DCCReference Include="..\..\Source\VCL\Designtime\VCL.Skia.DesignTime.Editor.Image.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
