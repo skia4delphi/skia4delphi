@@ -65,3 +65,4 @@ dunitx-results.xml
 !/Binary/**
 !/Tools/Setup/Style/*.dll
 !/Tools/*.exe
+*.dsv

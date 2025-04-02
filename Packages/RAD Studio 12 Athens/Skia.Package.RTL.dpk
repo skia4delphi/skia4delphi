@@ -39,7 +39,6 @@ package Skia.Package.RTL;
 {$LIBSUFFIX AUTO}
 {$RUNONLY}
 {$IMPLICITBUILD OFF}
-{$HPPEMIT NOUSINGNAMESPACE}
 
 requires
   rtl;
