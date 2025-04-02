@@ -39,7 +39,6 @@ package Skia.Package.FMX;
 {$LIBSUFFIX AUTO}
 {$RUNONLY}
 {$IMPLICITBUILD OFF}
-{$HPPEMIT NOUSINGNAMESPACE}
 
 requires
   rtl,
@@ -50,6 +49,10 @@ contains
   FMX.Skia.Canvas.GL in '..\..\Source\FMX\FMX.Skia.Canvas.GL.pas',
   FMX.Skia.Canvas.Metal in '..\..\Source\FMX\FMX.Skia.Canvas.Metal.pas',
   FMX.Skia.Canvas in '..\..\Source\FMX\FMX.Skia.Canvas.pas',
-  FMX.Skia in '..\..\Source\FMX\FMX.Skia.pas';
+  FMX.Skia in '..\..\Source\FMX\FMX.Skia.pas',
+  FMX.Skia.AnimatedCodec in '..\..\..\alcinoe\Embarcadero\Athens\fmx\FMX.Skia.AnimatedCodec.pas',
+  FMX.Skia.Filter in '..\..\..\alcinoe\Embarcadero\Athens\fmx\FMX.Skia.Filter.pas',
+  FMX.Skia.Printer in '..\..\..\alcinoe\Embarcadero\Athens\fmx\FMX.Skia.Printer.pas',
+  FMX.Skia.Canvas.Vulkan in '..\..\..\alcinoe\Embarcadero\Athens\fmx\FMX.Skia.Canvas.Vulkan.pas';
 
 end.
