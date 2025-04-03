@@ -1743,8 +1743,10 @@ type
     class procedure path_proc(const path: sk_path_t; const matrix: psk_matrix_t; context: Pointer); cdecl; static;
   public
     constructor Create(ATypeface: ISkTypeface = nil; const ASize: Single = 12; const AScaleX: Single = 1; const ASkewX: Single = 0); overload;
-    constructor Create(const AFont: ISkFont); overload;
-    class procedure __DestroyHandle(const AHandle: sk_handle_t); override;
+		constructor Create(const AFont: ISkFont); overload;
+		class function CreateAsInterface(ATypeface: ISkTypeface = nil; const ASize: Single = 12; const AScaleX: Single = 1; const ASkewX: Single = 0): ISkFont; overload;
+		class function CreateAsInterface(const AFont: ISkFont): ISkFont; overload;
+		class procedure __DestroyHandle(const AHandle: sk_handle_t); override;
   end;
 
   {$HPPEMIT END '#define SkFont(...) __SkCreate(TSkFont, ISkFont, __VA_ARGS__)'}
@@ -2059,11 +2061,14 @@ type
     procedure SetStrokeWidth(const AValue: Single);
     procedure SetStyle(const AValue: TSkPaintStyle);
   public
-    constructor Create; overload;
-    constructor Create(const APaint: ISkPaint); overload;
-    constructor Create(const AStyle: TSkPaintStyle); overload;
-    class procedure __DestroyHandle(const AHandle: sk_handle_t); override;
-  end;
+		constructor Create; overload;
+		constructor Create(const APaint: ISkPaint); overload;
+		constructor Create(const AStyle: TSkPaintStyle); overload;
+		class function CreateAsInterface: ISkPaint; overload;
+		class function CreateAsInterface(const APaint: ISkPaint): ISkPaint; overload;
+		class function CreateAsInterface(const AStyle: TSkPaintStyle): ISkPaint; overload;
+		class procedure __DestroyHandle(const AHandle: sk_handle_t); override;
+	end;
 
   {$HPPEMIT END '#define SkPaint(...) __SkCreate(TSkPaint, ISkPaint, __VA_ARGS__)'}
 
@@ -7273,6 +7278,17 @@ begin
   inherited Create(sk4d_font_create2(AFont.Handle));
 end;
 
+class function TSkFont.CreateAsInterface(const AFont: ISkFont): ISkFont;
+begin
+	Result := TSkFont.Create(AFont);
+end;
+
+class function TSkFont.CreateAsInterface(ATypeface: ISkTypeface;
+	const ASize, AScaleX, ASkewX: Single): ISkFont;
+begin
+	Result := TSkFont.Create(ATypeface, ASize, AScaleX, ASkewX);
+end;
+
 function TSkFont.GetBaselineSnap: Boolean;
 begin
   Result := sk4d_font_get_baseline_snap(Handle);
@@ -8536,6 +8552,21 @@ constructor TSkPaint.Create(const AStyle: TSkPaintStyle);
 begin
   Create;
   SetStyle(AStyle);
+end;
+
+class function TSkPaint.CreateAsInterface: ISkPaint;
+begin
+  Result := TSkPaint.Create();
+end;
+
+class function TSkPaint.CreateAsInterface(const APaint: ISkPaint): ISkPaint;
+begin
+	Result := TSkPaint.Create(APaint);
+end;
+
+class function TSkPaint.CreateAsInterface(const AStyle: TSkPaintStyle): ISkPaint;
+begin
+	Result := TSkPaint.Create(AStyle);
 end;
 
 function TSkPaint.GetAlpha: Byte;
