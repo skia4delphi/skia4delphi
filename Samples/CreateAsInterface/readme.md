@@ -1,8 +1,6 @@
-﻿# Skia4Delphi `AsInterface` Proposal & Demo
+﻿# Skia4Delphi `CreateAsInterface` Proposal & Demo
 
-Most of the Skia API is exposed as interfaces. This takes advantage of reference counting, which is nice to have. Usually, the class has limited public methods and most functionality is exposed through the interface.
-
-**Example:**
+Most of the Skia API is exposed as interfaces. This takes advantage of reference counting, which is nice to have. Usually, the class has limited public methods and most functionality is exposed through the interface. Here is the declaration for `TSkPaint` and `ISkPaint` for example.
 
 ```Delphi
 type
@@ -26,7 +24,7 @@ type
     function GetAlpha: Byte;
     function GetAlphaF: Single;
     
-    { ... 34 other STRICT PRIVATE memebers ... }
+    { ... 34 other STRICT PRIVATE members ... }
 
     procedure SetStrokeWidth(const AValue: Single);
     procedure SetStyle(const AValue: TSkPaintStyle);
@@ -70,7 +68,7 @@ The proposed `CreateAsInterace` methods fix this:
 
 ```Delphi
 begin
-  var better := TSkPaint.Create();
+  var better := TSkPaint.CreateAsInterface();
   better.Color := TAlphaColors.Darkorange;
 end;
 ```
@@ -85,7 +83,7 @@ public
 end;
 ```
 
-Making them a `class function` named `CreateAsInterface` with the same arguements, and returning the `interface`:
+Making them a `class function` named `CreateAsInterface` with the same arguments, and returning the `interface`:
 
 ```Delphi
 public  
@@ -120,4 +118,4 @@ begin
 end;
 ```
 
-Type inferance is as preferable. Beyond less typing it makes code more maintainable (type only needs to be changed in one place) and reduces errors resulting from mismatched types and constructors. The easier it is to take advantage of this feature in Delphi the better.
+Type inference is as preferable. Beyond less typing it makes code more maintainable (type only needs to be changed in one place) and reduces errors resulting from mismatched types and constructors. The easier it is to take advantage of this feature in Delphi the better.
