@@ -1,4 +1,4 @@
-﻿unit AsInterfaceMain;
+﻿unit CreateAsInterfaceMain;
 
 interface
 
@@ -9,7 +9,7 @@ uses
   System.UITypes;
 
 type
-  TForm31 = class(TForm)
+  TSkIntfDemoMain = class(TForm)
     SkPaintBox1: TSkPaintBox;
     procedure SkPaintBox1Draw(ASender: TObject; const ACanvas: ISkCanvas;
       const ADest: TRectF; const AOpacity: Single);
@@ -20,26 +20,20 @@ type
   end;
 
 var
-  Form31: TForm31;
+  SkIntfDemoMain: TSkIntfDemoMain;
 
 implementation
 
 {$R *.dfm}
 
-procedure TForm31.SkPaintBox1Draw(ASender: TObject;
+procedure TSkIntfDemoMain.SkPaintBox1Draw(ASender: TObject;
 	const ACanvas: ISkCanvas; const ADest: TRectF; const AOpacity: Single);
 begin
-	var font: ISkFont := TSkFont.Create(nil, 24);
-	var paint: ISkPaint := TSkPaint.Create();
+	// Much better!
+	var font := TSkFont.CreateAsInterface(nil, 24);
+	var paint := TSkPaint.CreateAsInterface();
 	paint.Color := TAlphaColors.Blueviolet;
-	ACanvas.DrawSimpleText('before',2,30,font,paint);
-
-	var easyFont := TSkFont.CreateAsInteface(nil, 24);
-	var easyPaint := TSkPaint.CreateAsInteface();
-	easyPaint := TAlphaColors.Green;
-	ACanvas.DrawSimpleText('Easy',32,30,font,paint);
-
-
+	ACanvas.DrawSimpleText('CreateAsInterface!',2,30,font,paint)
 end;
 
 end.
