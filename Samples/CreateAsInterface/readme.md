@@ -1,6 +1,8 @@
-﻿# Skia4Delphi `CreateAsInterface` Proposal & Demo
+﻿# Skia4Delphi Proposal & Demo to CreateAsInterface with `.Make` 
 
 Most of the Skia API is exposed as interfaces. This takes advantage of reference counting, which is nice to have. Usually, the class has limited public methods and most functionality is exposed through the interface. Here is the declaration for `TSkPaint` and `ISkPaint` for example.
+
+**Update:** Changed the proposed method name to **`.Make`** instead of *`.CreateAsInterface`* per [viniciusfbb suggestion](https://github.com/skia4delphi/skia4delphi/pull/408#issuecomment-2787132333).   
 
 ```Delphi
 type
@@ -64,11 +66,11 @@ begin
 end;
 ```
 
-The proposed `CreateAsInterace` methods fix this:
+The proposed `.Make` methods fix this:
 
 ```Delphi
 begin
-  var better := TSkPaint.CreateAsInterface();
+  var better := TSkPaint.Make();
   better.Color := TAlphaColors.Darkorange;
 end;
 ```
@@ -83,39 +85,62 @@ public
 end;
 ```
 
-Making them a `class function` named `CreateAsInterface` with the same arguments, and returning the `interface`:
+Making as a `class function` with the name `Make` using the same arguments, and returning the `interface`. Finally `deprictate` the constructor.
 
 ```Delphi
 public  
-  class function CreateAsInterface: ISkPaint; overload;
-  class function CreateAsInterface(const APaint: ISkPaint): ISkPaint; overload;
-  class function CreateAsInterface(const AStyle: TSkPaintStyle): ISkPaint; overload;
+    class function Make: ISkPaint; overload; static;
+    class function Make(const AStyle: TSkPaintStyle): ISkPaint; overload; static;
+    class function MakeCopy(const APaint: ISkPaint): ISkPaint; static;
+    constructor Create; overload; deprecated 'Use TSkPaint.Make instead.';
+    constructor Create(const APaint: ISkPaint); overload; deprecated 'Use TSkPaint.MakeCopy instead.';
+    constructor Create(const AStyle: TSkPaintStyle); overload; deprecated 'Use TSkPaint.Make instead.';
 end;
 ```
 
-Any name could be used (`Init`, `AsInterface`, `George`, etc.), but this one makes them very visible in class completion to aid in discovery.
-
-The implementation just calls the existing constructors, but since the Result is explicitly the Interface, this works as expected:
+The implementation calls the existing constructors, but since `Result` is explicitly the Interface, the code works as expected:
 
 ```Delphi
 implementation
 
 { TSkPaint }
 
-class function TSkPaint.CreateAsInterface: ISkPaint;
+class function TSkPaint.Make: ISkPaint;
 begin
   Result := TSkPaint.Create();
 end;
 
-class function TSkPaint.CreateAsInterface(const APaint: ISkPaint): ISkPaint;
+class function TSkPaint.MakeCopy(const APaint: ISkPaint): ISkPaint;
 begin
   Result := TSkPaint.Create(APaint);
 end;
 
-class function TSkPaint.CreateAsInterface(const AStyle: TSkPaintStyle): ISkPaint;
+class function TSkPaint.Make(const AStyle: TSkPaintStyle): ISkPaint;
 begin
   Result := TSkPaint.Create(AStyle);
 end;
 ```
 
 Type inference is as preferable. Beyond less typing it makes code more maintainable (type only needs to be changed in one place) and reduces errors resulting from mismatched types and constructors. The easier it is to take advantage of this feature in Delphi the better.
+
+## Modified classes
+
+* TSkColorFilter - For color transformations
+* TSkFont - Font rendering and text metrics handling
+* TSkPaint - Graphics styling configuration including colors, strokes, and effects
+* TSkParagraphBuilder - A builder class for creating formatted text paragraphs with advanced text layout features like styles, fonts, and text decorations
+* TSkParagraphStyle - Styling configuration for paragraph layouts
+* TSkPath - Vector path definition and manipulation
+* TSkPathBuilder - Used for building paths incrementally
+* TSkPathMeasure - For measuring and extracting information about paths
+* TSkPictureRecorder - Used for recording drawing commands
+* TSkPixmap - For pixel buffer access
+* TSkRegion - Represents a 2D set of pixels for clipping or hit-testing
+* TSkRoundRect - Used for rounded rectangles
+* TSkRuntimeBlenderBuilder - A builder class for creating custom blend modes at runtime, enabling custom pixel blending operations
+* TSkRuntimeShaderBuilder - A builder class for creating custom shaders at runtime, allowing dynamic generation of graphical effects and patterns
+* TSkShaper - Text shaping engine for complex script rendering
+* TSkString - String handling utilities for Skia
+* TSkStrutStyle - Text layout configuration for line spacing and alignment
+* TSkTextStyle - Text styling configuration for paragraphs
+* TSkUnicode - Unicode text processing and manipulation utilities for international text handling

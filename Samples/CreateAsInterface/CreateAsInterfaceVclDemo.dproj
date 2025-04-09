@@ -4,10 +4,10 @@
         <AppType>Application</AppType>
         <Config Condition="'$(Config)'==''">Debug</Config>
         <FrameworkType>VCL</FrameworkType>
-        <MainSource>CreateAsInterfaceDemo.dpr</MainSource>
+        <MainSource>CreateAsInterfaceVclDemo.dpr</MainSource>
         <Platform Condition="'$(Platform)'==''">Win32</Platform>
         <ProjectGuid>{FCB99591-6739-45CE-9331-E46C62D778C0}</ProjectGuid>
-        <ProjectName Condition="'$(ProjectName)'==''">CreateAsInterfaceDemo</ProjectName>
+        <ProjectName Condition="'$(ProjectName)'==''">CreateAsInterfaceVclDemo</ProjectName>
         <ProjectVersion>20.3</ProjectVersion>
         <TargetedPlatforms>3</TargetedPlatforms>
     </PropertyGroup>
@@ -59,7 +59,7 @@
         <Base>true</Base>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base)'!=''">
-        <SanitizedProjectName>CreateAsInterfaceDemo</SanitizedProjectName>
+        <SanitizedProjectName>CreateAsInterfaceVclDemo</SanitizedProjectName>
         <DCC_DcuOutput>.\$(Platform)\$(Config)</DCC_DcuOutput>
         <DCC_ExeOutput>.\$(Platform)\$(Config)</DCC_ExeOutput>
         <DCC_Namespace>System;Xml;Data;Datasnap;Web;Soap;Vcl;Vcl.Imaging;Vcl.Touch;Vcl.Samples;Vcl.Shell;$(DCC_Namespace)</DCC_Namespace>
@@ -116,10 +116,13 @@
         <DelphiCompile Include="$(MainSource)">
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
-        <DCCReference Include="CreateAsInterfaceMain.pas">
+        <DCCReference Include="CreateAsInterfaceVclMain.pas">
             <Form>SkIntfDemoMain</Form>
             <FormType>dfm</FormType>
         </DCCReference>
+        <DCCReference Include="..\..\Source\System.Skia.API.pas"/>
+        <DCCReference Include="..\..\Source\System.Skia.pas"/>
+        <DCCReference Include="..\..\Source\VCL\Vcl.Skia.pas"/>
         <None Include="readme.md"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
@@ -139,7 +142,7 @@
         <BorlandProject>
             <Delphi.Personality>
                 <Source>
-                    <Source Name="MainSource">CreateAsInterfaceDemo.dpr</Source>
+                    <Source Name="MainSource">CreateAsInterfaceVclDemo.dpr</Source>
                 </Source>
             </Delphi.Personality>
             <Platforms>

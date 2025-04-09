@@ -1869,7 +1869,7 @@ begin
     ABrushData.Brush := ABrushData.Brush.Resource.Brush;
   if (ABrushData.Brush = nil) or (ABrushData.Brush.Kind = TBrushKind.None) then
     Exit(nil);
-  ABrushData.Paint := TSkPaint.Create(TSkPaintStyle.Fill);
+	ABrushData.Paint := TSkPaint.Make(TSkPaintStyle.Fill);
   BeginPaint(ARect, AOpacity, ABrushData);
   Result := TSkPaint(ABrushData.Paint);
 end;
@@ -1896,8 +1896,8 @@ begin
   end;
   if (ABrushData.Brush = nil) or (ABrushData.Brush.Kind = TBrushKind.None) or (SameValue(LFinalStrokeBrush.Thickness, 0, TEpsilon.Position)) then
     Exit(nil);
-  ABrushData.Paint := TSkPaint.Create(TSkPaintStyle.Stroke);
-  BeginPaint(ARect, AOpacity, ABrushData);
+	ABrushData.Paint := TSkPaint.Make(TSkPaintStyle.Stroke);
+	BeginPaint(ARect, AOpacity, ABrushData);
   ABrushData.Paint.StrokeCap   := StrokeCap[LFinalStrokeBrush.Cap];
   ABrushData.Paint.StrokeJoin  := StrokeJoin[LFinalStrokeBrush.Join];
   ABrushData.Paint.StrokeWidth := LFinalStrokeBrush.Thickness;
@@ -1976,7 +1976,7 @@ function TSkCanvasCustom.DoBeginScene({$IF CompilerVersion < 35}const {$ENDIF}AC
   begin
     if Length(AClipRects) > 1 then
     begin
-      LPathBuilder := TSkPathBuilder.Create;
+			LPathBuilder := TSkPathBuilder.Make;
       for I := 0 to Length(AClipRects) - 1 do
         LPathBuilder.AddRect(AClipRects[I]);
       ACanvas.ClipPath(LPathBuilder.Snapshot, TSkClipOp.Intersect, True);
@@ -2036,7 +2036,7 @@ begin
   LSrcRect := ASrcRect * TRectF.Create(0, 0, ABitmap.Width, ABitmap.Height);
   if ABitmap.HandleAllocated and (not LSrcRect.IsEmpty) and (not ADestRect.IsEmpty) then
   begin
-    LPaint := TSkPaint.Create;
+		LPaint := TSkPaint.Make;
     LPaint.AlphaF := AOpacity;
     {$IFDEF MODULATE_CANVAS}
     if FModulateColor <> TAlphaColors.White then
@@ -2301,7 +2301,7 @@ var
   LPaint: ISkPaint;
   LPath: ISkPath;
 begin
-  LPaint := TSkPaint.Create;
+	LPaint := TSkPaint.Make;
   LPath  := LPaint.GetFillPath(APath.ToSkPath);
   Result := (LPath <> nil) and (LPath.Contains(APoint.X, APoint.Y));
 end;
@@ -3400,7 +3400,7 @@ const
 
   function CreateTextStyle(const AAttribute: TTextAttribute): ISkTextStyle;
   begin
-    Result := TSkTextStyle.Create;
+		Result := TSkTextStyle.Make;
     if AAttribute.Font <> nil then
       InitializeTextStyle(Result, AAttribute.Font, AAttribute.Color)
     else
@@ -3409,7 +3409,7 @@ const
 
   function CreateDefaultTextStyle: ISkTextStyle;
   begin
-    Result := TSkTextStyle.Create;
+		Result := TSkTextStyle.Make;
     InitializeTextStyle(Result, Font, Color);
   end;
 
@@ -3421,7 +3421,7 @@ const
     LAttribute: TTextAttributedRange;
     LMinFontSize: Single;
   begin
-    Result := TSkParagraphStyle.Create;
+		Result := TSkParagraphStyle.Make;
     if RightToLeft then
       Result.TextDirection := TSkTextDirection.RightToLeft;
     if Trimming in [TTextTrimming.Character, TTextTrimming.Word] then
@@ -3492,8 +3492,8 @@ const
     FOpacity    := Opacity;
     LAttributes := GetNormalizedAttributes(ASubText, ASubTextPosition);
     try
-      LBuilder := TSkParagraphBuilder.Create(CreateParagraphStyle(LAttributes, AMaxLines),
-        TSkDefaultProviders.TypefaceFont);
+			LBuilder := TSkParagraphBuilder.Make(CreateParagraphStyle(LAttributes, AMaxLines),
+				TSkDefaultProviders.TypefaceFont);
       LLastAttributeEndIndex := 0;
       for LAttribute in LAttributes do
       begin
@@ -3668,7 +3668,7 @@ begin
   SetLength(Result, Length(AText) + 1);
   if AText <> '' then
   begin
-    LUnicode           := TSkUnicode.Create;
+    LUnicode           := TSkUnicode.Make;
     LGraphemesIterator := LUnicode.GetBreakIterator(TSkBreakType.Graphemes, AText);
     LGraphemesIterator.MoveNext;
     I := 0;

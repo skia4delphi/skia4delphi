@@ -1742,10 +1742,10 @@ type
     function UnicharsToGlyphs(const AUnichars: TArray<Integer>): TArray<Word>;
     class procedure path_proc(const path: sk_path_t; const matrix: psk_matrix_t; context: Pointer); cdecl; static;
   public
-    constructor Create(ATypeface: ISkTypeface = nil; const ASize: Single = 12; const AScaleX: Single = 1; const ASkewX: Single = 0); overload;
-		constructor Create(const AFont: ISkFont); overload;
-		class function CreateAsInterface(ATypeface: ISkTypeface = nil; const ASize: Single = 12; const AScaleX: Single = 1; const ASkewX: Single = 0): ISkFont; overload;
-		class function CreateAsInterface(const AFont: ISkFont): ISkFont; overload;
+		constructor Create(ATypeface: ISkTypeface = nil; const ASize: Single = 12; const AScaleX: Single = 1; const ASkewX: Single = 0); overload; deprecated 'Use TSkFont.Make instead.';
+		constructor Create(const AFont: ISkFont); overload; deprecated 'Use TSkFont.Make instead.';
+		class function Make(ATypeface: ISkTypeface = nil; const ASize: Single = 12; const AScaleX: Single = 1; const ASkewX: Single = 0): ISkFont; overload;
+		class function MakeCopy(const AFont: ISkFont): ISkFont; overload;
 		class procedure __DestroyHandle(const AHandle: sk_handle_t); override;
   end;
 
@@ -2059,14 +2059,14 @@ type
     procedure SetStrokeJoin(const AValue: TSkStrokeJoin);
     procedure SetStrokeMiter(const AValue: Single);
     procedure SetStrokeWidth(const AValue: Single);
-    procedure SetStyle(const AValue: TSkPaintStyle);
-  public
-		constructor Create; overload;
-		constructor Create(const APaint: ISkPaint); overload;
-		constructor Create(const AStyle: TSkPaintStyle); overload;
-		class function CreateAsInterface: ISkPaint; overload;
-		class function CreateAsInterface(const APaint: ISkPaint): ISkPaint; overload;
-		class function CreateAsInterface(const AStyle: TSkPaintStyle): ISkPaint; overload;
+		procedure SetStyle(const AValue: TSkPaintStyle);
+	public
+		constructor Create; overload; deprecated 'Use TSkPaint.Make instead.';
+		constructor Create(const APaint: ISkPaint); overload; deprecated 'Use TSkPaint.MakeCopy instead.';
+		constructor Create(const AStyle: TSkPaintStyle); overload; deprecated 'Use TSkPaint.Make instead.';
+		class function Make: ISkPaint; overload;
+		class function MakeCopy(const APaint: ISkPaint): ISkPaint; overload;
+		class function Make(const AStyle: TSkPaintStyle): ISkPaint; overload;
 		class procedure __DestroyHandle(const AHandle: sk_handle_t); override;
 	end;
 
@@ -2182,11 +2182,14 @@ type
     procedure SerializeToStream(const AStream: TStream);
     function ToSVG: string;
     function Transform(const AMatrix: TMatrix): ISkPath;
-  public
-    constructor Create(const ASVG: string); overload;
-    constructor Create(const ABytes: TBytes); overload;
-    constructor Create(const AStream: TStream); overload;
-    class function ConvertConicToQuads(const APoint1, APoint2, APoint3: TPointF; const AWeight: Single; const APower2: Integer): TArray<TPointF>; static;
+	public
+		constructor Create(const ASVG: string); overload; deprecated 'Use TSkPath.Make instead.';
+		constructor Create(const ABytes: TBytes); overload; deprecated 'Use TSkPath.Make instead.';
+		constructor Create(const AStream: TStream); overload; deprecated 'Use TSkPath.Make instead.';
+		class function Make(const AStream: TStream): ISkPath; overload;
+		class function Make(const ASVG: string): ISkPath; overload;
+		class function Make(const ABytes: TBytes): ISkPath; overload;
+		class function ConvertConicToQuads(const APoint1, APoint2, APoint3: TPointF; const AWeight: Single; const APower2: Integer): TArray<TPointF>; static;
     class procedure __DestroyHandle(const AHandle: sk_handle_t); override;
   end;
 
@@ -2246,7 +2249,7 @@ type
 
   { TSkPathBuilder }
 
-  TSkPathBuilder = class(TSkObject, ISkPathBuilder)
+	TSkPathBuilder = class(TSkObject, ISkPathBuilder)
   strict private
     procedure AddArc(const AOval: TRectF; const AStartAngle, ASweepAngle: Single);
     procedure AddCircle(const ACenter: TPointF; ARadius: Single; ADirection: TSkPathDirection = TSkPathDirection.CW); overload;
@@ -2293,9 +2296,12 @@ type
     function Snapshot: ISkPath;
     procedure ToggleInverseFillType;
   public
-    constructor Create; overload;
-    constructor Create(const APathBuilder: ISkPathBuilder); overload;
-    constructor Create(const AFillType: TSkPathFillType); overload;
+    constructor Create; overload; deprecated 'Use TSkPathBuilder.Make instead.';
+    constructor Create(const APathBuilder: ISkPathBuilder); overload; deprecated 'Use TSkPathBuilder.MakeCopy instead.';
+    constructor Create(const AFillType: TSkPathFillType); overload; deprecated 'Use TSkPathBuilder.Make instead.';
+    class function Make: ISkPathBuilder; overload; static;
+    class function MakeCopy(const APathBuilder: ISkPathBuilder): ISkPathBuilder; static;
+    class function Make(const AFillType: TSkPathFillType): ISkPathBuilder; overload; static;
     class procedure __DestroyHandle(const AHandle: sk_handle_t); override;
   end;
 
@@ -2351,7 +2357,8 @@ type
     function IsClosed: Boolean;
     function NextContour: Boolean;
   public
-    constructor Create(const APath: ISkPath; const AForceClosed: Boolean = False; const AResScale: Single = 1);
+    class function Make(const APath: ISkPath; const AForceClosed: Boolean = False; const AResScale: Single = 1): ISkPathMeasure;
+    constructor Create(const APath: ISkPath; const AForceClosed: Boolean = False; const AResScale: Single = 1); deprecated 'Use TSkPathMeasure.Make instead.';
     class procedure __DestroyHandle(const AHandle: sk_handle_t); override;
   end;
 
@@ -2413,7 +2420,8 @@ type
     function FinishRecording: ISkPicture; overload;
     function FinishRecording(const ACullRect: TRectF): ISkPicture; overload;
   public
-    constructor Create;
+    constructor Create; overload; deprecated 'Use TSkPictureRecorder.Make instead.';
+    class function Make: ISkPictureRecorder; static;
     class procedure __DestroyHandle(const AHandle: sk_handle_t); override;
   end;
 
@@ -2490,7 +2498,8 @@ type
     function ScalePixels(const ADestImageInfo: TSkImageInfo; const ADestPixels: Pointer; const ADestRowBytes: NativeUInt; const ASampling: TSkSamplingOptions): Boolean; overload;
     procedure SetColorSpace(AValue: ISkColorSpace);
   public
-    constructor Create(const AImageInfo: TSkImageInfo; const APixels: Pointer; const ARowBytes: NativeUInt);
+    constructor Create(const AImageInfo: TSkImageInfo; const APixels: Pointer; const ARowBytes: NativeUInt); deprecated 'Use TSkPixmap.Make instead.';
+    class function Make(const AImageInfo: TSkImageInfo; const APixels: Pointer; const ARowBytes: NativeUInt): ISkPixmap;
     class procedure __DestroyHandle(const AHandle: sk_handle_t); override;
   end;
 
@@ -2611,9 +2620,12 @@ type
     function SetRects(const ARects: TArray<TRect>): Boolean;
     procedure Translate(const ADeltaX, ADeltaY: Integer);
   public
-    constructor Create; overload;
-    constructor Create(const ARegion: ISkRegion); overload;
-    constructor Create(const ARect: TRect); overload;
+    constructor Create; overload; deprecated 'Use TSkRegion.Make instead.';
+    constructor Create(const ARegion: ISkRegion); overload; deprecated 'Use TSkRegion.MakeCopy instead.';
+    constructor Create(const ARect: TRect); overload; deprecated 'Use TSkRegion.Make instead.';
+    class function Make: ISkRegion; overload; static;
+    class function MakeCopy(const ARegion: ISkRegion): ISkRegion; static;
+    class function Make(const ARect: TRect): ISkRegion; overload; static;
     class procedure __DestroyHandle(const AHandle: sk_handle_t); override;
   end;
 
@@ -2680,15 +2692,19 @@ type
     procedure SetOval(const ARect: TRectF);
     procedure SetRect(const ARect: TRectF); overload;
     procedure SetRect(const ARect: TRectF; const ARadiusX, ARadiusY: Single); overload;
-    procedure SetRect(const ARect: TRectF; const ARadii: TSkRoundRectRadii); overload;
-    function Transform(const AMatrix: TMatrix): ISkRoundRect;
-  public
-    constructor Create; overload;
-    constructor Create(const ARoundRect: ISkRoundRect); overload;
-    constructor Create(const ARect: TRectF; const ARadiusX, ARadiusY: Single); overload;
-    constructor Create(const ARect: TRectF; const ARadii: TSkRoundRectRadii); overload;
-    class procedure __DestroyHandle(const AHandle: sk_handle_t); override;
-  end;
+		procedure SetRect(const ARect: TRectF; const ARadii: TSkRoundRectRadii); overload;
+		function Transform(const AMatrix: TMatrix): ISkRoundRect;
+	public
+		constructor Create; overload; deprecated 'Use TSkRoundRect.Make instead';
+		constructor Create(const ARect: TRectF; const ARadiusX, ARadiusY: Single); overload; deprecated 'Use TSkRoundRect.Make instead';
+		constructor Create(const ARoundRect: ISkRoundRect); overload; deprecated 'Use TSkRoundRect.Make instead';
+		constructor Create(const ARect: TRectF; const ARadii: TSkRoundRectRadii); overload;  deprecated 'Use TSkRoundRect.Make instead';
+		class function Make: ISkRoundRect; overload; static;
+		class function Make(const ARect: TRectF; const ARadiusX, ARadiusY: Single): ISkRoundRect; overload; static;
+		class function Make(const ARoundRect: ISkRoundRect): ISkRoundRect; overload; static;
+		class function Make(const ARect: TRectF; const ARadii: TSkRoundRectRadii): ISkRoundRect; overload; static;
+		class procedure __DestroyHandle(const AHandle: sk_handle_t); override;
+	end;
 
   {$HPPEMIT END '#define SkRoundRect(...) __SkCreate(TSkRoundRect, ISkRoundRect, __VA_ARGS__)'}
 
@@ -2866,11 +2882,12 @@ type
   strict private
     function MakeBlender: ISkBlender;
   public
-    constructor Create(const AEffect: ISkRuntimeEffect);
+		constructor Create(const AEffect: ISkRuntimeEffect);
+		class function Make(const AEffect: ISkRuntimeEffect): ISkRuntimeBlenderBuilder; static;
     class procedure __DestroyHandle(const AHandle: sk_handle_t); override;
   end;
 
-  {$HPPEMIT END '#define SkRuntimeBlenderBuilder(...) __SkCreate(TSkRuntimeBlenderBuilder, ISkRuntimeBlenderBuilder, __VA_ARGS__)'}
+	{$HPPEMIT END '#define SkRuntimeBlenderBuilder(...) __SkCreate(TSkRuntimeBlenderBuilder, ISkRuntimeBlenderBuilder, __VA_ARGS__)'}
 
   { ISkRuntimeShaderBuilder }
 
@@ -2892,6 +2909,7 @@ type
     function MakeShader(const ALocalMatrix: TMatrix): ISkShader; overload;
   public
     constructor Create(const AEffect: ISkRuntimeEffect);
+    class function Make(const AEffect: ISkRuntimeEffect): ISkRuntimeShaderBuilder; static;
     class procedure __DestroyHandle(const AHandle: sk_handle_t); override;
   end;
 
@@ -3311,8 +3329,10 @@ type
     procedure Pop;
     procedure PushStyle(const ATextStyle: ISkTextStyle);
   public
-    constructor Create(const AParagraphStyle: ISkParagraphStyle); overload;
-    constructor Create(const AParagraphStyle: ISkParagraphStyle; const AFontProvider: ISkTypefaceFontProvider; const AEnableFontFallback: Boolean = True); overload;
+    constructor Create(const AParagraphStyle: ISkParagraphStyle); overload; deprecated 'Use TSkParagraphBuilder.Make instead';
+    constructor Create(const AParagraphStyle: ISkParagraphStyle; const AFontProvider: ISkTypefaceFontProvider; const AEnableFontFallback: Boolean = True); overload; deprecated 'Use TSkParagraphBuilder.Make instead';
+    class function Make(const AParagraphStyle: ISkParagraphStyle): ISkParagraphBuilder; overload; static;
+    class function Make(const AParagraphStyle: ISkParagraphStyle; const AFontProvider: ISkTypefaceFontProvider; const AEnableFontFallback: Boolean = True): ISkParagraphBuilder; overload; static;
     class procedure __DestroyHandle(const AHandle: sk_handle_t); override;
   end;
 
@@ -3371,7 +3391,8 @@ type
     procedure SetHeightMultiplier(const AValue: Single);
     procedure SetLeading(const AValue: Single);
   public
-    constructor Create;
+    constructor Create; overload; deprecated 'Use TSkStrutStyle.Make instead';
+    class function Make: ISkStrutStyle; static;
     class procedure __DestroyHandle(const AHandle: sk_handle_t); override;
   end;
 
@@ -3430,7 +3451,8 @@ type
     procedure SetTextHeightBehaviors(const AValue: TSkTextHeightBehaviors);
     procedure SetTextStyle(AValue: ISkTextStyle);
   public
-    constructor Create;
+    constructor Create; deprecated 'Use TSkParagraphStyle.Make instead';
+    class function Make: ISkParagraphStyle; static;
     class procedure __DestroyHandle(const AHandle: sk_handle_t); override;
   end;
 
@@ -3537,7 +3559,8 @@ type
     procedure SetLocale(const AValue: string);
     procedure SetWordSpacing(const AValue: Single);
   public
-    constructor Create;
+    constructor Create; deprecated 'Use TSkTextStyle.Make instead';
+    class function Make: ISkTextStyle; static;
     class procedure __DestroyHandle(const AHandle: sk_handle_t); override;
   end;
 
@@ -3615,7 +3638,8 @@ type
     function Shape(const AText: string; const AFont: ISkFont; const ALeftToRight: Boolean; const AWidth: Single): ISkTextBlob; overload;
     function Shape(const AText: string; const AFont: ISkFont; const ALeftToRight: Boolean; const AWidth: Single; const AOffset: TPointF; out AEndPoint: TPointF): ISkTextBlob; overload;
   public
-    constructor Create;
+    constructor Create; deprecated 'Use TSkShaper.Make instead';
+    class function Make: ISkShaper; static;
     class procedure __DestroyHandle(const AHandle: sk_handle_t); override;
   end;
 
@@ -3762,7 +3786,8 @@ type
     class procedure break_proc(position, status: int32_t; context: Pointer); cdecl; static;
     class procedure codepoint_proc(unichar: sk_unichar_t; start, &end: int32_t; context: Pointer); cdecl; static;
   public
-    constructor Create;
+    constructor Create; deprecated 'Use Make instead';
+    class function Make: ISkUnicode; static;
     class procedure __DestroyHandle(const AHandle: sk_handle_t); override;
   end;
 
@@ -3997,7 +4022,8 @@ type
   strict private
     function GetText: string;
   public
-    constructor Create;
+    constructor Create; deprecated 'Use Make instead';
+    class function Make: ISkString; static;
     class procedure __DestroyHandle(const AHandle: sk_handle_t); override;
   end;
 
@@ -5059,7 +5085,7 @@ constructor TSkFrame.Create(const AImageInfo: TSkImageInfo;
   const APixels: Pointer; const ARowBytes: NativeUInt;
   const ADuration: Integer);
 begin
-  Pixmap   := TSkPixmap.Create(AImageInfo, APixels, ARowBytes);
+	Pixmap   := TSkPixmap.Make(AImageInfo, APixels, ARowBytes);
   Duration := ADuration;
 end;
 
@@ -5149,7 +5175,7 @@ class function TSkImageEncoder.Encode(const ASrcImageInfo: TSkImageInfo;
 var
   LPixmap: ISkPixmap;
 begin
-  LPixmap := TSkPixmap.Create(ASrcImageInfo, ASrcPixels, ASrcRowBytes);
+	LPixmap := TSkPixmap.Make(ASrcImageInfo, ASrcPixels, ASrcRowBytes);
   Result  := Encode(LPixmap, AEncodedImageFormat, AQuality);
 end;
 
@@ -5185,7 +5211,7 @@ class function TSkImageEncoder.EncodeToFile(const AFileName: string;
 var
   LPixmap: ISkPixmap;
 begin
-  LPixmap := TSkPixmap.Create(ASrcImageInfo, ASrcPixels, ASrcRowBytes);
+	LPixmap := TSkPixmap.Make(ASrcImageInfo, ASrcPixels, ASrcRowBytes);
   Result  := EncodeToFile(AFileName, LPixmap, AEncodedImageFormat, AQuality);
 end;
 
@@ -5209,7 +5235,7 @@ class function TSkImageEncoder.EncodeToStream(const AStream: TStream;
 var
   LPixmap: ISkPixmap;
 begin
-  LPixmap := TSkPixmap.Create(ASrcImageInfo, ASrcPixels, ASrcRowBytes);
+	LPixmap := TSkPixmap.Make(ASrcImageInfo, ASrcPixels, ASrcRowBytes);
   Result  := EncodeToStream(AStream, LPixmap, AEncodedImageFormat, AQuality);
 end;
 
@@ -7273,20 +7299,24 @@ end;
 
 constructor TSkFont.Create(const AFont: ISkFont);
 begin
-  if not Assigned(AFont) then
-    raise ESkArgumentException.CreateFmt(SParamIsNil, ['AFont']);
-  inherited Create(sk4d_font_create2(AFont.Handle));
+	if not Assigned(AFont) then
+		raise ESkArgumentException.CreateFmt(SParamIsNil, ['AFont']);
+	inherited Create(sk4d_font_create2(AFont.Handle));
 end;
 
-class function TSkFont.CreateAsInterface(const AFont: ISkFont): ISkFont;
+class function TSkFont.MakeCopy(const AFont: ISkFont): ISkFont;
 begin
+	{$WARN SYMBOL_DEPRECATED OFF}
 	Result := TSkFont.Create(AFont);
+	{$WARN SYMBOL_DEPRECATED ON}
 end;
 
-class function TSkFont.CreateAsInterface(ATypeface: ISkTypeface;
+class function TSkFont.Make(ATypeface: ISkTypeface;
 	const ASize, AScaleX, ASkewX: Single): ISkFont;
 begin
+	{$WARN SYMBOL_DEPRECATED OFF}
 	Result := TSkFont.Create(ATypeface, ASize, AScaleX, ASkewX);
+	{$WARN SYMBOL_DEPRECATED ON}
 end;
 
 function TSkFont.GetBaselineSnap: Boolean;
@@ -7465,8 +7495,10 @@ end;
 
 function TSkFont.MakeWithSize(const ASize: Single): ISkFont;
 begin
-  Result := TSkFont.Create(Self);
-  Result.Size := ASize;
+	{$WARN SYMBOL_DEPRECATED OFF}
+	Result := TSkFont.Create(Self);
+	Result.Size := ASize;
+	{$WARN SYMBOL_DEPRECATED ON}
 end;
 
 function TSkFont.MeasureText(const AText: string; out ABounds: TRectF;
@@ -7718,7 +7750,7 @@ class function TSkImage.MakeCrossContext(const AContext: IGrDirectContext;
 var
   LPixmap: ISkPixmap;
 begin
-  LPixmap := TSkPixmap.Create(AImageInfo, APixels, ARowBytes);
+	LPixmap := TSkPixmap.Make(AImageInfo, APixels, ARowBytes);
   Result  := MakeCrossContext(AContext, LPixmap, ABuildMips, ALimitToMaxTextureSize);
 end;
 
@@ -7834,7 +7866,7 @@ class function TSkImage.MakeFromRaster(const AImageInfo: TSkImageInfo;
 var
   LPixmap: ISkPixmap;
 begin
-  LPixmap := TSkPixmap.Create(AImageInfo, APixels, ARowBytes);
+	LPixmap := TSkPixmap.Make(AImageInfo, APixels, ARowBytes);
   Result  := MakeFromRaster(LPixmap, ARasterReleaseProc);
 end;
 
@@ -7870,7 +7902,7 @@ class function TSkImage.MakeRasterCopy(const AImageInfo: TSkImageInfo;
 var
   LPixmap: ISkPixmap;
 begin
-  LPixmap := TSkPixmap.Create(AImageInfo, APixels, ARowBytes);
+	LPixmap := TSkPixmap.Make(AImageInfo, APixels, ARowBytes);
   Result  := MakeRasterCopy(LPixmap);
 end;
 
@@ -7987,7 +8019,7 @@ function TSkImage.ReadPixels(const ADestImageInfo: TSkImageInfo;
 var
   LPixmap: ISkPixmap;
 begin
-  LPixmap := TSkPixmap.Create(ADestImageInfo, ADestPixels, ADestRowBytes);
+	LPixmap := TSkPixmap.Make(ADestImageInfo, ADestPixels, ADestRowBytes);
   Result  := ReadPixels(LPixmap, ASrcX, ASrcY, ACachingHint, AContext);
 end;
 
@@ -7998,7 +8030,7 @@ function TSkImage.ScalePixels(const ADestImageInfo: TSkImageInfo;
 var
   LPixmap: ISkPixmap;
 begin
-  LPixmap := TSkPixmap.Create(ADestImageInfo, ADestPixels, ADestRowBytes);
+	LPixmap := TSkPixmap.Make(ADestImageInfo, ADestPixels, ADestRowBytes);
   Result  := ScalePixels(LPixmap, ASampling, ACachingHint);
 end;
 
@@ -8008,7 +8040,7 @@ function TSkImage.ScalePixels(const ADestImageInfo: TSkImageInfo;
 var
   LPixmap: ISkPixmap;
 begin
-  LPixmap := TSkPixmap.Create(ADestImageInfo, ADestPixels, ADestRowBytes);
+	LPixmap := TSkPixmap.Make(ADestImageInfo, ADestPixels, ADestRowBytes);
   Result  := ScalePixels(LPixmap, ACachingHint);
 end;
 
@@ -8050,7 +8082,7 @@ class function TSkImageFilter.MakeAlphaThreshold(const ARegion: TRect;
 var
   LRegion: ISkRegion;
 begin
-  LRegion := TSkRegion.Create;
+	LRegion := TSkRegion.Make;
   LRegion.SetRect(ARegion);
   Result := MakeAlphaThreshold(LRegion, AInnerMin, AOuterMax, AInput);
 end;
@@ -8550,23 +8582,31 @@ end;
 
 constructor TSkPaint.Create(const AStyle: TSkPaintStyle);
 begin
-  Create;
-  SetStyle(AStyle);
+	{$WARN SYMBOL_DEPRECATED OFF}
+	Create;
+	SetStyle(AStyle);
+	{$WARN SYMBOL_DEPRECATED ON}
 end;
 
-class function TSkPaint.CreateAsInterface: ISkPaint;
+class function TSkPaint.Make: ISkPaint;
 begin
-  Result := TSkPaint.Create();
+	{$WARN SYMBOL_DEPRECATED OFF}
+	Result := TSkPaint.Create();
+	{$WARN SYMBOL_DEPRECATED ON}
 end;
 
-class function TSkPaint.CreateAsInterface(const APaint: ISkPaint): ISkPaint;
+class function TSkPaint.MakeCopy(const APaint: ISkPaint): ISkPaint;
 begin
+	{$WARN SYMBOL_DEPRECATED OFF}
 	Result := TSkPaint.Create(APaint);
+	{$WARN SYMBOL_DEPRECATED ON}
 end;
 
-class function TSkPaint.CreateAsInterface(const AStyle: TSkPaintStyle): ISkPaint;
+class function TSkPaint.Make(const AStyle: TSkPaintStyle): ISkPaint;
 begin
+	{$WARN SYMBOL_DEPRECATED OFF}
 	Result := TSkPaint.Create(AStyle);
+	{$WARN SYMBOL_DEPRECATED ON}
 end;
 
 function TSkPaint.GetAlpha: Byte;
@@ -8811,19 +8851,21 @@ end;
 
 constructor TSkPath.Create(const ASVG: string);
 begin
-  inherited Create(sk4d_path_create(MarshaledAString(MarshaledAString(UTF8String(ASVG)))));
+	inherited Create(sk4d_path_create(MarshaledAString(MarshaledAString(UTF8String(ASVG)))));
 end;
 
 constructor TSkPath.Create(const ABytes: TBytes);
 var
   LStream: TStream;
 begin
-  LStream := TBytesStream.Create(ABytes);
-  try
-    Create(LStream);
-  finally
-    LStream.Free;
-  end;
+	{$WARN SYMBOL_DEPRECATED OFF}
+	LStream := TBytesStream.Create(ABytes);
+	try
+		Create(LStream);
+	finally
+		LStream.Free;
+	end;
+	{$WARN SYMBOL_DEPRECATED ON}
 end;
 
 constructor TSkPath.Create(const AStream: TStream);
@@ -8938,10 +8980,33 @@ function TSkPath.IsRoundRect(out ARoundRect: ISkRoundRect): Boolean;
 var
   LRoundRect: ISkRoundRect;
 begin
-  LRoundRect := TSkRoundRect.Create;
-  Result     := sk4d_path_is_rrect(Handle, TSkBindings.SafeHandle(LRoundRect));
-  if Result then
-    ARoundRect := LRoundRect;
+	{$WARN SYMBOL_DEPRECATED OFF}
+	LRoundRect := TSkRoundRect.Create;
+	{$WARN SYMBOL_DEPRECATED ON}
+	Result     := sk4d_path_is_rrect(Handle, TSkBindings.SafeHandle(LRoundRect));
+	if Result then
+		ARoundRect := LRoundRect;
+end;
+
+class function TSkPath.Make(const AStream: TStream): ISkPath;
+begin
+	{$WARN SYMBOL_DEPRECATED OFF}
+	Result := TSkPath.Create(AStream);
+	{$WARN SYMBOL_DEPRECATED ON}
+end;
+
+class function TSkPath.Make(const ASVG: string): ISkPath;
+begin
+	{$WARN SYMBOL_DEPRECATED OFF}
+	Result := TSkPath.Create(ASVG);
+	{$WARN SYMBOL_DEPRECATED ON}
+end;
+
+class function TSkPath.Make(const ABytes: TBytes): ISkPath;
+begin
+	{$WARN SYMBOL_DEPRECATED OFF}
+	Result := TSkPath.Create(ABytes);
+	{$WARN SYMBOL_DEPRECATED ON}
 end;
 
 function TSkPath.IsRoundRect: Boolean;
@@ -9133,8 +9198,10 @@ end;
 
 constructor TSkPathBuilder.Create(const AFillType: TSkPathFillType);
 begin
-  Create;
-  SetFillType(AFillType);
+	{$WARN SYMBOL_DEPRECATED OFF}
+	Create;
+	{$WARN SYMBOL_DEPRECATED ON}
+	SetFillType(AFillType);
 end;
 
 constructor TSkPathBuilder.Create(const APathBuilder: ISkPathBuilder);
@@ -9190,9 +9257,30 @@ begin
   sk4d_pathbuilder_line_to(Handle, @APoint);
 end;
 
+class function TSkPathBuilder.Make: ISkPathBuilder;
+begin
+	{$WARN SYMBOL_DEPRECATED OFF}
+	Result := TSkPathBuilder.Create;
+	{$WARN SYMBOL_DEPRECATED ON}
+end;
+
+class function TSkPathBuilder.MakeCopy(const APathBuilder: ISkPathBuilder): ISkPathBuilder;
+begin
+	{$WARN SYMBOL_DEPRECATED OFF}
+	Result := TSkPathBuilder.Create(APathBuilder);
+	{$WARN SYMBOL_DEPRECATED ON}
+end;
+
+class function TSkPathBuilder.Make(const AFillType: TSkPathFillType): ISkPathBuilder;
+begin
+	{$WARN SYMBOL_DEPRECATED OFF}
+	Result := TSkPathBuilder.Create(AFillType);
+	{$WARN SYMBOL_DEPRECATED ON}
+end;
+
 procedure TSkPathBuilder.MoveTo(const AX, AY: Single);
 begin
-  MoveTo(TPointF.Create(AX, AY));
+	MoveTo(TPointF.Create(AX, AY));
 end;
 
 procedure TSkPathBuilder.MoveTo(const APoint: TPointF);
@@ -9400,6 +9488,13 @@ begin
   inherited Create(sk4d_pathmeasure_create(APath.Handle, AForceClosed, AResScale));
 end;
 
+class function TSkPathMeasure.Make(const APath: ISkPath; const AForceClosed: Boolean = False; const AResScale: Single = 1): ISkPathMeasure;
+begin
+  {$WARN SYMBOL_DEPRECATED OFF}
+  Result := TSkBindings.SafeCreate<TSkPathMeasure>(sk4d_pathmeasure_create(APath.Handle, AForceClosed, AResScale));
+  {$WARN SYMBOL_DEPRECATED ON}
+end;
+
 function TSkPathMeasure.GetLength: Single;
 begin
   Result := sk4d_pathmeasure_get_length(Handle);
@@ -9543,7 +9638,16 @@ end;
 
 constructor TSkPictureRecorder.Create;
 begin
+  {$WARN SYMBOL_DEPRECATED OFF}
   inherited Create(sk4d_picturerecorder_create());
+  {$WARN SYMBOL_DEPRECATED ON}
+end;
+
+class function TSkPictureRecorder.Make: ISkPictureRecorder;
+begin
+  {$WARN SYMBOL_DEPRECATED OFF}
+  Result := TSkPictureRecorder.Create;
+  {$WARN SYMBOL_DEPRECATED ON}
 end;
 
 function TSkPictureRecorder.FinishRecording: ISkPicture;
@@ -9571,6 +9675,14 @@ var
 begin
   MapImageInfo(AImageInfo, LImageInfo);
   inherited Create(sk4d_pixmap_create(@LImageInfo, APixels, ARowBytes));
+end;
+
+class function TSkPixmap.Make(const AImageInfo: TSkImageInfo;
+	const APixels: Pointer; const ARowBytes: NativeUInt): ISkPixmap;
+begin
+  {$WARN SYMBOL_DEPRECATED OFF}
+  Result := TSkPixmap.Create(AImageInfo, APixels, ARowBytes);
+  {$WARN SYMBOL_DEPRECATED ON}
 end;
 
 function TSkPixmap.Erase(const AColor: TAlphaColorF; const ASubset: TRectF;
@@ -9685,8 +9797,10 @@ function TSkPixmap.ReadPixels(const ADestImageInfo: TSkImageInfo;
 var
   LPixmap: ISkPixmap;
 begin
+  {$WARN SYMBOL_DEPRECATED OFF}
   LPixmap := TSkPixmap.Create(ADestImageInfo, ADestPixels, ADestRowBytes);
   Result  := ReadPixels(LPixmap, ASrcX, ASrcY);
+  {$WARN SYMBOL_DEPRECATED ON}
 end;
 
 function TSkPixmap.ScalePixels(const ADestImageInfo: TSkImageInfo;
@@ -9695,7 +9809,7 @@ function TSkPixmap.ScalePixels(const ADestImageInfo: TSkImageInfo;
 var
   LPixmap: ISkPixmap;
 begin
-  LPixmap := TSkPixmap.Create(ADestImageInfo, ADestPixels, ADestRowBytes);
+	LPixmap := TSkPixmap.Make(ADestImageInfo, ADestPixels, ADestRowBytes);
   Result  := ScalePixels(LPixmap, ASampling);
 end;
 
@@ -9704,8 +9818,10 @@ function TSkPixmap.ScalePixels(const ADestImageInfo: TSkImageInfo;
 var
   LPixmap: ISkPixmap;
 begin
+  {$WARN SYMBOL_DEPRECATED OFF}
   LPixmap := TSkPixmap.Create(ADestImageInfo, ADestPixels, ADestRowBytes);
   Result  := ScalePixels(LPixmap);
+  {$WARN SYMBOL_DEPRECATED ON}
 end;
 
 function TSkPixmap.ScalePixels(const ADest: ISkPixmap;
@@ -9752,8 +9868,10 @@ end;
 
 constructor TSkRegion.Create(const ARect: TRect);
 begin
+  {$WARN SYMBOL_DEPRECATED OFF}
   Create;
   SetRect(ARect);
+  {$WARN SYMBOL_DEPRECATED ON}
 end;
 
 constructor TSkRegion.Create(const ARegion: ISkRegion);
@@ -9766,6 +9884,27 @@ end;
 constructor TSkRegion.Create;
 begin
   inherited Create(sk4d_region_create());
+end;
+
+class function TSkRegion.Make: ISkRegion;
+begin
+  {$WARN SYMBOL_DEPRECATED OFF}
+  Result := TSkRegion.Create;
+  {$WARN SYMBOL_DEPRECATED ON}
+end;
+
+class function TSkRegion.MakeCopy(const ARegion: ISkRegion): ISkRegion;
+begin
+  {$WARN SYMBOL_DEPRECATED OFF}
+  Result := TSkRegion.Create(ARegion);
+  {$WARN SYMBOL_DEPRECATED ON}
+end;
+
+class function TSkRegion.Make(const ARect: TRect): ISkRegion;
+begin
+  {$WARN SYMBOL_DEPRECATED OFF}
+  Result := TSkRegion.Create(ARect);
+  {$WARN SYMBOL_DEPRECATED ON}
 end;
 
 function TSkRegion.GetBoundaryPath: ISkPath;
@@ -9976,8 +10115,10 @@ end;
 constructor TSkRoundRect.Create(const ARect: TRectF; const ARadiusX,
   ARadiusY: Single);
 begin
-  Create;
-  SetRect(ARect, ARadiusX, ARadiusY);
+	{$WARN SYMBOL_DEPRECATED OFF}
+	Create;
+	{$WARN SYMBOL_DEPRECATED ON}
+	SetRect(ARect, ARadiusX, ARadiusY);
 end;
 
 constructor TSkRoundRect.Create(const ARoundRect: ISkRoundRect);
@@ -9995,8 +10136,10 @@ end;
 constructor TSkRoundRect.Create(const ARect: TRectF;
   const ARadii: TSkRoundRectRadii);
 begin
-  Create;
-  SetRect(ARect, ARadii);
+	{$WARN SYMBOL_DEPRECATED OFF}
+	Create;
+	{$WARN SYMBOL_DEPRECATED ON}
+	SetRect(ARect, ARadii);
 end;
 
 procedure TSkRoundRect.Deflate(const ADeltaX, ADeltaY: Single);
@@ -10073,7 +10216,35 @@ end;
 
 function TSkRoundRect.IsValid: Boolean;
 begin
-  Result := sk4d_rrect_is_valid(Handle);
+	Result := sk4d_rrect_is_valid(Handle);
+end;
+
+class function TSkRoundRect.Make: ISkRoundRect;
+begin
+  {$WARN SYMBOL_DEPRECATED OFF}
+  Result := TSkRoundRect.Create;
+  {$WARN SYMBOL_DEPRECATED ON}
+end;
+
+class function TSkRoundRect.Make(const ARect: TRectF; const ARadiusX, ARadiusY: Single): ISkRoundRect;
+begin
+	{$WARN SYMBOL_DEPRECATED OFF}
+	Result := TSkRoundRect.Create(ARect, ARadiusX, ARadiusY);
+	{$WARN SYMBOL_DEPRECATED ON}
+end;
+
+class function TSkRoundRect.Make(const ARoundRect: ISkRoundRect): ISkRoundRect;
+begin
+	{$WARN SYMBOL_DEPRECATED OFF}
+	Result := TSkRoundRect.Create(ARoundRect);
+	{$WARN SYMBOL_DEPRECATED ON}
+end;
+
+class function TSkRoundRect.Make(const ARect: TRectF; const ARadii: TSkRoundRectRadii): ISkRoundRect;
+begin
+	{$WARN SYMBOL_DEPRECATED OFF}
+	Result := TSkRoundRect.Create(ARect, ARadii);
+	{$WARN SYMBOL_DEPRECATED ON}
 end;
 
 procedure TSkRoundRect.Offset(const ADeltaX, ADeltaY: Single);
@@ -10100,28 +10271,28 @@ end;
 procedure TSkRoundRect.SetRect(const ARect: TRectF;
   const ARadii: TSkRoundRectRadii);
 begin
-  sk4d_rrect_set_rect2(Handle, @ARect, @ARadii);
+	sk4d_rrect_set_rect2(Handle, @ARect, @ARadii);
 end;
 
 procedure TSkRoundRect.SetRect(const ARect: TRectF; const ARadiusX,
-  ARadiusY: Single);
+	ARadiusY: Single);
 begin
-  sk4d_rrect_set_rect3(Handle, @ARect, ARadiusX, ARadiusY);
+	sk4d_rrect_set_rect3(Handle, @ARect, ARadiusX, ARadiusY);
 end;
 
 procedure TSkRoundRect.SetRect(const ARect: TRectF);
 begin
-  sk4d_rrect_set_rect(Handle, @ARect);
+	sk4d_rrect_set_rect(Handle, @ARect);
 end;
 
 function TSkRoundRect.Transform(const AMatrix: TMatrix): ISkRoundRect;
 begin
-  Result := TSkBindings.SafeCreate<TSkRoundRect>(sk4d_rrect_transform(Handle, @AMatrix));
+	Result := TSkBindings.SafeCreate<TSkRoundRect>(sk4d_rrect_transform(Handle, @AMatrix));
 end;
 
 class procedure TSkRoundRect.__DestroyHandle(const AHandle: sk_handle_t);
 begin
-  sk4d_rrect_destroy(AHandle);
+	sk4d_rrect_destroy(AHandle);
 end;
 
 { TSkRuntimeEffect }
@@ -10286,7 +10457,7 @@ var
 begin
   if Length(ASKSL) < 1 then
     raise ESkArgumentException.CreateFmt(SParamIsEmpty, ['ASKSL']);
-  LErrorText := TSkString.Create;
+	LErrorText := TSkString.Make;
   Result     := TSkBindings.SafeCreate<TSkRuntimeEffect>(sk4d_runtimeeffect_make_for_blender(ASkSL, LErrorText.Handle));
   AErrorText := LErrorText.Text;
 end;
@@ -10310,7 +10481,7 @@ var
 begin
   if Length(ASKSL) < 1 then
     raise ESkArgumentException.CreateFmt(SParamIsEmpty, ['ASKSL']);
-  LErrorText := TSkString.Create;
+	LErrorText := TSkString.Make;
   Result     := TSkBindings.SafeCreate<TSkRuntimeEffect>(sk4d_runtimeeffect_make_for_color_filter(ASKSL, LErrorText.Handle));
   AErrorText := LErrorText.Text;
 end;
@@ -10348,9 +10519,9 @@ var
 begin
   if Length(ASKSL) < 1 then
     raise ESkArgumentException.CreateFmt(SParamIsEmpty, ['ASKSL']);
-  LErrorText := TSkString.Create;
+	LErrorText := TSkString.Make;
   Result     := TSkBindings.SafeCreate<TSkRuntimeEffect>(sk4d_runtimeeffect_make_for_shader(ASkSL, LErrorText.Handle));
-  AErrorText := LErrorText.Text;
+	AErrorText := LErrorText.Text;
 end;
 
 class function TSkRuntimeEffect.MakeForShader(
@@ -10634,7 +10805,15 @@ constructor TSkRuntimeBlenderBuilder.Create(const AEffect: ISkRuntimeEffect);
 begin
   if not Assigned(AEffect) then
     raise ESkArgumentException.CreateFmt(SParamIsNil, ['AEffect']);
-  inherited Create(sk4d_runtimeblendbuilder_create(AEffect.Handle));
+	inherited Create(sk4d_runtimeblendbuilder_create(AEffect.Handle));
+end;
+
+class function TSkRuntimeBlenderBuilder.Make(
+  const AEffect: ISkRuntimeEffect): ISkRuntimeBlenderBuilder;
+begin
+	{$WARN SYMBOL_DEPRECATED OFF}
+	Result := TSkRuntimeBlenderBuilder.Create(AEffect);
+	{$WARN SYMBOL_DEPRECATED ON}
 end;
 
 function TSkRuntimeBlenderBuilder.MakeBlender: ISkBlender;
@@ -10655,6 +10834,13 @@ begin
   if not Assigned(AEffect) then
     raise ESkArgumentException.CreateFmt(SParamIsNil, ['AEffect']);
   inherited Create(sk4d_runtimeshaderbuilder_create(AEffect.Handle));
+end;
+
+class function TSkRuntimeShaderBuilder.Make(const AEffect: ISkRuntimeEffect): ISkRuntimeShaderBuilder;
+begin
+  {$WARN SYMBOL_DEPRECATED OFF}
+  Result := TSkRuntimeShaderBuilder.Create(AEffect);
+  {$WARN SYMBOL_DEPRECATED ON}
 end;
 
 function TSkRuntimeShaderBuilder.MakeImage(const AImageInfo: TSkImageInfo;
@@ -11368,8 +11554,10 @@ class function TSkSurface.MakeRasterDirect(const AImageInfo: TSkImageInfo;
 var
   LPixmap: ISkPixmap;
 begin
-  LPixmap := TSkPixmap.Create(AImageInfo, APixels, ARowBytes);
-  Result  := MakeRasterDirect(LPixmap, ARasterReleaseProc);
+	{$WARN SYMBOL_DEPRECATED OFF}
+	LPixmap := TSkPixmap.Create(AImageInfo, APixels, ARowBytes);
+	Result  := MakeRasterDirect(LPixmap, ARasterReleaseProc);
+	{$WARN SYMBOL_DEPRECATED ON}
 end;
 
 class function TSkSurface.MakeRasterDirect(const AImageInfo: TSkImageInfo;
@@ -11379,8 +11567,10 @@ class function TSkSurface.MakeRasterDirect(const AImageInfo: TSkImageInfo;
 var
   LPixmap: ISkPixmap;
 begin
-  LPixmap := TSkPixmap.Create(AImageInfo, APixels, ARowBytes);
-  Result  := MakeRasterDirect(LPixmap, AProperties, ARasterReleaseProc);
+	{$WARN SYMBOL_DEPRECATED OFF}
+	LPixmap := TSkPixmap.Create(AImageInfo, APixels, ARowBytes);
+	Result  := MakeRasterDirect(LPixmap, AProperties, ARasterReleaseProc);
+	{$WARN SYMBOL_DEPRECATED ON}
 end;
 
 class function TSkSurface.MakeRasterDirect(const APixmap: ISkPixmap;
@@ -11446,8 +11636,10 @@ function TSkSurface.ReadPixels(const ADestImageInfo: TSkImageInfo;
 var
   LPixmap: ISkPixmap;
 begin
-  LPixmap := TSkPixmap.Create(ADestImageInfo, ADestPixels, ADestRowBytes);
-  Result  := ReadPixels(LPixmap, ASrcX, ASrcY);
+	{$WARN SYMBOL_DEPRECATED OFF}
+	LPixmap := TSkPixmap.Create(ADestImageInfo, ADestPixels, ADestRowBytes);
+	Result  := ReadPixels(LPixmap, ASrcX, ASrcY);
+	{$WARN SYMBOL_DEPRECATED ON}
 end;
 
 function TSkSurface.ReadPixels(const ADest: ISkPixmap; const ASrcX,
@@ -11479,8 +11671,10 @@ procedure TSkSurface.WritePixels(const ASrcImageInfo: TSkImageInfo;
 var
   LPixmap: ISkPixmap;
 begin
-  LPixmap := TSkPixmap.Create(ASrcImageInfo, ASrcPixels, ASrcRowBytes);
-  WritePixels(LPixmap, ADestX, ADestY);
+	{$WARN SYMBOL_DEPRECATED OFF}
+	LPixmap := TSkPixmap.Create(ASrcImageInfo, ASrcPixels, ASrcRowBytes);
+	WritePixels(LPixmap, ADestX, ADestY);
+	{$WARN SYMBOL_DEPRECATED ON}
 end;
 
 procedure TSkSurface.WritePixels(const ASrc: ISkPixmap; const ADestX,
@@ -12057,6 +12251,21 @@ begin
   inherited Create(sk4d_paragraphbuilder_create(AParagraphStyle.Handle));
 end;
 
+class function TSkParagraphBuilder.Make(
+  const AParagraphStyle: ISkParagraphStyle): ISkParagraphBuilder;
+begin
+  {$WARN SYMBOL_DEPRECATED OFF}
+  Result := TSkParagraphBuilder.Create(AParagraphStyle);
+  {$WARN SYMBOL_DEPRECATED ON}
+end;
+
+class function TSkParagraphBuilder.Make(const AParagraphStyle: ISkParagraphStyle; const AFontProvider: ISkTypefaceFontProvider; const AEnableFontFallback: Boolean = True): ISkParagraphBuilder;
+begin
+  {$WARN SYMBOL_DEPRECATED OFF}
+  Result := TSkParagraphBuilder.Create(AParagraphStyle, AFontProvider, AEnableFontFallback);
+  {$WARN SYMBOL_DEPRECATED ON}
+end;
+
 procedure TSkParagraphBuilder.Pop;
 begin
   sk4d_paragraphbuilder_pop(Handle);
@@ -12079,6 +12288,13 @@ end;
 constructor TSkStrutStyle.Create;
 begin
   inherited Create(sk4d_strutstyle_create());
+end;
+
+class function TSkStrutStyle.Make: ISkStrutStyle;
+begin
+  {$WARN SYMBOL_DEPRECATED OFF}
+  Result := TSkStrutStyle.Create;
+  {$WARN SYMBOL_DEPRECATED ON}
 end;
 
 function TSkStrutStyle.GetEnabled: Boolean;
@@ -12196,6 +12412,13 @@ end;
 constructor TSkParagraphStyle.Create;
 begin
   inherited Create(sk4d_paragraphstyle_create());
+end;
+
+class function TSkParagraphStyle.Make: ISkParagraphStyle;
+begin
+  {$WARN SYMBOL_DEPRECATED OFF}
+  Result := TSkParagraphStyle.Create;
+  {$WARN SYMBOL_DEPRECATED ON}
 end;
 
 procedure TSkParagraphStyle.DisableHinting;
@@ -12319,6 +12542,12 @@ begin
   sk4d_textstyle_clear_foreground_color(Handle);
 end;
 
+class function TSkTextStyle.Make: ISkTextStyle;
+begin
+  {$WARN SYMBOL_DEPRECATED OFF}
+  Result := TSkTextStyle.Create;
+  {$WARN SYMBOL_DEPRECATED ON}
+end;
 
 constructor TSkTextStyle.Create;
 begin
@@ -12629,6 +12858,13 @@ begin
   inherited Create(sk4d_shaper_create());
 end;
 
+class function TSkShaper.Make: ISkShaper;
+begin
+  {$WARN SYMBOL_DEPRECATED OFF}
+  Result := TSkShaper.Create;
+  {$WARN SYMBOL_DEPRECATED ON}
+end;
+
 function TSkShaper.Shape(const AText: string; const AFont: ISkFont;
   const ALeftToRight: Boolean; const AWidth: Single): ISkTextBlob;
 begin
@@ -12826,6 +13062,13 @@ end;
 constructor TSkUnicode.Create;
 begin
   inherited Create(sk4d_unicode_create());
+end;
+
+class function TSkUnicode.Make: ISkUnicode;
+begin
+  {$WARN SYMBOL_DEPRECATED OFF}
+  Result := TSkUnicode.Create;
+  {$WARN SYMBOL_DEPRECATED ON}
 end;
 
 procedure TSkUnicode.ForEachBidiRegion(const AText: string;
@@ -13058,6 +13301,13 @@ end;
 constructor TSkString.Create;
 begin
   inherited Create(sk4d_string_create());
+end;
+
+class function TSkString.Make: ISkString;
+begin
+  {$WARN SYMBOL_DEPRECATED OFF}
+  Result := TSkString.Create;
+  {$WARN SYMBOL_DEPRECATED ON}
 end;
 
 function TSkString.GetText: string;
