@@ -32,7 +32,7 @@ begin
 	var font := TSkFont.Make(family, 24);
 	var paint := TSkPaint.Make();
 	paint.Color := TAlphaColors.Blueviolet;
-	ACanvas.DrawSimpleText('.Make',2,30,font,paint)
+	ACanvas.DrawSimpleText('.Make',2,30,font,paint);
 end;
 
 end.

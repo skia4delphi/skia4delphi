@@ -3,7 +3,7 @@
         <ProjectGuid>{36AB3BD2-8480-405E-9C0C-C24E62C7DB4F}</ProjectGuid>
     </PropertyGroup>
     <ItemGroup>
-        <Projects Include="CreateAsInterfaceDemo.dproj">
+        <Projects Include="CreateAsInterfaceVclDemo.dproj">
             <Dependencies/>
         </Projects>
         <Projects Include="CreateAsInterfaceFmxDemo.dproj">
@@ -17,14 +17,14 @@
             <Default.Personality/>
         </BorlandProject>
     </ProjectExtensions>
-    <Target Name="CreateAsInterfaceDemo">
-        <MSBuild Projects="CreateAsInterfaceDemo.dproj"/>
+    <Target Name="CreateAsInterfaceVclDemo">
+        <MSBuild Projects="CreateAsInterfaceVclDemo.dproj"/>
     </Target>
-    <Target Name="CreateAsInterfaceDemo:Clean">
-        <MSBuild Projects="CreateAsInterfaceDemo.dproj" Targets="Clean"/>
+    <Target Name="CreateAsInterfaceVclDemo:Clean">
+        <MSBuild Projects="CreateAsInterfaceVclDemo.dproj" Targets="Clean"/>
     </Target>
-    <Target Name="CreateAsInterfaceDemo:Make">
-        <MSBuild Projects="CreateAsInterfaceDemo.dproj" Targets="Make"/>
+    <Target Name="CreateAsInterfaceVclDemo:Make">
+        <MSBuild Projects="CreateAsInterfaceVclDemo.dproj" Targets="Make"/>
     </Target>
     <Target Name="CreateAsInterfaceFmxDemo">
         <MSBuild Projects="CreateAsInterfaceFmxDemo.dproj"/>
@@ -36,13 +36,13 @@
         <MSBuild Projects="CreateAsInterfaceFmxDemo.dproj" Targets="Make"/>
     </Target>
     <Target Name="Build">
-        <CallTarget Targets="CreateAsInterfaceDemo;CreateAsInterfaceFmxDemo"/>
+        <CallTarget Targets="CreateAsInterfaceVclDemo;CreateAsInterfaceFmxDemo"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="CreateAsInterfaceDemo:Clean;CreateAsInterfaceFmxDemo:Clean"/>
+        <CallTarget Targets="CreateAsInterfaceVclDemo:Clean;CreateAsInterfaceFmxDemo:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="CreateAsInterfaceDemo:Make;CreateAsInterfaceFmxDemo:Make"/>
+        <CallTarget Targets="CreateAsInterfaceVclDemo:Make;CreateAsInterfaceFmxDemo:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>

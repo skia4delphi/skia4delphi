@@ -1572,12 +1572,12 @@ type
     function MakeLinearGamma: ISkColorSpace;
     function MakeSRGBGamma: ISkColorSpace;
     function ToProfile: ISkColorSpaceICCProfile;
-    function ToXyz(out ADest: TSkColorSpaceXyz): Boolean;
-    class function Make(const AProfile: ISkColorSpaceICCProfile): ISkColorSpace; static;
-    class function MakeRGB(const ATransferFunction: TSkColorSpaceTransferFunction; const AToXyzD50: TSkColorSpaceXyz): ISkColorSpace; static;
-    class function MakeSRGB: ISkColorSpace; static;
-    class function MakeSRGBLinear: ISkColorSpace; static;
-    class procedure __RefHandle(const AHandle: sk_handle_t); override;
+		function ToXyz(out ADest: TSkColorSpaceXyz): Boolean;
+		class function Make(const AProfile: ISkColorSpaceICCProfile): ISkColorSpace; static; inline;
+		class function MakeRGB(const ATransferFunction: TSkColorSpaceTransferFunction; const AToXyzD50: TSkColorSpaceXyz): ISkColorSpace; static; inline;
+		class function MakeSRGB: ISkColorSpace; static; inline;
+		class function MakeSRGBLinear: ISkColorSpace; static; inline;
+		class procedure __RefHandle(const AHandle: sk_handle_t); override;
     class procedure __UnrefHandle(const AHandle: sk_handle_t); override;
   end;
 
@@ -1744,8 +1744,8 @@ type
   public
 		constructor Create(ATypeface: ISkTypeface = nil; const ASize: Single = 12; const AScaleX: Single = 1; const ASkewX: Single = 0); overload; deprecated 'Use TSkFont.Make instead.';
 		constructor Create(const AFont: ISkFont); overload; deprecated 'Use TSkFont.Make instead.';
-		class function Make(ATypeface: ISkTypeface = nil; const ASize: Single = 12; const AScaleX: Single = 1; const ASkewX: Single = 0): ISkFont; overload;
-		class function MakeCopy(const AFont: ISkFont): ISkFont; overload;
+		class function Make(ATypeface: ISkTypeface = nil; const ASize: Single = 12; const AScaleX: Single = 1; const ASkewX: Single = 0): ISkFont; overload; inline;
+		class function MakeCopy(const AFont: ISkFont): ISkFont; overload; inline;
 		class procedure __DestroyHandle(const AHandle: sk_handle_t); override;
   end;
 
@@ -2064,9 +2064,9 @@ type
 		constructor Create; overload; deprecated 'Use TSkPaint.Make instead.';
 		constructor Create(const APaint: ISkPaint); overload; deprecated 'Use TSkPaint.MakeCopy instead.';
 		constructor Create(const AStyle: TSkPaintStyle); overload; deprecated 'Use TSkPaint.Make instead.';
-		class function Make: ISkPaint; overload;
-		class function MakeCopy(const APaint: ISkPaint): ISkPaint; overload;
-		class function Make(const AStyle: TSkPaintStyle): ISkPaint; overload;
+		class function Make: ISkPaint; overload; inline;
+		class function MakeCopy(const APaint: ISkPaint): ISkPaint; overload; inline;
+		class function Make(const AStyle: TSkPaintStyle): ISkPaint; overload; inline;
 		class procedure __DestroyHandle(const AHandle: sk_handle_t); override;
 	end;
 
@@ -2186,9 +2186,9 @@ type
 		constructor Create(const ASVG: string); overload; deprecated 'Use TSkPath.Make instead.';
 		constructor Create(const ABytes: TBytes); overload; deprecated 'Use TSkPath.Make instead.';
 		constructor Create(const AStream: TStream); overload; deprecated 'Use TSkPath.Make instead.';
-		class function Make(const AStream: TStream): ISkPath; overload;
-		class function Make(const ASVG: string): ISkPath; overload;
-		class function Make(const ABytes: TBytes): ISkPath; overload;
+		class function Make(const AStream: TStream): ISkPath; overload; inline;
+		class function Make(const ASVG: string): ISkPath; overload; inline;
+		class function Make(const ABytes: TBytes): ISkPath; overload; inline;
 		class function ConvertConicToQuads(const APoint1, APoint2, APoint3: TPointF; const AWeight: Single; const APower2: Integer): TArray<TPointF>; static;
     class procedure __DestroyHandle(const AHandle: sk_handle_t); override;
   end;
@@ -2299,9 +2299,9 @@ type
     constructor Create; overload; deprecated 'Use TSkPathBuilder.Make instead.';
     constructor Create(const APathBuilder: ISkPathBuilder); overload; deprecated 'Use TSkPathBuilder.MakeCopy instead.';
     constructor Create(const AFillType: TSkPathFillType); overload; deprecated 'Use TSkPathBuilder.Make instead.';
-    class function Make: ISkPathBuilder; overload; static;
-    class function MakeCopy(const APathBuilder: ISkPathBuilder): ISkPathBuilder; static;
-    class function Make(const AFillType: TSkPathFillType): ISkPathBuilder; overload; static;
+		class function Make: ISkPathBuilder; overload; static; inline;
+		class function MakeCopy(const APathBuilder: ISkPathBuilder): ISkPathBuilder; static; inline;
+    class function Make(const AFillType: TSkPathFillType): ISkPathBuilder; overload; static; inline;
     class procedure __DestroyHandle(const AHandle: sk_handle_t); override;
   end;
 
@@ -2357,7 +2357,7 @@ type
     function IsClosed: Boolean;
     function NextContour: Boolean;
   public
-    class function Make(const APath: ISkPath; const AForceClosed: Boolean = False; const AResScale: Single = 1): ISkPathMeasure;
+    class function Make(const APath: ISkPath; const AForceClosed: Boolean = False; const AResScale: Single = 1): ISkPathMeasure; static; inline;
     constructor Create(const APath: ISkPath; const AForceClosed: Boolean = False; const AResScale: Single = 1); deprecated 'Use TSkPathMeasure.Make instead.';
     class procedure __DestroyHandle(const AHandle: sk_handle_t); override;
   end;
@@ -2421,7 +2421,7 @@ type
     function FinishRecording(const ACullRect: TRectF): ISkPicture; overload;
   public
     constructor Create; overload; deprecated 'Use TSkPictureRecorder.Make instead.';
-    class function Make: ISkPictureRecorder; static;
+    class function Make: ISkPictureRecorder; static; inline;
     class procedure __DestroyHandle(const AHandle: sk_handle_t); override;
   end;
 
@@ -2499,7 +2499,7 @@ type
     procedure SetColorSpace(AValue: ISkColorSpace);
   public
     constructor Create(const AImageInfo: TSkImageInfo; const APixels: Pointer; const ARowBytes: NativeUInt); deprecated 'Use TSkPixmap.Make instead.';
-    class function Make(const AImageInfo: TSkImageInfo; const APixels: Pointer; const ARowBytes: NativeUInt): ISkPixmap;
+    class function Make(const AImageInfo: TSkImageInfo; const APixels: Pointer; const ARowBytes: NativeUInt): ISkPixmap; inline;
     class procedure __DestroyHandle(const AHandle: sk_handle_t); override;
   end;
 
@@ -2623,9 +2623,9 @@ type
     constructor Create; overload; deprecated 'Use TSkRegion.Make instead.';
     constructor Create(const ARegion: ISkRegion); overload; deprecated 'Use TSkRegion.MakeCopy instead.';
     constructor Create(const ARect: TRect); overload; deprecated 'Use TSkRegion.Make instead.';
-    class function Make: ISkRegion; overload; static;
-    class function MakeCopy(const ARegion: ISkRegion): ISkRegion; static;
-    class function Make(const ARect: TRect): ISkRegion; overload; static;
+		class function Make: ISkRegion; overload; static; inline;
+		class function MakeCopy(const ARegion: ISkRegion): ISkRegion; static; inline;
+		class function Make(const ARect: TRect): ISkRegion; overload; static; inline;
     class procedure __DestroyHandle(const AHandle: sk_handle_t); override;
   end;
 
@@ -2699,10 +2699,10 @@ type
 		constructor Create(const ARect: TRectF; const ARadiusX, ARadiusY: Single); overload; deprecated 'Use TSkRoundRect.Make instead';
 		constructor Create(const ARoundRect: ISkRoundRect); overload; deprecated 'Use TSkRoundRect.Make instead';
 		constructor Create(const ARect: TRectF; const ARadii: TSkRoundRectRadii); overload;  deprecated 'Use TSkRoundRect.Make instead';
-		class function Make: ISkRoundRect; overload; static;
-		class function Make(const ARect: TRectF; const ARadiusX, ARadiusY: Single): ISkRoundRect; overload; static;
-		class function Make(const ARoundRect: ISkRoundRect): ISkRoundRect; overload; static;
-		class function Make(const ARect: TRectF; const ARadii: TSkRoundRectRadii): ISkRoundRect; overload; static;
+		class function Make: ISkRoundRect; overload; static; inline;
+		class function Make(const ARect: TRectF; const ARadiusX, ARadiusY: Single): ISkRoundRect; overload; static; inline;
+		class function Make(const ARoundRect: ISkRoundRect): ISkRoundRect; overload; static; inline;
+		class function Make(const ARect: TRectF; const ARadii: TSkRoundRectRadii): ISkRoundRect; overload; static; inline;
 		class procedure __DestroyHandle(const AHandle: sk_handle_t); override;
 	end;
 
@@ -2883,7 +2883,7 @@ type
     function MakeBlender: ISkBlender;
   public
 		constructor Create(const AEffect: ISkRuntimeEffect);
-		class function Make(const AEffect: ISkRuntimeEffect): ISkRuntimeBlenderBuilder; static;
+		class function Make(const AEffect: ISkRuntimeEffect): ISkRuntimeBlenderBuilder; static; inline;
     class procedure __DestroyHandle(const AHandle: sk_handle_t); override;
   end;
 
@@ -2909,7 +2909,7 @@ type
     function MakeShader(const ALocalMatrix: TMatrix): ISkShader; overload;
   public
     constructor Create(const AEffect: ISkRuntimeEffect);
-    class function Make(const AEffect: ISkRuntimeEffect): ISkRuntimeShaderBuilder; static;
+    class function Make(const AEffect: ISkRuntimeEffect): ISkRuntimeShaderBuilder; static; inline;
     class procedure __DestroyHandle(const AHandle: sk_handle_t); override;
   end;
 
@@ -3193,10 +3193,10 @@ type
     property UniformData: PSingleArray read GetUniformData;
     property UniformDataCount: Integer read GetUniformDataCount;
     property UniformName[const AIndex: NativeUInt]: string read GetUniformName;
-    class function Make(const AData: string; const AResourceProvider: ISkResourceProvider = nil): ISkParticleEffect; static; deprecated;
-    class function MakeFromFile(const AFileName: string): ISkParticleEffect; static; deprecated;
-    class function MakeFromStream(const AStream: TStream; const AResourceProvider: ISkResourceProvider = nil): ISkParticleEffect; static; deprecated;
-  end;
+		class function Make(const AData: string; const AResourceProvider: ISkResourceProvider = nil): ISkParticleEffect; static;
+		class function MakeFromFile(const AFileName: string): ISkParticleEffect; static;
+		class function MakeFromStream(const AStream: TStream; const AResourceProvider: ISkResourceProvider = nil): ISkParticleEffect; static;
+	end;
 
   { ISkottieAnimation }
 
@@ -3241,10 +3241,10 @@ type
     property OutPoint: Double read GetOutPoint;
     property Size: TSizeF read GetSize;
     property Version: string read GetVersion;
-    class function Make(const AData: string; const AResourceProvider: ISkResourceProvider = nil; const AFontProvider: ISkTypefaceFontProvider = nil): ISkottieAnimation; static;
-    class function MakeFromFile(const AFileName: string; const AFontProvider: ISkTypefaceFontProvider = nil): ISkottieAnimation; static;
-    class function MakeFromStream(const AStream: TStream; const AResourceProvider: ISkResourceProvider = nil; const AFontProvider: ISkTypefaceFontProvider = nil): ISkottieAnimation; static;
-    class procedure __RefHandle(const AHandle: sk_handle_t); override;
+		class function Make(const AData: string; const AResourceProvider: ISkResourceProvider = nil; const AFontProvider: ISkTypefaceFontProvider = nil): ISkottieAnimation; static;
+		class function MakeFromFile(const AFileName: string; const AFontProvider: ISkTypefaceFontProvider = nil): ISkottieAnimation; static;
+		class function MakeFromStream(const AStream: TStream; const AResourceProvider: ISkResourceProvider = nil; const AFontProvider: ISkTypefaceFontProvider = nil): ISkottieAnimation; static;
+		class procedure __RefHandle(const AHandle: sk_handle_t); override;
     class procedure __UnrefHandle(const AHandle: sk_handle_t); override;
   end;
 
@@ -3331,8 +3331,8 @@ type
   public
     constructor Create(const AParagraphStyle: ISkParagraphStyle); overload; deprecated 'Use TSkParagraphBuilder.Make instead';
     constructor Create(const AParagraphStyle: ISkParagraphStyle; const AFontProvider: ISkTypefaceFontProvider; const AEnableFontFallback: Boolean = True); overload; deprecated 'Use TSkParagraphBuilder.Make instead';
-    class function Make(const AParagraphStyle: ISkParagraphStyle): ISkParagraphBuilder; overload; static;
-    class function Make(const AParagraphStyle: ISkParagraphStyle; const AFontProvider: ISkTypefaceFontProvider; const AEnableFontFallback: Boolean = True): ISkParagraphBuilder; overload; static;
+		class function Make(const AParagraphStyle: ISkParagraphStyle): ISkParagraphBuilder; overload; static; inline;
+    class function Make(const AParagraphStyle: ISkParagraphStyle; const AFontProvider: ISkTypefaceFontProvider; const AEnableFontFallback: Boolean = True): ISkParagraphBuilder; overload; static; inline;
     class procedure __DestroyHandle(const AHandle: sk_handle_t); override;
   end;
 
@@ -3392,7 +3392,7 @@ type
     procedure SetLeading(const AValue: Single);
   public
     constructor Create; overload; deprecated 'Use TSkStrutStyle.Make instead';
-    class function Make: ISkStrutStyle; static;
+    class function Make: ISkStrutStyle; static; inline;
     class procedure __DestroyHandle(const AHandle: sk_handle_t); override;
   end;
 
@@ -3452,7 +3452,7 @@ type
     procedure SetTextStyle(AValue: ISkTextStyle);
   public
     constructor Create; deprecated 'Use TSkParagraphStyle.Make instead';
-    class function Make: ISkParagraphStyle; static;
+    class function Make: ISkParagraphStyle; static; inline;
     class procedure __DestroyHandle(const AHandle: sk_handle_t); override;
   end;
 
@@ -3560,7 +3560,7 @@ type
     procedure SetWordSpacing(const AValue: Single);
   public
     constructor Create; deprecated 'Use TSkTextStyle.Make instead';
-    class function Make: ISkTextStyle; static;
+    class function Make: ISkTextStyle; static; inline;
     class procedure __DestroyHandle(const AHandle: sk_handle_t); override;
   end;
 
@@ -3639,7 +3639,7 @@ type
     function Shape(const AText: string; const AFont: ISkFont; const ALeftToRight: Boolean; const AWidth: Single; const AOffset: TPointF; out AEndPoint: TPointF): ISkTextBlob; overload;
   public
     constructor Create; deprecated 'Use TSkShaper.Make instead';
-    class function Make: ISkShaper; static;
+    class function Make: ISkShaper; static; inline;
     class procedure __DestroyHandle(const AHandle: sk_handle_t); override;
   end;
 
@@ -3676,10 +3676,10 @@ type
     procedure Render(const ACanvas: ISkCanvas);
     procedure SetContainerSize(const ASize: TSizeF);
     property Root: ISkSVGSVG read GetRoot;
-    class function Make(const AData: string; const AResourceProvider: ISkResourceProvider = nil; const AFontProvider: ISkTypefaceFontProvider = nil): ISkSVGDOM; static;
-    class function MakeFromFile(const AFileName: string; const AFontProvider: ISkTypefaceFontProvider = nil): ISkSVGDOM; static;
-    class function MakeFromStream(const AStream: TStream; const AResourceProvider: ISkResourceProvider = nil; const AFontProvider: ISkTypefaceFontProvider = nil): ISkSVGDOM; static;
-  end;
+		class function Make(const AData: string; const AResourceProvider: ISkResourceProvider = nil; const AFontProvider: ISkTypefaceFontProvider = nil): ISkSVGDOM; static;
+		class function MakeFromFile(const AFileName: string; const AFontProvider: ISkTypefaceFontProvider = nil): ISkSVGDOM; static;
+		class function MakeFromStream(const AStream: TStream; const AResourceProvider: ISkResourceProvider = nil; const AFontProvider: ISkTypefaceFontProvider = nil): ISkSVGDOM; static;
+	end;
 
   { ISkSVGNode }
 
@@ -3787,7 +3787,7 @@ type
     class procedure codepoint_proc(unichar: sk_unichar_t; start, &end: int32_t; context: Pointer); cdecl; static;
   public
     constructor Create; deprecated 'Use Make instead';
-    class function Make: ISkUnicode; static;
+    class function Make: ISkUnicode; static; inline;
     class procedure __DestroyHandle(const AHandle: sk_handle_t); override;
   end;
 
@@ -4023,7 +4023,7 @@ type
     function GetText: string;
   public
     constructor Create; deprecated 'Use Make instead';
-    class function Make: ISkString; static;
+		class function Make: ISkString; static; inline;
     class procedure __DestroyHandle(const AHandle: sk_handle_t); override;
   end;
 
@@ -11945,7 +11945,7 @@ end;
 class function TSkParticleEffect.MakeFromFile(
   const AFileName: string): ISkParticleEffect;
 begin
-  if Length(AFileName) = 0 then
+	if Length(AFileName) = 0 then
     raise ESkException.Create(SFileNameIsEmpty);
   Result := TSkBindings.SafeCreate<TSkParticleEffect>(sk4d_particleeffect_make_from_file(MarshaledAString(UTF8String(AFileName))));
 end;

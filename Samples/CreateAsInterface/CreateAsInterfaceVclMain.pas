@@ -27,10 +27,11 @@ implementation
 procedure TSkIntfDemoMain.SkPaintBox1Draw(ASender: TObject;
 	const ACanvas: ISkCanvas; const ADest: TRectF; const AOpacity: Single);
 begin
-	var font := TSkFont.Make(nil, 24);
+	var family := TSkTypeface.MakeFromName('Segoe Script', TSkFontStyle.Italic);
+	var font := TSkFont.Make(family, 24);
 	var paint := TSkPaint.Make();
 	paint.Color := TAlphaColors.Blueviolet;
-	ACanvas.DrawSimpleText('.Make!',2,30,font,paint)
+	ACanvas.DrawSimpleText('.Make',2,30,font,paint);
 end;
 
 end.
