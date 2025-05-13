@@ -1551,14 +1551,18 @@ constructor TSkBitmapHelper.CreateFromSkImage(const AImage: ISkImage);
 var
   LData: TBitmapData;
 begin
-  Assert(Assigned(AImage));
-  Create(AImage.Width, AImage.Height);
-  if (not IsEmpty) and Map(TMapAccess.Write, LData) then
+  if AImage = nil then
+    Create
+  else
   begin
-    try
-      AImage.ReadPixels(TSkImageInfo.Create(Width, Height, SkFmxColorType[LData.PixelFormat]), LData.Data, LData.Pitch);
-    finally
-      Unmap(LData);
+    Create(AImage.Width, AImage.Height);
+    if (not IsEmpty) and Map(TMapAccess.Write, LData) then
+    begin
+      try
+        AImage.ReadPixels(TSkImageInfo.Create(Width, Height, SkFmxColorType[LData.PixelFormat]), LData.Data, LData.Pitch);
+      finally
+        Unmap(LData);
+      end;
     end;
   end;
 end;
@@ -1583,7 +1587,7 @@ var
 begin
   Assert(Assigned(AProc));
   if IsEmpty then
-    raise ESkBitmapHelper.Create('Invalid bitmap');
+    Exit;
   if CanvasClass.InheritsFrom(TSkCanvasCustom) then
   begin
     {$REGION ' - Workaround RSP-38418'}
@@ -1656,7 +1660,7 @@ var
   LData: TBitmapData;
 begin
   if IsEmpty then
-    raise ESkBitmapHelper.Create('Invalid bitmap');
+    Exit(nil);
   case PixelFormat of
     TPixelFormat.RGBA: LColorType := TSkColorType.RGBA8888;
     TPixelFormat.BGRA: LColorType := TSkColorType.BGRA8888;
@@ -1967,7 +1971,7 @@ end;
 
 function TSkCustomControl.NeedsRedraw: Boolean;
 begin
-  Result := (not FDrawCached) or (FDrawCacheKind = TSkDrawCacheKind.Never) or (FBuffer = nil);
+  Result := (not FDrawCached) or (FDrawCacheKind = TSkDrawCacheKind.Never);
 end;
 
 procedure TSkCustomControl.Paint;
@@ -2001,7 +2005,7 @@ begin
     begin
       LAbsoluteBimapSize := RectF(0, 0, LAbsoluteSize.Width, LAbsoluteSize.Height)
         .FitInto(RectF(0, 0, LMaxBitmapSize, LMaxBitmapSize), LExceededRatio).Size.Round;
-      if NeedsRedraw or (TSize.Create(FBuffer.Width, FBuffer.Height) <> LAbsoluteBimapSize) then
+      if NeedsRedraw or (FBuffer = nil) or (TSize.Create(FBuffer.Width, FBuffer.Height) <> LAbsoluteBimapSize) then
         Log.d(Format(ControlExceededBitmapLimitWarning, [ClassName, Name]));
     end
     else
@@ -2010,7 +2014,7 @@ begin
       LExceededRatio := 1;
     end;
 
-    if NeedsRedraw or (TSize.Create(FBuffer.Width, FBuffer.Height) <> LAbsoluteBimapSize) then
+    if NeedsRedraw or (FBuffer = nil) or (TSize.Create(FBuffer.Width, FBuffer.Height) <> LAbsoluteBimapSize) then
     begin
       if FBuffer = nil then
         FBuffer := TBitmap.Create(LAbsoluteBimapSize.Width, LAbsoluteBimapSize.Height)
@@ -2085,7 +2089,7 @@ end;
 
 function TSkStyledControl.NeedsRedraw: Boolean;
 begin
-  Result := (not FDrawCached) or (FDrawCacheKind = TSkDrawCacheKind.Never) or (FBuffer = nil);
+  Result := (not FDrawCached) or (FDrawCacheKind = TSkDrawCacheKind.Never);
 end;
 
 procedure TSkStyledControl.Paint;
@@ -2120,7 +2124,7 @@ begin
     begin
       LAbsoluteBimapSize := RectF(0, 0, LAbsoluteSize.Width, LAbsoluteSize.Height)
         .FitInto(RectF(0, 0, LMaxBitmapSize, LMaxBitmapSize), LExceededRatio).Size.Round;
-      if NeedsRedraw or (TSize.Create(FBuffer.Width, FBuffer.Height) <> LAbsoluteBimapSize) then
+      if NeedsRedraw or (FBuffer = nil) or (TSize.Create(FBuffer.Width, FBuffer.Height) <> LAbsoluteBimapSize) then
         Log.d(Format(ControlExceededBitmapLimitWarning, [ClassName, Name]));
     end
     else
@@ -2129,7 +2133,7 @@ begin
       LExceededRatio := 1;
     end;
 
-    if NeedsRedraw or (TSize.Create(FBuffer.Width, FBuffer.Height) <> LAbsoluteBimapSize) then
+    if NeedsRedraw or (FBuffer = nil) or (TSize.Create(FBuffer.Width, FBuffer.Height) <> LAbsoluteBimapSize) then
     begin
       if FBuffer = nil then
         FBuffer := TBitmap.Create(LAbsoluteBimapSize.Width, LAbsoluteBimapSize.Height)
