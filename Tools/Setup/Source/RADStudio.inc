@@ -534,7 +534,7 @@ begin
   LRADStudioVersion.RegVersion := '23.0';
   LRADStudioVersion.SupportedPlatformsDelphi := [pfWin32, pfWin64, pfAndroid, pfAndroid64, pfiOSDevice64, pfiOSSimARM64, pfiOSSimulator, pfOSX64, pfOSXARM64, pfLinux64];
   LRADStudioVersion.SupportedPlatforms := LRADStudioVersion.SupportedPlatformsDelphi;
-  LRADStudioVersion.MaxDprojVersion := '20.1';
+  LRADStudioVersion.MaxDprojVersion := '20.3';
   LRADStudioVersion.MinDprojVersion := '20.1';
   LRADStudioVersion.PackageVersion := '290';
   LRADStudioVersion.HasGetItCmd := True;
