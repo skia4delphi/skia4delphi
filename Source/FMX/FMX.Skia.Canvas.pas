@@ -2310,23 +2310,11 @@ class function TSkCanvasCustom.QualityToSamplingOptions(
   const AQuality: TCanvasQuality;
   const AHighSpeed: Boolean): TSkSamplingOptions;
 begin
-  if AHighSpeed then
-  begin
-    case AQuality of
-      TCanvasQuality.SystemDefault,
-      TCanvasQuality.HighQuality: Result := TSkSamplingOptions.Medium;
-    else
-      Result := TSkSamplingOptions.Low;
-    end;
-  end
+  case AQuality of
+    TCanvasQuality.SystemDefault,
+    TCanvasQuality.HighQuality: Result := TSkSamplingOptions.High;
   else
-  begin
-    case AQuality of
-      TCanvasQuality.SystemDefault,
-      TCanvasQuality.HighQuality: Result := TSkSamplingOptions.High;
-    else
-      Result := TSkSamplingOptions.Low;
-    end;
+    Result := TSkSamplingOptions.Low;
   end;
 end;
 
