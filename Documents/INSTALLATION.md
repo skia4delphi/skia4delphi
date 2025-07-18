@@ -11,7 +11,7 @@
       - Windows 64-bit
 
 
-### RAD Studio 10.3 or newer
+### RAD Studio 10.4 or newer
 
   - Console / VCL aplication platforms:
       - Windows 32-bit
@@ -51,7 +51,7 @@
 Installation can be done automatically or manually.
 
 **Remarks**:
-1. Embarcadero has integrated Skia4Delphi into RAD Studio in its new release [RAD Studio 12 Athens](https://docwiki.embarcadero.com/RADStudio/Athens/en/Skia4Delphi) introducing the version of Skia4Delphi v6.0.0 on RAD Studio 12.0 and v6.1.0 on RAD Studio 12.1, and adding some extra units with [exclusive Embarcadero features](https://docwiki.embarcadero.com/RADStudio/Athens/en/Skia4Delphi_Exclusive_Features).
+1. Embarcadero has integrated Skia4Delphi into RAD Studio in its new release [RAD Studio 12 Athens](https://docwiki.embarcadero.com/RADStudio/Athens/en/Skia4Delphi) introducing the version of Skia4Delphi v6.0.0 on RAD Studio 12.0, v6.1.0 on RAD Studio 12.1, v6.2.0 on RAD Studio 12.2 and v6.3.0 on RAD Studio 12.3, and adding some extra units with [exclusive Embarcadero features](https://docwiki.embarcadero.com/RADStudio/Athens/en/Skia4Delphi_Exclusive_Features).
 2. To use Skia after installation it is necessary to [enable](../README.md#enable-skia) it in your project.
 
   

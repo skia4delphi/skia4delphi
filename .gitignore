@@ -64,3 +64,4 @@ dunitx-results.xml
 !AwesomeFont*.res
 !/Binary/**
 !/Tools/Setup/Style/*.dll
+!/Tools/*.exe

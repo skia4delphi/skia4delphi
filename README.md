@@ -587,13 +587,43 @@ The example above results in the output below:
 
 # Compatibility
 
+
+## Supported RAD Studio Versions
+
+
 | RAD Studio                        | Platforms        |
 | --------------------------------- | ---------------- |
 | RAD Studio 11 Alexandria or newer | All Platforms    |
-| RAD Studio 10.3 Rio or newer      | Windows, Android |
+| RAD Studio 10.4 Sydney            | Windows, Android |
 | RAD Studio XE7 or newer           | Windows          |
 
-For the platforms supported by **Skia4Delphi** (listed above), the OS versions supported by the library are the same [OS versions that RAD Studio supports.](https://docwiki.embarcadero.com/PlatformStatus/en/Main_Page)
+  
+
+## Supported Platforms
+
+| OS             | Version Requirement     |
+| -------------- | ----------------------- |
+| Windows        | 10, 11                  |
+| Linux          | Ubuntu 24.04+           |
+| macOS (x86_64) | 10.15 or later          |
+| macOS (arm64)  | 11 or later             |
+| iOS            | 12 or later             |
+| Android        | 5.0 (Lollipop) or later |
+
+**Notes:**
+- In projects compiled for Apple targets (macOS, iOS), you may encounter a warning similar to: **was built for newer version (X) than being linked (Y)**. This indicates that you need to set the minimum deployment version for macOS or iOS in Project Options - `Project Options > Building > Delphi Compiler > Linking > Minimum (iOS|macOS) version supported`;
+- A binary distributed for Linux may work on older, newer, or even different distributions. However, for optimal compatibility, it should be compiled on the target distribution (the pre-built binaries are typically built on the latest Ubuntu LTS release).
+
+
+
+
+# Experimental Static Linking on Windows
+
+Static linking is enabled by default on Windows. This allows applications built with Skia to run without external DLL dependencies, resulting in a smaller binary size, as Delphi's linker includes only the code and data sections actually used by the application.
+
+Currently, the only limitation is the DNG (RAW image) codec, which relies on exception handling and thus is unsupported when static linking is enabled.
+
+  
 
 # Documentation
 
@@ -601,9 +631,10 @@ The APIs are very similar to Skia's, few methods and functions have been renamed
 
 # Version
 
-**[Skia4Delphi 6.3.0](/../../releases/latest)**
+**[Skia4Delphi 6.4.0-beta1](/../../releases/latest)**
 
-Skia Version used: [chrome/m107](https://github.com/google/skia/tree/chrome/m107)
+Skia Version used: [chrome/m132](https://github.com/google/skia/tree/chrome/m132)
+What has changed from the original code? [Compare.](https://github.com/google/skia/compare/chrome/m132...skia4delphi:skia:sk4d/m132)
 
 # Sponsors & Partners
 
@@ -617,7 +648,3 @@ Skia Version used: [chrome/m107](https://github.com/google/skia/tree/chrome/m107
 <a href="https://github.com/skia4delphi/skia4delphi/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=skia4delphi/skia4delphi" />
 </a>
-
-#
-
-Help us responding a small questionnaire about our users in [this link](https://form.typeform.com/to/Qc6o3ELs)

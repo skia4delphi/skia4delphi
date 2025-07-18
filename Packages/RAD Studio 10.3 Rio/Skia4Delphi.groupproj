@@ -91,7 +91,7 @@
         <BuildGroupProject Include="Skia.Package.FMX.dproj">
             <ProjectGuid>{FD06C407-723C-4B1E-9CC1-E792AF79A189}</ProjectGuid>
             <Configurations>Debug;Release</Configurations>
-            <Platforms>Android;Android64;Win32;Win64</Platforms>
+            <Platforms>Win32;Win64</Platforms>
             <Enabled>True</Enabled>
         </BuildGroupProject>
         <BuildGroupProject Include="Skia.Package.FMX.Designtime.dproj">
@@ -103,7 +103,7 @@
         <BuildGroupProject Include="Skia.Package.RTL.dproj">
             <ProjectGuid>{20163B96-1E19-4504-8D02-099FBBFE6866}</ProjectGuid>
             <Configurations>Debug;Release</Configurations>
-            <Platforms>Android;Android64;Win32;Win64</Platforms>
+            <Platforms>Win32;Win64</Platforms>
             <Enabled>True</Enabled>
         </BuildGroupProject>
         <BuildGroupProject Include="Skia.Package.VCL.dproj">
