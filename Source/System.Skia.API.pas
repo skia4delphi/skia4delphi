@@ -2367,6 +2367,30 @@ var
 procedure SkInitialize;
 procedure SkFinalize;
 
+{$IF DEFINED(SK_STATIC_LIBRARY) and NOT DEFINED(FPC) and NOT DEFINED(MSWINDOWS)}
+  {$IFDEF MACOS}
+    {$IFDEF IOS)}
+      procedure LINKFRAMEWORK_CoreFoundation;      external '/System/Library/Frameworks/CoreFoundation.framework/CoreFoundation';
+      procedure LINKFRAMEWORK_CoreGraphics;        external '/System/Library/Frameworks/CoreGraphics.framework/CoreGraphics';
+      procedure LINKFRAMEWORK_CoreText;            external '/System/Library/Frameworks/CoreText.framework/CoreText';
+      procedure LINKFRAMEWORK_UIKit;               external '/System/Library/Frameworks/UIKit.framework/UIKit';
+    {$ELSE}
+      procedure LINKFRAMEWORK_ApplicationServices; external '/System/Library/Frameworks/ApplicationServices.framework/ApplicationServices';
+    {$ENDIF}
+    procedure LINKFRAMEWORK_Foundation;            external '/System/Library/Frameworks/Foundation.framework/Foundation';
+    procedure LINKFRAMEWORK_Metal;                 external '/System/Library/Frameworks/Metal.framework/Metal';
+    procedure LINKLIB_cxx;                         external '/usr/lib/libc++.dylib';
+    procedure LINKLIB_cxxabi;                      external '/usr/lib/libc++abi.dylib';
+  {$ENDIF}
+  {$IFDEF ANDROID}
+    procedure LINKLIB_EGL;                         external 'libEGL.so'       name 'eglGetProcAddress';
+    procedure LINKLIB_GLESv2;                      external 'libGLESv2.so'    name 'glCreateShader';
+    procedure LINKLIB_log;                         external 'liblog.so'       name '__android_log_vprint';
+    procedure LINKLIB_cxx;                         external 'libc++_static.a' name '_ZNSt6__ndk16locale7classicEv';
+    procedure LINKLIB_cxxabi;                      external 'libc++abi.a'     name '__cxa_guard_abort';
+  {$ENDIF}
+{$ENDIF}
+
 implementation
 
 {.$DEFINE SK_DEBUG}
@@ -8528,28 +8552,6 @@ const
     {$ELSE}
       const
         LibraryName = 'libsk4d.a';
-
-      {$IFDEF MACOS}
-        {$IFDEF IOS)}
-          procedure LINKFRAMEWORK_CoreFoundation;      external '/System/Library/Frameworks/CoreFoundation.framework/CoreFoundation';
-          procedure LINKFRAMEWORK_CoreGraphics;        external '/System/Library/Frameworks/CoreGraphics.framework/CoreGraphics';
-          procedure LINKFRAMEWORK_CoreText;            external '/System/Library/Frameworks/CoreText.framework/CoreText';
-          procedure LINKFRAMEWORK_UIKit;               external '/System/Library/Frameworks/UIKit.framework/UIKit';
-        {$ELSE}
-          procedure LINKFRAMEWORK_ApplicationServices; external '/System/Library/Frameworks/ApplicationServices.framework/ApplicationServices';
-        {$ENDIF}
-        procedure LINKFRAMEWORK_Foundation;            external '/System/Library/Frameworks/Foundation.framework/Foundation';
-        procedure LINKFRAMEWORK_Metal;                 external '/System/Library/Frameworks/Metal.framework/Metal';
-        procedure LINKLIB_cxx;                         external '/usr/lib/libc++.dylib';
-        procedure LINKLIB_cxxabi;                      external '/usr/lib/libc++abi.dylib';
-      {$ENDIF}
-      {$IFDEF ANDROID}
-        procedure LINKLIB_EGL;                         external 'libEGL.so'       name 'eglGetProcAddress';
-        procedure LINKLIB_GLESv2;                      external 'libGLESv2.so'    name 'glCreateShader';
-        procedure LINKLIB_log;                         external 'liblog.so'       name '__android_log_vprint';
-        procedure LINKLIB_cxx;                         external 'libc++_static.a' name '_ZNSt6__ndk16locale7classicEv';
-        procedure LINKLIB_cxxabi;                      external 'libc++abi.a'     name '__cxa_guard_abort';
-      {$ENDIF}
     {$ENDIF}
   {$ENDIF}
 {$ELSE}
