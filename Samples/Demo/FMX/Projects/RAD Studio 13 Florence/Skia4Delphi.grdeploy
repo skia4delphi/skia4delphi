@@ -1,0 +1,37 @@
+{
+  "Configurations" : ["Debug", "Release"],
+  "iOS" : [{
+      "LocalName" : "..\\..\\..\\Assets",
+      "RemoteDir" : "StartUp\\Documents\\",
+      "Configurations" : [],
+      "IsDirectory" : true,
+      "IncludeSubDirectories" : true
+    }],
+  "Android" : [{
+      "LocalName" : "styles.xml",
+      "RemoteDir" : "res\\values-v31\\",
+      "Configurations" : [],
+      "IsDirectory" : false,
+      "IncludeSubDirectories" : false
+    }, {
+      "LocalName" : "..\\..\\..\\Assets",
+      "RemoteDir" : "assets\\internal\\",
+      "Configurations" : [],
+      "IsDirectory" : true,
+      "IncludeSubDirectories" : true
+    }],
+  "MacOS" : [{
+      "LocalName" : "..\\..\\..\\Assets",
+      "RemoteDir" : "Contents\\Resources\\",
+      "Configurations" : [],
+      "IsDirectory" : true,
+      "IncludeSubDirectories" : true
+    }],
+  "Linux" : [{
+      "LocalName" : "..\\..\\..\\Assets",
+      "RemoteDir" : ".\\",
+      "Configurations" : [],
+      "IsDirectory" : true,
+      "IncludeSubDirectories" : true
+    }]
+}

@@ -651,6 +651,7 @@ object frmVclRunner: TfrmVclRunner
               DC27A0A863EEFFFFF88A67B0A2272FFFFF774F27A00854D8836A035075815711
               88012AF041950F5E452080CB4446F4AA0CE4D3255B20A6C2CA77002D76B8E17C
               5C839E0000000049454E44AE426082}
+            Stretch = True
             OnClick = pnlRunAllClick
             ExplicitTop = 2
             ExplicitHeight = 48
@@ -685,6 +686,7 @@ object frmVclRunner: TfrmVclRunner
               6712A128C0890845209F135444D0E1A38A46158D2A1A5534E415810A7E828A40
               C5344145A0021FAF2250F1DC928B47918622C4149C4534C81D2013400A507C07
               F2054877663884460600B14A86C264368C750000000049454E44AE426082}
+            Stretch = True
             OnClick = pnlRunAllClick
             ExplicitLeft = 8
             ExplicitHeight = 48

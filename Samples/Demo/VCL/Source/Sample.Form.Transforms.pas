@@ -97,7 +97,7 @@ type
 // -   https://quality.embarcadero.com/browse/RSP-36958
 // -
 // - ---------------------------------------------------------------------------
-{$IF CompilerVersion > 36}
+{$IF CompilerVersion > 37}
   {$MESSAGE WARN 'Check if the issue has been fixed'}
 {$ENDIF}
 // - ---------------------------------------------------------------------------
