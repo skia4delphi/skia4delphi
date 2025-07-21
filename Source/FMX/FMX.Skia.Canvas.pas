@@ -162,17 +162,21 @@ type
 
   TSkBitmapHandle = class
   private
-    FPixels: Pointer;
+    function GetPixels: Pointer; overload;
+    function GetPixels(AInitializeToZero: Boolean): Pointer; overload; inline;
   strict private
     FHeight: Integer;
     FPixelFormat: TPixelFormat;
+    FPixels: Pointer;
+    FPixelsBytes: NativeUInt;
     FWidth: Integer;
   public
     constructor Create(const AWidth, AHeight: Integer; const APixelFormat: TPixelFormat);
     destructor Destroy; override;
     property Height: Integer read FHeight;
     property PixelFormat: TPixelFormat read FPixelFormat;
-    property Pixels: Pointer read FPixels;
+    property Pixels: Pointer read GetPixels;
+    property PixelsBytes: NativeUInt read FPixelsBytes;
     property Width: Integer read FWidth;
   end;
 
@@ -2460,12 +2464,31 @@ begin
   FWidth       := AWidth;
   FHeight      := AHeight;
   FPixelFormat := APixelFormat;
+  if (AWidth > 0) and (AHeight > 0) and (PixelFormatBytes[APixelFormat] > 0) then
+    FPixelsBytes := NativeUInt(AWidth) * NativeUInt(AHeight) * NativeUInt(PixelFormatBytes[APixelFormat]);
 end;
 
 destructor TSkBitmapHandle.Destroy;
 begin
   FreeMem(FPixels);
   inherited;
+end;
+
+function TSkBitmapHandle.GetPixels(AInitializeToZero: Boolean): Pointer;
+begin
+  if (FPixels = nil) and (FPixelsBytes > 0) then
+  begin
+    if AInitializeToZero then
+      FPixels := AllocMem(FPixelsBytes)
+    else
+      GetMem(FPixels, FPixelsBytes);
+  end;
+  Result := FPixels;
+end;
+
+function TSkBitmapHandle.GetPixels: Pointer;
+begin
+  Result := GetPixels(True);
 end;
 
 { TSkCanvasBase }
@@ -2484,8 +2507,6 @@ begin
   else if Bitmap <> nil then
   begin
     LBitmap := TSkBitmapHandle(Bitmap.Handle);
-    if LBitmap.Pixels = nil then
-      LBitmap.FPixels := AllocMem(NativeInt(LBitmap.Width) * LBitmap.Height * PixelFormatBytes[LBitmap.PixelFormat]);
     FBitmapSurface := TSkSurface.MakeRasterDirect(TSkImageInfo.Create(LBitmap.Width, LBitmap.Height, SkFmxColorType[LBitmap.PixelFormat]), LBitmap.Pixels, LBitmap.Width * PixelFormatBytes[LBitmap.PixelFormat]);
     Result         := FBitmapSurface.Canvas;
   end
@@ -2550,14 +2571,7 @@ var
   LBitmap: TSkBitmapHandle;
 begin
   LBitmap := TSkBitmapHandle(ABitmapHandle);
-  if LBitmap.Pixels = nil then
-  begin
-    if AAccess = TMapAccess.Write then
-      GetMem(LBitmap.FPixels, LBitmap.Width * LBitmap.Height * PixelFormatBytes[LBitmap.PixelFormat])
-    else
-      LBitmap.FPixels := AllocMem(LBitmap.Width * LBitmap.Height * PixelFormatBytes[LBitmap.PixelFormat]);
-  end;
-  ABitmapData.Data  := LBitmap.Pixels;
+  ABitmapData.Data  := LBitmap.GetPixels(AAccess <> TMapAccess.Write);
   ABitmapData.Pitch := LBitmap.Width * PixelFormatBytes[LBitmap.PixelFormat];
   Result := True;
 end;
@@ -2652,13 +2666,15 @@ begin
   Result := TGrDirectContext(FGrDirectContext);
 end;
 
-procedure TGrSharedContext.InitializeTextureCache(
-  const ABitmap: TGrBitmapHandle);
+procedure TGrSharedContext.InitializeTextureCache(const ABitmap: TGrBitmapHandle);
 var
   LImage: ISkImage;
 begin
-  LImage := TSkImage.MakeFromRaster(TSkImageInfo.Create(ABitmap.Width, ABitmap.Height, SkFmxColorType[ABitmap.PixelFormat]), ABitmap.Pixels, ABitmap.Width * PixelFormatBytes[ABitmap.PixelFormat]);
-  ABitmap.Cache := LImage.MakeTextureImage(ABitmap.SharedContext.GrDirectContext);
+  LImage := TSkImage.MakeFromRaster(
+    TSkImageInfo.Create(ABitmap.Width, ABitmap.Height, SkFmxColorType[ABitmap.PixelFormat]),
+    ABitmap.Pixels, ABitmap.Width * PixelFormatBytes[ABitmap.PixelFormat]);
+  if LImage <> nil then
+    ABitmap.Cache := LImage.MakeTextureImage(ABitmap.SharedContext.GrDirectContext);
 end;
 
 procedure TGrSharedContext.RefreshContext;
