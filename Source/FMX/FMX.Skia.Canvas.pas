@@ -2363,15 +2363,30 @@ begin
   Result := (LPath <> nil) and (LPath.Contains(APoint.X, APoint.Y));
 end;
 
-class function TSkCanvasCustom.QualityToSamplingOptions(
-  const AQuality: TCanvasQuality;
+class function TSkCanvasCustom.QualityToSamplingOptions(const AQuality: TCanvasQuality;
   const AHighSpeed: Boolean): TSkSamplingOptions;
+const
+  CustomMedium: TSkSamplingOptions = (MaxAnisotropic: 0; UseCubic: False; Cubic: (B: 0; C: 0); Filter: TSkFilterMode.Linear; Mipmap: TSkMipmapMode.None);
 begin
-  case AQuality of
-    TCanvasQuality.SystemDefault,
-    TCanvasQuality.HighQuality: Result := TSkSamplingOptions.High;
+  if AHighSpeed then
+  begin
+    // When the mipmap is different than TSkMipmapMode.None, it causes visual artifacts at small scales.
+    // TSkSamplingOptions.High should be avoided due to poor performance on mobile devices.
+    case AQuality of
+      TCanvasQuality.SystemDefault,
+      TCanvasQuality.HighQuality: Result := CustomMedium;
+    else
+      Result := TSkSamplingOptions.Low;
+    end;
+  end
   else
-    Result := TSkSamplingOptions.Low;
+  begin
+    case AQuality of
+      TCanvasQuality.SystemDefault,
+      TCanvasQuality.HighQuality: Result := TSkSamplingOptions.High;
+    else
+      Result := TSkSamplingOptions.Low;
+    end;
   end;
 end;
 
