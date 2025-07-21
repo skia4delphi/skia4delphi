@@ -1,4 +1,4 @@
-﻿<!--
+<!--
  Copyright (c) 2021-2025 Skia4Delphi Project.
 
  Use of this source code is governed by the MIT license that can be
@@ -11,7 +11,7 @@
         <Config Condition="'$(Config)'==''">Release</Config>
         <FrameworkType>FMX</FrameworkType>
         <MainSource>FmxFPS.dpr</MainSource>
-        <Platform Condition="'$(Platform)'==''">Win32</Platform>
+        <Platform Condition="'$(Platform)'==''">Win64</Platform>
         <ProjectGuid>{0A2966CD-996C-4EB4-BAD4-2546D657F13A}</ProjectGuid>
         <ProjectName Condition="'$(ProjectName)'==''">FmxFPS</ProjectName>
         <ProjectVersion>20.3</ProjectVersion>

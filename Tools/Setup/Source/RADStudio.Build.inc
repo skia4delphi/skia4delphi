@@ -56,7 +56,7 @@ end;
 
 function GetPlatformsAllowedToBuild(const ARADStudioInfo: TRADStudioInfo): TProjectPlatforms;
 begin
-  Result := [pfWin32, pfWin64];
+  Result := [pfWin32, pfWin64, pfWin64x];
 end;
 
 function GetTryBuildRADStudioPackagesSteps(const ARADStudioInfos: TRADStudioInfos; const AGroupProjects: TRADStudioGroupProjects): Integer;
