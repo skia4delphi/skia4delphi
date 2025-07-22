@@ -1138,6 +1138,7 @@ type
   strict protected
     function CanAutoSize(var ANewWidth, ANewHeight: Integer): Boolean; override;
     procedure Click; override;
+    function CreateWordsCollection: TWordsCollection; virtual;
     procedure Draw(const ACanvas: ISkCanvas; const ADest: TRectF; const AOpacity: Single); override;
     function GetTextSettingsClass: TSkTextSettingsInfo.TCustomTextSettingsClass; virtual;
     function GetWordsItemAtPosition(const AX, AY: Integer): TCustomWordsItem;
@@ -5590,8 +5591,13 @@ begin
   FTextSettingsInfo.Design := True;//csDesigning in ComponentState;
   FTextSettingsInfo.StyledSettings := [];
   FTextSettingsInfo.OnChange := TextSettingsChanged;
-  FWords := TWordsCollection.Create(Self, TWordsItem);
+  FWords := CreateWordsCollection;
   FWords.OnChange := WordsChange;
+end;
+
+function TSkLabel.CreateWordsCollection: TWordsCollection;
+begin
+  Result := TWordsCollection.Create(Self, TWordsItem);
 end;
 
 procedure TSkLabel.DeleteParagraph;
