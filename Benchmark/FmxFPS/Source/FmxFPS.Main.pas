@@ -19,7 +19,7 @@ uses
   System.SysUtils, System.Types, System.UITypes, System.Classes,
   System.Diagnostics, System.TypInfo, FMX.Types, FMX.Controls, FMX.Forms,
   FMX.Graphics, FMX.StdCtrls, FMX.Objects, FMX.Layouts, FMX.Memo, FMX.Dialogs,
-  FMX.Controls.Presentation, FMX.Edit, FMX.ListBox, FMX.Memo.Types, FMX.ScrollBox,
+  FMX.Controls.Presentation, FMX.Edit, FMX.ListBox, FMX.ScrollBox,
   FMX.Effects, FMX.Filter.Effects;
 
 type
