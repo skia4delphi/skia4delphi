@@ -18,7 +18,9 @@ uses
   { Delphi }
   System.SysUtils, System.Types, System.UITypes, System.Classes,
   System.Diagnostics, System.TypInfo, FMX.Types, FMX.Controls, FMX.Forms,
-  FMX.Graphics, FMX.StdCtrls, FMX.Objects, FMX.Layouts, FMX.Memo, FMX.Dialogs;
+  FMX.Graphics, FMX.StdCtrls, FMX.Objects, FMX.Layouts, FMX.Memo, FMX.Dialogs,
+  FMX.Controls.Presentation, FMX.Edit, FMX.ListBox, FMX.Memo.Types, FMX.ScrollBox,
+  FMX.Effects, FMX.Filter.Effects;
 
 type
   { TVertScrollBox }
@@ -103,16 +105,56 @@ const
       Result := Result + PathDelim;
   end;
 
+  function CreateAniIndicator(AEnabled: Boolean): TAniIndicator;
+  begin
+    Result := TAniIndicator.Create(Self);
+    Result.Enabled := AEnabled;
+  end;
+
   function CreateButton: TButton;
   begin
     Result := TButton.Create(Self);
     Result.Text := RandomRangeString(8, 8, AllowedCharactersInText);
   end;
 
+  function CreateCheckBox(AChecked: Boolean): TCheckBox;
+  begin
+    Result := TCheckBox.Create(Self);
+    Result.Text := RandomRangeString(8, 8, AllowedCharactersInText);
+    Result.IsChecked := AChecked;
+  end;
+
   function CreateCircle(const AHeight: Single): TCircle;
   begin
     Result := TCircle.Create(Self);
     Result.Height := AHeight;
+  end;
+
+  function CreateComboBox(AItemsCount: Integer = 10; AItemIndex: Integer = 0): TComboBox;
+  var
+    I: Integer;
+  begin
+    Result := TComboBox.Create(Self);
+    for I := 0 to AItemsCount - 1 do
+      Result.Items.Add(RandomRangeString(8, 8, AllowedCharactersInText));
+    if (AItemsCount > 0) and (AItemIndex >= 0) then
+      Result.ItemIndex := AItemIndex;
+  end;
+
+  function CreateEdit(ACharCount: Integer = 8): TEdit;
+  begin
+    Result := TEdit.Create(Self);
+    if ACharCount <= 0 then
+      Result.Text := ''
+    else
+      Result.Text := RandomRangeString(ACharCount, ACharCount, AllowedCharactersInText);
+  end;
+
+  function CreateShadowEffect(AParent: TControl; ASoftness: Single = 0.3): TShadowEffect;
+  begin
+    Result := TShadowEffect.Create(Self);
+    Result.Softness := ASoftness;
+    Result.Parent := AParent;
   end;
 
   function CreateImage: TImage;
@@ -127,6 +169,15 @@ const
     Result.Text := RandomRangeString(8, 8, AllowedCharactersInText);
   end;
 
+  function CreateMemo(ACharCount: Integer = 500): TMemo;
+  begin
+    Result := TMemo.Create(Self);
+    if ACharCount <= 0 then
+      Result.Text := ''
+    else
+      Result.Text := RandomRangeString(ACharCount, ACharCount, AllowedCharactersInText);
+  end;
+
   function CreateRectangle(const ARadius: Single;
     const ACorners: TCorners): TRectangle;
   begin
@@ -136,14 +187,27 @@ const
     Result.Corners := ACorners;
   end;
 
+  function CreateFillRGBEffect(AParent: TControl; ASoftness: Single = 0.3): TFillRGBEffect;
+  begin
+    Result := TFillRGBEffect.Create(Self);
+    Result.Color := TAlphaColors.Blue;
+    Result.Parent := AParent;
+  end;
+
   function CreateSpeedButton: TSpeedButton;
   begin
     Result := TSpeedButton.Create(Self);
     Result.Text := RandomRangeString(8, 8, AllowedCharactersInText);
   end;
 
+  function CreateSwitch(AEnabled: Boolean = True): TSwitch;
+  begin
+    Result := TSwitch.Create(Self);
+    Result.IsChecked := AEnabled;
+  end;
+
 begin
-  case AControlNumber mod 11 of
+  case AControlNumber mod 16 of
     0, 1: Result := CreateRectangle(0, AllCorners);
     2: Result := CreateRectangle(8, AllCorners);
     3: Result := CreateRectangle(8, [TCorner.TopLeft, TCorner.BottomRight]);
@@ -153,9 +217,19 @@ begin
     7: Result := CreateSpeedButton;
     8, 9: Result := CreateLabel;
     10: Result := CreateImage;
+    11: Result := CreateAniIndicator(False);
+    12: Result := CreateCheckBox(True);
+    13: Result := CreateSwitch;
+    14: Result := CreateEdit;
+    15: Result := CreateMemo;
+//    16: Result := CreateComboBox; // Somehow, TComboBox is very and very slow.
   else
     Result := nil;
   end;
+  if (AControlNumber mod 7) = 1 then
+    CreateShadowEffect(Result)
+  else if (AControlNumber mod 27) = 1 then
+    CreateFillRGBEffect(Result);
 end;
 
 procedure TfrmMain.DoPaint(const ACanvas: TCanvas; const ARect: TRectF);
@@ -182,7 +256,7 @@ procedure TfrmMain.FormCreate(Sender: TObject);
 const
   StartingMessage = 'For 6 seconds, this performance test will simulate a real app, ' +
     'with hundreds of controls, to measure the FPS rate when sliding a vertical scroll.';
-  ControlsCount = 500;
+  ControlsCount = 750;
   TotalScrollHeight = 5000;
 var
   LControl: TControl;
