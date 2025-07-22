@@ -1104,6 +1104,7 @@ type
   strict protected
     procedure ApplyStyle; override;
     procedure Click; override;
+    function CreateWordsCollection: TWordsCollection; virtual;
     procedure DoEndUpdate; override;
     procedure DoMouseEnter; override;
     procedure DoMouseLeave; override;
@@ -5316,8 +5317,13 @@ begin
   FTextSettingsInfo := TSkTextSettingsInfo.Create(Self, nil);
   FTextSettingsInfo.Design := True;//csDesigning in ComponentState;
   FTextSettingsInfo.OnChange := TextSettingsChanged;
-  FWords := TWordsCollection.Create(Self, TWordsItem);
+  FWords := CreateWordsCollection;
   FWords.OnChange := WordsChange;
+end;
+
+function TSkLabel.CreateWordsCollection: TWordsCollection;
+begin
+  Result := TWordsCollection.Create(Self, TWordsItem);
 end;
 
 procedure TSkLabel.DeleteParagraph;

@@ -51,7 +51,7 @@
 Installation can be done automatically or manually.
 
 **Remarks**:
-1. Embarcadero has integrated Skia4Delphi into RAD Studio in its new release [RAD Studio 12 Athens](https://docwiki.embarcadero.com/RADStudio/Athens/en/Skia4Delphi) introducing the version of Skia4Delphi v6.0.0 on RAD Studio 12.0, v6.1.0 on RAD Studio 12.1, v6.2.0 on RAD Studio 12.2 and v6.3.0 on RAD Studio 12.3, and adding some extra units with [exclusive Embarcadero features](https://docwiki.embarcadero.com/RADStudio/Athens/en/Skia4Delphi_Exclusive_Features).
+1. Embarcadero has integrated Skia4Delphi into RAD Studio in its new release [RAD Studio 12 Athens](https://docwiki.embarcadero.com/RADStudio/Athens/en/Skia4Delphi) introducing the version of Skia4Delphi v6.0.0 on RAD Studio 12.0, v6.1.0 on RAD Studio 12.1, v6.2.0 on RAD Studio 12.2 and v6.3.0 on RAD Studio 12.3, and adding some extra units with [exclusive Embarcadero features](https://docwiki.embarcadero.com/RADStudio/en/Skia4Delphi_Exclusive_Features).
 2. To use Skia after installation it is necessary to [enable](../README.md#enable-skia) it in your project.
 
   
@@ -98,6 +98,7 @@ Installation can be done automatically or manually.
    - RAD Studio 10.4 Sydney
    - RAD Studio 11 Alexandria
    - RAD Studio 12 Athens
+   - RAD Studio 13 Florence
 
    For `[rad_package_suffix]`:
 
@@ -110,6 +111,7 @@ Installation can be done automatically or manually.
    - RAD Studio 10.4 Sydney: 270
    - RAD Studio 11 Alexandria: 280
    - RAD Studio 12 Athens: 290
+   - RAD Studio 13 Florence: 370
 
    For `[platform_name]`:
    - Win32
@@ -137,13 +139,13 @@ Installation can be done automatically or manually.
    - `[skia4delphi_root]\Binary\Shared\Win32;`
      *eg C:\skia4delphi\Binary\Shared\Win32;*
    - `[skia4delphi_root]\Library\[rad_version_name]\Win32\Release\Bpl;`
-     *eg C:\skia4delphi\Library\RAD Studio 12 Athens\Win32\Release\Bpl;*
+     *eg C:\skia4delphi\Library\RAD Studio 13 Florence\Win32\Release\Bpl;*
    - `[skia4delphi_root]\Library\[rad_version_name]\Win64\Release\Bpl;`
-     *eg C:\skia4delphi\Library\RAD Studio 12 Athens\Win64\Release\Bpl;*
+     *eg C:\skia4delphi\Library\RAD Studio 13 Florence\Win64\Release\Bpl;*
    
    5.3. Click *OK* and *Save*;
    
-6. Open the project group of your RAD Studio version, file `[skia4delphi_root]\Packages\[rad_version_name]\Skia4Delphi.groupproj`; *(eg C:\skia4delphi\Packages\RAD Studio 12 Athens\Skia4Delphi.groupproj)*
+6. Open the project group of your RAD Studio version, file `[skia4delphi_root]\Packages\[rad_version_name]\Skia4Delphi.groupproj`; *(eg C:\skia4delphi\Packages\RAD Studio 13 Florence\Skia4Delphi.groupproj)*
 7. Click *Show Build Groups Panel*;
 8. All platforms are selected by default in `Skia.Package.RTL` and `Skia.Package.FMX`, but you should select just the platforms that you want.;
 9. Click *Build the current build group*;
@@ -152,7 +154,7 @@ Installation can be done automatically or manually.
     
     11.1. Library path:
     - `$(SKIADIR)\Library\[rad_version_name]\[platform_name]\Release`
-      *eg $(SKIADIR)\Library\RAD Studio 12 Athens\Win32\Release*
+      *eg $(SKIADIR)\Library\RAD Studio 13 Florence\Win32\Release*
     
     11.2. Browsing path:
     - `$(SKIADIR)\Source`
@@ -161,7 +163,7 @@ Installation can be done automatically or manually.
     
     11.3. Debug DCU path:
     - `$(SKIADIR)\Library\[rad_version_name]\[platform_name]\Debug`
-      *eg $(SKIADIR)\Library\RAD Studio 12 Athens\Win32\Debug*
+      *eg $(SKIADIR)\Library\RAD Studio 13 Florence\Win32\Debug*
     
     11.4. For the platforms **Android**, **Android64**, **iOSDevice64**, **iOSSimARM64**, **OSX64** and **OSX64ARM**, add an extra path to the *Library path* (if you had compiled for those platforms):
     - `$(SKIADIR)\Binary\Static\[platform_name]`

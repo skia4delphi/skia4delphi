@@ -13,14 +13,14 @@
 {                          Custom Parameters                             }
 {                                                                        }
 { /RADStudioVersions=                                                    }
-{   Values allowed: 9.0 to 23.0 separed by comma or all keyword          }
+{   Values allowed: 9.0 to 37.0 separed by comma or all keyword          }
 {   Default: (latest version found in computer)                          }
 {   Description: The version used is the product version in resgistry,   }
-{     i.e, the RAD Studio 11 Alexandria is "22.0", the RAD Studio 12     }
-{     Athens is "23.0", etc. This is used to set the RAD Studio          }
+{     i.e, the RAD Studio 12 Athens is "23.0", the RAD Studio 13         }
+{     Florence is "37.0", etc. This is used to set the RAD Studio        }
 {     versions, in silent mode, that will installed the library.         }
-{     Ex: /RADStudioVersions=23.0,22.0 will install only in              }
-{     RAD Studio 12 Athens and 11 Alexandria. But if the parameter is    }
+{     Ex: /RADStudioVersions=37.0,23.0 will install only in              }
+{     RAD Studio 13 Florence and 12 Athens. But if the parameter is      }
 {     /RADStudioVersions=all will install in all RAD Studio installed in }
 {     the machine. Without set this parameter, the value will be only    }
 {     the newest RAD Studio version found on the machine. A cool tip of  }
@@ -38,13 +38,13 @@
 {************************************************************************}
 {                                                                        }
 { Example of command line to install in silent mode:                     }
-{   cmd /C ""Skia4Delphi_6.4.0-beta1_Setup.exe" /DIR="C:\Skia4Delphi" /SILENT  }
+{   cmd /C ""Skia4Delphi_7.0.0_Setup.exe" /DIR="C:\Skia4Delphi" /SILENT  }
 {     /RADStudioVersions=all"                                            }
 {                                                                        }
 { In GetIt implementation, the installation command could be:            }
-{   cmd /C ""$(BDSCatalogRepository)\Skia4Delphi-6.4.0-beta1\                  }
-{     Skia4Delphi_6.4.0-beta1_Setup.exe"                                       }
-{     /DIR="$(BDSCatalogRepository)\Skia4Delphi-6.4.0-beta1" /VERYSILENT       }
+{   cmd /C ""$(BDSCatalogRepository)\Skia4Delphi-7.0.0\                  }
+{     Skia4Delphi_7.0.0_Setup.exe"                                       }
+{     /DIR="$(BDSCatalogRepository)\Skia4Delphi-7.0.0" /VERYSILENT       }
 {     /RADStudioVersions=$(ProductVersion) /CreateUninstallRegKey=no"    }
 {                                                                        }
 { Example of command line to uninstall in silent mode:                   }
@@ -52,13 +52,13 @@
 {     /RADStudioVersions=all"                                            }
 {                                                                        }
 { In GetIt implementation, the uninstall command could be:               }
-{   cmd /C ""$(BDSCatalogRepository)\Skia4Delphi-6.4.0-beta1\unins000.exe"     }
+{   cmd /C ""$(BDSCatalogRepository)\Skia4Delphi-7.0.0\unins000.exe"     }
 {     /VERYSILENT /RADStudioVersions=$(ProductVersion)"                  }
 {                                                                        }
 {************************************************************************}
 
 #define LibraryName "Skia4Delphi"
-#define LibraryVersion "6.4.0-beta1"
+#define LibraryVersion "7.0.0"
 #define LibraryPublisher "Skia4Delphi Team"
 #define LibraryCopyright "Copyright (c) 2021-2025 Skia4Delphi Project"
 #define LibraryURL "https://skia4delphi.org"

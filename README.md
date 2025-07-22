@@ -631,7 +631,7 @@ The APIs are very similar to Skia's, few methods and functions have been renamed
 
 # Version
 
-**[Skia4Delphi 6.4.0-beta1](/../../releases/latest)**
+**[Skia4Delphi 7.0.0](/../../releases/latest)**
 
 Skia Version used: [chrome/m132](https://github.com/google/skia/tree/chrome/m132)
 What has changed from the original code? [Compare.](https://github.com/google/skia/compare/chrome/m132...skia4delphi:skia:sk4d/m132)

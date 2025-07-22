@@ -1,0 +1,57 @@
+{************************************************************************}
+{                                                                        }
+{                              Skia4Delphi                               }
+{                                                                        }
+{ Copyright (c) 2021-2025 Skia4Delphi Project.                           }
+{                                                                        }
+{ Use of this source code is governed by the MIT license that can be     }
+{ found in the LICENSE file.                                             }
+{                                                                        }
+{************************************************************************}
+package Skia.Package.VCL.Designtime;
+
+{$R *.res}
+{$IFDEF IMPLICITBUILDING This IFDEF should not be used by users}
+{$ALIGN 8}
+{$ASSERTIONS ON}
+{$BOOLEVAL OFF}
+{$DEBUGINFO OFF}
+{$EXTENDEDSYNTAX ON}
+{$IMPORTEDDATA ON}
+{$IOCHECKS ON}
+{$LOCALSYMBOLS ON}
+{$LONGSTRINGS ON}
+{$OPENSTRINGS ON}
+{$OPTIMIZATION OFF}
+{$OVERFLOWCHECKS OFF}
+{$RANGECHECKS OFF}
+{$REFERENCEINFO ON}
+{$SAFEDIVIDE OFF}
+{$STACKFRAMES ON}
+{$TYPEDADDRESS OFF}
+{$VARSTRINGCHECKS ON}
+{$WRITEABLECONST OFF}
+{$MINENUMSIZE 1}
+{$IMAGEBASE $400000}
+{$DEFINE DEBUG}
+{$ENDIF IMPLICITBUILDING}
+{$DESCRIPTION 'Skia4Delphi VCL Designtime package'}
+{$LIBSUFFIX AUTO}
+{$DESIGNONLY}
+{$IMPLICITBUILD OFF}
+
+requires
+  rtl,
+  vcl,
+  vclimg,
+  designide,
+  Skia.Package.RTL,
+  Skia.Package.VCL;
+
+contains
+  Vcl.Skia.Designtime.Editor.AnimatedImage in '..\..\Source\VCL\Designtime\Vcl.Skia.Designtime.Editor.AnimatedImage.pas' {SkAnimatedImageEditorForm},
+  Vcl.Skia.Designtime.Editor.SVG in '..\..\Source\VCL\Designtime\Vcl.Skia.Designtime.Editor.SVG.pas' {SKSvgEditorForm},
+  Vcl.Skia.Designtime in '..\..\Source\VCL\Designtime\Vcl.Skia.Designtime.pas',
+  Vcl.Skia.Designtime.ProjectMenu in '..\..\Source\VCL\Designtime\Vcl.Skia.Designtime.ProjectMenu.pas';
+
+end.

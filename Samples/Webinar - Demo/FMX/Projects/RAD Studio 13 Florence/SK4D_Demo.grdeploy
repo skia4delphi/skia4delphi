@@ -1,0 +1,13 @@
+{
+  "Configurations" : ["Debug", "Release"],
+  "iOS" : [],
+  "Android" : [{
+      "LocalName" : "styles.xml",
+      "RemoteDir" : "res\\values-v31\\",
+      "Configurations" : [],
+      "IsDirectory" : false,
+      "IncludeSubDirectories" : false
+    }],
+  "MacOS" : [],
+  "Linux" : []
+}

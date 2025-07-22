@@ -532,11 +532,27 @@ begin
   // RAD Studio 12 Athens
   LRADStudioVersion.Name := 'RAD Studio 12 Athens';
   LRADStudioVersion.RegVersion := '23.0';
-  LRADStudioVersion.SupportedPlatformsDelphi := [pfWin32, pfWin64, pfAndroid, pfAndroid64, pfiOSDevice64, pfiOSSimARM64, pfiOSSimulator, pfOSX64, pfOSXARM64, pfLinux64];
+  LRADStudioVersion.SupportedPlatformsDelphi := [pfWin32, pfWin64, pfWin64x, pfAndroid, pfAndroid64, pfiOSDevice64, pfiOSSimARM64, pfOSX64, pfOSXARM64, pfLinux64];
   LRADStudioVersion.SupportedPlatforms := LRADStudioVersion.SupportedPlatformsDelphi;
   LRADStudioVersion.MaxDprojVersion := '20.1';
   LRADStudioVersion.MinDprojVersion := '20.1';
   LRADStudioVersion.PackageVersion := '290';
+  LRADStudioVersion.HasGetItCmd := True;
+  LRADStudioVersion.GetItCmdListInstalledParams := '-l="%s" -dnsef';
+  LRADStudioVersion.GetItCmdUninstallParams := '-u="%s" -dnsef';
+  LRADStudioVersion.DotNetVersion := net45;
+  LRADStudioVersion.DotNetServicePack := 0;
+  SetArrayLength(_FRADStudioVersions, GetArrayLength(_FRADStudioVersions) + 1);
+  _FRADStudioVersions[GetArrayLength(_FRADStudioVersions) - 1] := LRADStudioVersion;
+
+  // RAD Studio 13 Florence
+  LRADStudioVersion.Name := 'RAD Studio 13 Florence';
+  LRADStudioVersion.RegVersion := '37.0';
+  LRADStudioVersion.SupportedPlatformsDelphi := [pfWin32, pfWin64, pfWin64x, pfAndroid, pfAndroid64, pfiOSDevice64, pfiOSSimARM64, pfOSX64, pfOSXARM64, pfLinux64];
+  LRADStudioVersion.SupportedPlatforms := LRADStudioVersion.SupportedPlatformsDelphi;
+  LRADStudioVersion.MaxDprojVersion := '20.3';
+  LRADStudioVersion.MinDprojVersion := '20.3';
+  LRADStudioVersion.PackageVersion := '370';
   LRADStudioVersion.HasGetItCmd := True;
   LRADStudioVersion.GetItCmdListInstalledParams := '-l="%s" -dnsef';
   LRADStudioVersion.GetItCmdUninstallParams := '-u="%s" -dnsef';
