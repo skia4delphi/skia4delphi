@@ -4256,6 +4256,7 @@ begin
           LBitmap.Canvas.ClearRect(RectF(0, 0, 50, 50), TAlphaColors.Null);
         finally
           LModulateCanvas.ModulateColor := TAlphaColors.White;
+          LModulateCanvas := nil;
         end;
       finally
         LBitmap.Canvas.EndScene;
@@ -4453,6 +4454,7 @@ begin
           end;
         finally
           LModulateCanvas.ModulateColor := TAlphaColors.White;
+          LModulateCanvas := nil;
         end;
       finally
         LSurface.Canvas.EndScene;
@@ -4494,6 +4496,7 @@ begin
           end;
         finally
           LModulateCanvas.ModulateColor := TAlphaColors.White;
+          LModulateCanvas := nil;
         end;
       finally
         LSurface.Canvas.EndScene;
@@ -4540,7 +4543,10 @@ begin
             AStartAngle, ASweepAngle, AOpacity);
         finally
           if LModulateCanvas <> nil then
+          begin
             LModulateCanvas.ModulateColor := TAlphaColors.White;
+            LModulateCanvas := nil;
+          end;
         end;
       finally
         LBitmap.Canvas.EndScene;
@@ -4585,7 +4591,10 @@ begin
             ARightPercent * LBitmap.Width, ABottomPercent * LBitmap.Height), AOpacity);
         finally
           if LModulateCanvas <> nil then
+          begin
             LModulateCanvas.ModulateColor := TAlphaColors.White;
+            LModulateCanvas := nil;
+          end;
         end;
       finally
         LBitmap.Canvas.EndScene;
@@ -4632,7 +4641,10 @@ begin
             ARightPercent * LBitmap.Width, ABottomPercent * LBitmap.Height), AOpacity);
         finally
           if LModulateCanvas <> nil then
+          begin
             LModulateCanvas.ModulateColor := TAlphaColors.White;
+            LModulateCanvas := nil;
+          end;
         end;
       finally
         LBitmap.Canvas.EndScene;
@@ -4677,7 +4689,10 @@ begin
           LBitmap.Canvas.FillEllipse(RectF(0, 0, LBitmap.Width, LBitmap.Height), AOpacity);
         finally
           if LModulateCanvas <> nil then
+          begin
             LModulateCanvas.ModulateColor := TAlphaColors.White;
+            LModulateCanvas := nil;
+          end;
         end;
       finally
         LBitmap.Canvas.EndScene;
@@ -4751,7 +4766,10 @@ begin
           LBitmap.Canvas.FillEllipse(RectF(0, 0, 80, 80), AOpacity);
         finally
           if LModulateCanvas <> nil then
+          begin
             LModulateCanvas.ModulateColor := TAlphaColors.White;
+            LModulateCanvas := nil;
+          end;
         end;
       finally
         LBitmap.Canvas.EndScene;
@@ -4790,7 +4808,10 @@ begin
           LBitmap.Canvas.FillEllipse(RectF(0, 20, 80, 60), AOpacity);
         finally
           if LModulateCanvas <> nil then
+          begin
             LModulateCanvas.ModulateColor := TAlphaColors.White;
+            LModulateCanvas := nil;
+          end;
         end;
       finally
         LBitmap.Canvas.EndScene;
@@ -4849,7 +4870,10 @@ begin
             ADestRightPercent * LBitmap.Width, ADestBottomPercent * LBitmap.Height), AOpacity);
         finally
           if LModulateCanvas <> nil then
+          begin
             LModulateCanvas.ModulateColor := TAlphaColors.White;
+            LModulateCanvas := nil;
+          end;
         end;
       finally
         LBitmap.Canvas.EndScene;
@@ -4904,7 +4928,10 @@ begin
             ADestRightPercent * LBitmap.Width, ADestBottomPercent * LBitmap.Height), AOpacity);
         finally
           if LModulateCanvas <> nil then
+          begin
             LModulateCanvas.ModulateColor := TAlphaColors.White;
+            LModulateCanvas := nil;
+          end;
         end;
       finally
         LBitmap.Canvas.EndScene;
@@ -4945,7 +4972,10 @@ begin
           LBitmap.Canvas.FillEllipse(RectF(0, 20, 80, 60), AOpacity);
         finally
           if LModulateCanvas <> nil then
+          begin
             LModulateCanvas.ModulateColor := TAlphaColors.White;
+            LModulateCanvas := nil;
+          end;
         end;
       finally
         LBitmap.Canvas.EndScene;
@@ -5066,6 +5096,7 @@ begin
           LBitmap.Canvas.FillEllipse(RectF(50, 50, 100, 100), 0.7);
         finally
           LModulateCanvas.ModulateColor := TAlphaColors.White;
+          LModulateCanvas := nil;
         end;
       finally
         LBitmap.Canvas.EndScene;
@@ -5147,6 +5178,7 @@ begin
           LBitmap.Canvas.FillEllipse(RectF(25, 25, 75, 75), 0.6);
         finally
           LModulateCanvas.ModulateColor := TAlphaColors.White;
+          LModulateCanvas := nil;
         end;
       finally
         LBitmap.Canvas.EndScene;
@@ -5243,7 +5275,10 @@ begin
           end;
         finally
           if LModulateCanvas <> nil then
+          begin
             LModulateCanvas.ModulateColor := TAlphaColors.White;
+            LModulateCanvas := nil;
+          end;
         end;
       finally
         LBitmap.Canvas.EndScene;
@@ -5295,7 +5330,10 @@ begin
           end;
         finally
           if LModulateCanvas <> nil then
+          begin
             LModulateCanvas.ModulateColor := TAlphaColors.White;
+            LModulateCanvas := nil;
+          end;
         end;
       finally
         LBitmap.Canvas.EndScene;
@@ -5347,7 +5385,10 @@ begin
           end;
         finally
           if LModulateCanvas <> nil then
+          begin
             LModulateCanvas.ModulateColor := TAlphaColors.White;
+            LModulateCanvas := nil;
+          end;
         end;
       finally
         LBitmap.Canvas.EndScene;
@@ -5398,7 +5439,10 @@ begin
           end;
         finally
           if LModulateCanvas <> nil then
+          begin
             LModulateCanvas.ModulateColor := TAlphaColors.White;
+            LModulateCanvas := nil;
+          end;
         end;
       finally
         LBitmap.Canvas.EndScene;
@@ -5448,7 +5492,10 @@ begin
           end;
         finally
           if LModulateCanvas <> nil then
+          begin
             LModulateCanvas.ModulateColor := TAlphaColors.White;
+            LModulateCanvas := nil;
+          end;
         end;
       finally
         LBitmap.Canvas.EndScene;
@@ -5560,7 +5607,10 @@ begin
           end;
         finally
           if LModulateCanvas <> nil then
+          begin
             LModulateCanvas.ModulateColor := TAlphaColors.White;
+            LModulateCanvas := nil;
+          end;
         end;
       finally
         LBitmap.Canvas.EndScene;
@@ -5721,6 +5771,7 @@ begin
           end;
         finally
           LModulateCanvas.ModulateColor := TAlphaColors.White;
+          LModulateCanvas := nil;
         end;
       finally
         LBitmap.Canvas.EndScene;
@@ -5825,6 +5876,7 @@ begin
           end;
         finally
           LModulateCanvas.ModulateColor := TAlphaColors.White;
+          LModulateCanvas := nil;
         end;
       finally
         LBitmap.Canvas.EndScene;
@@ -5911,7 +5963,10 @@ begin
           LBitmap.Canvas.FillPolygon(StringToPolygon(APoints, RectF(0, 0, LBitmap.Width, LBitmap.Height)), AOpacity);
         finally
           if LModulateCanvas <> nil then
+          begin
             LModulateCanvas.ModulateColor := TAlphaColors.White;
+            LModulateCanvas := nil;
+          end;
         end;
       finally
         LBitmap.Canvas.EndScene;
@@ -5955,7 +6010,10 @@ begin
             ARightPercent * LBitmap.Width, ABottomPercent * LBitmap.Height), 0, 0, [], AOpacity);
         finally
           if LModulateCanvas <> nil then
+          begin
             LModulateCanvas.ModulateColor := TAlphaColors.White;
+            LModulateCanvas := nil;
+          end;
         end;
       finally
         LBitmap.Canvas.EndScene;
@@ -6000,7 +6058,10 @@ begin
           LBitmap.Canvas.FillRect(RectF(0, 0, LBitmap.Width, LBitmap.Height), 0, 0, [], AOpacity);
         finally
           if LModulateCanvas <> nil then
+          begin
             LModulateCanvas.ModulateColor := TAlphaColors.White;
+            LModulateCanvas := nil;
+          end;
         end;
       finally
         LBitmap.Canvas.EndScene;
@@ -6045,7 +6106,10 @@ begin
           LBitmap.Canvas.FillRect(RectF(0, 0, LBitmap.Width, LBitmap.Height), 0, 0, [], AOpacity);
         finally
           if LModulateCanvas <> nil then
+          begin
             LModulateCanvas.ModulateColor := TAlphaColors.White;
+            LModulateCanvas := nil;
+          end;
         end;
       finally
         LBitmap.Canvas.EndScene;
@@ -6118,7 +6182,10 @@ begin
           LBitmap.Canvas.FillRect(RectF(0, 0, 80, 80), 0, 0, [], AOpacity);
         finally
           if LModulateCanvas <> nil then
+          begin
             LModulateCanvas.ModulateColor := TAlphaColors.White;
+            LModulateCanvas := nil;
+          end;
         end;
       finally
         LBitmap.Canvas.EndScene;
@@ -6156,7 +6223,10 @@ begin
           LBitmap.Canvas.FillRect(RectF(0, 20, 80, 60), 0, 0, [], AOpacity);
         finally
           if LModulateCanvas <> nil then
+          begin
             LModulateCanvas.ModulateColor := TAlphaColors.White;
+            LModulateCanvas := nil;
+          end;
         end;
       finally
         LBitmap.Canvas.EndScene;
@@ -6215,7 +6285,10 @@ begin
             ADestRightPercent * LBitmap.Width, ADestBottomPercent * LBitmap.Height), 0, 0, [], AOpacity);
         finally
           if LModulateCanvas <> nil then
+          begin
             LModulateCanvas.ModulateColor := TAlphaColors.White;
+            LModulateCanvas := nil;
+          end;
         end;
       finally
         LBitmap.Canvas.EndScene;
@@ -6270,7 +6343,10 @@ begin
             ADestRightPercent * LBitmap.Width, ADestBottomPercent * LBitmap.Height), 0, 0, [], AOpacity);
         finally
           if LModulateCanvas <> nil then
+          begin
             LModulateCanvas.ModulateColor := TAlphaColors.White;
+            LModulateCanvas := nil;
+          end;
         end;
       finally
         LBitmap.Canvas.EndScene;
@@ -6391,6 +6467,7 @@ begin
           LBitmap.Canvas.FillRect(RectF(50, 50, 100, 100), 0, 0, [], 0.7);
         finally
           LModulateCanvas.ModulateColor := TAlphaColors.White;
+          LModulateCanvas := nil;
         end;
       finally
         LBitmap.Canvas.EndScene;
@@ -6472,6 +6549,7 @@ begin
           LBitmap.Canvas.FillRect(RectF(25, 25, 75, 75), 0, 0, [], 0.6);
         finally
           LModulateCanvas.ModulateColor := TAlphaColors.White;
+          LModulateCanvas := nil;
         end;
       finally
         LBitmap.Canvas.EndScene;
@@ -6562,7 +6640,10 @@ begin
             StringToCorners(ACornersString), AOpacity, ACornerType);
         finally
           if LModulateCanvas <> nil then
+          begin
             LModulateCanvas.ModulateColor := TAlphaColors.White;
+            LModulateCanvas := nil;
+          end;
         end;
       finally
         LBitmap.Canvas.EndScene;
@@ -6619,7 +6700,10 @@ begin
             StringToCorners(ACornersString), AOpacity, ACornerType);
         finally
           if LModulateCanvas <> nil then
+          begin
             LModulateCanvas.ModulateColor := TAlphaColors.White;
+            LModulateCanvas := nil;
+          end;
         end;
       finally
         LBitmap.Canvas.EndScene;
@@ -6671,7 +6755,10 @@ begin
             StringToCorners(ACornersString), AOpacity, ACornerType);
         finally
           if LModulateCanvas <> nil then
+          begin
             LModulateCanvas.ModulateColor := TAlphaColors.White;
+            LModulateCanvas := nil;
+          end;
         end;
       finally
         LBitmap.Canvas.EndScene;
@@ -6724,7 +6811,10 @@ begin
             StringToCorners(ACornersString), AOpacity, ACornerType);
         finally
           if LModulateCanvas <> nil then
+          begin
             LModulateCanvas.ModulateColor := TAlphaColors.White;
+            LModulateCanvas := nil;
+          end;
         end;
       finally
         LBitmap.Canvas.EndScene;
@@ -6777,7 +6867,10 @@ begin
             StringToCorners(ACornersString), AOpacity, ACornerType);
         finally
           if LModulateCanvas <> nil then
+          begin
             LModulateCanvas.ModulateColor := TAlphaColors.White;
+            LModulateCanvas := nil;
+          end;
         end;
       finally
         LBitmap.Canvas.EndScene;
@@ -6819,7 +6912,10 @@ begin
             StringToCorners(ACornersString), AOpacity, ACornerType);
         finally
           if LModulateCanvas <> nil then
+          begin
             LModulateCanvas.ModulateColor := TAlphaColors.White;
+            LModulateCanvas := nil;
+          end;
         end;
       finally
         LBitmap.Canvas.EndScene;
@@ -6864,7 +6960,10 @@ begin
             StringToCorners(ACornersString), AOpacity, ACornerType);
         finally
           if LModulateCanvas <> nil then
+          begin
             LModulateCanvas.ModulateColor := TAlphaColors.White;
+            LModulateCanvas := nil;
+          end;
         end;
       finally
         LBitmap.Canvas.EndScene;
@@ -6944,7 +7043,10 @@ begin
             StringToCorners(ACornersString), AOpacity, ACornerType);
         finally
           if LModulateCanvas <> nil then
+          begin
             LModulateCanvas.ModulateColor := TAlphaColors.White;
+            LModulateCanvas := nil;
+          end;
         end;
       finally
         LBitmap.Canvas.EndScene;
@@ -6987,7 +7089,10 @@ begin
             StringToCorners(ACornersString), AOpacity, ACornerType);
         finally
           if LModulateCanvas <> nil then
+          begin
             LModulateCanvas.ModulateColor := TAlphaColors.White;
+            LModulateCanvas := nil;
+          end;
         end;
       finally
         LBitmap.Canvas.EndScene;
@@ -7042,6 +7147,7 @@ begin
           LBitmap.Canvas.FillRect(RectF(25, 25, 75, 75), 16, 16, AllCorners, 0.85);
         finally
           LModulateCanvas.ModulateColor := TAlphaColors.White;
+          LModulateCanvas := nil;
         end;
       finally
         LBitmap.Canvas.EndScene;
