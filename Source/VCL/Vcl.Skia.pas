@@ -2069,7 +2069,7 @@ end;
 
 function TSkSvgBrush.MakeDOM: ISkSVGDOM;
 begin
-  Result := TSkSVGDOM.Make(FSource, TSkDefaultProviders.Resource);
+  Result := TSkSVGDOM.Make(FSource, TSkDefaultProviders.Resource, TSkDefaultProviders.TypefaceFont);
 end;
 
 procedure TSkSvgBrush.RecreateDOM;
