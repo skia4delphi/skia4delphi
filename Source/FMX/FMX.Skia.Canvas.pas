@@ -4147,7 +4147,7 @@ begin
   if AContextHandle <> 0 then
   begin
     {$IF DEFINED(LINUX)}
-    FmuxCanvasDrawBitmap(Pointer(AContextHandle), FBitmap, TRectF.Create(0, 0, Round(Width * Scale), Round(Height * Scale)), TRectF.Create(0, 0, Round(Width * Scale), Round(Height * Scale)), 1, True);
+    FmuxCanvasDrawBitmap(Pointer(AContextHandle), FBitmap, TRectF.Create(0, 0, Round(Width * Scale), Round(Height * Scale)), TRectF.Create(0, 0, Width, Height), 1, True);
     {$ELSEIF DEFINED(MACOS) and NOT DEFINED(IOS)}
     LImage := CGBitmapContextCreateImage(FBitmap);
     if LImage <> nil then
