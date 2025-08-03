@@ -616,22 +616,13 @@ The example above results in the output below:
 
 
 
-
-# Experimental Static Linking on Windows
-
-Static linking is enabled by default on Windows. This allows applications built with Skia to run without external DLL dependencies, resulting in a smaller binary size, as Delphi's linker includes only the code and data sections actually used by the application.
-
-Currently, the only limitation is the DNG (RAW image) codec, which relies on exception handling and thus is unsupported when static linking is enabled.
-
-  
-
 # Documentation
 
 The APIs are very similar to Skia's, few methods and functions have been renamed for readability, so the [Skia documentation](https://skia.org/docs) can be used.
 
 # Version
 
-**[Skia4Delphi 7.0.0](/../../releases/latest)**
+**[Skia4Delphi 7.0.1](/../../releases/latest)**
 
 Skia Version used: [chrome/m132](https://github.com/google/skia/tree/chrome/m132)
 What has changed from the original code? [Compare.](https://github.com/google/skia/compare/chrome/m132...skia4delphi:skia:sk4d/m132)
