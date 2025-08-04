@@ -1403,7 +1403,7 @@ const
 var
   LPaint: ISkPaint;
 begin
-  LPaint := TSkPaint.Create(TSkPaintStyle.Stroke);
+  LPaint := TSkPaint.Make(TSkPaintStyle.Stroke);
   LPaint.Color := DesignBorderColor;
   LPaint.AlphaF := AOpacity;
   LPaint.StrokeWidth := 1;
@@ -2135,9 +2135,9 @@ procedure TSkSvgBrush.Render(const ACanvas: ISkCanvas; const ADestRect: TRectF;
     LPictureRecorder: ISkPictureRecorder;
     LCanvas: ISkCanvas;
     LPaint: ISkPaint;
-  begin
-    LPictureRecorder := TSkPictureRecorder.Create;
-    LCanvas := LPictureRecorder.BeginRecording(AWrappedDest.Width, AWrappedDest.Height);
+	begin
+		LPictureRecorder := TSkPictureRecorder.Make;
+		LCanvas := LPictureRecorder.BeginRecording(AWrappedDest.Width, AWrappedDest.Height);
     if AIntrinsicSize.IsZero then
     begin
       if AWrapMode <> TSkSvgWrapMode.Default then
@@ -2150,9 +2150,9 @@ procedure TSkSvgBrush.Render(const ACanvas: ISkCanvas; const ADestRect: TRectF;
     else
       LCanvas.Scale(AWrappedDest.Width / ASvgRect.Width, AWrappedDest.Height / ASvgRect.Height);
     ADOM.Render(LCanvas);
-    LPicture := LPictureRecorder.FinishRecording;
-    LPaint := TSkPaint.Create;
-    if FGrayScale then
+		LPicture := LPictureRecorder.FinishRecording;
+		LPaint := TSkPaint.Make;
+		if FGrayScale then
       LPaint.ColorFilter := TSkColorFilter.MakeMatrix(TSkColorMatrix.CreateSaturation(0))
     else if FOverrideColor <> TAlphaColors.Null then
       LPaint.ColorFilter := TSkColorFilter.MakeBlend(FOverrideColor, TSkBlendMode.SrcIn);
@@ -2676,9 +2676,9 @@ begin
     UpdateCache;
 
   if FCachedImage <> nil then
-  begin
-    LPaint := TSkPaint.Create;
-    LPaint.Alpha := AOpacity;
+	begin
+		LPaint := TSkPaint.Make;
+		LPaint.Alpha := AOpacity;
     LSurface.Canvas.DrawImage(FCachedImage, 0, 0, LPaint);
   end
   else
@@ -2764,9 +2764,9 @@ var
   LPaint: ISkPaint;
 begin
   if TAlphaColorRec(FBackgroundColor).A > 0 then
-  begin
-    LPaint := TSkPaint.Create;
-    LPaint.Color := FBackgroundColor;
+	begin
+		LPaint := TSkPaint.Make;
+		LPaint.Color := FBackgroundColor;
     LPaint.AntiAlias := True;
     ACanvas.DrawRect(ADest, LPaint);
   end;
@@ -4233,9 +4233,9 @@ begin
   if SameValue(AOpacity, 1, TEpsilon.Position) then
     LPaint := nil
   else
-  begin
-    LPaint := TSkPaint.Create;
-    LPaint.AlphaF := AOpacity;
+	begin
+		LPaint := TSkPaint.Make;
+		LPaint.AlphaF := AOpacity;
   end;
   ACanvas.DrawImageRect(FAnimationCodec.Frame, ADest, TSkSamplingOptions.Medium, LPaint);
 end;
@@ -5638,11 +5638,11 @@ procedure TSkLabel.Draw(const ACanvas: ISkCanvas; const ADest: TRectF;
     LRectsColor: TArray<TAlphaColor>;
     LLastRect: TRectF;
     LLastColor: TAlphaColor;
-  begin
-    LPictureRecorder := TSkPictureRecorder.Create;
-    LCanvas := LPictureRecorder.BeginRecording(ADest);
-    LPaint := TSkPaint.Create;
-    LPaint.AntiAlias := True;
+	begin
+		LPictureRecorder := TSkPictureRecorder.Make;
+		LCanvas := LPictureRecorder.BeginRecording(ADest);
+		LPaint := TSkPaint.Make;
+		LPaint.AntiAlias := True;
     LTextEndIndex := 0;
     LRects := nil;
     for I := 0 to FWords.Count - 1 do
@@ -5820,9 +5820,9 @@ var
     if ADrawKind = TDrawKind.Stroke then
     begin
       if (ADecorations.StrokeColor <> TAlphaColors.Null) and not SameValue(ADecorations.Thickness, 0, TEpsilon.Position) then
-      begin
-        LPaint := TSkPaint.Create(TSkPaintStyle.Stroke);
-        LPaint.Color := ADecorations.StrokeColor;
+			begin
+				LPaint := TSkPaint.Make(TSkPaintStyle.Stroke);
+				LPaint.Color := ADecorations.StrokeColor;
         LPaint.StrokeWidth := (ADecorations.Thickness / 2) * (ATextStyle.FontSize / 14);
         ATextStyle.SetForegroundColor(LPaint);
       end
@@ -5836,9 +5836,9 @@ var
 
   function CreateTextStyle(const AWordsItem: TCustomWordsItem;
     const ADefaultTextStyle: ISkTextStyle; const ADrawKind: TDrawKind): ISkTextStyle;
-  begin
-    Result := TSkTextStyle.Create;
-    if TSkStyledSetting.FontColor in AWordsItem.StyledSettings then
+	begin
+		Result := TSkTextStyle.Make;
+		if TSkStyledSetting.FontColor in AWordsItem.StyledSettings then
       Result.Color := ResultingTextSettings.FontColor
     else
       Result.Color := AWordsItem.FontColor;
@@ -5869,9 +5869,9 @@ var
   end;
 
   function CreateDefaultTextStyle(const ADrawKind: TDrawKind): ISkTextStyle;
-  begin
-    Result := TSkTextStyle.Create;
-    Result.Color := ResultingTextSettings.FontColor;
+	begin
+		Result := TSkTextStyle.Make;
+		Result.Color := ResultingTextSettings.FontColor;
     Result.FontFamilies := GetFontFamilies(ResultingTextSettings.Font.Families);
     Result.FontSize := ResultingTextSettings.Font.Size;
     Result.FontStyle := TSkFontStyle.Create(SkFontWeightValue[ResultingTextSettings.Font.Weight], SkFontWidthValue[ResultingTextSettings.Font.Stretch], SkFontSlant[ResultingTextSettings.Font.Slant]);
@@ -5881,9 +5881,9 @@ var
   end;
 
   function CreateParagraphStyle(const ADefaultTextStyle: ISkTextStyle): ISkParagraphStyle;
-  begin
-    Result := TSkParagraphStyle.Create;
-    if UseRightToLeftAlignment then
+	begin
+		Result := TSkParagraphStyle.Make;
+		if UseRightToLeftAlignment then
       Result.TextDirection := TSkTextDirection.RightToLeft;
     if ResultingTextSettings.Trimming in [TSkTextTrimming.Character, TSkTextTrimming.Word] then
       Result.Ellipsis := '...';
@@ -5901,11 +5901,10 @@ var
     LDefaultTextStyle: ISkTextStyle;
     LText: string;
     I: Integer;
-  begin
-    LDefaultTextStyle := CreateDefaultTextStyle(ADrawKind);
-    LBuilder := TSkParagraphBuilder.Create(CreateParagraphStyle(LDefaultTextStyle), TSkDefaultProviders.TypefaceFont);
-
-    for I := 0 to FWords.Count- 1 do
+	begin
+		LDefaultTextStyle := CreateDefaultTextStyle(ADrawKind);
+		LBuilder := TSkParagraphBuilder.Make(CreateParagraphStyle(LDefaultTextStyle), TSkDefaultProviders.TypefaceFont);
+		for I := 0 to FWords.Count- 1 do
     begin
       if FWords[I].Caption = '' then
         Continue;
@@ -6439,9 +6438,9 @@ begin
       if AOpacity = High(AOpacity) then
         LPaint := nil
       else
-      begin
-        LPaint := TSkPaint.Create;
-        LPaint.Alpha := AOpacity;
+			begin
+				LPaint := TSkPaint.Make;
+				LPaint.Alpha := AOpacity;
       end;
       if (FBuffer.Width = Width) and (FBuffer.Height = Height) then
         ACanvas.DrawImage(FImage, 0, 0, LPaint)

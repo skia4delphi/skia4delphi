@@ -65,3 +65,5 @@ dunitx-results.xml
 !/Binary/**
 !/Tools/Setup/Style/*.dll
 !/Tools/*.exe
+unins*.dat
+*.delphilsp.json
