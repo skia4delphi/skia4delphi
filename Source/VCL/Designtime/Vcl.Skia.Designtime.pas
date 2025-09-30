@@ -30,8 +30,11 @@ uses
 
   { Skia }
   Vcl.Skia,
+  Vcl.Skia.AnimatedImageList,
+  Vcl.Skia.AnimatedBitmap,
   Vcl.Skia.Designtime.Editor.AnimatedImage,
-  Vcl.Skia.Designtime.Editor.SVG;
+  Vcl.Skia.Designtime.Editor.SVG,
+  Vcl.Skia.Designtime.Editor.Image;
 
 type
   { TSkAnimatedImageSourcePropertyEditor }
@@ -52,6 +55,41 @@ type
   public
     procedure Edit; override;
   end;
+
+
+  { TSkAnimatedBitmapSourcePropertyEditor }
+
+  TSkAnimatedBitmapSourcePropertyEditor = class(TPropertyEditor)
+  protected
+    function GetIsDefault: Boolean; override;
+  public
+    procedure Edit; override;
+    function GetAttributes: TPropertyAttributes; override;
+    function GetValue: string; override;
+    class function TryEdit(var AData: TBytes): Boolean; static;
+  end;
+
+  { TSkAnimatedItemDataPropertyEditor }
+
+  TSkAnimatedItemDataPropertyEditor = class(TPropertyEditor)
+  protected
+    function GetIsDefault: Boolean; override;
+  public
+    procedure Edit; override;
+    function GetAttributes: TPropertyAttributes; override;
+    function GetValue: string; override;
+    class function TryEdit(var AData: TBytes; aType: TSkSourceType): Boolean; static;
+  end;
+
+
+  { TSkAnimatedImageComponentEditor }
+
+  TSkAnimatedBitmapComponentEditor = class(TDefaultEditor)
+  public
+    procedure Edit; override;
+  end;
+
+
 
   { TSkLabelTextPropertyEditor }
 
@@ -152,6 +190,131 @@ begin
       Designer.Modified;
   end;
 end;
+
+{ TSkAnimatedItemDataPropertyEditor }
+
+procedure TSkAnimatedItemDataPropertyEditor.Edit;
+var
+  LData: TBytes;
+  LItem: TSkAnimatedItem;
+begin
+  LItem := TSkAnimatedItem(GetComponent(0));
+  LData := Litem.Source.Data;
+  if TryEdit(LData,LItem.SourceType) then
+  begin
+    Litem.Source.Data := LData;
+    Modified;
+  end;
+end;
+
+function TSkAnimatedItemDataPropertyEditor.GetAttributes: TPropertyAttributes;
+begin
+  Result := [paDialog];
+end;
+
+function TSkAnimatedItemDataPropertyEditor.GetIsDefault: Boolean;
+begin
+  Result := TSkAnimatedItem(GetComponent(0)).Source.Data <> nil;
+end;
+
+function TSkAnimatedItemDataPropertyEditor.GetValue: string;
+begin
+  Result := 'TSkAnimatedItem.TSource';
+end;
+
+class function TSkAnimatedItemDataPropertyEditor.TryEdit(
+  var AData: TBytes; aType: TSkSourceType): Boolean;
+begin
+  case aType of
+    anim: begin
+        var LAnimatedImageEditorForm := TSkAnimatedImageEditorForm.Create(Application);
+        try
+          Result := LAnimatedImageEditorForm.ShowModal(AData) = mrOk;
+        finally
+          LAnimatedImageEditorForm.Free;
+        end;
+    end;
+    svg: begin
+        var LSvgEditForm := TSkSvgEditorForm.Create(Application);
+        var LSource: TSkSvgSource := TEncoding.UTF8.GetString(AData);
+        try
+          result := LSvgEditForm.ShowModal(LSource) = mrOk;
+          if result then
+            aData := Tencoding.UTF8.GetBytes(LSource);
+        finally
+          LSvgEditForm.Free;
+        end;
+    end;
+    image: begin
+      var LImageEditForm := TSkImageEditorForm.Create(Application);
+      try
+        Result := LImageEditForm.ShowModal(AData) = mrOk;
+      finally
+        LImageEditForm.Free;
+      end;
+    end;
+    else result := False;
+  end;
+end;
+
+{ TSkAnimatedBitmapSourcePropertyEditor }
+
+procedure TSkAnimatedBitmapSourcePropertyEditor.Edit;
+var
+  LData: TBytes;
+begin
+  LData := TSkAnimatedBitmap(GetComponent(0)).Source.Data;
+  if TryEdit(LData) then
+  begin
+    TSkAnimatedBitmap(GetComponent(0)).Source.Data := LData;
+    Modified;
+  end;
+end;
+
+function TSkAnimatedBitmapSourcePropertyEditor.GetAttributes: TPropertyAttributes;
+begin
+  Result := [paDialog];
+end;
+
+function TSkAnimatedBitmapSourcePropertyEditor.GetIsDefault: Boolean;
+begin
+  Result := TSkAnimatedBitmap(GetComponent(0)).Source.Data <> nil;
+end;
+
+function TSkAnimatedBitmapSourcePropertyEditor.GetValue: string;
+begin
+  Result := 'TSkAnimatedBitmap.TSource';
+end;
+
+class function TSkAnimatedBitmapSourcePropertyEditor.TryEdit(
+  var AData: TBytes): Boolean;
+var
+  LAnimatedImageEditorForm: TSkAnimatedImageEditorForm;
+begin
+  LAnimatedImageEditorForm := TSkAnimatedImageEditorForm.Create(Application);
+  try
+    Result := LAnimatedImageEditorForm.ShowModal(AData) = mrOk;
+  finally
+    LAnimatedImageEditorForm.Free;
+  end;
+end;
+
+{ TSkAnimatedBitmapComponentEditor }
+
+procedure TSkAnimatedBitmapComponentEditor.Edit;
+var
+  LData: TBytes;
+begin
+  LData := TSkAnimatedBitmap(Component).Source.Data;
+  if TSkAnimatedBitmapSourcePropertyEditor.TryEdit(LData) then
+  begin
+    TSkAnimatedBitmap(Component).Source.Data := LData;
+    if Designer <> nil then
+      Designer.Modified;
+  end;
+end;
+
+
 
 { TSkLabelTextPropertyEditor }
 
@@ -266,12 +429,15 @@ end;
 
 procedure Register;
 begin
-  RegisterComponents('Skia', [TSkAnimatedImage, TSkAnimatedPaintBox, TSkLabel, TSkPaintBox, TSkSvg]);
+  RegisterComponents('Skia', [TSkAnimatedImage, TSkAnimatedPaintBox, TSkLabel, TSkPaintBox, TSkSvg, TSkAnimatedImageList, TSkAnimatedBitmap]);
   RegisterPropertyEditor(TypeInfo(TSkAnimatedImage.TSource), TSkAnimatedImage, 'Source', TSkAnimatedImageSourcePropertyEditor);
   RegisterComponentEditor(TSkAnimatedImage, TSkAnimatedImageComponentEditor);
   RegisterPropertyEditor(TypeInfo(string), TSkLabel, 'Caption', TSkLabelTextPropertyEditor);
   RegisterPropertyEditor(TypeInfo(string), TSkLabel.TCustomWordsItem, 'Caption', TSkLabelTextPropertyEditor);
   RegisterPropertyEditor(TypeInfo(TSkSvgSource), nil, '', TSkSvgSourcePropertyEditor);
+  RegisterPropertyEditor(TypeInfo(TSkAnimatedBitmap.TSource), TSkAnimatedBitmap, 'Source', TSkAnimatedBitmapSourcePropertyEditor);
+  RegisterPropertyEditor(TypeInfo(TSkAnimatedItem.TSource), TSkAnimatedItem, 'Source', TSkAnimatedItemDataPropertyEditor);
+  RegisterComponentEditor(TSkAnimatedBitmap, TSkAnimatedBitmapComponentEditor);
   RegisterComponentEditor(TSkSvg, TSkSvgComponentEditor);
   RegisterSelectionEditor(TSkCustomControl, TSkSkiaVclSelectionEditor);
   RegisterSelectionEditor(TSkCustomWinControl, TSkSkiaVclSelectionEditor);

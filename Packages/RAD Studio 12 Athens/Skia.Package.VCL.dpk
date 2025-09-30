@@ -39,14 +39,16 @@ package Skia.Package.VCL;
 {$LIBSUFFIX AUTO}
 {$RUNONLY}
 {$IMPLICITBUILD OFF}
-{$HPPEMIT NOUSINGNAMESPACE}
 
 requires
   rtl,
   vcl,
-  Skia.Package.RTL;
+  Skia.Package.RTL,
+  vclwinx;
 
 contains
-  Vcl.Skia in '..\..\Source\VCL\Vcl.Skia.pas';
+  Vcl.Skia in '..\..\Source\VCL\Vcl.Skia.pas',
+  Vcl.Skia.AnimatedImageList in '..\..\Source\VCL\Vcl.Skia.AnimatedImageList.pas',
+  Vcl.Skia.AnimatedBitmap in '..\..\Source\VCL\Vcl.Skia.AnimatedBitmap.pas';
 
 end.

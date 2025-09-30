@@ -256,6 +256,14 @@ type
     property Width: Integer read GetWidth;
   end;
 
+  ISkControlRenderTarget2 = interface(ISkControlRenderTarget)
+    ['{05FF62DE-5E9C-4BC3-8861-5F0CE6775FD9}']
+    function GetLeft: Integer;
+    function GetTop: Integer;
+    property Left: Integer read GetLeft;
+    property Top: Integer read GetTop;
+  end;
+
   { ISkControlRender }
 
   ISkControlRender = interface
@@ -2305,7 +2313,7 @@ type
     FDrawCached: Boolean;
     FTarget: ISkControlRenderTarget;
     procedure DeleteBuffers;
-    procedure DoRender(const AWidth, AHeight: Integer; const AScaleFactor: Single; const ACanvas: TCanvas; const ABackgroundBuffer: TBitmap; const AOpacity: Byte);
+    procedure DoRender(const ALeft, ATop, AWidth, AHeight: Integer; const AScaleFactor: Single; const ACanvas: TCanvas; const ABackgroundBuffer: TBitmap; const AOpacity: Byte);
   public
     constructor Create(const ATarget: ISkControlRenderTarget);
     destructor Destroy; override;
@@ -2337,7 +2345,7 @@ begin
   inherited;
 end;
 
-procedure TSkRasterControlRender.DoRender(const AWidth, AHeight: Integer;
+procedure TSkRasterControlRender.DoRender(const ALeft, ATop, AWidth, AHeight: Integer;
   const AScaleFactor: Single; const ACanvas: TCanvas;
   const ABackgroundBuffer: TBitmap; const AOpacity: Byte);
 
@@ -2381,9 +2389,9 @@ begin
           LBlendFunction := BlendFunction;
           LBlendFunction.SourceConstantAlpha := AOpacity;
           if ABackgroundBuffer <> nil then
-            AlphaBlend(ABackgroundBuffer.Canvas.Handle, 0, 0, AWidth, AHeight, LDrawBufferDC, 0, 0, AWidth, AHeight, LBlendFunction)
+            AlphaBlend(ABackgroundBuffer.Canvas.Handle, ALeft, ATop, AWidth, AHeight, LDrawBufferDC, 0, 0, AWidth, AHeight, LBlendFunction)
           else
-            AlphaBlend(ACanvas.Handle, 0, 0, AWidth, AHeight, LDrawBufferDC, 0, 0, AWidth, AHeight, LBlendFunction);
+            AlphaBlend(ACanvas.Handle, ALeft, ATop, AWidth, AHeight, LDrawBufferDC, 0, 0, AWidth, AHeight, LBlendFunction);
         finally
           if LOldObj <> 0 then
             SelectObject(LDrawBufferDC, LOldObj);
@@ -2404,8 +2412,19 @@ begin
 end;
 
 function TSkRasterControlRender.TryRender(const ABackgroundBuffer: TBitmap; const AOpacity: Byte): Boolean;
+var
+  LTarget2: ISkControlRenderTarget2;
+
 begin
-  DoRender(FTarget.Width, FTarget.Height, FTarget.ScaleFactor, FTarget.Canvas, ABackgroundBuffer, AOpacity);
+  var LLeft := 0;
+  var LTop := 0;
+  if Supports(FTarget,ISkControlRenderTarget2,LTarget2) then
+  begin
+    LLeft := LTarget2.Left;
+    LTop  := LTarget2.Top;
+  end;
+
+  DoRender(LLeft, LTop, FTarget.Width, FTarget.Height, FTarget.ScaleFactor, FTarget.Canvas, ABackgroundBuffer, AOpacity);
   Result := True;
 end;
 
