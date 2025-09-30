@@ -13,7 +13,7 @@ unit Sample.Form.Base;
 interface
 
 {$SCOPEDENUMS ON}
-{$IF (CompilerVersion >= 33) and (CompilerVersion <= 36)} // RAD Studio 10.3 Rio to 12 Athens
+{$IF (CompilerVersion >= 33) and (CompilerVersion <= 37)} // RAD Studio 10.3 Rio to 13 Florence
   {$DEFINE AdvancedSystemBars}
 {$ENDIF}
 
@@ -155,7 +155,7 @@ begin
   // -   https://quality.embarcadero.com/browse/RSP-36959
   // -
   // - -------------------------------------------------------------------------
-  {$IF CompilerVersion > 36.0}
+  {$IF CompilerVersion > 37.0}
     {$MESSAGE WARN 'Check if the issue has been fixed'}
   {$ENDIF}
   // - -------------------------------------------------------------------------

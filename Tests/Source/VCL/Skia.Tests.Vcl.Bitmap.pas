@@ -43,10 +43,14 @@ type
     procedure TestBitmapToSkImage(ABitmapWidth, ABitmapHeight: Integer; const AMinSimilarity: Double; const AExpectedImageHash: string);
     [TestCase('1', '50,50,0.98,ZtuZZmaZ22Zn25lnZ5vf/nf73Xd33///f/vff3/////jx+PH//8eeB54///jx+PH48ceeB54Hng')]
     procedure TestBitmapToSkImage2(ABitmapWidth, ABitmapHeight: Integer; const AMinSimilarity: Double; const AExpectedImageHash: string);
+    [Test]
+    procedure TestCreateBitmapFromInvalidSkImage;
     [TestCase('1', '3d-shapes.svg,300,300,0.98,+/vxcXDAgp7///Fxc8fO3v//8/l3997///////f////vr++nr7ePcV0HUYO/j/ef5p3bmNuZw/8')]
     procedure TestCreateBitmapFromSkImage(const AImageFileName: string; ABitmapWidth, ABitmapHeight: Integer; const AMinSimilarity: Double; const AExpectedImageHash: string);
     [TestCase('1', '3d-shapes.svg,300,300,0.98,DwsPD/H//59/f39v8///339/f2/3////f/9///f///8A7wD/APcA9V//UZu/j/+f/53/mP+Z//8')]
     procedure TestCreateBitmapFromSkImage2(const AImageFileName: string; ABitmapWidth, ABitmapHeight: Integer; const AMinSimilarity: Double; const AExpectedImageHash: string);
+    [Test]
+    procedure TestEmptyBitmapToSkImage;
     [TestCase('1', '3d-shapes.svg,300,300,1,false,false,0.98,AHBQ0fO/HwUzcNDR87/fzXd62d33v9/9d3rZ/ff/3/0AWODYQNpw37D/8/9LfxviP2c/7353fgg')]
     [TestCase('2', '3d-shapes.svg,300,300,1.5,false,false,0.98,ABg8JGTk/P0zOPzkZ+f8/XO8/vd39///c7z+93f3//8AAwADAAcABmAGcA74HHAO+A/QP/hven8')]
     [TestCase('3', '3d-shapes.svg,300,300,1,true,false,0.98,AHBQ0fO/HwUzcNDR87/fzXd62d33v9/9d3rZ/ff/3/0AWODYQNpw37D/8/9LfxviP2c/7353fgg')]
@@ -72,6 +76,8 @@ type
     procedure TestSkiaDraw7(ABitmapWidth, ABitmapHeight: Integer; ABitmapScale: Single; const AMinSimilarity: Double; const AExpectedImageHash: string);
     [TestCase('1', 'horse.webp,0.98,Dw4ODn7++vJ/fn5vf//+/n9/f29/////////7///////8P/w//D/8B/wD/AP8A/4AoAAAAAAAAA')]
     procedure TestSkiaDraw8(const AImageFileName: string; const AMinSimilarity: Double; const AExpectedImageHash: string);
+    [Test]
+    procedure TestSkiaDrawEmptyBitmap;
   end;
 
 implementation
@@ -177,6 +183,18 @@ begin
   end;
 end;
 
+procedure TSkVclBitmapTests.TestCreateBitmapFromInvalidSkImage;
+var
+  LBitmap: TBitmap;
+begin
+  LBitmap := TBitmap.CreateFromSkImage(nil);
+  try
+    Assert.IsTrue(LBitmap.Empty);
+  finally
+    LBitmap.Free;
+  end;
+end;
+
 procedure TSkVclBitmapTests.TestCreateBitmapFromSkImage(const AImageFileName: string; ABitmapWidth,
   ABitmapHeight: Integer; const AMinSimilarity: Double; const AExpectedImageHash: string);
 var
@@ -207,6 +225,18 @@ begin
         ACanvas.DrawRect(RectF(0, 0, LBitmap.Width / 2, LBitmap.Height / 2), LPaint);
       end, False);
     Assert.AreSimilar(AExpectedImageHash, LBitmap.ToSkImage, AMinSimilarity);
+  finally
+    LBitmap.Free;
+  end;
+end;
+
+procedure TSkVclBitmapTests.TestEmptyBitmapToSkImage;
+var
+  LBitmap: TBitmap;
+begin
+  LBitmap := TBitmap.Create;
+  try
+    Assert.IsNull(LBitmap.ToSkImage);
   finally
     LBitmap.Free;
   end;
@@ -395,6 +425,30 @@ begin
         ACanvas.DrawRect(RectF(0, 0, LBitmap.Width / 2, LBitmap.Height / 2), LPaint);
       end, False);
     Assert.AreSimilar(AExpectedImageHash, LBitmap.ToSkImage, AMinSimilarity);
+  finally
+    LBitmap.Free;
+  end;
+end;
+
+procedure TSkVclBitmapTests.TestSkiaDrawEmptyBitmap;
+var
+  LBitmap: TBitmap;
+begin
+  LBitmap := TBitmap.Create;
+  try
+    Assert.WillNotRaise(
+      procedure
+      begin
+        LBitmap.SkiaDraw(
+          procedure(const ACanvas: ISkCanvas)
+          var
+            LPaint: ISkPaint;
+          begin
+            LPaint := TSkPaint.Create;
+            LPaint.Color := TAlphaColors.Red;
+            ACanvas.DrawRect(RectF(0, 0, LBitmap.Width / 2, LBitmap.Height / 2), LPaint);
+          end, False);
+      end);
   finally
     LBitmap.Free;
   end;

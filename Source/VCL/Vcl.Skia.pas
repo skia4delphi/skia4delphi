@@ -1146,6 +1146,7 @@ type
   strict protected
     function CanAutoSize(var ANewWidth, ANewHeight: Integer): Boolean; override;
     procedure Click; override;
+    function CreateWordsCollection: TWordsCollection; virtual;
     procedure Draw(const ACanvas: ISkCanvas; const ADest: TRectF; const AOpacity: Single); override;
     function GetTextSettingsClass: TSkTextSettingsInfo.TCustomTextSettingsClass; virtual;
     function GetWordsItemAtPosition(const AX, AY: Integer): TCustomWordsItem;
@@ -1496,20 +1497,22 @@ var
   LPixels: Pointer;
   LStride: Integer;
 begin
-  Assert(Assigned(AImage));
   Create;
-  PixelFormat := TPixelFormat.pf32bit;
-  AlphaFormat := TAlphaFormat.afPremultiplied;
-  SetSize(AImage.Width, AImage.Height);
-  if not Empty then
+  if AImage <> nil then
   begin
-    LStride := BytesPerScanLine(Width, 32, 32);
-    GetMem(LPixels, LStride * Height);
-    try
-      AImage.ReadPixels(TSkImageInfo.Create(Width, Height), LPixels, LStride);
-      FlipPixels(Width, Height, LPixels, LStride, ScanLine[Height - 1], LStride);
-    finally
-      FreeMem(LPixels);
+    PixelFormat := TPixelFormat.pf32bit;
+    AlphaFormat := TAlphaFormat.afPremultiplied;
+    SetSize(AImage.Width, AImage.Height);
+    if not Empty then
+    begin
+      LStride := BytesPerScanLine(Width, 32, 32);
+      GetMem(LPixels, LStride * Height);
+      try
+        AImage.ReadPixels(TSkImageInfo.Create(Width, Height), LPixels, LStride);
+        FlipPixels(Width, Height, LPixels, LStride, ScanLine[Height - 1], LStride);
+      finally
+        FreeMem(LPixels);
+      end;
     end;
   end;
 end;
@@ -1548,7 +1551,7 @@ var
 begin
   Assert(Assigned(AProc));
   if Empty then
-    raise ESkBitmapHelper.Create('Invalid bitmap');
+    Exit;
   LOriginalImage := nil;
   if (PixelFormat <> TPixelFormat.pf32bit) or (AlphaFormat <> TAlphaFormat.afPremultiplied) then
   begin
@@ -1594,7 +1597,7 @@ var
   LStride: Integer;
 begin
   if Empty then
-    raise ESkBitmapHelper.Create('Invalid bitmap');
+    Exit(nil);
   if PixelFormat = TPixelFormat.pf32bit then
   begin
     case AlphaFormat of
@@ -1881,7 +1884,7 @@ end;
 
 function TSkCustomControl.NeedsRedraw: Boolean;
 begin
-  Result := (not FDrawCached) or (FDrawCacheKind = TSkDrawCacheKind.Never) or (FDrawBuffer = 0);
+  Result := (not FDrawCached) or (FDrawCacheKind = TSkDrawCacheKind.Never);
 end;
 
 procedure TSkCustomControl.Paint;
@@ -1920,7 +1923,7 @@ begin
       begin
         LOldObj := SelectObject(LDrawBufferDC, FDrawBuffer);
         try
-          if NeedsRedraw then
+          if NeedsRedraw or (FDrawBuffer = 0) then
             InternalDraw;
           LBlendFunction := BlendFunction;
           LBlendFunction.SourceConstantAlpha := FOpacity;
@@ -2074,7 +2077,7 @@ end;
 
 function TSkSvgBrush.MakeDOM: ISkSVGDOM;
 begin
-  Result := TSkSVGDOM.Make(FSource, TSkDefaultProviders.Resource);
+  Result := TSkSVGDOM.Make(FSource, TSkDefaultProviders.Resource, TSkDefaultProviders.TypefaceFont);
 end;
 
 procedure TSkSvgBrush.RecreateDOM;
@@ -5607,8 +5610,13 @@ begin
   FTextSettingsInfo.Design := True;//csDesigning in ComponentState;
   FTextSettingsInfo.StyledSettings := [];
   FTextSettingsInfo.OnChange := TextSettingsChanged;
-  FWords := TWordsCollection.Create(Self, TWordsItem);
+  FWords := CreateWordsCollection;
   FWords.OnChange := WordsChange;
+end;
+
+function TSkLabel.CreateWordsCollection: TWordsCollection;
+begin
+  Result := TWordsCollection.Create(Self, TWordsItem);
 end;
 
 procedure TSkLabel.DeleteParagraph;

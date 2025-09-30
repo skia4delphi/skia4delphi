@@ -339,8 +339,13 @@ begin
   Top := Round(Max(Top, 0));
   LTotalTests := 0;
   FFixtureList := FAsyncTestRunner.FixtureList;
-  BuildTree(nil, FFixtureList, LTotalTests);
-  pgbTestRunnerProgress.Max := LTotalTests;
+  BeginUpdate;
+  try
+    BuildTree(nil, FFixtureList, LTotalTests);
+    pgbTestRunnerProgress.Max := LTotalTests;
+  finally
+    EndUpdate;
+  end;
 end;
 
 function TfrmFMXRunner.GetNode(AFullName: string): TTreeViewItem;

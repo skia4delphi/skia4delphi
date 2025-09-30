@@ -8,7 +8,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2015/06/nuspec.xsd">
   <metadata>
     <id>skia4delphi</id>
-    <version>6.4.0-beta1</version>
+    <version>7.0.1</version>
     <packageSourceUrl>https://github.com/skia4delphi/skia4delphi/tree/main/Tools/Chocolatey%20Package</packageSourceUrl>
     <owners>Paulo César Botelho Barbosa,Vinícius Felipe Botelho Barbosa</owners>
     <title>Skia4Delphi</title>
@@ -39,16 +39,17 @@ Google's Skia Graphics Library serves as the graphics engine for Google Chrome a
   - `21.0` - RAD Studio 10.4 Sydney
   - `22.0` - RAD Studio 11 Alexandria
   - `23.0` - RAD Studio 12 Athens
+  - `37.0` - RAD Studio 13 Florence
   - `all` - All RAD Studio versions detected in system (default)
 
-  The ".0" can be omitted, so "23" is the same of "23.0".
+  The ".0" can be omitted, so "37" is the same of "37.0".
 
   **Examples**
 
-  - The command below in powershell will install the library just in RAD Studio 12 Athens:
-  `choco install skia4delphi --params "/RADStudioVersions=23"`
-  - The command below in powershell will install the library just in RAD Studio 11 Alexandria and RAD Studio 12 Athens:
-  `choco install skia4delphi --params "/RADStudioVersions=22,23"`
+  - The command below in powershell will install the library just in RAD Studio 13 Florence:
+  `choco install skia4delphi --params "/RADStudioVersions=37"`
+  - The command below in powershell will install the library just in RAD Studio 12 Athens and RAD Studio 13 Florence:
+  `choco install skia4delphi --params "/RADStudioVersions=23,37"`
   - The command below in powershell will install the library in all RAD Studio versions detected in system:
   `choco install skia4delphi`
 
