@@ -237,7 +237,7 @@ type
     DelphiSupportedPlatforms = [TSkProjectPlatform.Win32, TSkProjectPlatform.Win64, TSkProjectPlatform.Android,
       TSkProjectPlatform.Android64, TSkProjectPlatform.iOSDevice64, TSkProjectPlatform.iOSSimARM64,
       TSkProjectPlatform.OSX64, TSkProjectPlatform.OSXARM64, TSkProjectPlatform.Linux64];
-    {$ELSEIF (CompilerVersion < 37) or ((CompilerVersion = 37) and NOT DECLARED(RTLVersion131)} // RAD Studio 12 Athens to RAD Studio 13.0 Florence
+    {$ELSEIF (CompilerVersion < 37) or ((CompilerVersion = 37) and NOT DECLARED(RTLVersion131))} // RAD Studio 12 Athens to RAD Studio 13.0 Florence
     CBuilderSupportedPlatforms = [TSkProjectPlatform.Win32, TSkProjectPlatform.Win64, TSkProjectPlatform.Win64x];
     DelphiSupportedPlatforms = [TSkProjectPlatform.Win32, TSkProjectPlatform.Win64, TSkProjectPlatform.Win64x,
       TSkProjectPlatform.Android, TSkProjectPlatform.Android64, TSkProjectPlatform.iOSDevice64,
@@ -300,14 +300,14 @@ const
 
   {$ELSE !SK_STATIC_WIN_EXPERIMENTAL}
 
-  {$IF (CompilerVersion > 37) or ((CompilerVersion = 37) and DECLARED(RTLVersion131)} // RAD Studio 13.1 Florence and newer
+  {$IF (CompilerVersion > 37) or ((CompilerVersion = 37) and DECLARED(RTLVersion131))} // RAD Studio 13.1 Florence and newer
   SkiaDeployFiles: array[0..9] of TSkDeployFile = (
   {$ELSEIF CompilerVersion >= 35} // RAD Studio 11 Alexandria to RAD Studio 13.0 Florence
   SkiaDeployFiles: array[0..7] of TSkDeployFile = (
   {$ELSE} // RAD Studio 10.4 Sydney and older
   SkiaDeployFiles: array[0..3] of TSkDeployFile = (
   {$ENDIF}
-    {$IF (CompilerVersion > 37) or ((CompilerVersion = 37) and DECLARED(RTLVersion131)} // RAD Studio 13.1 Florence and newer
+    {$IF (CompilerVersion > 37) or ((CompilerVersion = 37) and DECLARED(RTLVersion131))} // RAD Studio 13.1 Florence and newer
     (&Platform: TSkProjectPlatform.WinARM64EC;  LocalFileName: '$(BDS)\binarm64ec\sk4d.dll';                                     RemotePath: '.\';                       CopyToOutput: True;  Required: True; Operation: TDeployOperation.doCopyOnly;   Condition: '''$('+SkiaDirVariable+')''=='''''), // WinARM64EC
     (&Platform: TSkProjectPlatform.WinARM64EC;  LocalFileName: '$('+SkiaDirVariable+')\Binary\Shared\WinARM64EC\sk4d.dll';       RemotePath: '.\';                       CopyToOutput: True;  Required: True; Operation: TDeployOperation.doCopyOnly;   Condition: '''$('+SkiaDirVariable+')''!='''''), // WinARM64EC
     {$ENDIF}
