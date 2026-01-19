@@ -91,31 +91,31 @@
         <BuildGroupProject Include="Skia.Package.RTL.dproj">
             <ProjectGuid>{FA99292F-A9C8-44CF-A1DD-F784D200D11E}</ProjectGuid>
             <Configurations>Debug;Release</Configurations>
-            <Platforms>Android;Android64;iOSDevice64;iOSSimARM64;Linux64;OSX64;OSXARM64;Win32;Win64;Win64x</Platforms>
+            <Platforms>Android;Android64;iOSDevice64;iOSSimARM64;Linux64;OSX64;OSXARM64;Win32;Win64;Win64x;WinARM64EC</Platforms>
             <Enabled>True</Enabled>
         </BuildGroupProject>
         <BuildGroupProject Include="Skia.Package.VCL.dproj">
             <ProjectGuid>{89D2E5F0-DE99-4483-819F-E295B2866B52}</ProjectGuid>
             <Configurations>Debug;Release</Configurations>
-            <Platforms>Win32;Win64;Win64x</Platforms>
+            <Platforms>Win32;Win64;Win64x;WinARM64EC</Platforms>
             <Enabled>True</Enabled>
         </BuildGroupProject>
         <BuildGroupProject Include="Skia.Package.FMX.dproj">
             <ProjectGuid>{7EED43C7-FD38-4995-B724-4A27D8F0FBBA}</ProjectGuid>
             <Configurations>Debug;Release</Configurations>
-            <Platforms>Android;Android64;iOSDevice64;iOSSimARM64;Linux64;OSX64;OSXARM64;Win32;Win64;Win64x</Platforms>
+            <Platforms>Android;Android64;iOSDevice64;iOSSimARM64;Linux64;OSX64;OSXARM64;Win32;Win64;Win64x;WinARM64EC</Platforms>
             <Enabled>True</Enabled>
         </BuildGroupProject>
         <BuildGroupProject Include="Skia.Package.VCL.Designtime.dproj">
             <ProjectGuid>{6EBE9429-74F3-49AE-9B69-305A16EEF639}</ProjectGuid>
             <Configurations>Debug;Release</Configurations>
-            <Platforms>Win32;Win64</Platforms>
+            <Platforms>Win32;Win64;WinARM64EC</Platforms>
             <Enabled>True</Enabled>
         </BuildGroupProject>
         <BuildGroupProject Include="Skia.Package.FMX.Designtime.dproj">
             <ProjectGuid>{0B1AC1CF-B746-47A6-8071-39882DFBD00D}</ProjectGuid>
             <Configurations>Debug;Release</Configurations>
-            <Platforms>Win32;Win64</Platforms>
+            <Platforms>Win32;Win64;WinARM64EC</Platforms>
             <Enabled>True</Enabled>
         </BuildGroupProject>
     </ItemGroup>

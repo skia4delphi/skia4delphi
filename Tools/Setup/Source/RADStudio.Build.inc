@@ -24,7 +24,7 @@ type
   TBeforeProjectBuildProc = procedure(const AProject: TRADStudioProject; const APlatform: TProjectPlatform; const AInfo: TRADStudioInfo);
   TTryExtractPreBuildObjectsProc = function(const AInfo: TRADStudioInfo): Boolean;
 
-/// <summary> Get platforms that are allowed to build in specific platform. Current, allowed only windows platforms to avoid problems with sdk. </summary>
+/// <summary> Get platforms that are allowed to build in specific platform. Current, allowed only Windows platforms to avoid problems with SDK. </summary>
 function GetPlatformsAllowedToBuild(const ARADStudioInfo: TRADStudioInfo): TProjectPlatforms; forward;
 /// <summary> Get steps of TryBuildRADStudioPackages used in WizardForm.ProgressGauge.Position. Use this to set WizardForm.ProgressGauge.Max before call the TryBuildRADStudioPackages. </summary>
 function GetTryBuildRADStudioPackagesSteps(const ARADStudioInfos: TRADStudioInfos; const AGroupProjects: TRADStudioGroupProjects): Integer; forward;
@@ -56,7 +56,7 @@ end;
 
 function GetPlatformsAllowedToBuild(const ARADStudioInfo: TRADStudioInfo): TProjectPlatforms;
 begin
-  Result := [pfWin32, pfWin64, pfWin64x];
+  Result := [pfWin32, pfWin64, pfWin64x, pfWinARM64EC];
 end;
 
 function GetTryBuildRADStudioPackagesSteps(const ARADStudioInfos: TRADStudioInfos; const AGroupProjects: TRADStudioGroupProjects): Integer;

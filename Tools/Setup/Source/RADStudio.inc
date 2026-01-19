@@ -534,7 +534,7 @@ begin
   LRADStudioVersion.RegVersion := '23.0';
   LRADStudioVersion.SupportedPlatformsDelphi := [pfWin32, pfWin64, pfWin64x, pfAndroid, pfAndroid64, pfiOSDevice64, pfiOSSimARM64, pfOSX64, pfOSXARM64, pfLinux64];
   LRADStudioVersion.SupportedPlatforms := LRADStudioVersion.SupportedPlatformsDelphi;
-  LRADStudioVersion.MaxDprojVersion := '20.1';
+  LRADStudioVersion.MaxDprojVersion := '20.2';
   LRADStudioVersion.MinDprojVersion := '20.1';
   LRADStudioVersion.PackageVersion := '290';
   LRADStudioVersion.HasGetItCmd := True;
@@ -548,7 +548,7 @@ begin
   // RAD Studio 13 Florence
   LRADStudioVersion.Name := 'RAD Studio 13 Florence';
   LRADStudioVersion.RegVersion := '37.0';
-  LRADStudioVersion.SupportedPlatformsDelphi := [pfWin32, pfWin64, pfWin64x, pfAndroid, pfAndroid64, pfiOSDevice64, pfiOSSimARM64, pfOSX64, pfOSXARM64, pfLinux64];
+  LRADStudioVersion.SupportedPlatformsDelphi := [pfWin32, pfWin64, pfWin64x, pfWinARM64EC, pfAndroid, pfAndroid64, pfiOSDevice64, pfiOSSimARM64, pfOSX64, pfOSXARM64, pfLinux64];
   LRADStudioVersion.SupportedPlatforms := LRADStudioVersion.SupportedPlatformsDelphi;
   LRADStudioVersion.MaxDprojVersion := '20.3';
   LRADStudioVersion.MinDprojVersion := '20.3';

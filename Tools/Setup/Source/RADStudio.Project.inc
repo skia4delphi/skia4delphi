@@ -17,7 +17,7 @@
 // interface
 
 type
-  TProjectPlatform = (pfWin32, pfWin64, pfWin64x, pfAndroid, pfAndroid64, pfiOSDevice32, pfiOSDevice64, pfiOSSimARM64, pfiOSSimulator, pfOSX32, pfOSX64, pfOSXARM64, pfLinux64);
+  TProjectPlatform = (pfWin32, pfWin64, pfWin64x, pfWinARM64EC, pfAndroid, pfAndroid64, pfiOSDevice32, pfiOSDevice64, pfiOSSimARM64, pfiOSSimulator, pfOSX32, pfOSX64, pfOSXARM64, pfLinux64);
   TProjectPlatforms = set of TProjectPlatform;
   TProjectConfig = (pcDebug, pcRelease);
   TProjectConfigs = set of TProjectConfig;
@@ -172,6 +172,7 @@ begin
     pfWin32       : Result := 'Windows 32-bit';
     pfWin64       : Result := 'Windows 64-bit';
     pfWin64x      : Result := 'Windows 64-bit (Modern)';
+    pfWinARM64EC  : Result := 'Windows ARM 64-bit EC';
     pfAndroid     : Result := 'Android 32-bit';
     pfAndroid64   : Result := 'Android 64-bit';
     pfiOSDevice32 : Result := 'iOS Device 32-bit';
@@ -203,6 +204,7 @@ begin
     pfWin32       : Result := 'Win32';
     pfWin64       : Result := 'Win64';
     pfWin64x      : Result := 'Win64x';
+    pfWinARM64EC  : Result := 'WinARM64EC';
     pfAndroid     : Result := 'Android';
     pfAndroid64   : Result := 'Android64';
     pfiOSDevice32 : Result := 'iOSDevice32';
@@ -516,6 +518,8 @@ begin
     APlatform := pfWin64
   else if SameText(APlatformName, 'Win64x') then
     APlatform := pfWin64x
+  else if SameText(APlatformName, 'WinARM64EC') then
+    APlatform := pfWinARM64EC
   else if SameText(APlatformName, 'Android') then
     APlatform := pfAndroid
   else if SameText(APlatformName, 'Android32') then

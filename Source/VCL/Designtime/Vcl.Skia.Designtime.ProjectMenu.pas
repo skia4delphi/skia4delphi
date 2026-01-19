@@ -44,7 +44,7 @@ uses
   DCCStrs;
 
 type
-  TSkProjectPlatform = (Unknown, Win32, Win64, Win64x, Android, Android64, iOSDevice32, iOSDevice64, iOSSimARM64, iOSSimulator, OSX64, OSXARM64, Linux64);
+  TSkProjectPlatform = (Unknown, Win32, Win64, Win64x, WinARM64EC, Android, Android64, iOSDevice32, iOSDevice64, iOSSimARM64, iOSSimulator, OSX64, OSXARM64, Linux64);
   TSkProjectPlatforms = set of TSkProjectPlatform;
 
   { TSkDeployFile }
@@ -237,10 +237,15 @@ type
     DelphiSupportedPlatforms = [TSkProjectPlatform.Win32, TSkProjectPlatform.Win64, TSkProjectPlatform.Android,
       TSkProjectPlatform.Android64, TSkProjectPlatform.iOSDevice64, TSkProjectPlatform.iOSSimARM64,
       TSkProjectPlatform.OSX64, TSkProjectPlatform.OSXARM64, TSkProjectPlatform.Linux64];
-    {$ELSE} // RAD Studio 12 Athens and newer
+    {$ELSEIF (CompilerVersion < 37) or ((CompilerVersion = 37) and NOT DECLARED(RTLVersion131)} // RAD Studio 12 Athens to RAD Studio 13.0 Florence
     CBuilderSupportedPlatforms = [TSkProjectPlatform.Win32, TSkProjectPlatform.Win64, TSkProjectPlatform.Win64x];
     DelphiSupportedPlatforms = [TSkProjectPlatform.Win32, TSkProjectPlatform.Win64, TSkProjectPlatform.Win64x,
       TSkProjectPlatform.Android, TSkProjectPlatform.Android64, TSkProjectPlatform.iOSDevice64,
+      TSkProjectPlatform.iOSSimARM64, TSkProjectPlatform.OSX64, TSkProjectPlatform.OSXARM64, TSkProjectPlatform.Linux64];
+    {$ELSE} // RAD Studio 13.1 Florence and newer
+    CBuilderSupportedPlatforms = [TSkProjectPlatform.Win32, TSkProjectPlatform.Win64, TSkProjectPlatform.Win64x];
+    DelphiSupportedPlatforms = [TSkProjectPlatform.Win32, TSkProjectPlatform.Win64, TSkProjectPlatform.Win64x,
+      TSkProjectPlatform.WinARM64EC, TSkProjectPlatform.Android, TSkProjectPlatform.Android64, TSkProjectPlatform.iOSDevice64,
       TSkProjectPlatform.iOSSimARM64, TSkProjectPlatform.OSX64, TSkProjectPlatform.OSXARM64, TSkProjectPlatform.Linux64];
     {$ENDIF}
   strict private class var
@@ -270,7 +275,7 @@ const
   SkiaProjectDefine         = 'SKIA'; // do not localize
   SkiaProjectDisabledDefine = 'SKIA_DISABLED'; // do not localize
 
-  {$IF CompilerVersion >= 32}
+  {$IF CompilerVersion >= 32} // RAD Studio 10.2 Tokyo and newer
   SkiaPlatformsOptions: array[0..1] of
   record
     &Platform: TSkProjectPlatform;
@@ -283,30 +288,42 @@ const
   {$ENDIF}
 
   {$IFDEF SK_STATIC_WIN_EXPERIMENTAL}
-  {$IF CompilerVersion >= 35}
+
+  {$IF CompilerVersion >= 35} // RAD Studio 11 Alexandria and newer
   SkiaDeployFiles: array[0..1] of TSkDeployFile = (
     (&Platform: TSkProjectPlatform.Linux64;     LocalFileName: '$(BDS)\binlinux64\libsk4d.so';                                   RemotePath: '.\';                       CopyToOutput: False; Required: True; Operation: TDeployOperation.doSetExecBit; Condition: '''$('+SkiaDirVariable+')''=='''''), // Linux64
-  {$ELSE}
+  {$ELSE} // RAD Studio 10.4 Sydney and older
   SkiaDeployFiles: array[0..0] of TSkDeployFile = (
   {$ENDIF}
     (&Platform: TSkProjectPlatform.Linux64;     LocalFileName: '$('+SkiaDirVariable+')\Binary\Shared\Linux64\libsk4d.so';        RemotePath: '.\';                       CopyToOutput: False; Required: True; Operation: TDeployOperation.doSetExecBit; Condition: '''$('+SkiaDirVariable+')''!=''''')  // Linux64
   );
-  {$ELSE}
-  {$IF CompilerVersion >= 35}
+
+  {$ELSE !SK_STATIC_WIN_EXPERIMENTAL}
+
+  {$IF (CompilerVersion > 37) or ((CompilerVersion = 37) and DECLARED(RTLVersion131)} // RAD Studio 13.1 Florence and newer
+  SkiaDeployFiles: array[0..9] of TSkDeployFile = (
+  {$ELSEIF CompilerVersion >= 35} // RAD Studio 11 Alexandria to RAD Studio 13.0 Florence
   SkiaDeployFiles: array[0..7] of TSkDeployFile = (
+  {$ELSE} // RAD Studio 10.4 Sydney and older
+  SkiaDeployFiles: array[0..3] of TSkDeployFile = (
+  {$ENDIF}
+    {$IF (CompilerVersion > 37) or ((CompilerVersion = 37) and DECLARED(RTLVersion131)} // RAD Studio 13.1 Florence and newer
+    (&Platform: TSkProjectPlatform.WinARM64EC;  LocalFileName: '$(BDS)\binarm64ec\sk4d.dll';                                     RemotePath: '.\';                       CopyToOutput: True;  Required: True; Operation: TDeployOperation.doCopyOnly;   Condition: '''$('+SkiaDirVariable+')''=='''''), // WinARM64EC
+    (&Platform: TSkProjectPlatform.WinARM64EC;  LocalFileName: '$('+SkiaDirVariable+')\Binary\Shared\WinARM64EC\sk4d.dll';       RemotePath: '.\';                       CopyToOutput: True;  Required: True; Operation: TDeployOperation.doCopyOnly;   Condition: '''$('+SkiaDirVariable+')''!='''''), // WinARM64EC
+    {$ENDIF}
+    {$IF CompilerVersion >= 35} // RAD Studio 11 Alexandria and newer
     (&Platform: TSkProjectPlatform.Win32;       LocalFileName: '$(BDS)\bin\sk4d.dll';                                            RemotePath: '.\';                       CopyToOutput: True;  Required: True; Operation: TDeployOperation.doCopyOnly;   Condition: '''$('+SkiaDirVariable+')''=='''''), // Win32
     (&Platform: TSkProjectPlatform.Win64;       LocalFileName: '$(BDS)\bin64\sk4d.dll';                                          RemotePath: '.\';                       CopyToOutput: True;  Required: True; Operation: TDeployOperation.doCopyOnly;   Condition: '''$('+SkiaDirVariable+')''=='''''), // Win64
     (&Platform: TSkProjectPlatform.Win64x;      LocalFileName: '$(BDS)\bin64\sk4d.dll';                                          RemotePath: '.\';                       CopyToOutput: True;  Required: True; Operation: TDeployOperation.doCopyOnly;   Condition: '''$('+SkiaDirVariable+')''=='''''), // Win64x
     (&Platform: TSkProjectPlatform.Linux64;     LocalFileName: '$(BDS)\binlinux64\libsk4d.so';                                   RemotePath: '.\';                       CopyToOutput: False; Required: True; Operation: TDeployOperation.doSetExecBit; Condition: '''$('+SkiaDirVariable+')''=='''''), // Linux64
-  {$ELSE}
-  SkiaDeployFiles: array[0..3] of TSkDeployFile = (
-  {$ENDIF}
+    {$ENDIF}
     (&Platform: TSkProjectPlatform.Win32;       LocalFileName: '$('+SkiaDirVariable+')\Binary\Shared\Win32\sk4d.dll';            RemotePath: '.\';                       CopyToOutput: True;  Required: True; Operation: TDeployOperation.doCopyOnly;   Condition: '''$('+SkiaDirVariable+')''!='''''), // Win32
     (&Platform: TSkProjectPlatform.Win64;       LocalFileName: '$('+SkiaDirVariable+')\Binary\Shared\Win64\sk4d.dll';            RemotePath: '.\';                       CopyToOutput: True;  Required: True; Operation: TDeployOperation.doCopyOnly;   Condition: '''$('+SkiaDirVariable+')''!='''''), // Win64
     (&Platform: TSkProjectPlatform.Win64x;      LocalFileName: '$('+SkiaDirVariable+')\Binary\Shared\Win64\sk4d.dll';            RemotePath: '.\';                       CopyToOutput: True;  Required: True; Operation: TDeployOperation.doCopyOnly;   Condition: '''$('+SkiaDirVariable+')''!='''''), // Win64x
     (&Platform: TSkProjectPlatform.Linux64;     LocalFileName: '$('+SkiaDirVariable+')\Binary\Shared\Linux64\libsk4d.so';        RemotePath: '.\';                       CopyToOutput: False; Required: True; Operation: TDeployOperation.doSetExecBit; Condition: '''$('+SkiaDirVariable+')''!=''''')  // Linux64
   );
-  {$ENDIF}
+
+  {$ENDIF !SK_STATIC_WIN_EXPERIMENTAL}
 
 function ContainsStringInArray(const AString: string;
   const AArray: TArray<string>; const ACaseSensitive: Boolean = True): Boolean;
@@ -645,7 +662,7 @@ procedure TSkProjectManagerMenuEnableSkia.SetSkiaEnabled(
   begin
     LSourceList := TStringList.Create;
     try
-      {$IF CompilerVersion >= 31}
+      {$IF CompilerVersion >= 31} // RAD Studio 10.1 Berlin and newer
       LSourceList.TrailingLineBreak := False;
       {$ENDIF}
       LSourceList.Text := ASource;
@@ -663,7 +680,7 @@ procedure TSkProjectManagerMenuEnableSkia.SetSkiaEnabled(
       if Result then
       begin
         ASource := LSourceList.Text;
-        {$IF CompilerVersion < 31}
+        {$IF CompilerVersion < 31} // Below RAD Studio 10.1 Berlin
         ASource := ASource.TrimRight;
         {$ENDIF}
       end;
@@ -745,7 +762,7 @@ begin
     LProjectOptions.ModifiedState := True;
   ChangeSource(AProject, AEnabled);
 
-  {$IF CompilerVersion >= 35}
+  {$IF CompilerVersion >= 35} // RAD Studio 11 Alexandria and newer
   var LProjectBuilder := AProject.ProjectBuilder;
   if Assigned(LProjectBuilder) then
     LProjectBuilder.BuildProject(TOTACompileMode.cmOTAClean, False, True);
@@ -800,7 +817,7 @@ begin
             ShowMessage(Format(sUnsupportedPlatformMessage, [AProject.CurrentPlatform, SkiaMenuCaption[True], SkiaProjectDisabledDefine]));
           end;
         end;
-      {$IF CompilerVersion >= 35}
+      {$IF CompilerVersion >= 35} // RAD Studio 11 Alexandria and newer
       cmOTAClean: TSkDeployFilesHelper.DeleteFromOutput(AProject, LPlatform, LConfig);
       {$ENDIF}
     else
@@ -856,7 +873,7 @@ class procedure TSkDeployFilesHelper.AddDeployFiles(
   var
     LDeployFile: TSkDeployFile;
   begin
-    if (AProject.ApplicationType = sLibrary) and not (APlatform in [TSkProjectPlatform.Win32, TSkProjectPlatform.Win64, TSkProjectPlatform.Win64x]) then
+    if (AProject.ApplicationType = sLibrary) and not (APlatform in [TSkProjectPlatform.Win32, TSkProjectPlatform.Win64, TSkProjectPlatform.Win64x, TSkProjectPlatform.WinARM64EC]) then
       Exit;
     for LDeployFile in GetSkiaDeployFiles(APlatform) do
       DoAddFile(AProjectDeployment, LDeployFile.Platform.ToString, AConfig, LDeployFile);
@@ -929,7 +946,7 @@ class procedure TSkDeployFilesHelper.EnsureDeployFiles(
     LSkiaFile: TSkDeployFile;
   begin
     LPlatformName := APlatform.ToString;
-    if (AProject.ApplicationType = sLibrary) and not (APlatform in [TSkProjectPlatform.Win32, TSkProjectPlatform.Win64, TSkProjectPlatform.Win64x]) then
+    if (AProject.ApplicationType = sLibrary) and not (APlatform in [TSkProjectPlatform.Win32, TSkProjectPlatform.Win64, TSkProjectPlatform.Win64x, TSkProjectPlatform.WinARM64EC]) then
       LSkiaDeployFiles := []
     else
       LSkiaDeployFiles := GetSkiaDeployFiles(APlatform);
@@ -1007,7 +1024,13 @@ var
   LPlatform: TSkProjectPlatform;
 begin
   Result := False;
-  LPlatform := TSkProjectPlatform.{$IFDEF WIN32}Win32{$ELSEIF DEFINED(WIN64)}Win64{$ENDIF};
+  {$IFDEF WIN32}
+  LPlatform := TSkProjectPlatform.Win32;
+  {$ELSEIF DEFINED(MSWINDOWS) and DEFINED(CPUX64)}
+  LPlatform := TSkProjectPlatform.Win64;
+  {$ELSEIF DEFINED(MSWINDOWS) and DEFINED(CPUARM64) and DEFINED(ARM64EC)}
+  LPlatform := TSkProjectPlatform.WinARM64EC;
+  {$ENDIF}
   for LFile in GetSkiaDeployFiles(LPlatform) do
     if TFile.Exists(TSkOTAHelper.ExpandVars(LFile.LocalFileName, LPlatform, cbtRelease)) then
       Exit(True);
@@ -1112,7 +1135,7 @@ end;
 class procedure TSkProjectHelper.SetIsSkiaDefined(const AProject: IOTAProject;
   const AValue: Boolean);
 
-  {$IF CompilerVersion >= 32}
+  {$IF CompilerVersion >= 32} // RAD Studio 10.2 Tokyo and newer
   procedure SetPlatformsOptions;
   var
     LBuildConfig: IOTABuildConfiguration;
@@ -1169,7 +1192,7 @@ begin
           else
             LBaseConfiguration.Value[DefinesName(AProject)] := TSkOTAHelper.RemoveOptionValue(LBaseConfiguration.Value[DefinesName(AProject)], SkiaProjectDefine);
         end;
-        {$IF CompilerVersion >= 32}
+        {$IF CompilerVersion >= 32} // RAD Studio 10.2 Tokyo and newer
         SetPlatformsOptions;
         {$ENDIF}
       end;

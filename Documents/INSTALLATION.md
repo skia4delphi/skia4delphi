@@ -116,6 +116,7 @@ Installation can be done automatically or manually.
    For `[platform_name]`:
    - Win32
    - Win64
+   - WinARM64EC
    - Android
    - Android64
    - iOSDevice64

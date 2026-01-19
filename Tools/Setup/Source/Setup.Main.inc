@@ -45,7 +45,7 @@ function InitializeSetup: Boolean; forward;
 procedure InitializeWizard; forward;
 /// <summary> Install the packages </summary>
 function InstallPackages(const ARADStudioInfos: TRADStudioInfos; const AGroupProjects: TRADStudioGroupProjects): Boolean; forward;
-/// <summary> Check if the setup can create the uninstall registry key to be able to uninstall in windows settings. This reg key can be disabled by executing the setup with the parameter /CreateUninstallRegKey=no </summary>
+/// <summary> Check if the setup can create the uninstall registry key to be able to uninstall in Windows settings. This reg key can be disabled by executing the setup with the parameter /CreateUninstallRegKey=no </summary>
 function NeedsUninstallRegKey: Boolean; forward;
 /// <summary> [Event] Called to determine whether or not a particular page should be shown at all </summary>
 function ShouldSkipPage(APageID: Integer): Boolean; forward;

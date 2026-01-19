@@ -8,7 +8,7 @@ rem # found in the LICENSE file.
 rem #
 
 echo Cleaning Library...
-for /f "tokens=* delims=" %%i in ('dir "..\..\..\Library\" /s /b /a:-d ^| find /v "\Win32\Release\" ^| find /v "\Win64\Release\"') do (
+for /f "tokens=* delims=" %%i in ('dir "..\..\..\Library\" /s /b /a:-d ^| find /v "\Win32\Release\" ^| find /v "\Win64\Release\" ^| find /v "\WinARM64EC\Release\"') do (
   echo Deleting "%%i"
   del "%%i"
 )

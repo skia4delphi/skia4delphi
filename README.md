@@ -591,11 +591,11 @@ The example above results in the output below:
 ## Supported RAD Studio Versions
 
 
-| RAD Studio                        | Platforms        |
-| --------------------------------- | ---------------- |
-| RAD Studio 11 Alexandria or newer | All Platforms    |
-| RAD Studio 10.4 Sydney            | Windows, Android |
-| RAD Studio XE7 or newer           | Windows          |
+| RAD Studio                        | Platforms                          |
+| --------------------------------- | ---------------------------------- |
+| RAD Studio 11 Alexandria or newer | All Platforms                      |
+| RAD Studio 10.4 Sydney            | Win32, Win64, Android32, Android64 |
+| RAD Studio XE7 or newer           | Win32, Win64                       |
 
   
 

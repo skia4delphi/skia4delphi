@@ -13,7 +13,7 @@
         </BorlandProject>
         <ProjectFileVersion>12</ProjectFileVersion>
     </ProjectExtensions>
-    <PropertyGroup Condition="('$(Platform)'=='Win32' or '$(Platform)'=='Win64') and '$(Skia4Delphi_Setup)'=='true'">
+    <PropertyGroup Condition="('$(Platform)'=='Win32' or '$(Platform)'=='Win64' or '$(Platform)'=='WinARM64EC') and '$(Skia4Delphi_Setup)'=='true'">
         <BDSLIB Condition="'$(BDSLIB)'==''">$(BDS)\lib</BDSLIB>
         <ImportEnvOptions>false</ImportEnvOptions>
     </PropertyGroup>
@@ -50,6 +50,31 @@
         <ENV_PF_UWPDistributionType/>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Platform)'=='Win64' and '$(Skia4Delphi_Setup)'=='true'">
+        <CBuilderBPIOutputPath/>
+        <CBuilderBPLOutputPath/>
+        <CBuilderBrowsingPath/>
+        <CBuilderIncludePath/>
+        <CBuilderLibraryPath/>
+        <CBuilderNoRefactorPath/>
+        <CBuilderUserIncludePath/>
+        <DefaultPlatformSDK/>
+        <DefaultProfile/>
+        <DelphiBrowsingPath/>
+        <DelphiDCPOutput>$(BDSCOMMONDIR)\Dcp\$(Platform)</DelphiDCPOutput>
+        <DelphiDebugDCUPath>$(BDSLIB)\$(Platform)\debug</DelphiDebugDCUPath>
+        <DelphiDLLOutputPath>$(BDSCOMMONDIR)\Bpl\$(Platform)</DelphiDLLOutputPath>
+        <DelphiHPPOutputPath>$(BDSCOMMONDIR)\hpp\$(Platform)</DelphiHPPOutputPath>
+        <DelphiLibraryPath>$(BDSLIB)\$(Platform)\release;$(BDSUSERDIR)\Imports;$(BDS)\Imports;$(BDSCOMMONDIR)\Dcp\$(Platform);$(BDS)\include</DelphiLibraryPath>
+        <DelphiNamespaceSearchPath/>
+        <DelphiTranslatedDebugLibraryPath>$(BDSLIB)\$(Platform)\debug\$(LANGDIR)</DelphiTranslatedDebugLibraryPath>
+        <DelphiTranslatedLibraryPath>$(BDSLIB)\$(Platform)\release\$(LANGDIR)</DelphiTranslatedLibraryPath>
+        <DelphiTranslatedResourcePath>$(BDSLIB)\$(Platform)\release\$(LANGDIR)</DelphiTranslatedResourcePath>
+        <ENV_PF_KeyStore/>
+        <ENV_PF_KeyStorePass/>
+        <ENV_PF_KeyStoreSubject/>
+        <ENV_PF_UWPDistributionType/>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Platform)'=='WinARM64EC' and '$(Skia4Delphi_Setup)'=='true'">
         <CBuilderBPIOutputPath/>
         <CBuilderBPLOutputPath/>
         <CBuilderBrowsingPath/>
