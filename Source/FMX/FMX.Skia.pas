@@ -1460,7 +1460,7 @@ const
 var
   LPaint: ISkPaint;
 begin
-  LPaint := TSkPaint.Create(TSkPaintStyle.Stroke);
+	LPaint := TSkPaint.Make(TSkPaintStyle.Stroke);
   LPaint.Color := DesignBorderColor;
   LPaint.AlphaF := AOpacity;
   LPaint.StrokeWidth := 1;
@@ -1719,7 +1719,7 @@ var
   I: Integer;
   LPathBuilder: ISkPathBuilder;
 begin
-  LPathBuilder := TSkPathBuilder.Create(TSkPathFillType.EvenOdd);
+	LPathBuilder := TSkPathBuilder.Make(TSkPathFillType.EvenOdd);
   I := 0;
   while I < Count do
   begin
@@ -2351,22 +2351,22 @@ procedure TSkSvgBrush.Render(const ACanvas: ISkCanvas; const ADestRect: TRectF;
     LCanvas: ISkCanvas;
     LPaint: ISkPaint;
   begin
-    LPictureRecorder := TSkPictureRecorder.Create;
+		LPictureRecorder := TSkPictureRecorder.Make;
     LCanvas := LPictureRecorder.BeginRecording(AWrappedDest.Width, AWrappedDest.Height);
     if AIntrinsicSize.IsZero then
     begin
       if AWrapMode <> TSkSvgWrapMode.Default then
       begin
         LCanvas.Scale(AWrappedDest.Width / ASvgRect.Width, AWrappedDest.Height / ASvgRect.Height);
-        ADOM.Root.Width  := TSkSVGLength.Create(ASvgRect.Width,  TSkSVGLengthUnit.Pixel);
+				ADOM.Root.Width  := TSkSVGLength.Create(ASvgRect.Width,  TSkSVGLengthUnit.Pixel);
         ADOM.Root.Height := TSkSVGLength.Create(ASvgRect.Height, TSkSVGLengthUnit.Pixel);
       end;
     end
     else
       LCanvas.Scale(AWrappedDest.Width / ASvgRect.Width, AWrappedDest.Height / ASvgRect.Height);
     ADOM.Render(LCanvas);
-    LPicture := LPictureRecorder.FinishRecording;
-    LPaint := TSkPaint.Create;
+		LPicture := LPictureRecorder.FinishRecording;
+		LPaint := TSkPaint.Make;
     if FGrayScale then
       LPaint.ColorFilter := TSkColorFilter.MakeMatrix(TSkColorMatrix.CreateSaturation(0))
     else if FOverrideColor <> TAlphaColors.Null then
@@ -3787,7 +3787,7 @@ begin
     LPaint := nil
   else
   begin
-    LPaint := TSkPaint.Create;
+		LPaint := TSkPaint.Make;
     LPaint.AlphaF := AOpacity;
   end;
   case Quality of
@@ -5411,9 +5411,9 @@ procedure TSkLabel.Draw(const ACanvas: ISkCanvas; const ADest: TRectF;
     LLastRect: TRectF;
     LLastColor: TAlphaColor;
   begin
-    LPictureRecorder := TSkPictureRecorder.Create;
+		LPictureRecorder := TSkPictureRecorder.Make;
     LCanvas := LPictureRecorder.BeginRecording(ADest);
-    LPaint := TSkPaint.Create;
+		LPaint := TSkPaint.Make;
     LPaint.AntiAlias := True;
     LTextEndIndex := 0;
     LRects := nil;
@@ -5683,7 +5683,7 @@ var
     begin
       if (ADecorations.StrokeColor <> TAlphaColors.Null) and not SameValue(ADecorations.Thickness, 0, TEpsilon.Position) then
       begin
-        LPaint := TSkPaint.Create(TSkPaintStyle.Stroke);
+				LPaint := TSkPaint.Make(TSkPaintStyle.Stroke);
         LPaint.Color := ADecorations.StrokeColor;
         LPaint.StrokeWidth := (ADecorations.Thickness / 2) * (ATextStyle.FontSize / 14);
         ATextStyle.SetForegroundColor(LPaint);
@@ -5700,7 +5700,7 @@ var
     const ADefaultTextStyle: ISkTextStyle;
     const ADrawKind: TDrawKind): ISkTextStyle;
   begin
-    Result := TSkTextStyle.Create;
+		Result := TSkTextStyle.Make;
     if TStyledSetting.FontColor in AWordsItem.StyledSettings then
       Result.Color := ResultingTextSettings.FontColor
     else
@@ -5735,7 +5735,7 @@ var
 
   function CreateDefaultTextStyle(const ADrawKind: TDrawKind): ISkTextStyle;
   begin
-    Result := TSkTextStyle.Create;
+		Result := TSkTextStyle.Make;
     Result.Color := ResultingTextSettings.FontColor;
     Result.FontFamilies := GetFontFamilies(ResultingTextSettings.Font.Families);
     Result.FontSize := GetFontSize(ResultingTextSettings.Font.Size);
@@ -5751,7 +5751,7 @@ var
   const
     SkTextAlign: array[TSkTextHorzAlign] of TSkTextAlign = (TSkTextAlign.Center, TSkTextAlign.Start, TSkTextAlign.Terminate, TSkTextAlign.Justify);
   begin
-    Result := TSkParagraphStyle.Create;
+		Result := TSkParagraphStyle.Make;
     FLastFillTextFlags := FillTextFlags;
     if TFillTextFlag.RightToLeft in FLastFillTextFlags then
       Result.TextDirection := TSkTextDirection.RightToLeft;
@@ -5774,7 +5774,7 @@ var
   begin
     LFontBehavior := nil;
     LDefaultTextStyle := CreateDefaultTextStyle(ADrawKind);
-    LBuilder := TSkParagraphBuilder.Create(CreateParagraphStyle(LDefaultTextStyle), TSkDefaultProviders.TypefaceFont);
+    LBuilder := TSkParagraphBuilder.Make(CreateParagraphStyle(LDefaultTextStyle), TSkDefaultProviders.TypefaceFont);
     for I := 0 to FWords.Count- 1 do
     begin
       if FWords[I].Text = '' then
