@@ -73,7 +73,11 @@ begin
       LDestFileName := CombinePath(LDestFilePath, ExtractFileName(LFiles[I]));
       if (not AOverwriteExisting) and FileExists(LDestFileName) then
         Continue;
+      #if Ver >= EncodeVer(6,4,0)
+      Result := CopyFile(LFiles[I], LDestFileName, not AOverwriteExisting);
+      #else
       Result := FileCopy(LFiles[I], LDestFileName, not AOverwriteExisting);
+      #endif
       if not Result then
       begin
         Log(Format('IO.Utils.CopyDirectory: Failed to copy the file "%s" to "%s".', [LFiles[I], LDestFileName]));
@@ -88,7 +92,11 @@ end;
 function CopyFileToDir(const AFileName, ADestPath: string): Boolean;
 begin
   Result := FileExists(AFileName) and (DirExists(ADestPath) or ForceDirectories(ADestPath)) and
+    #if Ver >= EncodeVer(6,4,0)
+    CopyFile(AFileName, CombinePath(ADestPath, ExtractFileName(AFileName)), False);
+    #else
     FileCopy(AFileName, CombinePath(ADestPath, ExtractFileName(AFileName)), False);
+    #endif
 end;
 
 function GetFiles(APath, AFileName: string; const ASearchOption: TSearchOption): TArrayOfString;

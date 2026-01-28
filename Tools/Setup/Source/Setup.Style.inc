@@ -85,7 +85,11 @@ function _SetupStyleInitializeUninstall: Boolean;
 begin
   _FIsUsingVclStyles := False;
   if (not IsVerySilent) and
+    #if Ver >= EncodeVer(6,4,0)
+    CopyFile(ExpandConstant('{app}\{#SetupFolder}\{#_StyleSubDir}\{#_StylesDllName}'), ExpandConstant('{tmp}\{#_StylesDllName}'), False) and
+    #else
     FileCopy(ExpandConstant('{app}\{#SetupFolder}\{#_StyleSubDir}\{#_StylesDllName}'), ExpandConstant('{tmp}\{#_StylesDllName}'), False) and
+    #endif
     FileExists(CombinePath(ExpandConstant('{app}'), '{#SetupFolder}\{#_StyleSubDir}\{#VclStyle}')) then
   begin
     _DllLoadVclStyleUninstall(CombinePath(ExpandConstant('{app}'), '{#SetupFolder}\{#_StyleSubDir}\{#VclStyle}'));
