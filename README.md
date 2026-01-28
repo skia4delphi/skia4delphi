@@ -613,6 +613,7 @@ The example above results in the output below:
 **Notes:**
 - In projects compiled for Apple targets (macOS, iOS), you may encounter a warning similar to: **was built for newer version (X) than being linked (Y)**. This indicates that you need to set the minimum deployment version for macOS or iOS in Project Options - `Project Options > Building > Delphi Compiler > Linking > Minimum (iOS|macOS) version supported`;
 - A binary distributed for Linux may work on older, newer, or even different distributions. However, for optimal compatibility, it should be compiled on the target distribution (the pre-built binaries are typically built on the latest Ubuntu LTS release).
+- Although Ubuntu 22.04 LTS is no longer officially supported, we still ship a compatible binary in `Binary\Shared\Linux64\Ubuntu-22.04\` to unofficially accommodate users on older distributions.
 
 
 
