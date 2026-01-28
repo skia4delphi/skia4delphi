@@ -3202,6 +3202,10 @@ const
   var
     LBounds: TRectF;
   begin
+    if ATextRect.Top < 0 then
+      Result := PointF(0, -ATextRect.Top)
+    else
+      Result := TPointF.Zero;
     ATextRect := RectF(0, 0, ATextRect.Width, ATextRect.Height);
     if not NeedHorizontalAlignment then
     begin
@@ -3221,7 +3225,7 @@ const
       TTextAlign.Trailing: LBounds.Offset(0, MaxSize.Y - Padding.Top - Padding.Bottom - LBounds.Bottom);
     end;
     LBounds.Offset(Padding.Rect.TopLeft);
-    Result := LBounds.TopLeft - ATextRect.TopLeft;
+    Result := Result + LBounds.TopLeft - ATextRect.TopLeft;
   end;
 
 var
