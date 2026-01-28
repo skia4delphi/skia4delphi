@@ -2,8 +2,8 @@
 {                                                                        }
 {                              Skia4Delphi                               }
 {                                                                        }
-{ Copyright (c) 2011-2025 Google LLC.                                    }
-{ Copyright (c) 2021-2025 Skia4Delphi Project.                           }
+{ Copyright (c) 2011-2026 Google LLC.                                    }
+{ Copyright (c) 2021-2026 Skia4Delphi Project.                           }
 {                                                                        }
 { Use of this source code is governed by a BSD-style license that can be }
 { found in the LICENSE file.                                             }

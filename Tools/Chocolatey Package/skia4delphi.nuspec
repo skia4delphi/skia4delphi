@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
- Copyright (c) 2021-2025 Skia4Delphi Project.
+ Copyright (c) 2021-2026 Skia4Delphi Project.
 
  Use of this source code is governed by the MIT license that can be
  found in the LICENSE file.
@@ -15,7 +15,7 @@
     <authors>Paulo César Botelho Barbosa,Vinícius Felipe Botelho Barbosa</authors>
     <projectUrl>https://skia4delphi.org</projectUrl>
     <iconUrl>https://cdn.jsdelivr.net/gh/skia4delphi/skia4delphi/Assets/Artwork/chocolatey.png</iconUrl>
-    <copyright>2021-2025 Skia4Delphi Project</copyright>
+    <copyright>2021-2026 Skia4Delphi Project</copyright>
     <licenseUrl>https://raw.githubusercontent.com/skia4delphi/skia4delphi/main/LICENSE</licenseUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <projectSourceUrl>https://github.com/skia4delphi/skia4delphi</projectSourceUrl>
