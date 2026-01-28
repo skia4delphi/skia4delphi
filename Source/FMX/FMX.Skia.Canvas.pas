@@ -3205,7 +3205,7 @@ const
     if ATextRect.Top < 0 then
       Result := PointF(0, -ATextRect.Top)
     else
-      Result := TPointF.Zero;
+      Result := PointF(0, 0);
     ATextRect := RectF(0, 0, ATextRect.Width, ATextRect.Height);
     if not NeedHorizontalAlignment then
     begin
