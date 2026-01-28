@@ -332,6 +332,18 @@ type
   );
   psk_encodedimageformat_t = ^sk_encodedimageformat_t;
 
+  sk_encoded_origin_t = (
+    TOP_LEFT_SK_ENCODEDORIGIN = 1,
+    TOP_RIGHT_SK_ENCODEDORIGIN,
+    BOTTOM_RIGHT_SK_ENCODEDORIGIN,
+    BOTTOM_LEFT_SK_ENCODEDORIGIN,
+    LEFT_TOP_SK_ENCODEDORIGIN,
+    RIGHT_TOP_SK_ENCODEDORIGIN,
+    RIGHT_BOTTOM_SK_ENCODEDORIGIN,
+    LEFT_BOTTOM_SK_ENCODEDORIGIN
+  );
+  psk_encoded_origin_t = ^sk_encoded_origin_t;
+
   sk_filtermode_t = (
     NEAREST_SK_FILTERMODE,
     LINEAR_SK_FILTERMODE
@@ -1519,6 +1531,7 @@ var
   {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_codec_get_dimensions            {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(const self: sk_codec_t; out result: sk_isize_t); cdecl;
   {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_codec_get_encoded_image_format  {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_codec_t): sk_encodedimageformat_t; cdecl;
   {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_codec_get_image                 {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(self: sk_codec_t; color_type: sk_colortype_t; alpha_type: sk_alphatype_t; color_space: sk_colorspace_t): sk_image_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_codec_get_origin                {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(self: sk_codec_t): sk_encoded_origin_t; cdecl;
   {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_codec_get_pixels                {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(self: sk_codec_t; pixels: Pointer; row_bytes: size_t; color_type: sk_colortype_t; alpha_type: sk_alphatype_t; color_space: sk_colorspace_t): _bool; cdecl;
   {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_codec_make_from_file            {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const file_name: MarshaledAString): sk_codec_t; cdecl;
   {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_codec_make_from_stream          {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(stream: sk_stream_t): sk_codec_t; cdecl;
@@ -8957,6 +8970,7 @@ procedure sk4d_canvas_translate(self: sk_canvas_t; dx, dy: float); cdecl;       
   sk4d_codec_get_dimensions             := GetProcAddress(LibraryHandle, PChar('sk4d_codec_get_dimensions'));
   sk4d_codec_get_encoded_image_format   := GetProcAddress(LibraryHandle, PChar('sk4d_codec_get_encoded_image_format'));
   sk4d_codec_get_image                  := GetProcAddress(LibraryHandle, PChar('sk4d_codec_get_image'));
+  sk4d_codec_get_origin                 := GetProcAddress(LibraryHandle, PChar('sk4d_codec_get_origin'));
   sk4d_codec_get_pixels                 := GetProcAddress(LibraryHandle, PChar('sk4d_codec_get_pixels'));
   sk4d_codec_make_from_file             := GetProcAddress(LibraryHandle, PChar('sk4d_codec_make_from_file'));
   sk4d_codec_make_from_stream           := GetProcAddress(LibraryHandle, PChar('sk4d_codec_make_from_stream'));
@@ -8974,6 +8988,7 @@ procedure sk4d_codec_destroy(codec: sk_codec_t); cdecl;                         
 procedure sk4d_codec_get_dimensions(const self: sk_codec_t; out result: sk_isize_t); cdecl;                                                                                                external{$IF NOT DEFINED(FPC) and NOT DEFINED(MSWINDOWS)} LibraryName{$ENDIF} name _PU + 'sk4d_codec_get_dimensions';
 function  sk4d_codec_get_encoded_image_format(const self: sk_codec_t): sk_encodedimageformat_t; cdecl;                                                                                     external{$IF NOT DEFINED(FPC) and NOT DEFINED(MSWINDOWS)} LibraryName{$ENDIF} name _PU + 'sk4d_codec_get_encoded_image_format';
 function  sk4d_codec_get_image(self: sk_codec_t; color_type: sk_colortype_t; alpha_type: sk_alphatype_t; color_space: sk_colorspace_t): sk_image_t; cdecl;                                 external{$IF NOT DEFINED(FPC) and NOT DEFINED(MSWINDOWS)} LibraryName{$ENDIF} name _PU + 'sk4d_codec_get_image';
+function  sk4d_codec_get_origin(self: sk_codec_t): sk_encoded_origin_t; cdecl;                                                                                                             external{$IF NOT DEFINED(FPC) and NOT DEFINED(MSWINDOWS)} LibraryName{$ENDIF} name _PU + 'sk4d_codec_get_origin';
 function  sk4d_codec_get_pixels(self: sk_codec_t; pixels: Pointer; row_bytes: size_t; color_type: sk_colortype_t; alpha_type: sk_alphatype_t; color_space: sk_colorspace_t): _bool; cdecl; external{$IF NOT DEFINED(FPC) and NOT DEFINED(MSWINDOWS)} LibraryName{$ENDIF} name _PU + 'sk4d_codec_get_pixels';
 function  sk4d_codec_make_from_file(const file_name: MarshaledAString): sk_codec_t; cdecl;                                                                                                 external{$IF NOT DEFINED(FPC) and NOT DEFINED(MSWINDOWS)} LibraryName{$ENDIF} name _PU + 'sk4d_codec_make_from_file';
 function  sk4d_codec_make_from_stream(stream: sk_stream_t): sk_codec_t; cdecl;                                                                                                             external{$IF NOT DEFINED(FPC) and NOT DEFINED(MSWINDOWS)} LibraryName{$ENDIF} name _PU + 'sk4d_codec_make_from_stream';

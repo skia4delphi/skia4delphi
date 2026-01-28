@@ -3890,19 +3890,42 @@ begin
   end;
 end;
 
+procedure GetSkCodecOrientation(const ACodec: ISkCodec; out AIsRotated,
+  ASwapsWidthHeight: Boolean);
+var
+  LOrigin: sk_encoded_origin_t;
+begin
+  LOrigin := sk4d_codec_get_origin(ACodec.Handle);
+  AIsRotated := LOrigin <> TOP_LEFT_SK_ENCODEDORIGIN;
+  case LOrigin of
+    LEFT_TOP_SK_ENCODEDORIGIN,
+    RIGHT_TOP_SK_ENCODEDORIGIN,
+    RIGHT_BOTTOM_SK_ENCODEDORIGIN,
+    LEFT_BOTTOM_SK_ENCODEDORIGIN: ASwapsWidthHeight := True;
+  else
+    ASwapsWidthHeight := False;
+  end;
+end;
+
 function TSkBitmapCodec.LoadFromFile(const AFileName: string;
   const ABitmapSurface: TBitmapSurface; const AMaxSizeLimit: Cardinal): Boolean;
 var
   LCodec: ISkCodec;
   LImage: ISkImage;
+  LIsRotated: Boolean;
   LSize: TSize;
+  LSwapsWidthHeight: Boolean;
 begin
   LCodec := TSkCodec.MakeFromFile(AFileName);
   if LCodec = nil then
     Exit(False);
-  if (AMaxSizeLimit > 0) and ((Cardinal(LCodec.Width) > AMaxSizeLimit) or (Cardinal(LCodec.Height) > AMaxSizeLimit)) then
+  GetSkCodecOrientation(LCodec, LIsRotated, LSwapsWidthHeight);
+  if LIsRotated or
+    (AMaxSizeLimit > 0) and ((Cardinal(LCodec.Width) > AMaxSizeLimit) or (Cardinal(LCodec.Height) > AMaxSizeLimit)) then
   begin
     LSize := FitSize(LCodec.Width, LCodec.Height, AMaxSizeLimit, AMaxSizeLimit);
+    if LSwapsWidthHeight then
+      LSize := TSize.Create(LSize.Height, LSize.Width);
     ABitmapSurface.SetSize(LSize.Width, LSize.Height, GetPixelFormat);
     LImage := LCodec.GetImage(SkFmxColorType[GetPixelFormat]);
     Result := (LImage <> nil) and (LImage.ScalePixels(TSkImageInfo.Create(ABitmapSurface.Width, ABitmapSurface.Height, SkFmxColorType[GetPixelFormat]), ABitmapSurface.Bits, ABitmapSurface.Pitch, TSkImageCachingHint.Disallow));
@@ -3921,14 +3944,20 @@ function TSkBitmapCodec.LoadFromStream(const AStream: TStream;
   var
     LCodec: ISkCodec;
     LImage: ISkImage;
+    LIsRotated: Boolean;
     LSize: TSize;
+    LSwapsWidthHeight: Boolean;
   begin
     LCodec := TSkCodec.MakeWithoutCopy(AMemoryStream.Memory, AMemoryStream.Size);
     if LCodec = nil then
       Exit(False);
-    if (AMaxSizeLimit > 0) and ((Cardinal(LCodec.Width) > AMaxSizeLimit) or (Cardinal(LCodec.Height) > AMaxSizeLimit)) then
+    GetSkCodecOrientation(LCodec, LIsRotated, LSwapsWidthHeight);
+    if LIsRotated or
+      (AMaxSizeLimit > 0) and ((Cardinal(LCodec.Width) > AMaxSizeLimit) or (Cardinal(LCodec.Height) > AMaxSizeLimit)) then
     begin
       LSize := FitSize(LCodec.Width, LCodec.Height, AMaxSizeLimit, AMaxSizeLimit);
+      if LSwapsWidthHeight then
+        LSize := TSize.Create(LSize.Height, LSize.Width);
       ABitmapSurface.SetSize(LSize.Width, LSize.Height, GetPixelFormat);
       LImage := LCodec.GetImage(SkFmxColorType[GetPixelFormat]);
       Result := (LImage <> nil) and (LImage.ScalePixels(TSkImageInfo.Create(ABitmapSurface.Width, ABitmapSurface.Height, SkFmxColorType[GetPixelFormat]), ABitmapSurface.Bits, ABitmapSurface.Pitch, TSkImageCachingHint.Disallow));
@@ -3963,12 +3992,17 @@ function TSkBitmapCodec.LoadThumbnailFromFile(const AFileName: string;
 var
   LCodec: ISkCodec;
   LImage: ISkImage;
+  LIsRotated: Boolean;
   LSize: TSize;
+  LSwapsWidthHeight: Boolean;
 begin
   LCodec := TSkCodec.MakeFromFile(AFileName);
   if LCodec = nil then
     Exit(False);
+  GetSkCodecOrientation(LCodec, LIsRotated, LSwapsWidthHeight);
   LSize := FitSize(LCodec.Width, LCodec.Height, AFitWidth, AFitHeight);
+  if LSwapsWidthHeight then
+    LSize := TSize.Create(LSize.Height, LSize.Width);
   ABitmapSurface.SetSize(LSize.Width, LSize.Height, GetPixelFormat);
   LImage := LCodec.GetImage(SkFmxColorType[GetPixelFormat]);
   Result := (LImage <> nil) and (LImage.ScalePixels(TSkImageInfo.Create(ABitmapSurface.Width, ABitmapSurface.Height, SkFmxColorType[GetPixelFormat]), ABitmapSurface.Bits, ABitmapSurface.Pitch, TSkImageCachingHint.Disallow));
