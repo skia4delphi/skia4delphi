@@ -612,8 +612,37 @@ The example above results in the output below:
 
 **Notes:**
 - In projects compiled for Apple targets (macOS, iOS), you may encounter a warning similar to: **was built for newer version (X) than being linked (Y)**. This indicates that you need to set the minimum deployment version for macOS or iOS in Project Options - `Project Options > Building > Delphi Compiler > Linking > Minimum (iOS|macOS) version supported`;
+- For Linux `x86_64` ELF, the distro package mapping is:
 
+    | Needed `.so` | Ubuntu / Debian | Fedora |
+    |---|---|---|
+    | `libfontconfig.so.1` | `libfontconfig1` | `fontconfig` |
+    | `libz.so.1` | `zlib1g` | `zlib` |
+    | `libGL.so.1` | `libgl1` | `libglvnd-glx` |
+    | `libm.so.6` | `libc6` | `glibc` |
+    | `libc.so.6` | `libc6` | `glibc` |
+    | `ld-linux-x86-64.so.2` | `libc6` | `glibc` |
 
+    You do not need to install `libm.so.6` or `ld-linux-x86-64.so.2` separately; they come from `libc6` on Ubuntu/Debian and `glibc` on Fedora.
+
+    **Install commands**
+
+    **Ubuntu**:
+    ```bash
+    sudo apt update
+    sudo apt install -y libfontconfig1 zlib1g libgl1 libc6
+    ```
+
+    Debian:
+    ```bash
+    sudo apt update
+    sudo apt install -y libfontconfig1 zlib1g libgl1 libc6
+    ```
+
+    Fedora:
+    ```bash
+    sudo dnf install -y fontconfig zlib libglvnd-glx glibc
+    ```
 
 # Documentation
 
