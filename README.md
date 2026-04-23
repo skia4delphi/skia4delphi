@@ -74,6 +74,7 @@ Using the **Skia4Delphi** library it is possible to override Firemonkey's graphi
   - [TSkPaintBox](#tskpaintbox)
   - [TSkSvg](#tsksvg)
     - [Limitations](Documents/SVG.md#limitations)
+- [Showcases](#showcase)
 - [Compatibility](#compatibility)
 - [Documentation](#documentation)
 - [Version](#version)
@@ -585,18 +586,26 @@ The example above results in the output below:
 
 [Learn more...](Documents/SVG.md)
 
+# Showcase
+
+A curated list of projects, libraries and components built with **Skia4Delphi**.
+Want to add yours? [Open a pull request!](../../pulls)
+
+| Preview | Project | Author | Description | Sample |
+| :-----: | ------- | ------ | ----------- |----------- |
+| <img src="https://github.com/abritolda1972/DelphiSkiaDemos/raw/main/SkiaNodeEditor/skianodes.png?raw=true" width="120" alt="Project Name" /> | [DelphiSkiaDemos](https://github.com/abritolda1972/DelphiSkiaDemos) | [Alberto Brito](https://github.com/abritolda1972) | Some examples created in delphi with Skia4Delphi: Blur Car, Digital Clock, Fir animation, Node Editor, QR Code, Skeleton Loading |
+| <img src="https://www.mesurasoft.com/img/Plabel31/fmx_drawing_demo.png" width="120" alt="Project Name" /> | [PLABEL](https://www.mesurasoft.com/plabel) | [Mesurasoft S.L.U.](https://www.mesurasoft.com) | Delphi comonents for VCL and FMX that let you include a labelling, flowchart and technical drawing editor into your Delphi programs.<br>Preview, print and save to pdf, png or svg. Labelling mode let's you connect to TDatasets, csv or json files. | [Gallery](https://www.mesurasoft.com/plabel/gallery) |
+| <img src="https://github.com/igorbastosib/skia4delphi-chart/raw/main/Files/presentation.gif?raw=true" width="120" alt="Project Name" /> | [skia4delphi-chart](https://github.com/igorbastosib/skia4delphi-chart) | [Igor Bastos](https://github.com/igorbastosib) | Animated, interactive charts for Delphi FMX, powered by Skia. |
+
 # Compatibility
 
-
 ## Supported RAD Studio Versions
-
 
 | RAD Studio                        | Platforms                          |
 | --------------------------------- | ---------------------------------- |
 | RAD Studio 11 Alexandria or newer | All Platforms                      |
 | RAD Studio 10.4 Sydney            | Win32, Win64, Android32, Android64 |
 | RAD Studio XE7 or newer           | Win32, Win64                       |
-
   
 
 ## Supported Platforms
