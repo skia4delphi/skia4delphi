@@ -74,6 +74,7 @@ Using the **Skia4Delphi** library it is possible to override Firemonkey's graphi
   - [TSkPaintBox](#tskpaintbox)
   - [TSkSvg](#tsksvg)
     - [Limitations](Documents/SVG.md#limitations)
+- [Showcases](#showcase)
 - [Compatibility](#compatibility)
 - [Documentation](#documentation)
 - [Version](#version)
@@ -585,18 +586,27 @@ The example above results in the output below:
 
 [Learn more...](Documents/SVG.md)
 
+# Showcase
+
+A curated list of projects, libraries and components built with **Skia4Delphi**.
+Want to add yours? [Open a pull request!](../../pulls)
+
+| Preview | Project | Author | Description | Sample |
+| :-----: | ------- | ------ | ----------- |----------- |
+| <img src="https://github.com/abritolda1972/DelphiSkiaDemos/raw/main/SkiaNodeEditor/skianodes.png?raw=true" width="120" alt="Project Name" /> | [DelphiSkiaDemos](https://github.com/abritolda1972/DelphiSkiaDemos) | [Alberto Brito](https://github.com/abritolda1972) | Some examples created in delphi with Skia4Delphi: Blur Car, Digital Clock, Fir animation, Node Editor, QR Code, Skeleton Loading |
+| <img src="https://www.mesurasoft.com/img/Plabel31/fmx_drawing_demo.png" width="120" alt="Project Name" /> | [PLABEL](https://www.mesurasoft.com/plabel) | [Mesurasoft S.L.U.](https://www.mesurasoft.com) | Delphi comonents for VCL and FMX that let you include a labelling, flowchart and technical drawing editor into your Delphi programs.<br>Preview, print and save to pdf, png or svg. Labelling mode let's you connect to TDatasets, csv or json files. | [Gallery](https://www.mesurasoft.com/plabel/gallery) |
+| <img src="https://github.com/igorbastosib/skia4delphi-chart/raw/main/Files/presentation.gif?raw=true" width="120" alt="Project Name" /> | [skia4delphi-chart](https://github.com/igorbastosib/skia4delphi-chart) | [Igor Bastos](https://github.com/igorbastosib) | Animated, interactive charts for Delphi FMX, powered by Skia. |
+| <img src="https://en.delphipraxis.net/uploads/monthly_2025_11/510934259-a2a22157-13f8-44f8-b366-24e35ae9d10c.thumb.png.29ca61ee0ca90e7c9d53c947a0adb076.png" width="120" alt="Project Name" /> | [RingBuffer](https://github.com/Steema/TeeChart-VCL-FMX-Samples/tree/main/VCL/RingBuffer) | [Steema](https://steema.com/) | This example uses a "Ring Buffer" structure to display data as fast as possible, as lines or points.<br>The ring (circular) buffer is an array you can specify its type and length, and then just keep adding points to the buffer. When the buffer is full, points will be added from the start of the buffer again.<br>Horizontal scrolling is done by code as a speed optimization. |
+
 # Compatibility
 
-
 ## Supported RAD Studio Versions
-
 
 | RAD Studio                        | Platforms                          |
 | --------------------------------- | ---------------------------------- |
 | RAD Studio 11 Alexandria or newer | All Platforms                      |
 | RAD Studio 10.4 Sydney            | Win32, Win64, Android32, Android64 |
 | RAD Studio XE7 or newer           | Win32, Win64                       |
-
   
 
 ## Supported Platforms
@@ -612,8 +622,37 @@ The example above results in the output below:
 
 **Notes:**
 - In projects compiled for Apple targets (macOS, iOS), you may encounter a warning similar to: **was built for newer version (X) than being linked (Y)**. This indicates that you need to set the minimum deployment version for macOS or iOS in Project Options - `Project Options > Building > Delphi Compiler > Linking > Minimum (iOS|macOS) version supported`;
+- For Linux `x86_64` ELF, the distro package mapping is:
 
+    | Needed `.so` | Ubuntu / Debian | Fedora |
+    |---|---|---|
+    | `libfontconfig.so.1` | `libfontconfig1` | `fontconfig` |
+    | `libz.so.1` | `zlib1g` | `zlib` |
+    | `libGL.so.1` | `libgl1` | `libglvnd-glx` |
+    | `libm.so.6` | `libc6` | `glibc` |
+    | `libc.so.6` | `libc6` | `glibc` |
+    | `ld-linux-x86-64.so.2` | `libc6` | `glibc` |
 
+    You do not need to install `libm.so.6` or `ld-linux-x86-64.so.2` separately; they come from `libc6` on Ubuntu/Debian and `glibc` on Fedora.
+
+    **Install commands**
+
+    **Ubuntu**:
+    ```bash
+    sudo apt update
+    sudo apt install -y libfontconfig1 zlib1g libgl1 libc6
+    ```
+
+    Debian:
+    ```bash
+    sudo apt update
+    sudo apt install -y libfontconfig1 zlib1g libgl1 libc6
+    ```
+
+    Fedora:
+    ```bash
+    sudo dnf install -y fontconfig zlib libglvnd-glx glibc
+    ```
 
 # Documentation
 
