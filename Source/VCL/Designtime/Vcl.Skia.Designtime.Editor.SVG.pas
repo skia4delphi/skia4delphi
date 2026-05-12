@@ -276,7 +276,7 @@ end;
 
 procedure TSkSvgEditorForm.WMDropFiles(var AMessage: TWMDropFiles);
 var
-  LCount: Integer;
+  LCount: UInt32;
   LFileName: array[0..MAX_PATH - 1] of Char;
 begin
   LCount := DragQueryFile(AMessage.Drop, $FFFFFFFF, LFileName, MAX_PATH);
