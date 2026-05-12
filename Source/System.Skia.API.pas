@@ -118,7 +118,7 @@ type
 
   { include/c/sk4d_types.h }
 
-  sk_handle_t                   = uintptr_t;
+  sk_handle_t                   = intptr_t;
 
   sk_animcodecplayer_t          = sk_handle_t;
   sk_blender_t                  = sk_handle_t;

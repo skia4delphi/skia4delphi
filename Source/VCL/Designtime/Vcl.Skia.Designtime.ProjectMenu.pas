@@ -328,7 +328,7 @@ const
 function ContainsStringInArray(const AString: string;
   const AArray: TArray<string>; const ACaseSensitive: Boolean = True): Boolean;
 var
-  I: Integer;
+  I: NativeInt;
 begin
   Result := False;
   if ACaseSensitive then
@@ -708,7 +708,7 @@ procedure TSkProjectManagerMenuEnableSkia.SetSkiaEnabled(
         SetLength(LBuffer, BufferSize);
         LReadCount := LReader.GetText(LPosition, PAnsiChar(LBuffer), BufferSize);
         SetLength(LBuffer, LReadCount);
-        AValue := AValue + string(LBuffer);
+        AValue := AValue + UTF8ToString(LBuffer);
         Inc(LPosition, LReadCount);
       until LReadCount < BufferSize;
     end;
@@ -723,7 +723,7 @@ procedure TSkProjectManagerMenuEnableSkia.SetSkiaEnabled(
     begin
       LEditorWriter.CopyTo(0);
       LEditorWriter.DeleteTo(MaxInt);
-      LEditorWriter.Insert(PAnsiChar(AnsiString(AValue)));
+      LEditorWriter.Insert(UTF8Encode(AValue));
       ASourceEditor.MarkModified;
     end;
   end;
@@ -1227,7 +1227,7 @@ class function TSkOTAHelper.ContainsOptionValue(const AValues, AValue,
   ASeparator: string): Boolean;
 var
   LValues: TArray<string>;
-  I: Integer;
+  I: NativeInt;
 begin
   LValues := AValues.Split([ASeparator], TStringSplitOptions.None);
   for I := 0 to Length(LValues) - 1 do
@@ -1252,7 +1252,7 @@ end;
 
 class function TSkOTAHelper.ExpandEnvironmentVar(var AValue: string): Boolean;
 var
-  R: Integer;
+  R: UInt32;
   LExpanded: string;
 begin
   SetLength(LExpanded, 1);
@@ -1365,7 +1365,7 @@ class function TSkOTAHelper.InsertOptionValue(const AValues, AValue,
   ASeparator: string): string;
 var
   LValues: TArray<string>;
-  I: Integer;
+  I: NativeInt;
 begin
   LValues := AValues.Split([ASeparator], TStringSplitOptions.None);
   try
@@ -1414,7 +1414,7 @@ class function TSkOTAHelper.RemoveOptionValue(const AValues, AValue,
 var
   LValues: TArray<string>;
   LNewValues: TArray<string>;
-  I: Integer;
+  I: NativeInt;
 begin
   LNewValues := [];
   LValues := AValues.Split([ASeparator], TStringSplitOptions.None);
