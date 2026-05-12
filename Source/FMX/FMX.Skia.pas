@@ -1079,7 +1079,7 @@ type
     FWordsMouseOver: TCustomWordsItem;
     procedure DeleteParagraph;
     procedure GetFitSize(var AWidth, AHeight: Single);
-    function GetLinesCount: Integer;
+    function GetLinesCount: NativeInt;
     function GetParagraph: ISkParagraph;
     function GetParagraphBounds: TRectF;
     function GetText: string;
@@ -1141,7 +1141,7 @@ type
     destructor Destroy; override;
     function DidExceedMaxLines: Boolean;
     property DefaultTextSettings: TSkTextSettings read GetDefaultTextSettings;
-    property LinesCount: Integer read GetLinesCount;
+    property LinesCount: NativeInt read GetLinesCount;
     {$IF CompilerVersion < 30}
     property PressedPosition: TPointF read FPressedPosition write FPressedPosition;
     {$ENDIF}
@@ -1560,7 +1560,7 @@ begin
     if (not IsEmpty) and Map(TMapAccess.Write, LData) then
     begin
       try
-        AImage.ReadPixels(TSkImageInfo.Create(Width, Height, SkFmxColorType[LData.PixelFormat]), LData.Data, LData.Pitch);
+        AImage.ReadPixels(TSkImageInfo.Create(Width, Height, SkFmxColorType[LData.PixelFormat]), LData.Data, NativeUInt(LData.Pitch));
       finally
         Unmap(LData);
       end;
@@ -1646,7 +1646,7 @@ begin
       LAccess := TMapAccess.ReadWrite;
     if Map(LAccess, LData) then
       try
-        LSurface := TSkSurface.MakeRasterDirect(TSkImageInfo.Create(LData.Width, LData.Height, LColorType), LData.Data, LData.Pitch);
+        LSurface := TSkSurface.MakeRasterDirect(TSkImageInfo.Create(LData.Width, LData.Height, LColorType), LData.Data, NativeUInt(LData.Pitch));
         LSurface.Canvas.Scale(BitmapScale, BitmapScale);
         Draw(LSurface.Canvas);
       finally
@@ -1671,7 +1671,7 @@ begin
   if not Map(TMapAccess.Read, LData) then
     raise ESkBitmapHelper.Create('Could not map the bitmap');
   try
-    Result := TSkImage.MakeRasterCopy(TSkImageInfo.Create(Width, Height, LColorType), LData.Data, LData.Pitch);
+    Result := TSkImage.MakeRasterCopy(TSkImageInfo.Create(Width, Height, LColorType), LData.Data, NativeUInt(LData.Pitch));
   finally
     Unmap(LData);
   end;
@@ -1999,7 +1999,7 @@ begin
     else
       LSceneScale := 1;
     LAbsoluteScale := AbsoluteScale;
-    LAbsoluteSize := TSize.Create(Round(Width * LAbsoluteScale.X * LSceneScale), Round(Height * LAbsoluteScale.Y * LSceneScale));
+    LAbsoluteSize := TSize.Create(Integer(Round(Width * LAbsoluteScale.X * LSceneScale)), Integer(Round(Height * LAbsoluteScale.Y * LSceneScale)));
 
     LMaxBitmapSize := Canvas.GetAttribute(TCanvasAttribute.MaxBitmapSize);
     if (LAbsoluteSize.Width > LMaxBitmapSize) or (LAbsoluteSize.Height > LMaxBitmapSize) then
@@ -2117,8 +2117,8 @@ begin
     else
       LSceneScale := 1;
     LAbsoluteScale := AbsoluteScale;
-    LAbsoluteSize := TSize.Create(Round(Width * LAbsoluteScale.X * LSceneScale),
-      Round(Height * LAbsoluteScale.Y * LSceneScale));
+    LAbsoluteSize := TSize.Create(Integer(Round(Width * LAbsoluteScale.X * LSceneScale)),
+      Integer(Round(Height * LAbsoluteScale.Y * LSceneScale)));
 
     LMaxBitmapSize := Canvas.GetAttribute(TCanvasAttribute.MaxBitmapSize);
     if (LAbsoluteSize.Width > LMaxBitmapSize) or (LAbsoluteSize.Height > LMaxBitmapSize) then
@@ -2403,7 +2403,7 @@ begin
       if SameValue(AOpacity, 1, TEpsilon.Position) then
         ACanvas.Save
       else
-        ACanvas.SaveLayerAlpha(Round(AOpacity * 255));
+        ACanvas.SaveLayerAlpha(Byte(Round(AOpacity * 255)));
       try
         LWrappedDest := GetWrappedDest(LDOM, LSvgRect, ADestRect, LIntrinsicSize);
         if (FOverrideColor <> TAlphaColors.Null) or (FWrapMode = TSkSvgWrapMode.Tile) or FGrayScale then
@@ -2621,7 +2621,7 @@ end;
 
 procedure TSkCustomAnimation.TProcess.OnProcess(ASender: TObject);
 var
-  I: Integer;
+  I: NativeInt;
   LNewTime: Double;
   LDeltaTime: Double;
   [unsafe] LAnimation: TSkCustomAnimation;
@@ -2667,7 +2667,7 @@ end;
 
 procedure TSkCustomAnimation.TProcess.TryFindRoot;
 var
-  I: Integer;
+  I: NativeInt;
 begin
   if Assigned(Application.MainForm) then
   begin
@@ -3799,7 +3799,7 @@ end;
 
 procedure TSkDefaultAnimationCodec.SeekFrameTime(const ATime: Double);
 begin
-  FAnimationCodec.Seek(Round(ATime * 1000));
+  FAnimationCodec.Seek(Byte(Round(ATime * 1000)));
 end;
 
 class function TSkDefaultAnimationCodec.SupportedFormats: TArray<TSkAnimatedImage.TFormatInfo>;
@@ -3900,7 +3900,7 @@ begin
     Exit;
   LNeedSaveLayer := not SameValue(AOpacity, 1, TEpsilon.Position);
   if LNeedSaveLayer then
-    ACanvas.SaveLayerAlpha(Round(AOpacity * 255));
+    ACanvas.SaveLayerAlpha(Byte(Round(AOpacity * 255)));
   try
     if SameValue(ADest.Width / LLottieRect.Width, ADest.Height / LLottieRect.Height, TEpsilon.Matrix) then
       FSkottie.Render(ACanvas, ADest)
@@ -4114,7 +4114,7 @@ procedure TSkFontComponent.SetFamilies(const AValue: string);
   var
     LSplitted: TArray<string>;
     LFamilies: TArray<string>;
-    I: Integer;
+    I: NativeInt;
   begin
     LSplitted := AValue.Split([',', #13, #10], TStringSplitOptions.ExcludeEmpty);
     LFamilies := [];
@@ -5404,7 +5404,8 @@ procedure TSkLabel.Draw(const ACanvas: ISkCanvas; const ADest: TRectF;
     LCanvas: ISkCanvas;
     LPaint: ISkPaint;
     I: Integer;
-    LTextEndIndex: Integer;
+    J: NativeInt;
+    LTextEndIndex: UInt32;
     LTextBox: TSkTextBox;
     LRects: TArray<TRectF>;
     LRectsColor: TArray<TAlphaColor>;
@@ -5422,7 +5423,7 @@ procedure TSkLabel.Draw(const ACanvas: ISkCanvas; const ADest: TRectF;
       Inc(LTextEndIndex, FWords[I].Text.Length);
       if TAlphaColorRec(FWords[I].BackgroundColor).A = 0 then
         Continue;
-      for LTextBox in AParagraph.GetRectsForRange(LTextEndIndex - FWords[I].Text.Length, LTextEndIndex, TSkRectHeightStyle.Tight, TSkRectWidthStyle.Tight) do
+      for LTextBox in AParagraph.GetRectsForRange(LTextEndIndex - UInt32(FWords[I].Text.Length), LTextEndIndex, TSkRectHeightStyle.Tight, TSkRectWidthStyle.Tight) do
       begin
         if LRects = nil then
         begin
@@ -5448,10 +5449,10 @@ procedure TSkLabel.Draw(const ACanvas: ISkCanvas; const ADest: TRectF;
         end;
       end;
     end;
-    for I := 0 to Length(LRects) - 1 do
+    for J := 0 to Length(LRects) - 1 do
     begin
-      LPaint.Color := LRectsColor[I];
-      LCanvas.DrawRoundRect(LRects[I], 2, 2, LPaint);
+      LPaint.Color := LRectsColor[J];
+      LCanvas.DrawRoundRect(LRects[J], 2, 2, LPaint);
     end;
     Result := LPictureRecorder.FinishRecording;
   end;
@@ -5476,7 +5477,7 @@ begin
     if SameValue(AOpacity, 1, TEpsilon.Position) then
       ACanvas.Save
     else
-      ACanvas.SaveLayerAlpha(Round(AOpacity * 255));
+      ACanvas.SaveLayerAlpha(Byte(Round(AOpacity * 255)));
     try
       ACanvas.ClipRect(ADest);
       ACanvas.Translate(ADest.Left, LPositionY);
@@ -5606,7 +5607,7 @@ begin
   end;
 end;
 
-function TSkLabel.GetLinesCount: Integer;
+function TSkLabel.GetLinesCount: NativeInt;
 var
   LParagraph: ISkParagraph;
 begin
@@ -5873,7 +5874,7 @@ function TSkLabel.GetWordsItemAtPosition(const AX,
       Result := True
     else if LGlyphPosition.Position >= 0 then
     begin
-      LGlyphTextBoxes := AParagraph.GetRectsForRange(LGlyphPosition.Position, LGlyphPosition.Position + 1, TSkRectHeightStyle.Max, TSkRectWidthStyle.Tight);
+      LGlyphTextBoxes := AParagraph.GetRectsForRange(UInt32(LGlyphPosition.Position), UInt32(LGlyphPosition.Position) + 1, TSkRectHeightStyle.Max, TSkRectWidthStyle.Tight);
       Result := (LGlyphTextBoxes <> nil) and
         ((LGlyphTextBoxes[0].Rect.CenterPoint.Distance(APoint) < (LGlyphTextBoxes[0].Rect.Width + LGlyphTextBoxes[0].Rect.Height) / 2) or
         ATextArea.Contains(LGlyphTextBoxes[0].Rect.CenterPoint));
@@ -5883,8 +5884,9 @@ function TSkLabel.GetWordsItemAtPosition(const AX,
   end;
 
 var
-  I, J: Integer;
-  LTextIndex: Integer;
+  I: Integer;
+  J: NativeInt;
+  LTextIndex: UInt32;
   LTextBoxes: TArray<TSkTextBox>;
   LParagraph: ISkParagraph;
   LParagraphPoint: TPointF;
@@ -5904,7 +5906,7 @@ begin
     begin
       if FWords[I].Text.Length = 0 then
         Continue;
-      LTextBoxes := LParagraph.GetRectsForRange(LTextIndex, LTextIndex + FWords[I].Text.Length, TSkRectHeightStyle.Max, TSkRectWidthStyle.Tight);
+      LTextBoxes := LParagraph.GetRectsForRange(LTextIndex, LTextIndex + UInt32(FWords[I].Text.Length), TSkRectHeightStyle.Max, TSkRectWidthStyle.Tight);
       for J := 0 to Length(LTextBoxes) - 1 do
       begin
         if LTextBoxes[J].Rect.Contains(LParagraphPoint) then
@@ -6259,7 +6261,7 @@ end;
 
 function TSkFontManagerService.GetCustomFontInfoCount: Integer;
 begin
-  Result := FFontInfos.Count;
+  Result := Integer(FFontInfos.Count);
 end;
 
 procedure TSkFontManagerService.RegisterTypeface(const ATypeface: ISkTypeface);

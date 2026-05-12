@@ -405,7 +405,7 @@ type
   strict private type
     TParagraph = record
       Bounds: TRectF;
-      Index: Integer;
+      Index: NativeInt;
       Offset: TPointF;
       Paragraph: ISkParagraph;
       Range: TTextRange;
@@ -1682,16 +1682,17 @@ procedure TSkCanvasCustom.BeginPaint(const ARect: TRectF;
   procedure GetGradientColorsAndPositions(AGradient: TGradient; AResultReverted: Boolean;
     out AColors: TArray<TAlphaColor>; out APositions: TArray<Single>);
   var
-    I: Integer;
+    I: NativeInt;
+    J: Integer;
     LColor: TAlphaColor;
     LPosition: Single;
   begin
     SetLength(AColors, AGradient.Points.Count);
     SetLength(APositions, AGradient.Points.Count);
-    for I := 0 to AGradient.Points.Count - 1 do
+    for J := 0 to AGradient.Points.Count - 1 do
     begin
-      AColors[I] := AGradient.Points[I].Color;
-      APositions[I] := AGradient.Points[I].Offset;
+      AColors[J] := AGradient.Points[J].Color;
+      APositions[J] := AGradient.Points[J].Offset;
     end;
     // According to the Skia documentation, only gradient positions within the range [0, 1] are allowed.
     // This differs from FMX, which permits positions outside the [0, 1] range.
@@ -1823,7 +1824,7 @@ begin
             if ABrushData.BitmapMapped then
             begin
               ABrushData.Paint.AlphaF := AOpacity;
-              LImage := TSkImage.MakeFromRaster(TSkImageInfo.Create(ABrushData.BitmapData.Width, ABrushData.BitmapData.Height, SkFmxColorType[ABrushData.BitmapData.PixelFormat]), ABrushData.BitmapData.Data, ABrushData.BitmapData.Pitch);
+              LImage := TSkImage.MakeFromRaster(TSkImageInfo.Create(ABrushData.BitmapData.Width, ABrushData.BitmapData.Height, SkFmxColorType[ABrushData.BitmapData.PixelFormat]), ABrushData.BitmapData.Data, NativeUInt(ABrushData.BitmapData.Pitch));
               if LImage <> nil then
               begin
                 if ABrushData.Brush.Bitmap.WrapMode = TWrapMode.TileStretch then
@@ -1859,7 +1860,7 @@ const
   StrokeCap : array[TStrokeCap] of TSkStrokeCap = (TSkStrokeCap.Square, TSkStrokeCap.Round);
   StrokeJoin: array[TStrokeJoin] of TSkStrokeJoin = (TSkStrokeJoin.Miter, TSkStrokeJoin.Round, TSkStrokeJoin.Bevel);
 var
-  I: Integer;
+  I: NativeInt;
   LCap: Single;
   LDash: TDashArray;
   LFinalStrokeBrush: TStrokeBrush;
@@ -1950,7 +1951,7 @@ function TSkCanvasCustom.DoBeginScene({$IF CompilerVersion < 35}const {$ENDIF}AC
   procedure ClipRects(const ACanvas: ISkCanvas; const AClipRects: TClipRects); inline;
   var
     LPathBuilder: ISkPathBuilder;
-    I: Integer;
+    I: NativeInt;
   begin
     if Length(AClipRects) > 1 then
     begin
@@ -2030,7 +2031,7 @@ begin
       if ABitmap.Map(TMapAccess.Read, LBitmapData) then
       begin
         try
-          LImage := TSkImage.MakeFromRaster(TSkImageInfo.Create(LBitmapData.Width, LBitmapData.Height, SkFmxColorType[LBitmapData.PixelFormat]), LBitmapData.Data, LBitmapData.Pitch);
+          LImage := TSkImage.MakeFromRaster(TSkImageInfo.Create(LBitmapData.Width, LBitmapData.Height, SkFmxColorType[LBitmapData.PixelFormat]), LBitmapData.Data, NativeUInt(LBitmapData.Pitch));
           if LImage <> nil then
             Canvas.DrawImageRect(LImage, LSrcRect, ADestRect, GetSamplingOptions(AHighSpeed), LPaint);
         finally
@@ -2494,7 +2495,7 @@ begin
   if (FPixels = nil) and (FPixelsBytes > 0) then
   begin
     if AInitializeToZero then
-      FPixels := AllocMem(FPixelsBytes)
+      FPixels := AllocMem(NativeInt(FPixelsBytes))
     else
       GetMem(FPixels, FPixelsBytes);
   end;
@@ -2522,7 +2523,7 @@ begin
   else if Bitmap <> nil then
   begin
     LBitmap := TSkBitmapHandle(Bitmap.Handle);
-    FBitmapSurface := TSkSurface.MakeRasterDirect(TSkImageInfo.Create(LBitmap.Width, LBitmap.Height, SkFmxColorType[LBitmap.PixelFormat]), LBitmap.Pixels, LBitmap.Width * PixelFormatBytes[LBitmap.PixelFormat]);
+    FBitmapSurface := TSkSurface.MakeRasterDirect(TSkImageInfo.Create(LBitmap.Width, LBitmap.Height, SkFmxColorType[LBitmap.PixelFormat]), LBitmap.Pixels, NativeUInt(LBitmap.Width * PixelFormatBytes[LBitmap.PixelFormat]));
     Result         := FBitmapSurface.Canvas;
   end
   else
@@ -2608,7 +2609,7 @@ begin
     {$IFDEF MSWINDOWS}
     LParentHandle := WindowHandleToPlatform(Parent);
     if LParentHandle{$IF CompilerVersion < 30}.Form{$ENDIF}.Transparency then
-      FSurface.ReadPixels(TSkImageInfo.Create({$IF CompilerVersion < 31}Width, Height{$ELSE}LParentHandle.WndClientSize.Width, LParentHandle.WndClientSize.Height{$ENDIF}, TSkColorType.BGRA8888), LParentHandle.BufferBits, {$IF CompilerVersion < 31}Width{$ELSE}LParentHandle.WndClientSize.Width{$ENDIF} * SkBytesPerPixel[TSkColorType.BGRA8888]);
+      FSurface.ReadPixels(TSkImageInfo.Create({$IF CompilerVersion < 31}Width, Height{$ELSE}LParentHandle.WndClientSize.Width, LParentHandle.WndClientSize.Height{$ENDIF}, TSkColorType.BGRA8888), LParentHandle.BufferBits, NativeUInt({$IF CompilerVersion < 31}Width{$ELSE}LParentHandle.WndClientSize.Width{$ENDIF}) * SkBytesPerPixel[TSkColorType.BGRA8888]);
     {$ENDIF}
     FSurface := nil;
     SwapBuffers(AContextHandle);
@@ -2687,7 +2688,7 @@ var
 begin
   LImage := TSkImage.MakeFromRaster(
     TSkImageInfo.Create(ABitmap.Width, ABitmap.Height, SkFmxColorType[ABitmap.PixelFormat]),
-    ABitmap.Pixels, ABitmap.Width * PixelFormatBytes[ABitmap.PixelFormat]);
+    ABitmap.Pixels, NativeUInt(ABitmap.Width * PixelFormatBytes[ABitmap.PixelFormat]));
   if LImage <> nil then
     ABitmap.Cache := LImage.MakeTextureImage(ABitmap.SharedContext.GrDirectContext);
 end;
@@ -2828,7 +2829,7 @@ end;
 
 procedure TSkTextLayout.ConvertToPath(const APath: TPathData);
 var
-  I: Integer;
+  I: NativeInt;
   LPath: TPathData;
 begin
   if (Length(FParagraphs) = 0) or (APath = nil) then
@@ -2901,7 +2902,7 @@ end;
 
 procedure TSkTextLayout.DoDrawLayout(const ACanvas: ISkCanvas);
 var
-  I: Integer;
+  I: NativeInt;
 begin
   if (Length(FParagraphs) > 0) and (ACanvas <> nil) then
   begin
@@ -2974,7 +2975,7 @@ function TSkTextLayout.DoPositionAtPoint(const APoint: TPointF): Integer;
   function TryGetNearestParagraph(const APoint: TPointF;
     out AParagraph: TParagraph): Boolean;
   var
-    I: Integer;
+    I: NativeInt;
     LDistance: Single;
     LMinDistance: Single;
     LPoint: TPointF;
@@ -3026,7 +3027,7 @@ function TSkTextLayout.DoRegionForRange(const ARange: TTextRange): TRegion;
   // editing controls.
   function SummarizeRegion(const ARegion: TRegion): TRegion;
   var
-    I: Integer;
+    I: NativeInt;
     LLastRect: PRectF;
     LResultCount: Integer;
   begin
@@ -3057,8 +3058,8 @@ function TSkTextLayout.DoRegionForRange(const ARange: TTextRange): TRegion;
 
     function GetRegionBesidePreviousVisibleChar(const ALastParagraphProcessed: TParagraph): TRegion;
     var
-      I: Integer;
-      J: Integer;
+      I: NativeInt;
+      J: NativeInt;
       LFoundPreviousVisibleChar: Boolean;
       LLineMetrics: TArray<TSkMetrics>;
       LPreviousVisibleChar: Integer;
@@ -3091,8 +3092,8 @@ function TSkTextLayout.DoRegionForRange(const ARange: TTextRange): TRegion;
     end;
 
   var
-    I: Integer;
-    LLength: Integer;
+    I: NativeInt;
+    LLength: NativeInt;
     LParagraph: TParagraph;
     LParagraphsInRange: TArray<TParagraph>;
     LTextBoxes: TArray<TSkTextBox>;
@@ -3103,7 +3104,7 @@ function TSkTextLayout.DoRegionForRange(const ARange: TTextRange): TRegion;
     begin
       if LParagraph.Paragraph <> nil then
       begin
-        LTextBoxes := LParagraph.Paragraph.GetRectsForRange(AStartIndex - LParagraph.Range.Pos, AEndIndex - LParagraph.Range.Pos, TSkRectHeightStyle.Max, TSkRectWidthStyle.Tight);
+        LTextBoxes := LParagraph.Paragraph.GetRectsForRange(UInt32(AStartIndex - LParagraph.Range.Pos), UInt32(AEndIndex - LParagraph.Range.Pos), TSkRectHeightStyle.Max, TSkRectWidthStyle.Tight);
         LLength    := Length(Result);
         SetLength(Result, LLength + Length(LTextBoxes));
         for I := LLength to Length(Result) - 1 do
@@ -3166,7 +3167,7 @@ const
 
   function GetTextRect: TRectF;
   var
-    I: Integer;
+    I: NativeInt;
     LOffset: TPointF;
     LTextBox: TSkTextBox;
     LTextBoxes: TArray<TSkTextBox>;
@@ -3178,7 +3179,7 @@ const
       if FParagraphs[I].Paragraph <> nil then
       begin
         FParagraphs[I].Bounds := TRectF.Empty;
-        LTextBoxes := FParagraphs[I].Paragraph.GetRectsForRange(0, FParagraphs[I].Range.Length, TSkRectHeightStyle.Max, TSkRectWidthStyle.Tight);
+        LTextBoxes := FParagraphs[I].Paragraph.GetRectsForRange(0, UInt32(FParagraphs[I].Range.Length), TSkRectHeightStyle.Max, TSkRectWidthStyle.Tight);
         for LTextBox in LTextBoxes do
         begin
           if FParagraphs[I].Bounds.IsEmpty then
@@ -3229,7 +3230,7 @@ const
   end;
 
 var
-  I: Integer;
+  I: NativeInt;
   LOffset: TPointF;
 begin
   {$IF DECLARED(TRSP36975Workaround))}
@@ -3502,7 +3503,7 @@ const
   end;
 
   function CreateParagraphStyle(const AAttributes: TArray<TTextAttributedRange>;
-    AMaxLines: Integer): ISkParagraphStyle;
+    AMaxLines: NativeInt): ISkParagraphStyle;
   const
     SkTextAlign: array[TTextAlign] of TSkTextAlign = (TSkTextAlign.Center, TSkTextAlign.Start, TSkTextAlign.Terminate);
   var
@@ -3519,7 +3520,7 @@ const
       if AMaxLines <= 0 then
         Result.MaxLines := High(NativeUInt) - 1
       else
-        Result.MaxLines := AMaxLines;
+        Result.MaxLines := NativeUInt(AMaxLines);
     end
     else
       Result.MaxLines := 1;
@@ -3543,7 +3544,7 @@ const
       begin
         // Avoid invalid float point operation
         if MaxSize.Y < High(NativeInt) then
-          Result.MaxLines := Max(Trunc(CeilFloat(MaxSize.Y / LMinFontSize)), 0);
+          Result.MaxLines := NativeUInt(Max(Trunc(CeilFloat(MaxSize.Y / LMinFontSize)), 0));
       end;
     end;
   end;
@@ -3567,7 +3568,7 @@ const
       Result := Result.Replace(#13#10, ZeroWidthChar + #10).Replace(#13, #10);
   end;
 
-  function CreateParagraph(const AMaxLines: Integer; const ASubText: string;
+  function CreateParagraph(const AMaxLines: NativeInt; const ASubText: string;
     const ASubTextPosition: Integer): ISkParagraph;
   var
     LAttribute: TTextAttributedRange;
@@ -3644,7 +3645,7 @@ const
       begin
         if (LMetrics.LineNumber <> 0) and (LMetrics.Baseline + LMetrics.Descent > MaxSize.Y - Padding.Top - Padding.Bottom) then
         begin
-          AParagraph.Paragraph := CreateParagraph(LMetrics.LineNumber, ASubText, AParagraph.Range.Pos);
+          AParagraph.Paragraph := CreateParagraph(NativeInt(LMetrics.LineNumber), ASubText, AParagraph.Range.Pos);
           ParagraphLayout(AParagraph.Paragraph, MaxSize.X - Padding.Left - Padding.Right);
           Break;
         end;
@@ -3653,7 +3654,7 @@ const
   end;
 
 var
-  I: Integer;
+  I: NativeInt;
   LLimitedLines: Boolean;
   LLines: TArray<string>;
   LMaxLines: Integer;
@@ -3745,7 +3746,7 @@ function TSkTextLayout.TGraphemesMap.CreateGraphemesMapping(
   const AText: string): TBytes;
 var
   I: Integer;
-  LCharIndex: Integer;
+  LCharIndex: Byte;
   LGrapheme: TSkUnicodeBreakIteratorElem;
   LGraphemesIterator: ISkUnicodeBreakIterator;
   LUnicode: ISkUnicode;
@@ -3843,7 +3844,7 @@ begin
   if LRatio < 1 then
     Result := TSize.Create(AWidth, AHeight)
   else
-    Result := TSize.Create(Trunc((AWidth + Epsilon) / LRatio), Trunc((AHeight + Epsilon) / LRatio));
+    Result := TSize.Create(Integer(Trunc((AWidth + Epsilon) / LRatio)), Integer(Trunc((AHeight + Epsilon) / LRatio)));
 end;
 
 class function TSkBitmapCodec.GetImageSize(const AFileName: string): TPointF;
@@ -3870,7 +3871,7 @@ class function TSkBitmapCodec.IsValid(const AStream: TStream): Boolean;
 
   function IsValid(const AMemoryStream: TCustomMemoryStream): Boolean; inline;
   begin
-    Result := TSkCodec.MakeWithoutCopy(AMemoryStream.Memory, AMemoryStream.Size) <> nil;
+    Result := TSkCodec.MakeWithoutCopy(AMemoryStream.Memory, NativeUInt(AMemoryStream.Size)) <> nil;
   end;
 
 var
@@ -3928,12 +3929,12 @@ begin
       LSize := TSize.Create(LSize.Height, LSize.Width);
     ABitmapSurface.SetSize(LSize.Width, LSize.Height, GetPixelFormat);
     LImage := LCodec.GetImage(SkFmxColorType[GetPixelFormat]);
-    Result := (LImage <> nil) and (LImage.ScalePixels(TSkImageInfo.Create(ABitmapSurface.Width, ABitmapSurface.Height, SkFmxColorType[GetPixelFormat]), ABitmapSurface.Bits, ABitmapSurface.Pitch, TSkImageCachingHint.Disallow));
+    Result := (LImage <> nil) and (LImage.ScalePixels(TSkImageInfo.Create(ABitmapSurface.Width, ABitmapSurface.Height, SkFmxColorType[GetPixelFormat]), ABitmapSurface.Bits, NativeUInt(ABitmapSurface.Pitch), TSkImageCachingHint.Disallow));
   end
   else
   begin
     ABitmapSurface.SetSize(LCodec.Width, LCodec.Height, GetPixelFormat);
-    Result := LCodec.GetPixels(ABitmapSurface.Bits, ABitmapSurface.Pitch, SkFmxColorType[GetPixelFormat]);
+    Result := LCodec.GetPixels(ABitmapSurface.Bits, NativeUInt(ABitmapSurface.Pitch), SkFmxColorType[GetPixelFormat]);
   end;
 end;
 
@@ -3948,7 +3949,7 @@ function TSkBitmapCodec.LoadFromStream(const AStream: TStream;
     LSize: TSize;
     LSwapsWidthHeight: Boolean;
   begin
-    LCodec := TSkCodec.MakeWithoutCopy(AMemoryStream.Memory, AMemoryStream.Size);
+    LCodec := TSkCodec.MakeWithoutCopy(AMemoryStream.Memory, NativeUInt(AMemoryStream.Size));
     if LCodec = nil then
       Exit(False);
     GetSkCodecOrientation(LCodec, LIsRotated, LSwapsWidthHeight);
@@ -3960,12 +3961,12 @@ function TSkBitmapCodec.LoadFromStream(const AStream: TStream;
         LSize := TSize.Create(LSize.Height, LSize.Width);
       ABitmapSurface.SetSize(LSize.Width, LSize.Height, GetPixelFormat);
       LImage := LCodec.GetImage(SkFmxColorType[GetPixelFormat]);
-      Result := (LImage <> nil) and (LImage.ScalePixels(TSkImageInfo.Create(ABitmapSurface.Width, ABitmapSurface.Height, SkFmxColorType[GetPixelFormat]), ABitmapSurface.Bits, ABitmapSurface.Pitch, TSkImageCachingHint.Disallow));
+      Result := (LImage <> nil) and (LImage.ScalePixels(TSkImageInfo.Create(ABitmapSurface.Width, ABitmapSurface.Height, SkFmxColorType[GetPixelFormat]), ABitmapSurface.Bits, NativeUInt(ABitmapSurface.Pitch), TSkImageCachingHint.Disallow));
     end
     else
     begin
       ABitmapSurface.SetSize(LCodec.Width, LCodec.Height, GetPixelFormat);
-      Result := LCodec.GetPixels(ABitmapSurface.Bits, ABitmapSurface.Pitch, SkFmxColorType[GetPixelFormat]);
+      Result := LCodec.GetPixels(ABitmapSurface.Bits, NativeUInt(ABitmapSurface.Pitch), SkFmxColorType[GetPixelFormat]);
     end;
   end;
 
@@ -4005,7 +4006,7 @@ begin
     LSize := TSize.Create(LSize.Height, LSize.Width);
   ABitmapSurface.SetSize(LSize.Width, LSize.Height, GetPixelFormat);
   LImage := LCodec.GetImage(SkFmxColorType[GetPixelFormat]);
-  Result := (LImage <> nil) and (LImage.ScalePixels(TSkImageInfo.Create(ABitmapSurface.Width, ABitmapSurface.Height, SkFmxColorType[GetPixelFormat]), ABitmapSurface.Bits, ABitmapSurface.Pitch, TSkImageCachingHint.Disallow));
+  Result := (LImage <> nil) and (LImage.ScalePixels(TSkImageInfo.Create(ABitmapSurface.Width, ABitmapSurface.Height, SkFmxColorType[GetPixelFormat]), ABitmapSurface.Bits, NativeUInt(ABitmapSurface.Pitch), TSkImageCachingHint.Disallow));
 end;
 
 class procedure TSkBitmapCodec.RegisterCodec(const AFileExtension,
@@ -4033,7 +4034,7 @@ begin
     LQuality := ASaveParams.Quality
   else
     LQuality := 100;
-  TSkImageEncoder.EncodeToFile(AFileName, TSkImageInfo.Create(ABitmapSurface.Width, ABitmapSurface.Height, SkFmxColorType[ABitmapSurface.PixelFormat]), ABitmapSurface.Bits, ABitmapSurface.Pitch, LQuality);
+  TSkImageEncoder.EncodeToFile(AFileName, TSkImageInfo.Create(ABitmapSurface.Width, ABitmapSurface.Height, SkFmxColorType[ABitmapSurface.PixelFormat]), ABitmapSurface.Bits, NativeUInt(ABitmapSurface.Pitch), LQuality);
   Result := True;
 end;
 
@@ -4047,7 +4048,7 @@ begin
     LQuality := ASaveParams.Quality
   else
     LQuality := 100;
-  TSkImageEncoder.EncodeToStream(AStream, TSkImageInfo.Create(ABitmapSurface.Width, ABitmapSurface.Height, SkFmxColorType[ABitmapSurface.PixelFormat]), ABitmapSurface.Bits, ABitmapSurface.Pitch, ExtensionToEncodedImageFormat(AExtension), LQuality);
+  TSkImageEncoder.EncodeToStream(AStream, TSkImageInfo.Create(ABitmapSurface.Width, ABitmapSurface.Height, SkFmxColorType[ABitmapSurface.PixelFormat]), ABitmapSurface.Bits, NativeUInt(ABitmapSurface.Pitch), ExtensionToEncodedImageFormat(AExtension), LQuality);
   Result := True;
 end;
 
@@ -4117,8 +4118,8 @@ begin
     {$ELSEIF DEFINED(MSWINDOWS)}
     if FBitmap = 0 then
     begin
-      LWidth  := Round(Width  * Scale);
-      LHeight := Round(Height * Scale);
+      LWidth  := Integer(Round(Width  * Scale));
+      LHeight := Integer(Round(Height * Scale));
       FillChar(LBitmapInfo, SizeOf(TBitmapInfo), 0);
       LBitmapInfo.bmiHeader.biSize        := SizeOf(TBitmapInfoHeader);
       LBitmapInfo.bmiHeader.biWidth       := LWidth;
@@ -4126,14 +4127,14 @@ begin
       LBitmapInfo.bmiHeader.biPlanes      := 1;
       LBitmapInfo.bmiHeader.biBitCount    := 32;
       LBitmapInfo.bmiHeader.biCompression := BI_RGB;
-      LBitmapInfo.bmiHeader.biSizeImage   := LWidth * LHeight * SkBytesPerPixel[TSkColorType.BGRA8888];
+      LBitmapInfo.bmiHeader.biSizeImage   := UInt32(LWidth * LHeight) * SkBytesPerPixel[TSkColorType.BGRA8888];
       FBitmap := CreateDIBSection(0, LBitmapInfo, DIB_RGB_COLORS, LBits, 0, 0);
       if FBitmap = 0 then
         Exit(nil);
     end;
     if GetObject(FBitmap, SizeOf(TDIBSection), @LDIBSection) = 0 then
       Exit(nil);
-    FBackBufferSurface := TSkSurface.MakeRasterDirect(TSkImageInfo.Create(LDIBSection.dsBm.bmWidth, LDIBSection.dsBm.bmHeight, TSkColorType.BGRA8888), LDIBSection.dsBm.bmBits, LDIBSection.dsBm.bmWidthBytes);
+    FBackBufferSurface := TSkSurface.MakeRasterDirect(TSkImageInfo.Create(LDIBSection.dsBm.bmWidth, LDIBSection.dsBm.bmHeight, TSkColorType.BGRA8888), LDIBSection.dsBm.bmBits, NativeUInt(LDIBSection.dsBm.bmWidthBytes));
     {$ENDIF}
   end;
   Result := TSkSurface(FBackBufferSurface);
@@ -4203,7 +4204,7 @@ begin
       try
         LOldObj := SelectObject(LDC, FBitmap);
         try
-          BitBlt(HDC(AContextHandle), 0, 0, Round(Width * Scale), Round(Height * Scale), LDC, 0, 0, SRCCOPY);
+          BitBlt(HDC(AContextHandle), 0, 0, Integer(Round(Width * Scale)), Integer(Round(Height * Scale)), LDC, 0, 0, SRCCOPY);
         finally
           if LOldObj <> 0 then
             SelectObject(LDC, LOldObj);
