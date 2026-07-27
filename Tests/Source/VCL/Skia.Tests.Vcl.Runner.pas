@@ -101,6 +101,9 @@ type
     procedure trvTestTreeCreateNodeClass(ASender: TCustomTreeView; var ANodeClass: TTreeNodeClass);
   private
     { Private declarations }
+    FCIMode: Boolean;
+    FCIOutputFileName: string;
+    FCIRunStarted: Boolean;
     FFailedTests: TList<ITestResult>;
     FFixtureList: ITestFixtureList;
     FImagePreview: ISkImage;
@@ -269,6 +272,16 @@ end;
 
 procedure TfrmVclRunner.FormCreate(ASender: TObject);
 begin
+  FCIMode := IsCIMode;
+  if FCIMode then
+  begin
+    FCIOutputFileName := CIOutputFileName(ChangeFileExt(ExtractFileName(ParamStr(0)), '.Results.json'));
+    if IsBuildExpectedImagesMode then
+    begin
+      cbxGenerateExpectedImages.Checked := True;
+      FAsyncTestRunner.GenerateExpectedImages := True;
+    end;
+  end;
   FFailedTests := TList<ITestResult>.Create;
   FNodes := TList<TTreeNode>.Create;
   lblFailTestName.Caption := ' ';
@@ -321,6 +334,11 @@ begin
     if Assigned(TTestNode(FNodes[I]).Test) and Assigned(FNodes[I].Parent) then
       FNodes[I].Parent.Expanded := False;
   SetScrollPos(trvTestTree.Handle, SB_VERT, 0, True);
+  if FCIMode and not FCIRunStarted then
+  begin
+    FCIRunStarted := True;
+    FAsyncTestRunner.Execute;
+  end;
 end;
 
 function TfrmVclRunner.GetNode(AFullName: string): TTreeNode;
@@ -446,6 +464,20 @@ begin
   lblSuccessTests.Caption := IntToStr(FLastResult.PassCount);
   lblMemoryLeaked.Caption := IntToStr(FLastResult.MemoryLeakCount);
   pnlRunAll.Enabled := True;
+  if FCIMode then
+  begin
+    try
+      WriteCIResults(FCIOutputFileName, 'VCL', FLastResult);
+      if FLastResult.AllPassed then
+        System.ExitCode := 0
+      else
+        System.ExitCode := 1;
+    except
+      System.ExitCode := 2;
+    end;
+    Application.Terminate;
+    Exit;
+  end;
   MessageDlg(Format('Finished with %d problem(s)',
     [FLastResult.ErrorCount + FLastResult.FailureCount + FLastResult.MemoryLeakCount]),
     TMsgDlgType.mtInformation, [TMsgDlgBtn.mbOK], 0);

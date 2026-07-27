@@ -47,6 +47,11 @@ type
     property GenerateExpectedImages: Boolean read GetGenerateExpectedImages write SetGenerateExpectedImages;
   end;
 
+function CIOutputFileName(const ADefaultFileName: string): string;
+function IsBuildExpectedImagesMode: Boolean;
+function IsCIMode: Boolean;
+procedure WriteCIResults(const AFileName, ARunnerName: string; const ARunResults: IRunResults);
+
 var
   FAsyncTestRunner: IAsyncTestRunner;
 
@@ -60,6 +65,8 @@ uses
   System.Generics.Collections,
   System.SyncObjs,
   System.IOUtils,
+  System.JSON,
+  System.TypInfo,
   System.Zip,
   {$IF CompilerVersion >= 29}
   System.Hash,
@@ -72,6 +79,87 @@ uses
 
   { Tests }
   Skia.Tests.Foundation;
+
+const
+  CImagesNotSimilarMessagePrefix = 'Images are not similar.';
+
+function TestHash(const ATest: ITestInfo): string; forward;
+
+function ExpectedImageEntryName(const ATest: ITestInfo): string;
+begin
+  Result := TestHash(ATest).ToLower + '.png';
+end;
+
+function CIOutputFileName(const ADefaultFileName: string): string;
+var
+  LFileName: string;
+begin
+  if (FindCmdLineSwitch('ci-output', LFileName) or FindCmdLineSwitch('-ci-output', LFileName)) and
+    not LFileName.IsEmpty then
+  begin
+    if LFileName.StartsWith('=') then
+      LFileName := LFileName.Substring(1);
+    Result := TPath.GetFullPath(LFileName);
+  end
+  else
+    Result := TPath.GetFullPath(TPath.Combine(GetCurrentDir, ADefaultFileName));
+end;
+
+function IsCIMode: Boolean;
+begin
+  Result := FindCmdLineSwitch('ci', True) or FindCmdLineSwitch('-ci', True);
+end;
+
+function IsBuildExpectedImagesMode: Boolean;
+begin
+  Result := FindCmdLineSwitch('build-expected-images', True) or
+    FindCmdLineSwitch('-build-expected-images', True);
+end;
+
+procedure WriteCIResults(const AFileName, ARunnerName: string; const ARunResults: IRunResults);
+var
+  LDirectoryName: string;
+  LResultObject: TJSONObject;
+  LResultsArray: TJSONArray;
+  LRootObject: TJSONObject;
+  LTestResult: ITestResult;
+begin
+  LRootObject := TJSONObject.Create;
+  try
+    LRootObject.AddPair('schema_version', 1);
+    LRootObject.AddPair('runner', ARunnerName);
+    LRootObject.AddPair('all_passed', ARunResults.AllPassed);
+    LRootObject.AddPair('duration_ms', ARunResults.Duration.TotalMilliseconds);
+    LRootObject.AddPair('test_count', ARunResults.TestCount);
+    LRootObject.AddPair('passed', ARunResults.PassCount);
+    LRootObject.AddPair('failures', ARunResults.FailureCount);
+    LRootObject.AddPair('errors', ARunResults.ErrorCount);
+    LRootObject.AddPair('ignored', ARunResults.IgnoredCount);
+    LRootObject.AddPair('memory_leaks', ARunResults.MemoryLeakCount);
+    LResultsArray := TJSONArray.Create;
+    LRootObject.AddPair('tests', LResultsArray);
+    for LTestResult in ARunResults.GetAllTestResults do
+    begin
+      LResultObject := TJSONObject.Create;
+      LResultObject.AddPair('name', LTestResult.Test.FullName);
+      LResultObject.AddPair('status', LowerCase(GetEnumName(TypeInfo(TTestResultType), Ord(LTestResult.ResultType))));
+      LResultObject.AddPair('duration_ms', LTestResult.Duration.TotalMilliseconds);
+      if not LTestResult.Message.IsEmpty then
+        LResultObject.AddPair('message', LTestResult.Message);
+      if LTestResult.Message.StartsWith(CImagesNotSimilarMessagePrefix) then
+        LResultObject.AddPair('expected-image', ExpectedImageEntryName(LTestResult.Test));
+      if not LTestResult.StackTrace.IsEmpty then
+        LResultObject.AddPair('stack_trace', LTestResult.StackTrace);
+      LResultsArray.Add(LResultObject);
+    end;
+    LDirectoryName := ExtractFilePath(AFileName);
+    if not LDirectoryName.IsEmpty and not TDirectory.Exists(LDirectoryName) then
+      TDirectory.CreateDirectory(LDirectoryName);
+    TFile.WriteAllText(AFileName, LRootObject.ToJSON, TEncoding.UTF8);
+  finally
+    LRootObject.Free;
+  end;
+end;
 
 type
   { TAsyncTestRunner }
@@ -328,7 +416,7 @@ end;
 function TAsyncTestRunner.GetExpectedImageFileName(
   const ATestResult: ITestResult): string;
 begin
-  Result := ExpectedImagesPath + TestHash(ATestResult.Test).ToLower + ImagesExtension;
+  Result := ExpectedImagesPath + ExpectedImageEntryName(ATestResult.Test);
 end;
 
 function TAsyncTestRunner.GetFixtureList: ITestFixtureList;
@@ -354,7 +442,7 @@ end;
 function TAsyncTestRunner.GetWrongImageFileName(
   const ATestResult: ITestResult): string;
 begin
-  Result := WrongImagesPath + TestHash(ATestResult.Test).ToLower + ImagesExtension;
+  Result := WrongImagesPath + ExpectedImageEntryName(ATestResult.Test);
 end;
 
 procedure TAsyncTestRunner.OnBeginTest(const AThreadId: TThreadID;

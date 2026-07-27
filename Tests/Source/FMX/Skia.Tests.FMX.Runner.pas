@@ -106,6 +106,9 @@ type
       Shift: TShiftState);
   private
     { Private declarations }
+    FCIMode: Boolean;
+    FCIOutputFileName: string;
+    FCIRunStarted: Boolean;
     FFailedTests: TList<ITestResult>;
     FFixtureList: ITestFixtureList;
     FImagePreview: ISkImage;
@@ -278,6 +281,16 @@ end;
 
 procedure TfrmFMXRunner.FormCreate(ASender: TObject);
 begin
+  FCIMode := IsCIMode;
+  if FCIMode then
+  begin
+    FCIOutputFileName := CIOutputFileName(ChangeFileExt(ExtractFileName(ParamStr(0)), '.Results.json'));
+    if IsBuildExpectedImagesMode then
+    begin
+      cbxGenerateExpectedImages.IsChecked := True;
+      FAsyncTestRunner.GenerateExpectedImages := True;
+    end;
+  end;
   FFailedTests := TList<ITestResult>.Create;
   FNodes := TList<Pointer>.Create;
   lblFailTestName.Text := ' ';
@@ -345,6 +358,11 @@ begin
     pgbTestRunnerProgress.Max := LTotalTests;
   finally
     EndUpdate;
+  end;
+  if FCIMode and not FCIRunStarted then
+  begin
+    FCIRunStarted := True;
+    FAsyncTestRunner.Execute;
   end;
 end;
 
@@ -500,6 +518,20 @@ begin
   lblSuccessTests.Text := IntToStr(FLastResult.PassCount);
   lblMemoryLeaked.Text := IntToStr(FLastResult.MemoryLeakCount);
   btnRunAll.Enabled := True;
+  if FCIMode then
+  begin
+    try
+      WriteCIResults(FCIOutputFileName, 'FMX', FLastResult);
+      if FLastResult.AllPassed then
+        System.ExitCode := 0
+      else
+        System.ExitCode := 1;
+    except
+      System.ExitCode := 2;
+    end;
+    Application.Terminate;
+    Exit;
+  end;
   ShowMessage(Format('Finished with %d problem(s)', [FLastResult.ErrorCount + FLastResult.FailureCount + FLastResult.MemoryLeakCount]));
 end;
 
