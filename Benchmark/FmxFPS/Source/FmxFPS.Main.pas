@@ -543,16 +543,16 @@ begin
     LRenderer := 'fmx';
   LRootObject := TJSONObject.Create;
   try
-    LRootObject.AddPair('schema_version', 1);
+    LRootObject.AddPair('schema_version', TJSONNumber.Create(1));
     LRootObject.AddPair('benchmark', 'FmxFPS');
     LRootObject.AddPair('renderer', LRenderer);
     LRootObject.AddPair('canvas', GetRenderName);
     LRootObject.AddPair('quality', GetEnumName(TypeInfo(TCanvasQuality), Ord(Self.Quality)));
-    LRootObject.AddPair('fps', AFPS);
-    LRootObject.AddPair('paint_count', FPaintCount);
-    LRootObject.AddPair('duration_seconds', ADurationSeconds);
-    LRootObject.AddPair('controls', BenchmarkControlsCount);
-    LRootObject.AddPair('scroll_height', BenchmarkTotalScrollHeight);
+    LRootObject.AddPair('fps', TJSONNumber.Create(AFPS));
+    LRootObject.AddPair('paint_count', TJSONNumber.Create(FPaintCount));
+    LRootObject.AddPair('duration_seconds', TJSONNumber.Create(ADurationSeconds));
+    LRootObject.AddPair('controls', TJSONNumber.Create(BenchmarkControlsCount));
+    LRootObject.AddPair('scroll_height', TJSONNumber.Create(BenchmarkTotalScrollHeight));
     LDirectoryName := ExtractFilePath(FCIOutputFileName);
     if not LDirectoryName.IsEmpty and not TDirectory.Exists(LDirectoryName) then
       TDirectory.CreateDirectory(LDirectoryName);

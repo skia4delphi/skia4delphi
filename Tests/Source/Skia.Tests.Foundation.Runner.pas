@@ -85,6 +85,14 @@ const
 
 function TestHash(const ATest: ITestInfo): string; forward;
 
+function JSONBoolean(const AValue: Boolean): TJSONValue;
+begin
+  if AValue then
+    Result := TJSONTrue.Create
+  else
+    Result := TJSONFalse.Create;
+end;
+
 function ExpectedImageEntryName(const ATest: ITestInfo): string;
 begin
   Result := TestHash(ATest).ToLower + '.png';
@@ -126,16 +134,16 @@ var
 begin
   LRootObject := TJSONObject.Create;
   try
-    LRootObject.AddPair('schema_version', 1);
+    LRootObject.AddPair('schema_version', TJSONNumber.Create(1));
     LRootObject.AddPair('runner', ARunnerName);
-    LRootObject.AddPair('all_passed', ARunResults.AllPassed);
-    LRootObject.AddPair('duration_ms', ARunResults.Duration.TotalMilliseconds);
-    LRootObject.AddPair('test_count', ARunResults.TestCount);
-    LRootObject.AddPair('passed', ARunResults.PassCount);
-    LRootObject.AddPair('failures', ARunResults.FailureCount);
-    LRootObject.AddPair('errors', ARunResults.ErrorCount);
-    LRootObject.AddPair('ignored', ARunResults.IgnoredCount);
-    LRootObject.AddPair('memory_leaks', ARunResults.MemoryLeakCount);
+    LRootObject.AddPair('all_passed', JSONBoolean(ARunResults.AllPassed));
+    LRootObject.AddPair('duration_ms', TJSONNumber.Create(ARunResults.Duration.TotalMilliseconds));
+    LRootObject.AddPair('test_count', TJSONNumber.Create(ARunResults.TestCount));
+    LRootObject.AddPair('passed', TJSONNumber.Create(ARunResults.PassCount));
+    LRootObject.AddPair('failures', TJSONNumber.Create(ARunResults.FailureCount));
+    LRootObject.AddPair('errors', TJSONNumber.Create(ARunResults.ErrorCount));
+    LRootObject.AddPair('ignored', TJSONNumber.Create(ARunResults.IgnoredCount));
+    LRootObject.AddPair('memory_leaks', TJSONNumber.Create(ARunResults.MemoryLeakCount));
     LResultsArray := TJSONArray.Create;
     LRootObject.AddPair('tests', LResultsArray);
     for LTestResult in ARunResults.GetAllTestResults do
@@ -143,7 +151,7 @@ begin
       LResultObject := TJSONObject.Create;
       LResultObject.AddPair('name', LTestResult.Test.FullName);
       LResultObject.AddPair('status', LowerCase(GetEnumName(TypeInfo(TTestResultType), Ord(LTestResult.ResultType))));
-      LResultObject.AddPair('duration_ms', LTestResult.Duration.TotalMilliseconds);
+      LResultObject.AddPair('duration_ms', TJSONNumber.Create(LTestResult.Duration.TotalMilliseconds));
       if not LTestResult.Message.IsEmpty then
         LResultObject.AddPair('message', LTestResult.Message);
       if LTestResult.Message.StartsWith(CImagesNotSimilarMessagePrefix) then
