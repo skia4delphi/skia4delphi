@@ -12920,7 +12920,7 @@ end;
 
 class function TSkVersion.ToString: string;
 begin
-  Result := Format('%d.%d.%d', [FMajor, FMinor, FBuild]);
+  Result := UnicodeString(Format('%d.%d.%d', [FMajor, FMinor, FBuild]));
 end;
 
 function ExtensionToEncodedImageFormat(
