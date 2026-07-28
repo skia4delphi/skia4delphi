@@ -8,6 +8,34 @@ on:
       - v7-lts
 
 jobs:
+  test-bds-37:
+    name: Running Tests on BDS 37.0
+    runs-on: windows-2022
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Checkout Toolchain
+        uses: actions/checkout@v4
+        with:
+          repository: skia4delphibot/toolchain37
+          token: ${{ secrets.GH_SK_PAT }}
+          path: Toolchain
+
+      - name: Build and Test
+        run: |
+          Toolchain/Run.ps1
+        shell: pwsh
+        timeout-minutes: 30
+
+      - name: Upload Logs on Failure
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: BDS 37.0 Logs
+          path: Toolchain/logs.txt
+          retention-days: 90
+
   test-bds-23:
     name: Running Tests on BDS 23.0
     runs-on: windows-2022
@@ -317,7 +345,7 @@ jobs:
           retention-days: 90
 
   make:
-    needs: [test-bds-23, test-bds-22, test-bds-21, test-bds-20, test-bds-19, test-bds-18, test-bds-17, test-bds-16, test-bds-15, test-fpc-331, test-fpc-trunk]
+    needs: [test-bds-37, test-bds-23, test-bds-22, test-bds-21, test-bds-20, test-bds-19, test-bds-18, test-bds-17, test-bds-16, test-bds-15, test-fpc-331, test-fpc-trunk]
     name: Building Installer
     runs-on: windows-2022
     steps:
