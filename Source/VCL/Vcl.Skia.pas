@@ -2413,6 +2413,9 @@ type
   { TSkGlControlRender }
 
   TSkGlControlRender = class(TSkControlRender, ISkControlRender)
+  strict private class var
+    FIsSupported: Boolean;
+    FIsSupportedChecked: Boolean;
   strict private
     FCachedImage: ISkImage;
     FDC: HDC;
@@ -2539,20 +2542,23 @@ var
   LPixelFormatDescriptor: TPixelFormatDescriptor;
   LWindow: HWND;
 begin
+  if FIsSupportedChecked then
+    Exit(FIsSupported);
+  Result := False;
   FillChar(LClass, SizeOf(TWndClass), 0);
   LClass.lpfnWndProc   := @DefWindowProc;
   LClass.hInstance     := HInstance;
   LClass.lpszClassName := '_temp';
-  if Winapi.Windows.RegisterClass(LClass) = 0 then
-    Exit(False);
   try
+    if Winapi.Windows.RegisterClass(LClass) = 0 then
+      Exit;
     LWindow := CreateWindowEx(WS_EX_TOOLWINDOW, '_temp', nil, WS_POPUP, 0, 0, 0, 0, 0, 0, HInstance, nil);
     if LWindow = 0 then
-      Exit(False);
+      Exit;
     try
       LDC := GetDC(LWindow);
       if LDC = 0 then
-        Exit(False);
+        Exit;
       try
         FillChar(LPixelFormatDescriptor, SizeOf(TPixelFormatDescriptor), 0);
         LPixelFormatDescriptor.nSize        := SizeOf(TPixelFormatDescriptor);
@@ -2563,22 +2569,28 @@ begin
         LPixelFormatDescriptor.cAlphaBits   := 8;
         LPixelFormatDescriptor.cStencilBits := 8;
         LPixelFormatDescriptor.iLayerType   := PFD_MAIN_PLANE;
-        LPixelFormat := ChoosePixelFormat(LDC, @LPixelFormatDescriptor);
-        if (LPixelFormat = 0) or (not SetPixelFormat(LDC, LPixelFormat, @LPixelFormatDescriptor)) then
-          Exit(False);
+        try
+          // Some GPU drivers (e.g. in virtual machines) may throw privileged instruction
+          // exceptions inside ChoosePixelFormat/SetPixelFormat, so we guard with try/except.
+          LPixelFormat := ChoosePixelFormat(LDC, @LPixelFormatDescriptor);
+          if (LPixelFormat = 0) or (not SetPixelFormat(LDC, LPixelFormat, @LPixelFormatDescriptor)) then
+            Exit;
+        except
+          Exit;
+        end;
         LGLRC := wglCreateContext(LDC);
         if LGLRC = 0 then
-          Exit(False);
+          Exit;
         try
           if not wglMakeCurrent(LDC, LGLRC) then
-            Exit(False);
+            Exit;
           try
             LGetExtensionsStringARB := GetProcAddress(GetModuleHandle(opengl32), 'wglGetExtensionsStringARB');
             if not Assigned(LGetExtensionsStringARB) then
             begin
               LGetExtensionsStringARB := wglGetProcAddress('wglGetExtensionsStringARB');
               if not Assigned(LGetExtensionsStringARB) then
-                Exit(False);
+                Exit;
             end;
             LExtensions := LGetExtensionsStringARB(LDC);
             while LExtensions^ <> #0 do
@@ -2592,7 +2604,6 @@ begin
                 Break;
               LExtensions := LEnd + 1;
             end;
-            Result := False;
           finally
             wglMakeCurrent(0, 0);
           end;
@@ -2607,6 +2618,8 @@ begin
     end;
   finally
     Winapi.Windows.UnregisterClass('_temp', HInstance);
+    FIsSupported := Result;
+    FIsSupportedChecked := True;
   end;
 end;
 

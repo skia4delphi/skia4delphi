@@ -479,9 +479,15 @@ begin
         LPixelFormatDescriptor.cAlphaBits   := 8;
         LPixelFormatDescriptor.cStencilBits := 8;
         LPixelFormatDescriptor.iLayerType   := PFD_MAIN_PLANE;
-        LPixelFormat := ChoosePixelFormat(LDC, @LPixelFormatDescriptor);
-        if (LPixelFormat = 0) or (not SetPixelFormat(LDC, LPixelFormat, @LPixelFormatDescriptor)) then
+        try
+          // Some GPU drivers (e.g. in virtual machines) may throw privileged instruction
+          // exceptions inside ChoosePixelFormat/SetPixelFormat, so we guard with try/except.
+          LPixelFormat := ChoosePixelFormat(LDC, @LPixelFormatDescriptor);
+          if (LPixelFormat = 0) or (not SetPixelFormat(LDC, LPixelFormat, @LPixelFormatDescriptor)) then
+            Exit(False);
+        except
           Exit(False);
+        end;
         LGLRC := wglCreateContext(LDC);
         if LGLRC = 0 then
           Exit(False);
