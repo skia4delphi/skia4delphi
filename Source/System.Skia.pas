@@ -57,7 +57,7 @@ uses
   System.Skia.API;
 
 const
-  SkVersion = '7.1.0';
+  SkVersion = '7.0.0' deprecated 'Use TSkVersion';
 
 {$REGION 'FPC Compatibility'}
 {$IFDEF FPC}
@@ -3762,6 +3762,20 @@ type
   end;
 
   {$HPPEMIT END '#define SkUnicode(...) __SkCreate(TSkUnicode, ISkUnicode, __VA_ARGS__)'}
+
+  { TSkVersion }
+
+  TSkVersion = record
+  private class var
+    FMajor: Integer;
+    FMinor: Integer;
+    FBuild: Integer;
+  public
+    class function ToString: string; static;
+    class property Major: Integer read FMajor;
+    class property Minor: Integer read FMinor;
+    class property Build: Integer read FBuild;
+  end;
 
 function ExtensionToEncodedImageFormat(const AValue: string): TSkEncodedImageFormat;
 
@@ -12902,6 +12916,13 @@ begin
   sk4d_unicodebreakiterator_destroy(AHandle);
 end;
 
+{ TSkVersion }
+
+class function TSkVersion.ToString: string;
+begin
+  Result := Format('%d.%d.%d', [FMajor, FMinor, FBuild]);
+end;
+
 function ExtensionToEncodedImageFormat(
   const AValue: string): TSkEncodedImageFormat;
 begin
@@ -13415,6 +13436,7 @@ end;
 {$HPPEMIT END '    using ::System::Skia::TSkUnicodeBreakIteratorElemEnumerator;'}
 {$HPPEMIT END '    using ::System::Skia::TSkUnicodeBreakProc;'}
 {$HPPEMIT END '    using ::System::Skia::TSkUnicodeCodepointProc;'}
+{$HPPEMIT END '    using ::System::Skia::TSkVersion;'}
 {$HPPEMIT END '    using ::System::Skia::TSkVertexMode;'}
 {$HPPEMIT END '    using ::System::Skia::TSkVertices;'}
 {$HPPEMIT END '    using ::System::Skia::SkFontSlantRegular;'}
@@ -13453,4 +13475,9 @@ end;
 {$HPPEMIT END '    using ::System::Skia::SkShiftPerPixel;'}
 {$HPPEMIT END '    using ::System::Skia::ExtensionToEncodedImageFormat;'}
 {$HPPEMIT END '#endif'}
+
+initialization
+  TSkVersion.FMajor := 7;
+  TSkVersion.FMinor := 1;
+  TSkVersion.FBuild := 0;
 end.
