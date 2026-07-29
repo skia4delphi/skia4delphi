@@ -136,6 +136,8 @@ type
     [TestCase('62', '3d-shapes.svg,300,300,1.5,0,0,660,343,0,0,200,200,0,true,false,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
     [TestCase('63', '3d-shapes.svg,300,300,1.5,0,0,660,343,0,0,200,200,0,true,true,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
     procedure TestDrawBitmap(const AImageFileName: string; ASurfaceWidth, ASurfaceHeight: Integer; ASurfaceScale, ASrcLeft, ASrcTop, ASrcRight, ASrcBottom, ADestLeft, ADestTop, ADestRight, ADestBottom, AOpacity: Single; AHighSpeed, ABlending: Boolean; const AMinSimilarity: Double; const AExpectedImageHash: string);
+    [Test]
+    procedure TestDrawBitmapScaledKeepsHighSampling;
     [TestCase('1',  '3d-shapes.svg,660,343,1,0,0,660,343,0,0,660,343,1,false,false,0.98,MHBw8fP9DQ97/HDx8/9PD/v/ev33/1+v+/96/ff/X/8AXGDYQNjw37D/8/9Lf5tgP+83Z37Xfsg')]
     [TestCase('2',  '3d-shapes.svg,660,343,1,0,0,660,343,0,0,660,343,1,false,true,0.98,MHBw8fP9DQ97/HDx8/9PD/v/ev33/1+v+/96/ff/X/8AXGDYQNjw37D/8/9Lf5tgP+83Z37Xfsg')]
     [TestCase('3',  '3d-shapes.svg,660,343,1,0,0,660,343,0,0,660,343,1,true,false,0.98,MHBw8fP9DQ97/HDx8/9PD/v/ev33/1+v+/96/ff/X/8AXGDYQNjw37D/8/9Lf5tgP+83Z37Xfsg')]
@@ -4296,6 +4298,63 @@ begin
     Assert.AreSimilar(AExpectedImageHash, LSurface.ToSkImage, AMinSimilarity);
   finally
     LSurface.Free;
+  end;
+end;
+
+procedure TSkFMXCanvasTests.TestDrawBitmapScaledKeepsHighSampling;
+const
+  CSurfaceScale = 1.25;
+  CSurfaceWidth = 320;
+  CSurfaceHeight = 180;
+var
+  LActual: TBitmap;
+  LActualImage: ISkImage;
+  LDestRect: TRectF;
+  LExpected: TBitmap;
+  LExpectedImage: ISkImage;
+  LSource: TBitmap;
+  LSourceImage: ISkImage;
+  LSourceRect: TRectF;
+begin
+  LSource := CreateBitmap('3d-shapes.svg');
+  try
+    LActual := TBitmap.Create;
+    try
+      LActual.SetSize(CSurfaceWidth, CSurfaceHeight);
+      LActual.BitmapScale := CSurfaceScale;
+      LDestRect := RectF(20, 15, 180, 95);
+      LSourceRect := RectF(0, 0, LSource.Width, LSource.Height);
+      if LActual.Canvas.BeginScene then
+        try
+          LActual.Canvas.Clear(TAlphaColors.Null);
+          LActual.Canvas.DrawBitmap(LSource, LSourceRect, LDestRect, 1, False);
+        finally
+          LActual.Canvas.EndScene;
+        end;
+
+      LExpected := TBitmap.Create;
+      try
+        LExpected.SetSize(CSurfaceWidth, CSurfaceHeight);
+        LExpected.BitmapScale := CSurfaceScale;
+        LSourceImage := LSource.ToSkImage;
+        LExpected.SkiaDraw(
+          procedure(const ACanvas: ISkCanvas)
+          begin
+            ACanvas.DrawImageRect(LSourceImage, LSourceRect, LDestRect, TSkSamplingOptions.High);
+          end);
+
+        LExpectedImage := LExpected.ToSkImage;
+        LActualImage := LActual.ToSkImage;
+        Assert.AreEqualPixels(LExpectedImage.PeekPixels, LActualImage.PeekPixels,
+          'Scaled bitmap draws must use high sampling (issue #404).');
+      finally
+        LExpected.Free;
+      end;
+    finally
+      LActual.Free;
+    end;
+  finally
+    LSource.Free;
   end;
 end;
 

@@ -1630,6 +1630,15 @@ type
 
 {$ENDIF}
 
+  { TSkCanvasCustomHelper }
+
+  // TODO: Move this GetSamplingOptions overload into TSkCanvasCustom in the next major version.
+  TSkCanvasCustomHelper = class helper for TSkCanvasCustom
+  private
+    function GetSamplingOptions(const ASrcRect, ADestRect: TRectF;
+      AHighSpeed: Boolean): TSkSamplingOptions; overload; inline;
+  end;
+
 function CeilFloat(const X: Single): Single;
 begin
   Result := Int(X);
@@ -2023,7 +2032,7 @@ begin
     begin
       LCache := GetCachedImage(ABitmap);
       if LCache <> nil then
-        Canvas.DrawImageRect(LCache, LSrcRect, ADestRect, GetSamplingOptions(AHighSpeed), LPaint);
+        Canvas.DrawImageRect(LCache, LSrcRect, ADestRect, GetSamplingOptions(LSrcRect, ADestRect, AHighSpeed), LPaint);
     end;
     if LCache = nil then
     begin
@@ -2032,7 +2041,7 @@ begin
         try
           LImage := TSkImage.MakeFromRaster(TSkImageInfo.Create(LBitmapData.Width, LBitmapData.Height, SkFmxColorType[LBitmapData.PixelFormat]), LBitmapData.Data, LBitmapData.Pitch);
           if LImage <> nil then
-            Canvas.DrawImageRect(LImage, LSrcRect, ADestRect, GetSamplingOptions(AHighSpeed), LPaint);
+            Canvas.DrawImageRect(LImage, LSrcRect, ADestRect, GetSamplingOptions(LSrcRect, ADestRect, AHighSpeed), LPaint);
         finally
           ABitmap.Unmap(LBitmapData);
         end;
@@ -2338,6 +2347,23 @@ end;
 function TSkCanvasCustom.GetSamplingOptions(const AHighSpeed: Boolean): TSkSamplingOptions;
 begin
   Result := QualityToSamplingOptions(Quality, AHighSpeed);
+end;
+
+function TSkCanvasCustomHelper.GetSamplingOptions(
+  const ASrcRect, ADestRect: TRectF; AHighSpeed: Boolean): TSkSamplingOptions;
+begin
+  {$IFDEF SKIA_RASTER}
+  // Avoid high quality filtering when there is no stretch or complex
+  // transformation. Cubic sampling is unnecessarily expensive for a 1:1 blit.
+  if (Self is TSkRasterCanvas) and (not AHighSpeed) and
+    (Quality <> TCanvasQuality.HighPerformance) and
+    (MatrixMeaning in [TMatrixMeaning.Identity, TMatrixMeaning.Translate]) then
+  begin
+    AHighSpeed := SameValue(ASrcRect.Width, ADestRect.Width * Scale, TEpsilon.Position) and
+      SameValue(ASrcRect.Height, ADestRect.Height * Scale, TEpsilon.Position);
+  end;
+  {$ENDIF}
+  Result := Self.GetSamplingOptions(AHighSpeed);
 end;
 
 procedure TSkCanvasCustom.IntersectClipRect(const ARect: TRectF);
