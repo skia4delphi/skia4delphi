@@ -696,21 +696,23 @@ procedure TSkProjectManagerMenuEnableSkia.SetSkiaEnabled(
     LReader: IOTAEditReader;
     LReadCount: Integer;
     LPosition: Integer;
-    LBuffer: AnsiString;
+    LBuffer: UTF8String;
+    LUTF8Value: UTF8String;
   begin
     LReader := ASourceEditor.CreateReader;
     Result := Assigned(LReader);
     if Result then
     begin
-      AValue := '';
+      LUTF8Value := '';
       LPosition := 0;
       repeat
         SetLength(LBuffer, BufferSize);
         LReadCount := LReader.GetText(LPosition, PAnsiChar(LBuffer), BufferSize);
         SetLength(LBuffer, LReadCount);
-        AValue := AValue + string(LBuffer);
+        LUTF8Value := LUTF8Value + LBuffer;
         Inc(LPosition, LReadCount);
       until LReadCount < BufferSize;
+      AValue := UTF8ToString(LUTF8Value);
     end;
   end;
 
@@ -723,7 +725,7 @@ procedure TSkProjectManagerMenuEnableSkia.SetSkiaEnabled(
     begin
       LEditorWriter.CopyTo(0);
       LEditorWriter.DeleteTo(MaxInt);
-      LEditorWriter.Insert(PAnsiChar(AnsiString(AValue)));
+      LEditorWriter.Insert(PAnsiChar(UTF8Encode(AValue)));
       ASourceEditor.MarkModified;
     end;
   end;

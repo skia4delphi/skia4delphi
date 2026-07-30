@@ -209,7 +209,7 @@ begin
     end;
     LTexture := FCurrentDrawable.texture;
     LGrMtlTextureInfo.Texture := (LTexture as ILocalObject).GetObjectID;
-    LGrBackendRenderTarget := TGrBackendRenderTarget.CreateMetal(Round(Width * Scale), Round(Height * Scale), LGrMtlTextureInfo);
+    LGrBackendRenderTarget := TGrBackendRenderTarget.CreateMetal(Integer(Round(Width * Scale)), Integer(Round(Height * Scale)), LGrMtlTextureInfo);
     FBackBufferSurface     := TSkSurface.MakeFromRenderTarget(FGrDirectContext, LGrBackendRenderTarget, TGrSurfaceOrigin.TopLeft, TSkColorType.BGRA8888);
     FCurrentDrawable.retain;
     Result := TSkSurface(FBackBufferSurface);
