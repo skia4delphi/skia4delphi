@@ -1387,7 +1387,7 @@ begin
     LBitmapInfo.bmiHeader.biPlanes      := 1;
     LBitmapInfo.bmiHeader.biBitCount    := 32;
     LBitmapInfo.bmiHeader.biCompression := BI_BITFIELDS;
-    LBitmapInfo.bmiHeader.biSizeImage   := AStride * AHeight;
+    LBitmapInfo.bmiHeader.biSizeImage   := UInt32(AStride) * UInt32(AHeight);
     Move(ColorMasks[0], LBitmapInfo.bmiColors[0], SizeOf(ColorMasks));
     ABuffer := CreateDIBSection(AMemDC, LBitmapInfo^, DIB_RGB_COLORS, AData, 0, 0);
     if ABuffer <> 0 then
@@ -1500,7 +1500,7 @@ begin
       LStride := BytesPerScanLine(Width, 32, 32);
       GetMem(LPixels, LStride * Height);
       try
-        AImage.ReadPixels(TSkImageInfo.Create(Width, Height), LPixels, LStride);
+        AImage.ReadPixels(TSkImageInfo.Create(Width, Height), LPixels, NativeUInt(LStride));
         FlipPixels(Width, Height, LPixels, LStride, ScanLine[Height - 1], LStride);
       finally
         FreeMem(LPixels);
@@ -1562,9 +1562,9 @@ begin
     LSurface.Canvas.DrawImage(LOriginalImage, 0, 0);
   end
   else
-    FlipPixels(Width, Height, ScanLine[Height - 1], LStride, LPixmap.Pixels, LPixmap.RowBytes);
+    FlipPixels(Width, Height, ScanLine[Height - 1], LStride, LPixmap.Pixels, Integer(LPixmap.RowBytes));
   AProc(LSurface.Canvas);
-  FlipPixels(Width, Height, LPixmap.Pixels, LPixmap.RowBytes, ScanLine[Height - 1], LStride);
+  FlipPixels(Width, Height, LPixmap.Pixels, Integer(LPixmap.RowBytes), ScanLine[Height - 1], LStride);
 end;
 
 function TSkBitmapHelper.ToSkImage: ISkImage;
@@ -1603,7 +1603,7 @@ begin
     GetMem(LPixels, LStride * Height);
     try
       FlipPixels(Width, Height, ScanLine[Height - 1], LStride, LPixels, LStride);
-      Result := TSkImage.MakeFromRaster(TSkImageInfo.Create(Width, Height, SkNative32ColorType, LAlphaType), LPixels, LStride,
+      Result := TSkImage.MakeFromRaster(TSkImageInfo.Create(Width, Height, SkNative32ColorType, LAlphaType), LPixels, NativeUInt(LStride),
         procedure (const APixels: Pointer)
         begin
           FreeMem(APixels);
@@ -1886,7 +1886,7 @@ procedure TSkCustomControl.Paint;
     LSurface: ISkSurface;
     LDestRect: TRectF;
   begin
-    LSurface := TSkSurface.MakeRasterDirect(TSkImageInfo.Create(Width, Height), FDrawBufferData, FDrawBufferStride);
+    LSurface := TSkSurface.MakeRasterDirect(TSkImageInfo.Create(Width, Height), FDrawBufferData, NativeUInt(FDrawBufferStride));
     LSurface.Canvas.Clear(TAlphaColors.Null);
     LSurface.Canvas.Concat(TMatrix.CreateScaling(ScaleFactor, ScaleFactor));
     LDestRect := RectF(0, 0, Width / ScaleFactor, Height / ScaleFactor);
@@ -2188,7 +2188,7 @@ begin
       if SameValue(AOpacity, 1, TEpsilon.Position) then
         ACanvas.Save
       else
-        ACanvas.SaveLayerAlpha(Round(AOpacity * 255));
+        ACanvas.SaveLayerAlpha(Byte(Round(AOpacity * 255)));
       try
         LWrappedDest := GetWrappedDest(LDOM, LSvgRect, ADestRect, LIntrinsicSize);
         if (FOverrideColor <> TAlphaColors.Null) or (FWrapMode = TSkSvgWrapMode.Tile) or FGrayScale then
@@ -2346,7 +2346,7 @@ procedure TSkRasterControlRender.DoRender(const AWidth, AHeight: Integer;
     LSurface: ISkSurface;
     LDestRect: TRectF;
   begin
-    LSurface := TSkSurface.MakeRasterDirect(TSkImageInfo.Create(AWidth, AHeight), FDrawBufferData, FDrawBufferStride);
+    LSurface := TSkSurface.MakeRasterDirect(TSkImageInfo.Create(AWidth, AHeight), FDrawBufferData, NativeUInt(FDrawBufferStride));
     if LSurface = nil then
       Exit;
     LSurface.Canvas.Concat(TMatrix.CreateScaling(AScaleFactor, AScaleFactor));
@@ -2598,7 +2598,7 @@ begin
               LEnd := LExtensions;
               while (LEnd^ <> ' ') and (LEnd^ <> #0) do
                 Inc(LEnd);
-              if (LEnd - LExtensions = Length(WGLARBPixelFormatExtName)) and (System.AnsiStrings.StrLIComp(LExtensions, WGLARBPixelFormatExtName, LEnd - LExtensions) = 0) then
+              if (LEnd - LExtensions = Length(WGLARBPixelFormatExtName)) and (System.AnsiStrings.StrLIComp(LExtensions, WGLARBPixelFormatExtName, UInt32(LEnd - LExtensions)) = 0) then
                 Exit(True);
               if LEnd^ = #0 then
                 Break;
@@ -3050,7 +3050,7 @@ begin
   FrameRate := EnsureRange(FrameRate, 5, 120);
   FAnimation := TTimer.Create(nil);
   FAnimation.Enabled := False;
-  FAnimation.Interval := Trunc(1000 / FrameRate);
+  FAnimation.Interval := UInt32(Trunc(1000 / FrameRate));
   FAnimation.OnTimer := OnProcess;
   if not QueryPerformanceFrequency(FPerformanceFrequency) then
     FPerformanceFrequency := 0;
@@ -3104,13 +3104,13 @@ end;
 
 procedure TSkCustomAnimation.TProcess.OnProcess(ASender: TObject);
 var
-  I: Integer;
+  I: NativeInt;
   LNewTime: Double;
   LDeltaTime: Double;
   [unsafe] LAnimation: TSkCustomAnimation;
 begin
   FrameRate := EnsureRange(FrameRate, 5, 120);
-  FAnimation.Interval := Trunc(1000 / FrameRate);
+  FAnimation.Interval := UInt32(Trunc(1000 / FrameRate));
   LNewTime := GetTick;
   LDeltaTime := LNewTime - FTime;
   if LDeltaTime < TimeEpsilon then
@@ -4255,7 +4255,7 @@ end;
 
 procedure TSkDefaultAnimationCodec.SeekFrameTime(const ATime: Double);
 begin
-  FAnimationCodec.Seek(Round(ATime * 1000));
+  FAnimationCodec.Seek(UInt32(Round(ATime * 1000)));
 end;
 
 class function TSkDefaultAnimationCodec.SupportedFormats: TArray<TSkAnimatedImage.TFormatInfo>;
@@ -4356,7 +4356,7 @@ begin
     Exit;
   LNeedSaveLayer := not SameValue(AOpacity, 1, TEpsilon.Position);
   if LNeedSaveLayer then
-    ACanvas.SaveLayerAlpha(Round(AOpacity * 255));
+    ACanvas.SaveLayerAlpha(Byte(Round(AOpacity * 255)));
   try
     if SameValue(ADest.Width / LLottieRect.Width, ADest.Height / LLottieRect.Height, TEpsilon.Matrix) then
       FSkottie.Render(ACanvas, ADest)
@@ -4469,7 +4469,7 @@ begin
   if ADest is TFont then
   begin
     LDestFont.Name  := Families;
-    LDestFont.Size  := Round(Size);
+    LDestFont.Size  := Integer(Round(Size));
     LStyle := [];
     if Weight >= TSkFontWeight.Medium then
     begin
@@ -4555,7 +4555,7 @@ procedure TSkFontComponent.SetFamilies(const AValue: string);
   var
     LSplitted: TArray<string>;
     LFamilies: TArray<string>;
-    I: Integer;
+    I: NativeInt;
   begin
     LSplitted := AValue.Split([',', #13, #10], TStringSplitOptions.ExcludeEmpty);
     LFamilies := [];
@@ -5526,8 +5526,8 @@ begin
     LNewWidth := ANewWidth;
     LNewHeight := ANewHeight;
     GetFitSize(LNewWidth, LNewHeight);
-    ANewWidth := Round(LNewWidth);
-    ANewHeight := Round(LNewHeight);
+    ANewWidth := Integer(Round(LNewWidth));
+    ANewHeight := Integer(Round(LNewHeight));
   end;
   Result := True;
 end;
@@ -5645,6 +5645,7 @@ procedure TSkLabel.Draw(const ACanvas: ISkCanvas; const ADest: TRectF;
     LCanvas: ISkCanvas;
     LPaint: ISkPaint;
     I: Integer;
+    J: NativeInt;
     LTextEndIndex: Integer;
     LTextBox: TSkTextBox;
     LRects: TArray<TRectF>;
@@ -5663,7 +5664,7 @@ procedure TSkLabel.Draw(const ACanvas: ISkCanvas; const ADest: TRectF;
       Inc(LTextEndIndex, FWords[I].Caption.Length);
       if TAlphaColorRec(FWords[I].BackgroundColor).A = 0 then
         Continue;
-      for LTextBox in AParagraph.GetRectsForRange(LTextEndIndex - FWords[I].Caption.Length, LTextEndIndex, TSkRectHeightStyle.Tight, TSkRectWidthStyle.Tight) do
+      for LTextBox in AParagraph.GetRectsForRange(UInt32(LTextEndIndex - FWords[I].Caption.Length), UInt32(LTextEndIndex), TSkRectHeightStyle.Tight, TSkRectWidthStyle.Tight) do
       begin
         if LRects = nil then
         begin
@@ -5689,10 +5690,10 @@ procedure TSkLabel.Draw(const ACanvas: ISkCanvas; const ADest: TRectF;
         end;
       end;
     end;
-    for I := 0 to Length(LRects) - 1 do
+    for J := 0 to Length(LRects) - 1 do
     begin
-      LPaint.Color := LRectsColor[I];
-      LCanvas.DrawRoundRect(TRectF.Create(LRects[I].Round), 2 * ScaleFactor, 2 * ScaleFactor, LPaint);
+      LPaint.Color := LRectsColor[J];
+      LCanvas.DrawRoundRect(TRectF.Create(LRects[J].Round), 2 * ScaleFactor, 2 * ScaleFactor, LPaint);
     end;
     Result := LPictureRecorder.FinishRecording;
   end;
@@ -5715,7 +5716,7 @@ begin
     if SameValue(AOpacity, 1, TEpsilon.Position) then
       ACanvas.Save
     else
-      ACanvas.SaveLayerAlpha(Round(AOpacity * 255));
+      ACanvas.SaveLayerAlpha(Byte(Round(AOpacity * 255)));
     try
       ACanvas.ClipRect(ADest);
       ACanvas.Translate(ADest.Left, LPositionY);
@@ -5793,7 +5794,7 @@ var
 begin
   LParagraph := Paragraph;
   if Assigned(LParagraph) then
-    Result := Length(LParagraph.LineMetrics)
+    Result := Integer(Length(LParagraph.LineMetrics))
   else
     Result := 0;
 end;
@@ -6001,7 +6002,7 @@ function TSkLabel.GetWordsItemAtPosition(const AX,
       Result := True
     else if LGlyphPosition.Position >= 0 then
     begin
-      LGlyphTextBoxes := AParagraph.GetRectsForRange(LGlyphPosition.Position, LGlyphPosition.Position + 1, TSkRectHeightStyle.Max, TSkRectWidthStyle.Tight);
+      LGlyphTextBoxes := AParagraph.GetRectsForRange(UInt32(LGlyphPosition.Position), UInt32(LGlyphPosition.Position + 1), TSkRectHeightStyle.Max, TSkRectWidthStyle.Tight);
       Result := (LGlyphTextBoxes <> nil) and
         ((LGlyphTextBoxes[0].Rect.CenterPoint.Distance(APoint) < (LGlyphTextBoxes[0].Rect.Width + LGlyphTextBoxes[0].Rect.Height) / 2) or
         ATextArea.Contains(LGlyphTextBoxes[0].Rect.CenterPoint));
@@ -6011,7 +6012,8 @@ function TSkLabel.GetWordsItemAtPosition(const AX,
   end;
 
 var
-  I, J: Integer;
+  I: Integer;
+  J: NativeInt;
   LTextIndex: Integer;
   LTextBoxes: TArray<TSkTextBox>;
   LParagraph: ISkParagraph;
@@ -6033,7 +6035,7 @@ begin
     begin
       if FWords[I].Caption.Length = 0 then
         Continue;
-      LTextBoxes := LParagraph.GetRectsForRange(LTextIndex, LTextIndex + FWords[I].Caption.Length, TSkRectHeightStyle.Max, TSkRectWidthStyle.Tight);
+      LTextBoxes := LParagraph.GetRectsForRange(UInt32(LTextIndex), UInt32(LTextIndex + FWords[I].Caption.Length), TSkRectHeightStyle.Max, TSkRectWidthStyle.Tight);
       for J := 0 to Length(LTextBoxes) - 1 do
       begin
         if LTextBoxes[J].Rect.Contains(LParagraphPoint) then
@@ -6408,7 +6410,7 @@ function TSkGraphic.Equals(AGraphic: TGraphic): Boolean;
     if ALeft.ImageInfo <> ARight.ImageInfo then
       Exit(False);
     if (ALeft.RowBytes = ARight.RowBytes) and (ALeft.RowBytes = ALeft.ImageInfo.MinRowBytes) then
-      Result := CompareMem(ALeft.Pixels, ARight.Pixels, ALeft.RowBytes * NativeUInt(ALeft.Height))
+      Result := CompareMem(ALeft.Pixels, ARight.Pixels, NativeInt(ALeft.RowBytes) * ALeft.Height)
     else
     begin
       Result := True;
@@ -6693,7 +6695,7 @@ end;
 
 function TSkSvgGraphic.GetHeight: Integer;
 begin
-  Result := Round(FSvgBrush.OriginalSize.Height);
+  Result := Integer(Round(FSvgBrush.OriginalSize.Height));
 end;
 
 function TSkSvgGraphic.GetSupportsPartialTransparency: Boolean;
@@ -6703,7 +6705,7 @@ end;
 
 function TSkSvgGraphic.GetWidth: Integer;
 begin
-  Result := Round(FSvgBrush.OriginalSize.Width);
+  Result := Integer(Round(FSvgBrush.OriginalSize.Width));
 end;
 
 procedure TSkSvgGraphic.LoadFromClipboardFormat(AFormat: Word; AData: THandle;
