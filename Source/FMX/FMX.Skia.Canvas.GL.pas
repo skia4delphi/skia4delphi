@@ -428,7 +428,7 @@ begin
         Exit;
       glGetIntegerv(GL_FRAMEBUFFER_BINDING, @GLuint(LGrGlFramebufferInfo.FBOID));
       LGrGlFramebufferInfo.Format := {$IF DEFINED(IOS) or DEFINED(ANDROID)}GL_RGBA8_OES{$ELSE}GL_RGBA8{$ENDIF};
-      LGrBackendRenderTarget := TGrBackendRenderTarget.CreateGl(Integer(Round(Width * Scale)), Integer(Round(Height * Scale)), Min(CanvasQualitySampleCount[Quality], FGrDirectContext.GetMaxSurfaceSampleCountForColorType(TSkColorType.RGBA8888)), TGlSharedContext(SharedContext).StencilBits, LGrGlFramebufferInfo);
+      LGrBackendRenderTarget := TGrBackendRenderTarget.CreateGl(Round(Width * Scale), Round(Height * Scale), Min(CanvasQualitySampleCount[Quality], FGrDirectContext.GetMaxSurfaceSampleCountForColorType(TSkColorType.RGBA8888)), TGlSharedContext(SharedContext).StencilBits, LGrGlFramebufferInfo);
       FBackBufferSurface     := TSkSurface.MakeFromRenderTarget(FGrDirectContext, LGrBackendRenderTarget, TGrSurfaceOrigin.BottomLeft, TSkColorType.RGBA8888);
     end;
     Result := TSkSurface(FBackBufferSurface);
@@ -508,7 +508,7 @@ begin
               LEnd := LExtensions;
               while (LEnd^ <> ' ') and (LEnd^ <> #0) do
                 Inc(LEnd);
-              if (LEnd - LExtensions = Length(WGLARBPixelFormatExtName)) and (System.AnsiStrings.StrLIComp(LExtensions, WGLARBPixelFormatExtName, UInt32(LEnd - LExtensions)) = 0) then
+              if (LEnd - LExtensions = Length(WGLARBPixelFormatExtName)) and (System.AnsiStrings.StrLIComp(LExtensions, WGLARBPixelFormatExtName, LEnd - LExtensions) = 0) then
                 Exit(True);
               if LEnd^ = #0 then
                 Break;
@@ -647,7 +647,7 @@ begin
       LEnd := LExtensions;
       while (LEnd^ <> ' ') and (LEnd^ <> #0) do
         Inc(LEnd);
-      if (LEnd - LExtensions = Length(AName)) and (System.AnsiStrings.StrLIComp(LExtensions, AName, UInt32(LEnd - LExtensions)) = 0) then
+      if (LEnd - LExtensions = Length(AName)) and (System.AnsiStrings.StrLIComp(LExtensions, AName, LEnd - LExtensions) = 0) then
         Exit(True);
       if LEnd^ = #0 then
         Break;
@@ -746,7 +746,7 @@ var
     const AMinSampleCount: Integer = 1): Integer;
   type
     TRankPixelFormat = record
-      Index: UInt32;
+      Index: Integer;
       PixelFormat: Integer;
       SampleCount: Integer;
     end;
@@ -756,7 +756,7 @@ var
 
     QueryAttribute: Integer = WGL_SAMPLES_ARB;
   var
-    I: UInt32;
+    I: Integer;
     LAttributes: TArray<Integer>;
     LCount: Cardinal;
     LPixelFormats: array[0..63] of Integer;
@@ -792,7 +792,7 @@ var
           begin
             Result := ALeft.SampleCount - ARight.SampleCount;
             if Result = 0 then
-              Result := CompareValue(ALeft.Index, ARight.Index);
+              Result := ALeft.Index - ARight.Index;
           end));
         Result := LRankPixelFormats.First.PixelFormat;
       finally
@@ -1081,7 +1081,7 @@ procedure TGlSharedContext.InitializeTextureCache(
 begin
   BeginContext;
   try
-    ABitmap.Cache := TSkImage.MakeCrossContext(FGrDirectContext, TSkImageInfo.Create(ABitmap.Width, ABitmap.Height, SkFmxColorType[ABitmap.PixelFormat]), ABitmap.Pixels, NativeUInt(ABitmap.Width * PixelFormatBytes[ABitmap.PixelFormat]), False);
+    ABitmap.Cache := TSkImage.MakeCrossContext(FGrDirectContext, TSkImageInfo.Create(ABitmap.Width, ABitmap.Height, SkFmxColorType[ABitmap.PixelFormat]), ABitmap.Pixels, ABitmap.Width * PixelFormatBytes[ABitmap.PixelFormat], False);
     FGrDirectContext.Submit(True);
   finally
     EndContext;

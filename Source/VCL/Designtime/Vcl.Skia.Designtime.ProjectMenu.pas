@@ -328,7 +328,7 @@ const
 function ContainsStringInArray(const AString: string;
   const AArray: TArray<string>; const ACaseSensitive: Boolean = True): Boolean;
 var
-  I: NativeInt;
+  I: Integer;
 begin
   Result := False;
   if ACaseSensitive then
@@ -696,21 +696,23 @@ procedure TSkProjectManagerMenuEnableSkia.SetSkiaEnabled(
     LReader: IOTAEditReader;
     LReadCount: Integer;
     LPosition: Integer;
-    LBuffer: AnsiString;
+    LBuffer: UTF8String;
+    LUTF8Value: UTF8String;
   begin
     LReader := ASourceEditor.CreateReader;
     Result := Assigned(LReader);
     if Result then
     begin
-      AValue := '';
+      LUTF8Value := '';
       LPosition := 0;
       repeat
         SetLength(LBuffer, BufferSize);
         LReadCount := LReader.GetText(LPosition, PAnsiChar(LBuffer), BufferSize);
         SetLength(LBuffer, LReadCount);
-        AValue := AValue + UTF8ToString(LBuffer);
+        LUTF8Value := LUTF8Value + LBuffer;
         Inc(LPosition, LReadCount);
       until LReadCount < BufferSize;
+      AValue := UTF8ToString(LUTF8Value);
     end;
   end;
 
@@ -723,7 +725,7 @@ procedure TSkProjectManagerMenuEnableSkia.SetSkiaEnabled(
     begin
       LEditorWriter.CopyTo(0);
       LEditorWriter.DeleteTo(MaxInt);
-      LEditorWriter.Insert(UTF8Encode(AValue));
+      LEditorWriter.Insert(PAnsiChar(UTF8Encode(AValue)));
       ASourceEditor.MarkModified;
     end;
   end;
@@ -1227,7 +1229,7 @@ class function TSkOTAHelper.ContainsOptionValue(const AValues, AValue,
   ASeparator: string): Boolean;
 var
   LValues: TArray<string>;
-  I: NativeInt;
+  I: Integer;
 begin
   LValues := AValues.Split([ASeparator], TStringSplitOptions.None);
   for I := 0 to Length(LValues) - 1 do
@@ -1252,7 +1254,7 @@ end;
 
 class function TSkOTAHelper.ExpandEnvironmentVar(var AValue: string): Boolean;
 var
-  R: UInt32;
+  R: Integer;
   LExpanded: string;
 begin
   SetLength(LExpanded, 1);
@@ -1365,7 +1367,7 @@ class function TSkOTAHelper.InsertOptionValue(const AValues, AValue,
   ASeparator: string): string;
 var
   LValues: TArray<string>;
-  I: NativeInt;
+  I: Integer;
 begin
   LValues := AValues.Split([ASeparator], TStringSplitOptions.None);
   try
@@ -1414,7 +1416,7 @@ class function TSkOTAHelper.RemoveOptionValue(const AValues, AValue,
 var
   LValues: TArray<string>;
   LNewValues: TArray<string>;
-  I: NativeInt;
+  I: Integer;
 begin
   LNewValues := [];
   LValues := AValues.Split([ASeparator], TStringSplitOptions.None);
