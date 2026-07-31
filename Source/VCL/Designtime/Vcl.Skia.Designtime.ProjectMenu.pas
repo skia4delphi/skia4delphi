@@ -328,7 +328,7 @@ const
 function ContainsStringInArray(const AString: string;
   const AArray: TArray<string>; const ACaseSensitive: Boolean = True): Boolean;
 var
-  I: Integer;
+  I: NativeInt;
 begin
   Result := False;
   if ACaseSensitive then
@@ -1229,7 +1229,7 @@ class function TSkOTAHelper.ContainsOptionValue(const AValues, AValue,
   ASeparator: string): Boolean;
 var
   LValues: TArray<string>;
-  I: Integer;
+  I: NativeInt;
 begin
   LValues := AValues.Split([ASeparator], TStringSplitOptions.None);
   for I := 0 to Length(LValues) - 1 do
@@ -1254,7 +1254,7 @@ end;
 
 class function TSkOTAHelper.ExpandEnvironmentVar(var AValue: string): Boolean;
 var
-  R: Integer;
+  R: DWORD;
   LExpanded: string;
 begin
   SetLength(LExpanded, 1);
@@ -1367,7 +1367,7 @@ class function TSkOTAHelper.InsertOptionValue(const AValues, AValue,
   ASeparator: string): string;
 var
   LValues: TArray<string>;
-  I: Integer;
+  I: NativeInt;
 begin
   LValues := AValues.Split([ASeparator], TStringSplitOptions.None);
   try
@@ -1416,7 +1416,7 @@ class function TSkOTAHelper.RemoveOptionValue(const AValues, AValue,
 var
   LValues: TArray<string>;
   LNewValues: TArray<string>;
-  I: Integer;
+  I: NativeInt;
 begin
   LNewValues := [];
   LValues := AValues.Split([ASeparator], TStringSplitOptions.None);
