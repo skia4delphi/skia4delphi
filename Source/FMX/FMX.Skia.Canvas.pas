@@ -2521,7 +2521,7 @@ begin
   if (FPixels = nil) and (FPixelsBytes > 0) then
   begin
     if AInitializeToZero then
-      FPixels := AllocMem(NativeInt(FPixelsBytes))
+      FPixels := AllocMem(FPixelsBytes)
     else
       GetMem(FPixels, FPixelsBytes);
   end;
@@ -3870,7 +3870,7 @@ begin
   if LRatio < 1 then
     Result := TSize.Create(AWidth, AHeight)
   else
-    Result := TSize.Create(Integer(Trunc((AWidth + Epsilon) / LRatio)), Integer(Trunc((AHeight + Epsilon) / LRatio)));
+    Result := TSize.Create(Trunc((AWidth + Epsilon) / LRatio), Trunc((AHeight + Epsilon) / LRatio));
 end;
 
 class function TSkBitmapCodec.GetImageSize(const AFileName: string): TPointF;
