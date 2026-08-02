@@ -56,7 +56,14 @@ end;
 
 function GetPlatformsAllowedToBuild(const ARADStudioInfo: TRADStudioInfo): TProjectPlatforms;
 begin
-  Result := [pfWin32, pfWin64, pfWin64x, pfWinARM64EC];
+  Result := [pfWin32];
+  // Up to RAD Studio 10.3 Rio, Win64 was optional.
+  if (CompareRADStudioVersion(ARADStudioInfo.Version, '20.0') > 0) or FileExists(CombinePath(ExtractFilePath(ARADStudioInfo.AppFileName), 'dcc64.exe')) then
+  begin
+    Include(Result, pfWin64);
+    Include(Result, pfWin64x);
+    Include(Result, pfWinARM64EC);
+  end;
 end;
 
 function GetTryBuildRADStudioPackagesSteps(const ARADStudioInfos: TRADStudioInfos; const AGroupProjects: TRADStudioGroupProjects): Integer;

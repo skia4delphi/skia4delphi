@@ -106,7 +106,9 @@ DisableWelcomePage=no
 InternalCompressLevel=ultra64
 LicenseFile={#LibraryLicenseFileName}
 LZMANumBlockThreads=6
+#if Ver < EncodeVer(7, 0, 0)
 LZMAUseSeparateProcess=yes
+#endif
 MissingMessagesWarning=yes
 NotRecognizedMessagesWarning=yes
 PrivilegesRequired=lowest
