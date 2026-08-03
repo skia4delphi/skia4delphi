@@ -588,15 +588,16 @@ The example above results in the output below:
 
 # Showcase
 
-A curated list of projects, libraries and components built with **Skia4Delphi**.
-Want to add yours? [Open a pull request!](../../pulls)
+A small selection of projects that demonstrate what can be built with **Skia4Delphi**:
 
-| Preview | Project | Author | Description | Sample |
-| :-----: | ------- | ------ | ----------- |----------- |
-| <img src="https://github.com/abritolda1972/DelphiSkiaDemos/raw/main/SkiaNodeEditor/skianodes.png?raw=true" width="120" alt="Project Name" /> | [DelphiSkiaDemos](https://github.com/abritolda1972/DelphiSkiaDemos) | [Alberto Brito](https://github.com/abritolda1972) | Some examples created in delphi with Skia4Delphi: Blur Car, Digital Clock, Fir animation, Node Editor, QR Code, Skeleton Loading |
-| <img src="https://www.mesurasoft.com/img/Plabel31/fmx_drawing_demo.png" width="120" alt="Project Name" /> | [PLABEL](https://www.mesurasoft.com/plabel) | [Mesurasoft S.L.U.](https://www.mesurasoft.com) | Delphi comonents for VCL and FMX that let you include a labelling, flowchart and technical drawing editor into your Delphi programs.<br>Preview, print and save to pdf, png or svg. Labelling mode let's you connect to TDatasets, csv or json files. | [Gallery](https://www.mesurasoft.com/plabel/gallery) |
-| <img src="https://github.com/igorbastosib/skia4delphi-chart/raw/main/Files/presentation.gif?raw=true" width="120" alt="Project Name" /> | [skia4delphi-chart](https://github.com/igorbastosib/skia4delphi-chart) | [Igor Bastos](https://github.com/igorbastosib) | Animated, interactive charts for Delphi FMX, powered by Skia. |
-| <img src="https://en.delphipraxis.net/uploads/monthly_2025_11/510934259-a2a22157-13f8-44f8-b366-24e35ae9d10c.thumb.png.29ca61ee0ca90e7c9d53c947a0adb076.png" width="120" alt="Project Name" /> | [RingBuffer](https://github.com/Steema/TeeChart-VCL-FMX-Samples/tree/main/VCL/RingBuffer) | [Steema](https://steema.com/) | This example uses a "Ring Buffer" structure to display data as fast as possible, as lines or points.<br>The ring (circular) buffer is an array you can specify its type and length, and then just keep adding points to the buffer. When the buffer is full, points will be added from the start of the buffer again.<br>Horizontal scrolling is done by code as a speed optimization. |
+- **[DelphiSkiaDemos](https://github.com/abritolda1972/DelphiSkiaDemos)** — A collection featuring a node editor, acrylic blur, a digital clock, animated fire and skeleton loading.
+- **[Acrylic Scroll Sample](https://github.com/skia4delphi/acrylicscroll-sample)** — A Netflix-inspired scrolling interface with a real-time acrylic blur effect.
+- **[Skia Simple Shader Viewer](https://github.com/jimmckeeth/SkiaSimpleShaderViewer)** — A cross-platform viewer and gallery for SkSL shaders adapted from ShaderToy.
+- **[Galcon4Skia](https://github.com/TetrisSQC/Galcon4Skia)** — A real-time galactic strategy game rendered with Skia4Delphi and custom shaders.
+- **[SKIA Shell Extensions](https://github.com/EtheaDev/SKIAShellExtensions)** — Windows Explorer previews and thumbnails for Lottie, GIF, WebP and Telegram stickers.
+- **[PLABEL](https://www.mesurasoft.com/plabel)** — Label design, flowchart and technical drawing components for VCL and FireMonkey, with PDF, PNG and SVG export.
+- **[skia4delphi-chart](https://github.com/igorbastosib/skia4delphi-chart)** — Animated and interactive pie, bar and sparkline charts for FireMonkey.
+- **[TeeChart Ring Buffer](https://github.com/Steema/TeeChart-VCL-FMX-Samples/tree/main/VCL/RingBuffer)** — A high-throughput chart sample with an optional Skia canvas backend.
 
 # Compatibility
 
@@ -613,8 +614,8 @@ Want to add yours? [Open a pull request!](../../pulls)
 
 | OS             | Version Requirement     |
 | -------------- | ----------------------- |
-| Windows        | 10, 11                  |
-| Linux          | Ubuntu 22.04+           |
+| Windows        | 7, 8, 10, 11                  |
+| Linux (x86_64) | Ubuntu 20+, Debian 11+, Fedora 32+, RHEL 9+, Amazon Linux 2023 |
 | macOS (x86_64) | 10.15 or later          |
 | macOS (arm64)  | 11 or later             |
 | iOS            | 12 or later             |
@@ -622,36 +623,16 @@ Want to add yours? [Open a pull request!](../../pulls)
 
 **Notes:**
 - In projects compiled for Apple targets (macOS, iOS), you may encounter a warning similar to: **was built for newer version (X) than being linked (Y)**. This indicates that you need to set the minimum deployment version for macOS or iOS in Project Options - `Project Options > Building > Delphi Compiler > Linking > Minimum (iOS|macOS) version supported`;
-- For Linux `x86_64` ELF, the distro package mapping is:
+- On Linux, `libsk4d.so` requires Fontconfig, zlib and an OpenGL runtime. Install any missing packages with:
 
-    | Needed `.so` | Ubuntu / Debian | Fedora |
-    |---|---|---|
-    | `libfontconfig.so.1` | `libfontconfig1` | `fontconfig` |
-    | `libz.so.1` | `zlib1g` | `zlib` |
-    | `libGL.so.1` | `libgl1` | `libglvnd-glx` |
-    | `libm.so.6` | `libc6` | `glibc` |
-    | `libc.so.6` | `libc6` | `glibc` |
-    | `ld-linux-x86-64.so.2` | `libc6` | `glibc` |
-
-    You do not need to install `libm.so.6` or `ld-linux-x86-64.so.2` separately; they come from `libc6` on Ubuntu/Debian and `glibc` on Fedora.
-
-    **Install commands**
-
-    **Ubuntu**:
+    **Ubuntu / Debian:**
     ```bash
-    sudo apt update
-    sudo apt install -y libfontconfig1 zlib1g libgl1 libc6
+    sudo apt install libfontconfig1 zlib1g libgl1
     ```
 
-    Debian:
+    **Fedora / RHEL / Amazon Linux 2023:**
     ```bash
-    sudo apt update
-    sudo apt install -y libfontconfig1 zlib1g libgl1 libc6
-    ```
-
-    Fedora:
-    ```bash
-    sudo dnf install -y fontconfig zlib libglvnd-glx glibc
+    sudo dnf install fontconfig zlib libglvnd-glx
     ```
 
 # Documentation
