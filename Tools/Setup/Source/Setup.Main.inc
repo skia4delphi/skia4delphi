@@ -218,6 +218,7 @@ var
   LProject: TRADStudioProject;
   LVersion: TRADStudioVersion;
   LBplFileName: string;
+  LBplX64FileName: string;
   LDcpFileName: string;
   LPlatform: TProjectPlatform;
   LCustomParam: string;
@@ -267,8 +268,7 @@ begin
                 Result := False;
                 Exit;
               end;
-              if (not LProject.IsDesignOnly) and (pfWin64 in LProject.Platforms) and (GetRADStudioCommonBplDir(LInfo, pfWin64) <> '') then
-                CopyFileToDir(ExpandProjectPath(LBplFileName, LInfo.BuildConfig, pfWin64), GetRADStudioCommonBplDir(LInfo, pfWin64));
+              LBplX64FileName := ExpandProjectPath(LBplFileName, LInfo.BuildConfig, pfWin64);
               LBplFileName := ExpandProjectPath(LBplFileName, LInfo.BuildConfig, pfWin32);
               if not FileExists(LBplFileName) then
               begin
@@ -276,12 +276,16 @@ begin
                 Result := False;
                 Exit;
               end;
+
+              // Copying to common BPL directory to avoid loading an outdated pre-existent BPL there.
               if (not LProject.IsDesignOnly) and (GetRADStudioCommonBplDir(LInfo, pfWin32) <> '') then
                 CopyFileToDir(LBplFileName, GetRADStudioCommonBplDir(LInfo, pfWin32));
+              if (not LProject.IsDesignOnly) and (pfWin64 in LProject.Platforms) and (GetRADStudioCommonBplDir(LInfo, pfWin64) <> '') then
+                CopyFileToDir(LBplX64FileName, GetRADStudioCommonBplDir(LInfo, pfWin64));
 
-              // Registering Bpl
               if LProject.IsInstallable then
               begin
+                // Registering on IDE 32-bit
                 if not TryRegisterRADStudioBpl(LVersion, LBplFileName, LProject.Description) then
                 begin
                   TryShowErrorFmt(CustomMessage('SetupMainFailedToInstallPackage'), [ExtractFileName(LProject.FileName), LVersion.Name, '3']);
@@ -290,9 +294,26 @@ begin
                 end;
                 if not TryAddRADStudioPathEnvVariable(LVersion, RemoveBackslash(ExtractFilePath(LBplFileName))) then
                 begin
-                  TryShowErrorFmt(CustomMessage('SetupMainFailedToInstallPackage'), [ExtractFileName(LProject.FileName), LVersion.Name, '4']);
+                  TryShowErrorFmt(CustomMessage('SetupMainFailedToInstallPackage'), [ExtractFileName(LProject.FileName), LVersion.Name, '3.1']);
                   Result := False;
                   Exit;
+                end;
+
+                // Registering on IDE 64-bit
+                if LInfo.HasIDEX64 and (LBplX64FileName <> LBplFileName) and FileExists(LBplX64FileName) then
+                begin
+                  if not TryRegisterRADStudioBplX64(LVersion, LBplX64FileName, LProject.Description) then
+                  begin
+                    TryShowErrorFmt(CustomMessage('SetupMainFailedToInstallPackage'), [ExtractFileName(LProject.FileName), LVersion.Name, '4']);
+                    Result := False;
+                    Exit;
+                  end;
+                  if not TryAddRADStudioPathEnvVariableX64(LVersion, RemoveBackslash(ExtractFilePath(LBplX64FileName))) then
+                  begin
+                    TryShowErrorFmt(CustomMessage('SetupMainFailedToInstallPackage'), [ExtractFileName(LProject.FileName), LVersion.Name, '4.1']);
+                    Result := False;
+                    Exit;
+                  end;
                 end;
               end;
 
@@ -417,8 +438,8 @@ function UninstallPackages(const ARADStudioInfos: TRADStudioInfos; const AGroupP
 var
   I, J, K, L: Integer;
   LBplFileName: string;
+  LBplX64FileName: string;
   LConfig: TProjectConfig;
-  LFileName: string;
   LInfo: TRADStudioInfo;
   LProject: TRADStudioProject;
   LVersion: TRADStudioVersion;
@@ -450,24 +471,54 @@ begin
               DeleteFile(CombinePath(GetRADStudioCommonBplDir(LInfo, pfWin64), ExtractFileName(LBplFileName)));
             for LConfig := LowProjectConfig to HighProjectConfig do
             begin
-              LFileName := ExpandProjectPath(LBplFileName, LConfig, pfWin32);
-              if not TryUnregisterRADStudioBpl(LVersion, LFileName) then
+              LBplX64FileName := ExpandProjectPath(LBplFileName, LConfig, pfWin64);
+              LBplFileName := ExpandProjectPath(LBplFileName, LConfig, pfWin32);
+
+              if LProject.IsInstallable then
               begin
-                Log(FmtMessage(CustomMessage('SetupMainFailedToUninstallPackage'), [ExtractFileName(LProject.FileName), LVersion.Name, '1']));
-                Result := False;
-              end;
-              if not TryRemoveRADStudioPathEnvVariable(LVersion, RemoveBackslash(ExtractFilePath(LFileName))) then
-              begin
-                Log(FmtMessage(CustomMessage('SetupMainFailedToUninstallPackage'), [ExtractFileName(LProject.FileName), LVersion.Name, '2']));
-                Result := False;
-              end;
-              // Check if exist a native bpl to restore it
-              if LProject.IsInstallable and FileExists(CombinePath(ExtractFilePath(LInfo.AppFileName), ExtractFileName(LBplFileName))) then
-              begin
-                if not TryRegisterRADStudioBpl(LVersion, '$(BDSBIN)\' + ExtractFileName(LBplFileName), LProject.Description) then
+                // Unregistering on IDE 32-bit
+                if not TryUnregisterRADStudioBpl(LVersion, LBplFileName) then
                 begin
-                  Log(FmtMessage(CustomMessage('SetupMainFailedToUninstallPackage'), [ExtractFileName(LProject.FileName), LVersion.Name, '2.1']));
+                  Log(FmtMessage(CustomMessage('SetupMainFailedToUninstallPackage'), [ExtractFileName(LProject.FileName), LVersion.Name, '1']));
                   Result := False;
+                end;
+                if not TryRemoveRADStudioPathEnvVariable(LVersion, RemoveBackslash(ExtractFilePath(LBplFileName))) then
+                begin
+                  Log(FmtMessage(CustomMessage('SetupMainFailedToUninstallPackage'), [ExtractFileName(LProject.FileName), LVersion.Name, '1.1']));
+                  Result := False;
+                end;
+                // Check if exist a native x86 bpl to restore it
+                if FileExists(CombinePath(ExtractFilePath(LInfo.AppFileName), ExtractFileName(LBplFileName))) then
+                begin
+                  if not TryRegisterRADStudioBpl(LVersion, '$(BDSBIN)\' + ExtractFileName(LBplFileName), LProject.Description) then
+                  begin
+                    Log(FmtMessage(CustomMessage('SetupMainFailedToUninstallPackage'), [ExtractFileName(LProject.FileName), LVersion.Name, '1.2']));
+                    Result := False;
+                  end;
+                end;
+
+                // Unregistering on IDE 64-bit
+                if LInfo.HasIDEX64 then
+                begin
+                  if not TryUnregisterRADStudioBplX64(LVersion, LBplX64FileName) then
+                  begin
+                    Log(FmtMessage(CustomMessage('SetupMainFailedToUninstallPackage'), [ExtractFileName(LProject.FileName), LVersion.Name, '2']));
+                    Result := False;
+                  end;
+                  if not TryRemoveRADStudioPathEnvVariableX64(LVersion, RemoveBackslash(ExtractFilePath(LBplX64FileName))) then
+                  begin
+                    Log(FmtMessage(CustomMessage('SetupMainFailedToUninstallPackage'), [ExtractFileName(LProject.FileName), LVersion.Name, '2.1']));
+                    Result := False;
+                  end;
+                  // Check if exist a native x64 bpl to restore it
+                  if FileExists(CombinePath(LInfo.RootDir, 'bin64\' + ExtractFileName(LBplX64FileName))) then
+                  begin
+                    if not TryRegisterRADStudioBplX64(LVersion, '$(BDSBIN)\' + ExtractFileName(LBplX64FileName), LProject.Description) then
+                    begin
+                      Log(FmtMessage(CustomMessage('SetupMainFailedToUninstallPackage'), [ExtractFileName(LProject.FileName), LVersion.Name, '2.2']));
+                      Result := False;
+                    end;
+                  end;
                 end;
               end;
             end;

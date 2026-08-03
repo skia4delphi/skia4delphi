@@ -42,6 +42,10 @@ type
     BdsCommonDir: string;
     BdsInclude: string;
     BuildConfig: TProjectConfig;
+    HasBCC64X: Boolean;
+    HasDCC64: Boolean;
+    HasDCCARM64EC: Boolean;
+    HasIDEX64: Boolean;
     RootDir: string;
     Status: TRADStudioInstallationStatus;
     Version: TRADStudioVersion;
@@ -67,6 +71,8 @@ function GetRADStudioRegKey(const ARADStudioVersion: TRADStudioVersion): string;
 function HaveRADStudioInstanceRunning: Boolean; forward;
 /// <summary> Try to add an environment variable exclusive of RAD Studio application </summary>
 function TryAddRADStudioEnvVariable(const ARADStudioVersion: TRADStudioVersion; const AName, AValue: string): Boolean; forward;
+/// <summary> Try to add an environment variable x64 exclusive of RAD Studio application </summary>
+function TryAddRADStudioEnvVariableX64(const ARADStudioVersion: TRADStudioVersion; const AName, AValue: string): Boolean; forward;
 /// <summary> Try to add a path to the library browsing path of the RAD Studio </summary>
 function TryAddRADStudioLibraryBrowsingPath(const ARADStudioVersion: TRADStudioVersion; const APlatform: TProjectPlatform; const APath: string): Boolean; forward;
 /// <summary> Try to add a path to the library debug dcu path of the RAD Studio </summary>
@@ -75,6 +81,8 @@ function TryAddRADStudioLibraryDebugDCUPath(const ARADStudioVersion: TRADStudioV
 function TryAddRADStudioLibrarySearchPath(const ARADStudioVersion: TRADStudioVersion; const APlatform: TProjectPlatform; const APath: string): Boolean; forward;
 /// <summary> Try to add a path to the PATH environment variable exclusive of RAD Studio application </summary>
 function TryAddRADStudioPathEnvVariable(const ARADStudioVersion: TRADStudioVersion; const APath: string): Boolean; forward;
+/// <summary> Try to add a path to the PATH environment variable x64 exclusive of RAD Studio application </summary>
+function TryAddRADStudioPathEnvVariableX64(const ARADStudioVersion: TRADStudioVersion; const APath: string): Boolean; forward;
 /// <summary> Try to get the newest version of RAD Studio detected in projects of a group projects array </summary>
 function TryGetMaxRADStudioVersionInGroupProjects(const AGroupProjects: TRADStudioGroupProjects; out ARADStudioVersion: TRADStudioVersion): Boolean; forward;
 /// <summary> Try get default BPL output filename of a RAD Studio project </summary>
@@ -85,12 +93,16 @@ function TryGetRADStudioRSVarsBatchFileName(const ARADStudioInfo: TRADStudioInfo
 function TryGetRADStudioVersionByRegVersion(const ARegVersion: string; out ARADStudioVersion: TRADStudioVersion): Boolean; forward;
 /// <summary> Try to get the RAD Studio version of a project </summary>
 function TryGetRADStudioVersionOfProject(const AProject: TRADStudioProject; out ARADStudioVersion: TRADStudioVersion): Boolean; forward;
-/// <summary> Try to register a Bpl in RAD Studio </summary>
+/// <summary> Try to register a x86 Bpl in RAD Studio </summary>
 function TryRegisterRADStudioBpl(const ARADStudioVersion: TRADStudioVersion; const ABplFileName, ADescription: string): Boolean; forward;
+/// <summary> Try to register a x64 Bpl in RAD Studio </summary>
+function TryRegisterRADStudioBplX64(const ARADStudioVersion: TRADStudioVersion; const ABplFileName, ADescription: string): Boolean; forward;
 /// <summary> Try to remove a library instaled using the GetIt </summary>
 function TryRemoveFromGetIt(const AInfos: TRADStudioInfos; const ALibraryName: string): Boolean; forward;
 /// <summary> Try to remove an environment variable exclusive of RAD Studio application </summary>
 function TryRemoveRADStudioEnvVariable(const ARADStudioVersion: TRADStudioVersion; const AName: string): Boolean; forward;
+/// <summary> Try to remove an environment variable x64 exclusive of RAD Studio application </summary>
+function TryRemoveRADStudioEnvVariableX64(const ARADStudioVersion: TRADStudioVersion; const AName: string): Boolean; forward;
 /// <summary> Try to remove a path from the library browsing path of the RAD Studio </summary>
 function TryRemoveRADStudioLibraryBrowsingPath(const ARADStudioVersion: TRADStudioVersion; const APlatform: TProjectPlatform; const APath: string): Boolean; forward;
 /// <summary> Try to remove a path from the library debug dcu path of the RAD Studio </summary>
@@ -99,8 +111,12 @@ function TryRemoveRADStudioLibraryDebugDCUPath(const ARADStudioVersion: TRADStud
 function TryRemoveRADStudioLibrarySearchPath(const ARADStudioVersion: TRADStudioVersion; const APlatform: TProjectPlatform; const APath: string): Boolean; forward;
 /// <summary> Try to remove a path to the PATH environment variable exclusive of RAD Studio application </summary>
 function TryRemoveRADStudioPathEnvVariable(const ARADStudioVersion: TRADStudioVersion; const APath: string): Boolean; forward;
-/// <summary> Try to unregister a Bpl in RAD Studio </summary>
+/// <summary> Try to remove a path to the PATH environment variable x64 exclusive of RAD Studio application </summary>
+function TryRemoveRADStudioPathEnvVariableX64(const ARADStudioVersion: TRADStudioVersion; const APath: string): Boolean; forward;
+/// <summary> Try to unregister a x86 Bpl in RAD Studio </summary>
 function TryUnregisterRADStudioBpl(const ARADStudioVersion: TRADStudioVersion; const ABplFileName: string): Boolean; forward;
+/// <summary> Try to unregister a x64 Bpl in RAD Studio </summary>
+function TryUnregisterRADStudioBplX64(const ARADStudioVersion: TRADStudioVersion; const ABplFileName: string): Boolean; forward;
 
 // implementation
 
@@ -133,8 +149,10 @@ function _TryGetRADStudioEnvVar(const ARADStudioVersion: TRADStudioVersion; cons
 function _TryGetRADStudioInstallation(const ARADStudioVersion: TRADStudioVersion; const ARootKey: Integer; out AAppFileName, ARootDir: string): Boolean; forward;
 /// <summary> Try to get the RADStudio package version by it's product version </summary>
 function _TryGetRADStudioPackageVersionByProductVersion(AProductVersion: string; out APackageVersion: string): Boolean; forward;
-/// <summary> Try to remove a bpl from the "disabled packages" registry of the RAD Studio </summary>
+/// <summary> Try to remove a x86 bpl from the "disabled packages" registry of the RAD Studio </summary>
 function _TryRemoveRADStudioBplFromDisabledPackages(const ARADStudioVersion: TRADStudioVersion; const ABplFileName: string): Boolean; forward;
+/// <summary> Try to remove a x64 bpl from the "disabled packages" registry of the RAD Studio </summary>
+function _TryRemoveRADStudioBplFromDisabledPackagesX64(const ARADStudioVersion: TRADStudioVersion; const ABplFileName: string): Boolean; forward;
 /// <summary> Try to remove a path from the Library registry (in a specific registry name) of the RAD Studio </summary>
 function _TryRemoveRADStudioLibraryPath(const ARADStudioVersion: TRADStudioVersion; const APlatform: TProjectPlatform; const ARegName, APath: string): Boolean; forward;
 
@@ -273,6 +291,10 @@ begin
   Result.BdsCommonDir := '';
   Result.BdsInclude := '';
   Result.BuildConfig := pcRelease;
+  Result.HasBCC64X := False;
+  Result.HasDCC64 := False;
+  Result.HasDCCARM64EC := False;
+  Result.HasIDEX64 := False;
   if _TryGetRADStudioInstallation(ARADStudioVersion, HKEY_CURRENT_USER, Result.AppFileName, Result.RootDir) then
   begin
     if (not Exec(ExpandConstant('{cmd}'), Format('/C "%s" --test > nul 2>&1', [ExtractFilePath(Result.AppFileName) + 'DCC32.EXE']), '', SW_HIDE, ewWaitUntilTerminated, LResultCode)) or (LResultCode = 0) then
@@ -286,6 +308,14 @@ begin
       _TryGetRADStudioEnvVar(ARADStudioVersion, 'BDSINCLUDE', Result.BdsInclude);
       if not DirExists(Result.BdsInclude) then
         Result.BdsInclude := '';
+      if FileExists(CombinePath(Result.RootDir, 'bin\dcc64.exe')) or FileExists(CombinePath(Result.RootDir, 'bin64\dcc64.exe')) then
+        Result.HasDCC64 := True;
+      if FileExists(CombinePath(Result.RootDir, 'bin64\bcc64x.exe')) then
+        Result.HasBCC64X := True;
+      if FileExists(CombinePath(Result.RootDir, 'bin64\dccarm64ec.exe')) then
+        Result.HasDCCARM64EC := True;
+      if FileExists(CombinePath(Result.RootDir, 'bin64\bds.exe')) then
+        Result.HasIDEX64 := True;
       // Some beta / internal versions does not have release libs
       if _TryGetRADStudioEnvVar(ARADStudioVersion, 'BDSLIB', LBdsLib) then
       begin
@@ -626,6 +656,13 @@ begin
     Log(Format('RADStudio.TryAddRADStudioEnvVariable: Failed to add an environment variable to the RAD Studio registry (Name: "%s", Value: "%s")', [AName, AValue]));
 end;
 
+function TryAddRADStudioEnvVariableX64(const ARADStudioVersion: TRADStudioVersion; const AName, AValue: string): Boolean;
+begin
+  Result := RegWriteStringValue(HKEY_CURRENT_USER, GetRADStudioRegKey(ARADStudioVersion) + '\Environment Variables x64', AName, AValue);
+  if not Result then
+    Log(Format('RADStudio.TryAddRADStudioEnvVariableX64: Failed to add an environment variable x64 to the RAD Studio registry (Name: "%s", Value: "%s")', [AName, AValue]));
+end;
+
 function TryAddRADStudioLibraryBrowsingPath(const ARADStudioVersion: TRADStudioVersion; const APlatform: TProjectPlatform; const APath: string): Boolean;
 begin
   Result := _TryAddRADStudioLibraryPath(ARADStudioVersion, APlatform, 'Browsing Path', APath);
@@ -690,6 +727,26 @@ begin
   end;
   if not Result then
     Log(Format('RADStudio.TryAddRADStudioPathEnvVariable: Failed to add a path environment variable to the RAD Studio registry (Path: "%s")', [APath]));
+end;
+
+function TryAddRADStudioPathEnvVariableX64(const ARADStudioVersion: TRADStudioVersion; const APath: string): Boolean;
+var
+  LValue: string;
+  LPaths: TArrayOfString;
+begin
+  Result := RegKeyExists(HKEY_CURRENT_USER, GetRADStudioRegKey(ARADStudioVersion));
+  if Result then
+  begin
+    if (not RegQueryStringValue(HKEY_CURRENT_USER, GetRADStudioRegKey(ARADStudioVersion) + '\Environment Variables x64', 'PATH', LValue)) or (LValue = '') then
+      LValue := '$(PATH)';
+    LPaths := RemoveString(SplitString(LValue, ';'), APath, False);
+    LPaths := RemoveString(LPaths, APath + '\', False);
+    LPaths := InsertStringAtBeginning(LPaths, APath);
+    LValue := JoinStrings(LPaths, ';', False);
+    Result := RegWriteStringValue(HKEY_CURRENT_USER, GetRADStudioRegKey(ARADStudioVersion) + '\Environment Variables x64', 'PATH', LValue);
+  end;
+  if not Result then
+    Log(Format('RADStudio.TryAddRADStudioPathEnvVariableX64: Failed to add a path environment variable x64 to the RAD Studio registry (Path: "%s")', [APath]));
 end;
 
 function TryGetMaxRADStudioVersionInGroupProjects(const AGroupProjects: TRADStudioGroupProjects; out ARADStudioVersion: TRADStudioVersion): Boolean;
@@ -888,7 +945,15 @@ begin
   Result := TryUnregisterRADStudioBpl(ARADStudioVersion, ABplFileName) and
     RegWriteStringValue(HKEY_CURRENT_USER, GetRADStudioRegKey(ARADStudioVersion) + '\Known Packages', ABplFileName, ADescription);
   if not Result then
-    Log(Format('RADStudio.TryRegisterRADStudioBpl: Failed to register the RAD Studio bpl "%s".', [ABplFileName]));
+    Log(Format('RADStudio.TryRegisterRADStudioBpl: Failed to register the RAD Studio x86 bpl "%s".', [ABplFileName]));
+end;
+
+function TryRegisterRADStudioBplX64(const ARADStudioVersion: TRADStudioVersion; const ABplFileName, ADescription: string): Boolean;
+begin
+  Result := TryUnregisterRADStudioBplX64(ARADStudioVersion, ABplFileName) and
+    RegWriteStringValue(HKEY_CURRENT_USER, GetRADStudioRegKey(ARADStudioVersion) + '\Known Packages x64', ABplFileName, ADescription);
+  if not Result then
+    Log(Format('RADStudio.TryRegisterRADStudioBplX64: Failed to register the RAD Studio x64 bpl "%s".', [ABplFileName]));
 end;
 
 function TryRemoveFromGetIt(const AInfos: TRADStudioInfos; const ALibraryName: string): Boolean;
@@ -969,12 +1034,41 @@ begin
   end;
 end;
 
+function _TryRemoveRADStudioBplFromDisabledPackagesX64(const ARADStudioVersion: TRADStudioVersion; const ABplFileName: string): Boolean;
+var
+  LRegisteredBpls: TArrayOfString;
+  LBplName: string;
+  I: Integer;
+begin
+  Result := True;
+  if RegGetValueNames(HKEY_CURRENT_USER, GetRADStudioRegKey(ARADStudioVersion) + '\Disabled Packages x64', LRegisteredBpls) then
+  begin
+    LBplName := ExtractFileName(ABplFileName);
+    for I := 0 to GetArrayLength(LRegisteredBpls) - 1 do
+    begin
+      if SameText(LBplName, ExtractFileName(LRegisteredBpls[I])) and not RegDeleteValue(HKEY_CURRENT_USER, GetRADStudioRegKey(ARADStudioVersion) + '\Disabled Packages x64', LRegisteredBpls[I]) then
+      begin
+        Result := False;
+        Log(Format('RADStudio._TryRemoveRADStudioBplFromDisabledPackagesX64: Failed to delete the value "%s" from registry "%s".', [LRegisteredBpls[I], 'HKEY_CURRENT_USER\' + GetRADStudioRegKey(ARADStudioVersion) + '\Disabled Packages x64']));
+      end;
+    end;
+  end;
+end;
+
 function TryRemoveRADStudioEnvVariable(const ARADStudioVersion: TRADStudioVersion; const AName: string): Boolean;
 begin
   Result := (not RegValueExists(HKEY_CURRENT_USER, GetRADStudioRegKey(ARADStudioVersion) + '\Environment Variables', AName)) or
     RegDeleteValue(HKEY_CURRENT_USER, GetRADStudioRegKey(ARADStudioVersion) + '\Environment Variables', AName);
   if not Result then
     Log(Format('RADStudio.TryRemoveRADStudioEnvVariable: Failed to remove an environment variable to the RAD Studio registry (Name: "%s"; Registry: "%s").', [AName, 'HKEY_CURRENT_USER\' + GetRADStudioRegKey(ARADStudioVersion) + '\Environment Variables']));
+end;
+
+function TryRemoveRADStudioEnvVariableX64(const ARADStudioVersion: TRADStudioVersion; const AName: string): Boolean;
+begin
+  Result := (not RegValueExists(HKEY_CURRENT_USER, GetRADStudioRegKey(ARADStudioVersion) + '\Environment Variables x64', AName)) or
+    RegDeleteValue(HKEY_CURRENT_USER, GetRADStudioRegKey(ARADStudioVersion) + '\Environment Variables x64', AName);
+  if not Result then
+    Log(Format('RADStudio.TryRemoveRADStudioEnvVariableX64: Failed to remove an environment variable x64 to the RAD Studio registry (Name: "%s"; Registry: "%s").', [AName, 'HKEY_CURRENT_USER\' + GetRADStudioRegKey(ARADStudioVersion) + '\Environment Variables x64']));
 end;
 
 function TryRemoveRADStudioLibraryBrowsingPath(const ARADStudioVersion: TRADStudioVersion; const APlatform: TProjectPlatform; const APath: string): Boolean;
@@ -1043,6 +1137,30 @@ begin
   end;
 end;
 
+function TryRemoveRADStudioPathEnvVariableX64(const ARADStudioVersion: TRADStudioVersion; const APath: string): Boolean;
+var
+  LValue: string;
+  LPaths: TArrayOfString;
+begin
+  if RegValueExists(HKEY_CURRENT_USER, GetRADStudioRegKey(ARADStudioVersion) + '\Environment Variables x64', 'PATH') then
+  begin
+    if (not RegQueryStringValue(HKEY_CURRENT_USER, GetRADStudioRegKey(ARADStudioVersion) + '\Environment Variables x64', 'PATH', LValue)) or (LValue = '') then
+      LValue := '$(PATH)';
+    LPaths := RemoveString(SplitString(LValue, ';'), APath, False);
+    LPaths := RemoveString(LPaths, APath + '\', False);
+    LValue := JoinStrings(LPaths, ';', False);
+    Result := RegWriteStringValue(HKEY_CURRENT_USER, GetRADStudioRegKey(ARADStudioVersion) + '\Environment Variables x64', 'PATH', LValue);
+    if not Result then
+      Log(Format('RADStudio.TryRemoveRADStudioPathEnvVariableX64: Failed to remove a path environment variable x64 to the RAD Studio registry (Path: "%s"). Cannot possible to write the value PATH in registry "%s"', [APath, 'HKEY_CURRENT_USER\' + GetRADStudioRegKey(ARADStudioVersion) + '\Environment Variables x64']));
+  end
+  else
+  begin
+    Result := RegKeyExists(HKEY_CURRENT_USER, GetRADStudioRegKey(ARADStudioVersion) + '\Environment Variables x64');
+    if not Result then
+      Log(Format('RADStudio.TryRemoveRADStudioPathEnvVariableX64: Failed to remove a path environment variable x64 to the RAD Studio registry (Path: "%s"). The registry "%s" does not exist.', [APath, 'HKEY_CURRENT_USER\' + GetRADStudioRegKey(ARADStudioVersion) + '\Environment Variables x64']));
+  end;
+end;
+
 function TryUnregisterRADStudioBpl(const ARADStudioVersion: TRADStudioVersion; const ABplFileName: string): Boolean;
 var
   LRegisteredBpls: TArrayOfString;
@@ -1058,13 +1176,37 @@ begin
       if SameText(LBplName, ExtractFileName(LRegisteredBpls[I])) and not RegDeleteValue(HKEY_CURRENT_USER, GetRADStudioRegKey(ARADStudioVersion) + '\Known Packages', LRegisteredBpls[I]) then
       begin
         Result := False;
-        Log(Format('RADStudio.TryUnregisterRADStudioBpl: Failed to unregister the bpl "%s". Cannot possible to delete the value "%s" from registry "%s"', [ABplFileName, LRegisteredBpls[I], 'HKEY_CURRENT_USER' + GetRADStudioRegKey(ARADStudioVersion) + '\Known Packages']));
+        Log(Format('RADStudio.TryUnregisterRADStudioBpl: Failed to unregister the x86 bpl "%s". Cannot possible to delete the value "%s" from registry "%s"', [ABplFileName, LRegisteredBpls[I], 'HKEY_CURRENT_USER' + GetRADStudioRegKey(ARADStudioVersion) + '\Known Packages']));
       end;
     end;
   end
   else
-    Log(Format('RADStudio.TryUnregisterRADStudioBpl: Failed to unregister the bpl "%s". Cannot possible to get the list of Known Packages from registry "%s"', [ABplFileName, 'HKEY_CURRENT_USER' + GetRADStudioRegKey(ARADStudioVersion) + '\Known Packages']));
+    Log(Format('RADStudio.TryUnregisterRADStudioBpl: Failed to unregister the x86 bpl "%s". Cannot possible to get the list of Known Packages from registry "%s"', [ABplFileName, 'HKEY_CURRENT_USER' + GetRADStudioRegKey(ARADStudioVersion) + '\Known Packages']));
   Result := _TryRemoveRADStudioBplFromDisabledPackages(ARADStudioVersion, ABplFileName) and Result;
+end;
+
+function TryUnregisterRADStudioBplX64(const ARADStudioVersion: TRADStudioVersion; const ABplFileName: string): Boolean;
+var
+  LRegisteredBpls: TArrayOfString;
+  LBplName: string;
+  I: Integer;
+begin
+  Result := RegGetValueNames(HKEY_CURRENT_USER, GetRADStudioRegKey(ARADStudioVersion) + '\Known Packages x64', LRegisteredBpls);
+  if Result then
+  begin
+    LBplName := ExtractFileName(ABplFileName);
+    for I := 0 to GetArrayLength(LRegisteredBpls) - 1 do
+    begin
+      if SameText(LBplName, ExtractFileName(LRegisteredBpls[I])) and not RegDeleteValue(HKEY_CURRENT_USER, GetRADStudioRegKey(ARADStudioVersion) + '\Known Packages x64', LRegisteredBpls[I]) then
+      begin
+        Result := False;
+        Log(Format('RADStudio.TryUnregisterRADStudioBplX64: Failed to unregister the x64 bpl "%s". Cannot possible to delete the value "%s" from registry "%s"', [ABplFileName, LRegisteredBpls[I], 'HKEY_CURRENT_USER' + GetRADStudioRegKey(ARADStudioVersion) + '\Known Packages x64']));
+      end;
+    end;
+  end
+  else
+    Log(Format('RADStudio.TryUnregisterRADStudioBplX64: Failed to unregister the x64 bpl "%s". Cannot possible to get the list of Known Packages from registry "%s"', [ABplFileName, 'HKEY_CURRENT_USER' + GetRADStudioRegKey(ARADStudioVersion) + '\Known Packages x64']));
+  Result := _TryRemoveRADStudioBplFromDisabledPackagesX64(ARADStudioVersion, ABplFileName) and Result;
 end;
 
 // end.

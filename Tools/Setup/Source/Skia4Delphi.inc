@@ -29,6 +29,7 @@ const
   LibraryDirVariable = 'SKIADIR';
   LibraryDirDefine = '$(' + LibraryDirVariable + ')';
   LibraryWin32BinaryDir = 'Binary\Shared\Win32';
+  LibraryWin64BinaryDir = 'Binary\Shared\Win64';
   LibraryStaticBinaryDir = 'Binary\Static';
 
 /// <summary> Get platforms where the library is static </summary>
@@ -47,6 +48,8 @@ function _OnTryPrepareProjectUninstallation(var AProjectItem: TRADStudioGroupPro
 procedure _RemoveGeneratedHppFiles(const AInfo: TRADStudioInfo); forward;
 /// <summary> Remove old library search path </summary>
 procedure _RemoveOldLibrarySearchPath(const AProjectItem: TRADStudioGroupProjectItem; const AInfo: TRADStudioInfo); forward;
+/// <summary> Set the attributes of a file </summary>
+function _SetFileAttributes(const AFileName: string; const AFileAttributes: Cardinal): Boolean; external 'SetFileAttributesW@kernel32.dll stdcall';
 /// <summary> Try get old RAD Studio name used in our old setup </summary>
 function _TryGetOldRADStudioName(const ARADStudioVersion: TRADStudioVersion; out AName: string): Boolean; forward;
 /// <summary> Try to unregister old bpl </summary>
@@ -64,6 +67,7 @@ end;
 procedure _OnBeforeProjectBuild(const AProject: TRADStudioProject; const APlatform: TProjectPlatform; const AInfo: TRADStudioInfo);
 var
   I, J: Integer;
+  LDestFileName: string;
   LFileFound: Boolean;
   LNativeSkiaUnits: TArrayOfString;
   LNativeUnit: string;
@@ -95,7 +99,16 @@ begin
           end;
         end;
         if not LFileFound then
-          CopyFileToDir(LNativeUnit, LSourcePath);
+        begin
+          if not CopyFileToDir(LNativeUnit, LSourcePath) then
+            Log(Format('Skia4Delphi._OnBeforeProjectBuild: Failed to copy "%s" to "%s"', [LNativeUnit, LSourcePath]))
+          else
+          begin
+            LDestFileName := CombinePath(LSourcePath, ExtractFileName(LNativeUnit));
+            if not _SetFileAttributes(LDestFileName, FILE_ATTRIBUTE_NORMAL) then
+              Log(Format('Skia4Delphi._OnBeforeProjectBuild: Failed to reset the file attributes from "%s"', [LDestFileName]));
+          end;
+        end;
       end;
     end;
   end;
@@ -183,6 +196,11 @@ begin
   StringChangeEx(AProjectItem.Project.DCUOutputPath, LAppPath, LibraryDirDefine, True);
   Result := TryAddRADStudioEnvVariable(AInfo.Version, LibraryDirVariable, ExpandConstant('{app}')) and
     TryAddRADStudioPathEnvVariable(AInfo.Version, CombinePath(LAppPath, LibraryWin32BinaryDir));
+  if AInfo.HasIDEX64 and Result then
+  begin
+    TryAddRADStudioEnvVariableX64(AInfo.Version, LibraryDirVariable, ExpandConstant('{app}'));
+    TryAddRADStudioPathEnvVariableX64(AInfo.Version, CombinePath(LAppPath, LibraryWin64BinaryDir));
+  end;
   if Result then
   begin
     for LPlatform := LowProjectPlatform to HighProjectPlatform do
@@ -211,6 +229,11 @@ begin
   StringChangeEx(AProjectItem.Project.DCUOutputPath, LAppPath, LibraryDirDefine, True);
   Result := TryRemoveRADStudioEnvVariable(AInfo.Version, LibraryDirVariable);
   Result := TryRemoveRADStudioPathEnvVariable(AInfo.Version, CombinePath(LAppPath, LibraryWin32BinaryDir)) and Result;
+  if AInfo.HasIDEX64 then
+  begin
+    TryRemoveRADStudioEnvVariableX64(AInfo.Version, LibraryDirVariable);
+    TryRemoveRADStudioPathEnvVariableX64(AInfo.Version, CombinePath(LAppPath, LibraryWin64BinaryDir));
+  end;
   for LPlatform := LowProjectPlatform to HighProjectPlatform do
     if (LPlatform in _GetLibraryStaticPlatforms) and (LPlatform in AInfo.Version.SupportedPlatforms) then
       TryRemoveRADStudioLibrarySearchPath(AInfo.Version, LPlatform, CombinePath(CombinePath(LibraryDirDefine, LibraryStaticBinaryDir), GetProjectPlatformName(LPlatform)));
