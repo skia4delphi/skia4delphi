@@ -74,6 +74,7 @@ Using the **Skia4Delphi** library it is possible to override Firemonkey's graphi
   - [TSkPaintBox](#tskpaintbox)
   - [TSkSvg](#tsksvg)
     - [Limitations](Documents/SVG.md#limitations)
+- [Showcases](#showcase)
 - [Compatibility](#compatibility)
 - [Documentation](#documentation)
 - [Version](#version)
@@ -585,26 +586,36 @@ The example above results in the output below:
 
 [Learn more...](Documents/SVG.md)
 
+# Showcase
+
+A small selection of projects that demonstrate what can be built with **Skia4Delphi**:
+
+- **[DelphiSkiaDemos](https://github.com/abritolda1972/DelphiSkiaDemos)** — A collection featuring a node editor, acrylic blur, a digital clock, animated fire and skeleton loading.
+- **[Acrylic Scroll Sample](https://github.com/skia4delphi/acrylicscroll-sample)** — A Netflix-inspired scrolling interface with a real-time acrylic blur effect.
+- **[Skia Simple Shader Viewer](https://github.com/jimmckeeth/SkiaSimpleShaderViewer)** — A cross-platform viewer and gallery for SkSL shaders adapted from ShaderToy.
+- **[Galcon4Skia](https://github.com/TetrisSQC/Galcon4Skia)** — A real-time galactic strategy game rendered with Skia4Delphi and custom shaders.
+- **[SKIA Shell Extensions](https://github.com/EtheaDev/SKIAShellExtensions)** — Windows Explorer previews and thumbnails for Lottie, GIF, WebP and Telegram stickers.
+- **[PLABEL](https://www.mesurasoft.com/plabel)** — Label design, flowchart and technical drawing components for VCL and FireMonkey, with PDF, PNG and SVG export.
+- **[skia4delphi-chart](https://github.com/igorbastosib/skia4delphi-chart)** — Animated and interactive pie, bar and sparkline charts for FireMonkey.
+- **[TeeChart Ring Buffer](https://github.com/Steema/TeeChart-VCL-FMX-Samples/tree/main/VCL/RingBuffer)** — A high-throughput chart sample with an optional Skia canvas backend.
+
 # Compatibility
 
-
 ## Supported RAD Studio Versions
-
 
 | RAD Studio                        | Platforms                          |
 | --------------------------------- | ---------------------------------- |
 | RAD Studio 11 Alexandria or newer | All Platforms                      |
 | RAD Studio 10.4 Sydney            | Win32, Win64, Android32, Android64 |
 | RAD Studio XE7 or newer           | Win32, Win64                       |
-
   
 
 ## Supported Platforms
 
 | OS             | Version Requirement     |
 | -------------- | ----------------------- |
-| Windows        | 10, 11                  |
-| Linux          | Ubuntu 22.04+           |
+| Windows        | 7, 8, 10, 11                  |
+| Linux (x86_64) | Ubuntu 20+, Debian 11+, Fedora 32+, RHEL 9+, Amazon Linux 2023 |
 | macOS (x86_64) | 10.15 or later          |
 | macOS (arm64)  | 11 or later             |
 | iOS            | 12 or later             |
@@ -612,8 +623,17 @@ The example above results in the output below:
 
 **Notes:**
 - In projects compiled for Apple targets (macOS, iOS), you may encounter a warning similar to: **was built for newer version (X) than being linked (Y)**. This indicates that you need to set the minimum deployment version for macOS or iOS in Project Options - `Project Options > Building > Delphi Compiler > Linking > Minimum (iOS|macOS) version supported`;
+- On Linux, `libsk4d.so` requires Fontconfig, zlib and an OpenGL runtime. Install any missing packages with:
 
+    **Ubuntu / Debian:**
+    ```bash
+    sudo apt install libfontconfig1 zlib1g libgl1
+    ```
 
+    **Fedora / RHEL / Amazon Linux 2023:**
+    ```bash
+    sudo dnf install fontconfig zlib libglvnd-glx
+    ```
 
 # Documentation
 
