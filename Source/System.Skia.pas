@@ -4727,7 +4727,7 @@ begin
             (SameValue(AFontMetrics1.AvgCharWidth,       AFontMetrics2.AvgCharWidth)      ) and
             (SameValue(AFontMetrics1.MaxCharWidth,       AFontMetrics2.MaxCharWidth)      ) and
             (SameValue(AFontMetrics1.XMin,               AFontMetrics2.XMin)              ) and
-            (SameValue(AFontMetrics1.XMax,               AFontMetrics2.XMax)              ) and
+            (SameValue(AFontMetrics1.CapHeight,          AFontMetrics2.CapHeight)         ) and
             (SameValue(AFontMetrics1.XMax,               AFontMetrics2.XMax)              ) and
             (SameValue(AFontMetrics1.XHeight,            AFontMetrics2.XHeight)           ) and
             (SameValue(AFontMetrics1.UnderlineThickness, AFontMetrics2.UnderlineThickness)) and

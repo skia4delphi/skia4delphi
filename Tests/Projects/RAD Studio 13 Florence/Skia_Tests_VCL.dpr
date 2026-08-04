@@ -6,6 +6,7 @@ uses
   Skia.Tests.Codec in '..\..\Source\Skia.Tests.Codec.pas',
   Skia.Tests.ColorFilter in '..\..\Source\Skia.Tests.ColorFilter.pas',
   Skia.Tests.Documents in '..\..\Source\Skia.Tests.Documents.pas',
+  Skia.Tests.FontMetrics in '..\..\Source\Skia.Tests.FontMetrics.pas',
   Skia.Tests.Foundation.ImageHash in '..\..\Source\Skia.Tests.Foundation.ImageHash.pas',
   Skia.Tests.Foundation in '..\..\Source\Skia.Tests.Foundation.pas',
   Skia.Tests.Foundation.Runner in '..\..\Source\Skia.Tests.Foundation.Runner.pas',

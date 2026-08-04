@@ -145,6 +145,7 @@
         <DCCReference Include="..\..\Source\Skia.Tests.Codec.pas"/>
         <DCCReference Include="..\..\Source\Skia.Tests.ColorFilter.pas"/>
         <DCCReference Include="..\..\Source\Skia.Tests.Documents.pas"/>
+        <DCCReference Include="..\..\Source\Skia.Tests.FontMetrics.pas"/>
         <DCCReference Include="..\..\Source\Skia.Tests.Foundation.ImageHash.pas"/>
         <DCCReference Include="..\..\Source\Skia.Tests.Foundation.pas"/>
         <DCCReference Include="..\..\Source\Skia.Tests.Foundation.Runner.pas"/>
