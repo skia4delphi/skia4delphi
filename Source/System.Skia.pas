@@ -4519,6 +4519,7 @@ end;
 
 function TSkColorSpaceXyz.Inverse: TSkColorSpaceXyz;
 var
+  LAdjoint: TSkColorSpaceXyz;
   LDeterminant: Single;
   LFactor: Single;
 begin
@@ -4526,15 +4527,16 @@ begin
   if IsZero(LDeterminant) then
     Exit(TSkColorSpaceXyz.Identity);
   LFactor := 1 / LDeterminant;
-  Result.M11 := M11 * LFactor;
-  Result.M12 := M12 * LFactor;
-  Result.M13 := M13 * LFactor;
-  Result.M21 := M21 * LFactor;
-  Result.M22 := M22 * LFactor;
-  Result.M23 := M23 * LFactor;
-  Result.M31 := M31 * LFactor;
-  Result.M32 := M32 * LFactor;
-  Result.M33 := M33 * LFactor;
+  LAdjoint := Adjoint;
+  Result.M11 := LAdjoint.M11 * LFactor;
+  Result.M12 := LAdjoint.M12 * LFactor;
+  Result.M13 := LAdjoint.M13 * LFactor;
+  Result.M21 := LAdjoint.M21 * LFactor;
+  Result.M22 := LAdjoint.M22 * LFactor;
+  Result.M23 := LAdjoint.M23 * LFactor;
+  Result.M31 := LAdjoint.M31 * LFactor;
+  Result.M32 := LAdjoint.M32 * LFactor;
+  Result.M33 := LAdjoint.M33 * LFactor;
 end;
 
 class operator TSkColorSpaceXyz.Multiply(const AColorSpaceXyz1,
@@ -8244,13 +8246,13 @@ end;
 
 class function TSkImageFilter.MakeImage(const AImage: ISkImage): ISkImageFilter;
 begin
-  Result := MakeImage(AImage, TRectF.Create(0, 0, AImage.Width, AImage.Height), TRectF.Create(0, 0, AImage.Width, AImage.Height), TSkSamplingOptions.Create(TSkCubicResampler.Mitchell));
+  Result := MakeImage(AImage, TRectF.Create(0, 0, AImage.Width, AImage.Height), TRectF.Create(0, 0, AImage.Width, AImage.Height), SkSamplingOptionsHigh);
 end;
 
 class function TSkImageFilter.MakeImage(const AImage: ISkImage; const ASrc,
   ADest: TRectF): ISkImageFilter;
 begin
-  Result := MakeImage(AImage, ASrc, ADest, TSkSamplingOptions.Create(TSkCubicResampler.Mitchell));
+  Result := MakeImage(AImage, ASrc, ADest, SkSamplingOptionsHigh);
 end;
 
 class function TSkImageFilter.MakeImage(const AImage: ISkImage; const ASrc,
@@ -8308,7 +8310,7 @@ end;
 class function TSkImageFilter.MakeMatrixTransform(const AMatrix: TMatrix;
   AInput: ISkImageFilter): ISkImageFilter;
 begin
-  Result := MakeMatrixTransform(AMatrix, AInput);
+  Result := MakeMatrixTransform(AMatrix, SkSamplingOptionsHigh, AInput);
 end;
 
 class function TSkImageFilter.MakeMerge(const AFilter1,
@@ -8486,10 +8488,16 @@ begin
   Result := TSkBindings.SafeCreate<TSkImageFilter>(sk4d_imagefilter_make_spot_lit_specular(@ALocation, @ATarget, AFalloffExponent, ACutoffAngle, ALightColor, ASurfaceScale, AKs, AShininess, TSkBindings.SafeHandle(AInput), @ACropRect));
 end;
 
+// TODO: Replace the TRect type from ASrc and ADest params to TRectF in the next major version.
 class function TSkImageFilter.MakeTile(const ASrc, ADest: TRect;
   AInput: ISkImageFilter): ISkImageFilter;
+var
+  LDest: TRectF;
+  LSrc: TRectF;
 begin
-  Result := TSkBindings.SafeCreate<TSkImageFilter>(sk4d_imagefilter_make_tile(@ASrc, @ADest, TSkBindings.SafeHandle(AInput)));
+  LSrc := TRectF.Create(ASrc);
+  LDest := TRectF.Create(ADest);
+  Result := TSkBindings.SafeCreate<TSkImageFilter>(sk4d_imagefilter_make_tile(@LSrc, @LDest, TSkBindings.SafeHandle(AInput)));
 end;
 
 function TSkImageFilter.MakeWithLocalMatrix(
@@ -9556,10 +9564,14 @@ begin
   inherited Create(sk4d_pixmap_create(@LImageInfo, APixels, ARowBytes));
 end;
 
+// TODO: Replace the TRectF type from ASubset param to TRect in the next major version.
 function TSkPixmap.Erase(const AColor: TAlphaColorF; const ASubset: TRectF;
   AColorSpace: ISkColorSpace): Boolean;
+var
+  LSubset: TRect;
 begin
-  Result := sk4d_pixmap_erase2(Handle, @AColor, TSkBindings.SafeHandle(AColorSpace), @ASubset);
+  LSubset := ASubset.Round;
+  Result := sk4d_pixmap_erase2(Handle, @AColor, TSkBindings.SafeHandle(AColorSpace), @LSubset);
 end;
 
 function TSkPixmap.Erase(const AColor: TAlphaColor): Boolean;
@@ -9573,10 +9585,14 @@ begin
   Result := sk4d_pixmap_erase2(Handle, @AColor, TSkBindings.SafeHandle(AColorSpace), nil);
 end;
 
+// TODO: Replace the TRectF type from ASubset param to TRect in the next major version.
 function TSkPixmap.Erase(const AColor: TAlphaColor;
   const ASubset: TRectF): Boolean;
+var
+  LSubset: TRect;
 begin
-  Result := sk4d_pixmap_erase(Handle, AColor, @ASubset);
+  LSubset := ASubset.Round;
+  Result := sk4d_pixmap_erase(Handle, AColor, @LSubset);
 end;
 
 function TSkPixmap.ExtractSubset(const ADest: ISkPixmap;
@@ -9951,9 +9967,13 @@ end;
 
 { TSkRoundRect }
 
+// TODO: Replace the TRect param to TRectF in the next major version.
 function TSkRoundRect.Contains(const ARect: TRect): Boolean;
+var
+  LRect: TRectF;
 begin
-  Result := sk4d_rrect_contains(Handle, @ARect);
+  LRect := TRectF.Create(ARect);
+  Result := sk4d_rrect_contains(Handle, @LRect);
 end;
 
 constructor TSkRoundRect.Create(const ARect: TRectF; const ARadiusX,
