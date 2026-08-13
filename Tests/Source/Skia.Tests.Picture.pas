@@ -31,6 +31,8 @@ type
   [TestFixture]
   TSkPictureTests = class(TTestBase)
   public
+    [Test]
+    procedure TestApproximateSizeAndOpCount;
     [TestCase('1', '0.99,AXl5eXkBA/8BeXl7fw8P/0V9fX9/Tw//RX99f39PD/8ADwAPAA8ADwAPAA8ADwAP//////////8')]
     procedure TestBasicSquare(const AMinSimilarity: Double; const AExpectedImageHash: string);
     [TestCase('1', '0.99,AXl9fX05A/8BeX1/fz8P/0V/fX9/f2//RX99f39/f/8P/w//D/8P/w//D/8P/w////////////8')]
@@ -55,6 +57,27 @@ uses
   System.IOUtils;
 
 { TSkPictureTests }
+
+procedure TSkPictureTests.TestApproximateSizeAndOpCount;
+var
+  I: Integer;
+  LPaint: ISkPaint;
+  LPicture: ISkPicture;
+  LPictureCanvas: ISkCanvas;
+  LPictureRecorder: ISkPictureRecorder;
+begin
+  LPaint := TSkPaint.Create;
+  LPictureRecorder := TSkPictureRecorder.Create;
+  LPictureCanvas := LPictureRecorder.BeginRecording(100, 100);
+  for I := 0 to 9 do
+    LPictureCanvas.DrawRect(RectF(I, I, I + 10, I + 10), LPaint);
+  LPicture := LPictureRecorder.FinishRecording;
+  Assert.IsNotNull(LPicture, 'Invalid ISkPicture (nil)');
+  Assert.IsTrue(LPicture.ApproximateOpCount >= 10, 'The picture should report the recorded operations');
+  Assert.IsTrue(LPicture.ApproximateBytesUsed > 0, 'The picture should report its memory usage');
+  Assert.IsTrue(LPicture.ApproximateOpCount(True) >= LPicture.ApproximateOpCount,
+    'Counting the nested pictures should not reduce the count');
+end;
 
 procedure TSkPictureTests.TestBasicSquare(const AMinSimilarity: Double;
   const AExpectedImageHash: string);

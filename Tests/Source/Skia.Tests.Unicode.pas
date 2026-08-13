@@ -36,6 +36,12 @@ type
     [Test]
     procedure TestCodePoint;
     [Test]
+    procedure TestBreakIterator;
+    [Test]
+    procedure TestBreakIteratorUTF8;
+    [Test]
+    procedure TestForEachBreak;
+    [Test]
     procedure TestGraphemes;
   end;
 
@@ -60,6 +66,49 @@ begin
       Result := Result + ', ';
     Result := Result + '$' + InttoHex(Ord(LChar), 4);
   end;
+end;
+
+procedure TSkUnicodeTests.TestBreakIterator;
+var
+  LElem: TSkUnicodeBreakIteratorElem;
+  LPositions: string;
+  LUnicode: ISkUnicode;
+begin
+  LPositions := '';
+  LUnicode := TSkUnicode.Create;
+  for LElem in LUnicode.GetBreakIterator(TSkBreakType.Words, 'Hello world') do
+    LPositions := LPositions + IntToStr(LElem.Position) + ' ';
+  Assert.AreEqual('0 5 6 11 ', LPositions, 'The word breaks of "Hello world"');
+end;
+
+procedure TSkUnicodeTests.TestBreakIteratorUTF8;
+var
+  LElem: TSkUnicodeBreakIteratorElem;
+  LPositions: string;
+  LUnicode: ISkUnicode;
+begin
+  LPositions := '';
+  LUnicode := TSkUnicode.Create;
+  for LElem in LUnicode.GetBreakIteratorUTF8(TSkBreakType.Lines, UTF8String('Hello world')) do
+    LPositions := LPositions + IntToStr(LElem.Position) + ' ';
+  Assert.AreEqual('0 6 11 ', LPositions, 'A line can only break after the space');
+end;
+
+procedure TSkUnicodeTests.TestForEachBreak;
+var
+  LPositions: string;
+  LPPositions: PString;
+  LUnicode: ISkUnicode;
+begin
+  LPositions := '';
+  LPPositions := @LPositions;
+  LUnicode := TSkUnicode.Create;
+  LUnicode.ForEachBreak('Hello world', TSkBreakType.Words,
+    procedure (const APosition, AStatus: Integer)
+    begin
+      LPPositions^ := LPPositions^ + IntToStr(APosition) + ' ';
+    end);
+  Assert.AreEqual('0 5 6 11 ', LPositions, 'The word breaks of "Hello world"');
 end;
 
 procedure TSkUnicodeTests.TestBiDiRegion;

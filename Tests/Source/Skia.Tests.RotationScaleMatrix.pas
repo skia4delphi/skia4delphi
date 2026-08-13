@@ -34,6 +34,8 @@ type
     [TestCase('2', '55,80,100,210,200')]
     [TestCase('3', '90,0,0,100,100')]
     procedure CreateDegreesCenter(const ADegreeAngle, ADestLeft, ADestTop, ADestRight, ADestBottom: Single);
+    [Test]
+    procedure TestCreateRadians;
   end;
 
 implementation
@@ -49,6 +51,17 @@ uses
   System.Skia;
 
 { TSkRotationScaleMatrixTests }
+
+procedure TSkRotationScaleMatrixTests.TestCreateRadians;
+var
+  LRotationScaleMatrix: TSkRotationScaleMatrix;
+begin
+  LRotationScaleMatrix := TSkRotationScaleMatrix.CreateRadians(2, DegToRad(45), 10, 20, 5, 5);
+  Assert.IsTrue(LRotationScaleMatrix = TSkRotationScaleMatrix.CreateDegrees(2, 45, 10, 20, 5, 5),
+    'The same angle in radians and in degrees should build the same matrix');
+  Assert.IsTrue(TSkRotationScaleMatrix.CreateRadians(1, 0, 0, 0, 0, 0) = TSkRotationScaleMatrix.Identity,
+    'A neutral rotation should build the identity');
+end;
 
 procedure TSkRotationScaleMatrixTests.CreateDegreesCenter(const ADegreeAngle,
   ADestLeft, ADestTop, ADestRight, ADestBottom: Single);

@@ -114,6 +114,14 @@ type
     procedure TestLinearToSRGBGamma(const AImageFileName: string; const AExpectedImageHash: string);
     [TestCase('1', 'horse.webp,ADG//z8tDQ1/f///fy0NDf//////v99d//////+/39/HP/e////n54fvB+cM9wRT4HEAd8BBAHE')]
     procedure TestLumaColor(const AImageFileName: string; const AExpectedImageHash: string);
+    [Test]
+    procedure TestColorMatrixScale;
+    [Test]
+    procedure TestLighting;
+    [Test]
+    procedure TestOverdraw;
+    [Test]
+    procedure TestTable;
   end;
 
 implementation
@@ -128,6 +136,75 @@ uses
   System.Math.Vectors;
 
 { TSkColorFilterTests }
+
+function DrawRect(const AColor: TAlphaColor; const AColorFilter: ISkColorFilter): TAlphaColor;
+var
+  LBuffer: TBytes;
+  LPaint: ISkPaint;
+  LPixmap: ISkPixmap;
+  LSurface: ISkSurface;
+begin
+  SetLength(LBuffer, 4 * 4 * 4);
+  LPixmap := TSkPixmap.Create(TSkImageInfo.Create(4, 4), LBuffer, 4 * 4);
+  LSurface := TSkSurface.MakeRasterDirect(LPixmap);
+  LSurface.Canvas.Clear(TAlphaColors.Null);
+  LPaint := TSkPaint.Create;
+  LPaint.Color := AColor;
+  LPaint.ColorFilter := AColorFilter;
+  LSurface.Canvas.DrawPaint(LPaint);
+  Result := LPixmap.Colors[1, 1];
+end;
+
+procedure TSkColorFilterTests.TestColorMatrixScale;
+var
+  LColorMatrix: TSkColorMatrix;
+begin
+  LColorMatrix := TSkColorMatrix.CreateScale(0.5, 0.5, 0.5);
+  Assert.IsTrue(LColorMatrix <> TSkColorMatrix.Identity, 'A scale is not the identity');
+  Assert.AreSameColor($FF808080, DrawRect(TAlphaColors.White, TSkColorFilter.MakeMatrix(LColorMatrix)), 1,
+    'The scale should halve the color channels and keep the alpha');
+  Assert.AreSameColor(TAlphaColors.White, DrawRect(TAlphaColors.White,
+    TSkColorFilter.MakeMatrix(TSkColorMatrix.CreateScale(1, 1, 1))), 0, 'A neutral scale should not change the color');
+end;
+
+procedure TSkColorFilterTests.TestLighting;
+begin
+  Assert.AreSameColor($FF80A080, DrawRect($FF808080, TSkColorFilter.MakeLighting(TAlphaColors.White, $FF002000)), 1,
+    'The add color should be added to every channel');
+  Assert.AreSameColor($FF808080, DrawRect(TAlphaColors.White, TSkColorFilter.MakeLighting($FF808080, TAlphaColors.Black)), 1,
+    'The multiply color should scale every channel');
+end;
+
+procedure TSkColorFilterTests.TestOverdraw;
+const
+  Colors: TSkOverdrawColor = (TAlphaColors.Red, TAlphaColors.Lime, TAlphaColors.Blue,
+                              TAlphaColors.Yellow, TAlphaColors.Aqua, TAlphaColors.Fuchsia);
+var
+  I: Integer;
+begin
+  // The overdraw filter reads the source alpha as the number of times a pixel
+  // was painted, and answers the matching color.
+  for I := 0 to High(Colors) do
+    Assert.AreSameColor(Colors[I], DrawRect((Cardinal(I) shl 24) or $00FFFFFF,
+      TSkColorFilter.MakeOverdraw(Colors)), 0, Format('(alpha %d)', [I]));
+end;
+
+procedure TSkColorFilterTests.TestTable;
+var
+  I: Integer;
+  LIdentity: TSkTableFilter;
+  LInvert: TSkTableFilter;
+begin
+  for I := 0 to High(LInvert) do
+  begin
+    LInvert[I] := 255 - I;
+    LIdentity[I] := I;
+  end;
+  Assert.AreSameColor(TAlphaColors.Null, DrawRect(TAlphaColors.Red, TSkColorFilter.MakeTable(LInvert)), 0,
+    'A single table also inverts the alpha channel');
+  Assert.AreSameColor(TAlphaColors.Aqua, DrawRect(TAlphaColors.Red, TSkColorFilter.MakeTable(LIdentity, LInvert, LInvert, LInvert)), 1,
+    'Inverting only the color channels should turn red into aqua');
+end;
 
 procedure TSkColorFilterTests.TestBlend(const AImageFileName, AColor: string;
   const AColorOpacity: Single; const AMode: TSkBlendMode;

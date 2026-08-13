@@ -37,6 +37,10 @@ type
     [TestCase('check.json', 'check.json,5.1.1,1.67999994754791,25,150,150')]
     [TestCase('rocket.json', 'rocket.json,5.7.6,5,30,600,600')]
     procedure TestLoadLottie(const ALottieFileName, AVersion: string; const ADuration, AFPS, AWidth, AHeight: Double);
+    [Test]
+    procedure TestInOutPoint;
+    [Test]
+    procedure TestSeekFrame;
     [TestCase('check.json', 'check.json,300,250,0.6,58GZva29w////fn97//P////+/3v/9/////////////n5+/zz/Pb+9373nvv9+fn88/8P/////8')]
     [TestCase('rocket.json', 'rocket.json,300,250,0.6,///Bw4OH//////Hjw8f/////9/vf3/////////////////8H8A/wD+A/4P/A/93///////////8')]
     procedure TestRenderLottie(const ALottieFileName: string; const AWidth, AHeight: Integer; const AFrameTime: Double; const AExpectedImageHash: string);
@@ -77,6 +81,40 @@ begin
       ACanvas.Restore;
     end;
   end;
+end;
+
+procedure TSkSkottieTests.TestInOutPoint;
+var
+  LSkottie: ISkottieAnimation;
+begin
+  LSkottie := TSkottieAnimation.MakeFromFile(AssetsPath + 'rocket.json');
+  Assert.IsNotNull(LSkottie, 'Invalid ISkottieAnimation (nil)');
+  Assert.IsTrue(LSkottie.OutPoint > LSkottie.InPoint, 'The animation should end after it starts');
+  Assert.AreSameValue(LSkottie.Duration, (LSkottie.OutPoint - LSkottie.InPoint) / LSkottie.FPS, TEpsilon.Matrix,
+    'The duration should be the frame range divided by the frame rate');
+end;
+
+procedure TSkSkottieTests.TestSeekFrame;
+
+  function RenderFrame(const ASkottie: ISkottieAnimation; const AFrame: Double): TBytes;
+  var
+    LSurface: ISkSurface;
+  begin
+    SetLength(Result, 100 * 100 * 4);
+    LSurface := TSkSurface.MakeRasterDirect(TSkImageInfo.Create(100, 100), Result, 100 * 4);
+    LSurface.Canvas.Clear(TAlphaColors.Null);
+    ASkottie.SeekFrame(AFrame);
+    ASkottie.Render(LSurface.Canvas, RectF(0, 0, 100, 100));
+  end;
+
+var
+  LSkottie: ISkottieAnimation;
+begin
+  LSkottie := TSkottieAnimation.MakeFromFile(AssetsPath + 'rocket.json');
+  Assert.IsNotNull(LSkottie, 'Invalid ISkottieAnimation (nil)');
+  Assert.IsFalse(CompareMem(@RenderFrame(LSkottie, LSkottie.InPoint)[0],
+    @RenderFrame(LSkottie, LSkottie.OutPoint / 2)[0], 100 * 100 * 4),
+    'Seeking should change the rendered frame');
 end;
 
 procedure TSkSkottieTests.TestLoadLottie(const ALottieFileName,

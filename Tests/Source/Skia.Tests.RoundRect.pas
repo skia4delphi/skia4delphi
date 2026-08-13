@@ -35,6 +35,10 @@ type
     [Test]
     procedure TestConstructors;
     [Test]
+    procedure TestContains;
+    [Test]
+    procedure TestDeflate;
+    [Test]
     procedure TestDefaultValue;
     [TestCase('1', '0.99,Jy8nPyc/B///Lzc/Jz8H//+/N783vzf///9//z////8M/2x/j////wx/bH///4//bH8Mf/////8')]
     procedure TestDraw(const AMinSimilarity: Double; const AExpectedImageHash: string);
@@ -44,6 +48,10 @@ type
     procedure TestDrawCreatedWithSameRadius(const AMinSimilarity: Double; const AExpectedImageHash: string);
     [Test]
     procedure TestInflate;
+    [Test]
+    procedure TestIsOvalSimpleAndNinePatch;
+    [Test]
+    procedure TestIsValid;
     [Test]
     procedure TestNinePatch;
     [Test]
@@ -127,6 +135,75 @@ begin
   LRadii[TSkRoundRectCorner.LowerLeft]  := PointF(5, 5);
   LRoundRect := TSkRoundRect.Create(RectF(100, 20, 130, 220), LRadii);
   Assert.IsNotNull(LRoundRect);
+end;
+
+procedure TSkRoundRectTests.TestContains;
+var
+  LRoundRect: ISkRoundRect;
+begin
+  LRoundRect := TSkRoundRect.Create(RectF(0, 0, 100, 100), 0, 0);
+  Assert.IsNotNull(LRoundRect);
+  Assert.IsTrue(LRoundRect.Contains(Rect(10, 10, 20, 20)), 'A rect inside the round rect should be contained');
+  Assert.IsTrue(LRoundRect.Contains(Rect(0, 0, 100, 100)), 'The whole round rect should be contained');
+  Assert.IsFalse(LRoundRect.Contains(Rect(200, 200, 300, 300)), 'A rect completely outside should not be contained');
+  Assert.IsFalse(LRoundRect.Contains(Rect(50, 50, 150, 150)), 'A rect crossing the border should not be contained');
+
+  LRoundRect := TSkRoundRect.Create(RectF(0, 0, 100, 100), 50, 50);
+  Assert.IsFalse(LRoundRect.Contains(Rect(0, 0, 10, 10)), 'The corner of an oval should not contain the corner of its bounds');
+end;
+
+procedure TSkRoundRectTests.TestDeflate;
+var
+  LRoundRect: ISkRoundRect;
+begin
+  LRoundRect := TSkRoundRect.Create;
+  LRoundRect.SetRect(RectF(100, 20, 130, 220), 2, 5);
+  LRoundRect.Deflate(1, 1);
+  Assert.IsTrue(RectF(101, 21, 129, 219).EqualsTo(LRoundRect.Rect, TEpsilon.Vector));
+end;
+
+procedure TSkRoundRectTests.TestIsOvalSimpleAndNinePatch;
+var
+  LRadii: TSkRoundRectRadii;
+  LRoundRect: ISkRoundRect;
+begin
+  LRoundRect := TSkRoundRect.Create;
+  LRoundRect.SetRect(RectF(0, 0, 100, 60));
+  Assert.IsFalse(LRoundRect.IsOval, '(rect is not oval)');
+  Assert.IsFalse(LRoundRect.IsNinePatch, '(rect is not nine patch)');
+  Assert.IsFalse(LRoundRect.IsSimple, '(rect is not simple)');
+
+  LRoundRect.SetOval(RectF(0, 0, 100, 60));
+  Assert.IsTrue(LRoundRect.IsOval, '(oval)');
+  Assert.IsFalse(LRoundRect.IsSimple, '(oval is not simple)');
+
+  LRoundRect.SetRect(RectF(0, 0, 100, 60), 10, 10);
+  Assert.IsTrue(LRoundRect.IsSimple, '(simple)');
+  Assert.IsFalse(LRoundRect.IsOval, '(simple is not oval)');
+
+  LRoundRect.SetNinePatch(RectF(0, 0, 100, 60), 10, 5, 20, 15);
+  Assert.IsTrue(LRoundRect.IsNinePatch, '(nine patch)');
+  Assert.IsFalse(LRoundRect.IsSimple, '(nine patch is not simple)');
+
+  LRadii[TSkRoundRectCorner.UpperLeft]  := PointF(2, 8);
+  LRadii[TSkRoundRectCorner.UpperRight] := PointF(3, 3);
+  LRadii[TSkRoundRectCorner.LowerRight] := PointF(4, 9);
+  LRadii[TSkRoundRectCorner.LowerLeft]  := PointF(5, 5);
+  LRoundRect := TSkRoundRect.Create(RectF(0, 0, 100, 60), LRadii);
+  Assert.IsFalse(LRoundRect.IsNinePatch, 'Arbitrary radii are not a nine patch');
+  Assert.IsFalse(LRoundRect.IsSimple, 'Arbitrary radii are not simple');
+end;
+
+procedure TSkRoundRectTests.TestIsValid;
+var
+  LRoundRect: ISkRoundRect;
+begin
+  LRoundRect := TSkRoundRect.Create;
+  Assert.IsTrue(LRoundRect.IsValid, 'An empty round rect is valid');
+  LRoundRect.SetRect(RectF(0, 0, 100, 60), 10, 10);
+  Assert.IsTrue(LRoundRect.IsValid, 'A simple round rect is valid');
+  LRoundRect.SetEmpty;
+  Assert.IsTrue(LRoundRect.IsValid, 'An emptied round rect is valid');
 end;
 
 procedure TSkRoundRectTests.TestDefaultValue;

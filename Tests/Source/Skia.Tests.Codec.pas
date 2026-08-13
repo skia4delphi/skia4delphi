@@ -60,6 +60,14 @@ type
     [TestCase('WebP (kung-fu-panda.webp)',    'kung-fu-panda.webp')]
     [TestCase('WebP Animated (rocket.webp)',  'rocket.webp')]
     procedure TestDecodeFile(const AImageFileName: string);
+    [TestCase('BMP',  'girl.bmp,BMP')]
+    [TestCase('GIF',  'animated.gif,GIF')]
+    [TestCase('ICO',  'delphi.ico,ICO')]
+    [TestCase('JPEG', 'shrek.jpg,JPEG')]
+    [TestCase('PNG',  'elephant.png,PNG')]
+    [TestCase('WBMP', 'mandrill.wbmp,WBMP')]
+    [TestCase('WebP', 'kung-fu-panda.webp,WEBP')]
+    procedure TestEncodedImageFormat(const AImageFileName: string; const AExpectedFormat: TSkEncodedImageFormat);
     [TestCase('BMP (girl.bmp)',               'girl.bmp')]
     {$IFDEF SUPPORT_DNG}
     [TestCase('DNG (park.dng)',               'park.dng')]
@@ -244,6 +252,16 @@ begin
 end;
 
 { TSkCodecTests }
+
+procedure TSkCodecTests.TestEncodedImageFormat(const AImageFileName: string;
+  const AExpectedFormat: TSkEncodedImageFormat);
+var
+  LCodec: ISkCodec;
+begin
+  LCodec := TSkCodec.MakeFromFile(AssetsPath + AImageFileName);
+  Assert.IsNotNull(LCodec, 'Invalid ISkCodec (nil)');
+  Assert.IsTrue(LCodec.EncodedImageFormat = AExpectedFormat, 'The codec should report the format it decoded');
+end;
 
 procedure TSkCodecTests.TestDecodeFile(const AImageFileName: string);
 var

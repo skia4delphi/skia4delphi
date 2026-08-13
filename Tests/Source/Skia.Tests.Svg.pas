@@ -41,6 +41,12 @@ type
     [TestCase('tesla.svg',        'tesla.svg,40,40')]
     [TestCase('youtube.svg',      'youtube.svg,0,0')]
     procedure TestGetIntrinsicSize(const ASvgFileName: string; const AWidth, AHeight: Single);
+    [Test]
+    procedure TestPreserveAspectRatio;
+    [Test]
+    procedure TestSetContainerSize;
+    [Test]
+    procedure TestSetViewBox;
     [TestCase('android.svg',      'android.svg,true,0,0,96,105')]
     [TestCase('chinese-text.svg', 'chinese-text.svg,true,0,0,900,300')]
     [TestCase('delphi.svg',       'delphi.svg,true,0,0,10666.667,10666.667')]
@@ -88,6 +94,59 @@ begin
     LSVGDOM.Render(LSurface.Canvas);
   end;
   Assert.AreSimilar(AExpectedImageHash, LSurface.MakeImageSnapshot, 0.9961);
+end;
+
+procedure TSkSvgDOMTests.TestPreserveAspectRatio;
+var
+  LSVGDOM: ISkSVGDOM;
+begin
+  LSVGDOM := TSkSVGDOM.MakeFromFile(SvgAssetsPath + 'android.svg');
+  Assert.IsNotNull(LSVGDOM, 'Invalid SkSVGDOM');
+  Assert.IsTrue(LSVGDOM.Root.PreserveAspectRatio =
+    TSkSVGPreserveAspectRatio.Create(TSkSVGAspectAlign.XMidYMid, TSkSVGAspectScale.Meet),
+    'The default aspect ratio should center the drawing');
+
+  LSVGDOM.Root.PreserveAspectRatio := TSkSVGPreserveAspectRatio.Create(TSkSVGAspectAlign.None, TSkSVGAspectScale.Slice);
+  Assert.IsTrue(LSVGDOM.Root.PreserveAspectRatio.Align = TSkSVGAspectAlign.None, '(Align)');
+  Assert.IsTrue(LSVGDOM.Root.PreserveAspectRatio.Scale = TSkSVGAspectScale.Slice, '(Scale)');
+end;
+
+procedure TSkSvgDOMTests.TestSetContainerSize;
+
+  function Render(const AContainerSize: Single): TBytes;
+  var
+    LSurface: ISkSurface;
+    LSVGDOM: ISkSVGDOM;
+  begin
+    SetLength(Result, 100 * 100 * 4);
+    LSurface := TSkSurface.MakeRasterDirect(TSkImageInfo.Create(100, 100), Result, 100 * 4);
+    LSurface.Canvas.Clear(TAlphaColors.Null);
+    LSVGDOM := TSkSVGDOM.MakeFromFile(SvgAssetsPath + 'android.svg');
+    Assert.IsNotNull(LSVGDOM, 'Invalid SkSVGDOM');
+    LSVGDOM.SetContainerSize(TSizeF.Create(AContainerSize, AContainerSize));
+    LSVGDOM.Render(LSurface.Canvas);
+  end;
+
+begin
+  // android.svg declares no size of its own, so it is drawn over the whole
+  // container.
+  Assert.IsFalse(CompareMem(@Render(50)[0], @Render(100)[0], 100 * 100 * 4),
+    'The container size should change the rendered drawing');
+end;
+
+procedure TSkSvgDOMTests.TestSetViewBox;
+var
+  LSVGDOM: ISkSVGDOM;
+  LViewBox: TRectF;
+begin
+  LSVGDOM := TSkSVGDOM.MakeFromFile(SvgAssetsPath + 'tesla.svg');
+  Assert.IsNotNull(LSVGDOM, 'Invalid SkSVGDOM');
+  Assert.IsFalse(LSVGDOM.Root.TryGetViewBox(LViewBox), 'tesla.svg should not declare a view box');
+
+  LSVGDOM.Root.SetViewBox(RectF(0, 0, 40, 40));
+  Assert.IsTrue(LSVGDOM.Root.TryGetViewBox(LViewBox), 'The view box should be set');
+  Assert.AreEqual(40.0, LViewBox.Width, TEpsilon.Vector, '(Width)');
+  Assert.AreEqual(40.0, LViewBox.Height, TEpsilon.Vector, '(Height)');
 end;
 
 procedure TSkSvgDOMTests.TestGetIntrinsicSize(const ASvgFileName: string;

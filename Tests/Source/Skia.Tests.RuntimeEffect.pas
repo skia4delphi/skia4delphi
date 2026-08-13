@@ -30,6 +30,20 @@ type
 
   [TestFixture]
   TSkRuntimeEffectTests = class(TTestBase)
+  strict private const
+    ReflectionSkSL =
+      'uniform float  fIntensity;'    + sLineBreak +
+      'uniform float2 fCenter;'       + sLineBreak +
+      'uniform int    fSteps;'        + sLineBreak +
+      'uniform shader fTexture;'      + sLineBreak +
+      'half4 main(float2 p) { return fTexture.eval(p) * fIntensity * float(fSteps) * fCenter.x; }';
+    BlenderSkSL =
+      'half4 main(half4 src, half4 dst) { return src * dst; }';
+    ColorFilterSkSL =
+      'uniform float fFactor;' + sLineBreak +
+      'half4 main(half4 color) { return color * fFactor; }';
+  strict private
+    function ReflectionEffect: ISkRuntimeEffect;
   protected
     procedure SetChildImages(const ARuntimeEffect: ISkRuntimeEffectBuilder; const AChildImagesFileName: string);
     procedure SetUniforms(const ARuntimeEffect: ISkRuntimeEffectBuilder; const AUniforms: string);
@@ -38,6 +52,20 @@ type
     [TestCase('File "shader.mouse.sksl"', 'shader.mouse.sksl,150,100,iMouse=70 80;iResolution=150 100,,AAAAOH7+/v4fCAA5f//+/h8PDz9/////Hw8PP3////8AAAAAB8Af8D/4P/h//H/8f/x//H/8f/w')]
     [TestCase('File "shader.brightness-and-contrast.sksl"', 'shader.brightness-and-contrast.sksl,250,250,brightness=0.3;contrast=0.5,texture=horse.webp,/fj4+Pj4+PP//Pj5+//+///9/f3///////39/f////9Q7vAa/z///v/////fPlYz/XODODBQxUI')]
     procedure TestShader(const ASkSLFileName: string; const AWidth, AHeight: Integer; const AUniforms, AChildImagesFileName, AExpectedImageHash: string);
+    [Test]
+    procedure TestChildReflection;
+    [Test]
+    procedure TestInvalidSkSL;
+    [Test]
+    procedure TestMakeBlender;
+    [Test]
+    procedure TestMakeColorFilter;
+    [Test]
+    procedure TestUniformDataSize;
+    [Test]
+    procedure TestUniformReflection;
+    [Test]
+    procedure TestUniformTypes;
   end;
 
 implementation
@@ -52,6 +80,113 @@ uses
   System.Math.Vectors;
 
 { TSkRuntimeEffectTests }
+
+function TSkRuntimeEffectTests.ReflectionEffect: ISkRuntimeEffect;
+var
+  LError: string;
+begin
+  Result := TSkRuntimeEffect.MakeForShader(ReflectionSkSL, LError);
+  Assert.IsNotNull(Result, 'Could not build the reflection shader: ' + LError);
+  Assert.IsEmpty(LError, 'A valid shader should not report an error');
+end;
+
+procedure TSkRuntimeEffectTests.TestChildReflection;
+var
+  LRuntimeEffect: ISkRuntimeEffect;
+begin
+  LRuntimeEffect := ReflectionEffect;
+  Assert.AreEqual(1, LRuntimeEffect.ChildCount, '(ChildCount)');
+  Assert.AreEqual('fTexture', LRuntimeEffect.ChildrenNames[0], '(ChildrenNames)');
+  Assert.AreEqual(0, LRuntimeEffect.IndexOfChild('fTexture'), '(IndexOfChild)');
+  Assert.AreEqual(-1, LRuntimeEffect.IndexOfChild('fUnknown'), 'An unknown child should not be found');
+  Assert.IsTrue(LRuntimeEffect.ChildExists('fTexture'), '(ChildExists)');
+  Assert.IsFalse(LRuntimeEffect.ChildExists('fUnknown'), '(ChildExists of an unknown child)');
+  Assert.IsTrue(LRuntimeEffect.ChildType[0] = TSkRuntimeEffectChildType.Shader, '(ChildType)');
+  Assert.IsTrue(LRuntimeEffect.ChildTypeByName['fTexture'] = TSkRuntimeEffectChildType.Shader, '(ChildTypeByName)');
+end;
+
+procedure TSkRuntimeEffectTests.TestInvalidSkSL;
+var
+  LError: string;
+  LRuntimeEffect: ISkRuntimeEffect;
+begin
+  LRuntimeEffect := TSkRuntimeEffect.MakeForShader('this is not valid sksl', LError);
+  Assert.IsNull(LRuntimeEffect, 'An invalid shader should not be created');
+  Assert.IsNotEmpty(LError, 'An invalid shader should report the error');
+end;
+
+procedure TSkRuntimeEffectTests.TestMakeBlender;
+var
+  LBlender: ISkBlender;
+  LError: string;
+  LRuntimeEffect: ISkRuntimeEffect;
+begin
+  LRuntimeEffect := TSkRuntimeEffect.MakeForBlender(BlenderSkSL, LError);
+  Assert.IsNotNull(LRuntimeEffect, 'Could not build the blender: ' + LError);
+  Assert.AreEqual(0, LRuntimeEffect.UniformCount, 'The blender has no uniform');
+  Assert.AreEqual(0, LRuntimeEffect.ChildCount, 'The blender has no child');
+
+  LBlender := LRuntimeEffect.MakeBlender(nil^, nil);
+  Assert.IsNotNull(LBlender, 'The runtime effect should produce a blender');
+end;
+
+procedure TSkRuntimeEffectTests.TestMakeColorFilter;
+var
+  LColorFilter: ISkColorFilter;
+  LError: string;
+  LFactor: Single;
+  LRuntimeEffect: ISkRuntimeEffect;
+begin
+  LRuntimeEffect := TSkRuntimeEffect.MakeForColorFilter(ColorFilterSkSL, LError);
+  Assert.IsNotNull(LRuntimeEffect, 'Could not build the color filter: ' + LError);
+  Assert.AreEqual(1, LRuntimeEffect.UniformCount, '(UniformCount)');
+  Assert.AreEqual('fFactor', LRuntimeEffect.UniformNames[0], '(UniformNames)');
+
+  LFactor := 0.5;
+  LColorFilter := LRuntimeEffect.MakeColorFilter(LFactor, nil);
+  Assert.IsNotNull(LColorFilter, 'The runtime effect should produce a color filter');
+end;
+
+procedure TSkRuntimeEffectTests.TestUniformDataSize;
+var
+  LRuntimeEffect: ISkRuntimeEffect;
+begin
+  LRuntimeEffect := ReflectionEffect;
+  // float + float2 + int, each element being four bytes wide.
+  Assert.AreEqual<NativeUInt>(4 * 4, LRuntimeEffect.UniformDataSize, '(UniformDataSize)');
+  Assert.AreEqual<NativeUInt>(0, LRuntimeEffect.UniformOffset[0], 'The first uniform starts at zero');
+  Assert.AreEqual<NativeUInt>(4, LRuntimeEffect.UniformOffsetByName['fCenter'], 'The second uniform follows the first');
+  Assert.AreEqual<NativeUInt>(12, LRuntimeEffect.UniformOffsetByName['fSteps'], 'The third uniform follows the float2');
+end;
+
+procedure TSkRuntimeEffectTests.TestUniformReflection;
+var
+  LRuntimeEffect: ISkRuntimeEffect;
+begin
+  LRuntimeEffect := ReflectionEffect;
+  Assert.AreEqual(3, LRuntimeEffect.UniformCount, '(UniformCount)');
+  Assert.AreEqual('fIntensity', LRuntimeEffect.UniformNames[0], '(UniformNames)');
+  Assert.AreEqual(1, LRuntimeEffect.IndexOfUniform('fCenter'), '(IndexOfUniform)');
+  Assert.AreEqual(-1, LRuntimeEffect.IndexOfUniform('fUnknown'), 'An unknown uniform should not be found');
+  Assert.IsTrue(LRuntimeEffect.UniformExists('fSteps'), '(UniformExists)');
+  Assert.IsFalse(LRuntimeEffect.UniformExists('fUnknown'), '(UniformExists of an unknown uniform)');
+end;
+
+procedure TSkRuntimeEffectTests.TestUniformTypes;
+var
+  LRuntimeEffect: ISkRuntimeEffect;
+begin
+  LRuntimeEffect := ReflectionEffect;
+  Assert.IsTrue(LRuntimeEffect.UniformType[0] = TSkRuntimeEffectUniformType.Float, '(float)');
+  Assert.IsTrue(LRuntimeEffect.UniformTypeByName['fCenter'] = TSkRuntimeEffectUniformType.Float2, '(float2)');
+  Assert.IsTrue(LRuntimeEffect.UniformTypeByName['fSteps'] = TSkRuntimeEffectUniformType.Int, '(int)');
+
+  Assert.AreEqual(1, LRuntimeEffect.UniformTypeCount[0], 'A scalar uniform has a single element');
+  Assert.AreEqual(1, LRuntimeEffect.UniformTypeCountByName['fCenter'], 'A float2 is still a single element');
+
+  Assert.IsFalse(LRuntimeEffect.IsUniformTypeOrdinal(0), 'A float uniform is not ordinal');
+  Assert.IsTrue(LRuntimeEffect.IsUniformTypeOrdinalByName('fSteps'), 'An int uniform is ordinal');
+end;
 
 procedure TSkRuntimeEffectTests.SetChildImages(
   const ARuntimeEffect: ISkRuntimeEffectBuilder;

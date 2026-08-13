@@ -17,6 +17,7 @@ interface
 uses
   { Delphi }
   System.SysUtils,
+  System.Types,
   DUnitX.TestFramework,
 
   { Skia }
@@ -30,6 +31,11 @@ type
 
   [TestFixture]
   TSkTextBlobTests = class(TTestBase)
+  strict private
+    FBuffer: TBytes;
+    FPixmap: ISkPixmap;
+    function AssetFont(const ASize: Single = 40): ISkFont;
+    function PaintedBounds(const ATextBlob: ISkTextBlob; const AX, AY: Single): TRect;
   public
     {$IF defined(MSWINDOWS)}
     [TestCase('Basic Texts', '0.99,n4f/B4P/gID///9nw//OzP///2/n/9/9/////////////////////////////+Xf3VHgwcVR//8')]
@@ -43,6 +49,14 @@ type
     procedure TestCustomFont(const AMinSimilarity: Double; const AExpectedHash: string);
     [TestCase('Right-to-Left', '0.98,f3cDAQGD//9/f3NhQ8f//3//9+Vj1///f//35WP3///QoMRg1Wj1ePxom+gDACMAAgAAAAAAAAA')]
     procedure TestRightToLeft(const AMinSimilarity: Double; const AExpectedHash: string);
+    [Test]
+    procedure TestGetIntercepts;
+    [Test]
+    procedure TestMakeFromTextHorizontallyPositioned;
+    [Test]
+    procedure TestMakeFromTextPositioned;
+    [Test]
+    procedure TestMakeFromTextTransform;
   end;
 
 implementation
@@ -50,12 +64,113 @@ implementation
 uses
   { Delphi }
   System.Classes,
-  System.Types,
   System.Math,
   System.UITypes,
   System.IOUtils;
 
 { TSkTextBlobTests }
+
+function TSkTextBlobTests.AssetFont(const ASize: Single): ISkFont;
+var
+  LTypeface: ISkTypeface;
+begin
+  LTypeface := TSkTypeface.MakeFromFile(FontAssetsPath + 'segoeui.ttf');
+  Assert.IsNotNull(LTypeface, 'Invalid ISkTypeface (nil)');
+  Result := TSkFont.Create(LTypeface, ASize);
+  Result.Hinting := TSkFontHinting.None;
+  Result.LinearMetrics := True;
+end;
+
+function TSkTextBlobTests.PaintedBounds(const ATextBlob: ISkTextBlob;
+  const AX, AY: Single): TRect;
+const
+  Size = 300;
+var
+  LPaint: ISkPaint;
+  LSurface: ISkSurface;
+  X: Integer;
+  Y: Integer;
+begin
+  Assert.IsNotNull(ATextBlob, 'Invalid ISkTextBlob (nil)');
+  SetLength(FBuffer, Size * Size * 4);
+  FPixmap := TSkPixmap.Create(TSkImageInfo.Create(Size, Size, TSkColorType.BGRA8888,
+    TSkAlphaType.Premul, TSkColorSpace.MakeSRGB), FBuffer, Size * 4);
+  LSurface := TSkSurface.MakeRasterDirect(FPixmap);
+  Assert.IsNotNull(LSurface, 'Invalid ISkSurface (nil)');
+  LSurface.Canvas.Clear(TAlphaColors.Null);
+  LPaint := TSkPaint.Create;
+  LPaint.Color := TAlphaColors.Red;
+  LSurface.Canvas.DrawTextBlob(ATextBlob, AX, AY, LPaint);
+
+  Result := TRect.Empty;
+  for Y := 0 to Size - 1 do
+    for X := 0 to Size - 1 do
+      if FPixmap.Colors[X, Y] <> TAlphaColors.Null then
+        if Result.IsEmpty then
+          Result := TRect.Create(X, Y, X + 1, Y + 1)
+        else
+          Result := TRect.Union(Result, TRect.Create(X, Y, X + 1, Y + 1));
+  Assert.IsFalse(Result.IsEmpty, 'The text blob should paint something');
+end;
+
+procedure TSkTextBlobTests.TestGetIntercepts;
+var
+  LFont: ISkFont;
+  LIntercepts: TArray<Single>;
+  LTextBlob: ISkTextBlob;
+begin
+  LFont := AssetFont(50);
+  LTextBlob := TSkTextBlob.MakeFromText('gy', LFont);
+  Assert.IsNotNull(LTextBlob, 'Invalid ISkTextBlob (nil)');
+
+  LIntercepts := LTextBlob.GetIntercepts(4, 8);
+  Assert.IsTrue(Length(LIntercepts) > 0, 'The descenders should cross the underline band');
+  Assert.AreEqual<NativeInt>(0, Length(LIntercepts) mod 2, 'Intercepts should be returned in pairs');
+
+  LIntercepts := LTextBlob.GetIntercepts(-1000, -999);
+  Assert.AreEqual<NativeInt>(0, Length(LIntercepts), 'A band far above the text should not be crossed');
+end;
+
+procedure TSkTextBlobTests.TestMakeFromTextHorizontallyPositioned;
+var
+  LBounds: TRect;
+  LFont: ISkFont;
+  LShiftedBounds: TRect;
+begin
+  LFont := AssetFont;
+  LBounds := PaintedBounds(TSkTextBlob.MakeFromTextHorizontallyPositioned('I', [0], 0, LFont), 20, 100);
+  LShiftedBounds := PaintedBounds(TSkTextBlob.MakeFromTextHorizontallyPositioned('I', [50], 0, LFont), 20, 100);
+  Assert.AreEqual(LBounds.Left + 50, LShiftedBounds.Left, 'The X position should shift the glyph');
+  Assert.AreEqual(LBounds.Top, LShiftedBounds.Top, 'The common Y should keep the glyph on the same baseline');
+end;
+
+procedure TSkTextBlobTests.TestMakeFromTextPositioned;
+var
+  LBounds: TRect;
+  LFont: ISkFont;
+  LShiftedBounds: TRect;
+begin
+  LFont := AssetFont;
+  LBounds := PaintedBounds(TSkTextBlob.MakeFromTextPositioned('I', [PointF(0, 0)], LFont), 20, 100);
+  LShiftedBounds := PaintedBounds(TSkTextBlob.MakeFromTextPositioned('I', [PointF(50, 30)], LFont), 20, 100);
+  Assert.AreEqual(LBounds.Left + 50, LShiftedBounds.Left, 'The X position should shift the glyph');
+  Assert.AreEqual(LBounds.Top + 30, LShiftedBounds.Top, 'The Y position should shift the glyph');
+end;
+
+procedure TSkTextBlobTests.TestMakeFromTextTransform;
+var
+  LBounds: TRect;
+  LFont: ISkFont;
+  LScaledBounds: TRect;
+begin
+  LFont := AssetFont;
+  LBounds := PaintedBounds(TSkTextBlob.MakeFromTextTransform('I',
+    [TSkRotationScaleMatrix.CreateDegrees(1, 0, 0, 0, 0, 0)], LFont), 20, 100);
+  LScaledBounds := PaintedBounds(TSkTextBlob.MakeFromTextTransform('I',
+    [TSkRotationScaleMatrix.CreateDegrees(2, 0, 0, 0, 0, 0)], LFont), 20, 100);
+  Assert.IsTrue(LScaledBounds.Height > LBounds.Height * 1.5, 'The scale should enlarge the glyph');
+  Assert.IsTrue(LScaledBounds.Width > LBounds.Width, 'The scale should widen the glyph');
+end;
 
 procedure TSkTextBlobTests.TestBasics(const AMinSimilarity: Double;
   const AExpectedHash: string);

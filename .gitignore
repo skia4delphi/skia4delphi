@@ -60,6 +60,7 @@ dunitx-results.xml
 *.Logs.txt
 *Template*
 /Samples/**/Binary/
+/Tests/Binary/
 /Tests/bin/
 !AwesomeFont*.res
 !/Binary/**

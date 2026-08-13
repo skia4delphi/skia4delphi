@@ -22,6 +22,7 @@ uses
   System.Math.Vectors,
   System.IOUtils,
   System.Types,
+  System.UITypes,
   DUnitX.TestFramework,
   DUnitX.Assert,
 
@@ -65,6 +66,8 @@ type
     SBytesHashNotEqual = 'Bytes hashes are not equal. Expected %u but got %u. %s';
     SBytesValuesEqual = 'Bytes values are equal. ';
     SBytesValuesNotEqual = 'Bytes values are not equal. ';
+    SColorsNotEqual = 'Colors are not equal. Expected #%s but got #%s. %s';
+    SMatrixNotEqual = 'Matrices are not equal. Expected %g but got %g in %s. %s';
     SImagesPixelsNotEqual = 'Are not equal pixels. ';
     SPixelsNotEqual = 'Are not equal pixels. ';
     SStreamHashNotEqual = 'Stream hashes are not equal. Expected %u but got %u. %s';
@@ -93,6 +96,8 @@ type
     class procedure AreEqualPixels(const AExpected, AActual: ISkPixmap; const AMessage: string = ''); overload;
     class procedure AreNotEqualArray<T>(const AExpected, AActual: TArray<T>; const AMessage: string = '');
     class procedure AreNotEqualBytes(const AExpected, AActual: TBytes; const AMessage: string = '');
+    class procedure AreSameColor(const AExpected, AActual: TAlphaColor; const ATolerance: Byte = 0; const AMessage: string = '');
+    class procedure AreSameMatrix(const AExpected, AActual: TMatrix; const AEpsilon: Single = 0; const AMessage: string = '');
     class procedure AreSameRect(const AExpected, AActual: TRectF; const AEpsilon: Single = 0; const AMessage: string = '');
     class procedure AreSameValue(const AExpected, AActual: Double; const AEpsilon: Double = 0; const AMessage: string = ''); overload;
     class procedure AreSameValue(const AExpected, AActual: Single; const AEpsilon: Single = 0; const AMessage: string = ''); overload;
@@ -172,7 +177,6 @@ implementation
 uses
   { Delphi }
   System.ZLib,
-  System.UITypes,
   {$IF CompilerVersion >= 30}
   DUnitX.ResStrs,
   {$ENDIF}
@@ -608,6 +612,39 @@ begin
     Exit(False);
   end;
   Result := AreSameArray<Byte>(LExpectedPixels, LActualPixels);
+end;
+
+class procedure TAssertHelper.AreSameColor(const AExpected, AActual: TAlphaColor;
+  const ATolerance: Byte; const AMessage: string);
+
+  function SameChannel(const AShift: Byte): Boolean;
+  begin
+    Result := Abs(Integer((AExpected shr AShift) and $FF) - Integer((AActual shr AShift) and $FF)) <= ATolerance;
+  end;
+
+begin
+  {$IF CompilerVersion >= 32}
+  DoAssert;
+  {$ENDIF}
+  if not SameChannel(24) or not SameChannel(16) or not SameChannel(8) or not SameChannel(0) then
+    FailFmt(SColorsNotEqual, [IntToHex(AExpected, 8), IntToHex(AActual, 8), AMessage], ReturnAddress);
+end;
+
+class procedure TAssertHelper.AreSameMatrix(const AExpected, AActual: TMatrix;
+  const AEpsilon: Single; const AMessage: string);
+const
+  ComponentNames: array[0..2, 0..2] of string = (('m11', 'm12', 'm13'), ('m21', 'm22', 'm23'), ('m31', 'm32', 'm33'));
+var
+  I: Integer;
+  J: Integer;
+begin
+  {$IF CompilerVersion >= 32}
+  DoAssert;
+  {$ENDIF}
+  for I := 0 to 2 do
+    for J := 0 to 2 do
+      if not System.Math.SameValue(AExpected.M[I].V[J], AActual.M[I].V[J], AEpsilon) then
+        FailFmt(SMatrixNotEqual, [AExpected.M[I].V[J], AActual.M[I].V[J], ComponentNames[I, J], AMessage], ReturnAddress);
 end;
 
 class procedure TAssertHelper.AreSameRect(const AExpected, AActual: TRectF;
