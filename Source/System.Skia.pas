@@ -13498,6 +13498,6 @@ end;
 
 initialization
   TSkVersion.FMajor := 7;
-  TSkVersion.FMinor := 2;
+  TSkVersion.FMinor := 3;
   TSkVersion.FBuild := 0;
 end.
