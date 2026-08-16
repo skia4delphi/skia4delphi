@@ -308,12 +308,7 @@ begin
                     Result := False;
                     Exit;
                   end;
-                  if not TryAddRADStudioPathEnvVariableX64(LVersion, RemoveBackslash(ExtractFilePath(LBplX64FileName))) then
-                  begin
-                    TryShowErrorFmt(CustomMessage('SetupMainFailedToInstallPackage'), [ExtractFileName(LProject.FileName), LVersion.Name, '4.1']);
-                    Result := False;
-                    Exit;
-                  end;
+                  TryAddRADStudioPathEnvVariableX64(LVersion, RemoveBackslash(ExtractFilePath(LBplX64FileName)));
                 end;
               end;
 
@@ -505,11 +500,7 @@ begin
                     Log(FmtMessage(CustomMessage('SetupMainFailedToUninstallPackage'), [ExtractFileName(LProject.FileName), LVersion.Name, '2']));
                     Result := False;
                   end;
-                  if not TryRemoveRADStudioPathEnvVariableX64(LVersion, RemoveBackslash(ExtractFilePath(LBplX64FileName))) then
-                  begin
-                    Log(FmtMessage(CustomMessage('SetupMainFailedToUninstallPackage'), [ExtractFileName(LProject.FileName), LVersion.Name, '2.1']));
-                    Result := False;
-                  end;
+                  TryRemoveRADStudioPathEnvVariableX64(LVersion, RemoveBackslash(ExtractFilePath(LBplX64FileName)));
                   // Check if exist a native x64 bpl to restore it
                   if FileExists(CombinePath(LInfo.RootDir, 'bin64\' + ExtractFileName(LBplX64FileName))) then
                   begin

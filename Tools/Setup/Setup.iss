@@ -171,7 +171,7 @@ Name: "ukrainian"; MessagesFile: "compiler:Languages\Ukrainian.isl,Languages\Def
   [Files]
     Source: "Style\*"; DestDir: "{app}\{#SetupFolder}\Style"; Flags: ignoreversion
     Source: "..\..\{#LibraryPackagesFolder}\*"; Excludes: "{#CommonRADStudioFilesExcludes}"; DestDir: "{app}\{#LibraryPackagesFolder}"; Flags: recursesubdirs ignoreversion
-    Source: "..\..\*"; Excludes: "{#CommonRADStudioFilesExcludes},*.gitattributes,*.gitignore,*.gitmodules,README.md,\.github\*,\.history\*,\Assets\Artwork\*,\Assets\Documents\*,\Assets\Setup\*,Binary\*,\Documents\*,\Externals\*,\{#LibraryDCUFolder}\*,Logs\*,*.Logs.txt,Objects\*,\{#SetupFolder}\*,\Tools\Chocolatey Package\*,\{#LibraryPackagesFolder}\*,\Tests\Assets\Expected.zip"; DestDir: "{app}"; Flags: recursesubdirs ignoreversion
+    Source: "..\..\*"; Excludes: "{#CommonRADStudioFilesExcludes},*.gitattributes,*.gitignore,*.gitmodules,README.md,VALIDATION.md,\.github\*,\.history\*,\Assets\Artwork\*,\Assets\Documents\*,\Assets\Setup\*,Binary\*,\Documents\*,\Externals\*,\{#LibraryDCUFolder}\*,Logs\*,*.Logs.txt,Objects\*,\{#SetupFolder}\*,\Tools\Chocolatey Package\*,\{#LibraryPackagesFolder}\*,\Tests\Assets\Expected.zip"; DestDir: "{app}"; Flags: recursesubdirs ignoreversion
     Source: "..\..\Samples\*.template.xml"; DestDir: "{app}\Samples"; Flags: recursesubdirs ignoreversion
     Source: "..\..\Binary\*"; DestDir: "{app}\Binary"; Flags: recursesubdirs ignoreversion
     #ifdef UseLibraryDCUFolder
@@ -209,6 +209,7 @@ Type: filesandordirs; Name: "{app}\.gitmodules";
 Type: filesandordirs; Name: "{app}\*.Logs.txt";
 Type: filesandordirs; Name: "{app}\LICENSE";
 Type: filesandordirs; Name: "{app}\README.md";
+Type: filesandordirs; Name: "{app}\VALIDATION.md";
 Type: filesandordirs; Name: "{app}\Setup.exe";
 Type: filesandordirs; Name: "{app}\SKIA-LICENSE";
 Type: dirifempty; Name: "{app}\Assets";
