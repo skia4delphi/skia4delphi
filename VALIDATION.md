@@ -15,7 +15,7 @@ validation.
 - `Tests/Source/VCL` contains VCL-specific tests and the VCL runner.
 - `Tests/Source/FMX` contains FMX-specific tests and the FMX runner.
 - `Tests/Source/Issues` contains issue-specific regression tests.
-- `Tests/Assets` contains input assets and `Expected.zip`.
+- `Tests/Assets` contains input assets and the `Expected-*.zip` archives.
 - `Tests/Projects/<RAD Studio version>` contains the Console, VCL, and FMX
   projects for that compiler generation.
 - `Tests/Binary/<Platform>/<Config>` is the configured output directory for
@@ -218,8 +218,9 @@ resolves them differently:
 So a Linux run does not take an `Assets` directory: the *contents* of
 `Tests/Assets` have to be deployed next to the executable, giving
 `<executable directory>/Fonts`, `<executable directory>/Images`, and so on.
-`Expected.zip` is only needed by the graphical runners to show the expected
-image beside the actual one, so an unattended run does not have to deploy it.
+The `Expected-*.zip` archives are only needed by the graphical runners to show
+the expected image beside the actual one, so an unattended run does not have to
+deploy them.
 
 The Linux64 executables also need `libsk4d.so`, which is not deployed
 automatically in runs outside the IDE. Copy it from `Binary/Shared/Linux64` next
@@ -288,7 +289,7 @@ For unattended execution, both runners implement these custom options:
 | --- | --- |
 | `--ci` | Automatically runs all registered tests, writes a report, sets the process exit code, and requests application termination. |
 | `--ci-output:<absolute-path>` | Writes the JSON report to the specified path. `=` or a separate value is also accepted. |
-| `--build-expected-images` | Enables expected-image generation. It is effective with `--ci` and is destructive to `Tests/Assets/Expected.zip`; it is not a normal validation option. |
+| `--build-expected-images` | Enables expected-image generation. It is effective with `--ci` and is destructive to the `Tests/Assets/Expected-*.zip` archives; it is not a normal validation option. |
 
 If `--ci-output` is omitted, the report defaults to
 `<executable-name>.Results.json` in the current working directory. CI should
@@ -356,12 +357,12 @@ if (($fmx.ExitCode -ne 0) -or (-not $fmxData.all_passed)) {
 }
 ```
 
-## `Tests/Assets/Expected.zip`
+## `Tests/Assets/Expected-*.zip`
 
-`Expected.zip` contains full PNG images associated with tests that call the
-Skia4Delphi image-similarity assertion helpers. It supports the graphical
-runners' expected-versus-actual preview and the expected-image generation
-workflow.
+The eight `Expected-*.zip` archives contain full PNG images associated with
+tests that call the Skia4Delphi image-similarity assertion helpers. They support
+the graphical runners' expected-versus-actual preview and the expected-image
+generation workflow.
 
 An entry name is deterministic:
 
@@ -371,6 +372,10 @@ lowercase MD5 of DUnitX ITestInfo.FullName + ".png"
 
 For example, changing a fixture name, test method name, or test-case identity
 changes the full test name and therefore changes the ZIP entry name.
+
+The first hexadecimal character selects the archive: `0` or `1` uses
+`Expected-01.zip`, `2` or `3` uses `Expected-23.zip`, continuing through
+`Expected-ef.zip`. Every archive stores its PNG entries at the ZIP root.
 
 The ZIP filename is not the perceptual image hash used by a test. Normal image
 tests usually pass an expected perceptual hash and minimum similarity to
@@ -385,11 +390,11 @@ it with the MD5-based PNG filename, and never copy it into a test merely to make
 CI green.
 
 During a normal VCL/FMX run, the runner captures the last image checked by a
-test. On an image failure it can extract `Expected.zip` to a temporary
-directory, save the actual image to another temporary directory, and present
-both images in the GUI. For CI image failures, the JSON report adds the
-deterministic `expected-image` entry name so an agent can check whether the
-corresponding baseline exists in the archive.
+test. On an image failure it can extract only the matching expected-image
+archive to a temporary directory, save the actual image to another temporary
+directory, and present both images in the GUI. For CI image failures, the JSON
+report adds the deterministic `expected-image` entry name so an agent can check
+whether the corresponding baseline exists in the matching archive.
 
 ### Regenerating expected images
 
@@ -400,26 +405,27 @@ Skia_Tests_FMX.exe --ci --build-expected-images --ci-output=<absolute-json-path>
 ```
 
 `--build-expected-images` mirrors the graphical runner's "Generate expected
-images" option. The runner extracts the existing archive, updates images from
-successful image tests, and then deletes and replaces `Tests/Assets/Expected.zip`
-when the run finishes. Failed image tests can also cause their old extracted
-entry not to be written back.
+images" option. The runner extracts the existing archives, updates images from
+successful image tests, builds every replacement through a temporary ZIP, and
+then replaces the `Tests/Assets/Expected-*.zip` archive set when the run
+finishes. Failed image tests can also cause their old extracted entry not to be
+written back.
 
 Therefore:
 
 1. Never use this option merely to make a failing test pass.
-2. Never run it against the repository archive during ordinary validation.
+2. Never run it against the repository archives during ordinary validation.
 3. First copy the executable and `Assets` directory to a disposable staging
    tree and validate the generation behavior there.
-4. Regenerate the repository archive only as an intentional, explicitly
+4. Regenerate the repository archives only as an intentional, explicitly
    authorized baseline update.
 5. Review every changed image for correctness across the relevant renderer,
    backend, DPI, scale, transforms, opacity, brushes, fonts, and platform.
-6. Preserve the original archive hash and inspect the final archive contents
+6. Preserve the original archive hashes and inspect the final archive contents
    before accepting a replacement.
 
-An `expected-image` entry missing from the current ZIP is evidence to
-investigate. It is not permission to regenerate the archive automatically.
+An `expected-image` entry missing from the current archive set is evidence to
+investigate. It is not permission to regenerate the archives automatically.
 
 ## Add or change tests
 
@@ -595,16 +601,16 @@ For every requested target, retain or report:
 | Result | Process exit code plus parsed XML or JSON |
 | Tests | Aggregate counts and names/messages of failures, errors, or leaks |
 | Benchmark | All raw JSON runs and the comparison method |
-| Images | Expected entry name, actual failure message/hash, and whether the ZIP entry exists |
+| Images | Expected entry name, actual failure message/hash, and whether the archive entry exists |
 
 Before handing off source or project-file changes, also run:
 
 ```powershell
 git status --short
 git -c core.whitespace=cr-at-eol diff --check
-git diff -- Tests/Assets/Expected.zip
+git diff -- Tests/Assets/Expected.zip 'Tests/Assets/Expected-*.zip'
 ```
 
 Confirm that unrelated checkout changes were preserved, no project set was
-missed, and `Expected.zip` did not change unless an intentional baseline update
-was explicitly in scope.
+missed, and the expected-image archives did not change unless an intentional
+baseline update was explicitly in scope.
