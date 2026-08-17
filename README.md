@@ -603,26 +603,27 @@ A small selection of projects that demonstrate what can be built with **Skia4Del
 
 ## Supported RAD Studio Versions
 
-| RAD Studio                        | Platforms                          |
-| --------------------------------- | ---------------------------------- |
-| RAD Studio 11 Alexandria or newer | All Platforms                      |
-| RAD Studio 10.4 Sydney            | Win32, Win64, Android32, Android64 |
-| RAD Studio XE7 or newer           | Win32, Win64                       |
-  
+| RAD Studio                        | Platforms                                                        |
+| --------------------------------- | ---------------------------------------------------------------- |
+| RAD Studio 12 Athens or newer     | All Platforms                                                    |
+| RAD Studio 11 Alexandria          | Win32, Win64, Linux64, iOSDevice64, iOSSimARM64, OSX64, OSXARM64 |
+| RAD Studio XE7 or newer           | Win32, Win64                                                     |
+
 
 ## Supported Platforms
 
-| OS             | Version Requirement     |
-| -------------- | ----------------------- |
-| Windows        | 7, 8, 10, 11                  |
+| OS             | Version Requirement                                            |
+| -------------- | -------------------------------------------------------------- |
+| Windows        | 7, 8, 10, 11                                                   |
 | Linux (x86_64) | Ubuntu 20+, Debian 11+, Fedora 32+, RHEL 9+, Amazon Linux 2023 |
-| macOS (x86_64) | 10.15 or later          |
-| macOS (arm64)  | 11 or later             |
-| iOS            | 12 or later             |
-| Android        | 5.0 (Lollipop) or later |
+| macOS (x86_64) | 11 or later                                                    |
+| macOS (arm64)  | 11 or later                                                    |
+| iOS            | 13 or later                                                    |
+| Android        | 5.0 (Lollipop) or later                                        |
 
 **Notes:**
 - In projects compiled for Apple targets (macOS, iOS), you may encounter a warning similar to: **was built for newer version (X) than being linked (Y)**. This indicates that you need to set the minimum deployment version for macOS or iOS in Project Options - `Project Options > Building > Delphi Compiler > Linking > Minimum (iOS|macOS) version supported`;
+- Windows 7 and 8 are supported only on Win32 target;
 - On Linux, `libsk4d.so` requires Fontconfig, zlib and an OpenGL runtime. Install any missing packages with:
 
     **Ubuntu / Debian:**
@@ -643,8 +644,8 @@ The APIs are very similar to Skia's, few methods and functions have been renamed
 
 **[Skia4Delphi 7.3.0](/../../releases/latest)**
 
-Skia Version used: [chrome/m132](https://github.com/google/skia/tree/chrome/m132)
-What has changed from the original code? [Compare.](https://github.com/google/skia/compare/chrome/m132...skia4delphi:skia:sk4d/m132)
+Skia Version used: [chrome/m151](https://github.com/google/skia/tree/chrome/m151)
+What has changed from the original code? [Compare.](https://github.com/google/skia/compare/chrome/m151...skia4delphi:skia:sk4d/m151)
 
 # Sponsors & Partners
 

@@ -7,13 +7,7 @@
       "IsDirectory" : false,
       "IncludeSubDirectories" : false
     }],
-  "Android" : [{
-      "LocalName" : "..\\..\\Assets\\bee.jpg",
-      "RemoteDir" : "assets\\internal\\",
-      "Configurations" : [],
-      "IsDirectory" : false,
-      "IncludeSubDirectories" : false
-    }],
+  "Android" : [],
   "MacOS" : [{
       "LocalName" : "..\\..\\Assets\\bee.jpg",
       "RemoteDir" : "Contents\\Resources\\",

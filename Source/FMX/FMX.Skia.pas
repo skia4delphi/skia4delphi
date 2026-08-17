@@ -1433,6 +1433,8 @@ const
     {$IFDEF MACOS}TSkFontSlant.Italic{$ELSE}TSkFontSlant.Oblique{$ENDIF});
   SkFontWeightValue: array[TFontWeight] of Integer = (100, 200, 300, 350, 400, 500, 600, 700, 800, 900, 950);
   SkFontWidthValue: array[TFontStretch] of Integer = (1, 2, 3, 4, 5, 6, 7, 8, 9);
+  /// <summary> Largest drawing cache we are willing to allocate, in pixels. </summary>
+  MaxDrawCacheArea = 8192 * 8192;
 
 resourcestring
   ControlExceededBitmapLimitWarning = 'A control has exceeded the size allowed for a bitmap (class %s, name "%s"). We will reduce the drawing quality to avoid this exception. Consider using "GlobalUseSkia := True" to avoid this kind of problem.';
@@ -1984,8 +1986,16 @@ var
   LMaxBitmapSize: Integer;
   LSceneScale: Single;
 begin
+  if Assigned(Scene) then
+    LSceneScale := Scene.GetSceneScale
+  else
+    LSceneScale := 1;
+  LAbsoluteScale := AbsoluteScale;
+  LAbsoluteSize := TSize.Create(Integer(Round(Width * LAbsoluteScale.X * LSceneScale)), Integer(Round(Height * LAbsoluteScale.Y * LSceneScale)));
+
   if ((FDrawCacheKind = TSkDrawCacheKind.Never) and (Canvas is TSkCanvasCustom)) or
-    ((FDrawCacheKind = TSkDrawCacheKind.Raster) and (Canvas is TGrCanvas)) then
+    ((FDrawCacheKind = TSkDrawCacheKind.Raster) and (Canvas is TGrCanvas)) or
+    ((Canvas is TSkCanvasCustom) and (Int64(LAbsoluteSize.Width) * LAbsoluteSize.Height > MaxDrawCacheArea)) then
   begin
     Draw(TSkCanvasCustom(Canvas).Canvas, LocalRect, AbsoluteOpacity);
     if Assigned(FOnDraw) then
@@ -1994,18 +2004,17 @@ begin
   end
   else
   begin
-    if Assigned(Scene) then
-      LSceneScale := Scene.GetSceneScale
-    else
-      LSceneScale := 1;
-    LAbsoluteScale := AbsoluteScale;
-    LAbsoluteSize := TSize.Create(Integer(Round(Width * LAbsoluteScale.X * LSceneScale)), Integer(Round(Height * LAbsoluteScale.Y * LSceneScale)));
-
     LMaxBitmapSize := Canvas.GetAttribute(TCanvasAttribute.MaxBitmapSize);
-    if (LAbsoluteSize.Width > LMaxBitmapSize) or (LAbsoluteSize.Height > LMaxBitmapSize) then
+    if (LAbsoluteSize.Width > LMaxBitmapSize) or (LAbsoluteSize.Height > LMaxBitmapSize) or
+      (Int64(LAbsoluteSize.Width) * LAbsoluteSize.Height > MaxDrawCacheArea) then
     begin
       LAbsoluteBimapSize := RectF(0, 0, LAbsoluteSize.Width, LAbsoluteSize.Height)
         .FitInto(RectF(0, 0, LMaxBitmapSize, LMaxBitmapSize), LExceededRatio).Size.Round;
+      while Int64(LAbsoluteBimapSize.Width) * LAbsoluteBimapSize.Height > MaxDrawCacheArea do
+      begin
+        LExceededRatio := LExceededRatio * 2;
+        LAbsoluteBimapSize := TSize.Create(Max(1, LAbsoluteBimapSize.Width div 2), Max(1, LAbsoluteBimapSize.Height div 2));
+      end;
       if NeedsRedraw or (FBuffer = nil) or (TSize.Create(FBuffer.Width, FBuffer.Height) <> LAbsoluteBimapSize) then
         Log.d(Format(ControlExceededBitmapLimitWarning, [ClassName, Name]));
     end
@@ -2102,8 +2111,17 @@ var
   LMaxBitmapSize: Integer;
   LSceneScale: Single;
 begin
+  if Assigned(Scene) then
+    LSceneScale := Scene.GetSceneScale
+  else
+    LSceneScale := 1;
+  LAbsoluteScale := AbsoluteScale;
+  LAbsoluteSize := TSize.Create(Integer(Round(Width * LAbsoluteScale.X * LSceneScale)),
+    Integer(Round(Height * LAbsoluteScale.Y * LSceneScale)));
+
   if ((FDrawCacheKind = TSkDrawCacheKind.Never) and (Canvas is TSkCanvasCustom)) or
-    ((FDrawCacheKind = TSkDrawCacheKind.Raster) and (Canvas is TGrCanvas)) then
+    ((FDrawCacheKind = TSkDrawCacheKind.Raster) and (Canvas is TGrCanvas)) or
+    ((Canvas is TSkCanvasCustom) and (Int64(LAbsoluteSize.Width) * LAbsoluteSize.Height > MaxDrawCacheArea)) then
   begin
     Draw(TSkCanvasCustom(Canvas).Canvas, LocalRect, AbsoluteOpacity);
     if Assigned(FOnDraw) then
@@ -2112,19 +2130,17 @@ begin
   end
   else
   begin
-    if Assigned(Scene) then
-      LSceneScale := Scene.GetSceneScale
-    else
-      LSceneScale := 1;
-    LAbsoluteScale := AbsoluteScale;
-    LAbsoluteSize := TSize.Create(Integer(Round(Width * LAbsoluteScale.X * LSceneScale)),
-      Integer(Round(Height * LAbsoluteScale.Y * LSceneScale)));
-
     LMaxBitmapSize := Canvas.GetAttribute(TCanvasAttribute.MaxBitmapSize);
-    if (LAbsoluteSize.Width > LMaxBitmapSize) or (LAbsoluteSize.Height > LMaxBitmapSize) then
+    if (LAbsoluteSize.Width > LMaxBitmapSize) or (LAbsoluteSize.Height > LMaxBitmapSize) or
+      (Int64(LAbsoluteSize.Width) * LAbsoluteSize.Height > MaxDrawCacheArea) then
     begin
       LAbsoluteBimapSize := RectF(0, 0, LAbsoluteSize.Width, LAbsoluteSize.Height)
         .FitInto(RectF(0, 0, LMaxBitmapSize, LMaxBitmapSize), LExceededRatio).Size.Round;
+      while Int64(LAbsoluteBimapSize.Width) * LAbsoluteBimapSize.Height > MaxDrawCacheArea do
+      begin
+        LExceededRatio := LExceededRatio * 2;
+        LAbsoluteBimapSize := TSize.Create(Max(1, LAbsoluteBimapSize.Width div 2), Max(1, LAbsoluteBimapSize.Height div 2));
+      end;
       if NeedsRedraw or (FBuffer = nil) or (TSize.Create(FBuffer.Width, FBuffer.Height) <> LAbsoluteBimapSize) then
         Log.d(Format(ControlExceededBitmapLimitWarning, [ClassName, Name]));
     end

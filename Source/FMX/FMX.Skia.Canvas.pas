@@ -526,6 +526,10 @@ uses
   { Workarounds }
   {$IF DEFINED(MSWINDOWS)}
   FMX.Helpers.Win,
+  {$IF DEFINED(SKIA_VULKAN)}
+  Winapi.Vulkan,
+  System.Vulkan,
+  {$ENDIF}
   {$ELSEIF DEFINED(MACOS)}
   FMX.Context.Metal,
   FMX.Types3D,
@@ -560,6 +564,10 @@ uses
   Posix.SysMman,
   Posix.Unistd,
   System.Rtti,
+  {$IF DEFINED(SKIA_VULKAN)}
+  Androidapi.Vulkan,
+  System.Vulkan,
+  {$ENDIF}
   {$ENDIF}
 
   { Skia }
@@ -579,6 +587,127 @@ uses
   FMX.Skia.Canvas.GL,
   FMX.Skia.Canvas.Metal,
   System.Skia.API;
+
+{$REGION ' - Workaround Skia Vulkan version check'}
+// - ---------------------------------------------------------------------------
+// - WORKAROUND
+// - ---------------------------------------------------------------------------
+// -
+// - Description:
+// -   RAD Studio 12 and RAD Studio 13.0/13.1 do not check the Vulkan 1.1
+// -   requirement imposed by the Skia m139.
+// -
+// - ---------------------------------------------------------------------------
+{$IF (CompilerVersion = 36) or ((CompilerVersion = 37) and not DECLARED(RTLVersion132))}
+{$IF DEFINED(SKIA_VULKAN) and (DEFINED(ANDROID) or DEFINED(MSWINDOWS))}
+type
+  { TSkiaVulkanVersionCheckWorkaround }
+
+  TSkiaVulkanVersionCheckWorkaround = record
+  strict private
+    class function IsSkiaVulkanSupported: Boolean; static;
+  public
+    class procedure Apply; static;
+  end;
+
+class procedure TSkiaVulkanVersionCheckWorkaround.Apply;
+begin
+  if GlobalUseVulkan and not IsSkiaVulkanSupported then
+    GlobalUseVulkan := False;
+end;
+
+class function TSkiaVulkanVersionCheckWorkaround.IsSkiaVulkanSupported: Boolean;
+const
+  MinSkiaVulkanApiVersion = $00401000; // Vulkan 1.1.0
+var
+  LApiVersion: Cardinal;
+  LApplicationInfo: VkApplicationInfo;
+  LCount: Cardinal;
+  LCreateInstance: PFN_vkCreateInstance;
+  LDestroyInstance: PFN_vkDestroyInstance;
+  LEnumerateInstanceVersion: PFN_vkEnumerateInstanceVersion;
+  LEnumeratePhysicalDevices: PFN_vkEnumeratePhysicalDevices;
+  LGetInstanceProcAddr: PFN_vkGetInstanceProcAddr;
+  LGetPhysicalDeviceProperties: PFN_vkGetPhysicalDeviceProperties;
+  LInstance: VkInstance;
+  LInstanceCreateInfo: VkInstanceCreateInfo;
+  LLibraryHandle: HMODULE;
+  LPhysicalDeviceProperties: VkPhysicalDeviceProperties;
+  LPhysicalDevices: TArray<VkPhysicalDevice>;
+begin
+  Result := False;
+  {$IFDEF ANDROID}
+  LLibraryHandle := SafeLoadLibrary('libvulkan.so');
+  if LLibraryHandle = 0 then
+    LLibraryHandle := SafeLoadLibrary('libvulkan.so.1');
+  {$ELSE}
+  LLibraryHandle := SafeLoadLibrary('vulkan-1.dll');
+  {$ENDIF}
+  if LLibraryHandle = 0 then
+    Exit;
+  try
+    LGetInstanceProcAddr := PFN_vkGetInstanceProcAddr(GetProcAddress(LLibraryHandle, 'vkGetInstanceProcAddr'));
+    if not Assigned(LGetInstanceProcAddr) then
+      Exit;
+    LEnumerateInstanceVersion := PFN_vkEnumerateInstanceVersion(LGetInstanceProcAddr(VK_NULL_HANDLE, 'vkEnumerateInstanceVersion'));
+    if not Assigned(LEnumerateInstanceVersion) then
+      Exit;
+    if LEnumerateInstanceVersion(@LApiVersion) <> VK_SUCCESS then
+      Exit;
+    if LApiVersion < MinSkiaVulkanApiVersion then
+      Exit;
+    LCreateInstance := PFN_vkCreateInstance(LGetInstanceProcAddr(VK_NULL_HANDLE, 'vkCreateInstance'));
+    if not Assigned(LCreateInstance) then
+      Exit;
+    LApplicationInfo.sType              := VK_STRUCTURE_TYPE_APPLICATION_INFO;
+    LApplicationInfo.pNext              := nil;
+    LApplicationInfo.pApplicationName   := nil;
+    LApplicationInfo.applicationVersion := 0;
+    LApplicationInfo.pEngineName        := nil;
+    LApplicationInfo.engineVersion      := 0;
+    LApplicationInfo.apiVersion         := MinSkiaVulkanApiVersion;
+    LInstanceCreateInfo.sType                   := VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
+    LInstanceCreateInfo.pNext                   := nil;
+    LInstanceCreateInfo.flags                   := 0;
+    LInstanceCreateInfo.pApplicationInfo        := @LApplicationInfo;
+    LInstanceCreateInfo.enabledLayerCount       := 0;
+    LInstanceCreateInfo.ppEnabledLayerNames     := nil;
+    LInstanceCreateInfo.enabledExtensionCount   := 0;
+    LInstanceCreateInfo.ppEnabledExtensionNames := nil;
+    if LCreateInstance(@LInstanceCreateInfo, nil, @LInstance) <> VK_SUCCESS then
+      Exit;
+    LDestroyInstance := PFN_vkDestroyInstance(LGetInstanceProcAddr(LInstance, 'vkDestroyInstance'));
+    if not Assigned(LDestroyInstance) then
+      Exit;
+    try
+      LEnumeratePhysicalDevices := PFN_vkEnumeratePhysicalDevices(LGetInstanceProcAddr(LInstance, 'vkEnumeratePhysicalDevices'));
+      if not Assigned(LEnumeratePhysicalDevices) then
+        Exit;
+      if LEnumeratePhysicalDevices(LInstance, @LCount, nil) <> VK_SUCCESS then
+        Exit;
+      if LCount = 0 then
+        Exit;
+      SetLength(LPhysicalDevices, LCount);
+      if LEnumeratePhysicalDevices(LInstance, @LCount, Pointer(LPhysicalDevices)) <> VK_SUCCESS then
+        Exit;
+      if LCount = 0 then
+        Exit;
+      LGetPhysicalDeviceProperties := PFN_vkGetPhysicalDeviceProperties(LGetInstanceProcAddr(LInstance, 'vkGetPhysicalDeviceProperties'));
+      if not Assigned(LGetPhysicalDeviceProperties) then
+        Exit;
+      LGetPhysicalDeviceProperties(LPhysicalDevices[0], @LPhysicalDeviceProperties);
+      Result := LPhysicalDeviceProperties.apiVersion >= MinSkiaVulkanApiVersion;
+    finally
+      LDestroyInstance(LInstance, nil);
+    end;
+  finally
+    {$IFDEF MSWINDOWS}Winapi.Windows{$ELSE}System.SysUtils{$ENDIF}.FreeLibrary(LLibraryHandle);
+  end;
+end;
+{$ENDIF}
+{$ENDIF}
+// - ---------------------------------------------------------------------------
+{$ENDREGION}
 
 {$REGION ' - Workaround RSP-36957'}
 // - ---------------------------------------------------------------------------
@@ -4373,6 +4502,9 @@ begin
     begin
       {$IFDEF SKIA_RASTER}
       RegisterSkiaRenderCanvas(TSkRasterCanvas, {$IF DEFINED(MSWINDOWS)}GlobalUseSkiaRasterWhenAvailable{$ELSE}False{$ENDIF});
+      {$ENDIF}
+      {$IF DECLARED(TSkiaVulkanVersionCheckWorkaround)}
+      TSkiaVulkanVersionCheckWorkaround.Apply;
       {$ENDIF}
       for LRenderCanvas in RenderCanvas do
       begin

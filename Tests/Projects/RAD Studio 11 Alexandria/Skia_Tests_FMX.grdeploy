@@ -7,13 +7,7 @@
       "IsDirectory" : true,
       "IncludeSubDirectories" : true
     }],
-  "Android" : [{
-      "LocalName" : "..\\..\\Assets",
-      "RemoteDir" : "assets\\internal\\",
-      "Configurations" : [],
-      "IsDirectory" : true,
-      "IncludeSubDirectories" : true
-    }],
+  "Android" : [],
   "MacOS" : [{
       "LocalName" : "..\\..\\Assets",
       "RemoteDir" : "Contents\\Resources\\",
