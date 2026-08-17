@@ -4,26 +4,14 @@
 
 ## Prerequisites
 
-### RAD Studio XE7 or newer
+### RAD Studio XE7 to RAD Studio 10.4 Sydney
 
   - Console / VCL / FMX application platforms:
       - Windows 32-bit
       - Windows 64-bit
 
 
-### RAD Studio 10.4 or newer
-
-  - Console / VCL aplication platforms:
-      - Windows 32-bit
-      - Windows 64-bit
-  - FMX aplication platforms:
-      - Windows 32-bit
-      - Windows 64-bit
-      - Android 32-bit
-      - Android 64-bit
-
-
-### RAD Studio 11 Alexandria or newer
+### RAD Studio 11 Alexandria
 
   - Console aplication platforms:
       - Windows 32-bit
@@ -37,6 +25,53 @@
   - FMX aplication platforms:
       - Windows 32-bit
       - Windows 64-bit
+      - iOS Device 64-bit
+      - iOS Simulator ARM 64-bit
+      - MacOS 64-bit
+      - MacOS ARM 64-bit
+      - Linux 64-bit
+
+
+### RAD Studio 12 Athens
+
+  - Console aplication platforms:
+      - Windows 32-bit
+      - Windows 64-bit
+      - MacOS 64-bit
+      - MacOS ARM 64-bit
+      - Linux 64-bit
+  - VCL aplication platforms:
+      - Windows 32-bit
+      - Windows 64-bit
+  - FMX aplication platforms:
+      - Windows 32-bit
+      - Windows 64-bit
+      - Android 32-bit
+      - Android 64-bit
+      - iOS Device 64-bit
+      - iOS Simulator ARM 64-bit
+      - MacOS 64-bit
+      - MacOS ARM 64-bit
+      - Linux 64-bit
+
+
+### RAD Studio 13 Florence or newer
+
+  - Console aplication platforms:
+      - Windows 32-bit
+      - Windows 64-bit
+      - Windows on Arm 64-bit (EC)
+      - MacOS 64-bit
+      - MacOS ARM 64-bit
+      - Linux 64-bit
+  - VCL aplication platforms:
+      - Windows 32-bit
+      - Windows 64-bit
+      - Windows on Arm 64-bit (EC)
+  - FMX aplication platforms:
+      - Windows 32-bit
+      - Windows 64-bit
+      - Windows on Arm 64-bit (EC)
       - Android 32-bit
       - Android 64-bit
       - iOS Device 64-bit
@@ -166,7 +201,7 @@ Installation can be done automatically or manually.
     - `$(SKIADIR)\Library\[rad_version_name]\[platform_name]\Debug`
       *eg $(SKIADIR)\Library\RAD Studio 13 Florence\Win32\Debug*
     
-    11.4. For the platforms **Android**, **Android64**, **iOSDevice64**, **iOSSimARM64**, **OSX64** and **OSX64ARM**, add an extra path to the *Library path* (if you had compiled for those platforms):
+    11.4. For the platforms **Android**, **Android64**, **iOSDevice64**, **iOSSimARM64**, **OSX64** and **OSXARM64**, add an extra path to the *Library path* (if you had compiled for those platforms):
     - `$(SKIADIR)\Binary\Static\[platform_name]`
     
 12. Click *Save*;

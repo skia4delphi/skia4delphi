@@ -224,19 +224,14 @@ type
     {$IF CompilerVersion < 28} // Below RAD Studio XE7
     CBuilderSupportedPlatforms = [];
     DelphiSupportedPlatforms = [];
-    {$ELSEIF CompilerVersion <= 33} // RAD Studio XE7 to RAD Studio 10.3 Rio
+    {$ELSEIF CompilerVersion <= 34} // RAD Studio XE7 to RAD Studio 10.4 Sydney
     CBuilderSupportedPlatforms = [TSkProjectPlatform.Win32, TSkProjectPlatform.Win64];
     DelphiSupportedPlatforms = [TSkProjectPlatform.Win32, TSkProjectPlatform.Win64];
-    {$ELSEIF CompilerVersion <= 34} // RAD Studio 10.4 Sydney
-    CBuilderSupportedPlatforms = [TSkProjectPlatform.Win32, TSkProjectPlatform.Win64, TSkProjectPlatform.Android];
-    DelphiSupportedPlatforms = [TSkProjectPlatform.Win32, TSkProjectPlatform.Win64, TSkProjectPlatform.Android,
-      TSkProjectPlatform.Android64];
     {$ELSEIF CompilerVersion <= 35} // RAD Studio 11 Alexandria
-    CBuilderSupportedPlatforms = [TSkProjectPlatform.Win32, TSkProjectPlatform.Win64, TSkProjectPlatform.Android,
-      TSkProjectPlatform.iOSDevice64];
-    DelphiSupportedPlatforms = [TSkProjectPlatform.Win32, TSkProjectPlatform.Win64, TSkProjectPlatform.Android,
-      TSkProjectPlatform.Android64, TSkProjectPlatform.iOSDevice64, TSkProjectPlatform.iOSSimARM64,
-      TSkProjectPlatform.OSX64, TSkProjectPlatform.OSXARM64, TSkProjectPlatform.Linux64];
+    CBuilderSupportedPlatforms = [TSkProjectPlatform.Win32, TSkProjectPlatform.Win64, TSkProjectPlatform.iOSDevice64];
+    DelphiSupportedPlatforms = [TSkProjectPlatform.Win32, TSkProjectPlatform.Win64, TSkProjectPlatform.iOSDevice64,
+      TSkProjectPlatform.iOSSimARM64, TSkProjectPlatform.OSX64, TSkProjectPlatform.OSXARM64,
+      TSkProjectPlatform.Linux64];
     {$ELSEIF (CompilerVersion < 37) or ((CompilerVersion = 37) and NOT DECLARED(RTLVersion131))} // RAD Studio 12 Athens to RAD Studio 13.0 Florence
     CBuilderSupportedPlatforms = [TSkProjectPlatform.Win32, TSkProjectPlatform.Win64, TSkProjectPlatform.Win64x];
     DelphiSupportedPlatforms = [TSkProjectPlatform.Win32, TSkProjectPlatform.Win64, TSkProjectPlatform.Win64x,

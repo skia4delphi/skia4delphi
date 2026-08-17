@@ -32,10 +32,11 @@ uses
   System.Skia;
 
 const
-  {$IF CompilerVersion < 33}
+  {$IF CompilerVersion < 35}
   SkSupportedPlatformsMask = pidWin32 or pidWin64;
-  {$ELSEIF CompilerVersion < 35}
-  SkSupportedPlatformsMask = pidWin32 or pidWin64 or pidAndroid32Arm or pidAndroid64Arm;
+  {$ELSEIF CompilerVersion = 35}
+  SkSupportedPlatformsMask = pidWin32 or pidWin64 or pidLinux64 or pidOSX64 or pidOSXArm64 or
+    pidiOSDevice64 or pidiOSSimulatorArm64;
   {$ELSE}
   SkSupportedPlatformsMask = pidAllPlatforms;
   {$ENDIF}
