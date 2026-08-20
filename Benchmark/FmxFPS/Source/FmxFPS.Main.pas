@@ -17,9 +17,10 @@ interface
 uses
   { Delphi }
   System.SysUtils, System.Types, System.UITypes, System.Classes,
-  System.Diagnostics, System.TypInfo, FMX.Types, FMX.Controls, FMX.Forms,
+  System.TypInfo, FMX.Types, FMX.Controls, FMX.Forms,
   FMX.Graphics, FMX.StdCtrls, FMX.Objects, FMX.Layouts, FMX.Memo, FMX.Dialogs,
-  FMX.Controls.Presentation, FMX.Edit, FMX.ListBox, FMX.Effects, FMX.Filter.Effects;
+  FMX.Controls.Presentation, FMX.Edit, FMX.ListBox, FMX.Effects, FMX.Filter.Effects,
+  FmxFPS.Diagnostics;
 
 type
   { TVertScrollBox }
@@ -41,16 +42,15 @@ type
   private
     FCIMode: Boolean;
     FCIOutputFileName: string;
+    FDiagnostics: IBenchmarkDiagnostics;
     FNextScrollUp: Boolean;
-    FPaintCount: Int64;
     FRunning: Boolean;
-    FStopwatch: TStopwatch;
     function CreateControl(const AControlNumber, ATotalOfControls: Integer): TControl;
     function GetRenderName: string;
     class procedure ShowMessage(const AMessage: string; const ACloseDialogProc: TProc = nil); static;
     procedure SimulateScrollDown;
     procedure SimulateScrollUp;
-    procedure WriteCIResult(const AFPS, ADurationSeconds: Double);
+    procedure WriteCIResult;
   protected
     procedure DoPaint(const ACanvas: TCanvas; const ARect: TRectF); override;
   end;
@@ -260,18 +260,17 @@ procedure TfrmMain.DoPaint(const ACanvas: TCanvas; const ARect: TRectF);
 begin
   if FRunning then
   begin
-    if FPaintCount = 0 then
+    FDiagnostics.RecordFrame;
+    if FDiagnostics.PaintCount = 1 then
     begin
       {$IF CompilerVersion < 29}
       vsbContent.ViewportPosition := PointF(0, vsbContent.ContentBounds.Height * 0.3);
       {$ELSE}
       vsbContent.ScrollBy(0, -vsbContent.ContentBounds.Height * 0.3);
       {$ENDIF}
-      FStopwatch := TStopwatch.StartNew;
       tmrSimulateScroll.Enabled := True;
       tmrSimulateScrollTimer(nil);
     end;
-    Inc(FPaintCount);
   end;
   inherited;
 end;
@@ -284,6 +283,7 @@ var
   LControl: TControl;
   I: Integer;
 begin
+  FDiagnostics := CreateBenchmarkDiagnostics;
   FCIMode := FindCmdLineSwitch('ci', True) or FindCmdLineSwitch('-ci', True);
   if FCIMode then
     FCIOutputFileName := BenchmarkCIOutputFileName;
@@ -483,25 +483,17 @@ begin
 end;
 
 procedure TfrmMain.tmrSimulateScrollTimer(Sender: TObject);
-var
-  LDurationSeconds: Double;
-  LFPS: Double;
 begin
-  if FStopwatch.ElapsedMilliseconds > BenchmarkDurationMilliseconds then
+  if FDiagnostics.ElapsedMilliseconds > BenchmarkDurationMilliseconds then
   begin
-    FStopwatch.Stop;
     FRunning := False;
+    FDiagnostics.Stop;
     tmrSimulateScroll.Enabled := False;
     vsbContent.HitTest := True;
-    LDurationSeconds := FStopwatch.Elapsed.TotalSeconds;
-    if LDurationSeconds > 0 then
-      LFPS := FPaintCount / LDurationSeconds
-    else
-      LFPS := 0;
     if FCIMode then
     begin
       try
-        WriteCIResult(LFPS, LDurationSeconds);
+        WriteCIResult;
         System.ExitCode := 0;
       except
         System.ExitCode := 2;
@@ -512,15 +504,16 @@ begin
     {$IFDEF SKIA}
     if GlobalUseSkia then
     begin
-      ShowMessage(Format('Skia render (%s): %g fps' + sLineBreak + 'Form.Quality: %s' + sLineBreak + sLineBreak +
+      ShowMessage(Format('Skia render (%s)' + sLineBreak + 'Form.Quality: %s' + sLineBreak + '%s' +
+        sLineBreak + sLineBreak +
         'To compare the results with the firemonkey''s default canvas, just remove the line "GlobalUseSkia := True" ' +
-        'from the .dpr file of project.', [GetRenderName, LFPS,
-        GetEnumName(TypeInfo(TCanvasQuality), Ord(Self.Quality))]))
+        'from the .dpr file of project.', [GetRenderName,
+        GetEnumName(TypeInfo(TCanvasQuality), Ord(Self.Quality)), FDiagnostics.Summary]))
     end
     else
     {$ENDIF}
-      ShowMessage(Format('FMX render (%s): %g fps' + sLineBreak + 'Form.Quality: %s', [GetRenderName,
-        LFPS, GetEnumName(TypeInfo(TCanvasQuality), Ord(Self.Quality))]));
+      ShowMessage(Format('FMX render (%s)' + sLineBreak + 'Form.Quality: %s' + sLineBreak + '%s',
+        [GetRenderName, GetEnumName(TypeInfo(TCanvasQuality), Ord(Self.Quality)), FDiagnostics.Summary]));
   end
   else if FNextScrollUp then
     SimulateScrollUp
@@ -529,7 +522,7 @@ begin
   FNextScrollUp := not FNextScrollUp;
 end;
 
-procedure TfrmMain.WriteCIResult(const AFPS, ADurationSeconds: Double);
+procedure TfrmMain.WriteCIResult;
 var
   LDirectoryName: string;
   LRenderer: string;
@@ -548,9 +541,7 @@ begin
     LRootObject.AddPair('renderer', LRenderer);
     LRootObject.AddPair('canvas', GetRenderName);
     LRootObject.AddPair('quality', GetEnumName(TypeInfo(TCanvasQuality), Ord(Self.Quality)));
-    LRootObject.AddPair('fps', TJSONNumber.Create(AFPS));
-    LRootObject.AddPair('paint_count', TJSONNumber.Create(FPaintCount));
-    LRootObject.AddPair('duration_seconds', TJSONNumber.Create(ADurationSeconds));
+    FDiagnostics.WriteTo(LRootObject);
     LRootObject.AddPair('controls', TJSONNumber.Create(BenchmarkControlsCount));
     LRootObject.AddPair('scroll_height', TJSONNumber.Create(BenchmarkTotalScrollHeight));
     LDirectoryName := ExtractFilePath(FCIOutputFileName);
@@ -566,6 +557,7 @@ procedure TfrmMain.tmrStartTimer(Sender: TObject);
 begin
   tmrStart.Enabled := False;
   FRunning := True;
+  FDiagnostics.Start;
   Invalidate;
 end;
 

@@ -342,6 +342,7 @@
         <DelphiCompile Include="$(MainSource)">
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
+        <DCCReference Include="..\..\Source\FmxFPS.Diagnostics.pas"/>
         <DCCReference Include="..\..\Source\FmxFPS.Main.pas">
             <Form>frmMain</Form>
             <FormType>fmx</FormType>

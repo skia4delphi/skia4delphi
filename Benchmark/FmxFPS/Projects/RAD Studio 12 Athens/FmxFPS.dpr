@@ -7,6 +7,7 @@ uses
   {$IFDEF SKIA}
   FMX.Skia,
   {$ENDIF}
+  FmxFPS.Diagnostics in '..\..\Source\FmxFPS.Diagnostics.pas',
   FmxFPS.Main in '..\..\Source\FmxFPS.Main.pas' {frmMain};
 
 {$R *.res}

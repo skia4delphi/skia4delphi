@@ -1,4 +1,4 @@
-﻿<!--
+<!--
  Copyright (c) 2021-2026 Skia4Delphi Project.
 
  Use of this source code is governed by the MIT license that can be
@@ -305,6 +305,7 @@
         <DelphiCompile Include="$(MainSource)">
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
+        <DCCReference Include="..\..\Source\FmxFPS.Diagnostics.pas"/>
         <DCCReference Include="..\..\Source\FmxFPS.Main.pas">
             <Form>frmMain</Form>
             <FormType>fmx</FormType>
