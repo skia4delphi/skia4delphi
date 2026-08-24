@@ -18,7 +18,7 @@ uses
 type
   TSkHtmlLinkClickEvent = procedure(Sender: TObject; const HRef: string) of object;
 
-  [ComponentPlatformsAttribute(pfidWindows or pidOSX64 or pidOSXARM64)]
+  [ComponentPlatforms(SkSupportedPlatformsMask)]
   TSkHtmlLabel = class(TSkLabel)
   private
     FHTMLText: string;
