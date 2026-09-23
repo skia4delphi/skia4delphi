@@ -4623,13 +4623,13 @@ begin
     if FOldTextSettings <> nil then
       FOldTextSettings.Assign(FTextSettings);
   end;
-  if Assigned(FOnChange) then
-    FOnChange(Self);
 end;
 
 procedure TSkTextSettingsInfo.OnCalculatedTextSettings(ASender: TObject);
 begin
   DoCalculatedTextSettings;
+  if Assigned(FOnChange) then
+    FOnChange(Self);
 end;
 
 procedure TSkTextSettingsInfo.OnDefaultChanged(ASender: TObject);
@@ -5288,7 +5288,7 @@ begin
       ResultingTextSettings.Change;
     finally
       ResultingTextSettings.EndUpdate;
-      FTextSettingsInfo.Design := True;//csDesigning in ComponentState;
+      FTextSettingsInfo.Design := csDesigning in ComponentState;
     end;
     if AutoTranslate and not Text.IsEmpty then
     begin
@@ -5332,7 +5332,7 @@ begin
   FAutoSize := True;
   AutoTranslate := True;
   FTextSettingsInfo := TSkTextSettingsInfo.Create(Self, nil);
-  FTextSettingsInfo.Design := True;//csDesigning in ComponentState;
+  FTextSettingsInfo.Design := csDesigning in ComponentState;
   FTextSettingsInfo.OnChange := TextSettingsChanged;
   FWords := CreateWordsCollection;
   FWords.OnChange := WordsChange;
