@@ -48,6 +48,8 @@ type
     [Test]
     procedure TestConicTo;
     [Test]
+    procedure TestConsecutiveMoveToIsNotStroked;
+    [Test]
     procedure TestConstructors;
     [Test]
     procedure TestDetachResetsTheBuilder;
@@ -136,10 +138,10 @@ begin
   LPathBuilder := TSkPathBuilder.Create;
   LPathBuilder.MoveTo(0, 0);
   LPathBuilder.ArcTo(RectF(0, 0, 100, 100), 0, 90, True);
-  Assert.AreSameRect(RectF(0, 0, 100, 100), LPathBuilder.Bounds, 0.5);
+  Assert.AreSameRect(RectF(50, 50, 100, 100), LPathBuilder.Bounds, 0.5, 'With forceMoveTo the arc start replaces the previous move');
   LPath := LPathBuilder.Snapshot;
-  Assert.IsFalse(LPath.IsEmpty, 'The compatibility adapter must still produce a valid path');
-  Assert.AreSameRect(RectF(0, 0, 100, 100), LPath.Bounds, 0.5);
+  Assert.IsFalse(LPath.IsEmpty);
+  Assert.AreSameRect(RectF(50, 50, 100, 100), LPath.Bounds, 0.5);
 end;
 
 procedure TSkPathBuilderTests.TestArcToRadius;
@@ -211,6 +213,33 @@ begin
       Assert.AreEqual(2.0, LElem.ConicWeight, TEpsilon.Vector, 'The conic weight should be preserved');
     end;
   Assert.IsTrue(LFound, 'The iterator should return the conic');
+end;
+
+procedure TSkPathBuilderTests.TestConsecutiveMoveToIsNotStroked;
+var
+  LCap: TSkStrokeCap;
+  LPaint: ISkPaint;
+  LPathBuilder: ISkPathBuilder;
+begin
+  for LCap in [TSkStrokeCap.Square, TSkStrokeCap.Round] do
+  begin
+    LPaint := TSkPaint.Create(TSkPaintStyle.Stroke);
+    LPaint.StrokeWidth := 10;
+    LPaint.StrokeCap := LCap;
+
+    LPathBuilder := TSkPathBuilder.Create;
+    LPathBuilder.MoveTo(10, 10);
+    LPathBuilder.MoveTo(50, 50);
+    LPathBuilder.LineTo(90, 50);
+    Assert.AreSameRect(RectF(45, 45, 95, 55), LPaint.GetFillPath(LPathBuilder.Detach).Bounds, 0.5,
+      'A MoveTo followed by another MoveTo must not leave a dot');
+
+    LPathBuilder := TSkPathBuilder.Create;
+    LPathBuilder.MoveTo(0, 0);
+    LPathBuilder.ArcTo(RectF(0, 0, 100, 100), 0, 90, True);
+    Assert.AreSameRect(RectF(45, 45, 105, 105), LPaint.GetFillPath(LPathBuilder.Detach).Bounds, 0.5,
+      'A MoveTo followed by a forced ArcTo must not leave a dot');
+  end;
 end;
 
 procedure TSkPathBuilderTests.TestConstructors;

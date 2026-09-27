@@ -43,6 +43,7 @@ type
     procedure DrawChessBackground(ACanvas: TCanvas; ASquareSize: Single; AEvenSquareColor, AOddSquareColor: TAlphaColor);
     function StringToCorners(const ACornersString: string): TCorners;
     function StringToPolygon(APolygonString: string; const ABounds: TRectF): TPolygon;
+    function StringToSides(const ASidesString: string): TSides;
   public
     [TestCase('1', '0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
     procedure TestClear(const AMinSimilarity: Double; const AExpectedImageHash: string);
@@ -250,6 +251,35 @@ type
     procedure TestDrawBitmapWithModulateColor(const AImageFileName: string; ASurfaceWidth, ASurfaceHeight: Integer; ASurfaceScaleX, ASurfaceScaleY, ASurfaceOffsetX, ASurfaceOffsetY, ARotationDeg, ASrcLeft, ASrcTop, ASrcRight, ASrcBottom, ADestLeft, ADestTop, ADestRight, ADestBottom, AOpacity: Single; AHighSpeed, ABlending: Boolean; const AModulateColor: string; AModulateColorOpacity: Single; const AMinSimilarity: Double; const AExpectedImageHash: string);
     [TestCase('1', '3d-shapes.svg,200,200,0.98,+8u5NQADgp////l1Q0fO3///+33nR+7f//////fP79/vr++nr7cPcU0HAYO0j/Sf5J3YmMOZw/8')]
     procedure TestDrawBitmapWithModulateColor2(const AImageFileName: string; ASurfaceWidth, ASurfaceHeight: Integer; const AMinSimilarity: Double; const AExpectedImageHash: string);
+    [TestCase('1', 'Flat,1')]
+    [TestCase('2', 'Flat,4')]
+    [TestCase('3', 'Round,4')]
+    procedure TestDrawPathWithConsecutiveMoveTo(ACap: TStrokeCap; AThickness: Single);
+    [TestCase('1',  'Bottom,AllCorners,0,Round,3,Flat')]
+    [TestCase('2',  'Bottom,AllCorners,0,Round,3,Round')]
+    [TestCase('3',  'Bottom,AllCorners,0,Round,1,Flat')]
+    [TestCase('4',  'Top,AllCorners,0,Round,3,Flat')]
+    [TestCase('5',  'Left,AllCorners,0,Round,3,Flat')]
+    [TestCase('6',  'Right,AllCorners,0,Round,3,Round')]
+    [TestCase('7',  'Top|Bottom,AllCorners,0,Round,6,Flat')]
+    [TestCase('8',  'Left|Right,AllCorners,0,Round,6,Round')]
+    [TestCase('9',  'Top|Left,AllCorners,0,Round,3,Flat')]
+    [TestCase('10', 'Bottom|Right,AllCorners,0,Round,3,Round')]
+    [TestCase('11', 'Top|Left|Right,AllCorners,0,Round,3,Flat')]
+    [TestCase('12', 'Left|Bottom|Right,AllCorners,0,Round,3,Round')]
+    [TestCase('13', 'None,AllCorners,0,Round,3,Flat')]
+    [TestCase('14', 'None,None,10,Round,3,Round')]
+    [TestCase('15', 'Bottom,None,0,Round,3,Flat')]
+    [TestCase('16', 'Bottom,None,10,Round,3,Flat')]
+    [TestCase('17', 'Bottom,TopLeft|BottomRight,10,Round,3,Flat')]
+    [TestCase('18', 'Bottom,BottomLeft|BottomRight,10,Bevel,3,Flat')]
+    [TestCase('19', 'Right,TopRight|BottomRight,10,InnerRound,3,Round')]
+    [TestCase('20', 'Left,TopLeft|BottomLeft,10,InnerLine,3,Flat')]
+    [TestCase('21', 'Top,TopLeft|TopRight,10,Round,1,Flat')]
+    [TestCase('22', 'Top|Bottom,TopRight,10,Bevel,6,Round')]
+    [TestCase('23', 'Bottom,AllCorners,0,Bevel,3,Flat')]
+    [TestCase('24', 'AllSides,AllCorners,0,Round,3,Flat')]
+    procedure TestDrawRectSides(const ASidesString, ACornersString: string; ARadius: Single; ACornerType: TCornerType; AThickness: Single; ACap: TStrokeCap);
     [TestCase('1',   'horse.webp,claWhite,Tile,0,0,1,1,0,90,0.4,0.98,//////78+PD////////+/P/////////+//////////////////////////z/+P/x/+H/w/+H/w8')]
     [TestCase('2',   'horse.webp,claRed,Tile,0,0,1,1,0,90,0.4,0.98,//////78+PD////////+/P////////78////////////////////////////+P/5/+n/w/////8')]
     [TestCase('3',   'horse.webp,claWhite,Tile,0,0,1,1,0,90,1,0.98,//////78+PD////////+/P/////////+//////////////////////////z/+P/x/+H/w/+H/x8')]
@@ -3989,6 +4019,26 @@ begin
   end;
 end;
 
+function TSkFMXCanvasTests.StringToSides(const ASidesString: string): TSides;
+var
+  LString: string;
+begin
+  if SameText(ASidesString, 'AllSides') then
+    Exit(AllSides);
+  Result := [];
+  for LString in ASidesString.Split([' ', ',', '|', ';']) do
+  begin
+    if SameText(LString, 'Top') then
+      Result := Result + [TSide.Top]
+    else if SameText(LString, 'Left') then
+      Result := Result + [TSide.Left]
+    else if SameText(LString, 'Bottom') then
+      Result := Result + [TSide.Bottom]
+    else if SameText(LString, 'Right') then
+      Result := Result + [TSide.Right];
+  end;
+end;
+
 procedure TSkFMXCanvasTests.TestClear(const AMinSimilarity: Double; const AExpectedImageHash: string);
 var
   LBitmap: TBitmap;
@@ -4595,6 +4645,147 @@ begin
     Assert.AreSimilar(AExpectedImageHash, LSurface.ToSkImage, AMinSimilarity);
   finally
     LSurface.Free;
+  end;
+end;
+
+procedure TSkFMXCanvasTests.TestDrawPathWithConsecutiveMoveTo(ACap: TStrokeCap; AThickness: Single);
+
+  procedure CheckInk(const APixmap: ISkPixmap; X, Y: Integer; AExpected: Boolean);
+  begin
+    if AExpected then
+      Assert.IsTrue(TAlphaColorRec(APixmap.GetColor(X, Y)).A > 0, Format('Missing ink at (%d, %d)', [X, Y]))
+    else
+      Assert.IsTrue(TAlphaColorRec(APixmap.GetColor(X, Y)).A = 0, Format('Unexpected ink at (%d, %d)', [X, Y]));
+  end;
+
+var
+  LBitmap: TBitmap;
+  LImage: ISkImage;
+  LPath: TPathData;
+  LPixmap: ISkPixmap;
+begin
+  LBitmap := TBitmap.Create;
+  try
+    LBitmap.SetSize(100, 100);
+    LPath := TPathData.Create;
+    try
+      LPath.MoveTo(PointF(20, 20));
+      LPath.MoveTo(PointF(20, 20));
+      LPath.MoveTo(PointF(80, 20));
+      LPath.MoveTo(PointF(20, 80));
+      LPath.LineTo(PointF(80, 80));
+      LPath.MoveTo(PointF(50, 50));
+      if LBitmap.Canvas.BeginScene then
+        try
+          LBitmap.Canvas.Clear(TAlphaColors.Null);
+          LBitmap.Canvas.Stroke.Kind := TBrushKind.Solid;
+          LBitmap.Canvas.Stroke.Color := TAlphaColors.Black;
+          LBitmap.Canvas.Stroke.Thickness := AThickness;
+          LBitmap.Canvas.Stroke.Cap := ACap;
+          LBitmap.Canvas.DrawPath(LPath, 1);
+        finally
+          LBitmap.Canvas.EndScene;
+        end;
+    finally
+      LPath.Free;
+    end;
+    LImage := LBitmap.ToSkImage;
+    LPixmap := LImage.PeekPixels;
+    CheckInk(LPixmap, 20, 20, False);
+    CheckInk(LPixmap, 80, 20, False);
+    CheckInk(LPixmap, 50, 50, False);
+    CheckInk(LPixmap, 50, 80, True);
+  finally
+    LBitmap.Free;
+  end;
+end;
+
+procedure TSkFMXCanvasTests.TestDrawRectSides(const ASidesString, ACornersString: string; ARadius: Single;
+  ACornerType: TCornerType; AThickness: Single; ACap: TStrokeCap);
+const
+  L = 20;
+  T = 20;
+  R = 80;
+  B = 80;
+var
+  LBitmap: TBitmap;
+  LBottomLeft: Boolean;
+  LBottomRight: Boolean;
+  LCorners: TCorners;
+  LImage: ISkImage;
+  LPixmap: ISkPixmap;
+  LSides: TSides;
+  LTopLeft: Boolean;
+  LTopRight: Boolean;
+
+  function HasInk(const APoint: TPoint): Boolean;
+  begin
+    Result := TAlphaColorRec(LPixmap.GetColor(APoint.X, APoint.Y)).A > 0;
+  end;
+
+  function IsCornerDrawn(ACorner: TCorner; ASide1, ASide2: TSide): Boolean;
+  begin
+    // FMX also strokes the arc of a rounded corner when none of its sides is drawn (before XE8, even without radius)
+    {$IF CompilerVersion < 29}
+    Result := (ASide1 in LSides) or (ASide2 in LSides) or (ACorner in LCorners);
+    {$ELSE}
+    Result := (ASide1 in LSides) or (ASide2 in LSides) or ((ACorner in LCorners) and (ARadius > 0));
+    {$ENDIF}
+  end;
+
+  procedure CheckSide(ASide: TSide; const AStart, AEnd: TPoint; AStartCornerDrawn, AEndCornerDrawn: Boolean);
+  var
+    I: Integer;
+    LLength: Integer;
+    LMargin: Integer;
+    LPoint: TPoint;
+  begin
+    LLength := Max(AEnd.X - AStart.X, AEnd.Y - AStart.Y);
+    if ASide in LSides then
+    begin
+      LPoint := Point((AStart.X + AEnd.X) div 2, (AStart.Y + AEnd.Y) div 2);
+      Assert.IsTrue(HasInk(LPoint), Format('Missing ink at (%d, %d), in the middle of a drawn side', [LPoint.X, LPoint.Y]));
+      Exit;
+    end;
+    LMargin := Ceil(ARadius + AThickness) + 1;
+    for I := 0 to LLength do
+    begin
+      if (AStartCornerDrawn and (I <= LMargin)) or (AEndCornerDrawn and (I >= LLength - LMargin)) then
+        Continue;
+      LPoint := Point(AStart.X + (AEnd.X - AStart.X) * I div LLength, AStart.Y + (AEnd.Y - AStart.Y) * I div LLength);
+      Assert.IsFalse(HasInk(LPoint), Format('Unexpected ink at (%d, %d), on a side that is not drawn', [LPoint.X, LPoint.Y]));
+    end;
+  end;
+
+begin
+  LSides := StringToSides(ASidesString);
+  LCorners := StringToCorners(ACornersString);
+  LBitmap := TBitmap.Create;
+  try
+    LBitmap.SetSize(100, 100);
+    if LBitmap.Canvas.BeginScene then
+      try
+        LBitmap.Canvas.Clear(TAlphaColors.Null);
+        LBitmap.Canvas.Stroke.Kind := TBrushKind.Solid;
+        LBitmap.Canvas.Stroke.Color := TAlphaColors.Black;
+        LBitmap.Canvas.Stroke.Thickness := AThickness;
+        LBitmap.Canvas.Stroke.Cap := ACap;
+        LBitmap.Canvas.DrawRectSides(RectF(L, T, R, B), ARadius, ARadius, LCorners, 1, LSides, ACornerType);
+      finally
+        LBitmap.Canvas.EndScene;
+      end;
+    LImage := LBitmap.ToSkImage;
+    LPixmap := LImage.PeekPixels;
+    LTopLeft := IsCornerDrawn(TCorner.TopLeft, TSide.Top, TSide.Left);
+    LTopRight := IsCornerDrawn(TCorner.TopRight, TSide.Top, TSide.Right);
+    LBottomLeft := IsCornerDrawn(TCorner.BottomLeft, TSide.Bottom, TSide.Left);
+    LBottomRight := IsCornerDrawn(TCorner.BottomRight, TSide.Bottom, TSide.Right);
+    CheckSide(TSide.Top, Point(L, T), Point(R, T), LTopLeft, LTopRight);
+    CheckSide(TSide.Bottom, Point(L, B), Point(R, B), LBottomLeft, LBottomRight);
+    CheckSide(TSide.Left, Point(L, T), Point(L, B), LTopLeft, LBottomLeft);
+    CheckSide(TSide.Right, Point(R, T), Point(R, B), LTopRight, LBottomRight);
+  finally
+    LBitmap.Free;
   end;
 end;
 
