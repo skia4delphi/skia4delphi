@@ -137,6 +137,13 @@ type
     procedure TestDrawBitmap(const AImageFileName: string; ASurfaceWidth, ASurfaceHeight: Integer; ASurfaceScale, ASrcLeft, ASrcTop, ASrcRight, ASrcBottom, ADestLeft, ADestTop, ADestRight, ADestBottom, AOpacity: Single; AHighSpeed, ABlending: Boolean; const AMinSimilarity: Double; const AExpectedImageHash: string);
     [Test]
     procedure TestDrawBitmapScaledKeepsHighSampling;
+    [TestCase('1', '0.25,false')]
+    [TestCase('2', '0.5,false')]
+    [TestCase('3', '0.75,false')]
+    [TestCase('4', '0.25,true')]
+    [TestCase('5', '0.5,true')]
+    [TestCase('6', '0.75,true')]
+    procedure TestDrawBitmapSubpixelOffset(const AOffset: Single; AHighSpeed: Boolean);
     [TestCase('1',  '3d-shapes.svg,660,343,1,0,0,660,343,0,0,660,343,1,false,false,0.98,MHBw8fP9DQ97/HDx8/9PD/v/ev33/1+v+/96/ff/X/8AXGDYQNjw37D/8/9Lf5tgP+83Z37Xfsg')]
     [TestCase('2',  '3d-shapes.svg,660,343,1,0,0,660,343,0,0,660,343,1,false,true,0.98,MHBw8fP9DQ97/HDx8/9PD/v/ev33/1+v+/96/ff/X/8AXGDYQNjw37D/8/9Lf5tgP+83Z37Xfsg')]
     [TestCase('3',  '3d-shapes.svg,660,343,1,0,0,660,343,0,0,660,343,1,true,false,0.98,MHBw8fP9DQ97/HDx8/9PD/v/ev33/1+v+/96/ff/X/8AXGDYQNjw37D/8/9Lf5tgP+83Z37Xfsg')]
@@ -4360,6 +4367,7 @@ var
   LDestRect: TRectF;
   LExpected: TBitmap;
   LExpectedImage: ISkImage;
+  LPaint: ISkPaint;
   LSource: TBitmap;
   LSourceImage: ISkImage;
   LSourceRect: TRectF;
@@ -4385,10 +4393,12 @@ begin
         LExpected.SetSize(CSurfaceWidth, CSurfaceHeight);
         LExpected.BitmapScale := CSurfaceScale;
         LSourceImage := LSource.ToSkImage;
+        LPaint := TSkPaint.Create;
+        LPaint.AntiAlias := True;
         LExpected.SkiaDraw(
           procedure(const ACanvas: ISkCanvas)
           begin
-            ACanvas.DrawImageRect(LSourceImage, LSourceRect, LDestRect, TSkSamplingOptions.High);
+            ACanvas.DrawImageRect(LSourceImage, LSourceRect, LDestRect, TSkSamplingOptions.High, LPaint);
           end);
 
         LExpectedImage := LExpected.ToSkImage;
@@ -4400,6 +4410,53 @@ begin
       end;
     finally
       LActual.Free;
+    end;
+  finally
+    LSource.Free;
+  end;
+end;
+
+procedure TSkFMXCanvasTests.TestDrawBitmapSubpixelOffset(const AOffset: Single; AHighSpeed: Boolean);
+const
+  CTolerance = 2;
+var
+  LData: TBitmapData;
+  LSource: TBitmap;
+  LSurface: TBitmap;
+begin
+  LSource := TBitmap.Create(20, 20);
+  try
+    if LSource.Canvas.BeginScene then
+      try
+        LSource.Canvas.Clear(TAlphaColors.Black);
+      finally
+        LSource.Canvas.EndScene;
+      end;
+    LSurface := TBitmap.Create(40, 40);
+    try
+      if LSurface.Canvas.BeginScene then
+        try
+          LSurface.Canvas.Clear(TAlphaColors.Null);
+          LSurface.Canvas.DrawBitmap(LSource, LSource.BoundsF,
+            RectF(10 + AOffset, 10 + AOffset, 30 + AOffset, 30 + AOffset), 1, AHighSpeed);
+        finally
+          LSurface.Canvas.EndScene;
+        end;
+      Assert.IsTrue(LSurface.Map(TMapAccess.Read, LData));
+      try
+        Assert.AreEqual((1 - AOffset) * 255, TAlphaColorRec(LData.GetPixel(20, 10)).A, CTolerance,
+          'Top edge must be partially covered at a sub-pixel position.');
+        Assert.AreEqual((1 - AOffset) * 255, TAlphaColorRec(LData.GetPixel(10, 20)).A, CTolerance,
+          'Left edge must be partially covered at a sub-pixel position.');
+        Assert.AreEqual(AOffset * 255, TAlphaColorRec(LData.GetPixel(20, 30)).A, CTolerance,
+          'Bottom edge must be partially covered at a sub-pixel position.');
+        Assert.AreEqual(AOffset * 255, TAlphaColorRec(LData.GetPixel(30, 20)).A, CTolerance,
+          'Right edge must be partially covered at a sub-pixel position.');
+      finally
+        LSurface.Unmap(LData);
+      end;
+    finally
+      LSurface.Free;
     end;
   finally
     LSource.Free;

@@ -2154,6 +2154,7 @@ begin
   if ABitmap.HandleAllocated and (not LSrcRect.IsEmpty) and (not ADestRect.IsEmpty) then
   begin
     LPaint := TSkPaint.Create;
+    LPaint.AntiAlias := True;
     LPaint.AlphaF := AOpacity;
     if FModulateColor <> TAlphaColors.White then
       LPaint.ColorFilter := TSkColorFilter.MakeBlend(FModulateColor, TSkBlendMode.Modulate);
