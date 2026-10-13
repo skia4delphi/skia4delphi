@@ -4420,41 +4420,41 @@ procedure TSkFMXCanvasTests.TestDrawBitmapSubpixelOffset(const AOffset: Single; 
 const
   CTolerance = 2;
 var
-  LData: TBitmapData;
+  LImage: ISkImage;
+  LPixmap: ISkPixmap;
   LSource: TBitmap;
   LSurface: TBitmap;
 begin
-  LSource := TBitmap.Create(20, 20);
+  LSource := TBitmap.Create;
   try
+    LSource.SetSize(20, 20);
     if LSource.Canvas.BeginScene then
       try
         LSource.Canvas.Clear(TAlphaColors.Black);
       finally
         LSource.Canvas.EndScene;
       end;
-    LSurface := TBitmap.Create(40, 40);
+    LSurface := TBitmap.Create;
     try
+      LSurface.SetSize(40, 40);
       if LSurface.Canvas.BeginScene then
         try
           LSurface.Canvas.Clear(TAlphaColors.Null);
-          LSurface.Canvas.DrawBitmap(LSource, LSource.BoundsF,
+          LSurface.Canvas.DrawBitmap(LSource, RectF(0, 0, LSource.Width, LSource.Height),
             RectF(10 + AOffset, 10 + AOffset, 30 + AOffset, 30 + AOffset), 1, AHighSpeed);
         finally
           LSurface.Canvas.EndScene;
         end;
-      Assert.IsTrue(LSurface.Map(TMapAccess.Read, LData));
-      try
-        Assert.AreEqual((1 - AOffset) * 255, TAlphaColorRec(LData.GetPixel(20, 10)).A, CTolerance,
-          'Top edge must be partially covered at a sub-pixel position.');
-        Assert.AreEqual((1 - AOffset) * 255, TAlphaColorRec(LData.GetPixel(10, 20)).A, CTolerance,
-          'Left edge must be partially covered at a sub-pixel position.');
-        Assert.AreEqual(AOffset * 255, TAlphaColorRec(LData.GetPixel(20, 30)).A, CTolerance,
-          'Bottom edge must be partially covered at a sub-pixel position.');
-        Assert.AreEqual(AOffset * 255, TAlphaColorRec(LData.GetPixel(30, 20)).A, CTolerance,
-          'Right edge must be partially covered at a sub-pixel position.');
-      finally
-        LSurface.Unmap(LData);
-      end;
+      LImage := LSurface.ToSkImage;
+      LPixmap := LImage.PeekPixels;
+      Assert.AreEqual((1 - AOffset) * 255, TAlphaColorRec(LPixmap.GetColor(20, 10)).A, CTolerance,
+        'Top edge must be partially covered at a sub-pixel position.');
+      Assert.AreEqual((1 - AOffset) * 255, TAlphaColorRec(LPixmap.GetColor(10, 20)).A, CTolerance,
+        'Left edge must be partially covered at a sub-pixel position.');
+      Assert.AreEqual(AOffset * 255, TAlphaColorRec(LPixmap.GetColor(20, 30)).A, CTolerance,
+        'Bottom edge must be partially covered at a sub-pixel position.');
+      Assert.AreEqual(AOffset * 255, TAlphaColorRec(LPixmap.GetColor(30, 20)).A, CTolerance,
+        'Right edge must be partially covered at a sub-pixel position.');
     finally
       LSurface.Free;
     end;
