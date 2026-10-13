@@ -1323,7 +1323,7 @@ procedure TFMXEffectsTests.DoTestFilter<T>(const ASvgFileName: string;
   const AMinSimilarity: Double; const AExpectedImageHash: string;
   const AFilterSetup: TObjectSetup<T>);
 var
-  LFilter: TFilterBaseFilter;
+  LFilter: T;
   LInputBitmap: TBitmap;
 begin
   LFilter := T.Create(nil);
@@ -1354,7 +1354,7 @@ var
   LApplyEffectProc: TProc<TBitmap>;
   LBitmap: TBitmap;
   LBitmapRect: TRectF;
-  LEffect: TEffect;
+  LEffect: T;
   LEffectRect: TRectF;
   LPictureRect: TRectF;
 begin
@@ -1442,7 +1442,7 @@ procedure TFMXEffectsTests.DoTestInControl<T>(const ASvgFileName: string;
 var
   LBitmap: TBitmap;
   LControlRect: TRectF;
-  LEffect: TEffect;
+  LEffect: T;
   LScene: IScene;
   LSceneScale: Single;
   LSvgControl: TSkSvg;
