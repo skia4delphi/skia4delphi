@@ -78,9 +78,8 @@ type
     procedure TestStateProperties;
     [Test]
     procedure TestTypeface;
-    // TODO: Investigate possible issue.
-    // [Test]
-    // procedure TestTypefaceSetToNil;
+    [Test]
+    procedure TestTypefaceSetToNil;
     [Test]
     procedure TestUnicharToGlyph;
     [Test]
@@ -523,24 +522,19 @@ begin
   Assert.AreEqual(LTypeface.FamilyName, LFont.Typeface.FamilyName, 'The typeface passed to the constructor should be kept');
 end;
 
-// TODO: Investigate possible issue.
-//
-// TSkFont.Create(nil) falls back to the default typeface, but assigning nil to
-// the property later installs Skia's empty typeface instead: the family name
-// becomes blank, every glyph maps to notdef and MeasureText answers zero. On
-// top of that GetTypefaceOrDefault returns that same empty typeface, so the
-// fallback the name promises no longer happens.
-//
-// procedure TSkFontTests.TestTypefaceSetToNil;
-// var
-//   LFont: ISkFont;
-// begin
-//   LFont := TSkFont.Create(AssetTypeface, 20);
-//   LFont.Typeface := nil;
-//   Assert.AreEqual(TSkTypeface.MakeDefault.FamilyName, LFont.GetTypefaceOrDefault.FamilyName,
-//     'TypefaceOrDefault should fall back to the default typeface');
-//   Assert.AreNotEqual<Word>(0, LFont.UnicharToGlyph(Ord('A')), 'The fallback typeface should map glyphs');
-// end;
+procedure TSkFontTests.TestTypefaceSetToNil;
+var
+  LFont: ISkFont;
+begin
+  LFont := TSkFont.Create(AssetTypeface, 20);
+  LFont.Typeface := nil;
+  Assert.AreEqual(TSkTypeface.MakeDefault.FamilyName, LFont.Typeface.FamilyName,
+    'Assigning nil should restore the default typeface, as the constructor does');
+  Assert.AreEqual(TSkTypeface.MakeDefault.FamilyName, LFont.GetTypefaceOrDefault.FamilyName,
+    'TypefaceOrDefault should fall back to the default typeface');
+  Assert.AreNotEqual<Word>(0, LFont.UnicharToGlyph(Ord('A')), 'The fallback typeface should map glyphs');
+  Assert.IsTrue(LFont.MeasureText('A') > 0, 'The fallback typeface should measure text');
+end;
 
 procedure TSkFontTests.TestUnicharToGlyph;
 var

@@ -33,9 +33,8 @@ type
   public
     [Test]
     procedure TestICCProfileRoundTrip;
-    // TODO: Investigate possible issue.
-    // [Test]
-    // procedure TestICCProfileToBytes;
+    [Test]
+    procedure TestICCProfileToBytes;
     [Test]
     procedure TestIsEqual;
     [Test]
@@ -85,24 +84,27 @@ begin
   Assert.IsNull(TSkColorSpaceICCProfile.MakeFromBytes(nil), 'Empty profile bytes should not create a profile');
 end;
 
-// TODO: Investigate possible issue.
-//
-// ISkColorSpaceICCProfile.ToBytes always answers an empty array for a profile
-// produced by ISkColorSpace.ToProfile, because skcms only fills the buffer of a
-// profile that was parsed from ICC bytes. A color space therefore cannot be
-// serialized through this API, and TSkColorSpace.Make cannot be round tripped.
-//
-// procedure TSkColorSpaceTests.TestICCProfileToBytes;
-// var
-//   LColorSpace: ISkColorSpace;
-//   LProfile: ISkColorSpaceICCProfile;
-// begin
-//   LColorSpace := TSkColorSpace.MakeSRGB;
-//   LProfile := LColorSpace.ToProfile;
-//   Assert.IsTrue(Length(LProfile.ToBytes) > 0, 'The profile should be serializable');
-//   Assert.IsTrue(TSkColorSpace.Make(TSkColorSpaceICCProfile.MakeFromBytes(LProfile.ToBytes)).IsEqual(LColorSpace),
-//     'The rebuilt color space should be sRGB');
-// end;
+procedure TSkColorSpaceTests.TestICCProfileToBytes;
+var
+  LBytes: TBytes;
+  LColorSpace: ISkColorSpace;
+  LExpected: TBytes;
+  LProfile: ISkColorSpaceICCProfile;
+begin
+  LColorSpace := TSkColorSpace.MakeSRGB;
+  LExpected := LColorSpace.ToProfile.ToBytes;
+  Assert.IsTrue(Length(LExpected) > 0, 'The profile should be serializable');
+  Assert.IsTrue(TSkColorSpace.Make(TSkColorSpaceICCProfile.MakeFromBytes(LExpected)).IsEqual(LColorSpace),
+    'The rebuilt color space should be sRGB');
+
+  // The parsed profile must not keep pointing into the caller's array.
+  LBytes := Copy(LExpected);
+  LProfile := TSkColorSpaceICCProfile.MakeFromBytes(LBytes);
+  FillChar(LBytes[0], Length(LBytes), 0);
+  LBytes := nil;
+  Assert.AreEqualArray<Byte>(LExpected, LProfile.ToBytes, 'The profile should own a copy of its bytes');
+  Assert.IsTrue(TSkColorSpace.Make(LProfile).IsEqual(LColorSpace), 'The profile should outlive its source bytes');
+end;
 
 procedure TSkColorSpaceTests.TestIsEqual;
 var

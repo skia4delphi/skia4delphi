@@ -82,9 +82,8 @@ type
     procedure TestSaveLayerAlpha;
     [Test]
     procedure TestDiscardAndLocalToDevice;
-    // TODO: Investigate possible issue.
-    // [Test]
-    // procedure TestMatrix3D;
+    [Test]
+    procedure TestMatrix3D;
     [Test]
     procedure TestSurfaceProperties;
     [Test]
@@ -216,24 +215,28 @@ begin
   Assert.AreSameColor(TAlphaColors.Null, ColorAt(50, 50), 0, 'Nothing should be drawn outside the sprite');
 end;
 
-// TODO: Investigate possible issue.
-//
-// The TMatrix3D overloads of Concat, SetMatrix and GetLocalToDevice hand the
-// record straight to Skia, which reads and writes a SkM44 - the transpose of
-// the Delphi convention. A TMatrix3D.CreateTranslation therefore lands on the
-// perspective row and draws nothing, while the TMatrix overloads of the same
-// methods do follow the Delphi convention.
-//
-// procedure TSkCanvasTests.TestMatrix3D;
-// var
-//   LSurface: ISkSurface;
-// begin
-//   LSurface := CreateSurface;
-//   LSurface.Canvas.SetMatrix(TMatrix3D.CreateTranslation(Point3D(40, 40, 0)));
-//   LSurface.Canvas.DrawRect(RectF(0, 0, 20, 20), FillPaint(TAlphaColors.Red));
-//   Assert.AreSameColor(TAlphaColors.Red, ColorAt(45, 45), 0, 'The 4x4 matrix should translate the drawing');
-//   Assert.AreEqual(40.0, LSurface.Canvas.GetLocalToDevice.m41, TEpsilon.Position, 'The 4x4 matrix should hold the X translation');
-// end;
+procedure TSkCanvasTests.TestMatrix3D;
+var
+  LMatrix: TMatrix3D;
+  LSurface: ISkSurface;
+begin
+  LSurface := CreateSurface;
+  LSurface.Canvas.SetMatrix(TMatrix3D.CreateTranslation(Point3D(40, 40, 0)));
+  LSurface.Canvas.DrawRect(RectF(0, 0, 20, 20), FillPaint(TAlphaColors.Red));
+  Assert.AreSameColor(TAlphaColors.Red, ColorAt(45, 45), 0, 'The 4x4 matrix should translate the drawing');
+  Assert.AreSameColor(TAlphaColors.Null, ColorAt(10, 10), 0, 'Nothing should be drawn at the origin');
+
+  LSurface.Canvas.Concat(TMatrix3D.CreateScaling(Point3D(2, 3, 1)));
+  LMatrix := LSurface.Canvas.GetLocalToDevice;
+  Assert.AreEqual(2.0, LMatrix.m11, TEpsilon.Matrix, 'The 4x4 matrix should hold the X scale');
+  Assert.AreEqual(3.0, LMatrix.m22, TEpsilon.Matrix, 'The 4x4 matrix should hold the Y scale');
+  Assert.AreEqual(40.0, LMatrix.m41, TEpsilon.Position, 'The 4x4 matrix should hold the X translation');
+  Assert.AreEqual(40.0, LMatrix.m42, TEpsilon.Position, 'The 4x4 matrix should hold the Y translation');
+  Assert.AreEqual(0.0, LMatrix.m14, TEpsilon.Matrix, 'The 4x4 matrix should have no perspective');
+  Assert.AreEqual(1.0, LMatrix.m44, TEpsilon.Matrix);
+  Assert.AreEqual(LSurface.Canvas.GetLocalToDeviceAs3x3.m31, LMatrix.m41, TEpsilon.Position,
+    'The 4x4 and 3x3 matrices should follow the same convention');
+end;
 
 procedure TSkCanvasTests.TestDiscardAndLocalToDevice;
 var

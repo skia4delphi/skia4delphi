@@ -4010,6 +4010,32 @@ type
     class procedure __DestroyHandle(const AHandle: sk_handle_t); override;
   end;
 
+  { TRegionCliperatorEx }
+
+  // TODO: Move this declaration to TSkRegion.TRegionCliperator in the next major version.
+  TRegionCliperatorEx = class(TSkEnumerable<TRect>, ISkRegionCliperator)
+  strict private
+    FCurrent: TRect;
+  public
+    constructor Create(const ARegion: ISkRegion; const AClip: TRect);
+    function GetCurrent: TRect; override;
+    function MoveNext: Boolean; override;
+    class procedure __DestroyHandle(const AHandle: sk_handle_t); override;
+  end;
+
+  { TRegionIteratorEx }
+
+  // TODO: Move this declaration to TSkRegion.TRegionIterator in the next major version.
+  TRegionIteratorEx = class(TSkEnumerable<TRect>, ISkRegionIterator)
+  strict private
+    FCurrent: TRect;
+  public
+    constructor Create(const ARegion: ISkRegion);
+    function GetCurrent: TRect; override;
+    function MoveNext: Boolean; override;
+    class procedure __DestroyHandle(const AHandle: sk_handle_t); override;
+  end;
+
 {$REGION 'FPC Compatibility'}
 {$IFDEF FPC}
 
@@ -9779,12 +9805,12 @@ end;
 
 function TSkRegion.GetCliperator(const AClip: TRect): ISkRegionCliperator;
 begin
-  Result := TRegionCliperator.Create(Self, AClip);
+  Result := TRegionCliperatorEx.Create(Self, AClip);
 end;
 
 function TSkRegion.GetIterator: ISkRegionIterator;
 begin
-  Result := TRegionIterator.Create(Self);
+  Result := TRegionIteratorEx.Create(Self);
 end;
 
 function TSkRegion.GetSpanerator(const AY, ALeft,
@@ -9963,6 +9989,59 @@ class procedure TSkRegion.TRegionSpanerator.__DestroyHandle(
   const AHandle: sk_handle_t);
 begin
   sk4d_regionspanerator_destroy(AHandle);
+end;
+
+{ TRegionCliperatorEx }
+
+constructor TRegionCliperatorEx.Create(const ARegion: ISkRegion;
+  const AClip: TRect);
+begin
+  inherited Create(sk4d_regioncliperator_create(ARegion.Handle, @AClip));
+end;
+
+function TRegionCliperatorEx.GetCurrent: TRect;
+begin
+  Result := FCurrent;
+end;
+
+// sk4d_regioncliperator_move_next steps past the current rectangle, so it has
+// to be read before.
+function TRegionCliperatorEx.MoveNext: Boolean;
+begin
+  sk4d_regioncliperator_get_current(Handle, sk_irect_t(FCurrent));
+  Result := sk4d_regioncliperator_move_next(Handle);
+end;
+
+class procedure TRegionCliperatorEx.__DestroyHandle(
+  const AHandle: sk_handle_t);
+begin
+  sk4d_regioncliperator_destroy(AHandle);
+end;
+
+{ TRegionIteratorEx }
+
+constructor TRegionIteratorEx.Create(const ARegion: ISkRegion);
+begin
+  inherited Create(sk4d_regioniterator_create(ARegion.Handle));
+end;
+
+function TRegionIteratorEx.GetCurrent: TRect;
+begin
+  Result := FCurrent;
+end;
+
+// sk4d_regioniterator_move_next steps past the current rectangle, so it has to
+// be read before.
+function TRegionIteratorEx.MoveNext: Boolean;
+begin
+  sk4d_regioniterator_get_current(Handle, sk_irect_t(FCurrent));
+  Result := sk4d_regioniterator_move_next(Handle);
+end;
+
+class procedure TRegionIteratorEx.__DestroyHandle(
+  const AHandle: sk_handle_t);
+begin
+  sk4d_regioniterator_destroy(AHandle);
 end;
 
 { TSkRoundRect }

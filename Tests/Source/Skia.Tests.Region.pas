@@ -30,9 +30,8 @@ type
   public
     [Test]
     procedure TestBasic;
-    // TODO: Investigate possible issue.
-    // [Test]
-    // procedure TestCliperator;
+    [Test]
+    procedure TestCliperator;
     [Test]
     procedure TestSpanerator;
     [TestCase('1', '0.99,/wMDAwOzt/////Pjw/f/////8/fX//////////////+GD4YPts+2z7bP///fP98//7////////8')]
@@ -77,34 +76,36 @@ uses
 
 { TSkRegionTests }
 
-// TODO: Investigate possible issue.
-//
-// ISkRegionCliperator and ISkRegionIterator both skip the first rectangle and
-// answer the last one twice: their move_next entry point advances the Skia
-// iterator before reporting whether it is done, while the Delphi for..in
-// protocol expects the first MoveNext to only open the sequence. The number of
-// rectangles is right, the rectangles are not. ISkRegionSpanerator, which is
-// built on a real next(out) entry point, walks correctly.
-//
-// procedure TSkRegionTests.TestCliperator;
-// var
-//   LRect: TRect;
-//   LRects: string;
-//   LRegion: ISkRegion;
-// begin
-//   LRegion := TSkRegion.Create(Rect(0, 0, 20, 20));
-//   LRegion.Op(Rect(30, 0, 50, 20), TSkRegionOp.Union);
-//
-//   LRects := '';
-//   for LRect in LRegion.GetCliperator(Rect(0, 0, 100, 100)) do
-//     LRects := LRects + Format('%d,%d,%d,%d ', [LRect.Left, LRect.Top, LRect.Right, LRect.Bottom]);
-//   Assert.AreEqual('0,0,20,20 30,0,50,20 ', LRects, 'The cliperator should walk both rectangles');
-//
-//   LRects := '';
-//   for LRect in LRegion.GetIterator do
-//     LRects := LRects + Format('%d,%d,%d,%d ', [LRect.Left, LRect.Top, LRect.Right, LRect.Bottom]);
-//   Assert.AreEqual('0,0,20,20 30,0,50,20 ', LRects, 'The iterator should walk both rectangles');
-// end;
+procedure TSkRegionTests.TestCliperator;
+var
+  LRect: TRect;
+  LRects: string;
+  LRegion: ISkRegion;
+begin
+  LRegion := TSkRegion.Create(Rect(0, 0, 20, 20));
+  LRegion.Op(Rect(30, 0, 50, 20), TSkRegionOp.Union);
+
+  LRects := '';
+  for LRect in LRegion.GetCliperator(Rect(0, 0, 100, 100)) do
+    LRects := LRects + Format('%d,%d,%d,%d ', [LRect.Left, LRect.Top, LRect.Right, LRect.Bottom]);
+  Assert.AreEqual('0,0,20,20 30,0,50,20 ', LRects, 'The cliperator should walk both rectangles');
+
+  LRects := '';
+  for LRect in LRegion.GetCliperator(Rect(0, 0, 10, 10)) do
+    LRects := LRects + Format('%d,%d,%d,%d ', [LRect.Left, LRect.Top, LRect.Right, LRect.Bottom]);
+  Assert.AreEqual('0,0,10,10 ', LRects, 'The cliperator should clip the rectangles');
+
+  LRects := '';
+  for LRect in LRegion.GetIterator do
+    LRects := LRects + Format('%d,%d,%d,%d ', [LRect.Left, LRect.Top, LRect.Right, LRect.Bottom]);
+  Assert.AreEqual('0,0,20,20 30,0,50,20 ', LRects, 'The iterator should walk both rectangles');
+
+  LRegion := TSkRegion.Create;
+  LRects := '';
+  for LRect in LRegion.GetIterator do
+    LRects := LRects + Format('%d,%d,%d,%d ', [LRect.Left, LRect.Top, LRect.Right, LRect.Bottom]);
+  Assert.AreEqual('', LRects, 'An empty region should have no rectangle');
+end;
 
 procedure TSkRegionTests.TestSpanerator;
 var
