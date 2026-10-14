@@ -42,11 +42,16 @@ type
     procedure TestMakeRasterDirect;
     [Test]
     procedure TestProperties;
-    // TODO: Investigate possible issue.
-    // [Test]
-    // procedure TestPropertiesArePreserved;
+    [Test]
+    procedure TestPropertiesArePreserved;
+    [Test]
+    procedure TestPropertiesArePreservedByCanvasMakeSurface;
+    [Test]
+    procedure TestPropertiesArePreservedByMakeRasterDirect;
     [Test]
     procedure TestReadPixels;
+    [Test]
+    procedure TestSubpixelAntiAliasText;
     [Test]
     procedure TestWritePixels;
   end;
@@ -64,6 +69,15 @@ uses
 
   { Skia }
   System.Skia;
+
+const
+  PropertiesToCheck: array[0..5] of TSkSurfaceProperties = (
+    (Flags: []; PixelGeometry: TSkPixelGeometry.Unknown),
+    (Flags: []; PixelGeometry: TSkPixelGeometry.RGBHorizontal),
+    (Flags: []; PixelGeometry: TSkPixelGeometry.BGRHorizontal),
+    (Flags: []; PixelGeometry: TSkPixelGeometry.RGBVertical),
+    (Flags: []; PixelGeometry: TSkPixelGeometry.BGRVertical),
+    (Flags: [TSkSurfacePropertiesFlag.UseDeviceIndependentFonts]; PixelGeometry: TSkPixelGeometry.RGBHorizontal));
 
 { TSkSurfaceTests }
 
@@ -182,23 +196,48 @@ begin
   Assert.IsTrue(LSurface.Properties = LSurface.Canvas.GetTopProperties, 'Without a layer the top properties should match the surface ones');
 end;
 
-// TODO: Investigate possible issue.
-//
-// A surface never reports the properties it was created with: both the wrapper
-// and a direct sk4d_surface_make_raster + sk4d_surface_get_props round trip
-// answer Unknown/[] for every request, with opaque and premultiplied images
-// alike, so TSkSurfaceProperties is effectively write only.
-//
-// procedure TSkSurfaceTests.TestPropertiesArePreserved;
-// var
-//   LProperties: TSkSurfaceProperties;
-//   LSurface: ISkSurface;
-// begin
-//   LProperties := TSkSurfaceProperties.Create([TSkSurfacePropertiesFlag.UseDeviceIndependentFonts], TSkPixelGeometry.RGBHorizontal);
-//   LSurface := TSkSurface.MakeRaster(10, 10, LProperties);
-//   Assert.IsNotNull(LSurface, 'Invalid ISkSurface (nil)');
-//   Assert.IsTrue(LSurface.Properties = LProperties, 'The surface should keep the given properties');
-// end;
+procedure TSkSurfaceTests.TestPropertiesArePreserved;
+var
+  LProperties: TSkSurfaceProperties;
+  LSurface: ISkSurface;
+begin
+  for LProperties in PropertiesToCheck do
+  begin
+    LSurface := TSkSurface.MakeRaster(10, 10, LProperties);
+    Assert.IsNotNull(LSurface, 'Invalid ISkSurface (nil)');
+    Assert.IsTrue(LSurface.Properties = LProperties, Format('MakeRaster should keep the given properties (pixel geometry %d)', [Ord(LProperties.PixelGeometry)]));
+  end;
+end;
+
+procedure TSkSurfaceTests.TestPropertiesArePreservedByCanvasMakeSurface;
+var
+  LProperties: TSkSurfaceProperties;
+  LSurface: ISkSurface;
+begin
+  for LProperties in PropertiesToCheck do
+  begin
+    LSurface := TSkSurface.MakeRaster(10, 10).Canvas.MakeSurface(TSkImageInfo.Create(10, 10), LProperties);
+    Assert.IsNotNull(LSurface, 'Invalid ISkSurface (nil)');
+    Assert.IsTrue(LSurface.Properties = LProperties, Format('Canvas.MakeSurface should keep the given properties (pixel geometry %d)', [Ord(LProperties.PixelGeometry)]));
+  end;
+end;
+
+procedure TSkSurfaceTests.TestPropertiesArePreservedByMakeRasterDirect;
+var
+  LBuffer: TBytes;
+  LPixmap: ISkPixmap;
+  LProperties: TSkSurfaceProperties;
+  LSurface: ISkSurface;
+begin
+  SetLength(LBuffer, 10 * 10 * 4);
+  LPixmap := TSkPixmap.Create(TSkImageInfo.Create(10, 10), LBuffer, 10 * 4);
+  for LProperties in PropertiesToCheck do
+  begin
+    LSurface := TSkSurface.MakeRasterDirect(LPixmap, LProperties);
+    Assert.IsNotNull(LSurface, 'Invalid ISkSurface (nil)');
+    Assert.IsTrue(LSurface.Properties = LProperties, Format('MakeRasterDirect should keep the given properties (pixel geometry %d)', [Ord(LProperties.PixelGeometry)]));
+  end;
+end;
 
 procedure TSkSurfaceTests.TestReadPixels;
 var
@@ -214,6 +253,42 @@ begin
     TSkColorSpace.MakeSRGB), LBuffer, 10 * 4);
   Assert.IsTrue(LSurface.ReadPixels(LPixmap, 5, 5), 'ReadPixels should succeed');
   Assert.AreSameColor(TAlphaColors.Red, LPixmap.Colors[0, 0], 0, 'The read pixels should hold the surface content');
+end;
+
+procedure TSkSurfaceTests.TestSubpixelAntiAliasText;
+
+  function CountColorFringes(const APixelGeometry: TSkPixelGeometry): Integer;
+  var
+    LColor: TAlphaColorRec;
+    LFont: ISkFont;
+    LPaint: ISkPaint;
+    LPixmap: ISkPixmap;
+    LSurface: ISkSurface;
+    X: Integer;
+    Y: Integer;
+  begin
+    LSurface := TSkSurface.MakeRaster(TSkImageInfo.Create(200, 40, SkNative32ColorType, TSkAlphaType.Opaque),
+      TSkSurfaceProperties.Create([], APixelGeometry));
+    LSurface.Canvas.Clear(TAlphaColors.White);
+    LFont := TSkFont.Create(TSkTypeface.MakeFromFile(FontAssetsPath + 'segoeui.ttf'), 16);
+    LFont.Edging := TSkFontEdging.SubpixelAntiAlias;
+    LPaint := TSkPaint.Create;
+    LPaint.Color := TAlphaColors.Black;
+    LSurface.Canvas.DrawSimpleText('Skia4Delphi', 10, 28, LFont, LPaint);
+    LPixmap := LSurface.PeekPixels;
+    Result := 0;
+    for Y := 0 to LPixmap.Height - 1 do
+      for X := 0 to LPixmap.Width - 1 do
+      begin
+        LColor.Color := LPixmap.Colors[X, Y];
+        if (LColor.R <> LColor.G) or (LColor.G <> LColor.B) then
+          Inc(Result);
+      end;
+  end;
+
+begin
+  Assert.IsTrue(CountColorFringes(TSkPixelGeometry.RGBHorizontal) > 0, 'Text on an RGB surface should be drawn with LCD antialiasing');
+  Assert.AreEqual(0, CountColorFringes(TSkPixelGeometry.Unknown), 'Text on a surface of unknown pixel geometry should be drawn in grayscale');
 end;
 
 procedure TSkSurfaceTests.TestWritePixels;
