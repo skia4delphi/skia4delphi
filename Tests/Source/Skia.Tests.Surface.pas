@@ -259,13 +259,9 @@ procedure TSkSurfaceTests.TestSubpixelAntiAliasText;
 
   function CountColorFringes(const APixelGeometry: TSkPixelGeometry): Integer;
   var
-    LColor: TAlphaColorRec;
     LFont: ISkFont;
     LPaint: ISkPaint;
-    LPixmap: ISkPixmap;
     LSurface: ISkSurface;
-    X: Integer;
-    Y: Integer;
   begin
     LSurface := TSkSurface.MakeRaster(TSkImageInfo.Create(200, 40, SkNative32ColorType, TSkAlphaType.Opaque),
       TSkSurfaceProperties.Create([], APixelGeometry));
@@ -275,15 +271,7 @@ procedure TSkSurfaceTests.TestSubpixelAntiAliasText;
     LPaint := TSkPaint.Create;
     LPaint.Color := TAlphaColors.Black;
     LSurface.Canvas.DrawSimpleText('Skia4Delphi', 10, 28, LFont, LPaint);
-    LPixmap := LSurface.PeekPixels;
-    Result := 0;
-    for Y := 0 to LPixmap.Height - 1 do
-      for X := 0 to LPixmap.Width - 1 do
-      begin
-        LColor.Color := LPixmap.Colors[X, Y];
-        if (LColor.R <> LColor.G) or (LColor.G <> LColor.B) then
-          Inc(Result);
-      end;
+    Result := CountColoredPixels(LSurface);
   end;
 
 begin

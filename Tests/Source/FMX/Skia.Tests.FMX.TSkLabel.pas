@@ -128,6 +128,10 @@ type
     [Test]
     {$ENDIF}
     procedure TestStyle;
+    {$IFDEF TEXT_RENDER}
+    [Test]
+    {$ENDIF}
+    procedure TestSubpixelText;
     [Setup]
     procedure Setup; override;
   end;
@@ -152,6 +156,7 @@ uses
 type
   TSkLabelAccess = class(TSkLabel)
   public
+    procedure DrawTo(const ACanvas: ISkCanvas);
     property ParagraphBounds;
   end;
 
@@ -164,6 +169,13 @@ type
   public
     function FindStyleResource(const AStyleLookup: string; const Clone: Boolean = False): TFmxObject; override;
   end;
+
+{ TSkLabelAccess }
+
+procedure TSkLabelAccess.DrawTo(const ACanvas: ISkCanvas);
+begin
+  Draw(ACanvas, LocalRect, 1);
+end;
 
 { TSkLabelDarkStyled }
 
@@ -315,6 +327,42 @@ begin
       {ExpectedImageHash} '//+Dg4ODg/////Pjw8fP////9+vr78/////////////AD8AP6B/qX+gf6B/r3+gf4Afv//////8');
   finally
     GlobalSkiaTextLocale := OldTextLocale;
+  end;
+end;
+
+procedure TSkLabelTests.TestSubpixelText;
+
+  function CountColorFringes(const ASubpixelText: Boolean): Integer;
+  var
+    LLabel: TSkLabelAccess;
+    LSurface: ISkSurface;
+  begin
+    GlobalSkiaSubpixelText := ASubpixelText;
+    LSurface := TSkSurface.MakeRaster(TSkImageInfo.Create(100, 40), TSkSurfaceProperties.Create([], TSkPixelGeometry.RGBHorizontal));
+    LSurface.Canvas.Clear(TAlphaColors.White);
+    LLabel := TSkLabelAccess.Create(nil);
+    try
+      LLabel.SetBounds(0, 0, 100, 40);
+      LLabel.TextSettings.Font.Families := DefaultFontFamily;
+      LLabel.TextSettings.Font.Size := 14;
+      LLabel.TextSettings.FontColor := TAlphaColors.Black;
+      LLabel.Text := ShortText;
+      LLabel.DrawTo(LSurface.Canvas);
+    finally
+      LLabel.Free;
+    end;
+    Result := CountColoredPixels(LSurface);
+  end;
+
+var
+  LOldSubpixelText: Boolean;
+begin
+  LOldSubpixelText := GlobalSkiaSubpixelText;
+  try
+    Assert.AreEqual(0, CountColorFringes(False), 'Without GlobalSkiaSubpixelText the text should be drawn in grayscale');
+    Assert.IsTrue(CountColorFringes(True) > 0, 'With GlobalSkiaSubpixelText the text should be drawn with LCD antialiasing');
+  finally
+    GlobalSkiaSubpixelText := LOldSubpixelText;
   end;
 end;
 

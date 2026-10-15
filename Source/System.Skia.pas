@@ -3538,6 +3538,23 @@ type
 
   {$HPPEMIT END '#define SkTextStyle(...) __SkCreate(TSkTextStyle, ISkTextStyle, __VA_ARGS__)'}
 
+  { TSkTextStyleHelper }
+
+  // TODO: Merge these properties in TSkTextStyle and ISkTextStyle in the next major version.
+  TSkTextStyleHelper = class helper for TSkTextStyle
+  strict private
+    function GetFontEdging: TSkFontEdging;
+    function GetFontHinting: TSkFontHinting;
+    function GetSubpixel: Boolean;
+    procedure SetFontEdging(const AValue: TSkFontEdging);
+    procedure SetFontHinting(const AValue: TSkFontHinting);
+    procedure SetSubpixel(const AValue: Boolean);
+  public
+    property FontEdging: TSkFontEdging read GetFontEdging write SetFontEdging;
+    property FontHinting: TSkFontHinting read GetFontHinting write SetFontHinting;
+    property Subpixel: Boolean read GetSubpixel write SetSubpixel;
+  end;
+
   { ISkTypefaceFontProvider }
 
   ISkTypefaceFontProvider = interface(ISkReferenceCounted)
@@ -12627,6 +12644,38 @@ end;
 class procedure TSkTextStyle.__DestroyHandle(const AHandle: sk_handle_t);
 begin
   sk4d_textstyle_destroy(AHandle);
+end;
+
+{ TSkTextStyleHelper }
+
+function TSkTextStyleHelper.GetFontEdging: TSkFontEdging;
+begin
+  Result := TSkFontEdging(sk4d_textstyle_get_font_edging(Handle));
+end;
+
+function TSkTextStyleHelper.GetFontHinting: TSkFontHinting;
+begin
+  Result := TSkFontHinting(sk4d_textstyle_get_font_hinting(Handle));
+end;
+
+function TSkTextStyleHelper.GetSubpixel: Boolean;
+begin
+  Result := sk4d_textstyle_get_subpixel(Handle);
+end;
+
+procedure TSkTextStyleHelper.SetFontEdging(const AValue: TSkFontEdging);
+begin
+  sk4d_textstyle_set_font_edging(Handle, sk_fontedging_t(AValue));
+end;
+
+procedure TSkTextStyleHelper.SetFontHinting(const AValue: TSkFontHinting);
+begin
+  sk4d_textstyle_set_font_hinting(Handle, sk_fonthinting_t(AValue));
+end;
+
+procedure TSkTextStyleHelper.SetSubpixel(const AValue: Boolean);
+begin
+  sk4d_textstyle_set_subpixel(Handle, AValue);
 end;
 
 { TSkTypefaceFontProvider }

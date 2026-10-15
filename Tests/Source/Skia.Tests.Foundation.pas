@@ -43,6 +43,7 @@ type
     function AssetsPath: string; overload; virtual;
     function AssetsPath(const ASubPath: string): string; overload;
     function CombinePaths(const APath, ASubPath: string): string;
+    function CountColoredPixels(const ASurface: ISkSurface): Integer;
     function FontAssetsPath: string;
     function FontProvider: ISkTypefaceFontProvider;
     function ImageAssetsPath: string;
@@ -347,6 +348,24 @@ begin
   Result := TPath.Combine(APath, ASubPath);
   if not Result.EndsWith(PathDelim) then
     Result := Result + PathDelim;
+end;
+
+function TTestBase.CountColoredPixels(const ASurface: ISkSurface): Integer;
+var
+  LColor: TAlphaColorRec;
+  LPixmap: ISkPixmap;
+  X: Integer;
+  Y: Integer;
+begin
+  LPixmap := ASurface.PeekPixels;
+  Result := 0;
+  for Y := 0 to LPixmap.Height - 1 do
+    for X := 0 to LPixmap.Width - 1 do
+    begin
+      LColor.Color := LPixmap.Colors[X, Y];
+      if (LColor.R <> LColor.G) or (LColor.G <> LColor.B) then
+        Inc(Result);
+    end;
 end;
 
 function TTestBase.FontAssetsPath: string;

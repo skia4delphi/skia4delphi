@@ -473,6 +473,14 @@ function DefaultSkiaRenderCanvasClass: TSkCanvasBaseClass;
 
 procedure RegisterSkiaRenderCanvas(const ACanvasClass: TSkCanvasBaseClass; const APriority: Boolean; const AIsSupportedFunc: TFunc<Boolean> = nil);
 
+/// <summary>
+///   Get the surface properties of the back buffer of a window. When
+///   <c>GlobalSkiaSubpixelText</c> is True and the system uses ClearType, the
+///   pixel geometry follows the subpixel order of the screen, allowing texts
+///   to be drawn with LCD antialiasing.
+/// </summary>
+function SkWindowSurfaceProperties(const AParent: TWindowHandle): TSkSurfaceProperties;
+
 const
   CanvasQualitySampleCount: array[TCanvasQuality] of Integer = (1, 1, 1);
 
@@ -3641,6 +3649,10 @@ const
     end;
     if GlobalSkiaTextLocale <> '' then
       ATextStyle.Locale := GlobalSkiaTextLocale;
+    {$IFDEF MSWINDOWS}
+    if GlobalSkiaSubpixelText then
+      (ATextStyle as TSkTextStyle).FontEdging := TSkFontEdging.SubpixelAntiAlias;
+    {$ENDIF}
   end;
 
   function CreateTextStyle(const AAttribute: TTextAttribute): ISkTextStyle;
@@ -4290,7 +4302,7 @@ begin
     end;
     if GetObject(FBitmap, SizeOf(TDIBSection), @LDIBSection) = 0 then
       Exit(nil);
-    FBackBufferSurface := TSkSurface.MakeRasterDirect(TSkImageInfo.Create(LDIBSection.dsBm.bmWidth, LDIBSection.dsBm.bmHeight, TSkColorType.BGRA8888), LDIBSection.dsBm.bmBits, NativeUInt(LDIBSection.dsBm.bmWidthBytes));
+    FBackBufferSurface := TSkSurface.MakeRasterDirect(TSkImageInfo.Create(LDIBSection.dsBm.bmWidth, LDIBSection.dsBm.bmHeight, TSkColorType.BGRA8888), LDIBSection.dsBm.bmBits, NativeUInt(LDIBSection.dsBm.bmWidthBytes), SkWindowSurfaceProperties(Parent));
     {$ENDIF}
   end;
   Result := TSkSurface(FBackBufferSurface);
@@ -4399,6 +4411,7 @@ end;
 {$HPPEMIT END '    using ::Fmx::Skia::Canvas::CanvasQualitySampleCount;'}
 {$HPPEMIT END '    using ::Fmx::Skia::Canvas::DefaultSkiaRenderCanvasClass;'}
 {$HPPEMIT END '    using ::Fmx::Skia::Canvas::RegisterSkiaRenderCanvas;'}
+{$HPPEMIT END '    using ::Fmx::Skia::Canvas::SkWindowSurfaceProperties;'}
 {$HPPEMIT END '#endif'}
 
 {$REGION '- Canvas Registration'}
@@ -4450,6 +4463,37 @@ begin
     RenderCanvas := [LRenderCanvas] + RenderCanvas
   else
     RenderCanvas := RenderCanvas + [LRenderCanvas];
+end;
+
+{$IFDEF MSWINDOWS}
+var
+  SystemPixelGeometry: TSkPixelGeometry;
+
+function GetSystemPixelGeometry: TSkPixelGeometry;
+var
+  LFontSmoothing: BOOL;
+  LFontSmoothingOrientation: UINT;
+  LFontSmoothingType: UINT;
+begin
+  Result := TSkPixelGeometry.Unknown;
+  if SystemParametersInfo(SPI_GETFONTSMOOTHING, 0, @LFontSmoothing, 0) and LFontSmoothing and
+    SystemParametersInfo(SPI_GETFONTSMOOTHINGTYPE, 0, @LFontSmoothingType, 0) and (LFontSmoothingType = FE_FONTSMOOTHINGCLEARTYPE) then
+  begin
+    if SystemParametersInfo(SPI_GETFONTSMOOTHINGORIENTATION, 0, @LFontSmoothingOrientation, 0) and (LFontSmoothingOrientation = FE_FONTSMOOTHINGORIENTATIONBGR) then
+      Result := TSkPixelGeometry.BGRHorizontal
+    else
+      Result := TSkPixelGeometry.RGBHorizontal;
+  end;
+end;
+{$ENDIF}
+
+function SkWindowSurfaceProperties(const AParent: TWindowHandle): TSkSurfaceProperties;
+begin
+  Result := TSkSurfaceProperties.Create([], TSkPixelGeometry.Unknown);
+  {$IFDEF MSWINDOWS}
+  if GlobalSkiaSubpixelText and (AParent <> nil) and not WindowHandleToPlatform(AParent){$IF CompilerVersion < 30}.Form{$ENDIF}.Transparency then
+    Result.PixelGeometry := SystemPixelGeometry;
+  {$ENDIF}
 end;
 
 { TSkCanvasService }
@@ -4567,6 +4611,9 @@ end;
 var
   CanvasService: TSkCanvasService;
 initialization
+  {$IFDEF MSWINDOWS}
+  SystemPixelGeometry := GetSystemPixelGeometry;
+  {$ENDIF}
   CanvasService := TSkCanvasService.Create(IFMXCanvasService(TPlatformServices.Current.GetPlatformService(IFMXCanvasService)));
   TPlatformServices.Current.RemovePlatformService(IFMXCanvasService);
   TPlatformServices.Current.AddPlatformService(IFMXCanvasService, CanvasService);

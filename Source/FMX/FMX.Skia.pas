@@ -1307,6 +1307,8 @@ var
   {$ENDIF}
   /// <summary> Specifies the locale to determine language-specific rules for texts rendered by Skia. </summary>
   GlobalSkiaTextLocale: string;
+  /// <summary> Enables LCD antialiasing (ClearType) for texts rendered by Skia on Windows. </summary>
+  GlobalSkiaSubpixelText: Boolean;
 
 implementation
 
@@ -5336,6 +5338,10 @@ begin
   FTextSettingsInfo.OnChange := TextSettingsChanged;
   FWords := CreateWordsCollection;
   FWords.OnChange := WordsChange;
+  {$IFDEF MSWINDOWS}
+  if GlobalSkiaSubpixelText then
+    DrawCacheKind := TSkDrawCacheKind.Never;
+  {$ENDIF}
 end;
 
 function TSkLabel.CreateWordsCollection: TWordsCollection;
@@ -5749,6 +5755,10 @@ var
     end;
     if GlobalSkiaTextLocale <> '' then
       Result.Locale := GlobalSkiaTextLocale;
+    {$IFDEF MSWINDOWS}
+    if GlobalSkiaSubpixelText then
+      (Result as TSkTextStyle).FontEdging := TSkFontEdging.SubpixelAntiAlias;
+    {$ENDIF}
   end;
 
   function CreateDefaultTextStyle(const ADrawKind: TDrawKind): ISkTextStyle;
@@ -5763,6 +5773,10 @@ var
     SetTextStyleDecorations(Result, ResultingTextSettings.Decorations, ADrawKind);
     if GlobalSkiaTextLocale <> '' then
       Result.Locale := GlobalSkiaTextLocale;
+    {$IFDEF MSWINDOWS}
+    if GlobalSkiaSubpixelText then
+      (Result as TSkTextStyle).FontEdging := TSkFontEdging.SubpixelAntiAlias;
+    {$ENDIF}
   end;
 
   function CreateParagraphStyle(const ADefaultTextStyle: ISkTextStyle): ISkParagraphStyle;
@@ -6413,6 +6427,7 @@ end;
 {$HPPEMIT END '    using ::Fmx::Skia::GlobalSkiaBitmapsInParallel;'}
 {$ENDIF}
 {$HPPEMIT END '    using ::Fmx::Skia::GlobalSkiaTextLocale;'}
+{$HPPEMIT END '    using ::Fmx::Skia::GlobalSkiaSubpixelText;'}
 {$HPPEMIT END '    using ::Fmx::Skia::SkFmxColorType;'}
 {$HPPEMIT END '    using ::Fmx::Skia::SkFmxPixelFormat;'}
 {$HPPEMIT END '    using ::Fmx::Skia::AddSkPathToPathData;'}

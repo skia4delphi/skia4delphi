@@ -40,6 +40,8 @@ type
     [Test]
     procedure TestFontMetrics;
     [Test]
+    procedure TestFontRendering;
+    [Test]
     procedure TestForegroundAndBackground;
     [Test]
     procedure TestIsEqual;
@@ -164,6 +166,23 @@ begin
   LMetrics := LTextStyle.FontMetrics;
   Assert.IsTrue(LMetrics.Descent >= LMetrics.Ascent, 'Descent should never be above Ascent');
   Assert.AreEqual(LMetrics.Ascent, LTextStyle.FontMetrics.Ascent, TEpsilon.Position, 'The metrics should be stable');
+end;
+
+procedure TSkTextStyleTests.TestFontRendering;
+var
+  LTextStyle: ISkTextStyle;
+begin
+  LTextStyle := TSkTextStyle.Create;
+  Assert.IsTrue((LTextStyle as TSkTextStyle).FontEdging = TSkFontEdging.AntiAlias, '(Default FontEdging)');
+  Assert.IsTrue((LTextStyle as TSkTextStyle).FontHinting = TSkFontHinting.Slight, '(Default FontHinting)');
+  Assert.IsTrue((LTextStyle as TSkTextStyle).Subpixel, '(Default Subpixel)');
+
+  (LTextStyle as TSkTextStyle).FontEdging := TSkFontEdging.SubpixelAntiAlias;
+  Assert.IsTrue((LTextStyle as TSkTextStyle).FontEdging = TSkFontEdging.SubpixelAntiAlias, '(FontEdging)');
+  (LTextStyle as TSkTextStyle).FontHinting := TSkFontHinting.Full;
+  Assert.IsTrue((LTextStyle as TSkTextStyle).FontHinting = TSkFontHinting.Full, '(FontHinting)');
+  (LTextStyle as TSkTextStyle).Subpixel := False;
+  Assert.IsFalse((LTextStyle as TSkTextStyle).Subpixel, '(Subpixel)');
 end;
 
 procedure TSkTextStyleTests.TestForegroundAndBackground;

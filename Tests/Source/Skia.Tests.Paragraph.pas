@@ -31,7 +31,7 @@ type
   [TestFixture]
   TSkParagraphTests = class(TTestBase)
   strict private
-    function BuildParagraph(const AText: string; const AWidth: Single; const AMaxLines: NativeUInt = 0): ISkParagraph;
+    function BuildParagraph(const AText: string; const AWidth: Single; const AMaxLines: NativeUInt = 0; const AFontEdging: TSkFontEdging = TSkFontEdging.AntiAlias): ISkParagraph;
   public
     [Test]
     procedure TestBaselines;
@@ -66,6 +66,8 @@ type
     {$ENDIF}
     procedure TestParagraphToPath(const AMinSimilarity: Double; const AExpectedHash: string);
     [Test]
+    procedure TestSubpixelAntiAliasText;
+    [Test]
     procedure TestTextStyleGetAndSetFontFamilies;
   end;
 
@@ -82,7 +84,7 @@ uses
 { TSkParagraphTests }
 
 function TSkParagraphTests.BuildParagraph(const AText: string; const AWidth: Single;
-  const AMaxLines: NativeUInt): ISkParagraph;
+  const AMaxLines: NativeUInt; const AFontEdging: TSkFontEdging): ISkParagraph;
 var
   LParagraphBuilder: ISkParagraphBuilder;
   LParagraphStyle: ISkParagraphStyle;
@@ -97,6 +99,7 @@ begin
   LTextStyle.Color := TAlphaColors.Black;
   LTextStyle.FontFamilies := TArray<string>.Create(DefaultFontFamily);
   LTextStyle.SetFontSize(20);
+  (LTextStyle as TSkTextStyle).FontEdging := AFontEdging;
   LParagraphBuilder.PushStyle(LTextStyle);
   LParagraphBuilder.AddText(AText);
 
@@ -308,6 +311,25 @@ begin
     end);
   Assert.AreEqual(1, LRunCount, 'A single styled text should produce a single run');
   Assert.AreEqual(Length('Hello world'), LGlyphCount, 'Every character should be visited');
+end;
+
+procedure TSkParagraphTests.TestSubpixelAntiAliasText;
+
+  function CountColorFringes(const AFontEdging: TSkFontEdging; const AAlphaType: TSkAlphaType): Integer;
+  var
+    LSurface: ISkSurface;
+  begin
+    LSurface := TSkSurface.MakeRaster(TSkImageInfo.Create(200, 40, SkNative32ColorType, AAlphaType),
+      TSkSurfaceProperties.Create([], TSkPixelGeometry.RGBHorizontal));
+    LSurface.Canvas.Clear(TAlphaColors.White);
+    BuildParagraph('Skia4Delphi', 200, 0, AFontEdging).Paint(LSurface.Canvas, 10, 5);
+    Result := CountColoredPixels(LSurface);
+  end;
+
+begin
+  Assert.AreEqual(0, CountColorFringes(TSkFontEdging.AntiAlias, TSkAlphaType.Opaque), 'A paragraph with antialiasing should be drawn in grayscale');
+  Assert.IsTrue(CountColorFringes(TSkFontEdging.SubpixelAntiAlias, TSkAlphaType.Opaque) > 0, 'A paragraph with subpixel antialiasing should be drawn with LCD antialiasing');
+  Assert.IsTrue(CountColorFringes(TSkFontEdging.SubpixelAntiAlias, TSkAlphaType.Premul) > 0, 'A paragraph with subpixel antialiasing should be drawn with LCD antialiasing on a premultiplied surface');
 end;
 
 procedure TSkParagraphTests.TestTextStyleGetAndSetFontFamilies;

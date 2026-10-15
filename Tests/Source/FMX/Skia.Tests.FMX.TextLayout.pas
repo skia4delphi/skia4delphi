@@ -252,6 +252,12 @@ type
     {$ENDIF}
     procedure TestJapaneseLocale;
     {$IFDEF TEXT_RENDER}
+    [Test]
+    {$ENDIF}
+    procedure TestSubpixelText;
+    [Test]
+    procedure TestWindowSurfacePropertiesWithoutWindow;
+    {$IFDEF TEXT_RENDER}
     [TestCase('1', ShortText + ',9,false,false,Leading,Leading,Character,claBlack,0,0.03,25.84,12,0.97,///vAgMDA//////jw8PL//////vv88v/////////////+eSd9X3nHfV9BJ3///////////////8')]
     [TestCase('2', ShortText + ',10,false,false,Leading,Leading,Character,claBlack,0,-0.3,28.72,13,0.97,///+AAACA/////7hw8fP/////+nL78////////////9/9X/xZJV1pWeFdbUElf////////////8')]
     [TestCase('3', ShortText + ',11,false,false,Leading,Leading,Character,claBlack,0,0.37,31.59,15,0.97,///twAEDA/////3hQ0dP/////elb30////////////9/9X/xZJV0tWcVZzVktQSV//////////8')]
@@ -283,7 +289,10 @@ uses
   {$IF CompilerVersion >= 29}
   FMX.Utils,
   {$ENDIF}
-  FMX.Graphics;
+  FMX.Graphics,
+
+  { Skia }
+  FMX.Skia.Canvas;
 
 const
   TextRectEpsilon = 2;
@@ -613,6 +622,60 @@ begin
       {ExpectedImageHash} '//+Dg4ODg/////Pjw8fP////9+vr78/////////////AD8AP6B/qX+gf6B/r3+gf4Afv//////8');
   finally
     GlobalSkiaTextLocale := OldTextLocale;
+  end;
+end;
+
+procedure TSkTextLayoutTests.TestSubpixelText;
+
+  function CountColorFringes(const ASubpixelText: Boolean): Integer;
+  var
+    LLayout: TSkTextLayout;
+    LSurface: ISkSurface;
+  begin
+    GlobalSkiaSubpixelText := ASubpixelText;
+    LSurface := TSkSurface.MakeRaster(TSkImageInfo.Create(100, 40), TSkSurfaceProperties.Create([], TSkPixelGeometry.RGBHorizontal));
+    LSurface.Canvas.Clear(TAlphaColors.White);
+    LLayout := TSkTextLayout.Create;
+    try
+      LLayout.BeginUpdate;
+      try
+        LLayout.Text := ShortText;
+        LLayout.Font.Family := DefaultFontFamily;
+        LLayout.Font.Size := 14;
+        LLayout.Color := TAlphaColors.Black;
+      finally
+        LLayout.EndUpdate;
+      end;
+      LLayout.RenderLayout(LSurface.Canvas);
+    finally
+      LLayout.Free;
+    end;
+    Result := CountColoredPixels(LSurface);
+  end;
+
+var
+  LOldSubpixelText: Boolean;
+begin
+  LOldSubpixelText := GlobalSkiaSubpixelText;
+  try
+    Assert.AreEqual(0, CountColorFringes(False), 'Without GlobalSkiaSubpixelText the text should be drawn in grayscale');
+    Assert.IsTrue(CountColorFringes(True) > 0, 'With GlobalSkiaSubpixelText the text should be drawn with LCD antialiasing');
+  finally
+    GlobalSkiaSubpixelText := LOldSubpixelText;
+  end;
+end;
+
+procedure TSkTextLayoutTests.TestWindowSurfacePropertiesWithoutWindow;
+var
+  LOldSubpixelText: Boolean;
+begin
+  LOldSubpixelText := GlobalSkiaSubpixelText;
+  try
+    GlobalSkiaSubpixelText := True;
+    Assert.IsTrue(SkWindowSurfaceProperties(nil) = TSkSurfaceProperties.Create([], TSkPixelGeometry.Unknown),
+      'Without a window the pixel geometry should be unknown');
+  finally
+    GlobalSkiaSubpixelText := LOldSubpixelText;
   end;
 end;
 
