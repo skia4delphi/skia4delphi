@@ -46,6 +46,8 @@ type
     [Test]
     procedure TestIsEqual;
     [Test]
+    procedure TestShadows;
+    [Test]
     procedure TestSpacingAndHeight;
     [Test]
     procedure TestTypography;
@@ -137,20 +139,23 @@ end;
 
 procedure TSkTextStyleTests.TestFontFeatures;
 var
+  LFeatures: TArray<TSkFontFeature>;
   LTextStyle: ISkTextStyle;
 begin
-  // The font features are write only in the API, so the check is that the calls
-  // are accepted and do not disturb the rest of the style.
   LTextStyle := TSkTextStyle.Create;
+  Assert.AreEqual<NativeInt>(0, Length((LTextStyle as TSkTextStyle).FontFeatures), '(Default FontFeatures)');
+
   LTextStyle.AddFontFeature('liga', 1);
   LTextStyle.AddFontFeature('kern', 0);
   LTextStyle.FontSize := 20;
-  LTextStyle.ResetFontFeatures;
-  Assert.AreEqual(20.0, LTextStyle.FontSize, TEpsilon.FontSize, 'Resetting the font features should keep the rest of the style');
+  LFeatures := (LTextStyle as TSkTextStyle).FontFeatures;
+  Assert.AreEqual<NativeInt>(2, Length(LFeatures), '(FontFeatures count)');
+  Assert.IsTrue(LFeatures[0] = TSkFontFeature.Create('liga', 1), '(FontFeatures[0])');
+  Assert.IsTrue(LFeatures[1] = TSkFontFeature.Create('kern', 0), '(FontFeatures[1])');
 
-  LTextStyle.AddShadow(TSkTextShadow.Create(TAlphaColors.Red, PointF(2, 2), 3));
-  LTextStyle.ResetShadows;
-  Assert.AreEqual(20.0, LTextStyle.FontSize, TEpsilon.FontSize, 'Resetting the shadows should keep the rest of the style');
+  LTextStyle.ResetFontFeatures;
+  Assert.AreEqual<NativeInt>(0, Length((LTextStyle as TSkTextStyle).FontFeatures), '(FontFeatures after reset)');
+  Assert.AreEqual(20.0, LTextStyle.FontSize, TEpsilon.FontSize, 'Resetting the font features should keep the rest of the style');
 end;
 
 procedure TSkTextStyleTests.TestFontMetrics;
@@ -224,6 +229,27 @@ begin
 
   LTextStyle1.FontSize := 30;
   Assert.IsTrue(LTextStyle1.IsEqual(LTextStyle2), 'Text styles with the same settings should be equal again');
+end;
+
+procedure TSkTextStyleTests.TestShadows;
+var
+  LShadows: TArray<TSkTextShadow>;
+  LTextStyle: ISkTextStyle;
+begin
+  LTextStyle := TSkTextStyle.Create;
+  Assert.AreEqual<NativeInt>(0, Length((LTextStyle as TSkTextStyle).Shadows), '(Default Shadows)');
+
+  LTextStyle.AddShadow(TSkTextShadow.Create(TAlphaColors.Red, PointF(2, 3), 4));
+  LTextStyle.AddShadow(TSkTextShadow.Create(TAlphaColors.Blue, PointF(-1, 0), 0));
+  LTextStyle.FontSize := 20;
+  LShadows := (LTextStyle as TSkTextStyle).Shadows;
+  Assert.AreEqual<NativeInt>(2, Length(LShadows), '(Shadows count)');
+  Assert.IsTrue(LShadows[0] = TSkTextShadow.Create(TAlphaColors.Red, PointF(2, 3), 4), '(Shadows[0])');
+  Assert.IsTrue(LShadows[1] = TSkTextShadow.Create(TAlphaColors.Blue, PointF(-1, 0), 0), '(Shadows[1])');
+
+  LTextStyle.ResetShadows;
+  Assert.AreEqual<NativeInt>(0, Length((LTextStyle as TSkTextStyle).Shadows), '(Shadows after reset)');
+  Assert.AreEqual(20.0, LTextStyle.FontSize, TEpsilon.FontSize, 'Resetting the shadows should keep the rest of the style');
 end;
 
 procedure TSkTextStyleTests.TestSpacingAndHeight;

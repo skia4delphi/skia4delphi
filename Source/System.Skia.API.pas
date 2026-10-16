@@ -2287,6 +2287,7 @@ var
   {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_textstyle_get_decorations         {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_textstyle_t): uint32_t; cdecl;
   {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_textstyle_get_font_edging         {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_textstyle_t): sk_fontedging_t; cdecl;
   {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_textstyle_get_font_families       {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_textstyle_t; const result: PMarshaledAString): size_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_textstyle_get_font_features       {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_textstyle_t; names: psk_string_t; values: pint32_t): size_t; cdecl;
   {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_textstyle_get_font_hinting        {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_textstyle_t): sk_fonthinting_t; cdecl;
   {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_textstyle_get_font_metrics        {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(const self: sk_textstyle_t; out result: sk_fontmetrics_t); cdecl;
   {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_textstyle_get_font_size           {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_textstyle_t): float; cdecl;
@@ -2296,6 +2297,7 @@ var
   {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_textstyle_get_height_multiplier   {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_textstyle_t): float; cdecl;
   {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_textstyle_get_letter_spacing      {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_textstyle_t): float; cdecl;
   {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_textstyle_get_locale              {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_textstyle_t): sk_string_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_textstyle_get_shadows             {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_textstyle_t; result: psk_textshadow_t): size_t; cdecl;
   {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_textstyle_get_subpixel            {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_textstyle_t): _bool; cdecl;
   {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_textstyle_get_word_spacing        {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_textstyle_t): float; cdecl;
   {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_textstyle_is_equal                {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self, text_style: sk_textstyle_t): _bool; cdecl;
@@ -10442,6 +10444,7 @@ procedure sk4d_strutstyle_set_leading(self: sk_strutstyle_t; value: float); cdec
   sk4d_textstyle_get_decorations          := GetProcAddress(LibraryHandle, PChar('sk4d_textstyle_get_decorations'));
   sk4d_textstyle_get_font_edging          := GetProcAddress(LibraryHandle, PChar('sk4d_textstyle_get_font_edging'));
   sk4d_textstyle_get_font_families        := GetProcAddress(LibraryHandle, PChar('sk4d_textstyle_get_font_families'));
+  sk4d_textstyle_get_font_features        := GetProcAddress(LibraryHandle, PChar('sk4d_textstyle_get_font_features'));
   sk4d_textstyle_get_font_hinting         := GetProcAddress(LibraryHandle, PChar('sk4d_textstyle_get_font_hinting'));
   sk4d_textstyle_get_font_metrics         := GetProcAddress(LibraryHandle, PChar('sk4d_textstyle_get_font_metrics'));
   sk4d_textstyle_get_font_size            := GetProcAddress(LibraryHandle, PChar('sk4d_textstyle_get_font_size'));
@@ -10451,6 +10454,7 @@ procedure sk4d_strutstyle_set_leading(self: sk_strutstyle_t; value: float); cdec
   sk4d_textstyle_get_height_multiplier    := GetProcAddress(LibraryHandle, PChar('sk4d_textstyle_get_height_multiplier'));
   sk4d_textstyle_get_letter_spacing       := GetProcAddress(LibraryHandle, PChar('sk4d_textstyle_get_letter_spacing'));
   sk4d_textstyle_get_locale               := GetProcAddress(LibraryHandle, PChar('sk4d_textstyle_get_locale'));
+  sk4d_textstyle_get_shadows              := GetProcAddress(LibraryHandle, PChar('sk4d_textstyle_get_shadows'));
   sk4d_textstyle_get_subpixel             := GetProcAddress(LibraryHandle, PChar('sk4d_textstyle_get_subpixel'));
   sk4d_textstyle_get_word_spacing         := GetProcAddress(LibraryHandle, PChar('sk4d_textstyle_get_word_spacing'));
   sk4d_textstyle_is_equal                 := GetProcAddress(LibraryHandle, PChar('sk4d_textstyle_is_equal'));
@@ -10489,6 +10493,7 @@ function  sk4d_textstyle_get_decoration_thickness(const self: sk_textstyle_t): f
 function  sk4d_textstyle_get_decorations(const self: sk_textstyle_t): uint32_t; cdecl;                                   external{$IF NOT DEFINED(FPC) and NOT DEFINED(MSWINDOWS)} LibraryName{$ENDIF} name _PU + 'sk4d_textstyle_get_decorations';
 function  sk4d_textstyle_get_font_edging(const self: sk_textstyle_t): sk_fontedging_t; cdecl;                            external{$IF NOT DEFINED(FPC) and NOT DEFINED(MSWINDOWS)} LibraryName{$ENDIF} name _PU + 'sk4d_textstyle_get_font_edging';
 function  sk4d_textstyle_get_font_families(const self: sk_textstyle_t; const result: PMarshaledAString): size_t; cdecl;  external{$IF NOT DEFINED(FPC) and NOT DEFINED(MSWINDOWS)} LibraryName{$ENDIF} name _PU + 'sk4d_textstyle_get_font_families';
+function  sk4d_textstyle_get_font_features(const self: sk_textstyle_t; names: psk_string_t; values: pint32_t): size_t; cdecl; external{$IF NOT DEFINED(FPC) and NOT DEFINED(MSWINDOWS)} LibraryName{$ENDIF} name _PU + 'sk4d_textstyle_get_font_features';
 function  sk4d_textstyle_get_font_hinting(const self: sk_textstyle_t): sk_fonthinting_t; cdecl;                          external{$IF NOT DEFINED(FPC) and NOT DEFINED(MSWINDOWS)} LibraryName{$ENDIF} name _PU + 'sk4d_textstyle_get_font_hinting';
 procedure sk4d_textstyle_get_font_metrics(const self: sk_textstyle_t; out result: sk_fontmetrics_t); cdecl;              external{$IF NOT DEFINED(FPC) and NOT DEFINED(MSWINDOWS)} LibraryName{$ENDIF} name _PU + 'sk4d_textstyle_get_font_metrics';
 function  sk4d_textstyle_get_font_size(const self: sk_textstyle_t): float; cdecl;                                        external{$IF NOT DEFINED(FPC) and NOT DEFINED(MSWINDOWS)} LibraryName{$ENDIF} name _PU + 'sk4d_textstyle_get_font_size';
@@ -10498,6 +10503,7 @@ function  sk4d_textstyle_get_half_leading(const self: sk_textstyle_t): _bool; cd
 function  sk4d_textstyle_get_height_multiplier(const self: sk_textstyle_t): float; cdecl;                                external{$IF NOT DEFINED(FPC) and NOT DEFINED(MSWINDOWS)} LibraryName{$ENDIF} name _PU + 'sk4d_textstyle_get_height_multiplier';
 function  sk4d_textstyle_get_letter_spacing(const self: sk_textstyle_t): float; cdecl;                                   external{$IF NOT DEFINED(FPC) and NOT DEFINED(MSWINDOWS)} LibraryName{$ENDIF} name _PU + 'sk4d_textstyle_get_letter_spacing';
 function  sk4d_textstyle_get_locale(const self: sk_textstyle_t): sk_string_t; cdecl;                                     external{$IF NOT DEFINED(FPC) and NOT DEFINED(MSWINDOWS)} LibraryName{$ENDIF} name _PU + 'sk4d_textstyle_get_locale';
+function  sk4d_textstyle_get_shadows(const self: sk_textstyle_t; result: psk_textshadow_t): size_t; cdecl;               external{$IF NOT DEFINED(FPC) and NOT DEFINED(MSWINDOWS)} LibraryName{$ENDIF} name _PU + 'sk4d_textstyle_get_shadows';
 function  sk4d_textstyle_get_subpixel(const self: sk_textstyle_t): _bool; cdecl;                                         external{$IF NOT DEFINED(FPC) and NOT DEFINED(MSWINDOWS)} LibraryName{$ENDIF} name _PU + 'sk4d_textstyle_get_subpixel';
 function  sk4d_textstyle_get_word_spacing(const self: sk_textstyle_t): float; cdecl;                                     external{$IF NOT DEFINED(FPC) and NOT DEFINED(MSWINDOWS)} LibraryName{$ENDIF} name _PU + 'sk4d_textstyle_get_word_spacing';
 function  sk4d_textstyle_is_equal(const self, text_style: sk_textstyle_t): _bool; cdecl;                                 external{$IF NOT DEFINED(FPC) and NOT DEFINED(MSWINDOWS)} LibraryName{$ENDIF} name _PU + 'sk4d_textstyle_is_equal';

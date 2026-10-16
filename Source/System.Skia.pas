@@ -484,6 +484,16 @@ type
     class operator NotEqual(const ACubicResampler1, ACubicResampler2: TSkCubicResampler): Boolean;
   end;
 
+  { TSkFontFeature }
+
+  TSkFontFeature = record
+    Name: string;
+    Value: Integer;
+    constructor Create(const AName: string; const AValue: Integer);
+    class operator Equal(const AFontFeature1, AFontFeature2: TSkFontFeature): Boolean;
+    class operator NotEqual(const AFontFeature1, AFontFeature2: TSkFontFeature): Boolean;
+  end;
+
   { TSkFontMetrics }
 
   TSkFontMetrics = record
@@ -3552,14 +3562,18 @@ type
   TSkTextStyleHelper = class helper for TSkTextStyle
   strict private
     function GetFontEdging: TSkFontEdging;
+    function GetFontFeatures: TArray<TSkFontFeature>;
     function GetFontHinting: TSkFontHinting;
+    function GetShadows: TArray<TSkTextShadow>;
     function GetSubpixel: Boolean;
     procedure SetFontEdging(const AValue: TSkFontEdging);
     procedure SetFontHinting(const AValue: TSkFontHinting);
     procedure SetSubpixel(const AValue: Boolean);
   public
     property FontEdging: TSkFontEdging read GetFontEdging write SetFontEdging;
+    property FontFeatures: TArray<TSkFontFeature> read GetFontFeatures;
     property FontHinting: TSkFontHinting read GetFontHinting write SetFontHinting;
+    property Shadows: TArray<TSkTextShadow> read GetShadows;
     property Subpixel: Boolean read GetSubpixel write SetSubpixel;
   end;
 
@@ -4764,6 +4778,27 @@ class operator TSkCubicResampler.NotEqual(const ACubicResampler1,
   ACubicResampler2: TSkCubicResampler): Boolean;
 begin
   Result := not (ACubicResampler1 = ACubicResampler2);
+end;
+
+{ TSkFontFeature }
+
+constructor TSkFontFeature.Create(const AName: string; const AValue: Integer);
+begin
+  Name  := AName;
+  Value := AValue;
+end;
+
+class operator TSkFontFeature.Equal(const AFontFeature1,
+  AFontFeature2: TSkFontFeature): Boolean;
+begin
+  Result := (AFontFeature1.Name  = AFontFeature2.Name ) and
+            (AFontFeature1.Value = AFontFeature2.Value);
+end;
+
+class operator TSkFontFeature.NotEqual(const AFontFeature1,
+  AFontFeature2: TSkFontFeature): Boolean;
+begin
+  Result := not (AFontFeature1 = AFontFeature2);
 end;
 
 { TSkFontMetrics }
@@ -12668,9 +12703,33 @@ begin
   Result := TSkFontEdging(sk4d_textstyle_get_font_edging(Handle));
 end;
 
+function TSkTextStyleHelper.GetFontFeatures: TArray<TSkFontFeature>;
+var
+  I: NativeInt;
+  LName: ISkString;
+  LNames: TArray<sk_string_t>;
+  LValues: TArray<int32_t>;
+begin
+  SetLength(LNames{%H-}, sk4d_textstyle_get_font_features(Handle, nil, nil));
+  SetLength(LValues{%H-}, Length(LNames));
+  sk4d_textstyle_get_font_features(Handle, @LNames[0], @LValues[0]);
+  SetLength(Result{%H-}, Length(LNames));
+  for I := 0 to Length(LNames) - 1 do
+  begin
+    LName     := TSkString.Wrap(LNames[I]);
+    Result[I] := TSkFontFeature.Create(LName.Text, LValues[I]);
+  end;
+end;
+
 function TSkTextStyleHelper.GetFontHinting: TSkFontHinting;
 begin
   Result := TSkFontHinting(sk4d_textstyle_get_font_hinting(Handle));
+end;
+
+function TSkTextStyleHelper.GetShadows: TArray<TSkTextShadow>;
+begin
+  SetLength(Result{%H-}, sk4d_textstyle_get_shadows(Handle, nil));
+  sk4d_textstyle_get_shadows(Handle, @Result[0]);
 end;
 
 function TSkTextStyleHelper.GetSubpixel: Boolean;
