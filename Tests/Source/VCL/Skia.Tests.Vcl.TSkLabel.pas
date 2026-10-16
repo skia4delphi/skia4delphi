@@ -117,6 +117,10 @@ type
     [TestCase('59.Short low size horizontal trailing vertical center', ShortText + ',40,13,1,5,2,30,9,12,1,true,Leading,Center,None,claBlack,5,2,40,18,0.97,///h4cHBwcH///Hhw8fPwf//8/fT99/B//////////vve+977CPuQ+xD6EvqS/////////////8')]
     {$ENDIF}
     procedure GenericTest(const AText: string; const AControlWidth, AControlHeight: Integer; const AScale, ATextLeft, ATextTop, AMaxWidth, AMaxHeight, AFontSize: Single; const AMaxLines: Integer; const ARightToLeft: Boolean; const AHorizontalAlign: TSkTextHorzAlign; const AVerticalAlign: TSkTextVertAlign; const ATrimming: TSkTextTrimming; const AColor: string; const AExpectedTextLeft, AExpectedTextTop, AExpectedTextRight, AExpectedTextBottom: Single; const AMinSimilarity: Double; const AExpectedImageHash: string);
+    {$IFDEF TEXT_RENDER}
+    [Test]
+    {$ENDIF}
+    procedure TestWordsInheritHeightMultiplierAndLetterSpacing;
     [Setup]
     procedure Setup; override;
   end;
@@ -218,6 +222,43 @@ begin
     LLabel.Free;
   end;
   Assert.AreSimilar(AExpectedImageHash, LSurface.MakeImageSnapshot, AMinSimilarity);
+end;
+
+procedure TSkLabelTests.TestWordsInheritHeightMultiplierAndLetterSpacing;
+
+  function GetParagraphSize(const AWordsStyledSettings: TSkStyledSettings;
+    const AWordsHeightMultiplier, AWordsLetterSpacing: Single): TSizeF;
+  var
+    LLabel: TSkLabelEx;
+  begin
+    LLabel := TSkLabelEx.Create(nil, False);
+    try
+      LLabel.TextSettings.Font.Families := DefaultFontFamily;
+      LLabel.TextSettings.Font.Size := 14;
+      LLabel.TextSettings.HeightMultiplier := 3;
+      LLabel.TextSettings.LetterSpacing := 5;
+      LLabel.Caption := ShortText;
+      LLabel.Words[0].HeightMultiplier := AWordsHeightMultiplier;
+      LLabel.Words[0].LetterSpacing := AWordsLetterSpacing;
+      LLabel.Words[0].StyledSettings := AWordsStyledSettings;
+      Result := LLabel.ParagraphBounds.Size;
+    finally
+      LLabel.Free;
+    end;
+  end;
+
+var
+  LExpectedSize: TSizeF;
+  LSize: TSizeF;
+begin
+  LExpectedSize := GetParagraphSize(AllStyledSettings, 0, 0);
+  LSize := GetParagraphSize(DefaultStyledSettings, 0, 0);
+  Assert.AreSameValue(LExpectedSize.Width, LSize.Width, TEpsilon.Position, 'Words without their own LetterSpacing should use the label one');
+  Assert.AreSameValue(LExpectedSize.Height, LSize.Height, TEpsilon.Position, 'Words without their own HeightMultiplier should use the label one');
+
+  LSize := GetParagraphSize(DefaultStyledSettings, 1, 1);
+  Assert.IsTrue(LSize.Width < LExpectedSize.Width, 'The LetterSpacing of the words should override the label one');
+  Assert.IsTrue(LSize.Height < LExpectedSize.Height, 'The HeightMultiplier of the words should override the label one');
 end;
 
 { TSkLabelEx }

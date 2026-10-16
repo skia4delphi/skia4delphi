@@ -132,6 +132,10 @@ type
     [Test]
     {$ENDIF}
     procedure TestSubpixelText;
+    {$IFDEF TEXT_RENDER}
+    [Test]
+    {$ENDIF}
+    procedure TestWordsInheritHeightMultiplierAndLetterSpacing;
     [Setup]
     procedure Setup; override;
   end;
@@ -374,6 +378,43 @@ begin
     {ExpectedTextRect} TRectF.Create(0, 0, 0, 0), {CheckTextRect} False, {SkLabelClass} TSkLabelDarkStyled,
     {MinSimilarity} 0.98,
     {ExpectedImageHash} 'AAAAAAAAAAB/fHBhQ0dOTH98cHFbT05M//////////////v/////////7//+////3/////////8');
+end;
+
+procedure TSkLabelTests.TestWordsInheritHeightMultiplierAndLetterSpacing;
+
+  function GetParagraphSize(const AWordsStyledSettings: TStyledSettings;
+    const AWordsHeightMultiplier, AWordsLetterSpacing: Single): TSizeF;
+  var
+    LLabel: TSkLabelAccess;
+  begin
+    LLabel := TSkLabelAccess.Create(nil);
+    try
+      LLabel.TextSettings.Font.Families := DefaultFontFamily;
+      LLabel.TextSettings.Font.Size := 14;
+      LLabel.TextSettings.HeightMultiplier := 3;
+      LLabel.TextSettings.LetterSpacing := 5;
+      LLabel.Text := ShortText;
+      LLabel.Words[0].HeightMultiplier := AWordsHeightMultiplier;
+      LLabel.Words[0].LetterSpacing := AWordsLetterSpacing;
+      LLabel.Words[0].StyledSettings := AWordsStyledSettings;
+      Result := LLabel.ParagraphBounds.Size;
+    finally
+      LLabel.Free;
+    end;
+  end;
+
+var
+  LExpectedSize: TSizeF;
+  LSize: TSizeF;
+begin
+  LExpectedSize := GetParagraphSize(AllStyledSettings, 0, 0);
+  LSize := GetParagraphSize(AllStyledSettings - [TStyledSetting.Other], 0, 0);
+  Assert.AreSameValue(LExpectedSize.Width, LSize.Width, TEpsilon.Position, 'Words without their own LetterSpacing should use the label one');
+  Assert.AreSameValue(LExpectedSize.Height, LSize.Height, TEpsilon.Position, 'Words without their own HeightMultiplier should use the label one');
+
+  LSize := GetParagraphSize(AllStyledSettings - [TStyledSetting.Other], 1, 1);
+  Assert.IsTrue(LSize.Width < LExpectedSize.Width, 'The LetterSpacing of the words should override the label one');
+  Assert.IsTrue(LSize.Height < LExpectedSize.Height, 'The HeightMultiplier of the words should override the label one');
 end;
 
 initialization

@@ -5749,9 +5749,15 @@ var
     end
     else
     begin
-      Result.HeightMultiplier := AWordsItem.HeightMultiplier;
+      if SameValue(AWordsItem.HeightMultiplier, 0, TEpsilon.Position) then
+        Result.HeightMultiplier := ADefaultTextStyle.HeightMultiplier
+      else
+        Result.HeightMultiplier := AWordsItem.HeightMultiplier;
       SetTextStyleDecorations(Result, AWordsItem.Decorations, ADrawKind);
-      Result.LetterSpacing := AWordsItem.LetterSpacing;
+      if SameValue(AWordsItem.LetterSpacing, 0, TEpsilon.Position) then
+        Result.LetterSpacing := ADefaultTextStyle.LetterSpacing
+      else
+        Result.LetterSpacing := AWordsItem.LetterSpacing;
     end;
     if GlobalSkiaTextLocale <> '' then
       Result.Locale := GlobalSkiaTextLocale;
