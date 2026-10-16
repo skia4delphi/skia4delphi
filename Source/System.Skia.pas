@@ -2491,6 +2491,14 @@ type
 
   {$HPPEMIT END '#define SkPixmap(...) __SkCreate(TSkPixmap, ISkPixmap, __VA_ARGS__)'}
 
+  { TSkPixmapHelper }
+
+  // TODO: Merge this constructor in TSkPixmap in the next major version.
+  TSkPixmapHelper = class helper for TSkPixmap
+  public
+    constructor Create; overload;
+  end;
+
   TSkRectEnumerator = TSkEnumerable<TRect>.TEnumerator;
 
   { ISkRegionCliperator }
@@ -9771,6 +9779,13 @@ end;
 class procedure TSkPixmap.__DestroyHandle(const AHandle: sk_handle_t);
 begin
   sk4d_pixmap_destroy(AHandle);
+end;
+
+{ TSkPixmapHelper }
+
+constructor TSkPixmapHelper.Create;
+begin
+  Wrap(sk4d_pixmap_create2());
 end;
 
 { TSkRegion }

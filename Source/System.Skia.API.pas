@@ -1926,6 +1926,7 @@ var
   { include/c/sk4d_pixmap.h }
 
   {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_pixmap_create         {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const image_info: psk_imageinfo_t; const pixels: Pointer; row_bytes: size_t): sk_pixmap_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_pixmap_create2        {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(): sk_pixmap_t; cdecl;
   {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_pixmap_destroy        {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_pixmap_t); cdecl;
   {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_pixmap_erase          {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_pixmap_t; color: sk_color_t; const area: psk_irect_t): _bool; cdecl;
   {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_pixmap_erase2         {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_pixmap_t; const color: psk_color4f_t; color_space: sk_colorspace_t; const area: psk_irect_t): _bool; cdecl;
@@ -9749,6 +9750,7 @@ function  sk4d_picturerecorder_finish_recording2(self: sk_picturerecorder_t; con
 
 {$IFNDEF SK_STATIC_LIBRARY}
   sk4d_pixmap_create          := GetProcAddress(LibraryHandle, PChar('sk4d_pixmap_create'));
+  sk4d_pixmap_create2         := GetProcAddress(LibraryHandle, PChar('sk4d_pixmap_create2'));
   sk4d_pixmap_destroy         := GetProcAddress(LibraryHandle, PChar('sk4d_pixmap_destroy'));
   sk4d_pixmap_erase           := GetProcAddress(LibraryHandle, PChar('sk4d_pixmap_erase'));
   sk4d_pixmap_erase2          := GetProcAddress(LibraryHandle, PChar('sk4d_pixmap_erase2'));
@@ -9770,6 +9772,7 @@ function  sk4d_picturerecorder_finish_recording2(self: sk_picturerecorder_t; con
   sk4d_pixmap_set_colorspace  := GetProcAddress(LibraryHandle, PChar('sk4d_pixmap_set_colorspace'));
 {$ELSE}
 function  sk4d_pixmap_create(const image_info: psk_imageinfo_t; const pixels: Pointer; row_bytes: size_t): sk_pixmap_t; cdecl;                          external{$IF NOT DEFINED(FPC) and NOT DEFINED(MSWINDOWS)} LibraryName{$ENDIF} name _PU + 'sk4d_pixmap_create';
+function  sk4d_pixmap_create2(): sk_pixmap_t; cdecl;                                                                                                    external{$IF NOT DEFINED(FPC) and NOT DEFINED(MSWINDOWS)} LibraryName{$ENDIF} name _PU + 'sk4d_pixmap_create2';
 procedure sk4d_pixmap_destroy(self: sk_pixmap_t); cdecl;                                                                                                external{$IF NOT DEFINED(FPC) and NOT DEFINED(MSWINDOWS)} LibraryName{$ENDIF} name _PU + 'sk4d_pixmap_destroy';
 function  sk4d_pixmap_erase(const self: sk_pixmap_t; color: sk_color_t; const area: psk_irect_t): _bool; cdecl;                                         external{$IF NOT DEFINED(FPC) and NOT DEFINED(MSWINDOWS)} LibraryName{$ENDIF} name _PU + 'sk4d_pixmap_erase';
 function  sk4d_pixmap_erase2(const self: sk_pixmap_t; const color: psk_color4f_t; color_space: sk_colorspace_t; const area: psk_irect_t): _bool; cdecl; external{$IF NOT DEFINED(FPC) and NOT DEFINED(MSWINDOWS)} LibraryName{$ENDIF} name _PU + 'sk4d_pixmap_erase2';

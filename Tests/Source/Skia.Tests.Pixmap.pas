@@ -39,6 +39,8 @@ type
     [Test]
     procedure TestColorSpace;
     [Test]
+    procedure TestCreateEmpty;
+    [Test]
     procedure TestErase;
     [Test]
     procedure TestEraseSubset;
@@ -46,6 +48,8 @@ type
     procedure TestEraseWithColorF;
     [Test]
     procedure TestExtractSubset;
+    [Test]
+    procedure TestExtractSubsetToEmptyPixmap;
     [Test]
     procedure TestGetColorF;
     [Test]
@@ -104,6 +108,21 @@ begin
   Assert.IsNull(LPixmap.ColorSpace, 'The color space should be removable');
 end;
 
+procedure TSkPixmapTests.TestCreateEmpty;
+var
+  LPixmap: ISkPixmap;
+begin
+  LPixmap := TSkPixmap.Create;
+  Assert.IsNotNull(LPixmap, 'Invalid ISkPixmap (nil)');
+  Assert.AreEqual(0, LPixmap.Width, '(Width)');
+  Assert.AreEqual(0, LPixmap.Height, '(Height)');
+  Assert.IsTrue(LPixmap.ColorType = TSkColorType.Unknown, '(ColorType)');
+  Assert.IsTrue(LPixmap.AlphaType = TSkAlphaType.Unknown, '(AlphaType)');
+  Assert.IsNull(LPixmap.ColorSpace, '(ColorSpace)');
+  Assert.AreEqual<NativeUInt>(0, LPixmap.RowBytes, '(RowBytes)');
+  Assert.IsTrue(LPixmap.Pixels = nil, '(Pixels)');
+end;
+
 procedure TSkPixmapTests.TestErase;
 var
   LPixmap: ISkPixmap;
@@ -154,6 +173,24 @@ begin
   Assert.AreEqual<TAlphaColor>(TAlphaColors.Red, LDest.Colors[0, 0], 'The subset should hold the red corner');
 
   Assert.IsFalse(LSource.ExtractSubset(LDest, Rect(10, 10, 12, 12)), 'A subset outside the pixmap should fail');
+end;
+
+procedure TSkPixmapTests.TestExtractSubsetToEmptyPixmap;
+var
+  LDest: ISkPixmap;
+  LSource: ISkPixmap;
+begin
+  LSource := CreatePixmap(4, 4, FBuffer);
+  Assert.IsTrue(LSource.Erase(TAlphaColors.Blue));
+  Assert.IsTrue(LSource.Erase(TAlphaColors.Red, RectF(2, 2, 4, 4)));
+
+  LDest := TSkPixmap.Create;
+  Assert.IsTrue(LSource.ExtractSubset(LDest, Rect(2, 1, 4, 4)), 'ExtractSubset should succeed');
+  Assert.AreEqual(2, LDest.Width, '(Width)');
+  Assert.AreEqual(3, LDest.Height, '(Height)');
+  Assert.AreEqual<NativeUInt>(NativeUInt(LSource.PixelAddr[2, 1]), NativeUInt(LDest.Pixels), 'The subset should share the source pixels');
+  Assert.AreEqual<TAlphaColor>(TAlphaColors.Blue, LDest.Colors[0, 0], '(0, 0)');
+  Assert.AreEqual<TAlphaColor>(TAlphaColors.Red, LDest.Colors[1, 2], '(1, 2)');
 end;
 
 procedure TSkPixmapTests.TestGetColorF;
