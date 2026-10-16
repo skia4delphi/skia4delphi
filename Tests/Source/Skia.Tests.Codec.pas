@@ -174,12 +174,12 @@ type
     [TestCase('SkAnimationCodecPlayer GIF Animated (developer.gif)', 'developer.gif,5080')]
     [TestCase('SkAnimationCodecPlayer WebP Animated (rocket.webp)',  'rocket.webp,5050')]
     procedure TestDecodeDuration(const AImageFileName: string; const ADuration: Cardinal);
-    [TestCase('SkAnimationCodecPlayer GIF Animated (animated.gif - frame 0ms)',    'animated.gif,0,/+/n54gAAAD///fny0dOTP//9/fv79/e///39+/v394AAAEAA4ADgAGAAD8eP/+//P/97/nf//8')]
-    [TestCase('SkAnimationCodecPlayer GIF Animated (animated.gif - frame 180ms)',  'animated.gif,180,/+/v5+wAAAD////n70dOTP////fv7+/c////9+/v79wCAAEAAwADgAOAAf8ff/5//j/+3/zf//8')]
-    [TestCase('SkAnimationCodecPlayer GIF Animated (developer.gif - frame 0ms)',   'developer.gif,0,z8v7fw8PDY////t/T09Pz///+//vT0/P///////////QP+C/4D/Qf9AP4Y/zj/+P4Y////////8')]
-    [TestCase('SkAnimationCodecPlayer GIF Animated (developer.gif - frame 450ms)', 'developer.gif,450,//vz8eHz8/////Px4/f/////+/n7///////////////8F/0P/B/8B/AH9w/3j/eP9w////////8')]
-    [TestCase('SkAnimationCodecPlayer WebP Animated (rocket.webp - frame 0ms)',    'rocket.webp,0,///xg4MP//////Hjw0//////9/PfX/////////////////+P8A/wH+A/4P/A/43///////////8')]
-    [TestCase('SkAnimationCodecPlayer WebP Animated (rocket.webp - frame 610ms)',  'rocket.webp,610,///hgYOP//////Hhw8//////9/vf3/////////////////+H8A/4D+A/4P/A/83///////////8')]
+    [TestCase('SkAnimationCodecPlayer GIF Animated (animated.gif - frame 0ms)',    'animated.gif,0,C3COAf48OLGAESXon3sLnU+wvBJTxL+FCd7z/sDgKsieww7dh9H884iHz3kF6jcggPxBAP+A6g')]
+    [TestCase('SkAnimationCodecPlayer GIF Animated (animated.gif - frame 180ms)',  'animated.gif,180,EZC+AQBIiCHAESLwvzsNoU8Q/RJYsB+GCNbXDkHfHbjeww/XbwE9+om3XzkH4Vuwwftd+D5A6Q')]
+    [TestCase('SkAnimationCodecPlayer GIF Animated (developer.gif - frame 0ms)',   'developer.gif,0,nWPNghHqD2C/BunPkL3nZxcxhP0BqK9C/yKIHzvZVpiAvv3tR1BACwuYHjYVNMRPQP4bWJCC/w')]
+    [TestCase('SkAnimationCodecPlayer GIF Animated (developer.gif - frame 450ms)', 'developer.gif,450,lqO9BBHcv19+CQmgoL/vb6vgAgX3e/+D9/jfDnvXR9wwfwDpSxABDgKcXjUQLnC///0VNMBC/Q')]
+    [TestCase('SkAnimationCodecPlayer WebP Animated (rocket.webp - frame 0ms)',    'rocket.webp,0,z9vRNg3Jhw+/56ivr4fiFkjfffv0g9F+4wCEAUQYF3g+P+zcn1DBBCt834Xt4BOP+AUmyM07DQ')]
+    [TestCase('SkAnimationCodecPlayer WebP Animated (rocket.webp - frame 610ms)',  'rocket.webp,610,3w9ytg7Mhw/+5buHDwfhElS/fvj6u+E+5AxM8UMYFqhe//Dda7ABAzeMT0Xu2/t+eAcoxI37Cw')]
     procedure TestDecode(const AImageFileName: string; const AFrameAtMilliseconds: Cardinal; const AExpectedImageHash: string);
   end;
 
@@ -217,22 +217,22 @@ type
 
 const
   FImageAssets: array[0..15] of TImageAssetInfo =
-    ((Name: 'girl.bmp';            Width: 244;  Height: 280;  CRC32: 1736216929; SimilarityHash: '48PBjYmDg4H///Hty8fPzf///e/P19/d////////3/0P+P78H04/vi9eJQwA+yGkKlwgBCDgP/4'; MinSimilarity: 0.99),
-     (Name: 'park.dng';            Width: 600;  Height: 338;  CRC32: 1955671176; SimilarityHash: '//9/GAAAAAj//395w8fOzP//f3/X987f/////////////7//jAAAAAAAAAAAAAAAAAAAAAAAAAA'; MinSimilarity: 0.99),
-     (Name: 'animated.gif';        Width: 1400; Height: 1050; CRC32: 2005275412; SimilarityHash: '/+/n54gAAAD///fny0dOTP//9/fv79/e///39+/v394AAAEAA4ADgAGAAD8eP/+//P/97/nf//8'; MinSimilarity: 0.99),
-     (Name: 'developer.gif';       Width: 800;  Height: 600;  CRC32: 2166160918; SimilarityHash: 'z8v7fw8PDY////t/T09Pz///+//vT0/P///////////QP+C/4D/Qf9AP4Y/zj/+P4Y////////8'; MinSimilarity: 0.99),
-     (Name: 'delphi.ico';          Width: 256;  Height: 256;  CRC32: 2952345114; SimilarityHash: 'w714eHAYjcP//fj48NjNw////Pz63u/z//////vf//+hPcw/4B/SH8Ef8J/wH709/r//P/fv//8'; MinSimilarity: 0.99),
-     (Name: 'abnt.jpg';            Width: 202;  Height: 337;  CRC32: 1659968685; SimilarityHash: '5/8PAAwIf/////9hT09//////2VPb3/////////////+/3h/eP94P3j/eeMBz0niAP8ADPv///8'; MinSimilarity: 0.94),
-     (Name: 'shrek.jpg';           Width: 1440; Height: 1500; CRC32: 1173490088; SimilarityHash: '+fm5KzEWBgb//fnr89bOTv/9/e/73v9/////7/////+X48zD7KPOzyGPDhdDEzMYhhr0BnAAAAA'; MinSimilarity: 0.99),
-     (Name: 'elephant.png';        Width: 753;  Height: 517;  CRC32: 529596050;  SimilarityHash: '///BgcHhw/P///Hhw+fP////8+fn58/////////////+B9gHwAfAB+AD9AP+B/wH8Af4D/4f/k8'; MinSimilarity: 0.99),
-     (Name: 'kung-fu-panda.png';   Width: 640;  Height: 480;  CRC32: 3960679947; SimilarityHash: '//8vDCRuKor//2/s5+7qzv////737+/v////////7+/ADsCCaAbiGOQQaEhpHGBQ4Fron8Dl0Qc'; MinSimilarity: 0.99),
-     (Name: 'emoji1.png';          Width: 160;  Height: 160;  CRC32: 875861993;  SimilarityHash: '74EBvcfDw////fH9x8fP////+//31//////////////wC+ADwAPCI8BjwAvAB+AH4A/wH/////8'; MinSimilarity: 0.99),
-     (Name: 'emoji2.png';          Width: 80;   Height: 80;   CRC32: 3865023965; SimilarityHash: '/+OBgYGBw/////Hhw8fP/////+vf19/////////f///pB+EDwQPAA8ADwAPgA+AH8A/8P/////8'; MinSimilarity: 0.99),
-     (Name: 'world-time-zone.png'; Width: 1280; Height: 722;  CRC32: 2305552899; SimilarityHash: 'n5GBgYHV9////fHhw9f////9+fnX1//////5+dfX//+AAYABgAGAAYABkAGQAYABgAGABYAB//8'; MinSimilarity: 0.99),
-     (Name: 'animated.png';        Width: 1400; Height: 1050; CRC32: 502650454;  SimilarityHash: '/+/n54AAAAD///fnw0dOTP//9/fn79/e///39+fv394BAAEAA4ADgAGAAD8eP/6//P/97/nf//8'; MinSimilarity: 0.99),
-     (Name: 'mandrill.wbmp';       Width: 512;  Height: 512;  CRC32: 2160350774; SimilarityHash: 'AAA8PL2Zm+N/fHx9/9/f7/98////39///3z////f3/8H8A/wD/AP8dfjx6vDh8fj18fij+EP5r8'; MinSimilarity: 0.99),
-     (Name: 'kung-fu-panda.webp';  Width: 640;  Height: 480;  CRC32: 78640289;   SimilarityHash: '//8vDCRuKor//2/s5+7qzv////737+/v////////7+/ADsCCSAbkCGQQaEhhHGhQ4Fron8Dl0Qc'; MinSimilarity: 0.99),
-     (Name: 'rocket.webp';         Width: 250;  Height: 250;  CRC32: 2031700395; SimilarityHash: '///hg4MP//////Hjw0//////9/vfX/////////////////+P8A/wH+A/4P/A/43///////////8'; MinSimilarity: 0.99));
+    ((Name: 'girl.bmp';            Width: 244;  Height: 280;  CRC32: 1736216929; SimilarityHash: 'z+uthfwJbJGAERyYkL0HgqfgPwsr4F7FDfQHD33qNvSPvhLwO9E/CNKb4HkM/09AgvFCpOB+7w'; MinSimilarity: 0.99),
+     (Name: 'park.dng';            Width: 600;  Height: 338;  CRC32: 1955671176; SimilarityHash: 'QdAdRfk4dDB9ExdsPzz+b+dgvwc31I+E/vWbzrzkEtxvAAHzB1F7/NV7/jkG8G9/AgU7vK5A+Q'; MinSimilarity: 0.99),
+     (Name: 'animated.gif';        Width: 1400; Height: 1050; CRC32: 2005275412; SimilarityHash: 'C3COAf48OLGAESXon3sLnU+wvBJTxL+FCd7z/sDgKsieww7dh9H884iHz3kF6jcggPxBAP+A6g'; MinSimilarity: 0.99),
+     (Name: 'developer.gif';       Width: 800;  Height: 600;  CRC32: 2166160918; SimilarityHash: 'nWPNghHqD2C/BunPkL3nZxcxhP0BqK9C/yKIHzvZVpiAvv3tR1BACwuYHjYVNMRPQP4bWJCC/w'; MinSimilarity: 0.99),
+     (Name: 'delphi.ico';          Width: 256;  Height: 256;  CRC32: 2952345114; SimilarityHash: 'IYCAAABAJNGB8Faw8AD0vnOAQeYSfKDC29QjAAMJ8W9/vfucT4EA9bJDwDwVjNP+PhiZIM6/7Q'; MinSimilarity: 0.99),
+     (Name: 'abnt.jpg';            Width: 202;  Height: 337;  CRC32: 1659968685; SimilarityHash: 'ta9tAwH9p4+/D8+/737pY9/wgf/u65/C/hTcf/ncKpTgPgIAuPD8CuJjDjYLL4wvQAFApL+C/A'; MinSimilarity: 0.94),
+     (Name: 'shrek.jpg';           Width: 1440; Height: 1500; CRC32: 1173490088; SimilarityHash: 'R2yewPYuOMF9HBcwPz3/q6/f/v4jdH9G9OGzrr7iAqzfwAT6ezG69dCXD3kJAGjw/wc2hB9A8g'; MinSimilarity: 0.99),
+     (Name: 'elephant.png';        Width: 753;  Height: 517;  CRC32: 529596050;  SimilarityHash: 'mnNRuQ7Af9984rXHHwnc3O//v/rW36E+6jfU4ToosMtevubDKz7/9RJI7jkY06teORlLRC39Bw'; MinSimilarity: 0.99),
+     (Name: 'kung-fu-panda.png';   Width: 640;  Height: 480;  CRC32: 3960679947; SimilarityHash: 'A8zdAvokWNA+GNGnj778jMvwvQk0gP9E/OhDLzvVI0DQQAcVpJC5DNAjb7gHDdQ/AgMqMI4B6w'; MinSimilarity: 0.99),
+     (Name: 'emoji1.png';          Width: 160;  Height: 160;  CRC32: 875861993;  SimilarityHash: 'rxehPRjPs++B5u9vUIPm3QswQvImiOF94B8cwMEfFPSf/fDsFw+BBeqjP34PpUtfvRZ7OM379w'; MinSimilarity: 0.99),
+     (Name: 'emoji2.png';          Width: 80;   Height: 80;   CRC32: 3865023965; SimilarityHash: 'rUeB+xnn99975zdwsMPru1vwf/Xai1EB6C4oYT4ZG2RfPe3jW48C/CIwH8AKvOtN+BBoOI27AA'; MinSimilarity: 0.99),
+     (Name: 'world-time-zone.png'; Width: 1280; Height: 722;  CRC32: 2305552899; SimilarityHash: 'DvAuwwr+f2F//SvEjz0Fo3/AQ/ZdSFBBAeQfv7/6OUT/gAPMSwCE/KoDgDwM48f/QPwyWFD+5g'; MinSimilarity: 0.99),
+     (Name: 'animated.png';        Width: 1400; Height: 1050; CRC32: 502650454;  SimilarityHash: 'C3COAf48NLGAESTon3sLnU+wvBJTxL+FCd7zDsHgKsiegw7dh8E89IiHz3kF6TcwgPxBAP+A6g'; MinSimilarity: 0.99),
+     (Name: 'mandrill.wbmp';       Width: 512;  Height: 512;  CRC32: 2160350774; SimilarityHash: 'CfitAgYj/FD+CRYoYPr5fPNwQQZZ7K8CCSuojoHcOzCgwhXdI3HEBK+jQHgQFYCQxPdE3ACA6g'; MinSimilarity: 0.99),
+     (Name: 'kung-fu-panda.webp';  Width: 640;  Height: 480;  CRC32: 78640289;   SimilarityHash: 'A8zdAvokWNA+GNGnj778jMvwvQk1gP9E/OhDLzvVI0DQQAcVpJC5DNAjb7gHDdQ/AgMqMI4B6w'; MinSimilarity: 0.99),
+     (Name: 'rocket.webp';         Width: 250;  Height: 250;  CRC32: 2031700395; SimilarityHash: 'z9vRNg3Jhw+/56izv4fiFkjfffvzf9F+4wCEEUQYGHg+P+zbn1DBBCt834Xt4BOP+AUmyM07DQ'; MinSimilarity: 0.99));
 
 function GetImageAssetInfo(const AImageFileName: string): TImageAssetInfo;
 var

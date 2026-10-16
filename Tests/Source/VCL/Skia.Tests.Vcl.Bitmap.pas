@@ -38,43 +38,43 @@ type
     procedure DrawChessBackground(ABitmap: TBitmap; ASquareSize: Single; AEvenSquareColor, AOddSquareColor: TAlphaColor);
     procedure LoadImageFromFile(ABitmap: TBitmap; const AImageFileName: string);
   public
-    [TestCase('1', '50,50,0.98,ZtuZZmaZ22Zn25lnZ5vf/nf73Xd33///f/vff3/////jx+PH//8eeB54///jx+PH48ceeB54Hng')]
-    [TestCase('2', '50,40,0.98,aWmWaWmWaWlra5Zpa/7v/W9v3m1v/u/9f+/+73/+7/3nOec5Occ4xjjGOcfnOec55zk4xjjGOMY')]
+    [TestCase('1', '50,50,0.98,6XvtB/Tqq7ACCvF/wbz9WfcwAPpFuMAD4RP8fX7iCbSPvwYE+DA59axvb7X39uvfBwZyfJ5+5w')]
+    [TestCase('2', '50,40,0.98,8p/9xQDk3zBDCLGj8LntoddP/gYC/I7FAvWzX3/m+befQA8GGBE4+ZXvzvcQBACw//g0OOCA/A')]
     procedure TestBitmapToSkImage(ABitmapWidth, ABitmapHeight: Integer; const AMinSimilarity: Double; const AExpectedImageHash: string);
-    [TestCase('1', '50,50,0.98,ZtuZZmaZ22Zn25lnZ5vf/nf73Xd33///f/vff3/////jx+PH//8eeB54///jx+PH48ceeB54Hng')]
+    [TestCase('1', '50,50,0.98,6XvtB/Tqq7ACCvF/wbz9WfcwAPpFuMAD4RP8fX7iCbSPvwYE+DA59axvb7X39uvfBwZyfJ5+5w')]
     procedure TestBitmapToSkImage2(ABitmapWidth, ABitmapHeight: Integer; const AMinSimilarity: Double; const AExpectedImageHash: string);
     [Test]
     procedure TestCreateBitmapFromInvalidSkImage;
-    [TestCase('1', '3d-shapes.svg,300,300,0.98,+/vxcXDAgp7///Fxc8fO3v//8/l3997///////f////vr++nr7ePcV0HUYO/j/ef5p3bmNuZw/8')]
+    [TestCase('1', '3d-shapes.svg,300,300,0.98,A/zgPwDSq48C+9PTv8T3F6wfxfDVg0H/4viXUTz4DJAwf/vWN+AA+ybwj0ECiptvu/MhEA//8Q')]
     procedure TestCreateBitmapFromSkImage(const AImageFileName: string; ABitmapWidth, ABitmapHeight: Integer; const AMinSimilarity: Double; const AExpectedImageHash: string);
-    [TestCase('1', '3d-shapes.svg,300,300,0.98,DwsPD/H//59/f39v8///339/f2/3////f/9///f///8A7wD/APcA9V//UZu/j/+f/53/mP+Z//8')]
+    [TestCase('1', '3d-shapes.svg,300,300,0.98,AlRvfurxX1CAHUMvHzf4DZSfRPDfe4GA3OxX8bz7Cmhgf/zSD6AA/SHwj0ECiptvu/MiDP++8Q')]
     procedure TestCreateBitmapFromSkImage2(const AImageFileName: string; ABitmapWidth, ABitmapHeight: Integer; const AMinSimilarity: Double; const AExpectedImageHash: string);
     [Test]
     procedure TestEmptyBitmapToSkImage;
-    [TestCase('1', '3d-shapes.svg,300,300,1,false,false,0.98,AHBQ0fO/HwUzcNDR87/fzXd62d33v9/9d3rZ/ff/3/0AWODYQNpw37D/8/9LfxviP2c/7353fgg')]
-    [TestCase('2', '3d-shapes.svg,300,300,1.5,false,false,0.98,ABg8JGTk/P0zOPzkZ+f8/XO8/vd39///c7z+93f3//8AAwADAAcABmAGcA74HHAO+A/QP/hven8')]
-    [TestCase('3', '3d-shapes.svg,300,300,1,true,false,0.98,AHBQ0fO/HwUzcNDR87/fzXd62d33v9/9d3rZ/ff/3/0AWODYQNpw37D/8/9LfxviP2c/7353fgg')]
-    [TestCase('4', '3d-shapes.svg,300,300,1,true,true,0.98,+/vxcXDAgp7///Fxc8fO3v//8/l3997///////f////vr++nr7ePcV0HUYO/j/ef5p3bmNuZw/8')]
-    [TestCase('5', '3d-shapes.svg,300,300,1,false,true,0.98,+/vxcXDAgp7///Fxc8fO3v//8/l3997///////f////vr++nr7ePcV0HUYO/j/ef5p3bmNuZw/8')]
-    [TestCase('6', '3d-shapes.svg,300,300,1.5,true,true,0.98,//7+/nw8PDD//v7/f39+fP/+/v9/f/98/////////374Hvnd+9373fvdm9uL24vbq9CoEogYjfg')]
+    [TestCase('1', '3d-shapes.svg,300,300,1,false,false,0.98,5RNuAQMNwFD+C+0DcPr1b6sgvwAM7I/D9A0UX/7hIASwAAnoA7EA/8lXb3gMEWzgwgNYcF9B5Q')]
+    [TestCase('2', '3d-shapes.svg,300,300,1.5,false,false,0.98,6BMegQAHXCA+EOUD8HryjbvA/wE/PIBD+TEgX77oNVyAQQ77s8D+BK5rnjgSCBzQA/oSJKBC7Q')]
+    [TestCase('3', '3d-shapes.svg,300,300,1,true,false,0.98,5RNuAQMNwFD+C+0DcPr1b6sgvwAM7I/D9A0UX/7hIASwAAnoA7EA/8lXb3gMEWzgwgNYcF9B5Q')]
+    [TestCase('4', '3d-shapes.svg,300,300,1,true,true,0.98,A/jgfwDSq48C+9PTv8T3F6wfxfDVg0H/4viXUTz4DJAwv/vWN+AA+ybwj0ECi5t/u/MhEA//8Q')]
+    [TestCase('5', '3d-shapes.svg,300,300,1,false,true,0.98,A/jgfwDSq48C+9PTv8T3F6wfxfDVg0H/4viXUTz4DJAwv/vWN+AA+ybwj0ECi5t/u/MhEA//8Q')]
+    [TestCase('6', '3d-shapes.svg,300,300,1.5,true,true,0.98,/aMyugDXJ0494/r7LgXjbsgfuv7B1y89AOijEQAFEjRw/goPYL86DSu4rsP8D1hPw/y5468DFA')]
     procedure TestSkiaDraw(const AImageFileName: string; ABitmapWidth, ABitmapHeight: Integer; ABitmapScale: Single; ASkipBeginScene, AStartClean: Boolean; const AMinSimilarity: Double; const AExpectedImageHash: string);
-    [TestCase('1', '3d-shapes.svg,300,300,1,0.98,DwsPD/H//59/f39v8///339/f2/3////f/9///f///8A7wD/APcA9V//UZu/j/+f/53/mP+Z//8')]
-    [TestCase('2', '3d-shapes.svg,300,300,1.5,0.98,AwMDAwMD//9/f3NjQ0f//39/c2NDR///f39zb0NP//8ADwAPAA8ADwAPAA8ADwAPr/+vH4t9j/g')]
-    [TestCase('3', '3d-shapes.svg,200,300,1,0.98,Dw8PD/P//59/f39v8///339/f2/3////f/9///f///8A7wD/APcA9V//UZu/n/+f/53/mP+5+/8')]
+    [TestCase('1', '3d-shapes.svg,300,300,1,0.98,AlRvfurxX1CAHUMvHzf4DZSfRPDfe4GA3OxX8bz7C2hgf/zSD6AA/SHwj0ECiptvu/MiDP++8Q')]
+    [TestCase('2', '3d-shapes.svg,300,300,1.5,0.98,8DuvfukDlBDAG01D73bv2bMf/AS4q2CEyFnDjj/2HEQPPwoERFH6CbCHTjz6EyQOgAAS7O5/+Q')]
+    [TestCase('3', '3d-shapes.svg,200,300,1,0.98,AVRvfurxX1CAHUMvHzf4DpCPRPDfe4GA3O1X8Tz8Cmhgf/zRD6AA/SLwn0ECipt/u/MiDP++8Q')]
     procedure TestSkiaDraw2(const AImageFileName: string; ABitmapWidth, ABitmapHeight: Integer; ABitmapScale: Single; const AMinSimilarity: Double; const AExpectedImageHash: string);
-    [TestCase('1', 'horse.webp,0.98,Dw8OBsLy+/9/f35nw/f//39/f2f7////////7///////gP+A/4D/wD/AAOADQA/AAgAAAABAAAA')]
+    [TestCase('1', 'horse.webp,0.98,+huPPuoAgEBAHU9DP7f+fkvhfwk04C9E/PU7bwDoDPjPABT019C9+qu3f/YIGND/AgQu/B4B6w')]
     procedure TestSkiaDraw3(const AImageFileName: string; const AMinSimilarity: Double; const AExpectedImageHash: string);
-    [TestCase('1', 'horse.webp,false,0.98,/85AAMDS8vL//nBgw9f+/v//d3P73/////////////8fgAeAB4AHwD/AAOAzQC/IC4APgABAAAA')]
-    [TestCase('2', 'horse.webp,true,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('1', 'horse.webp,false,0.98,6uMtxAAdxODADODzf33+gEshgAks/P9D/vlT/7/mCgDAgBT752B9+a27f/YIGND/AgQt/C5B6w')]
+    [TestCase('2', 'horse.webp,true,0.98,1VeyOvjAV15B9aCDD0b1lawOPvCVV1A96OCDUX0lq4MPfOUVVA86+GBUX8nq4ANfeQXVgw4+GA')]
     procedure TestSkiaDraw4(const AImageFileName: string; AStartClean: Boolean; const AMinSimilarity: Double; const AExpectedImageHash: string);
-    [TestCase('1', 'horse.webp,0.98,AAAAAAAAAAB/fHBhQ0dOTH98cGFDR05Mf3xwYUNHTkwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')]
+    [TestCase('1', 'horse.webp,0.98,1VeyOvjAV15B9aCDD0b1lawOPvCVV1A96OCDUX0lq4MPfOUVVA86+GBUX8nq4ANfeQXVgw4+GA')]
     procedure TestSkiaDraw5(const AImageFileName: string; const AMinSimilarity: Double; const AExpectedImageHash: string);
-    [TestCase('1', 'horse.webp,300,300,0.98,/85AAMDS8vL//nBgw9f+/v//d3P73/////////////8fgAeAB4AHwD/AAOAzQC/IC4APgABAAAA')]
+    [TestCase('1', 'horse.webp,300,300,0.98,6uMtxAAdxODADODzf33+gEshgAks/P9D/vlT/7/mCgDAgBT752B9+a27f/YIGND/AgQt/C5B6w')]
     procedure TestSkiaDraw6(const AImageFileName: string; ABitmapWidth, ABitmapHeight: Integer; const AMinSimilarity: Double; const AExpectedImageHash: string);
-    [TestCase('1', '80,80,1,0.98,8PDw8AAAAAD//PDxQ0dOTP/8+PlDR05M//z/+f9H/0z/AP8A/wD/AACAAAAAAAAAAAAAAAAAAAA')]
-    [TestCase('2', '100,60,1.5,0.98,/Pz8/Pz8AAD//Pz9//9OTP/+/v///05M//7///////z/8P/w//D/8P/w//D/8P/wAAgAAAAAAAA')]
+    [TestCase('1', '80,80,1,0.98,8TNfPukDSDAAHUw7z7bgraPffe7e96/F0tlnzzjs8od/PPP6TzH1+eMDzrr64ANfPQBVLA0++A')]
+    [TestCase('2', '100,60,1.5,0.98,8DuvfukDlBDAG01D7zbrzZt/+/YaTGBGzb4j7j7uDIw+/v4OzJH49ed33vv6zasO/gNhWG289g')]
     procedure TestSkiaDraw7(ABitmapWidth, ABitmapHeight: Integer; ABitmapScale: Single; const AMinSimilarity: Double; const AExpectedImageHash: string);
-    [TestCase('1', 'horse.webp,0.98,Dw4ODn7++vJ/fn5vf//+/n9/f29/////////7///////8P/w//D/8B/wD/AP8A/4AoAAAAAAAAA')]
+    [TestCase('1', 'horse.webp,0.98,/EsfP+r7Q+D/HVMPrzcR+w8wQvz+d67CB9Urb7vo3/swvAJJrF919sNvr4D766/wBfrIt3BDBQ')]
     procedure TestSkiaDraw8(const AImageFileName: string; const AMinSimilarity: Double; const AExpectedImageHash: string);
     [Test]
     procedure TestSkiaDrawEmptyBitmap;

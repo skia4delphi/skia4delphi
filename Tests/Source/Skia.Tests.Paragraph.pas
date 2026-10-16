@@ -56,13 +56,13 @@ type
     [Test]
     procedure TestVisit;
     {$IF defined(IOS)}
-    [TestCase('Simple Paragraph To Path', '0.99,GQEBAW19////+fHh7//////58fHv////////8+/////3////AAMAA/9z//9+7wABAAD///////8')]
+    [TestCase('Simple Paragraph To Path', '0.99,z/fwuwHj4y5B/Zvjb8X3PERPP/OtX1C/5vlrsf0nzhd//N8Y2E96+TeAH4nz0eve9wfpX879Eg')]
     {$ELSEIF defined(MACOS)}
-    [TestCase('Simple Paragraph To Path', '0.99,GQEBAX3/////+fHh///////5+/H/////////8/////+3////ABMAA//z//9+7wABCID///////8')]
+    [TestCase('Simple Paragraph To Path', '0.99,zrtAfALl8x5B/5zrT8X3MVxf//KvX7B/5vpnwf0n0Qd/PN8X7E+6+TKI/0j0zueu9wfsV879EQ')]
     {$ELSEIF defined(ANDROID)}
-    [TestCase('Simple Paragraph To Path', '0.99,GQEBAW39////+fHh7//////58eH/////////4/////+3////ABMAA/9z//9+5wABAAD///////8')]
+    [TestCase('Simple Paragraph To Path', '0.99,z/fwuwHj4y5B/Zvjb8X3PERPP/OtX1C/5vlrsf0nzhd//N8Y2E96+TeAH4nz0eve9wfpX879Eg')]
     {$ELSE}
-    [TestCase('Simple Paragraph To Path', '0.98,GQEBAW39////+fHh7//////58eH/////////4/////+3////ABMAA/9z//9+5wABAAD///////8')]
+    [TestCase('Simple Paragraph To Path', '0.98,z/fwuwHj4y5B/Zvjb8X3PERPP/OtX1C/5vlrsf0nzhd//N8Y2E96+TeAH4nz0eve9wfpX879Eg')]
     {$ENDIF}
     procedure TestParagraphToPath(const AMinSimilarity: Double; const AExpectedHash: string);
     [Test]

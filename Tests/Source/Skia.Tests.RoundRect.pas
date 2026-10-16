@@ -30,7 +30,7 @@ type
   public
     [Test]
     procedure TestBasic;
-    [TestCase('1', 'horse.webp,0.99,/8+BgYGR0f////Hhw9fd////9fX73/3///////vf/f/AAYABgAGAAYABgAGAAYADwAPgB/AP//8')]
+    [TestCase('1', 'horse.webp,0.99,4j8QxAXtl8A/8jHM7wT8whOhA+0D6HE+7u+jQIEc+7NvvPKtu19C+rXj33sGxa8Ovg16fG4/7g')]
     procedure TestClipImage(const AImageFileName: string; const AMinSimilarity: Double; const AExpectedImageHash: string);
     [Test]
     procedure TestConstructors;
@@ -40,11 +40,11 @@ type
     procedure TestDeflate;
     [Test]
     procedure TestDefaultValue;
-    [TestCase('1', '0.99,Jy8nPyc/B///Lzc/Jz8H//+/N783vzf///9//z////8M/2x/j////wx/bH///4//bH8Mf/////8')]
+    [TestCase('1', '0.99,kp8f/ui1H05B/me330D1cXwePe+mewC/4dr3oHgSu7/+uOIstA83+RBsv0fpxwsPOgTuA779EA')]
     procedure TestDraw(const AMinSimilarity: Double; const AExpectedImageHash: string);
-    [TestCase('1', '0.99,/4GBgYGBw/////Hh4cHD////8eHhwfP//////+HD8//AA8ADwAPAA8AD4AfgB/gP+B/+f/////8')]
+    [TestCase('1', '0.99,oC9Bvg2LVw8+/cq/X0by4etP/uyLE+ED3MJT8fcj66/vt+oBRF/8ASQEX4H3vQ++NQlZMLz5+g')]
     procedure TestDrawCreatedWithRadii(const AMinSimilarity: Double; const AExpectedImageHash: string);
-    [TestCase('1', '0.99,/8OBgYGBw/////Hhw8fP////8eHDx+////////vf7//gB8ADwAPAA8ADwAPAA+AH4Af4H/////8')]
+    [TestCase('1', '0.99,jnuRfQuek8899dKTb4fw4YPvfvOJK4GC1sMvobkn79//tewNmN88BRDkPgH6srf9NQ9sdOx5+g')]
     procedure TestDrawCreatedWithSameRadius(const AMinSimilarity: Double; const AExpectedImageHash: string);
     [Test]
     procedure TestInflate;

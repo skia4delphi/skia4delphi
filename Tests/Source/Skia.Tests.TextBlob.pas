@@ -38,16 +38,20 @@ type
     function PaintedBounds(const ATextBlob: ISkTextBlob; const AX, AY: Single): TRect;
   public
     {$IF defined(MSWINDOWS)}
-    [TestCase('Basic Texts', '0.99,n4f/B4P/gID///9nw//OzP///2/n/9/9/////////////////////////////+Xf3VHgwcVR//8')]
+    [TestCase('Basic Texts', '0.99,04ex+wHQ235/+LPb30b7dtTOfPGOS9C+4+MbgTwnsks/++MPyH47+lsQ7wju38/OOQDLh768FA')]
     {$ELSEIF defined(IOS)}
-    [TestCase('Basic Texts', '0.99,n4P/g4P/gIj////jw//GzP////fX/87s/////////////////////////////+LvyqjAIMKA//8')]
+    [TestCase('Basic Texts', '0.99,1nPx+wPP925/+Kbv/0X7Z+wOPvKNZ0B/4OoXcTwpt3cvO+MaqH57/VHo3gXvyrcuOv3Ie479Ew')]
     {$ELSEIF defined(MACOS)}
-    [TestCase('Basic Texts', '0.99,h4P/g4P/gIj////jw//GzP////fX/87t////////3////////////////////+LvyqjAIMKA//8')]
+    [TestCase('Basic Texts', '0.99,23NR/APM805/+ajzr4X7ZugO/vCMa4C/3+oLQbwpun//+uIcnK67/FDg7kXvya8+Ov3Bj479Ew')]
     {$ENDIF}
     procedure TestBasics(const AMinSimilarity: Double; const AExpectedHash: string);
-    [TestCase('Custom Font', '0.98,AQEFAAMH3////eXhw8ff////5enn1//////l6ffX//+gAfAB///AAMRJ//8AH4Af/////9v///8')]
+    [TestCase('Custom Font', '0.98,BFB/AQAKUDCABP8/YL0A0lfQwAAWGGCBAA2wL4D3GQRgQAL4WyAAAewLIP4C/xuAAP8Q7E8A+g')]
     procedure TestCustomFont(const AMinSimilarity: Double; const AExpectedHash: string);
-    [TestCase('Right-to-Left', '0.98,f3cDAQGD//9/f3NhQ8f//3//9+Vj1///f//35WP3///QoMRg1Wj1ePxom+gDACMAAgAAAAAAAAA')]
+    {$IF defined(MACOS) and not defined(IOS)}
+    [TestCase('Right-to-Left', '0.98,xJ+h+v7T595A93yPr4TxV+zOffaqz+A93u1bof0ivE9P/eQJuE96+Uk4P0ft4COfOADlRx78EQ')]
+    {$ELSE}
+    [TestCase('Right-to-Left', '0.98,x7ux+v3Qz+5A94OH34TyY+SuffWmt8D93+tjgX0juFMfveQMpG96+Uw4b8fs4RPfOAHlS058Eg')]
+    {$ENDIF}
     procedure TestRightToLeft(const AMinSimilarity: Double; const AExpectedHash: string);
     [Test]
     procedure TestGetIntercepts;

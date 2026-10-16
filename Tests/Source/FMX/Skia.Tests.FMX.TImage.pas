@@ -32,13 +32,13 @@ type
   TImageTests = class(TTestBase)
   public
     {$IF CompilerVersion >= 31}
-    [TestCase('1.IconDoc',     'icons.png,46,46,8,8,30,30,1,0,0,0,-180,0.99,/4GBgYGBgf///fHhw8fN/////+/f3+//////////7//gB+AH4AfgB+AH4AfgB+AH4Af///////8')]
-    [TestCase('2.IconArchive', 'icons.png,46,46,8,8,30,30,1,0,-30,0,-150,0.99,/8OBgYGBw/////Hhw8fP////++vr18//////////7//gB+AH4AfgB+AH4AfgB+AH4Af///////8')]
-    [TestCase('3.IconImage',   'icons.png,46,46,8,8,30,30,1,0,-60,0,-120,0.99,/4GBgZGZgf///fHh09/N////9/fX3+//////////7//gB+AH4AfgB+AH4AfgB+AH4Af///////8')]
-    [TestCase('4.IconAudio',   'icons.png,46,46,8,8,30,30,1,0,-90,0,-90,0.99,/4GBiYGBgf///fHpw8fN////9+/X18//////////7//gB+AH4AfgB+AH4AfgB+AH4Af///////8')]
-    [TestCase('5.IconVideo',   'icons.png,46,46,8,8,30,30,1,0,-120,0,-60,0.99,/4GBkZGBgf///fHx08fN////8//f9+//////////7//gB+AH4AfgB+AH4AfgB+AH4Af///////8')]
-    [TestCase('6.IconBook',    'icons.png,46,46,8,8,30,30,1,0,-150,0,-30,0.99,/4GBvZmBgf///fH928fN////9//f5+//////////7//gB+AH4AfgB+AH4AfgB+AH4Af///////8')]
-    [TestCase('7.IconFile',    'icons.png,46,46,8,8,30,30,1,0,-180,0,0,0.99,/4GBkZmBgf///fHx28fN////+//fz+//////////7//gB+AH4AfgB+AH4AfgB+AH4Af///////8')]
+    [TestCase('1.IconDoc',     'icons.png,46,46,8,8,30,30,1,0,0,0,-180,0.99,uSsSex62s6//4hEIwEPjyGtAQPftM+I/40rg4EAbH6z/fez/X88F/A2kz78R0yuONxRSaK07+g')]
+    [TestCase('2.IconArchive', 'icons.png,46,46,8,8,30,30,1,0,-30,0,-150,0.99,zy/Sehy9LxCA5AyUL8Pi4jfAwfXvZ4K/4jjQsAEgJ2CfPu7/19/F+BaoT4EN2W+ONxZM4G27+g')]
+    [TestCase('3.IconImage',   'icons.png,46,46,8,8,30,30,1,0,-60,0,-120,0.99,tgsCOx67x6//4w0YEEThxHvwv/fzRyIA4kvYEEIbIZivPu7zh8/G+QqkHwEPywNeeBNXgA17+A')]
+    [TestCase('4.IconAudio',   'icons.png,46,46,8,8,30,30,1,0,-90,0,-90,0.99,sRfy+Ri6w+9+5+oPQMTkvz9QfvzqH8LA1y14AAIdG6Av/esGPB8E/AK4vz8OxQ+edxFc2Ew68w')]
+    [TestCase('5.IconVideo',   'icons.png,46,46,8,8,30,30,1,0,-120,0,-60,0.99,xRPCeRq1C1DA5+Wzz8Pl2/Of//zyYzJA1BpIgEMaNUy/vu0C7F/F+Az4/wAO02c+txdjVG358g')]
+    [TestCase('6.IconBook',    'icons.png,46,46,8,8,30,30,1,0,-150,0,-30,0.99,2xuy+h3GT4DB5+eHP0Pf2/9vwf8d1DI+2DZEsMUbQ/xOgfL6R5DG8xA8EIIP1OsuOBll1E158w')]
+    [TestCase('7.IconFile',    'icons.png,46,46,8,8,30,30,1,0,-180,0,0,0.99,uEcS+x6tp28/4hXwr0Pky2tQgPbqM9J/4kjgcAEcHbBfPuz1c28G+gqYn4ANyRMuuBJfmP06+w')]
     procedure BitmapMarginsTest(const AImageFileName: string; ABitmapWidth, ABitmapHeight: Integer; AControlLeft, AControlTop, AControlWidth, AControlHeight, AScale, ALeft, ATop, ARight, ABottom: Single; const AMinSimilarity: Double; const AExpectedImageHash: string);
     {$ENDIF}
   end;

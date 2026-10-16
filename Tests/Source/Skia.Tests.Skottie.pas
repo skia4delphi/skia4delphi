@@ -41,8 +41,8 @@ type
     procedure TestInOutPoint;
     [Test]
     procedure TestSeekFrame;
-    [TestCase('check.json', 'check.json,300,250,0.6,58GZva29w////fn97//P////+/3v/9/////////////n5+/zz/Pb+9373nvv9+fn88/8P/////8')]
-    [TestCase('rocket.json', 'rocket.json,300,250,0.6,///Bw4OH//////Hjw8f/////9/vf3/////////////////8H8A/wD+A/4P/A/93///////////8')]
+    [TestCase('check.json', 'check.json,300,250,0.6,uXMxfQTn605A9943kIb4ZtAuv/Gem7D+7/prof8Z2ycg/OMIlM77+y+8z4b8st8evA8FxL49GQ')]
+    [TestCase('rocket.json', 'rocket.json,300,250,0.6,4hdi9g7Mi+/95b+D3wbhE1T/Pvj6x9F+5A9A8cMXFaxOf/HeZ9CBAjiMP4Xu2fd+uAcoxI27Cw')]
     procedure TestRenderLottie(const ALottieFileName: string; const AWidth, AHeight: Integer; const AFrameTime: Double; const AExpectedImageHash: string);
   end;
 

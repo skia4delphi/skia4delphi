@@ -32,7 +32,7 @@ type
   [TestFixture]
   TSkMaskFilterTests = class(TTestBase)
   public
-    [TestCase('', '140,140,20,0.99,/4GBgYGBgf///fHhwcHB///98eHh4eH//////////////////D/8P/w//D////////////////8')]
+    [TestCase('', '140,140,20,0.99,j+P/PQCxZ4+/BpCbL4Lnw7ff/u+7c0DE1MdjgPgE5X8/+fD8m3A4/fdjvv37129eugVUDO08+g')]
     procedure TestMaskFilterBlur(const ABitmapWidth, ABitmapHeight: Integer; const ASigma, AMinSimilarity: Double; const AExpectedImageHash: string);
     [Test]
     procedure TestTable;

@@ -33,13 +33,13 @@ type
   public
     [Test]
     procedure TestApproximateSizeAndOpCount;
-    [TestCase('1', '0.99,AXl5eXkBA/8BeXl7fw8P/0V9fX9/Tw//RX99f39PD/8ADwAPAA8ADwAPAA8ADwAP//////////8')]
+    [TestCase('1', '0.99,56M+AgIzfJH/+Mw/wHnatR/BPeX2lxEF0/aL/4MDSqTPAOzT01H+977vrkL59hOutgV7IA04+A')]
     procedure TestBasicSquare(const AMinSimilarity: Double; const AExpectedImageHash: string);
-    [TestCase('1', '0.99,AXl9fX05A/8BeX1/fz8P/0V/fX9/f2//RX99f39/f/8P/w//D/8P/w//D/8P/w////////////8')]
+    [TestCase('1', '0.99,yKMeBuw5uPACEpovQDztFOiP/tuXu5CEzqGLv/0GCzyQu98xDAF08M0f74fz36e+Nwb7G168Cw')]
     procedure TestCullRect(const AMinSimilarity: Double; const AExpectedImageHash: string);
-    [TestCase('1', '0.99,Pz/Pz/Pz//9/f+/P8/f//3//7+/7/////////////////////P/4////////z//P//////////8')]
+    [TestCase('1', '0.99,7Guy+f27n36/8qSbn0X1lawOPvCVV1A96OCDUb0lqoP/u+UWVA96+GDIn8jp+ZseeQbx913/EQ')]
     procedure TestDraw(const AMinSimilarity: Double; const AExpectedImageHash: string);
-    [TestCase('1', '0.99,AXl5eXkBA/8BeXl7fw8P/0V9fX9/Tw//RX99f39PD/8ADwAPAA8ADwAPAA8ADwAP//////////8')]
+    [TestCase('1', '0.99,56M+AgIzfJH/+Mw/wHnatR/BPeX2lxEF0/aL/4MDSqTPAOzT01H+977vrkL59hOutgV7IA04+A')]
     procedure TestImageFromPicture(const AMinSimilarity: Double; const AExpectedImageHash: string);
     [TestCase('1', 'simple-picture.skp')]
     procedure TestSerialize(const AExpectedSerializedOutputFileName: string);

@@ -39,11 +39,11 @@ type
     procedure TestColorSpace;
     [Test]
     procedure TestColorType;
-    [TestCase('1', 'horse.webp,0.99,/85AAMDS8vL//nBgw9f+/v//d3P73/////////////8fgAeAB4AHwD/AAOAzQC/IC4APgABAAAA')]
+    [TestCase('1', 'horse.webp,0.99,6uMtxAAdxODADODzf33+gEshgAks/P9D/vlT/7/mCgDAgBT752B9+a27f/YIGND/AgQt/C5B6w')]
     procedure TestDecode(const AImageFileName: string; const AMinSimilarity: Double; const AExpectedImageHash: string);
-    [TestCase('1', 'horse.webp,0.99,//34gICYuPn//fjgw9/8/f///vbX3/39///+///////DwNawwADAAMABwADAAMAAwADAAMACwAA')]
+    [TestCase('1', 'horse.webp,0.99,ILC/ww0OlPA791HID4D7jpOAgPdxXH9FCsc7X3z8EriQvwjzc09ACwP0jvoGH4zvAf8lFH8A8g')]
     procedure TestDrawImage(const AImageFileName: string; const AMinSimilarity: Double; const AExpectedImageHash: string);
-    [TestCase('1', 'horse.webp,0.99,/85AAMDS8vL//nBgw9f+/v//d3P73/////////////8fgAeAB4AHwD/AAOAzQC/IC4APgABAAAA')]
+    [TestCase('1', 'horse.webp,0.99,6uMtxAAdxODADODzf33+gEshgAks/P9D/vlT/7/mCgDAgBT752B9+a27f/YIGND/AgQt/C5B6w')]
     procedure TestEncode(const AImageFileName: string; const AMinSimilarity: Double; const AExpectedImageHash: string);
     [Test]
     procedure TestEncodeToStream;
@@ -73,13 +73,13 @@ type
     procedure TestUniqueId;
     [Test]
     procedure TestIsTextureBacked;
-    [TestCase('1', '0.99,JycnJycnJyd//3dnZ2fv7////+/v7/////////////8cfxx/HH8cfxx/HH8cfxx/HH8cfxx/HH8')]
+    [TestCase('1', '0.99,2tePfOAaSP/8IMPrTvn6KpTuOvKnd4CE4aoPIP34wh8eQezo81H58KCXrwLrqV/P+Qo2qK16Aw')]
     procedure TestMakeRasterCopy(const AMinSimilarity: Double; const AExpectedImageHash: string);
-    [TestCase('1', 'horse.webp,0.99,/85AAMDS8vL//nBgw9f+/v//d3P73/////////////8fgAeAB4AHwD/AAOAzQC/IC4APgABAAAA')]
+    [TestCase('1', 'horse.webp,0.99,6uMtxAAdxODADODzf33+gEshgAks/P9D/vlT/7/mCgDAgBT752B9+a27f/YIGND/AgQt/C5B6w')]
     procedure TestMakeRasterImage(const AImageFileName: string; const AMinSimilarity: Double; const AExpectedImageHash: string);
-    [TestCase('1', 'horse.webp,0.99,+Pjw+N0PBw///PD5309PT//++vvfb99v//7/+//v/+9ngX+A/4D/2T94AfwQ8gH8AdSAXwAnCQc')]
+    [TestCase('1', 'horse.webp,0.99,HbzdBAc2fKF+C0twYHrynk+g//A4AEBE8ukXnz3kNszPAAL2j4H++N8/ALkJFKCwhf8pQDC/6w')]
     procedure TestMakeShader(const AImageFileName: string; const AMinSimilarity: Double; const AExpectedImageHash: string);
-    [TestCase('1', 'horse.webp,0.99,/85AAMDS8vL//nBgw9f+/v//d3P73/////////////8fgAeAB4AHwD/AAOAzQC/IC4APgABAAAA')]
+    [TestCase('1', 'horse.webp,0.99,6uMtxAAdxODADODzf33+gEshgAks/P9D/vlT/7/mCgDAgBT752B9+a27f/YIGND/AgQt/C5B6w')]
     procedure TestPeekPixels(const AImageFileName: string; const AMinSimilarity: Double; const AExpectedImageHash: string);
     [Test]
     procedure TestSize;

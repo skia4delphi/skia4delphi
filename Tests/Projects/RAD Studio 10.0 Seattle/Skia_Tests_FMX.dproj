@@ -158,6 +158,7 @@
         <DCCReference Include="..\..\Source\Skia.Tests.Graphics.pas"/>
         <DCCReference Include="..\..\Source\Skia.Tests.Image.pas"/>
         <DCCReference Include="..\..\Source\Skia.Tests.ImageFilter.pas"/>
+        <DCCReference Include="..\..\Source\Skia.Tests.ImageHash.pas"/>
         <DCCReference Include="..\..\Source\Skia.Tests.MaskFilter.pas"/>
         <DCCReference Include="..\..\Source\Skia.Tests.OpBuilder.pas"/>
         <DCCReference Include="..\..\Source\Skia.Tests.Paint.pas"/>

@@ -48,9 +48,9 @@ type
     procedure SetChildImages(const ARuntimeEffect: ISkRuntimeEffectBuilder; const AChildImagesFileName: string);
     procedure SetUniforms(const ARuntimeEffect: ISkRuntimeEffectBuilder; const AUniforms: string);
   public
-    [TestCase('File "shader.mouse.sksl"', 'shader.mouse.sksl,150,100,iMouse=70.0 80.0;iResolution=150.0 100.0,,AAAAOH7+/v4fCAA5f//+/h8PDz9/////Hw8PP3////8AAAAAB8Af8D/4P/h//H/8f/x//H/8f/w')]
-    [TestCase('File "shader.mouse.sksl"', 'shader.mouse.sksl,150,100,iMouse=70 80;iResolution=150 100,,AAAAOH7+/v4fCAA5f//+/h8PDz9/////Hw8PP3////8AAAAAB8Af8D/4P/h//H/8f/x//H/8f/w')]
-    [TestCase('File "shader.brightness-and-contrast.sksl"', 'shader.brightness-and-contrast.sksl,250,250,brightness=0.3;contrast=0.5,texture=horse.webp,/fj4+Pj4+PP//Pj5+//+///9/f3///////39/f////9Q7vAa/z///v/////fPlYz/XODODBQxUI')]
+    [TestCase('File "shader.mouse.sksl"', 'shader.mouse.sksl,150,100,iMouse=70.0 80.0;iResolution=150.0 100.0,,g7tOPvfJe/9/FEJ/fzzisIuv/fLkCwBF0NwDr3vt6RtPfv0EtHG09qmz3jv5wn+fgAJl7Oz85Q')]
+    [TestCase('File "shader.mouse.sksl"', 'shader.mouse.sksl,150,100,iMouse=70 80;iResolution=150 100,,g7tOPvfJe/9/FEJ/fzzisIuv/fLkCwBF0NwDr3vt6RtPfv0EtHG09qmz3jv5wn+fgAJl7Oz85Q')]
+    [TestCase('File "shader.brightness-and-contrast.sksl"', 'shader.brightness-and-contrast.sksl,250,250,brightness=0.3;contrast=0.5,texture=horse.webp,LsRNxQc7iKG+C1pcYDoEcR/BwAZXeN/EERggn4LbS3gwBBnrmzBGCabX3zcKKgzQgv43SKBB6Q')]
     procedure TestShader(const ASkSLFileName: string; const AWidth, AHeight: Integer; const AUniforms, AChildImagesFileName, AExpectedImageHash: string);
     [Test]
     procedure TestChildReflection;

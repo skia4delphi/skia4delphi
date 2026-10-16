@@ -34,7 +34,7 @@ type
   private
     function ColorAt(const ASvgContent: string; const AX, AY: Integer): TAlphaColor;
   public
-    [TestCase('Editing android eyes color', 'android.svg,100,100,eyes,fill,red,/8PDgYHD5/////Phw8fv////9+XHz//////////f///wD9AbwAPAA8ADwAPwD/AP/b/9v/2///8')]
+    [TestCase('Editing android eyes color', 'android.svg,100,100,eyes,fill,red,2v8gug4HiEC77hF0j0Tq4BtvQfzft/G/3QIoEQMg/hsPP/GcH1AC9UvMD0D8rWfP+wthxB17Dg')]
     procedure TestEditSvgElement(const ASvgFileName: string; const AWidth, AHeight: Integer; const AElementId, AAttributeName, AAttributeValue, AExpectedImageHash: string);
     [TestCase('android.svg',      'android.svg,0,0')]
     [TestCase('chinese-text.svg', 'chinese-text.svg,900,300')]

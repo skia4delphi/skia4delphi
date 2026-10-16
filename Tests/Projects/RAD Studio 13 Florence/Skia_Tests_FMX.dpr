@@ -24,6 +24,7 @@ uses
   Skia.Tests.Graphics in '..\..\Source\Skia.Tests.Graphics.pas',
   Skia.Tests.Image in '..\..\Source\Skia.Tests.Image.pas',
   Skia.Tests.ImageFilter in '..\..\Source\Skia.Tests.ImageFilter.pas',
+  Skia.Tests.ImageHash in '..\..\Source\Skia.Tests.ImageHash.pas',
   Skia.Tests.MaskFilter in '..\..\Source\Skia.Tests.MaskFilter.pas',
   Skia.Tests.OpBuilder in '..\..\Source\Skia.Tests.OpBuilder.pas',
   Skia.Tests.Paint in '..\..\Source\Skia.Tests.Paint.pas',

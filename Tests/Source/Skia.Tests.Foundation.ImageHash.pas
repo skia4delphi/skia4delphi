@@ -17,9 +17,6 @@ interface
 uses
   { Delphi }
   System.SysUtils,
-  System.Types,
-  System.UITypes,
-  System.Generics.Collections,
 
   { Skia }
   System.Skia;
@@ -27,731 +24,315 @@ uses
 type
   { TImageHashing }
 
+  // The hash is a sketch of a smoothed 24x24 YCbCrA thumbnail: each image
+  // quadrant is reduced to a few random +-1 projections, whose differences
+  // estimate the RMS color error of that quadrant. The similarity is
+  // 1 - (worst quadrant RMS error, in 8-bit levels) / 255.
   TImageHashing = class abstract
-  public
-    type
-      THashAlgorithm = class
-      public
-        class function BackgroundColor: TAlphaColor; virtual;
-        class function GetDownscaleSize: TSize; virtual; abstract;
-        class function GetHash(const AImagePixels: ISkPixmap): TBytes; virtual; abstract;
-        class function GetHashSize: Integer; virtual; abstract;
-        class function HighSpeedScale: Boolean; virtual;
-        class function NeedGrayScale: Boolean; virtual; abstract;
-      end;
-      THashAlgorithmClass = class of THashAlgorithm;
   strict private
-    class var
-      FAlgorithms: TList<TPair<THashAlgorithmClass, Double>>;
-    class constructor Create;
-    class destructor Destroy;
-    class procedure AppendBytes(var ABytes: TBytes; const ANewBytes: TBytes); static;
-    class function DecodeHashBase64(const AHashBase64: string): TBytes;
-    class function EncodeHashBase64(const AHash: TBytes): string;
-    class function GetDownscaleImage(const AImage: ISkImage; const AAlgorithm: THashAlgorithmClass): ISkImage; static;
-    class function GetGrayScaleImage(const AImage: ISkImage): ISkImage; static;
-    class function HashBytes(const AImage: ISkImage; const AHighSpeed: Boolean): TBytes; static;
-    class function ProgressiveDownsampling(const AImage: ISkImage; const ANewWidth, ANewHeight: Integer; const ABackgroundColor: TAlphaColor; const AHighSpeed: Boolean): ISkImage; static;
-    class function SimilarityHashBytes(const AHash1, AHash2: TBytes): Double; overload; static;
+    const
+      GridSize = 24;
+      RegionSize = GridSize div 2;
+      RegionCount = 4;
+      ChannelCount = 4;
+      RegionLength = ChannelCount * RegionSize * RegionSize;
+      ProjectionsPerRegion = 11;
+      ProjectionCount = RegionCount * ProjectionsPerRegion;
+      ProjectionBits = 10;
+      ProjectionMax = 1 shl (ProjectionBits - 1) - 1;
+      ProjectionStep = 2;
+      HashSize = ProjectionCount * ProjectionBits div 8;
+      NoiseAllowance = 1;
+      SignSeed = 2463534242;
+    type
+      TFeatures = array[0..ChannelCount - 1, 0..GridSize - 1, 0..GridSize - 1] of Int64;
+      TProjections = array[0..ProjectionCount - 1] of Integer;
+    class function DecodeHash(const AHash: string; out AProjections: TProjections): Boolean; static;
+    class function EncodeHash(const AProjections: TProjections): string; static;
+    class procedure GetFeatures(const AImage: ISkImage; out AFeatures: TFeatures); static;
+    class procedure GetProjections(const AImage: ISkImage; out AProjections: TProjections); static;
   public
-    class function Hash(const AImage: ISkImage; const AHighSpeed: Boolean = False): string; static;
-    class procedure RegisterAlgorithm(const AAlgorithm: THashAlgorithmClass; const AWeight: Double = 1); static;
+    class function Hash(const AImage: ISkImage): string; static;
     class function Similarity(const AHash1, AHash2: string): Double; overload; static;
-    class function Similarity(const AExpectedHash: string; const AImage: ISkImage; const AHighSpeed: Boolean = False): Double; overload; static;
-    class function Similarity(const AImage1, AImage2: ISkImage; const AHighSpeed: Boolean = False): Double; overload; static;
+    class function Similarity(const AExpectedHash: string; const AImage: ISkImage): Double; overload; static;
+    class function Similarity(const AImage1, AImage2: ISkImage): Double; overload; static;
   end;
 
 implementation
 
 uses
   { Delphi }
-  System.NetEncoding,
-  System.UIConsts,
   System.Math,
-  System.Math.Vectors;
-
-type
-  // https://www.pyimagesearch.com/2017/11/27/image-hashing-opencv-python/
-  TDifferenceHash = class(TImageHashing.THashAlgorithm)
-  strict private
-    const
-      DownscaleWidth = 9;
-      DownscaleHeight = 8;
-      HashBits = (DownscaleWidth - 1) * DownscaleHeight;
-      HashBytes = (HashBits + 7) div 8;
-  public
-    class function BackgroundColor: TAlphaColor; override;
-    class function GetDownscaleSize: TSize; override;
-    class function GetHash(const AImagePixels: ISkPixmap): TBytes; override;
-    class function GetHashSize: Integer; override;
-    class function HighSpeedScale: Boolean; override;
-    class function NeedGrayScale: Boolean; override;
-  end;
-
-  // http://www.hackerfactor.com/blog/index.php?/archives/432-Looks-Like-It.html
-  TAverageHash = class(TImageHashing.THashAlgorithm)
-  strict private
-    const
-      DownscaleWidth = 8;
-      DownscaleHeight = 8;
-      HashBits = DownscaleWidth * DownscaleHeight;
-      HashBytes = (HashBits + 7) div 8;
-  public
-    class function GetDownscaleSize: TSize; override;
-    class function GetHash(const AImagePixels: ISkPixmap): TBytes; override;
-    class function GetHashSize: Integer; override;
-    class function NeedGrayScale: Boolean; override;
-  end;
-
-  // http://www.hackerfactor.com/blog/index.php?/archives/432-Looks-Like-It.html
-  TPerceptiveHash = class(TImageHashing.THashAlgorithm)
-  strict private
-    const
-      DownscaleWidth = 32;
-      DownscaleHeight = 32;
-      DCTImportantWidth = 8;
-      DCTImportantHeight = 8;
-      HashBits = DCTImportantWidth * DCTImportantHeight;
-      HashBytes = (HashBits + 7) div 8;
-    type
-      THashMatrix = packed array[0..DownscaleWidth - 1, 0..DownscaleHeight - 1] of Double;
-    class var
-      FDCTKernel: THashMatrix;
-      FDCTKernelTransposed: THashMatrix;
-    class constructor Create;
-    class function GenerateDCTKernel: THashMatrix; static;
-    class function GetDCTMatrix(const AImagePixels: ISkPixmap): THashMatrix; static;
-    class function MultiplyMatrix(const M1, M2: THashMatrix): THashMatrix; static;
-    class function TransposeMatrix(const AMatrix: THashMatrix): THashMatrix; static;
-  public
-    class function GetDownscaleSize: TSize; override;
-    class function GetHash(const AImagePixels: ISkPixmap): TBytes; override;
-    class function GetHashSize: Integer; override;
-    class function NeedGrayScale: Boolean; override;
-  end;
-
-  // Custom hue hash created by us, based on TAverageHash but with Hue instead Luminosity
-  THSLHash = class(TImageHashing.THashAlgorithm)
-  strict private
-    const
-      DownscaleWidth = 16;
-      DownscaleHeight = 16;
-      HashBits = DownscaleWidth * DownscaleHeight;
-      HashBytes = (HashBits + 7) div 8;
-    type
-      THSL = record
-        Hue: Double;
-        Saturation: Double;
-        Lightness: Double;
-      end;
-    class function CompareColorHSL(const AColor: TAlphaColor; const AAvarage: THSL): TValueRelationship; static;
-    class procedure ComputeHSLAvarage(const AColor: TAlphaColor; var AAvarage: THSL); static;
-  public
-    class function BackgroundColor: TAlphaColor; override;
-    class function GetDownscaleSize: TSize; override;
-    class function GetHash(const AImagePixels: ISkPixmap): TBytes; override;
-    class function GetHashSize: Integer; override;
-    class function HighSpeedScale: Boolean; override;
-    class function NeedGrayScale: Boolean; override;
-  end;
-
-const
-  BitsPerByte = 8;
-  MaxBitIndexInByte = 7;
-
-{ TDifferenceHash }
-
-class function TDifferenceHash.BackgroundColor: TAlphaColor;
-begin
-  Result := TAlphaColors.Fuchsia;
-end;
-
-class function TDifferenceHash.GetDownscaleSize: TSize;
-begin
-  Result := TSize.Create(DownscaleWidth, DownscaleHeight);
-end;
-
-class function TDifferenceHash.GetHash(
-  const AImagePixels: ISkPixmap): TBytes;
-var
-  X: Integer;
-  Y: Integer;
-  LByteIndex: Integer;
-  LBitIndexInByte: ShortInt;
-begin
-  Assert(AImagePixels <> nil);
-  Assert(AImagePixels.Width = DownscaleWidth);
-  Assert(AImagePixels.Height = DownscaleHeight);
-  Assert(Odd(DownscaleWidth));
-
-  SetLength(Result, HashBytes);
-  for Y := 0 to DownscaleHeight - 1 do
-  begin
-    for X := 1 to DownscaleWidth - 1 do
-    begin
-      if TAlphaColorRec(AImagePixels.Colors[X - 1, Y]).R > TAlphaColorRec(AImagePixels.Colors[X, Y]).R then
-      begin
-        LByteIndex := ((Y * (DownscaleWidth - 1)) + (X - 1)) div BitsPerByte;
-        Assert((LByteIndex >= 0) and (LByteIndex < HashBytes));
-        LBitIndexInByte := MaxBitIndexInByte - ((Y * (DownscaleWidth - 1) + (X - 1)) mod BitsPerByte);
-        Assert((LBitIndexInByte >= 0) and (LBitIndexInByte < BitsPerByte));
-        Result[LByteIndex] := Result[LByteIndex] or (1 shl LBitIndexInByte);
-      end;
-    end;
-  end;
-end;
-
-class function TDifferenceHash.GetHashSize: Integer;
-begin
-  Result := HashBytes;
-end;
-
-class function TDifferenceHash.HighSpeedScale: Boolean;
-begin
-  Result := False;
-end;
-
-class function TDifferenceHash.NeedGrayScale: Boolean;
-begin
-  Result := True;
-end;
-
-{ TAverageHash }
-
-class function TAverageHash.GetDownscaleSize: TSize;
-begin
-  Result := TSize.Create(DownscaleWidth, DownscaleHeight);
-end;
-
-class function TAverageHash.GetHash(const AImagePixels: ISkPixmap): TBytes;
-var
-  X: Integer;
-  Y: Integer;
-  LByteIndex: Integer;
-  LBitIndexInByte: ShortInt;
-  LAverage: Integer;
-begin
-  Assert(AImagePixels <> nil);
-  Assert(AImagePixels.Width = DownscaleWidth);
-  Assert(AImagePixels.Height = DownscaleHeight);
-
-  SetLength(Result, HashBytes);
-  LAverage := 0;
-  for Y := 0 to DownscaleHeight - 1 do
-    for X := 0 to DownscaleWidth - 1 do
-      Inc(LAverage, TAlphaColorRec(AImagePixels.Colors[X, Y]).R);
-  LAverage := LAverage div (DownscaleWidth * DownscaleHeight);
-
-  for Y := 0 to DownscaleHeight - 1 do
-  begin
-    for X := 0 to DownscaleWidth - 1 do
-    begin
-      if TAlphaColorRec(AImagePixels.Colors[X, Y]).R > LAverage then
-      begin
-        LByteIndex := (Y * DownscaleWidth + X) div BitsPerByte;
-        Assert((LByteIndex >= 0) and (LByteIndex < HashBytes));
-        LBitIndexInByte := MaxBitIndexInByte - ((Y * DownscaleWidth + X) mod BitsPerByte);
-        Assert((LBitIndexInByte >= 0) and (LBitIndexInByte < BitsPerByte));
-        Result[LByteIndex] := Result[LByteIndex] or (1 shl LBitIndexInByte);
-      end;
-    end;
-  end;
-end;
-
-class function TAverageHash.GetHashSize: Integer;
-begin
-  Result := HashBytes;
-end;
-
-class function TAverageHash.NeedGrayScale: Boolean;
-begin
-  Result := True;
-end;
-
-{ TPerceptiveHash }
-
-// DCT algorithm based on https://www.codeproject.com/Articles/43782/DCT-Implementation-in-C-DCT-of-Image
-class constructor TPerceptiveHash.Create;
-begin
-  FDCTKernel := GenerateDCTKernel;
-  FDCTKernelTransposed := TransposeMatrix(FDCTKernel);
-end;
-
-class function TPerceptiveHash.GenerateDCTKernel: THashMatrix;
-const
-  Denominator = 2 * DownscaleHeight;
-var
-  X: Integer;
-  Y: Integer;
-  LAlpha: Double;
-begin
-  for Y := 0 to DownscaleHeight - 1 do
-    Result[0, Y] := Sqrt(1 / DownscaleHeight);
-  LAlpha := Sqrt(2 / DownscaleHeight);
-  for Y := 0 to DownscaleHeight - 1 do
-    for X := 1 to DownscaleWidth - 1 do
-      Result[X, Y] := LAlpha * Cos(((2 * Y + 1) * X * Pi) / Denominator);
-end;
-
-class function TPerceptiveHash.GetDCTMatrix(
-  const AImagePixels: ISkPixmap): THashMatrix;
-var
-  X: Integer;
-  Y: Integer;
-begin
-  for Y := 0 to DownscaleHeight - 1 do
-    for X := 0 to DownscaleWidth - 1 do
-      Result[X, Y] := TAlphaColorRec(AImagePixels.Colors[X, Y]).R;
-  Result := MultiplyMatrix(MultiplyMatrix(FDCTKernel, Result), FDCTKernelTransposed);
-end;
-
-class function TPerceptiveHash.GetDownscaleSize: TSize;
-begin
-  Result := TSize.Create(DownscaleWidth, DownscaleHeight);
-end;
-
-class function TPerceptiveHash.GetHash(const AImagePixels: ISkPixmap): TBytes;
-var
-  X: Integer;
-  Y: Integer;
-  LByteIndex: Integer;
-  LBitIndexInByte: ShortInt;
-  LAverage: Double;
-  LDCTMatrix: THashMatrix;
-begin
-  Assert(AImagePixels <> nil);
-  Assert(AImagePixels.Width = DownscaleWidth);
-  Assert(AImagePixels.Height = DownscaleHeight);
-
-  SetLength(Result, HashBytes);
-  LDCTMatrix := GetDCTMatrix(AImagePixels);
-
-  LAverage := 0;
-  for Y := 0 to DCTImportantHeight - 1 do
-  begin
-    for X := 0 to DCTImportantWidth - 1 do
-    begin
-      if (Y = 0) and (X = 0) then
-        Continue;
-      LAverage := LAverage + LDCTMatrix[X, Y];
-    end;
-  end;
-  LAverage := LAverage / ((DCTImportantWidth * DCTImportantHeight) - 1);
-
-  for Y := 0 to DCTImportantHeight - 1 do
-  begin
-    for X := 0 to DCTImportantWidth - 1 do
-    begin
-      if LDCTMatrix[X, Y] > LAverage then
-      begin
-        LByteIndex := (Y * DCTImportantWidth + X) div BitsPerByte;
-        Assert((LByteIndex >= 0) and (LByteIndex < HashBytes));
-        LBitIndexInByte := MaxBitIndexInByte - ((Y * DCTImportantWidth + X) mod BitsPerByte);
-        Assert((LBitIndexInByte >= 0) and (LBitIndexInByte < BitsPerByte));
-        Result[LByteIndex] := Result[LByteIndex] or (1 shl LBitIndexInByte);
-      end;
-    end;
-  end;
-end;
-
-class function TPerceptiveHash.GetHashSize: Integer;
-begin
-  Result := HashBytes;
-end;
-
-class function TPerceptiveHash.MultiplyMatrix(const M1,
-  M2: THashMatrix): THashMatrix;
-var
-  X: Integer;
-  Y: Integer;
-begin
-  Assert(DownscaleWidth = DownscaleHeight);
-  FillChar(Result, SizeOf(Result), #0);
-  for Y := 0 to DownscaleHeight - 1 do
-    for X := 0 to DownscaleWidth - 1 do
-      Result[X, Y] := Result[X, Y] + M1[X, Y] * M2[Y, X];
-end;
-
-class function TPerceptiveHash.NeedGrayScale: Boolean;
-begin
-  Result := True;
-end;
-
-class function TPerceptiveHash.TransposeMatrix(
-  const AMatrix: THashMatrix): THashMatrix;
-var
-  X: Integer;
-  Y: Integer;
-begin
-  Assert(DownscaleWidth = DownscaleHeight);
-  FillChar(Result, SizeOf(Result), #0);
-  for Y := 0 to DownscaleHeight - 1 do
-    for X := 0 to DownscaleWidth - 1 do
-      Result[Y, X] := AMatrix[X, Y];
-end;
-
-{ THSLHash }
-
-class function THSLHash.BackgroundColor: TAlphaColor;
-begin
-  Result := TAlphaColors.Fuchsia;
-end;
-
-class function THSLHash.CompareColorHSL(const AColor: TAlphaColor;
-  const AAvarage: THSL): TValueRelationship;
-const
-  HueWeight = 0.4125;
-  SaturationWeight = 0.3375;
-  LightnessWeight = 0.25;
-var
-  H, S, L: Single;
-  LAvarageValue: Double;
-  LColorValue: Double;
-begin
-  LAvarageValue := AAvarage.Hue * HueWeight + AAvarage.Saturation * SaturationWeight + AAvarage.Lightness * LightnessWeight;
-  RGBToHSL(AColor, H, S, L);
-  LColorValue := H * HueWeight + S * SaturationWeight + L * LightnessWeight;
-  Result := CompareValue(LColorValue, LAvarageValue, TEpsilon.Vector);
-end;
-
-class procedure THSLHash.ComputeHSLAvarage(const AColor: TAlphaColor;
-  var AAvarage: THSL);
-var
-  H, S, L: Single;
-begin
-  RGBToHSL(AColor, H, S, L);
-  AAvarage.Hue := AAvarage.Hue + H / (DownscaleWidth * DownscaleHeight);
-  AAvarage.Saturation := AAvarage.Saturation + S / (DownscaleWidth * DownscaleHeight);
-  AAvarage.Lightness := AAvarage.Lightness + L / (DownscaleWidth * DownscaleHeight);
-end;
-
-class function THSLHash.GetDownscaleSize: TSize;
-begin
-  Result := TSize.Create(DownscaleWidth, DownscaleHeight);
-end;
-
-class function THSLHash.GetHash(const AImagePixels: ISkPixmap): TBytes;
-var
-  X: Integer;
-  Y: Integer;
-  LByteIndex: Integer;
-  LBitIndexInByte: ShortInt;
-  LAvarage: THSL;
-begin
-  Assert(AImagePixels <> nil);
-  Assert(AImagePixels.Width = DownscaleWidth);
-  Assert(AImagePixels.Height = DownscaleHeight);
-
-  SetLength(Result, HashBytes);
-  FillChar(LAvarage, SizeOf(LAvarage), #0);
-  for Y := 0 to DownscaleHeight - 1 do
-    for X := 0 to DownscaleWidth - 1 do
-      ComputeHSLAvarage(AImagePixels.Colors[X, Y], LAvarage);
-
-  for Y := 0 to DownscaleHeight - 1 do
-  begin
-    for X := 0 to DownscaleWidth - 1 do
-    begin
-      if CompareColorHSL(AImagePixels.Colors[X, Y], LAvarage) = GreaterThanValue then
-      begin
-        LByteIndex := (Y * DownscaleWidth + X) div BitsPerByte;
-        Assert((LByteIndex >= 0) and (LByteIndex < HashBytes));
-        LBitIndexInByte := MaxBitIndexInByte - ((Y * DownscaleWidth + X) mod BitsPerByte);
-        Assert((LBitIndexInByte >= 0) and (LBitIndexInByte < BitsPerByte));
-        Result[LByteIndex] := Result[LByteIndex] or (1 shl LBitIndexInByte);
-      end;
-    end;
-  end;
-end;
-
-class function THSLHash.GetHashSize: Integer;
-begin
-  Result := HashBytes;
-end;
-
-class function THSLHash.HighSpeedScale: Boolean;
-begin
-  Result := False;
-end;
-
-class function THSLHash.NeedGrayScale: Boolean;
-begin
-  Result := False;
-end;
-
-{ TImageHashing.THashAlgorithm }
-
-class function TImageHashing.THashAlgorithm.BackgroundColor: TAlphaColor;
-begin
-  Result := TAlphaColors.White;
-end;
-
-class function TImageHashing.THashAlgorithm.HighSpeedScale: Boolean;
-begin
-  Result := True;
-end;
+  System.NetEncoding;
 
 { TImageHashing }
 
-class procedure TImageHashing.AppendBytes(var ABytes: TBytes;
-  const ANewBytes: TBytes);
-var
-  LOldLength: Integer;
-begin
-  if ANewBytes <> nil then
-  begin
-    LOldLength := Length(ABytes);
-    SetLength(ABytes, LOldLength + Length(ANewBytes));
-    Move(ANewBytes[0], ABytes[LOldLength], Length(ANewBytes));
-  end;
-end;
-
-class constructor TImageHashing.Create;
-begin
-  FAlgorithms := TList<TPair<THashAlgorithmClass, Double>>.Create;
-  RegisterAlgorithm(TAverageHash);
-  RegisterAlgorithm(TPerceptiveHash);
-  RegisterAlgorithm(TDifferenceHash);
-  RegisterAlgorithm(THSLHash);
-end;
-
-class function TImageHashing.DecodeHashBase64(
-  const AHashBase64: string): TBytes;
-begin
-  if AHashBase64 = '' then
-    Exit(nil);
-  Result := TNetEncoding.Base64.DecodeStringToBytes(AHashBase64 + '=');
-end;
-
-class destructor TImageHashing.Destroy;
-begin
-  FAlgorithms.Free;
-end;
-
-class function TImageHashing.EncodeHashBase64(const AHash: TBytes): string;
-begin
-  if AHash = nil then
-    Exit('');
-  Result := TNetEncoding.Base64.EncodeBytesToString(AHash, Length(AHash));
-  Result := Result.Substring(0, Length(Result)-1);
-end;
-
-class function TImageHashing.GetDownscaleImage(const AImage: ISkImage;
-  const AAlgorithm: THashAlgorithmClass): ISkImage;
-begin
-  Result := ProgressiveDownsampling(AImage, AAlgorithm.GetDownscaleSize.Width,
-    AAlgorithm.GetDownscaleSize.Height, AAlgorithm.BackgroundColor, AAlgorithm.HighSpeedScale);
-end;
-
-class function TImageHashing.GetGrayScaleImage(
-  const AImage: ISkImage): ISkImage;
-var
-  LSurface: ISkSurface;
-  LPaint: ISkPaint;
-begin
-  LSurface := TSkSurface.MakeRaster(AImage.Width, AImage.Height);
-  LSurface.Canvas.Clear(TAlphaColors.Null);
-  LPaint := TSkPaint.Create;
-  LPaint.ColorFilter := TSkColorFilter.MakeMatrix(TSkColorMatrix.CreateSaturation(0));
-  LSurface.Canvas.DrawImage(AImage, 0, 0, TSkSamplingOptions.Low, LPaint);
-  Result := LSurface.MakeImageSnapshot;
-end;
-
-class function TImageHashing.Hash(const AImage: ISkImage;
-  const AHighSpeed: Boolean): string;
-begin
-  Result := EncodeHashBase64(HashBytes(AImage, AHighSpeed));
-end;
-
-class function TImageHashing.HashBytes(const AImage: ISkImage;
-  const AHighSpeed: Boolean): TBytes;
-const
-  BytesPerPixelsBGRA8888 = 4;
+class function TImageHashing.DecodeHash(const AHash: string;
+  out AProjections: TProjections): Boolean;
 var
   I: Integer;
-  LImage: ISkImage;
-  LImageData: TBytes;
-  LPixmap: ISkPixmap;
+  LBit: Integer;
+  LBytes: TBytes;
+  LPadding: string;
+  LValue: Integer;
+begin
+  if AHash = '' then
+    Exit(False);
+  LPadding := StringOfChar('=', (4 - Length(AHash) mod 4) mod 4);
+  LBytes := TNetEncoding.Base64.DecodeStringToBytes(AHash + LPadding);
+  if Length(LBytes) <> HashSize then
+    raise EArgumentException.CreateFmt('Invalid image hash "%s"', [AHash]);
+  for I := 0 to ProjectionCount - 1 do
+  begin
+    LValue := 0;
+    for LBit := 0 to ProjectionBits - 1 do
+      if LBytes[(I * ProjectionBits + LBit) div 8] and (1 shl ((I * ProjectionBits + LBit) mod 8)) <> 0 then
+        LValue := LValue or (1 shl LBit);
+    if LValue > ProjectionMax then
+      Dec(LValue, 1 shl ProjectionBits);
+    AProjections[I] := LValue;
+  end;
+  Result := True;
+end;
+
+class function TImageHashing.EncodeHash(const AProjections: TProjections): string;
+var
+  I: Integer;
+  LBit: Integer;
+  LBytes: TBytes;
+begin
+  SetLength(LBytes, HashSize);
+  FillChar(LBytes[0], HashSize, 0);
+  for I := 0 to ProjectionCount - 1 do
+    for LBit := 0 to ProjectionBits - 1 do
+      if AProjections[I] and (1 shl LBit) <> 0 then
+        LBytes[(I * ProjectionBits + LBit) div 8] := LBytes[(I * ProjectionBits + LBit) div 8] or
+          (1 shl ((I * ProjectionBits + LBit) mod 8));
+  Result := TNetEncoding.Base64.EncodeBytesToString(LBytes, HashSize);
+  Result := Result.Replace(#13, '').Replace(#10, '').Replace('=', '');
+end;
+
+class procedure TImageHashing.GetFeatures(const AImage: ISkImage;
+  out AFeatures: TFeatures);
+const
+  BytesPerPixel = 4;
+  HalfLevel = 128 * 16 * 256;
+var
+  C: Integer;
+  K: Integer;
+  X: Integer;
+  Y: Integer;
+  LArea: Int64;
+  LCells: array[0..GridSize - 1, 0..GridSize - 1, 0..ChannelCount - 1] of Int64;
+  LColumnFirstCell: TArray<Integer>;
+  LColumnSpan: Integer;
+  LColumnWeights: TArray<Integer>;
+  LHeight: Integer;
+  LPixel: PByte;
+  LPixels: TBytes;
+  LRowCells: array[0..GridSize - 1, 0..ChannelCount - 1] of Integer;
+  LSmoothed: array[0..GridSize - 1, 0..GridSize - 1] of Int64;
+  LSourceX: Integer;
+  LSourceY: Integer;
+  LWeight: Integer;
+  LWidth: Integer;
+  R, G, B, A: Int64;
+
+  // Overlap, in 1/GridSize pixel units, of a source pixel with a grid cell.
+  function Overlap(const ASource, ACell, ASize: Integer): Integer;
+  begin
+    Result := Min((ACell + 1) * ASize, (ASource + 1) * GridSize) - Max(ACell * ASize, ASource * GridSize);
+  end;
+
+  function SmoothedAt(const AX, AY: Integer): Int64;
+  begin
+    Result := LSmoothed[EnsureRange(AY, 0, GridSize - 1), EnsureRange(AX, 0, GridSize - 1)];
+  end;
+
+begin
+  LWidth := AImage.Width;
+  LHeight := AImage.Height;
+  SetLength(LPixels, LWidth * LHeight * BytesPerPixel);
+  if not AImage.ReadPixels(TSkImageInfo.Create(LWidth, LHeight, TSkColorType.RGBA8888, TSkAlphaType.Premul,
+    TSkColorSpace.MakeSRGB), @LPixels[0], LWidth * BytesPerPixel) then
+    raise Exception.Create('Cannot read the image pixels');
+
+  // Exact area average of the premultiplied pixels, in 1/16 of a level.
+  LColumnSpan := GridSize div LWidth + 2;
+  SetLength(LColumnFirstCell, LWidth);
+  SetLength(LColumnWeights, LWidth * LColumnSpan);
+  for LSourceX := 0 to LWidth - 1 do
+  begin
+    LColumnFirstCell[LSourceX] := LSourceX * GridSize div LWidth;
+    for X := LColumnFirstCell[LSourceX] to ((LSourceX + 1) * GridSize - 1) div LWidth do
+      LColumnWeights[LSourceX * LColumnSpan + X - LColumnFirstCell[LSourceX]] := Overlap(LSourceX, X, LWidth);
+  end;
+  FillChar(LCells, SizeOf(LCells), 0);
+  for LSourceY := 0 to LHeight - 1 do
+  begin
+    FillChar(LRowCells, SizeOf(LRowCells), 0);
+    LPixel := @LPixels[LSourceY * LWidth * BytesPerPixel];
+    for LSourceX := 0 to LWidth - 1 do
+    begin
+      for K := 0 to LColumnSpan - 1 do
+      begin
+        LWeight := LColumnWeights[LSourceX * LColumnSpan + K];
+        if LWeight = 0 then
+          Break;
+        X := LColumnFirstCell[LSourceX] + K;
+        Inc(LRowCells[X, 0], LPixel[0] * LWeight);
+        Inc(LRowCells[X, 1], LPixel[1] * LWeight);
+        Inc(LRowCells[X, 2], LPixel[2] * LWeight);
+        Inc(LRowCells[X, 3], LPixel[3] * LWeight);
+      end;
+      Inc(LPixel, BytesPerPixel);
+    end;
+    for Y := LSourceY * GridSize div LHeight to Min(GridSize - 1, ((LSourceY + 1) * GridSize - 1) div LHeight) do
+    begin
+      LWeight := Overlap(LSourceY, Y, LHeight);
+      for X := 0 to GridSize - 1 do
+        for C := 0 to ChannelCount - 1 do
+          Inc(LCells[Y, X, C], Int64(LRowCells[X, C]) * LWeight);
+    end;
+  end;
+  LArea := Int64(LWidth) * LHeight;
+  for Y := 0 to GridSize - 1 do
+    for X := 0 to GridSize - 1 do
+      for C := 0 to ChannelCount - 1 do
+        LCells[Y, X, C] := (LCells[Y, X, C] * 16 + LArea div 2) div LArea;
+
+  for C := 0 to ChannelCount - 1 do
+  begin
+    for Y := 0 to GridSize - 1 do
+      for X := 0 to GridSize - 1 do
+      begin
+        R := LCells[Y, X, 0];
+        G := LCells[Y, X, 1];
+        B := LCells[Y, X, 2];
+        A := LCells[Y, X, 3];
+        case C of
+          0: LSmoothed[Y, X] := 77 * R + 150 * G + 29 * B - HalfLevel;
+          1: LSmoothed[Y, X] := 256 * A - HalfLevel;
+          2: LSmoothed[Y, X] := -43 * R - 85 * G + 128 * B;
+        else
+          LSmoothed[Y, X] := 128 * R - 107 * G - 21 * B;
+        end;
+      end;
+    // Separable [1 2 1] smoothing tolerates sub-pixel and anti-aliasing changes.
+    for Y := 0 to GridSize - 1 do
+      for X := 0 to GridSize - 1 do
+        AFeatures[C, Y, X] := SmoothedAt(X, Y - 1) + 2 * SmoothedAt(X, Y) + SmoothedAt(X, Y + 1);
+    for Y := 0 to GridSize - 1 do
+      for X := 0 to GridSize - 1 do
+        LSmoothed[Y, X] := AFeatures[C, Y, X];
+    for Y := 0 to GridSize - 1 do
+      for X := 0 to GridSize - 1 do
+        AFeatures[C, Y, X] := SmoothedAt(X - 1, Y) + 2 * SmoothedAt(X, Y) + SmoothedAt(X + 1, Y);
+  end;
+end;
+
+class procedure TImageHashing.GetProjections(const AImage: ISkImage;
+  out AProjections: TProjections);
+const
+  // Features are scaled by 16 (cells) * 256 (color matrix) * 16 (smoothing).
+  // Dividing by RegionSize, the square root of the cells of a region, makes
+  // the expected squared difference of a projection the mean squared error.
+  Divisor = Int64(16 * 256 * 16) * RegionSize * ProjectionStep;
+var
+  C: Integer;
+  I: Integer;
+  K: Integer;
+  X: Integer;
+  Y: Integer;
+  LFeatures: TFeatures;
+  LRegion: Integer;
+  LSeed: Cardinal;
+  LSum: Int64;
+  LValue: Int64;
+  LValues: array[0..RegionLength - 1] of Int64;
+begin
+  GetFeatures(AImage, LFeatures);
+  for LRegion := 0 to RegionCount - 1 do
+  begin
+    I := 0;
+    for C := 0 to ChannelCount - 1 do
+      for Y := 0 to RegionSize - 1 do
+        for X := 0 to RegionSize - 1 do
+        begin
+          LValues[I] := LFeatures[C, (LRegion div 2) * RegionSize + Y, (LRegion mod 2) * RegionSize + X];
+          Inc(I);
+        end;
+    LSeed := SignSeed;
+    for K := 0 to ProjectionsPerRegion - 1 do
+    begin
+      LSum := 0;
+      for I := 0 to RegionLength - 1 do
+      begin
+        LSeed := LSeed xor (LSeed shl 13);
+        LSeed := LSeed xor (LSeed shr 17);
+        LSeed := LSeed xor (LSeed shl 5);
+        if LSeed and $80000000 <> 0 then
+          Dec(LSum, LValues[I])
+        else
+          Inc(LSum, LValues[I]);
+      end;
+      LValue := (Abs(LSum) * 2 + Divisor) div (2 * Divisor);
+      if LSum < 0 then
+        LValue := -LValue;
+      AProjections[LRegion * ProjectionsPerRegion + K] := EnsureRange(LValue, -ProjectionMax - 1, ProjectionMax);
+    end;
+  end;
+end;
+
+class function TImageHashing.Hash(const AImage: ISkImage): string;
+var
+  LProjections: TProjections;
 begin
   if (AImage = nil) or (AImage.Width <= 0) or (AImage.Height <= 0) then
-    Exit(nil);
-  Assert(FAlgorithms.Count > 0);
-  Result := nil;
-  for I := 0 to FAlgorithms.Count - 1 do
-  begin
-    if (I <> 0) and AHighSpeed and (not FAlgorithms[I].Key.HighSpeedScale) then
-      Break;
-    LImage := GetDownscaleImage(AImage, FAlgorithms[I].Key);
-    if FAlgorithms[I].Key.NeedGrayScale then
-      LImage := GetGrayScaleImage(LImage);
-    SetLength(LImageData, BytesPerPixelsBGRA8888 * LImage.Width * LImage.Height);
-    LPixmap := TSkPixmap.Create(TSkImageInfo.Create(LImage.Width, LImage.Height, TSkColorType.BGRA8888, TSkAlphaType.Premul, TSkColorSpace.MakeSRGB), LImageData, BytesPerPixelsBGRA8888 * LImage.Width);
-    if not LImage.ReadPixels(LPixmap) then
-      raise Exception.Create('Cannot possible to get image pixels');
-    AppendBytes(Result, FAlgorithms[I].Key.GetHash(LPixmap));
-    if (I = 0) and AHighSpeed and (not FAlgorithms[I].Key.HighSpeedScale) then
-      Break;
-  end;
-end;
-
-class function TImageHashing.ProgressiveDownsampling(const AImage: ISkImage;
-  const ANewWidth, ANewHeight: Integer;
-  const ABackgroundColor: TAlphaColor;
-  const AHighSpeed: Boolean): ISkImage;
-
-  procedure Resize(var AImage: ISkImage; ANewWidth, ANewHeight: Integer);
-  var
-    LSurface: ISkSurface;
-  begin
-    if (ANewWidth <> AImage.Width) or (ANewHeight <> AImage.Height) then
-    begin
-      LSurface := TSkSurface.MakeRaster(ANewWidth, ANewHeight);
-      LSurface.Canvas.Clear(TAlphaColors.Null);
-      LSurface.Canvas.DrawImageRect(AImage, TRectF.Create(0, 0, ANewWidth, ANewHeight),
-        TSkSamplingOptions.Create(TSkCubicResampler.CatmullRom));
-      AImage := LSurface.MakeImageSnapshot;
-    end;
-  end;
-
-  function NearScalableSize(const ASize, ANewSize: Integer): Integer;
-  begin
-    Result := (1 shl Floor(Log2(ASize / ANewSize))) * ANewSize;
-  end;
-
-var
-  LSurface: ISkSurface;
-begin
-  if (ANewWidth <= 0) or (ANewHeight <= 0) then
-    Exit(nil);
-  if AHighSpeed then
-  begin
-    if (ABackgroundColor <> TAlphaColors.Null) or (AImage.Width <= ANewWidth) or (AImage.Height <= ANewHeight) then
-    begin
-      LSurface := TSkSurface.MakeRaster(Max(AImage.Width, ANewWidth), Max(AImage.Height, ANewWidth));
-      LSurface.Canvas.Clear(ABackgroundColor);
-      LSurface.Canvas.DrawImage(AImage, 0, 0);
-      Result := LSurface.MakeImageSnapshot;
-    end
-    else
-      Result := AImage;
-
-    if (Result.Width <> ANewWidth) or (Result.Height <> ANewHeight) then
-    begin
-      LSurface := TSkSurface.MakeRaster(ANewWidth, ANewHeight);
-      LSurface.Canvas.Clear(TAlphaColors.Null);
-      LSurface.Canvas.DrawImageRect(Result, TRectF.Create(0, 0, ANewWidth, ANewHeight),
-        TSkSamplingOptions.Create(TSkFilterMode.Linear, TSkMipmapMode.Linear));
-      Result := LSurface.MakeImageSnapshot;
-    end;
-  end
-  else
-  begin
-    if (ABackgroundColor <> TAlphaColors.Null) or (AImage.Width <= ANewWidth) or (AImage.Height <= ANewHeight) then
-    begin
-      LSurface := TSkSurface.MakeRaster(Max(AImage.Width, ANewWidth), Max(AImage.Height, ANewWidth));
-      LSurface.Canvas.Clear(ABackgroundColor);
-      LSurface.Canvas.DrawImage(AImage, 0, 0);
-      Result := LSurface.MakeImageSnapshot;
-    end
-    else
-      Result := AImage;
-
-    Resize(Result, NearScalableSize(Result.Width, ANewWidth), NearScalableSize(Result.Height, ANewHeight));
-    while (Result.Width > ANewWidth) or (Result.Height > ANewHeight) do
-    begin
-      Resize(Result, IfThen(Result.Width <= ANewWidth, Result.Width, Ceil(Result.Width / 2)),
-        IfThen(Result.Height <= ANewHeight, Result.Height, Ceil(Result.Height / 2)));
-    end;
-  end;
-end;
-
-class procedure TImageHashing.RegisterAlgorithm(
-  const AAlgorithm: THashAlgorithmClass; const AWeight: Double);
-begin
-  FAlgorithms.Add(TPair<THashAlgorithmClass, Double>.Create(AAlgorithm, AWeight));
+    Exit('');
+  GetProjections(AImage, LProjections);
+  Result := EncodeHash(LProjections);
 end;
 
 class function TImageHashing.Similarity(const AExpectedHash: string;
-  const AImage: ISkImage; const AHighSpeed: Boolean): Double;
+  const AImage: ISkImage): Double;
 begin
-  Result := Similarity(AExpectedHash, Hash(AImage, AHighSpeed));
+  Result := Similarity(AExpectedHash, Hash(AImage));
 end;
 
-class function TImageHashing.Similarity(const AImage1,
-  AImage2: ISkImage; const AHighSpeed: Boolean): Double;
+class function TImageHashing.Similarity(const AImage1, AImage2: ISkImage): Double;
 begin
-  Result := Similarity(Hash(AImage1, AHighSpeed), Hash(AImage2, AHighSpeed));
+  Result := Similarity(Hash(AImage1), Hash(AImage2));
 end;
 
 class function TImageHashing.Similarity(const AHash1, AHash2: string): Double;
-begin
-  Result := SimilarityHashBytes(DecodeHashBase64(AHash1), DecodeHashBase64(AHash2));
-end;
-
-class function TImageHashing.SimilarityHashBytes(const AHash1, AHash2: TBytes): Double;
-type
-  TAlgorithmResult = record
-    Similarity: Double;
-    Weight: Double;
-  end;
-
-  function CalcSimilarity(const AResults: TArray<TAlgorithmResult>): Double;
-  var
-    I: Integer;
-    LTotalWeight: Double;
-  begin
-    Assert(AResults <> nil);
-    LTotalWeight := 0;
-    Result := 0;
-    for I := 0 to Length(AResults) - 1 do
-    begin
-      Result := Result + (AResults[I].Similarity * AResults[I].Weight);
-      LTotalWeight := LTotalWeight + AResults[I].Weight;
-    end;
-    Result := Result / LTotalWeight;
-  end;
-
 var
   I: Integer;
-  J: Integer;
   K: Integer;
-  LBitMask: Byte;
-  LEquals: Integer;
-  LMinSize: Integer;
-  LEndAlgorithmIndex: Integer;
-  LByteIndex: Integer;
-  LResults: TArray<TAlgorithmResult>;
+  LError: Double;
+  LHasHash1: Boolean;
+  LHasHash2: Boolean;
+  LMaxError: Double;
+  LProjections1: TProjections;
+  LProjections2: TProjections;
 begin
-  if (AHash1 = nil) and (AHash2 = nil) then
-    Exit(1);
-  LMinSize := Min(Length(AHash1), Length(AHash2));
-  if (LMinSize = 0) and ((AHash1 <> nil) or (AHash2 <> nil)) then
-    Exit(0);
-  Assert(FAlgorithms.Count > 0);
-
-  LResults := [];
-  LByteIndex := 0;
-  for I := 0 to FAlgorithms.Count - 1 do
+  LHasHash1 := DecodeHash(AHash1, LProjections1);
+  LHasHash2 := DecodeHash(AHash2, LProjections2);
+  if not (LHasHash1 and LHasHash2) then
   begin
-    LEquals := 0;
-    LEndAlgorithmIndex := Min(LMinSize, LByteIndex + FAlgorithms[I].Key.GetHashSize);
-    if LByteIndex >= LEndAlgorithmIndex then
-      Break;
-    for J := LByteIndex to LEndAlgorithmIndex - 1 do
-    begin
-      for K := 0 to MaxBitIndexInByte do
-      begin
-        LBitMask := 1 shl (MaxBitIndexInByte - K);
-        if (AHash1[J] and LBitMask) = (AHash2[J] and LBitMask) then
-          Inc(LEquals);
-      end;
-    end;
-    SetLength(LResults, Length(LResults) + 1);
-    LResults[High(LResults)].Similarity := LEquals / ((LEndAlgorithmIndex - LByteIndex) * BitsPerByte);
-    LResults[High(LResults)].Weight := FAlgorithms[I].Value;
-    LByteIndex := LEndAlgorithmIndex;
+    if LHasHash1 = LHasHash2 then
+      Exit(1);
+    Exit(0);
   end;
-  Result := CalcSimilarity(LResults);
+  LMaxError := 0;
+  for I := 0 to RegionCount - 1 do
+  begin
+    LError := 0;
+    for K := I * ProjectionsPerRegion to (I + 1) * ProjectionsPerRegion - 1 do
+      LError := LError + Sqr(ProjectionStep * (LProjections1[K] - LProjections2[K]));
+    LMaxError := Max(LMaxError, LError / ProjectionsPerRegion);
+  end;
+  Result := 1 - EnsureRange(Sqrt(LMaxError) - NoiseAllowance, 0, 255) / 255;
 end;
 
 end.
