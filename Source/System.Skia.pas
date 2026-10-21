@@ -1498,6 +1498,14 @@ type
     class procedure __DestroyHandle(const AHandle: sk_handle_t); override;
   end;
 
+  { TSkCodecHelper }
+
+  // TODO: Merge this overload in TSkCodec in the next major version.
+  TSkCodecHelper = class helper for TSkCodec
+  public
+    class function MakeFromStream(const AStream: TStream; const AOwnsStream: Boolean): ISkCodec; overload; static;
+  end;
+
   { ISkAnimationCodecPlayer }
 
   ISkAnimationCodecPlayer = interface(ISkObject)
@@ -1529,6 +1537,14 @@ type
     class function MakeFromFile(const AFileName: string): ISkAnimationCodecPlayer; static;
     class function MakeFromStream(const AStream: TStream): ISkAnimationCodecPlayer; static;
     class procedure __DestroyHandle(const AHandle: sk_handle_t); override;
+  end;
+
+  { TSkAnimationCodecPlayerHelper }
+
+  // TODO: Merge this overload in TSkAnimationCodecPlayer in the next major version.
+  TSkAnimationCodecPlayerHelper = class helper for TSkAnimationCodecPlayer
+  public
+    class function MakeFromStream(const AStream: TStream; const AOwnsStream: Boolean): ISkAnimationCodecPlayer; overload; static;
   end;
 
   { ISkColorFilter }
@@ -7031,6 +7047,17 @@ begin
   sk4d_codec_destroy(AHandle);
 end;
 
+{ TSkCodecHelper }
+
+class function TSkCodecHelper.MakeFromStream(const AStream: TStream;
+  const AOwnsStream: Boolean): ISkCodec;
+var
+  LStream: ISkStream;
+begin
+  LStream := TSkStreamAdapter.Create(AStream, AOwnsStream);
+  Result  := TSkBindings.SafeCreate<TSkCodec>(sk4d_codec_make_from_stream(TSkObject.__ReleaseHandle(LStream)));
+end;
+
 { TSkAnimationCodecPlayer }
 
 function TSkAnimationCodecPlayer.GetDimensions: TSize;
@@ -7083,6 +7110,17 @@ end;
 class procedure TSkAnimationCodecPlayer.__DestroyHandle(const AHandle: sk_handle_t);
 begin
   sk4d_animcodecplayer_destroy(AHandle);
+end;
+
+{ TSkAnimationCodecPlayerHelper }
+
+class function TSkAnimationCodecPlayerHelper.MakeFromStream(
+  const AStream: TStream; const AOwnsStream: Boolean): ISkAnimationCodecPlayer;
+var
+  LStream: ISkStream;
+begin
+  LStream := TSkStreamAdapter.Create(AStream, AOwnsStream);
+  Result  := TSkBindings.SafeCreate<TSkAnimationCodecPlayer>(sk4d_animcodecplayer_make_from_stream(TSkObject.__ReleaseHandle(LStream)));
 end;
 
 { TSkColorFilter }

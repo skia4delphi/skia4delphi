@@ -60,6 +60,13 @@ type
     [TestCase('WebP (kung-fu-panda.webp)',    'kung-fu-panda.webp')]
     [TestCase('WebP Animated (rocket.webp)',  'rocket.webp')]
     procedure TestDecodeFile(const AImageFileName: string);
+    [TestCase('PNG (elephant.png)',              'elephant.png')]
+    procedure TestDecodeNotOwnedStream(const AImageFileName: string);
+    [TestCase('GIF Animated (animated.gif)',     'animated.gif')]
+    [TestCase('JPEG (shrek.jpg)',                'shrek.jpg')]
+    [TestCase('PNG (elephant.png)',              'elephant.png')]
+    [TestCase('WebP Animated (rocket.webp)',     'rocket.webp')]
+    procedure TestDecodeOwnedStream(const AImageFileName: string);
     [TestCase('BMP',  'girl.bmp,BMP')]
     [TestCase('GIF',  'animated.gif,GIF')]
     [TestCase('ICO',  'delphi.ico,ICO')]
@@ -68,6 +75,8 @@ type
     [TestCase('WBMP', 'mandrill.wbmp,WBMP')]
     [TestCase('WebP', 'kung-fu-panda.webp,WEBP')]
     procedure TestEncodedImageFormat(const AImageFileName: string; const AExpectedFormat: TSkEncodedImageFormat);
+    [Test]
+    procedure TestOwnedStreamOfInvalidData;
     [TestCase('BMP (girl.bmp)',               'girl.bmp')]
     {$IFDEF SUPPORT_DNG}
     [TestCase('DNG (park.dng)',               'park.dng')]
@@ -181,6 +190,14 @@ type
     [TestCase('SkAnimationCodecPlayer WebP Animated (rocket.webp - frame 0ms)',    'rocket.webp,0,z9vRNg3Jhw+/56ivr4fiFkjfffv0g9F+4wCEAUQYF3g+P+zcn1DBBCt834Xt4BOP+AUmyM07DQ')]
     [TestCase('SkAnimationCodecPlayer WebP Animated (rocket.webp - frame 610ms)',  'rocket.webp,610,3w9ytg7Mhw/+5buHDwfhElS/fvj6u+E+5AxM8UMYFqhe//Dda7ABAzeMT0Xu2/t+eAcoxI37Cw')]
     procedure TestDecode(const AImageFileName: string; const AFrameAtMilliseconds: Cardinal; const AExpectedImageHash: string);
+    [TestCase('SkAnimationCodecPlayer GIF Animated (developer.gif - frame 450ms)', 'developer.gif,450,lqO9BBHcv19+CQmgoL/vb6vgAgX3e/+D9/jfDnvXR9wwfwDpSxABDgKcXjUQLnC///0VNMBC/Q')]
+    [TestCase('SkAnimationCodecPlayer WebP Animated (rocket.webp - frame 610ms)',  'rocket.webp,610,3w9ytg7Mhw/+5buHDwfhElS/fvj6u+E+5AxM8UMYFqhe//Dda7ABAzeMT0Xu2/t+eAcoxI37Cw')]
+    procedure TestDecodeOwnedStream(const AImageFileName: string; const AFrameAtMilliseconds: Cardinal; const AExpectedImageHash: string);
+    [TestCase('SkAnimationCodecPlayer JPEG (shrek.jpg)',   'shrek.jpg')]
+    [TestCase('SkAnimationCodecPlayer PNG (elephant.png)', 'elephant.png')]
+    procedure TestFrameOfOwnedStreamOutlivesPlayer(const AImageFileName: string);
+    [Test]
+    procedure TestOwnedStreamOfInvalidData;
   end;
 
   { TCodecAssertHelper }
@@ -202,6 +219,16 @@ uses
   System.Math.Vectors;
 
 type
+  { TDestroyCounterStream }
+
+  TDestroyCounterStream = class(TMemoryStream)
+  strict private
+    FDestroyCount: PInteger;
+  public
+    constructor Create(const ADestroyCount: PInteger);
+    destructor Destroy; override;
+  end;
+
   { TImageAssetInfo }
 
   TImageAssetInfo = record
@@ -244,6 +271,27 @@ begin
   Assert.FailFmt('Cannot possible to find the info of the image "%s"', [AImageFileName]);
 end;
 
+function CreateInvalidImageStream(const ADestroyCount: PInteger): TStream;
+begin
+  Result := TDestroyCounterStream.Create(ADestroyCount);
+  Result.Size := 4096;
+  FillChar(TMemoryStream(Result).Memory^, Result.Size, 0);
+end;
+
+{ TDestroyCounterStream }
+
+constructor TDestroyCounterStream.Create(const ADestroyCount: PInteger);
+begin
+  inherited Create;
+  FDestroyCount := ADestroyCount;
+end;
+
+destructor TDestroyCounterStream.Destroy;
+begin
+  Inc(FDestroyCount^);
+  inherited;
+end;
+
 { TSkCodecTestBase }
 
 function TSkCodecTestBase.AssetsPath: string;
@@ -268,6 +316,41 @@ var
   LCodec: ISkCodec;
 begin
   LCodec := TSkCodec.MakeFromFile(AssetsPath + AImageFileName);
+end;
+
+procedure TSkCodecTests.TestDecodeNotOwnedStream(const AImageFileName: string);
+var
+  LCodec: ISkCodec;
+  LDestroyCount: Integer;
+  LStream: TStream;
+begin
+  LDestroyCount := 0;
+  LStream := TDestroyCounterStream.Create(@LDestroyCount);
+  try
+    TMemoryStream(LStream).LoadFromFile(AssetsPath + AImageFileName);
+    LCodec := TSkCodec.MakeFromStream(LStream, False);
+    Assert.HasValidCodecResult(AImageFileName, LCodec);
+    LCodec := nil;
+    Assert.AreEqual(0, LDestroyCount, 'The codec should not free a stream it does not own');
+  finally
+    LStream.Free;
+  end;
+end;
+
+procedure TSkCodecTests.TestDecodeOwnedStream(const AImageFileName: string);
+var
+  LCodec: ISkCodec;
+  LDestroyCount: Integer;
+  LStream: TStream;
+begin
+  LDestroyCount := 0;
+  LStream := TDestroyCounterStream.Create(@LDestroyCount);
+  TMemoryStream(LStream).LoadFromFile(AssetsPath + AImageFileName);
+  LCodec := TSkCodec.MakeFromStream(LStream, True);
+  Assert.AreEqual(0, LDestroyCount, 'The stream should live as long as the codec');
+  Assert.HasValidCodecResult(AImageFileName, LCodec);
+  LCodec := nil;
+  Assert.AreEqual(1, LDestroyCount, 'The codec should free the stream it owns');
 end;
 
 procedure TSkCodecTests.TestDecodeStream(const AImageFileName: string);
@@ -305,6 +388,15 @@ begin
   LEncodedBytes := TFile.ReadAllBytes(AssetsPath + AImageFileName);
   LCodec := TSkCodec.MakeWithoutCopy(LEncodedBytes, Length(LEncodedBytes));
   Assert.HasValidCodecResult(AImageFileName, LCodec);
+end;
+
+procedure TSkCodecTests.TestOwnedStreamOfInvalidData;
+var
+  LDestroyCount: Integer;
+begin
+  LDestroyCount := 0;
+  Assert.IsNull(TSkCodec.MakeFromStream(CreateInvalidImageStream(@LDestroyCount), True));
+  Assert.AreEqual(1, LDestroyCount, 'The stream should be freed even when no codec is created');
 end;
 
 { TSkImageCodecTests }
@@ -355,6 +447,57 @@ begin
   LCodec := TSkAnimationCodecPlayer.MakeFromFile(AssetsPath + AImageFileName);
   LCodec.Seek(AFrameAtMilliseconds);
   Assert.AreSimilar(AExpectedImageHash, LCodec.Frame);
+end;
+
+procedure TSkAnimationCodecTests.TestDecodeOwnedStream(
+  const AImageFileName: string; const AFrameAtMilliseconds: Cardinal;
+  const AExpectedImageHash: string);
+var
+  LCodec: ISkAnimationCodecPlayer;
+  LDestroyCount: Integer;
+  LFrame: ISkImage;
+  LStream: TStream;
+begin
+  LDestroyCount := 0;
+  LStream := TDestroyCounterStream.Create(@LDestroyCount);
+  TMemoryStream(LStream).LoadFromFile(AssetsPath + AImageFileName);
+  LCodec := TSkAnimationCodecPlayer.MakeFromStream(LStream, True);
+  Assert.IsNotNull(LCodec, 'Invalid ISkAnimationCodecPlayer (nil)');
+  LCodec.Seek(AFrameAtMilliseconds);
+  LFrame := LCodec.Frame;
+  Assert.AreSimilar(AExpectedImageHash, LFrame);
+  LFrame := nil;
+  LCodec := nil;
+  Assert.AreEqual(1, LDestroyCount, 'The player should free the stream it owns');
+end;
+
+procedure TSkAnimationCodecTests.TestFrameOfOwnedStreamOutlivesPlayer(
+  const AImageFileName: string);
+var
+  LCodec: ISkAnimationCodecPlayer;
+  LDestroyCount: Integer;
+  LFrame: ISkImage;
+  LStream: TStream;
+begin
+  LDestroyCount := 0;
+  LStream := TDestroyCounterStream.Create(@LDestroyCount);
+  TMemoryStream(LStream).LoadFromFile(AssetsPath + AImageFileName);
+  LCodec := TSkAnimationCodecPlayer.MakeFromStream(LStream, True);
+  Assert.IsNotNull(LCodec, 'Invalid ISkAnimationCodecPlayer (nil)');
+  LFrame := LCodec.Frame;
+  LCodec := nil;
+  Assert.HasValidCodecResult(AImageFileName, LFrame.MakeRasterImage);
+  LFrame := nil;
+  Assert.AreEqual(1, LDestroyCount, 'The stream should be freed once the last frame is released');
+end;
+
+procedure TSkAnimationCodecTests.TestOwnedStreamOfInvalidData;
+var
+  LDestroyCount: Integer;
+begin
+  LDestroyCount := 0;
+  Assert.IsNull(TSkAnimationCodecPlayer.MakeFromStream(CreateInvalidImageStream(@LDestroyCount), True));
+  Assert.AreEqual(1, LDestroyCount, 'The stream should be freed even when no player is created');
 end;
 
 procedure TSkAnimationCodecTests.TestDecodeDuration(
