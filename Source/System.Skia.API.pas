@@ -8607,6 +8607,20 @@ end;
 {$ENDIF}
 
 {$IFNDEF SK_STATIC_LIBRARY}
+procedure RaiseLibraryLoadError;
+{$IFDEF MSWINDOWS}
+var
+  LError: {$IFDEF FPC}Integer{$ELSE}Cardinal{$ENDIF};
+{$ENDIF}
+begin
+  {$IFDEF MSWINDOWS}
+  LError := {$IFDEF FPC}GetLastOSError{$ELSE}GetLastError{$ENDIF};
+  raise Exception.CreateFmt('Could not load the Skia library "%s" (error %d: %s).', [LibraryName, LError, SysErrorMessage(LError)]);
+  {$ELSE}
+  raise Exception.CreateFmt('Could not load the Skia library "%s".', [LibraryName]);
+  {$ENDIF}
+end;
+
 procedure SkInitialize;
 begin
   {$IF DEFINED(FPC) and (FPC_FULLVERSION < 30301)}
@@ -8625,7 +8639,7 @@ begin
   LibraryHandle := SafeLoadLibrary(LibraryName);
   {$ENDIF}
   if LibraryHandle = 0 then
-    Abort;
+    RaiseLibraryLoadError;
   {$IFDEF MSWINDOWS}
   SetExceptionMask([exInvalidOp, exDenormalized, exZeroDivide, exOverflow, exUnderflow, exPrecision]);
   {$ENDIF}
