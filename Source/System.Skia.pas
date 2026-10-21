@@ -4008,9 +4008,10 @@ type
     class function get_length_proc(context: Pointer): size_t; cdecl; static;
     class function get_position_proc(context: Pointer): size_t; cdecl; static;
     class function read_proc(context: Pointer; buffer: Pointer; size: size_t): size_t; cdecl; static;
+    class procedure release_proc(context: Pointer); cdecl; static;
     class function seek_proc(context: Pointer; position: size_t): _bool; cdecl; static;
   public
-    constructor Create(const AStream: TStream);
+    constructor Create(const AStream: TStream; const AOwnsStream: Boolean = False);
     class procedure __DestroyHandle(const AHandle: sk_handle_t); override;
   end;
 
@@ -13205,9 +13206,12 @@ begin
   sk4d_streamadapter_set_procs(@LProcs);
 end;
 
-constructor TSkStreamAdapter.Create(const AStream: TStream);
+constructor TSkStreamAdapter.Create(const AStream: TStream; const AOwnsStream: Boolean);
 begin
-  inherited Create(sk4d_streamadapter_create(AStream));
+  if AOwnsStream then
+    inherited Create(sk4d_streamadapter_create2(AStream, release_proc))
+  else
+    inherited Create(sk4d_streamadapter_create(AStream));
 end;
 
 class function TSkStreamAdapter.get_length_proc(context: Pointer): size_t;
@@ -13224,6 +13228,11 @@ class function TSkStreamAdapter.read_proc(context, buffer: Pointer;
   size: size_t): size_t;
 begin
   Result := NativeUInt(TStream(context).Read(buffer^, NativeInt(size)));
+end;
+
+class procedure TSkStreamAdapter.release_proc(context: Pointer);
+begin
+  TStream(context).Free;
 end;
 
 class function TSkStreamAdapter.seek_proc(context: Pointer;

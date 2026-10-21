@@ -835,6 +835,7 @@ type
   sk_font_path_proc              = procedure (const path: sk_path_t; const matrix: psk_matrix_t; context: Pointer); cdecl;
   sk_image_raster_release_proc   = procedure (const pixels: Pointer; context: Pointer); cdecl;
   sk_image_texture_release_proc  = procedure (context: Pointer); cdecl;
+  sk_streamadapter_release_proc  = procedure (context: Pointer); cdecl;
   sk_surface_raster_release_proc = procedure (pixels, context: Pointer); cdecl;
 
   sk_streamadapter_procs_t = record
@@ -2081,6 +2082,7 @@ var
   { include/c/sk4d_stream.h }
 
   {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_streamadapter_create    {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(context: Pointer): sk_streamadapter_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_streamadapter_create2   {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(context: Pointer; release_proc: sk_streamadapter_release_proc): sk_streamadapter_t; cdecl;
   {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_streamadapter_destroy   {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_streamadapter_t); cdecl;
   {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_streamadapter_set_procs {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(const procs: psk_streamadapter_procs_t); cdecl;
   {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_wstreamadapter_create   {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(context: Pointer): sk_wstreamadapter_t; cdecl;
@@ -10056,18 +10058,20 @@ function sk4d_shader_make_with_local_matrix(const self: sk_shader_t; const local
 
 {$IFNDEF SK_STATIC_LIBRARY}
   sk4d_streamadapter_create     := GetProcAddress(LibraryHandle, PChar('sk4d_streamadapter_create'));
+  sk4d_streamadapter_create2    := GetProcAddress(LibraryHandle, PChar('sk4d_streamadapter_create2'));
   sk4d_streamadapter_destroy    := GetProcAddress(LibraryHandle, PChar('sk4d_streamadapter_destroy'));
   sk4d_streamadapter_set_procs  := GetProcAddress(LibraryHandle, PChar('sk4d_streamadapter_set_procs'));
   sk4d_wstreamadapter_create    := GetProcAddress(LibraryHandle, PChar('sk4d_wstreamadapter_create'));
   sk4d_wstreamadapter_destroy   := GetProcAddress(LibraryHandle, PChar('sk4d_wstreamadapter_destroy'));
   sk4d_wstreamadapter_set_procs := GetProcAddress(LibraryHandle, PChar('sk4d_wstreamadapter_set_procs'));
 {$ELSE}
-function  sk4d_streamadapter_create(context: Pointer): sk_streamadapter_t; cdecl;        external{$IF NOT DEFINED(FPC) and NOT DEFINED(MSWINDOWS)} LibraryName{$ENDIF} name _PU + 'sk4d_streamadapter_create';
-procedure sk4d_streamadapter_destroy(self: sk_streamadapter_t); cdecl;                   external{$IF NOT DEFINED(FPC) and NOT DEFINED(MSWINDOWS)} LibraryName{$ENDIF} name _PU + 'sk4d_streamadapter_destroy';
-procedure sk4d_streamadapter_set_procs(const procs: psk_streamadapter_procs_t); cdecl;   external{$IF NOT DEFINED(FPC) and NOT DEFINED(MSWINDOWS)} LibraryName{$ENDIF} name _PU + 'sk4d_streamadapter_set_procs';
-function  sk4d_wstreamadapter_create(context: Pointer): sk_wstreamadapter_t; cdecl;      external{$IF NOT DEFINED(FPC) and NOT DEFINED(MSWINDOWS)} LibraryName{$ENDIF} name _PU + 'sk4d_wstreamadapter_create';
-procedure sk4d_wstreamadapter_destroy(self: sk_wstreamadapter_t); cdecl;                 external{$IF NOT DEFINED(FPC) and NOT DEFINED(MSWINDOWS)} LibraryName{$ENDIF} name _PU + 'sk4d_wstreamadapter_destroy';
-procedure sk4d_wstreamadapter_set_procs(const procs: psk_wstreamadapter_procs_t); cdecl; external{$IF NOT DEFINED(FPC) and NOT DEFINED(MSWINDOWS)} LibraryName{$ENDIF} name _PU + 'sk4d_wstreamadapter_set_procs';
+function  sk4d_streamadapter_create(context: Pointer): sk_streamadapter_t; cdecl;                                               external{$IF NOT DEFINED(FPC) and NOT DEFINED(MSWINDOWS)} LibraryName{$ENDIF} name _PU + 'sk4d_streamadapter_create';
+function  sk4d_streamadapter_create2(context: Pointer; release_proc: sk_streamadapter_release_proc): sk_streamadapter_t; cdecl; external{$IF NOT DEFINED(FPC) and NOT DEFINED(MSWINDOWS)} LibraryName{$ENDIF} name _PU + 'sk4d_streamadapter_create2';
+procedure sk4d_streamadapter_destroy(self: sk_streamadapter_t); cdecl;                                                          external{$IF NOT DEFINED(FPC) and NOT DEFINED(MSWINDOWS)} LibraryName{$ENDIF} name _PU + 'sk4d_streamadapter_destroy';
+procedure sk4d_streamadapter_set_procs(const procs: psk_streamadapter_procs_t); cdecl;                                          external{$IF NOT DEFINED(FPC) and NOT DEFINED(MSWINDOWS)} LibraryName{$ENDIF} name _PU + 'sk4d_streamadapter_set_procs';
+function  sk4d_wstreamadapter_create(context: Pointer): sk_wstreamadapter_t; cdecl;                                             external{$IF NOT DEFINED(FPC) and NOT DEFINED(MSWINDOWS)} LibraryName{$ENDIF} name _PU + 'sk4d_wstreamadapter_create';
+procedure sk4d_wstreamadapter_destroy(self: sk_wstreamadapter_t); cdecl;                                                        external{$IF NOT DEFINED(FPC) and NOT DEFINED(MSWINDOWS)} LibraryName{$ENDIF} name _PU + 'sk4d_wstreamadapter_destroy';
+procedure sk4d_wstreamadapter_set_procs(const procs: psk_wstreamadapter_procs_t); cdecl;                                        external{$IF NOT DEFINED(FPC) and NOT DEFINED(MSWINDOWS)} LibraryName{$ENDIF} name _PU + 'sk4d_wstreamadapter_set_procs';
 {$ENDIF}
 
 
