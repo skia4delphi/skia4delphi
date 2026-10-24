@@ -125,6 +125,9 @@ type
     [TestCase('WebP (kung-fu-panda.webp)',    'kung-fu-panda.webp')]
     [TestCase('WebP Animated (rocket.webp)',  'rocket.webp')]
     procedure TestDecodeWithoutCopy(const AImageFileName: string);
+    [TestCase('GIF Animated (animated.gif)',  'animated.gif')]
+    [TestCase('GIF Animated (developer.gif)', 'developer.gif')]
+    procedure TestDecodeAgainWhenStreamCannotRewind(const AImageFileName: string);
   end;
 
   { TSkImageCodecTests }
@@ -215,6 +218,25 @@ type
     function Format: TSkEncodedImageFormat;
   end;
 
+  { TForwardOnlyStream }
+
+  // Descends from TStream because the newer TMemoryStream overrides more
+  // overloads than the ones that exist in old RTLs.
+  TForwardOnlyStream = class(TStream)
+  strict private
+    FData: TMemoryStream;
+    FForwardOnly: Boolean;
+  protected
+    function GetSize: Int64; override;
+  public
+    constructor Create(const AFileName: string);
+    destructor Destroy; override;
+    function Read(var ABuffer; ACount: Longint): Longint; override;
+    function Seek(const AOffset: Int64; AOrigin: TSeekOrigin): Int64; override;
+    function Write(const ABuffer; ACount: Longint): Longint; override;
+    property ForwardOnly: Boolean read FForwardOnly write FForwardOnly;
+  end;
+
 const
   FImageAssets: array[0..15] of TImageAssetInfo =
     ((Name: 'girl.bmp';            Width: 244;  Height: 280;  CRC32: 1736216929; SimilarityHash: 'z+uthfwJbJGAERyYkL0HgqfgPwsr4F7FDfQHD33qNvSPvhLwO9E/CNKb4HkM/09AgvFCpOB+7w'; MinSimilarity: 0.99),
@@ -261,6 +283,25 @@ begin
   LCodec := TSkCodec.MakeFromFile(AssetsPath + AImageFileName);
   Assert.IsNotNull(LCodec, 'Invalid ISkCodec (nil)');
   Assert.IsTrue(LCodec.EncodedImageFormat = AExpectedFormat, 'The codec should report the format it decoded');
+end;
+
+procedure TSkCodecTests.TestDecodeAgainWhenStreamCannotRewind(
+  const AImageFileName: string);
+var
+  LCodec: ISkCodec;
+  LStream: TForwardOnlyStream;
+begin
+  LStream := TForwardOnlyStream.Create(AssetsPath + AImageFileName);
+  try
+    LCodec := TSkCodec.MakeFromStream(LStream);
+    Assert.IsNotNull(LCodec, 'Invalid ISkCodec (nil)');
+    Assert.IsNotNull(LCodec.GetImage(SkNative32ColorType), 'The first decode should succeed');
+    LStream.ForwardOnly := True;
+    Assert.IsNull(LCodec.GetImage(SkNative32ColorType), 'The codec should fail when the stream cannot rewind, instead of decoding from the wrong position');
+    LCodec := nil;
+  finally
+    LStream.Free;
+  end;
 end;
 
 procedure TSkCodecTests.TestDecodeFile(const AImageFileName: string);
@@ -364,6 +405,44 @@ var
 begin
   LCodec := TSkAnimationCodecPlayer.MakeFromFile(AssetsPath + AImageFileName);
   Assert.AreEqual(ADuration, LCodec.Duration);
+end;
+
+{ TForwardOnlyStream }
+
+constructor TForwardOnlyStream.Create(const AFileName: string);
+begin
+  inherited Create;
+  FData := TMemoryStream.Create;
+  FData.LoadFromFile(AFileName);
+end;
+
+destructor TForwardOnlyStream.Destroy;
+begin
+  FData.Free;
+  inherited;
+end;
+
+function TForwardOnlyStream.GetSize: Int64;
+begin
+  Result := FData.Size;
+end;
+
+function TForwardOnlyStream.Read(var ABuffer; ACount: Longint): Longint;
+begin
+  Result := FData.Read(ABuffer, ACount);
+end;
+
+function TForwardOnlyStream.Seek(const AOffset: Int64;
+  AOrigin: TSeekOrigin): Int64;
+begin
+  if FForwardOnly and (AOrigin = TSeekOrigin.soBeginning) and (AOffset < FData.Position) then
+    Exit(-1);
+  Result := FData.Seek(AOffset, AOrigin);
+end;
+
+function TForwardOnlyStream.Write(const ABuffer; ACount: Longint): Longint;
+begin
+  Result := FData.Write(ABuffer, ACount);
 end;
 
 { TImageAssetInfo }
