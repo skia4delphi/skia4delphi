@@ -286,6 +286,7 @@ type
   TSkUnicodeBreakProc             = reference to procedure (const APosition, AStatus: Integer);
   TSkUnicodeCodepointProc         = reference to procedure (const AUnichar, AStart, AEnd: Integer);
 
+  // TODO: Make ESkArgumentException derive from ESkException in the next major version.
   ESkArgumentException            = class(Exception);
   ESkException                    = class(Exception);
 
@@ -5206,14 +5207,14 @@ var
   LSrc: TArray<sk_frame_t>;
 begin
   if Length(AFileName) = 0 then
-    raise ESkException.Create(SFileNameIsEmpty);
+    raise ESkArgumentException.Create(SFileNameIsEmpty);
   if Length(ASrc) < 1 then
     raise ESkArgumentException.CreateFmt(SParamIsEmpty, ['ASrc']);
   SetLength(LSrc{%H-}, Length(ASrc));
   for I := 0 to Length(ASrc) - 1 do
   begin
     if not Assigned(ASrc[I].Pixmap) then
-      raise ESkException.Create(SInvalidOperation);
+      raise ESkArgumentException.CreateFmt(SParamIsNil, [Format('ASrc[%d]', [I])]);
     MapFrame(ASrc[I], LSrc[I]);
   end;
   Result := sk4d_animatedwebpencoder_encode_to_file(MarshaledAString(UTF8Encode(AFileName)), @LSrc[0], NativeUInt(Length(ASrc)), AQuality);
@@ -5232,7 +5233,7 @@ begin
   for I := 0 to Length(ASrc) - 1 do
   begin
     if not Assigned(ASrc[I].Pixmap) then
-      raise ESkException.Create(SInvalidOperation);
+      raise ESkArgumentException.CreateFmt(SParamIsNil, [Format('ASrc[%d]', [I])]);
     MapFrame(ASrc[I], LSrc[I]);
   end;
   LWStream := TSkWStreamAdapter.Create(AStream);
@@ -5279,7 +5280,7 @@ class function TSkImageEncoder.EncodeToFile(const AFileName: string;
   const AQuality: Integer): Boolean;
 begin
   if Length(AFileName) = 0 then
-    raise ESkException.Create(SFileNameIsEmpty);
+    raise ESkArgumentException.Create(SFileNameIsEmpty);
   if not Assigned(ASrc) then
     raise ESkArgumentException.CreateFmt(SParamIsNil, ['ASrc']);
   Result := sk4d_imageencoder_encode_to_file(MarshaledAString(UTF8Encode(AFileName)), ASrc.Handle, sk_encodedimageformat_t(AEncodedImageFormat), AQuality);
@@ -7014,7 +7015,7 @@ end;
 class function TSkCodec.MakeFromFile(const AFileName: string): ISkCodec;
 begin
   if Length(AFileName) = 0 then
-    raise ESkException.Create(SFileNameIsEmpty);
+    raise ESkArgumentException.Create(SFileNameIsEmpty);
   Result := TSkBindings.SafeCreate<TSkCodec>(sk4d_codec_make_from_file(MarshaledAString(UTF8Encode(AFileName))));
 end;
 
@@ -7089,7 +7090,7 @@ class function TSkAnimationCodecPlayer.MakeFromFile(
   const AFileName: string): ISkAnimationCodecPlayer;
 begin
   if Length(AFileName) = 0 then
-    raise ESkException.Create(SFileNameIsEmpty);
+    raise ESkArgumentException.Create(SFileNameIsEmpty);
   Result := TSkBindings.SafeCreate<TSkAnimationCodecPlayer>(sk4d_animcodecplayer_make_from_file(MarshaledAString(UTF8Encode(AFileName))));
 end;
 
@@ -7738,7 +7739,7 @@ function TSkImage.EncodeToFile(const AFileName: string;
   const AQuality: Integer): Boolean;
 begin
   if Length(AFileName) = 0 then
-    raise ESkException.Create(SFileNameIsEmpty);
+    raise ESkArgumentException.Create(SFileNameIsEmpty);
   Result := sk4d_image_encode_to_file(Handle, MarshaledAString(UTF8Encode(AFileName)), sk_encodedimageformat_t(AEncodedImageFormat), AQuality);
 end;
 
@@ -7876,7 +7877,7 @@ end;
 class function TSkImage.MakeFromEncodedFile(const AFileName: string): ISkImage;
 begin
   if Length(AFileName) = 0 then
-    raise ESkException.Create(SFileNameIsEmpty);
+    raise ESkArgumentException.Create(SFileNameIsEmpty);
   Result := TSkBindings.SafeCreate<TSkImage>(sk4d_image_make_from_encoded_file(MarshaledAString(UTF8Encode(AFileName))));
 end;
 
@@ -10627,7 +10628,7 @@ procedure TSkRuntimeEffectBuilder.SetChild(const AName: string;
   const AChild: ISkBlender);
 begin
   if FEffect.GetChildTypeByName(AName) <> TSkRuntimeEffectChildType.Blender then
-    raise ESkException.Create(SInvalidOperation);
+    raise ESkArgumentException.Create(SInvalidOperation);
   sk4d_runtimeeffectbuilder_set_child3(Handle, MarshaledAString(UTF8Encode(AName)), TSkBindings.SafeHandle(AChild));
 end;
 
@@ -10635,7 +10636,7 @@ procedure TSkRuntimeEffectBuilder.SetChild(const AName: string;
   const AChild: ISkShader);
 begin
   if FEffect.GetChildTypeByName(AName) <> TSkRuntimeEffectChildType.Shader then
-    raise ESkException.Create(SInvalidOperation);
+    raise ESkArgumentException.Create(SInvalidOperation);
   sk4d_runtimeeffectbuilder_set_child(Handle, MarshaledAString(UTF8Encode(AName)), TSkBindings.SafeHandle(AChild));
 end;
 
@@ -10643,7 +10644,7 @@ procedure TSkRuntimeEffectBuilder.SetChild(const AName: string;
   const AChild: ISkColorFilter);
 begin
   if FEffect.GetChildTypeByName(AName) <> TSkRuntimeEffectChildType.ColorFilter then
-    raise ESkException.Create(SInvalidOperation);
+    raise ESkArgumentException.Create(SInvalidOperation);
   sk4d_runtimeeffectbuilder_set_child2(Handle, MarshaledAString(UTF8Encode(AName)), TSkBindings.SafeHandle(AChild));
 end;
 
@@ -10713,7 +10714,7 @@ begin
   else
     LSize := NativeUInt(UniformCount[FEffect.GetUniformTypeByName(AName)]) * NativeUInt(FEffect.GetUniformTypeCountByName(AName)) * NativeUInt(SizeOf(Single));
   if ASize <> LSize then
-    raise ESkException.Create(SInvalidOperation);
+    raise ESkArgumentException.CreateFmt(SParamSizeMismatch, ['AData']);
   sk4d_runtimeeffectbuilder_set_uniform(Handle, MarshaledAString(UTF8Encode(AName)), @AData);
 end;
 
@@ -11373,7 +11374,7 @@ begin
   for I := 0 to Length(ASemaphores) - 1 do
   begin
     if not Assigned(ASemaphores[I]) then
-      raise ESkException.Create(SInvalidOperation);
+      raise ESkArgumentException.CreateFmt(SParamIsNil, [Format('ASemaphores[%d]', [I])]);
     LSemaphores[I] := ASemaphores[I].Handle;
   end;
   sk4d_surface_flush_and_submit(Handle, @LSemaphores[0], Integer(Length(ASemaphores)), TSkBindings.SafeHandle(ANewState), ASyncCpu);
@@ -11655,7 +11656,7 @@ begin
   for I := 0 to Length(ASemaphores) - 1 do
   begin
     if not Assigned(ASemaphores[I]) then
-      raise ESkException.Create(SInvalidOperation);
+      raise ESkArgumentException.CreateFmt(SParamIsNil, [Format('ASemaphores[%d]', [I])]);
     LSemaphores[I] := ASemaphores[I].Handle;
   end;
   sk4d_surface_wait(Handle, @LSemaphores[0], Integer(Length(ASemaphores)));
@@ -11827,7 +11828,7 @@ class function TSkTypeface.MakeFromFile(const AFileName: string;
   const ATTCIndex: Integer): ISkTypeface;
 begin
   if Length(AFileName) = 0 then
-    raise ESkException.Create(SFileNameIsEmpty);
+    raise ESkArgumentException.Create(SFileNameIsEmpty);
   Result := TSkBindings.SafeCreate<TSkTypeFace>(sk4d_typeface_make_from_file(MarshaledAString(UTF8Encode(AFileName)), ATTCIndex));
 end;
 
@@ -11940,7 +11941,7 @@ class function TSkParticleEffect.MakeFromFile(
   const AFileName: string): ISkParticleEffect;
 begin
   if Length(AFileName) = 0 then
-    raise ESkException.Create(SFileNameIsEmpty);
+    raise ESkArgumentException.Create(SFileNameIsEmpty);
   Result := TSkBindings.SafeCreate<TSkParticleEffect>(sk4d_particleeffect_make_from_file(MarshaledAString(UTF8Encode(AFileName))));
 end;
 
@@ -12038,7 +12039,7 @@ class function TSkottieAnimation.MakeFromFile(const AFileName: string;
   const AFontProvider: ISkTypefaceFontProvider): ISkottieAnimation;
 begin
   if Length(AFileName) = 0 then
-    raise ESkException.Create(SFileNameIsEmpty);
+    raise ESkArgumentException.Create(SFileNameIsEmpty);
   Result := TSkBindings.SafeCreate<TSkottieAnimation>(sk4d_skottieanimation_make_from_file(MarshaledAString(UTF8Encode(AFileName)), TSkBindings.SafeHandle(AFontProvider)));
 end;
 
@@ -12945,7 +12946,7 @@ class function TSkSVGDOM.MakeFromFile(const AFileName: string;
   const AFontProvider: ISkTypefaceFontProvider): ISkSVGDOM;
 begin
   if Length(AFileName) = 0 then
-    raise ESkException.Create(SFileNameIsEmpty);
+    raise ESkArgumentException.Create(SFileNameIsEmpty);
   Result := TSkBindings.SafeCreate<TSkSVGDOM>(sk4d_svgdom_make_from_file(MarshaledAString(UTF8Encode(AFileName)), TSkBindings.SafeHandle(AFontProvider)));
 end;
 
