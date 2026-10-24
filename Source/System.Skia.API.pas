@@ -2452,10 +2452,13 @@ uses
   System.ZLib;
 {$ENDIF}
 {$ELSE}
-{$IF NOT DEFINED(FPC) and DEFINED(ANDROID)}
+{$IFNDEF FPC}
 uses
   { Delphi }
-  System.IOUtils;
+  {$IFDEF ANDROID}
+  System.IOUtils,
+  {$ENDIF}
+  Posix.Dlfcn;
 {$ENDIF}
 {$ENDIF}
 {$ENDIF}
@@ -8609,6 +8612,22 @@ end;
 {$ENDIF}
 
 {$IFNDEF SK_STATIC_LIBRARY}
+procedure RaiseLibraryLoadError;
+{$IFDEF MSWINDOWS}
+var
+  LError: {$IFDEF FPC}Integer{$ELSE}Cardinal{$ENDIF};
+{$ENDIF}
+begin
+  {$IF DEFINED(MSWINDOWS)}
+  LError := {$IFDEF FPC}GetLastOSError{$ELSE}GetLastError{$ENDIF};
+  raise Exception.CreateFmt('Could not load the Skia library "%s" (error %d: %s).', [LibraryName, LError, SysErrorMessage(LError)]);
+  {$ELSEIF DEFINED(FPC)}
+  raise Exception.CreateFmt('Could not load the Skia library "%s" (%s).', [LibraryName, GetLoadErrorStr]);
+  {$ELSE}
+  raise Exception.CreateFmt('Could not load the Skia library "%s" (%s).', [LibraryName, string(UTF8String(dlerror))]);
+  {$ENDIF}
+end;
+
 procedure SkInitialize;
 begin
   {$IF DEFINED(FPC) and (FPC_FULLVERSION < 30301)}
@@ -8627,7 +8646,7 @@ begin
   LibraryHandle := SafeLoadLibrary(LibraryName);
   {$ENDIF}
   if LibraryHandle = 0 then
-    Abort;
+    RaiseLibraryLoadError;
   {$IFDEF MSWINDOWS}
   SetExceptionMask([exInvalidOp, exDenormalized, exZeroDivide, exOverflow, exUnderflow, exPrecision]);
   {$ENDIF}
@@ -10669,7 +10688,7 @@ begin
   {$ENDIF}
   begin
     if __InitLib <> 0 then
-      Abort;
+      raise Exception.Create('Could not initialize the Skia static library.');
     SetExceptionMask([exInvalidOp, exDenormalized, exZeroDivide, exOverflow, exUnderflow, exPrecision]);
   end;
   {$ENDIF}
