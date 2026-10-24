@@ -2450,10 +2450,13 @@ uses
   System.ZLib;
 {$ENDIF}
 {$ELSE}
-{$IF NOT DEFINED(FPC) and DEFINED(ANDROID)}
+{$IFNDEF FPC}
 uses
   { Delphi }
-  System.IOUtils;
+  {$IFDEF ANDROID}
+  System.IOUtils,
+  {$ENDIF}
+  Posix.Dlfcn;
 {$ENDIF}
 {$ENDIF}
 {$ENDIF}
@@ -8613,11 +8616,13 @@ var
   LError: {$IFDEF FPC}Integer{$ELSE}Cardinal{$ENDIF};
 {$ENDIF}
 begin
-  {$IFDEF MSWINDOWS}
+  {$IF DEFINED(MSWINDOWS)}
   LError := {$IFDEF FPC}GetLastOSError{$ELSE}GetLastError{$ENDIF};
   raise Exception.CreateFmt('Could not load the Skia library "%s" (error %d: %s).', [LibraryName, LError, SysErrorMessage(LError)]);
+  {$ELSEIF DEFINED(FPC)}
+  raise Exception.CreateFmt('Could not load the Skia library "%s" (%s).', [LibraryName, GetLoadErrorStr]);
   {$ELSE}
-  raise Exception.CreateFmt('Could not load the Skia library "%s".', [LibraryName]);
+  raise Exception.CreateFmt('Could not load the Skia library "%s" (%s).', [LibraryName, string(UTF8String(dlerror))]);
   {$ENDIF}
 end;
 
@@ -10679,7 +10684,7 @@ begin
   {$ENDIF}
   begin
     if __InitLib <> 0 then
-      Abort;
+      raise Exception.Create('Could not initialize the Skia static library.');
     SetExceptionMask([exInvalidOp, exDenormalized, exZeroDivide, exOverflow, exUnderflow, exPrecision]);
   end;
   {$ENDIF}
