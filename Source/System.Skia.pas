@@ -13276,8 +13276,7 @@ end;
 class function TSkStreamAdapter.seek_proc(context: Pointer;
   position: size_t): _bool;
 begin
-  TStream(context).Position := Int64(position);
-  Result := True;
+  Result := TStream(context).Seek(Int64(position), soBeginning) = Int64(position);
 end;
 
 class procedure TSkStreamAdapter.__DestroyHandle(const AHandle: sk_handle_t);
@@ -13303,8 +13302,7 @@ end;
 class function TSkWStreamAdapter.write_proc(context: Pointer;
   const buffer: Pointer; size: size_t): _bool;
 begin
-  TStream(context).Write(buffer^, NativeInt(size));
-  Result := True;
+  Result := TStream(context).Write(buffer^, NativeInt(size)) = NativeInt(size);
 end;
 
 class procedure TSkWStreamAdapter.__DestroyHandle(const AHandle: sk_handle_t);
