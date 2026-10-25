@@ -623,7 +623,7 @@ A small selection of projects that demonstrate what can be built with **Skia4Del
 
 **Notes:**
 - In projects compiled for Apple targets (macOS, iOS), you may encounter a warning similar to: **was built for newer version (X) than being linked (Y)**. This indicates that you need to set the minimum deployment version for macOS or iOS in Project Options - `Project Options > Building > Delphi Compiler > Linking > Minimum (iOS|macOS) version supported`;
-- Windows 7 and 8 are supported only on Win32 target;
+- Windows 7 and 8 are supported only on Win32 target. Windows 7 also requires SP1 with update [KB2533623](https://support.microsoft.com/kb/2533623) (or a later update that supersedes it, such as any monthly rollup);
 - On Linux, `libsk4d.so` requires Fontconfig, zlib and an OpenGL runtime. Install any missing packages with:
 
     **Ubuntu / Debian:**
