@@ -12916,6 +12916,11 @@ begin
   Result := LCanvas;
 end;
 
+procedure resource_provider_release_proc(context: Pointer); cdecl;
+begin
+  IInterface(context)._Release;
+end;
+
 { TSkSVGDOM }
 
 function TSkSVGDOM.FindNodeById(const AId: string): ISkSVGNode;
@@ -12959,7 +12964,13 @@ var
   LStream: ISkStream;
 begin
   LStream := TSkStreamAdapter.Create(AStream);
-  Result  := TSkBindings.SafeCreate<TSkSVGDOM>(sk4d_svgdom_make_from_stream(LStream.Handle, TSkBindings.SafeHandle(AResourceProvider), TSkBindings.SafeHandle(AFontProvider)));
+  if Assigned(AResourceProvider) then
+  begin
+    AResourceProvider._AddRef;
+    Result := TSkBindings.SafeCreate<TSkSVGDOM>(sk4d_svgdom_make_from_stream2(LStream.Handle, AResourceProvider.Handle, TSkBindings.SafeHandle(AFontProvider), resource_provider_release_proc, Pointer(AResourceProvider)));
+  end
+  else
+    Result := TSkBindings.SafeCreate<TSkSVGDOM>(sk4d_svgdom_make_from_stream(LStream.Handle, 0, TSkBindings.SafeHandle(AFontProvider)));
 end;
 
 procedure TSkSVGDOM.Render(const ACanvas: ISkCanvas);

@@ -1247,6 +1247,8 @@ type
   end;
   psk_resourceproviderbaseclass_procs_t = ^sk_resourceproviderbaseclass_procs_t;
 
+  sk_resourceprovider_release_proc = procedure (context: Pointer); cdecl;
+
 
   { modules/skshaper/include/sk4d_shaper_types.h }
 
@@ -2368,6 +2370,7 @@ var
   {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_svgdom_get_root          {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const self: sk_svgdom_t): sk_svgsvg_t; cdecl;
   {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_svgdom_make_from_file    {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const file_name: MarshaledAString; font_provider: sk_fontmgr_t): sk_svgdom_t; cdecl;
   {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_svgdom_make_from_stream  {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(stream: sk_stream_t; resource_provider: sk_resourceprovider_t; font_provider: sk_fontmgr_t): sk_svgdom_t; cdecl;
+  {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_svgdom_make_from_stream2 {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(stream: sk_stream_t; resource_provider: sk_resourceprovider_t; font_provider: sk_fontmgr_t; release_proc: sk_resourceprovider_release_proc; context: Pointer): sk_svgdom_t; cdecl;
   {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_svgdom_render            {$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(const self: sk_svgdom_t; canvas: sk_canvas_t); cdecl;
   {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_svgdom_set_container_size{$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(self: sk_svgdom_t; const size: psk_size_t); cdecl;
 
@@ -10677,15 +10680,17 @@ function  sk4d_unicodebreakiterator_next(self: sk_unicodebreakiterator_t; out el
   sk4d_svgdom_get_root           := GetProcAddress(LibraryHandle, PChar('sk4d_svgdom_get_root'));
   sk4d_svgdom_make_from_file     := GetProcAddress(LibraryHandle, PChar('sk4d_svgdom_make_from_file'));
   sk4d_svgdom_make_from_stream   := GetProcAddress(LibraryHandle, PChar('sk4d_svgdom_make_from_stream'));
+  sk4d_svgdom_make_from_stream2  := GetProcAddress(LibraryHandle, PChar('sk4d_svgdom_make_from_stream2'));
   sk4d_svgdom_render             := GetProcAddress(LibraryHandle, PChar('sk4d_svgdom_render'));
   sk4d_svgdom_set_container_size := GetProcAddress(LibraryHandle, PChar('sk4d_svgdom_set_container_size'));
 {$ELSE}
-function  sk4d_svgdom_find_node_by_id(self: sk_svgdom_t; const id: MarshaledAString): sk_svgnode_t; cdecl;                                              external{$IF NOT DEFINED(FPC) and NOT DEFINED(MSWINDOWS)} LibraryName{$ENDIF} name _PU + 'sk4d_svgdom_find_node_by_id';
-function  sk4d_svgdom_get_root(const self: sk_svgdom_t): sk_svgsvg_t; cdecl;                                                                            external{$IF NOT DEFINED(FPC) and NOT DEFINED(MSWINDOWS)} LibraryName{$ENDIF} name _PU + 'sk4d_svgdom_get_root';
-function  sk4d_svgdom_make_from_file(const file_name: MarshaledAString; font_provider: sk_fontmgr_t): sk_svgdom_t; cdecl;                               external{$IF NOT DEFINED(FPC) and NOT DEFINED(MSWINDOWS)} LibraryName{$ENDIF} name _PU + 'sk4d_svgdom_make_from_file';
-function  sk4d_svgdom_make_from_stream(stream: sk_stream_t; resource_provider: sk_resourceprovider_t; font_provider: sk_fontmgr_t): sk_svgdom_t; cdecl; external{$IF NOT DEFINED(FPC) and NOT DEFINED(MSWINDOWS)} LibraryName{$ENDIF} name _PU + 'sk4d_svgdom_make_from_stream';
-procedure sk4d_svgdom_render(const self: sk_svgdom_t; canvas: sk_canvas_t); cdecl;                                                                      external{$IF NOT DEFINED(FPC) and NOT DEFINED(MSWINDOWS)} LibraryName{$ENDIF} name _PU + 'sk4d_svgdom_render';
-procedure sk4d_svgdom_set_container_size(self: sk_svgdom_t; const size: psk_size_t); cdecl;                                                             external{$IF NOT DEFINED(FPC) and NOT DEFINED(MSWINDOWS)} LibraryName{$ENDIF} name _PU + 'sk4d_svgdom_set_container_size';
+function  sk4d_svgdom_find_node_by_id(self: sk_svgdom_t; const id: MarshaledAString): sk_svgnode_t; cdecl;                                                                                                                 external{$IF NOT DEFINED(FPC) and NOT DEFINED(MSWINDOWS)} LibraryName{$ENDIF} name _PU + 'sk4d_svgdom_find_node_by_id';
+function  sk4d_svgdom_get_root(const self: sk_svgdom_t): sk_svgsvg_t; cdecl;                                                                                                                                               external{$IF NOT DEFINED(FPC) and NOT DEFINED(MSWINDOWS)} LibraryName{$ENDIF} name _PU + 'sk4d_svgdom_get_root';
+function  sk4d_svgdom_make_from_file(const file_name: MarshaledAString; font_provider: sk_fontmgr_t): sk_svgdom_t; cdecl;                                                                                                  external{$IF NOT DEFINED(FPC) and NOT DEFINED(MSWINDOWS)} LibraryName{$ENDIF} name _PU + 'sk4d_svgdom_make_from_file';
+function  sk4d_svgdom_make_from_stream(stream: sk_stream_t; resource_provider: sk_resourceprovider_t; font_provider: sk_fontmgr_t): sk_svgdom_t; cdecl;                                                                    external{$IF NOT DEFINED(FPC) and NOT DEFINED(MSWINDOWS)} LibraryName{$ENDIF} name _PU + 'sk4d_svgdom_make_from_stream';
+function  sk4d_svgdom_make_from_stream2(stream: sk_stream_t; resource_provider: sk_resourceprovider_t; font_provider: sk_fontmgr_t; release_proc: sk_resourceprovider_release_proc; context: Pointer): sk_svgdom_t; cdecl; external{$IF NOT DEFINED(FPC) and NOT DEFINED(MSWINDOWS)} LibraryName{$ENDIF} name _PU + 'sk4d_svgdom_make_from_stream2';
+procedure sk4d_svgdom_render(const self: sk_svgdom_t; canvas: sk_canvas_t); cdecl;                                                                                                                                         external{$IF NOT DEFINED(FPC) and NOT DEFINED(MSWINDOWS)} LibraryName{$ENDIF} name _PU + 'sk4d_svgdom_render';
+procedure sk4d_svgdom_set_container_size(self: sk_svgdom_t; const size: psk_size_t); cdecl;                                                                                                                                external{$IF NOT DEFINED(FPC) and NOT DEFINED(MSWINDOWS)} LibraryName{$ENDIF} name _PU + 'sk4d_svgdom_set_container_size';
 {$ENDIF}
 
 
