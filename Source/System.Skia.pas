@@ -3155,6 +3155,7 @@ type
 
   { ISkParticleEffect }
 
+  // TODO: Remove particle effect on next major version.
   ISkParticleEffect = interface(ISkReferenceCounted)
     ['{A8AAC230-E76B-4BBE-84F2-82D09D38E0D4}']
     function GetPosition: TPointF;
@@ -3181,6 +3182,7 @@ type
 
   { TSkParticleEffect }
 
+  // TODO: Remove particle effect on next major version.
   TSkParticleEffect = class(TSkReferenceCounted, ISkParticleEffect)
   strict private
     function GetPosition: TPointF;
