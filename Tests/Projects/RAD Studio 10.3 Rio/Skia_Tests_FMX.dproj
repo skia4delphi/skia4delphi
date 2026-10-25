@@ -84,7 +84,7 @@
         <AUP_READ_PHONE_STATE>true</AUP_READ_PHONE_STATE>
         <AUP_WRITE_EXTERNAL_STORAGE>true</AUP_WRITE_EXTERNAL_STORAGE>
         <DCC_DcuOutput>.\..\..\Objects\$(Platform)\$(Config)</DCC_DcuOutput>
-        <DCC_Define>SKIA;DELPHI_XE8_UP;DELPHI_SEATTLE_UP;$(DCC_Define)</DCC_Define>
+        <DCC_Define>SKIA;SK_DEBUG;DELPHI_XE8_UP;DELPHI_SEATTLE_UP;$(DCC_Define)</DCC_Define>
         <DCC_ExeOutput>.\..\..\Binary\$(Platform)\$(Config)</DCC_ExeOutput>
         <DCC_Namespace>System;Xml;Data;Datasnap;Web;Soap;$(DCC_Namespace)</DCC_Namespace>
         <DCC_UnitSearchPath>$(DUnitX);$(DCC_UnitSearchPath)</DCC_UnitSearchPath>

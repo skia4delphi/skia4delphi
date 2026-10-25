@@ -54,7 +54,7 @@
     <PropertyGroup Condition="'$(Base)'!=''">
         <SanitizedProjectName>Skia_Tests_Console</SanitizedProjectName>
         <DCC_DcuOutput>.\..\..\Objects\$(Platform)\$(Config)</DCC_DcuOutput>
-        <DCC_Define>SKIA;$(DCC_Define)</DCC_Define>
+        <DCC_Define>SKIA;SK_DEBUG;$(DCC_Define)</DCC_Define>
         <DCC_ExeOutput>.\..\..\Binary\$(Platform)\$(Config)</DCC_ExeOutput>
         <DCC_Namespace>System;Xml;Data;Datasnap;Web;Soap;$(DCC_Namespace)</DCC_Namespace>
         <DCC_UnitSearchPath>$(DUnitX);$(DCC_UnitSearchPath)</DCC_UnitSearchPath>

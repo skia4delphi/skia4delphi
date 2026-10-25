@@ -8615,15 +8615,6 @@ var
   {$ENDIF}
 {$ENDIF}
 
-{$IF DEFINED(SK_DEBUG) and DEFINED(MSWINDOWS) and NOT DEFINED(SK_STATIC_LIBRARY)}
-function GetProcAddress(AModule: HMODULE; AProcName: PChar): Pointer;
-begin
-  Result := Winapi.Windows.GetProcAddress(AModule, AProcName);
-  if Result = nil then
-    raise Exception.CreateFmt('Function "%s" not found in Skia library.', [AProcName]);
-end;
-{$ENDIF}
-
 {$IFNDEF SK_STATIC_LIBRARY}
 procedure RaiseLibraryLoadError;
 {$IFDEF MSWINDOWS}
@@ -8664,6 +8655,21 @@ begin
   raise Exception.CreateFmt('The Skia library version %s is not supported (requires %d.%d or a later %d.x).',
     [LVersion, LibraryMajorVersion, LibraryMinorVersion, LibraryMajorVersion]);
 end;
+
+{$IFDEF SK_DEBUG}
+function GetProcAddress(AModule: HMODULE; AProcName: PChar): Pointer;
+begin
+  {$IF DEFINED(FPC)}
+  Result := System.GetProcAddress(AModule, AProcName);
+  {$ELSEIF DEFINED(MSWINDOWS)}
+  Result := Winapi.Windows.GetProcAddress(AModule, AProcName);
+  {$ELSE}
+  Result := System.SysUtils.GetProcAddress(AModule, AProcName);
+  {$ENDIF}
+  if Result = nil then
+    raise Exception.CreateFmt('Function "%s" not found in Skia library.', [AProcName]);
+end;
+{$ENDIF}
 
 procedure SkInitialize;
 begin

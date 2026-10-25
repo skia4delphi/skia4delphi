@@ -84,7 +84,7 @@
     <PropertyGroup Condition="'$(Base)'!=''">
         <SanitizedProjectName>Skia_Tests_VCL</SanitizedProjectName>
         <DCC_DcuOutput>.\..\..\Objects\$(Platform)\$(Config)</DCC_DcuOutput>
-        <DCC_Define>SKIA;DELPHI_XE8_UP;SET_EXCEPTION_MASK;$(DCC_Define)</DCC_Define>
+        <DCC_Define>SKIA;SK_DEBUG;DELPHI_XE8_UP;SET_EXCEPTION_MASK;$(DCC_Define)</DCC_Define>
         <DCC_ExeOutput>.\..\..\Binary\$(Platform)\$(Config)</DCC_ExeOutput>
         <DCC_Namespace>System;Xml;Data;Datasnap;Web;Soap;Vcl;Vcl.Imaging;Vcl.Touch;Vcl.Samples;Vcl.Shell;$(DCC_Namespace)</DCC_Namespace>
         <DCC_UnitSearchPath>$(DUnitX);$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
