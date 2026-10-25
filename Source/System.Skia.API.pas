@@ -2153,6 +2153,11 @@ var
   {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_typeface_make_from_name  {$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(const family_name: MarshaledAString; const style: psk_fontstyle_t): sk_typeface_t; cdecl;
 
 
+  { include/c/sk4d_version.h }
+
+  {$IFDEF SK_STATIC_LIBRARY}procedure {$ENDIF}sk4d_version_get{$IFNDEF SK_STATIC_LIBRARY}: procedure {$ENDIF}(out major, minor, patch: int32_t); cdecl;
+
+
   { include/c/sk4d_vertices.h }
 
   {$IFDEF SK_STATIC_LIBRARY}function  {$ENDIF}sk4d_vertices_make_copy{$IFNDEF SK_STATIC_LIBRARY}: function  {$ENDIF}(vertex_mode: sk_vertexmode_t; vertex_count: int32_t; const positions, textures: psk_point_t; const colors: psk_color_t; index_count: int32_t; const indices: puint16_t): sk_vertices_t; cdecl;
@@ -8583,13 +8588,21 @@ const
   {$ENDIF}
 {$ELSE}
 const
+  // The library must have the same major and at least the same minor version.
+  // The versioned name is tried first, so executables built against different
+  // binaries can share a folder.
+  LibraryMajorVersion = 151;
+  LibraryMinorVersion = 1;
   {$IFDEF MSWINDOWS}
-  LibraryName = 'sk4d.dll';
+  LibraryName                = 'sk4d.dll';
+  VersionedLibraryNameFormat = 'sk4d-%d.%d.dll';
   {$ELSE}
   {$IFDEF MACOS}
-  LibraryName = 'libsk4d.dylib';
+  LibraryName                = 'libsk4d.dylib';
+  VersionedLibraryNameFormat = 'libsk4d-%d.%d.dylib';
   {$ELSE}
-  LibraryName = 'libsk4d.so';
+  LibraryName                = 'libsk4d.so';
+  VersionedLibraryNameFormat = 'libsk4d-%d.%d.so';
   {$ENDIF}
   {$ENDIF}
 {$ENDIF}
@@ -8628,6 +8641,30 @@ begin
   {$ENDIF}
 end;
 
+procedure CheckLibraryVersion;
+var
+  LMajor: int32_t;
+  LMinor: int32_t;
+  LPatch: int32_t;
+  LVersion: string;
+begin
+  sk4d_version_get := GetProcAddress(LibraryHandle, PChar('sk4d_version_get'));
+
+  if Assigned(sk4d_version_get) then
+  begin
+    sk4d_version_get(LMajor, LMinor, LPatch);
+    if (LMajor = LibraryMajorVersion) and (LMinor >= LibraryMinorVersion) then
+      Exit;
+    LVersion := Format('%d.%d.%d', [LMajor, LMinor, LPatch]);
+  end
+  else
+    LVersion := 'unknown';
+  FreeLibrary(LibraryHandle);
+  LibraryHandle := 0;
+  raise Exception.CreateFmt('The Skia library version %s is not supported (requires %d.%d or a later %d.x).',
+    [LVersion, LibraryMajorVersion, LibraryMinorVersion, LibraryMajorVersion]);
+end;
+
 procedure SkInitialize;
 begin
   {$IF DEFINED(FPC) and (FPC_FULLVERSION < 30301)}
@@ -8643,10 +8680,13 @@ begin
   if LibraryHandle = 0 then
     LibraryHandle := SafeLoadLibrary(TPath.Combine(TPath.GetLibraryPath, LibraryName));
   {$ELSE}
-  LibraryHandle := SafeLoadLibrary(LibraryName);
+  LibraryHandle := SafeLoadLibrary(Format(VersionedLibraryNameFormat, [LibraryMajorVersion, LibraryMinorVersion]));
+  if LibraryHandle = 0 then
+    LibraryHandle := SafeLoadLibrary(LibraryName);
   {$ENDIF}
   if LibraryHandle = 0 then
     RaiseLibraryLoadError;
+  CheckLibraryVersion;
   {$IFDEF MSWINDOWS}
   SetExceptionMask([exInvalidOp, exDenormalized, exZeroDivide, exOverflow, exUnderflow, exPrecision]);
   {$ENDIF}
@@ -10213,6 +10253,15 @@ function  sk4d_typeface_make_default(): sk_typeface_t; cdecl;                   
 function  sk4d_typeface_make_from_file(const file_name: MarshaledAString; ttc_index: int32_t): sk_typeface_t; cdecl;             external{$IF NOT DEFINED(FPC) and NOT DEFINED(MSWINDOWS)} LibraryName{$ENDIF} name _PU + 'sk4d_typeface_make_from_file';
 function  sk4d_typeface_make_from_stream(stream: sk_stream_t; ttc_index: int32_t): sk_typeface_t; cdecl;                         external{$IF NOT DEFINED(FPC) and NOT DEFINED(MSWINDOWS)} LibraryName{$ENDIF} name _PU + 'sk4d_typeface_make_from_stream';
 function  sk4d_typeface_make_from_name(const family_name: MarshaledAString; const style: psk_fontstyle_t): sk_typeface_t; cdecl; external{$IF NOT DEFINED(FPC) and NOT DEFINED(MSWINDOWS)} LibraryName{$ENDIF} name _PU + 'sk4d_typeface_make_from_name';
+{$ENDIF}
+
+
+{ include/c/sk4d_version.h }
+
+{$IFNDEF SK_STATIC_LIBRARY}
+  sk4d_version_get := GetProcAddress(LibraryHandle, PChar('sk4d_version_get'));
+{$ELSE}
+procedure sk4d_version_get(out major, minor, patch: int32_t); cdecl; external{$IF NOT DEFINED(FPC) and NOT DEFINED(MSWINDOWS)} LibraryName{$ENDIF} name _PU + 'sk4d_version_get';
 {$ENDIF}
 
 
