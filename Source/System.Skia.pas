@@ -12924,14 +12924,26 @@ end;
 { TSkSVGDOM }
 
 function TSkSVGDOM.FindNodeById(const AId: string): ISkSVGNode;
+var
+  LHandle: sk_svgnode_t;
 begin
-  Result := TSkBindings.SafeCreate<TSkSVGNode>(sk4d_svgdom_find_node_by_id(Handle, MarshaledAString(UTF8Encode(AId))), False);
+  LHandle := sk4d_svgdom_find_node_by_id(Handle, MarshaledAString(UTF8Encode(AId)));
+  if LHandle <> 0 then
+    TSkSVGNode.__RefHandle(LHandle);
+  Result := TSkBindings.SafeCreate<TSkSVGNode>(LHandle);
 end;
 
 function TSkSVGDOM.GetRoot: ISkSVGSVG;
+var
+  LHandle: sk_svgsvg_t;
 begin
   if not Assigned(FRoot) then
-    FRoot := TSkBindings.SafeCreate<TSkSVGSVG>(sk4d_svgdom_get_root(Handle), False);
+  begin
+    LHandle := sk4d_svgdom_get_root(Handle);
+    if LHandle <> 0 then
+      TSkSVGSVG.__RefHandle(LHandle);
+    FRoot := TSkBindings.SafeCreate<TSkSVGSVG>(LHandle);
+  end;
   Result := FRoot;
 end;
 

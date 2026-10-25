@@ -45,11 +45,15 @@ type
     [TestCase('youtube.svg',      'youtube.svg,0,0')]
     procedure TestGetIntrinsicSize(const ASvgFileName: string; const AWidth, AHeight: Single);
     [Test]
+    procedure TestNodeOutlivesDOM;
+    [Test]
     procedure TestPreserveAspectRatio;
     [Test]
     procedure TestResourceProviderLivesAsLongAsDOM;
     [Test]
     procedure TestResourceProviderOfInvalidData;
+    [Test]
+    procedure TestRootOutlivesDOM;
     [Test]
     procedure TestSetContainerSize;
     [Test]
@@ -209,6 +213,20 @@ begin
   Assert.AreSimilar(AExpectedImageHash, LSurface.MakeImageSnapshot, 0.9961);
 end;
 
+procedure TSkSvgDOMTests.TestNodeOutlivesDOM;
+var
+  LNode: ISkSVGNode;
+  LSVGDOM: ISkSVGDOM;
+begin
+  LSVGDOM := TSkSVGDOM.Make('<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100">' +
+    '<rect id="r" width="100" height="100" fill="red"/></svg>');
+  Assert.IsNotNull(LSVGDOM, 'Invalid SkSVGDOM');
+  LNode := LSVGDOM.FindNodeById('r');
+  Assert.IsNotNull(LNode, 'Invalid ISkSVGNode (nil)');
+  LSVGDOM := nil;
+  Assert.IsTrue(LNode.TrySetAttribute('fill', 'blue'), 'The node should outlive the DOM');
+end;
+
 procedure TSkSvgDOMTests.TestPreserveAspectRatio;
 var
   LSVGDOM: ISkSVGDOM;
@@ -259,6 +277,22 @@ begin
   Assert.IsNull(TSkSVGDOM.Make('invalid', LResourceProvider), 'The DOM should not be created');
   LResourceProvider := nil;
   Assert.AreEqual(1, LDestroyCount, 'The resource provider should be released when no DOM is created');
+end;
+
+procedure TSkSvgDOMTests.TestRootOutlivesDOM;
+var
+  LRoot: ISkSVGSVG;
+  LSize: TSizeF;
+  LSVGDOM: ISkSVGDOM;
+begin
+  LSVGDOM := TSkSVGDOM.Make('<svg xmlns="http://www.w3.org/2000/svg" width="30" height="40"/>');
+  Assert.IsNotNull(LSVGDOM, 'Invalid SkSVGDOM');
+  LRoot := LSVGDOM.Root;
+  LSVGDOM := nil;
+  Assert.IsTrue(LRoot.TrySetAttribute('width', '50'), 'The root should outlive the DOM');
+  LSize := LRoot.GetIntrinsicSize(TSizeF.Create(0, 0));
+  Assert.AreEqual(50.0, LSize.Width, TEpsilon.Vector, 'Different width');
+  Assert.AreEqual(40.0, LSize.Height, TEpsilon.Vector, 'Different height');
 end;
 
 procedure TSkSvgDOMTests.TestSetContainerSize;
