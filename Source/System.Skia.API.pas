@@ -8614,6 +8614,7 @@ const
 var
   {$IFNDEF FPC}[Volatile]{$ENDIF} InitCount: Integer;
   {$IFNDEF SK_STATIC_LIBRARY}
+  InitLock: Integer;
   LibraryHandle: HMODULE;
   {$ENDIF}
 {$ENDIF}
@@ -8655,6 +8656,7 @@ begin
     LVersion := 'unknown';
   FreeLibrary(LibraryHandle);
   LibraryHandle := 0;
+  InitCount := 0;
   raise Exception.CreateFmt('The Skia library version %s is not supported (requires %d.%d or a later %d.x).',
     [LVersion, LibraryMajorVersion, LibraryMinorVersion, LibraryMajorVersion]);
 end;
@@ -8670,18 +8672,36 @@ begin
   Result := System.SysUtils.GetProcAddress(AModule, AProcName);
   {$ENDIF}
   if Result = nil then
+  begin
+    FreeLibrary(LibraryHandle);
+    LibraryHandle := 0;
+    InitCount := 0;
     raise Exception.CreateFmt('Function "%s" not found in Skia library.', [AProcName]);
+  end;
 end;
 {$ENDIF}
 
-procedure SkInitialize;
+procedure AcquireInitLock;
 begin
   {$IF DEFINED(FPC) and (FPC_FULLVERSION < 30301)}
-  if InterlockedIncrement(InitCount) <> 1 then
+  while InterlockedCompareExchange(InitLock, 1, 0) <> 0 do
   {$ELSE}
-  if AtomicIncrement(InitCount) <> 1 then
+  while AtomicCmpExchange(InitLock, 1, 0) <> 0 do
   {$ENDIF}
-    Exit;
+    Sleep(0);
+end;
+
+procedure ReleaseInitLock;
+begin
+  {$IF DEFINED(FPC) and (FPC_FULLVERSION < 30301)}
+  InterlockedExchange(InitLock, 0);
+  {$ELSE}
+  AtomicExchange(InitLock, 0);
+  {$ENDIF}
+end;
+
+procedure InitializeLibrary;
+begin
   {$IF DEFINED(ANDROID) and NOT DEFINED(FPC)}
   // Some Android devices, normally old, need the full path of the library,
   // and other devices, normally new, do not accept the full path.
@@ -8694,7 +8714,10 @@ begin
     LibraryHandle := SafeLoadLibrary(LibraryName);
   {$ENDIF}
   if LibraryHandle = 0 then
+  begin
+    InitCount := 0;
     RaiseLibraryLoadError;
+  end;
   CheckLibraryVersion;
   {$IFDEF MSWINDOWS}
   SetExceptionMask([exInvalidOp, exDenormalized, exZeroDivide, exOverflow, exUnderflow, exPrecision]);
@@ -10737,6 +10760,18 @@ procedure sk4d_svgsvg_set_y(self: sk_svgsvg_t; value: psk_svglength_t); cdecl;  
 
 {$IFNDEF SK_STATIC_LIBRARY}
 end;
+
+procedure SkInitialize;
+begin
+  AcquireInitLock;
+  try
+    Inc(InitCount);
+    if InitCount = 1 then
+      InitializeLibrary;
+  finally
+    ReleaseInitLock;
+  end;
+end;
 {$ELSE}
 procedure SkInitialize;
 begin
@@ -10758,12 +10793,14 @@ end;
 {$IFNDEF SK_STATIC_LIBRARY}
 procedure SkFinalize;
 begin
-  {$IF DEFINED(FPC) and (FPC_FULLVERSION < 30301)}
-  if InterlockedDecrement(InitCount) = 0 then
-  {$ELSE}
-  if AtomicDecrement(InitCount) = 0 then
-  {$ENDIF}
-    FreeLibrary(LibraryHandle);
+  AcquireInitLock;
+  try
+    Dec(InitCount);
+    if InitCount = 0 then
+      FreeLibrary(LibraryHandle);
+  finally
+    ReleaseInitLock;
+  end;
 end;
 {$ELSE}
 procedure SkFinalize;
