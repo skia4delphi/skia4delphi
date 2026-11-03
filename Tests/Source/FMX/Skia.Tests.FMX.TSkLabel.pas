@@ -124,6 +124,8 @@ type
     [Test]
     {$ENDIF}
     procedure TestJapaneseLocale;
+    [Test]
+    procedure TestReapplyStyle;
     {$IF Defined(TEXT_RENDER) AND (CompilerVersion > 28)}
     [Test]
     {$ENDIF}
@@ -172,6 +174,8 @@ type
     function GetResourceLink: TFmxObject; {$IF CompilerVersion > 28}override;{$ENDIF}
   public
     function FindStyleResource(const AStyleLookup: string; const Clone: Boolean = False): TFmxObject; override;
+    procedure Restyle;
+    property Paragraph;
   end;
 
 { TSkLabelAccess }
@@ -211,6 +215,11 @@ begin
     FResourceLink := LLayout;
   end;
   Result := FResourceLink;
+end;
+
+procedure TSkLabelDarkStyled.Restyle;
+begin
+  ApplyStyle;
 end;
 
 const
@@ -331,6 +340,27 @@ begin
       {ExpectedImageHash} 'sD/iefuqA4+A7K5/H0b0YvDuO/mLp0D+4NpjUXsku7t/euwiVM/7/0RQb4bq5b8+OAgNlC0+Cw');
   finally
     GlobalSkiaTextLocale := OldTextLocale;
+  end;
+end;
+
+procedure TSkLabelTests.TestReapplyStyle;
+var
+  LLabel: TSkLabelDarkStyled;
+  LParagraph: ISkParagraph;
+begin
+  LLabel := TSkLabelDarkStyled.Create(nil);
+  try
+    LLabel.Text := ShortText;
+    LLabel.Restyle;
+    LParagraph := LLabel.Paragraph;
+    LLabel.Restyle;
+    Assert.IsTrue(LLabel.Paragraph = LParagraph, 'Reapplying an unchanged style should keep the paragraph');
+
+    (LLabel.FindStyleResource('text') as TText).TextSettings.FontColor := TAlphaColors.Red;
+    LLabel.Restyle;
+    Assert.IsFalse(LLabel.Paragraph = LParagraph, 'Reapplying a changed style should rebuild the paragraph');
+  finally
+    LLabel.Free;
   end;
 end;
 

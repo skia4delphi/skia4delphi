@@ -5267,6 +5267,7 @@ var
   LInterface: IInterface;
   LNewText: string;
   LTextResource: TFmxObject;
+  LTextSettingsChanged: Boolean;
   I: Integer;
 begin
   LFontBehavior := nil;
@@ -5287,6 +5288,7 @@ begin
       { from text }
       SetupDefaultTextSetting(LTextResource, FTextSettingsInfo.DefaultTextSettings);
       inherited;
+      LTextSettingsChanged := ResultingTextSettings.HasChanged;
       ResultingTextSettings.Change;
     finally
       ResultingTextSettings.EndUpdate;
@@ -5301,7 +5303,8 @@ begin
           FWords[I].Text := LNewText;
       end;
     end;
-    DeleteParagraph;
+    if LTextSettingsChanged then
+      DeleteParagraph;
     if (not IsUpdating) and FAutoSize and HasFitSizeChanged then
       SetSize(Width, Height);
     Redraw;
