@@ -1191,6 +1191,17 @@ type
     class function MakeVulkan(const ABackendContext: TGrVkBackendContext; const AOptions: TGrContextOptions): IGrDirectContext; overload; static;
   end;
 
+  { TGrDirectContextHelper }
+
+  // TODO: Merge these methods in TGrDirectContext and IGrDirectContext in the next major version.
+  TGrDirectContextHelper = class helper for TGrDirectContext
+  public
+    function HasNewVkPipelineCacheData: Boolean;
+    function PrecompileShader(const AKey, AData: TBytes): Boolean;
+    procedure StoreVkPipelineCacheData; overload;
+    procedure StoreVkPipelineCacheData(const AMaxSize: NativeUInt); overload;
+  end;
+
   { IGrGlInterface }
 
   IGrGlInterface = interface(ISkReferenceCounted)
@@ -6227,6 +6238,30 @@ begin
   Result := gr4d_directcontext_submit(Handle, ASyncCpu);
 end;
 
+{ TGrDirectContextHelper }
+
+function TGrDirectContextHelper.HasNewVkPipelineCacheData: Boolean;
+begin
+  Result := gr4d_directcontext_has_new_vk_pipeline_cache_data(Handle);
+end;
+
+function TGrDirectContextHelper.PrecompileShader(const AKey,
+  AData: TBytes): Boolean;
+begin
+  Result := gr4d_directcontext_precompile_shader(Handle, @AKey[0], NativeUInt(Length(AKey)), @AData[0], NativeUInt(Length(AData)));
+end;
+
+procedure TGrDirectContextHelper.StoreVkPipelineCacheData;
+begin
+  StoreVkPipelineCacheData(High(NativeUInt));
+end;
+
+procedure TGrDirectContextHelper.StoreVkPipelineCacheData(
+  const AMaxSize: NativeUInt);
+begin
+  gr4d_directcontext_store_vk_pipeline_cache_data(Handle, AMaxSize);
+end;
+
 { TGrGlInterface }
 
 function TGrGlInterface.HasExtension(const AName: MarshaledAString): Boolean;
@@ -6295,11 +6330,16 @@ end;
 class function TGrPersistentCacheBaseClass.load_proc(context: Pointer;
   const key_data: Pointer; key_size: size_t): sk_data_t;
 var
+  LData: TBytes;
   LKey: TBytes;
 begin
   SetLength(LKey{%H-}, key_size);
   Move(key_data^, LKey[0], Length(LKey));
-  Result := TSkObject.__ReleaseHandle(TSkData.MakeFromBytes(TGrPersistentCacheBaseClass(context).Load(LKey)));
+  LData := TGrPersistentCacheBaseClass(context).Load(LKey);
+  // Skia takes any non-null data, even an empty one, as a cache hit.
+  if LData = nil then
+    Exit(0);
+  Result := TSkObject.__ReleaseHandle(TSkData.MakeFromBytes(LData));
 end;
 
 class procedure TGrPersistentCacheBaseClass.store_proc(context: Pointer;
