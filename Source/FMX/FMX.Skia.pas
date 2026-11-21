@@ -2419,12 +2419,15 @@ begin
       if LSvgRect.IsEmpty and ((not LDOM.Root.TryGetViewBox(LSvgRect)) or LSvgRect.IsEmpty) then
         Exit;
 
+      LWrappedDest := GetWrappedDest(LDOM, LSvgRect, ADestRect, LIntrinsicSize);
       if SameValue(AOpacity, 1, TEpsilon.Position) then
         ACanvas.Save
+      // Specifying the drawing bounds in SaveLayerAlpha is important for performance.
+      else if FWrapMode = TSkSvgWrapMode.Tile then
+        ACanvas.SaveLayerAlpha(ADestRect, Byte(Round(AOpacity * 255)))
       else
-        ACanvas.SaveLayerAlpha(Byte(Round(AOpacity * 255)));
+        ACanvas.SaveLayerAlpha(LWrappedDest, Byte(Round(AOpacity * 255)));
       try
-        LWrappedDest := GetWrappedDest(LDOM, LSvgRect, ADestRect, LIntrinsicSize);
         if (FOverrideColor <> TAlphaColors.Null) or (FWrapMode = TSkSvgWrapMode.Tile) or FGrayScale then
           DrawTileOrCustomColor(ACanvas, LDOM, LSvgRect, ADestRect, LWrappedDest, LIntrinsicSize, FWrapMode)
         else
@@ -3910,35 +3913,26 @@ procedure TSkLottieAnimationCodec.Render(const ACanvas: ISkCanvas;
   const ADest: TRectF; const AOpacity: Single);
 var
   LLottieRect: TRectF;
-  LNeedSaveLayer: Boolean;
+  LSaveCount: Integer;
 begin
   if ADest.IsEmpty then
     Exit;
   LLottieRect := TRectF.Create(PointF(0, 0), FSkottie.Size).FitInto(ADest);
   if LLottieRect.IsEmpty then
     Exit;
-  LNeedSaveLayer := not SameValue(AOpacity, 1, TEpsilon.Position);
-  if LNeedSaveLayer then
-    ACanvas.SaveLayerAlpha(Byte(Round(AOpacity * 255)));
+  LSaveCount := ACanvas.Save;
   try
-    if SameValue(ADest.Width / LLottieRect.Width, ADest.Height / LLottieRect.Height, TEpsilon.Matrix) then
-      FSkottie.Render(ACanvas, ADest)
-    else
+    if not SameValue(ADest.Width / LLottieRect.Width, ADest.Height / LLottieRect.Height, TEpsilon.Matrix) then
     begin
-      if not LNeedSaveLayer then
-        ACanvas.Save;
-      try
-        ACanvas.Scale(ADest.Width / LLottieRect.Width, ADest.Height / LLottieRect.Height);
-        ACanvas.Translate((LLottieRect.Width - ADest.Width) / 2, (LLottieRect.Height - ADest.Height) / 2);
-        FSkottie.Render(ACanvas, ADest);
-      finally
-        if not LNeedSaveLayer then
-          ACanvas.Restore;
-      end;
+      ACanvas.Scale(ADest.Width / LLottieRect.Width, ADest.Height / LLottieRect.Height);
+      ACanvas.Translate((LLottieRect.Width - ADest.Width) / 2, (LLottieRect.Height - ADest.Height) / 2);
     end;
+    if not SameValue(AOpacity, 1, TEpsilon.Position) then
+      // Specifying the drawing bounds in SaveLayerAlpha is important for performance.
+      ACanvas.SaveLayerAlpha(ADest, Byte(Round(AOpacity * 255)));
+    FSkottie.Render(ACanvas, ADest);
   finally
-    if LNeedSaveLayer then
-      ACanvas.Restore;
+    ACanvas.RestoreToCount(LSaveCount);
   end;
 end;
 
@@ -5503,7 +5497,8 @@ begin
     if SameValue(AOpacity, 1, TEpsilon.Position) then
       ACanvas.Save
     else
-      ACanvas.SaveLayerAlpha(Byte(Round(AOpacity * 255)));
+      // Specifying the drawing bounds in SaveLayerAlpha is important for performance.
+      ACanvas.SaveLayerAlpha(ADest, Byte(Round(AOpacity * 255)));
     try
       ACanvas.ClipRect(ADest);
       ACanvas.Translate(ADest.Left, LPositionY);
