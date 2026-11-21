@@ -860,13 +860,8 @@ begin
       EGL_BLUE_SIZE       , 8                  ,
       EGL_ALPHA_SIZE      , 8                  ,
       EGL_STENCIL_SIZE    , 8];
-    if AQuality <> TCanvasQuality.HighPerformance then
-    begin
-      if AQuality = TCanvasQuality.HighQuality then
-        FConfig := SelectConfig(LConfigAttributes, 4);
-      if FConfig = nil then
-        FConfig := SelectConfig(LConfigAttributes, 2);
-    end;
+    if CanvasQualitySampleCount[AQuality] > 1 then
+      FConfig := SelectConfig(LConfigAttributes, CanvasQualitySampleCount[AQuality]);
     if FConfig = nil then
     begin
       FConfig := SelectConfig(LConfigAttributes);
@@ -961,13 +956,8 @@ begin
             WGL_COLOR_BITS_ARB     , 24                        ,
             WGL_ALPHA_BITS_ARB     , 8                         ,
             WGL_STENCIL_BITS_ARB   , 8];
-          if (AQuality <> TCanvasQuality.HighPerformance) and (FGlInterface.HasExtension(FDC, 'WGL_ARB_multisample')) then
-          begin
-            if AQuality = TCanvasQuality.HighQuality then
-              FPixelFormat := SelectPixelFormat(LPixelFormatAttributes, 4);
-            if FPixelFormat = 0 then
-              FPixelFormat := SelectPixelFormat(LPixelFormatAttributes, 2);
-          end;
+          if (CanvasQualitySampleCount[AQuality] > 1) and (FGlInterface.HasExtension(FDC, 'WGL_ARB_multisample')) then
+            FPixelFormat := SelectPixelFormat(LPixelFormatAttributes, CanvasQualitySampleCount[AQuality]);
           if FPixelFormat = 0 then
           begin
             FPixelFormat := SelectPixelFormat(LPixelFormatAttributes);
