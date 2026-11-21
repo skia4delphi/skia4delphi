@@ -2491,17 +2491,14 @@ end;
 function TSkCanvasCustomHelper.GetSamplingOptions(
   const ASrcRect, ADestRect: TRectF; AHighSpeed: Boolean): TSkSamplingOptions;
 begin
-  {$IFDEF SKIA_RASTER}
   // Avoid high quality filtering when there is no stretch or complex
   // transformation. Cubic sampling is unnecessarily expensive for a 1:1 blit.
-  if (Self is TSkRasterCanvas) and (not AHighSpeed) and
-    (Quality <> TCanvasQuality.HighPerformance) and
+  if (not AHighSpeed) and (Quality <> TCanvasQuality.HighPerformance) and
     (MatrixMeaning in [TMatrixMeaning.Identity, TMatrixMeaning.Translate]) then
   begin
     AHighSpeed := SameValue(ASrcRect.Width, ADestRect.Width * Scale, TEpsilon.Position) and
       SameValue(ASrcRect.Height, ADestRect.Height * Scale, TEpsilon.Position);
   end;
-  {$ENDIF}
   Result := Self.GetSamplingOptions(AHighSpeed);
 end;
 
