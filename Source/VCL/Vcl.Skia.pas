@@ -3146,6 +3146,51 @@ begin
     FProcess.DoRemove(AAnimation);
 end;
 
+{ Animation frames }
+
+// A handler of an animation's own events (OnAnimationStart,
+// OnAnimationProcess, OnAnimationFinish or a change notification) may free the
+// control, and with it the animation. Each method that calls such an event and
+// then goes on using the animation pushes a frame on this stack, and the
+// destructor marks every frame of the animation, so the method returns at once.
+// Animations run on the main thread only.
+type
+  PSkAnimationFrame = ^TSkAnimationFrame;
+  TSkAnimationFrame = record
+    Animation: TObject;
+    Freed: Boolean;
+    Outer: PSkAnimationFrame;
+  end;
+
+var
+  GAnimationFrames: PSkAnimationFrame;
+
+procedure EnterAnimationFrame(var AFrame: TSkAnimationFrame; const AAnimation: TObject);
+begin
+  AFrame.Animation := AAnimation;
+  AFrame.Freed := False;
+  AFrame.Outer := GAnimationFrames;
+  GAnimationFrames := @AFrame;
+end;
+
+procedure LeaveAnimationFrame(var AFrame: TSkAnimationFrame);
+begin
+  GAnimationFrames := AFrame.Outer;
+end;
+
+procedure MarkAnimationFreed(const AAnimation: TObject);
+var
+  LFrame: PSkAnimationFrame;
+begin
+  LFrame := GAnimationFrames;
+  while LFrame <> nil do
+  begin
+    if LFrame.Animation = AAnimation then
+      LFrame.Freed := True;
+    LFrame := LFrame.Outer;
+  end;
+end;
+
 { TSkCustomAnimation }
 
 procedure TSkCustomAnimation.BeforePaint;
@@ -3173,6 +3218,7 @@ end;
 
 destructor TSkCustomAnimation.Destroy;
 begin
+  MarkAnimationFreed(Self);
   SetProcessing(False);
   inherited;
 end;
@@ -3218,30 +3264,44 @@ end;
 procedure TSkCustomAnimation.DoChanged;
 var
   LCanProcess: Boolean;
+  LFrame: TSkAnimationFrame;
 begin
   UpdateCurrentTime(FRunning, True);
   LCanProcess := FAllowAnimation;
 
-  if FEnabledChanged then
-  begin
-    FEnabledChanged := False;
-    if not FEnabled then
-      Stop
-    else if (not Assigned(FOwner)) or (not (csDesigning in FOwner.ComponentState)) then
+  EnterAnimationFrame(LFrame, Self);
+  try
+    if FEnabledChanged then
     begin
-      FNeedStart := True;
-      FNeedStartRepaint := False;
+      FEnabledChanged := False;
+      if not FEnabled then
+      begin
+        Stop;
+        if LFrame.Freed then
+          Exit;
+      end
+      else if (not Assigned(FOwner)) or (not (csDesigning in FOwner.ComponentState)) then
+      begin
+        FNeedStart := True;
+        FNeedStartRepaint := False;
+      end;
     end;
+    if FNeedStart and FNeedStartRepaint and FAllowAnimation then
+    begin
+      Start;
+      if LFrame.Freed then
+        Exit;
+      LCanProcess := False;
+    end;
+    SetProcessing(CanProcessing);
+    inherited;
+    if LFrame.Freed then
+      Exit;
+    if LCanProcess then
+      DoProcess;
+  finally
+    LeaveAnimationFrame(LFrame);
   end;
-  if FNeedStart and FNeedStartRepaint and FAllowAnimation then
-  begin
-    Start;
-    LCanProcess := False;
-  end;
-  SetProcessing(CanProcessing);
-  inherited;
-  if LCanProcess then
-    DoProcess;
 end;
 
 function TSkCustomAnimation.DoSetCurrentTime(const AValue: Double): Boolean;
@@ -3275,6 +3335,8 @@ begin
 end;
 
 procedure TSkCustomAnimation.InternalStart(const ACanProcess: Boolean);
+var
+  LFrame: TSkAnimationFrame;
 begin
   FNeedStart := False;
   if not FLoop then
@@ -3286,32 +3348,43 @@ begin
     else
       FSavedInverse := FInverse;
   end;
-  if FProcessDuration < TimeEpsilon then
-  begin
-    SetStartValues(0, True);
-    FRunning := True;
-    DoStart;
-    if ACanProcess and FAllowAnimation then
-      DoProcess;
-    FRunning := False;
-    FProcessTime := 0;
-    DoFinish;
-  end
-  else
-  begin
-    SetStartValues(FDelay, False);
-    FRunning := True;
-    FEnabled := True;
-    SetProcessing(CanProcessing);
-
-    if FDelay < TimeEpsilon then
+  EnterAnimationFrame(LFrame, Self);
+  try
+    if FProcessDuration < TimeEpsilon then
     begin
+      SetStartValues(0, True);
+      FRunning := True;
       DoStart;
+      if LFrame.Freed then
+        Exit;
       if ACanProcess and FAllowAnimation then
+      begin
         DoProcess;
+        if LFrame.Freed then
+          Exit;
+      end;
+      FRunning := False;
+      FProcessTime := 0;
+      DoFinish;
     end
     else
-      DoStart;
+    begin
+      SetStartValues(FDelay, False);
+      FRunning := True;
+      FEnabled := True;
+      SetProcessing(CanProcessing);
+
+      if FDelay < TimeEpsilon then
+      begin
+        DoStart;
+        if (not LFrame.Freed) and ACanProcess and FAllowAnimation then
+          DoProcess;
+      end
+      else
+        DoStart;
+    end;
+  finally
+    LeaveAnimationFrame(LFrame);
   end;
 end;
 
@@ -3341,6 +3414,8 @@ begin
 end;
 
 procedure TSkCustomAnimation.ProcessTick(ADeltaTime: Double);
+var
+  LFrame: TSkAnimationFrame;
 begin
   if Assigned(FOwner) and (csDestroying in FOwner.ComponentState) then
     Exit;
@@ -3422,10 +3497,19 @@ begin
     SetProcessing(False);
   end;
 
-  if FAllowAnimation then
-    DoProcess;
-  if not FRunning then
-    DoFinish;
+  EnterAnimationFrame(LFrame, Self);
+  try
+    if FAllowAnimation then
+    begin
+      DoProcess;
+      if LFrame.Freed then
+        Exit;
+    end;
+    if not FRunning then
+      DoFinish;
+  finally
+    LeaveAnimationFrame(LFrame);
+  end;
 end;
 
 procedure TSkCustomAnimation.SetAllowAnimation(const AValue: Boolean);
@@ -3528,6 +3612,8 @@ begin
 end;
 
 procedure TSkCustomAnimation.Stop;
+var
+  LFrame: TSkAnimationFrame;
 begin
   FNeedStart := False;
   if not FRunning then
@@ -3544,12 +3630,21 @@ begin
     FCurrentTime := FProcessDuration;
     FProgress := 1;
   end;
-  if FAllowAnimation then
-    DoProcess;
-  FRunning := False;
-  FEnabled := False;
-  SetProcessing(False);
-  DoFinish;
+  EnterAnimationFrame(LFrame, Self);
+  try
+    if FAllowAnimation then
+    begin
+      DoProcess;
+      if LFrame.Freed then
+        Exit;
+    end;
+    FRunning := False;
+    FEnabled := False;
+    SetProcessing(False);
+    DoFinish;
+  finally
+    LeaveAnimationFrame(LFrame);
+  end;
 end;
 
 procedure TSkCustomAnimation.StopAtCurrent;
@@ -3594,10 +3689,17 @@ end;
 { TSkCustomAnimatedControl.TAnimationBase }
 
 procedure TSkCustomAnimatedControl.TAnimationBase.DoChanged;
+var
+  LFrame: TSkAnimationFrame;
 begin
-  inherited;
-  if Created then
-    TSkCustomAnimatedControl(Owner).DoAnimationChanged;
+  EnterAnimationFrame(LFrame, Self);
+  try
+    inherited;
+    if (not LFrame.Freed) and Created then
+      TSkCustomAnimatedControl(Owner).DoAnimationChanged;
+  finally
+    LeaveAnimationFrame(LFrame);
+  end;
 end;
 
 procedure TSkCustomAnimatedControl.TAnimationBase.DoFinish;
@@ -3606,14 +3708,19 @@ begin
 end;
 
 procedure TSkCustomAnimatedControl.TAnimationBase.DoProcess;
+var
+  LFrame: TSkAnimationFrame;
 begin
   if FInsideDoProcess then
     Exit;
   FInsideDoProcess := True;
+  EnterAnimationFrame(LFrame, Self);
   try
     TSkCustomAnimatedControl(Owner).DoAnimationProcess;
   finally
-    FInsideDoProcess := False;
+    if not LFrame.Freed then
+      FInsideDoProcess := False;
+    LeaveAnimationFrame(LFrame);
   end;
 end;
 
@@ -3712,17 +3819,27 @@ begin
 end;
 
 procedure TSkCustomAnimatedControl.DoAnimationProcess;
+var
+  LFrame: TSkAnimationFrame;
 begin
-  CheckAnimation;
-  if WindowHandle <> 0 then
-  begin
-    if Render <> nil then
-      Render.Redraw;
-    Paint;
-    PaintControls(Canvas.Handle, nil);
+  // CheckAnimation can start the animation, and OnAnimationStart may free Self
+  EnterAnimationFrame(LFrame, FAnimation);
+  try
+    CheckAnimation;
+    if LFrame.Freed then
+      Exit;
+    if WindowHandle <> 0 then
+    begin
+      if Render <> nil then
+        Render.Redraw;
+      Paint;
+      PaintControls(Canvas.Handle, nil);
+    end;
+    if Assigned(FOnAnimationProcess) then
+      FOnAnimationProcess(Self);
+  finally
+    LeaveAnimationFrame(LFrame);
   end;
-  if Assigned(FOnAnimationProcess) then
-    FOnAnimationProcess(Self);
 end;
 
 procedure TSkCustomAnimatedControl.DoAnimationStart;
@@ -4147,6 +4264,7 @@ end;
 procedure TSkAnimatedImage.SourceChange;
 var
   LCodecClass: TAnimationCodecClass;
+  LFrame: TSkAnimationFrame;
   LStream: TStream;
 begin
   FreeAndNil(FCodec);
@@ -4161,15 +4279,31 @@ begin
   finally
     LStream.Free;
   end;
-  if Assigned(FCodec) then
-  begin
-    Animation.SetDuration(FCodec.Duration);
-    if Animation.Running then
-      Animation.Start;
-  end
-  else
-    Animation.SetDuration(0);
-  Redraw;
+  // Changing the duration or restarting fires animation events, which may free Self
+  EnterAnimationFrame(LFrame, Animation);
+  try
+    if Assigned(FCodec) then
+    begin
+      Animation.SetDuration(FCodec.Duration);
+      if LFrame.Freed then
+        Exit;
+      if Animation.Running then
+      begin
+        Animation.Start;
+        if LFrame.Freed then
+          Exit;
+      end;
+    end
+    else
+    begin
+      Animation.SetDuration(0);
+      if LFrame.Freed then
+        Exit;
+    end;
+    Redraw;
+  finally
+    LeaveAnimationFrame(LFrame);
+  end;
 end;
 
 procedure TSkAnimatedImage.WriteData(AStream: TStream);
