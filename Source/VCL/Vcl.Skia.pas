@@ -3038,8 +3038,15 @@ end;
 
 { TSkCustomAnimation.TProcess }
 
+var
+  // Set by the class destructor. Forms still alive then (as in a VCL DLL, or
+  // without Application.Run) are freed later, by Vcl.Forms finalization.
+  GAnimationProcessFinalized: Boolean;
+
 class procedure TSkCustomAnimation.TProcess.Add(const AAnimation: TSkCustomAnimation);
 begin
+  if GAnimationProcessFinalized then
+    Exit;
   if FProcess = nil then
     FProcess := TProcess.Create;
   FProcess.DoAdd(AAnimation);
@@ -3069,7 +3076,8 @@ end;
 
 class destructor TSkCustomAnimation.TProcess.Destroy;
 begin
-  FProcess.Free;
+  GAnimationProcessFinalized := True;
+  FreeAndNil(FProcess);
   inherited;
 end;
 
