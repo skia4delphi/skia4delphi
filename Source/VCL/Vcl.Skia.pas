@@ -6559,21 +6559,42 @@ end;
 
 procedure TSkGraphic.SetSize(AWidth, AHeight: Integer);
 var
+  LData: TMemoryStream;
+  LImage: ISkImage;
   LSurface: ISkSurface;
-  LPixmap: ISkPixmap;
 begin
   if (Width <> AWidth) or (Height <> AHeight) then
   begin
-    if Assigned(FImage) then
+    if (AWidth <= 0) or (AHeight <= 0) then
     begin
-      FImage.ScalePixels(LPixmap, TSkSamplingOptions.Medium);
-      FImage := TSkImage.MakeRasterCopy(LPixmap);
+      FData.Clear;
+      FImage := nil;
     end
     else
     begin
       LSurface := TSkSurface.MakeRaster(AWidth, AHeight);
+      if LSurface = nil then
+        raise EInvalidGraphicOperation.CreateFmt('Could not create a %d x %d image', [AWidth, AHeight]);
       LSurface.Canvas.Clear(TAlphaColors.Null);
-      FImage := LSurface.MakeImageSnapshot;
+      if Assigned(FImage) then
+        LSurface.Canvas.DrawImageRect(FImage, RectF(0, 0, AWidth, AHeight), TSkSamplingOptions.Medium);
+      LImage := LSurface.MakeImageSnapshot;
+      // The original encoded data no longer matches the image, so keep a
+      // lossless PNG of the new one, which SaveToStream writes. Nothing is
+      // changed until both the image and its PNG exist.
+      LData := TMemoryStream.Create;
+      try
+        if not LImage.EncodeToStream(LData, TSkEncodedImageFormat.PNG) then
+          raise EInvalidGraphicOperation.CreateFmt('Could not encode a %d x %d image', [AWidth, AHeight]);
+        LData.Position := 0;
+        FData.Free;
+        FData := LData;
+        LData := nil;
+      finally
+        LData.Free;
+      end;
+      FImage := LImage;
+      FFormat := TSkEncodedImageFormat.PNG;
     end;
     Changed(Self);
   end;
