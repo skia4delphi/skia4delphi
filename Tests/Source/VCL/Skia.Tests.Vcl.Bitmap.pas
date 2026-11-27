@@ -16,6 +16,7 @@ interface
 
 uses
   { Delphi }
+  Winapi.Windows,
   System.SysUtils,
   System.UITypes,
   DUnitX.TestFramework,
@@ -78,15 +79,84 @@ type
     procedure TestSkiaDraw8(const AImageFileName: string; const AMinSimilarity: Double; const AExpectedImageHash: string);
     [Test]
     procedure TestSkiaDrawEmptyBitmap;
+    [Test]
+    procedure TestTopDownBitmapSkiaDraw;
+    [Test]
+    procedure TestTopDownBitmapToSkImage;
   end;
 
 implementation
 
 uses
   { Delphi }
+  System.Classes,
   System.Types,
   System.Math,
   System.IOUtils;
+
+const
+  // Opaque red, blue and green as a 32-bit BGRA DIB stores them
+  DibRed = Cardinal($FFFF0000);
+  DibBlue = Cardinal($FF0000FF);
+  DibGreen = Cardinal($FF00FF00);
+  TopDownWidth = 16;
+  TopDownHeight = 8;
+
+// A 32-bit top-down DIB (biHeight < 0), top half red and bottom half blue,
+// loaded from a top-down BMP stream (LoadFromStream keeps the header's sign).
+function MakeTopDownBitmap: TBitmap;
+var
+  LFileHeader: TBitmapFileHeader;
+  LInfoHeader: TBitmapInfoHeader;
+  LPixel: Cardinal;
+  LStream: TMemoryStream;
+  X: Integer;
+  Y: Integer;
+begin
+  FillChar(LInfoHeader, SizeOf(LInfoHeader), 0);
+  LInfoHeader.biSize := SizeOf(LInfoHeader);
+  LInfoHeader.biWidth := TopDownWidth;
+  LInfoHeader.biHeight := -TopDownHeight;
+  LInfoHeader.biPlanes := 1;
+  LInfoHeader.biBitCount := 32;
+  LInfoHeader.biCompression := BI_RGB;
+  FillChar(LFileHeader, SizeOf(LFileHeader), 0);
+  LFileHeader.bfType := $4D42;
+  LFileHeader.bfOffBits := SizeOf(LFileHeader) + SizeOf(LInfoHeader);
+  LFileHeader.bfSize := LFileHeader.bfOffBits + Cardinal(TopDownWidth * TopDownHeight * 4);
+  LStream := TMemoryStream.Create;
+  try
+    LStream.WriteBuffer(LFileHeader, SizeOf(LFileHeader));
+    LStream.WriteBuffer(LInfoHeader, SizeOf(LInfoHeader));
+    for Y := 0 to TopDownHeight - 1 do
+      for X := 0 to TopDownWidth - 1 do
+      begin
+        if Y < TopDownHeight div 2 then
+          LPixel := DibRed
+        else
+          LPixel := DibBlue;
+        LStream.WriteBuffer(LPixel, SizeOf(LPixel));
+      end;
+    LStream.Position := 0;
+    Result := TBitmap.Create;
+    try
+      Result.LoadFromStream(LStream);
+    except
+      Result.Free;
+      raise;
+    end;
+  finally
+    LStream.Free;
+  end;
+end;
+
+// Fails the test if the bitmap is not a top-down 32-bit DIB, so it cannot
+// pass on a bottom-up copy
+procedure AssertTopDown(const ABitmap: TBitmap);
+begin
+  Assert.IsTrue(ABitmap.PixelFormat = TPixelFormat.pf32bit, 'The bitmap should be 32-bit');
+  Assert.IsTrue(NativeInt(ABitmap.ScanLine[1]) > NativeInt(ABitmap.ScanLine[0]), 'The bitmap should be a top-down DIB');
+end;
 
 { TSkVclBitmapTests }
 
@@ -449,6 +519,55 @@ begin
             ACanvas.DrawRect(RectF(0, 0, LBitmap.Width / 2, LBitmap.Height / 2), LPaint);
           end, False);
       end);
+  finally
+    LBitmap.Free;
+  end;
+end;
+
+procedure TSkVclBitmapTests.TestTopDownBitmapSkiaDraw;
+var
+  LBitmap: TBitmap;
+begin
+  LBitmap := MakeTopDownBitmap;
+  try
+    // Already premultiplied (every alpha is 255), so SkiaDraw keeps this DIB
+    LBitmap.AlphaFormat := TAlphaFormat.afPremultiplied;
+    AssertTopDown(LBitmap);
+    LBitmap.SkiaDraw(
+      procedure(const ACanvas: ISkCanvas)
+      var
+        LPaint: ISkPaint;
+      begin
+        LPaint := TSkPaint.Create;
+        LPaint.Color := TAlphaColors.Lime;
+        ACanvas.DrawRect(RectF(0, 0, TopDownWidth, 1), LPaint);
+      end, False);
+    AssertTopDown(LBitmap);
+    Assert.AreEqual(IntToHex(DibGreen, 8), IntToHex(PCardinal(LBitmap.ScanLine[0])^, 8), 'The top row should have been drawn green');
+    Assert.AreEqual(IntToHex(DibRed, 8), IntToHex(PCardinal(LBitmap.ScanLine[1])^, 8), 'The second row should still be red');
+    Assert.AreEqual(IntToHex(DibBlue, 8), IntToHex(PCardinal(LBitmap.ScanLine[TopDownHeight - 1])^, 8), 'The bottom row should still be blue');
+  finally
+    LBitmap.Free;
+  end;
+end;
+
+procedure TSkVclBitmapTests.TestTopDownBitmapToSkImage;
+var
+  LBitmap: TBitmap;
+  LImage: ISkImage;
+  LPixmap: ISkPixmap;
+begin
+  LBitmap := MakeTopDownBitmap;
+  try
+    AssertTopDown(LBitmap);
+    LImage := LBitmap.ToSkImage;
+    Assert.IsNotNull(LImage);
+    LPixmap := LImage.PeekPixels;
+    Assert.IsNotNull(LPixmap);
+    Assert.AreSameColor(TAlphaColors.Red, LPixmap.Colors[0, 0], 0, 'The top-left pixel should be red');
+    Assert.AreSameColor(TAlphaColors.Red, LPixmap.Colors[TopDownWidth - 1, TopDownHeight div 2 - 1], 0, 'The last red row');
+    Assert.AreSameColor(TAlphaColors.Blue, LPixmap.Colors[0, TopDownHeight div 2], 0, 'The first blue row');
+    Assert.AreSameColor(TAlphaColors.Blue, LPixmap.Colors[TopDownWidth - 1, TopDownHeight - 1], 0, 'The bottom-right pixel should be blue');
   finally
     LBitmap.Free;
   end;
