@@ -1076,7 +1076,6 @@ type
     {$ENDIF}
     FStyleText: ISkStyleTextObject;
     FTextSettingsInfo: TSkTextSettingsInfo;
-    FWords: TWordsCollection;
     FWordsMouseOver: TCustomWordsItem;
     procedure DeleteParagraph;
     procedure GetFitSize(var AWidth, AHeight: Single);
@@ -1103,6 +1102,7 @@ type
     procedure SetTextSettings(const AValue: TSkTextSettings);
     procedure UpdateWordsMouseOver;
   strict protected
+    FWords: TWordsCollection;  
     procedure ApplyStyle; override;
     procedure Click; override;
     function CreateWordsCollection: TWordsCollection; virtual;
