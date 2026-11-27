@@ -6404,31 +6404,32 @@ end;
 
 function TSkGraphic.Equals(AGraphic: TGraphic): Boolean;
 
-  function Equals(const ALeft, ARight: ISkPixmap): Boolean;
+  // Both images are read into the same N32 premultiplied layout, so images
+  // that differ only in how they are stored still compare by what they show
+  function ReadImagePixels(const AImage: ISkImage; out APixels: TBytes): Boolean;
   var
-    I: Integer;
+    LImageInfo: TSkImageInfo;
   begin
-    if ALeft.ImageInfo <> ARight.ImageInfo then
-      Exit(False);
-    if (ALeft.RowBytes = ARight.RowBytes) and (ALeft.RowBytes = ALeft.ImageInfo.MinRowBytes) then
-      Result := CompareMem(ALeft.Pixels, ARight.Pixels, NativeInt(ALeft.RowBytes) * ALeft.Height)
-    else
-    begin
-      Result := True;
-      for I := 0 to ALeft.Height - 1 do
-        if not CompareMem(ALeft.PixelAddr[0, I], ARight.PixelAddr[0, I], ALeft.ImageInfo.BytesPerPixel * ALeft.Width) then
-          Exit(False);
-    end;
+    LImageInfo := TSkImageInfo.Create(AImage.Width, AImage.Height);
+    SetLength(APixels, LImageInfo.MinByteSize);
+    Result := AImage.ReadPixels(LImageInfo, APixels, LImageInfo.MinRowBytes);
   end;
 
 var
-  LPixmap: ISkPixmap;
-  LPixmap2: ISkPixmap;
+  LOtherImage: ISkImage;
+  LPixels: TBytes;
+  LPixels2: TBytes;
 begin
   if AGraphic is TSkGraphic then
   begin
-    Result := (Empty and AGraphic.Empty) or
-      (FImage.ReadPixels(LPixmap) and TSkGraphic(AGraphic).FImage.ReadPixels(LPixmap2) and Equals(LPixmap, LPixmap2));
+    if Empty or AGraphic.Empty then
+      Exit(Empty and AGraphic.Empty);
+    LOtherImage := TSkGraphic(AGraphic).FImage;
+    if FImage = LOtherImage then
+      Exit(True);
+    Result := (FImage.Width = LOtherImage.Width) and (FImage.Height = LOtherImage.Height) and
+      ReadImagePixels(FImage, LPixels) and ReadImagePixels(LOtherImage, LPixels2) and
+      (Length(LPixels) = Length(LPixels2)) and CompareMem(LPixels, LPixels2, Length(LPixels));
   end
   else
     Result := inherited;
