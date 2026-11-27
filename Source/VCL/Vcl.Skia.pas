@@ -1482,6 +1482,18 @@ end;
 type
   TBitmapImageAccess = class(TBitmapImage);
 
+// Signed distance in bytes from one scanline of a 32-bit DIB to the next:
+// negative for the usual bottom-up DIB, positive for a top-down one
+// (biHeight < 0). Passing ScanLine[Height - 1] with the negated step to
+// FlipPixels maps the rows correctly in both orientations.
+function ScanLineStep(const ABitmap: TBitmap): Integer;
+begin
+  if ABitmap.Height > 1 then
+    Result := Integer(NativeInt(ABitmap.ScanLine[1]) - NativeInt(ABitmap.ScanLine[0]))
+  else
+    Result := -BytesPerScanLine(ABitmap.Width, 32, 32);
+end;
+
 { TSkBitmapHelper }
 
 constructor TSkBitmapHelper.CreateFromSkImage(const AImage: ISkImage);
@@ -1501,7 +1513,7 @@ begin
       GetMem(LPixels, LStride * Height);
       try
         AImage.ReadPixels(TSkImageInfo.Create(Width, Height), LPixels, NativeUInt(LStride));
-        FlipPixels(Width, Height, LPixels, LStride, ScanLine[Height - 1], LStride);
+        FlipPixels(Width, Height, LPixels, LStride, ScanLine[Height - 1], -ScanLineStep(Self));
       finally
         FreeMem(LPixels);
       end;
@@ -1551,7 +1563,7 @@ begin
       LOriginalImage := ToSkImage;
     ChangePixelFormat;
   end;
-  LStride := BytesPerScanLine(Width, 32, 32);
+  LStride := -ScanLineStep(Self);
   LSurface := TSkSurface.MakeRaster(Width, Height);
   LPixmap  := LSurface.PeekPixels;
   if AStartClean then
@@ -1602,7 +1614,7 @@ begin
     LStride := BytesPerScanLine(Width, 32, 32);
     GetMem(LPixels, LStride * Height);
     try
-      FlipPixels(Width, Height, ScanLine[Height - 1], LStride, LPixels, LStride);
+      FlipPixels(Width, Height, ScanLine[Height - 1], -ScanLineStep(Self), LPixels, LStride);
       Result := TSkImage.MakeFromRaster(TSkImageInfo.Create(Width, Height, SkNative32ColorType, LAlphaType), LPixels, NativeUInt(LStride),
         procedure (const APixels: Pointer)
         begin
