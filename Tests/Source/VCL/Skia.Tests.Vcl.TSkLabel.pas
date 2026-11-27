@@ -125,6 +125,27 @@ type
     procedure Setup; override;
   end;
 
+  { TSkAnimatedControlTests }
+
+  // Animated controls freed by a handler of their own animation events
+  [TestFixture]
+  TSkAnimatedControlTests = class(TTestBase)
+  private
+    FFreedInEvent: Boolean;
+    FPoisonBlocks: TArray<Pointer>;
+    procedure FreeSender(ASender: TObject);
+    procedure PoisonFreedBlocks(const ASize: Integer);
+    procedure RunOnMainThread(const AProc: TProc);
+  public
+    procedure TearDown; override;
+    [Test]
+    procedure TestPaintBoxFreedInOnAnimationFinish;
+    [Test]
+    procedure TestPaintBoxFreedInOnAnimationProcess;
+    [Test]
+    procedure TestAnimatedImageFreedInOnAnimationStart;
+  end;
+
 implementation
 
 uses
@@ -133,6 +154,30 @@ uses
   System.UIConsts,
   System.Math,
   System.Math.Vectors;
+
+type
+  // May animate with no parent and no window, so a test can drive its events
+  TSkAnimatedPaintBoxEx = class(TSkAnimatedPaintBox)
+  protected
+    function CanRunAnimation: Boolean; override;
+  end;
+
+  TSkAnimatedImageEx = class(TSkAnimatedImage)
+  protected
+    function CanRunAnimation: Boolean; override;
+  end;
+
+  TSkCustomAnimationAccess = class(TSkCustomAnimation);
+
+function TSkAnimatedPaintBoxEx.CanRunAnimation: Boolean;
+begin
+  Result := True;
+end;
+
+function TSkAnimatedImageEx.CanRunAnimation: Boolean;
+begin
+  Result := True;
+end;
 
 type
   TSkLabelEx = class(TSkLabel)
@@ -280,6 +325,153 @@ begin
   Result := FRightToLeft;
 end;
 
+{ TSkAnimatedControlTests }
+
+procedure TSkAnimatedControlTests.FreeSender(ASender: TObject);
+var
+  LAnimationSize: Integer;
+  LControlSize: Integer;
+begin
+  LControlSize := ASender.InstanceSize;
+  if ASender is TSkAnimatedImage then
+    LAnimationSize := TSkAnimatedImage(ASender).Animation.InstanceSize
+  else
+    LAnimationSize := TSkAnimatedPaintBox(ASender).Animation.InstanceSize;
+  ASender.Free;
+  FFreedInEvent := True;
+  PoisonFreedBlocks(LControlSize);
+  PoisonFreedBlocks(LAnimationSize);
+end;
+
+// Takes the blocks just freed back from the memory manager and fills them, so
+// a later use of the freed control or animation reads garbage instead of
+// passing on stale memory
+procedure TSkAnimatedControlTests.PoisonFreedBlocks(const ASize: Integer);
+var
+  I: Integer;
+  LBlock: Pointer;
+begin
+  for I := 1 to 8 do
+  begin
+    GetMem(LBlock, ASize);
+    FillChar(LBlock^, ASize, $FF);
+    FPoisonBlocks := FPoisonBlocks + [LBlock];
+  end;
+end;
+
+procedure TSkAnimatedControlTests.RunOnMainThread(const AProc: TProc);
+begin
+  if TThread.CurrentThread.ThreadID = MainThreadID then
+    AProc
+  else
+    TThread.Synchronize(nil,
+      procedure
+      begin
+        AProc;
+      end);
+end;
+
+procedure TSkAnimatedControlTests.TearDown;
+var
+  LBlock: Pointer;
+begin
+  for LBlock in FPoisonBlocks do
+    FreeMem(LBlock);
+  FPoisonBlocks := nil;
+  inherited;
+end;
+
+procedure TSkAnimatedControlTests.TestAnimatedImageFreedInOnAnimationStart;
+var
+  LReturned: Boolean;
+begin
+  FFreedInEvent := False;
+  LReturned := False;
+  RunOnMainThread(
+    procedure
+    var
+      LFileName: string;
+      LImage: TSkAnimatedImage;
+    begin
+      LFileName := CombinePaths(RootAssetsPath, 'Skottie') + 'rocket.json';
+      LImage := TSkAnimatedImageEx.Create(nil);
+      try
+        LImage.LoadFromFile(LFileName);
+        TSkCustomAnimationAccess(LImage.Animation).AllowAnimation := True;
+        LImage.Animation.Start;
+        Assert.IsTrue(LImage.Animation.Running, 'The animation should be running');
+        // Loading another source while running restarts the animation
+        LImage.OnAnimationStart := FreeSender;
+        LImage.LoadFromFile(CombinePaths(RootAssetsPath, 'Skottie') + 'check.json');
+        LReturned := True;
+      finally
+        if not FFreedInEvent then
+          LImage.Free;
+      end;
+    end);
+  Assert.IsTrue(FFreedInEvent, 'OnAnimationStart should have freed the control');
+  Assert.IsTrue(LReturned, 'Control should return to the caller');
+end;
+
+procedure TSkAnimatedControlTests.TestPaintBoxFreedInOnAnimationFinish;
+var
+  LReturned: Boolean;
+begin
+  FFreedInEvent := False;
+  LReturned := False;
+  RunOnMainThread(
+    procedure
+    var
+      LBox: TSkAnimatedPaintBox;
+    begin
+      LBox := TSkAnimatedPaintBoxEx.Create(nil);
+      try
+        TSkCustomAnimationAccess(LBox.Animation).AllowAnimation := True;
+        LBox.Animation.Loop := False;
+        LBox.Animation.Start;
+        Assert.IsTrue(LBox.Animation.Running, 'The animation should be running');
+        LBox.OnAnimationFinish := FreeSender;
+        LBox.Animation.Enabled := False;
+        LReturned := True;
+      finally
+        if not FFreedInEvent then
+          LBox.Free;
+      end;
+    end);
+  Assert.IsTrue(FFreedInEvent, 'OnAnimationFinish should have freed the control');
+  Assert.IsTrue(LReturned, 'Control should return to the caller');
+end;
+
+procedure TSkAnimatedControlTests.TestPaintBoxFreedInOnAnimationProcess;
+var
+  LReturned: Boolean;
+begin
+  FFreedInEvent := False;
+  LReturned := False;
+  RunOnMainThread(
+    procedure
+    var
+      LBox: TSkAnimatedPaintBox;
+    begin
+      LBox := TSkAnimatedPaintBoxEx.Create(nil);
+      try
+        TSkCustomAnimationAccess(LBox.Animation).AllowAnimation := True;
+        LBox.Animation.Loop := False;
+        LBox.Animation.Start;
+        Assert.IsTrue(LBox.Animation.Running, 'The animation should be running');
+        LBox.OnAnimationProcess := FreeSender;
+        LBox.Animation.Enabled := False;
+        LReturned := True;
+      finally
+        if not FFreedInEvent then
+          LBox.Free;
+      end;
+    end);
+  Assert.IsTrue(FFreedInEvent, 'OnAnimationProcess should have freed the control');
+  Assert.IsTrue(LReturned, 'Control should return to the caller');
+end;
+
 initialization
   TDUnitX.RegisterTestFixture(TSkLabelTests);
+  TDUnitX.RegisterTestFixture(TSkAnimatedControlTests);
 end.
